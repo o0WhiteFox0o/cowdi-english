@@ -1,0 +1,164 @@
+﻿/* ============================================
+   COWDI ENGLISH - Special Component Styles
+   (Bootstrap handles layout; this file covers
+    components that Bootstrap cannot replicate)
+   ============================================ */
+
+/* ============================================
+   FLASHCARD 3D FLIP
+   ============================================ */
+.flashcard-wrapper {
+  width: 100%;
+  max-width: 460px;
+  height: 260px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flashcard-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 16px !important;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flashcard-front {
+  background: linear-gradient(135deg, #FF6B9D, #FF8FB8);
+  color: white;
+}
+
+.flashcard-back {
+  background: white;
+  transform: rotateY(180deg);
+  border: 3px solid #FF8FB8;
+}
+
+/* ============================================
+   COWDI FLOATING CHAT BUTTON
+   ============================================ */
+.cowdi-chat-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.cowdi-chat-btn:hover {
+  transform: scale(1.1);
+}
+
+.cowdi-chat-bubble {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  max-width: 280px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  border-left: 4px solid #FF6B9D;
+  animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   STREAK CALENDAR GRID
+   ============================================ */
+.streak-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f0f0f0;
+  color: #999;
+}
+
+.calendar-day.active {
+  background: linear-gradient(135deg, #FF6B9D, #FF8FB8);
+  color: white;
+}
+
+.calendar-day.today {
+  outline: 2px solid #FF6B9D;
+  outline-offset: 2px;
+  color: #FF6B9D;
+  font-weight: 800;
+}
+
+.calendar-day.active.today {
+  color: white;
+}
+
+/* ============================================
+   VOCABULARY PROGRESS BAR (3-segment)
+   ============================================ */
+.vocab-stat-bar {
+  display: flex;
+  height: 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: #eee;
+}
+
+.vocab-bar-fill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 0;
+  transition: width 0.5s ease;
+}
+
+.vocab-bar-fill.learned  { background: #00B894; }
+.vocab-bar-fill.learning { background: #FDCB6E; color: #333; }
+.vocab-bar-fill.new      { background: #b2bec3; }

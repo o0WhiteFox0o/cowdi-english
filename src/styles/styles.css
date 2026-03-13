@@ -1,0 +1,165 @@
+﻿/* ============================================
+   COWDI ENGLISH - Theme Variables & Overrides
+   ============================================ */
+
+:root {
+  --cowdi-primary: #FF6B9D;
+  --cowdi-primary-dark: #E0527E;
+  --cowdi-primary-light: #FF8FB8;
+  --cowdi-secondary: #4ECDC4;
+  --cowdi-bg: #FFF8F0;
+  --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font) !important;
+  background-color: var(--cowdi-bg);
+}
+
+/* ============================================
+   COWDI CUSTOM COLOR UTILITIES
+   ============================================ */
+.text-cowdi-primary { color: var(--cowdi-primary) !important; }
+.text-cowdi          { color: var(--cowdi-primary) !important; }
+.bg-cowdi-primary    { background-color: var(--cowdi-primary) !important; }
+
+/* Custom Buttons */
+.btn-cowdi-primary {
+  background: var(--cowdi-primary);
+  border-color: var(--cowdi-primary);
+  color: white;
+  font-weight: 700;
+}
+.btn-cowdi-primary:hover,
+.btn-cowdi-primary:focus {
+  background: var(--cowdi-primary-dark);
+  border-color: var(--cowdi-primary-dark);
+  color: white;
+}
+
+.btn-outline-cowdi {
+  border: 2px solid var(--cowdi-primary);
+  color: var(--cowdi-primary);
+  background: transparent;
+  font-weight: 700;
+}
+.btn-outline-cowdi:hover {
+  background: var(--cowdi-primary);
+  color: white;
+  border-color: var(--cowdi-primary);
+}
+
+/* ============================================
+   CUSTOM PROGRESS BAR
+   ============================================ */
+.progress-bar-cowdi {
+  background: linear-gradient(90deg, var(--cowdi-primary), var(--cowdi-primary-light));
+}
+
+/* ============================================
+   LEVEL BADGE
+   ============================================ */
+.level-badge-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  color: white;
+  font-weight: 800;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   GRADIENT CARD BG
+   ============================================ */
+.bg-cowdi-gradient {
+  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE) !important;
+}
+
+/* ============================================
+   CARD HOVER EFFECT
+   ============================================ */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+}
+
+/* ============================================
+   LESSON LEVEL COLOR STRIP
+   ============================================ */
+.card-header-level {
+  height: 6px;
+  border-radius: 0;
+}
+.card-header-level.beginner    { background: #00B894; }
+.card-header-level.intermediate { background: #FDCB6E; }
+.card-header-level.advanced    { background: #FF7675; }
+
+/* Level badges */
+.badge-level-beginner    { background-color: #E0F8F1 !important; color: #00B894 !important; }
+.badge-level-intermediate { background-color: #FFF4D4 !important; color: #E17055 !important; }
+.badge-level-advanced    { background-color: #FFE0E0 !important; color: #D63031 !important; }
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.navbar .nav-link.active {
+  color: var(--cowdi-primary) !important;
+  font-weight: 700;
+}
+.navbar .nav-link:hover {
+  color: var(--cowdi-primary);
+}
+
+/* ============================================
+   PAGE FADE-IN ANIMATION
+   ============================================ */
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   QUIZ OPTION BUTTONS
+   ============================================ */
+.quiz-option-btn {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+.quiz-option-btn:not(:disabled):hover {
+  transform: translateX(4px);
+}
+
+/* Timer warning */
+.timer-warning { color: #FF7675; font-weight: 800; animation: pulse 0.8s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* ============================================
+   TOAST CONTAINER
+   ============================================ */
+.toast-container-fixed {
+  position: fixed;
+  top: 76px;
+  right: 1rem;
+  z-index: 9999;
+}
