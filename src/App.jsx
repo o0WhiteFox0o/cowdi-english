@@ -9,6 +9,11 @@ import VocabularyPage from './pages/VocabularyPage';
 import PracticePage from './pages/PracticePage';
 import ProgressPage from './pages/ProgressPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import PetPage from './pages/PetPage';
+import CollectionPage from './pages/CollectionPage';
+import ShopPage from './pages/ShopPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import MiniGamePage from './pages/MiniGamePage';
 
 export default function App() {
   return (
@@ -22,6 +27,11 @@ export default function App() {
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/practice" element={<PracticePage />} />
           <Route path="/progress" element={<ProgressPage />} />
+          <Route path="/pet" element={<PetPage />} />
+          <Route path="/collection" element={<CollectionPage />} />
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/mini-games" element={<MiniGamePage />} />
           <Route path="/auth-callback" element={<AuthCallbackPage />} />
         </Routes>
       </main>

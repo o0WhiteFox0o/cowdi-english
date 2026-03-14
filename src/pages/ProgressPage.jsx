@@ -1,9 +1,15 @@
 import { useMemo } from 'react';
 import { useUser } from '../hooks/useUser';
+import { usePet } from '../hooks/usePet';
 import { ACHIEVEMENTS, LEVELS, LESSONS } from '../data/lessons';
+import { PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel, SKILL_META, PET_ACHIEVEMENTS } from '../data/pets';
 
 export default function ProgressPage() {
   const { userData } = useUser();
+  const { petData, getActivePetWithDecay } = usePet();
+  const activePet = getActivePetWithDecay();
+  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
 
   const level = useMemo(() => {
     let cur = LEVELS[0];
@@ -146,7 +152,7 @@ export default function ProgressPage() {
       </div>
 
       {/* Achievements */}
-      <div className="card shadow-sm">
+      <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="fw-bold mb-3">
             🏅 Thành tích ({userData.achievements.length}/{ACHIEVEMENTS.length})
@@ -157,6 +163,58 @@ export default function ProgressPage() {
               return (
                 <div className="col-12 col-md-6" key={ach.id}>
                   <div className={`d-flex align-items-center gap-3 rounded p-3 ${unlocked ? 'bg-warning bg-opacity-10 border border-warning' : 'bg-light opacity-50'}`}>
+                    <div className="fs-3">{unlocked ? ach.icon : '🔒'}</div>
+                    <div>
+                      <div className="fw-bold small">{ach.title}</div>
+                      <div className="text-muted" style={{ fontSize: '0.78rem' }}>{ach.desc}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Active Pet */}
+      {activePet && species && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <h5 className="fw-bold mb-3">🐾 Pet đang hoạt động</h5>
+            <div className="d-flex align-items-center gap-3 mb-3">
+              <div style={{ fontSize: '3rem' }}>{evo?.emoji || species.emoji}</div>
+              <div>
+                <div className="fw-bold">{activePet.customName}</div>
+                <small className="text-muted">{evo?.name} • Power: {calculatePowerScore(activePet, species)}</small>
+              </div>
+            </div>
+            <div className="row g-2">
+              {Object.entries(SKILL_META).map(([key, meta]) => (
+                <div className="col-6 col-md-3" key={key}>
+                  <div className="text-center p-2 rounded bg-light">
+                    <div>{meta.icon}</div>
+                    <div className="fw-bold small" style={{ color: meta.color }}>Lv.{getSkillLevel(activePet.skills[key] || 0)}</div>
+                    <div className="text-muted" style={{ fontSize: '0.7rem' }}>{meta.name}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pet Achievements */}
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h5 className="fw-bold mb-3">
+            🌟 Pet Achievements ({petData.petAchievements.length}/{PET_ACHIEVEMENTS.length})
+          </h5>
+          <div className="row g-2">
+            {PET_ACHIEVEMENTS.map((ach) => {
+              const unlocked = petData.petAchievements.includes(ach.id);
+              return (
+                <div className="col-12 col-md-6" key={ach.id}>
+                  <div className={`d-flex align-items-center gap-3 rounded p-3 ${unlocked ? 'bg-success bg-opacity-10 border border-success' : 'bg-light opacity-50'}`}>
                     <div className="fs-3">{unlocked ? ach.icon : '🔒'}</div>
                     <div>
                       <div className="fw-bold small">{ach.title}</div>

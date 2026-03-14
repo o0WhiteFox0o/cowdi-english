@@ -1,10 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { LESSONS } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
+import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
 
 export default function VocabularyPage() {
   const { userData, setWordStatus, getWordStatus } = useUser();
+  const { onVocabReview } = usePet();
   const showToast = useToast();
   const [mode, setMode] = useState('flashcard');
   const [cardIndex, setCardIndex] = useState(0);
@@ -44,6 +46,7 @@ export default function VocabularyPage() {
 
   function markWord(word, status) {
     setWordStatus(word, status);
+    onVocabReview();
     showToast(
       status === 'learned' ? `Đã đánh dấu "${word}" là đã thuộc! ✅` : `Đã đánh dấu "${word}" cần ôn lại 📝`,
       'success'

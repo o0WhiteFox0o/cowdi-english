@@ -1,3 +1,5 @@
+import { VOCAB_EXTRA, GRAMMAR_EXTRA, LISTENING_EXTRA, SENTENCES_EXTRA } from './quiz-bank-extra.js';
+
 export const LESSONS = [
   {
     id: 'greetings',
@@ -342,7 +344,7 @@ export const LESSONS = [
   },
 ];
 
-export const QUIZ_BANK = {
+const QUIZ_BANK_BASE = {
   vocab: [
     { question: '"Hello" có nghĩa là gì?', options: ['Tạm biệt', 'Xin chào', 'Cảm ơn', 'Xin lỗi'], correct: 1 },
     { question: '"Mother" nghĩa là:', options: ['Bố', 'Mẹ', 'Anh trai', 'Chị gái'], correct: 1 },
@@ -389,6 +391,13 @@ export const QUIZ_BANK = {
     { question: 'Nghe và chọn: Từ nào phát âm là /ˈɛrpɔːrt/?', options: ['Apart', 'Airport', 'Airpot', 'Aport'], correct: 1, speak: 'Airport' },
     { question: 'Nghe và chọn: Từ nào phát âm là /pliːz/?', options: ['Pleas', 'Plaza', 'Please', 'Plays'], correct: 2, speak: 'Please' },
   ],
+};
+
+export const QUIZ_BANK = {
+  vocab: [...QUIZ_BANK_BASE.vocab, ...VOCAB_EXTRA],
+  grammar: [...QUIZ_BANK_BASE.grammar, ...GRAMMAR_EXTRA],
+  listening: [...QUIZ_BANK_BASE.listening, ...LISTENING_EXTRA],
+  sentences: [...SENTENCES_EXTRA],
 };
 
 export const ACHIEVEMENTS = [

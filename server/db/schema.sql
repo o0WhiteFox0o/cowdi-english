@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS user_progress (
   achievements        JSON            NOT NULL DEFAULT (JSON_ARRAY()),
   daily_tasks         JSON            NOT NULL DEFAULT (JSON_OBJECT('lessonDone', false, 'vocabDone', false)),
   daily_date          VARCHAR(64)     DEFAULT NULL,
+  pet_data            JSON            DEFAULT NULL COMMENT 'Dữ liệu hệ thống pet (collection, coins, items...)',
+  nickname            VARCHAR(20)     DEFAULT NULL COMMENT 'Nickname cho leaderboard',
   updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_progress_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_user_id (user_id)

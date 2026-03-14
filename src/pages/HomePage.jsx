@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
+import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS } from '../data/lessons';
+import { PET_REGISTRY, getPetEvolution, getPetMood, SKILL_META, getSkillLevel } from '../data/pets';
 
 export default function HomePage() {
   const { userData } = useUser();
+  const { petData, getActivePetWithDecay } = usePet();
   const level = getUserLevel(userData.totalXP);
+  const activePet = getActivePetWithDecay();
+  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const mood = activePet ? getPetMood(activePet.needs) : 'happy';
   const nextLevel = LEVELS.find((l) => l.xpRequired > userData.totalXP);
   const progress = nextLevel
     ? ((userData.totalXP - level.xpRequired) / (nextLevel.xpRequired - level.xpRequired)) * 100
@@ -18,7 +25,7 @@ export default function HomePage() {
       <div className="row align-items-center py-5 mb-4">
         <div className="col-lg-8">
           <h1 className="display-5 fw-bold mb-3">
-            Học tiếng Anh cùng <span className="text-cowdi-primary">Cowdi</span>! 🐮
+            Học tiếng Anh cùng <span className="text-cowdi-primary">{species?.name || 'Cowdi'}</span>! {evo?.emoji || '🐮'}
           </h1>
           <p className="lead text-secondary mb-4">
             Chào mừng bạn đến với Cowdi English! Hãy bắt đầu hành trình học tiếng Anh thú vị cùng chú bò đáng yêu nhé!
@@ -33,7 +40,11 @@ export default function HomePage() {
           </div>
         </div>
         <div className="col-lg-4 text-center d-none d-lg-block">
-          <div style={{ fontSize: '8rem', lineHeight: 1 }}>🐮</div>
+          <Link to="/pet" className="text-decoration-none">
+            <div style={{ fontSize: '6rem', lineHeight: 1 }}>{evo?.emoji || '🐮'}</div>
+            <div className="mt-2 fw-bold text-cowdi-primary">{activePet?.customName || 'Cowdi'}</div>
+            <small className="text-muted">{evo?.name || ''}</small>
+          </Link>
         </div>
       </div>
 
@@ -44,6 +55,7 @@ export default function HomePage() {
           { icon: '🔥', value: userData.streak,          label: 'Ngày streak' },
           { icon: '📚', value: userData.lessonsCompleted, label: 'Bài đã học' },
           { icon: '🃏', value: userData.wordsLearned,    label: 'Từ đã thuộc' },
+          { icon: '🪙', value: petData.coins,            label: 'Coins' },
         ].map((s, i) => (
           <div className="col-6 col-md-3" key={i}>
             <div className="card text-center shadow-sm h-100">
@@ -93,6 +105,7 @@ export default function HomePage() {
           { icon: '🃏', title: 'Flashcard thông minh', desc: 'Học từ vựng với thẻ lật và phát âm' },
           { icon: '🎯', title: 'Quiz đa dạng',         desc: 'Từ vựng, ngữ pháp & nghe hiểu' },
           { icon: '🏆', title: 'Thành tích & XP',      desc: 'Theo dõi tiến trình và mở khóa huy hiệu' },
+          { icon: '🐾', title: 'Nuôi Pet',            desc: 'Chăm sóc pet, tiến hóa và sưu tầm' },
         ].map((f, i) => (
           <div className="col-6 col-md-3" key={i}>
             <div className="card text-center shadow-sm h-100 card-hover">

@@ -1,0 +1,177 @@
+import { useState, useMemo, useEffect } from 'react';
+import { usePet } from '../hooks/usePet';
+import { useAuth } from '../hooks/useAuth';
+import { PET_REGISTRY, calculatePowerScore, getSkillLevel, SKILL_META, getPetEvolution } from '../data/pets';
+
+const TABS = [
+  { id: 'power', icon: '⚡', label: 'Tổng sức mạnh' },
+  { id: 'skill', icon: '🎯', label: 'Theo kỹ năng' },
+  { id: 'collection', icon: '📦', label: 'Bộ sưu tập' },
+];
+
+const SKILL_TABS = Object.entries(SKILL_META).map(([key, meta]) => ({ id: key, ...meta }));
+
+export default function LeaderboardPage() {
+  const { petData, setNickname } = usePet();
+  const { authFetch, user } = useAuth();
+  const [tab, setTab] = useState('power');
+  const [skillTab, setSkillTab] = useState('speech');
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingNick, setEditingNick] = useState(false);
+  const [nickInput, setNickInput] = useState(petData.nickname || '');
+
+  // Fetch leaderboard from server
+  useEffect(() => {
+    setLoading(true);
+    const type = tab === 'skill' ? `skill_${skillTab}` : tab;
+    authFetch(`/api/leaderboard?type=${encodeURIComponent(type)}`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setLeaderboard(Array.isArray(data) ? data : []))
+      .catch(() => setLeaderboard([]))
+      .finally(() => setLoading(false));
+  }, [tab, skillTab]);
+
+  // My pet stats
+  const myPet = useMemo(() => {
+    const pet = petData.collection[petData.activePetId];
+    if (!pet) return null;
+    const species = PET_REGISTRY[pet.speciesId];
+    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned);
+    return {
+      name: pet.customName,
+      species: species?.name,
+      emoji: evo?.emoji || species?.emoji,
+      evoName: evo?.name,
+      power: calculatePowerScore(pet, species),
+      skills: pet.skills,
+      collectionCount: Object.keys(petData.collection).length,
+    };
+  }, [petData]);
+
+  function handleSaveNick() {
+    setNickname(nickInput.trim());
+    setEditingNick(false);
+  }
+
+  const rankMedal = (i) => ['🥇', '🥈', '🥉'][i] || `${i + 1}.`;
+
+  return (
+    <div className="fade-in">
+      <div className="text-center mb-4">
+        <h2 className="fw-bold">🏆 Bảng xếp hạng Pet</h2>
+        <p className="text-muted small">So sánh pet, không so sánh người chơi</p>
+      </div>
+
+      {/* Nickname */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-body d-flex align-items-center gap-2 py-2">
+          <span className="text-muted small">Tên hiển thị:</span>
+          {editingNick ? (
+            <>
+              <input type="text" className="form-control form-control-sm" style={{ maxWidth: 150 }}
+                value={nickInput} onChange={(e) => setNickInput(e.target.value)}
+                maxLength={20} autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSaveNick()} />
+              <button className="btn btn-sm btn-cowdi-primary" onClick={handleSaveNick}>✓</button>
+            </>
+          ) : (
+            <>
+              <span className="fw-bold">{petData.nickname || '(Ẩn danh)'}</span>
+              <button className="btn btn-sm btn-link text-muted" onClick={() => { setEditingNick(true); setNickInput(petData.nickname || ''); }}>✏️</button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="d-flex gap-2 mb-3 flex-wrap justify-content-center">
+        {TABS.map((t) => (
+          <button key={t.id}
+            className={`btn btn-sm rounded-pill ${tab === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+            onClick={() => setTab(t.id)}>
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Skill sub-tabs */}
+      {tab === 'skill' && (
+        <div className="d-flex gap-1 mb-3 justify-content-center flex-wrap">
+          {SKILL_TABS.map((s) => (
+            <button key={s.id}
+              className={`btn btn-sm ${skillTab === s.id ? 'btn-dark' : 'btn-outline-secondary'}`}
+              onClick={() => setSkillTab(s.id)}>
+              {s.icon} {s.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Leaderboard entries */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-4">
+              <div className="spinner-border spinner-border-sm text-cowdi-primary"></div>
+              <p className="text-muted small mt-2">Đang tải...</p>
+            </div>
+          ) : leaderboard.length > 0 ? (
+            <div className="list-group list-group-flush">
+              {leaderboard.slice(0, 20).map((entry, i) => (
+                <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
+                  <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
+                  <span className="fs-4">{entry.emoji || '🐾'}</span>
+                  <div className="flex-grow-1">
+                    <div className="fw-bold small">{entry.pet_name || 'Pet'}</div>
+                    <div style={{ fontSize: '0.7rem' }} className="text-muted">
+                      {entry.species_name || ''} · {entry.evo_name || ''}
+                    </div>
+                  </div>
+                  <div className="text-end">
+                    {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power_score}</span>}
+                    {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} Lv.{getSkillLevel(entry.skill_value || 0)}</span>}
+                    {tab === 'collection' && <span className="badge bg-success">📦 {entry.collection_count}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <div className="fs-2 mb-2">🏆</div>
+              <p className="text-muted small">
+                {user ? 'Chưa có dữ liệu. Hãy học bài để leo hạng!' : 'Đăng nhập để xem bảng xếp hạng!'}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* My ranking */}
+      {myPet && (
+        <div className="card shadow-sm border-cowdi">
+          <div className="card-body">
+            <h6 className="fw-bold small mb-2">📊 Pet của bạn</h6>
+            <div className="d-flex align-items-center gap-2">
+              <span className="fs-3">{myPet.emoji}</span>
+              <div className="flex-grow-1">
+                <div className="fw-bold">{myPet.name}</div>
+                <div className="text-muted small">{myPet.species} · {myPet.evoName}</div>
+              </div>
+              <div className="text-end">
+                <div className="badge bg-dark mb-1">⚡ {myPet.power}</div>
+                <div className="d-flex gap-1 justify-content-end">
+                  {Object.entries(SKILL_META).map(([key, meta]) => (
+                    <span key={key} className="badge bg-light text-dark" style={{ fontSize: '0.6rem' }}>
+                      {meta.icon}{myPet.skills[key] || 0}
+                    </span>
+                  ))}
+                </div>
+                <div className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}>📦 {myPet.collectionCount} pet</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

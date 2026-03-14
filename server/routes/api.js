@@ -109,4 +109,86 @@ router.put('/progress', requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/pet-data – lấy dữ liệu pet ─────────────────────────────────────
+router.get('/pet-data', requireAuth, async (req, res) => {
+  try {
+    const [[row]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    if (!row || !row.pet_data) return res.json(null);
+    res.json(row.pet_data);
+  } catch (err) {
+    console.error('GET /api/pet-data error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── PUT /api/pet-data – lưu dữ liệu pet ─────────────────────────────────────
+router.put('/pet-data', requireAuth, async (req, res) => {
+  const d = req.body;
+  // Whitelist top-level fields
+  const allowed = ['activePetId', 'nickname', 'coins', 'totalCoinsEarned', 'collection', 'ownedItems', 'dailyQuests', 'weeklyQuests', 'petAchievements'];
+  const clean = {};
+  for (const key of allowed) {
+    if (d[key] !== undefined) clean[key] = d[key];
+  }
+  try {
+    await pool.execute(
+      'UPDATE user_progress SET pet_data = ? WHERE user_id = ?',
+      [JSON.stringify(clean), req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('PUT /api/pet-data error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── GET /api/leaderboard – bảng xếp hạng pet (ẩn danh) ──────────────────────
+router.get('/leaderboard', async (req, res) => {
+  const type = req.query.type || 'power'; // power | collection | skill
+  const skill = req.query.skill || 'speech';
+  try {
+    const [rows] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE pet_data IS NOT NULL'
+    );
+    const entries = [];
+    for (const row of rows) {
+      const data = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;
+      if (!data || !data.collection) continue;
+      const nick = data.nickname || 'Ẩn danh';
+      const collection = data.collection;
+      const collectionCount = Object.keys(collection).length;
+      // Find best pet
+      let bestPower = 0;
+      let bestSkill = 0;
+      let bestPetEmoji = '🐮';
+      for (const pet of Object.values(collection)) {
+        const speciesBase = { starter: 1.0, common: 1.0, rare: 1.1, epic: 1.2, legendary: 1.3, event: 1.1 };
+        const evoMul = [0.5, 0.8, 1.0, 1.3, 1.5][pet.evolution || 0] || 1.0;
+        const sk = pet.skills || {};
+        const base = (sk.speech || 0) + (sk.intelligence || 0) + (sk.perception || 0) + (sk.creativity || 0);
+        const power = Math.floor(base * evoMul);
+        if (power > bestPower) {
+          bestPower = power;
+          bestPetEmoji = pet.speciesId ? '🐮' : '🐮'; // simplified
+        }
+        const skillVal = sk[skill] || 0;
+        if (skillVal > bestSkill) bestSkill = skillVal;
+      }
+      entries.push({ nickname: nick, power: bestPower, collectionCount, skill: bestSkill });
+    }
+    // Sort by requested type
+    if (type === 'power') entries.sort((a, b) => b.power - a.power);
+    else if (type === 'collection') entries.sort((a, b) => b.collectionCount - a.collectionCount);
+    else entries.sort((a, b) => b.skill - a.skill);
+
+    res.json(entries.slice(0, 50));
+  } catch (err) {
+    console.error('GET /api/leaderboard error:', err);
+    res.json([]);
+  }
+});
+
 export default router;

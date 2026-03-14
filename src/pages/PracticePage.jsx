@@ -1,17 +1,20 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { QUIZ_BANK } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
+import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
 
 const TYPE_LABELS = {
-  vocab:     { icon: '📝', title: 'Từ vựng',  desc: 'Ôn tập từ vựng đã học' },
-  grammar:   { icon: '📖', title: 'Ngữ pháp', desc: 'Kiểm tra kiến thức ngữ pháp' },
+  vocab:     { icon: '📝', title: 'Từ vựng',   desc: 'Ôn tập từ vựng đã học' },
+  grammar:   { icon: '📖', title: 'Ngữ pháp',  desc: 'Kiểm tra kiến thức ngữ pháp' },
   listening: { icon: '🎧', title: 'Nghe hiểu', desc: 'Luyện nghe và nhận diện từ' },
+  sentences: { icon: '✍️', title: 'Hoàn thành câu', desc: 'Dịch và điền vào chỗ trống' },
   mixed:     { icon: '🎲', title: 'Tổng hợp',  desc: 'Mix tất cả các loại câu hỏi' },
 };
 
 export default function PracticePage() {
   const { addXP, incrementQuizzes } = useUser();
+  const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
 
   const [quizType, setQuizType] = useState(null);
@@ -43,7 +46,7 @@ export default function PracticePage() {
 
   function startQuiz(type) {
     const bank = type === 'mixed'
-      ? [...QUIZ_BANK.vocab, ...QUIZ_BANK.grammar, ...QUIZ_BANK.listening]
+      ? [...QUIZ_BANK.vocab, ...QUIZ_BANK.grammar, ...QUIZ_BANK.listening, ...QUIZ_BANK.sentences]
       : QUIZ_BANK[type] || [];
     const picked = shuffleArray(bank).slice(0, 10);
     setQuizType(type);
@@ -82,8 +85,10 @@ export default function PracticePage() {
         const xp = finalScore * 10 + (isPerfect ? 20 : 0);
         addXP(xp);
         incrementQuizzes(isPerfect);
+        onQuizComplete(quizType, finalScore, questions.length);
+        addCoins(finalScore * 2 + (isPerfect ? 15 : 0));
         setFinished(true);
-        showToast(`+${xp} XP! ${isPerfect ? 'Hoàn hảo! 💯' : 'Tốt lắm! 🎉'}`, 'success');
+        showToast(`+${xp} XP! +${finalScore * 2 + (isPerfect ? 15 : 0)} 🪙 ${isPerfect ? 'Hoàn hảo! 💯' : 'Tốt lắm! 🎉'}`, 'success');
       }
     }, 1000);
   }
@@ -99,9 +104,9 @@ export default function PracticePage() {
           <p className="text-muted">Chọn loại quiz để bắt đầu!</p>
         </div>
 
-        <div className="row g-3 justify-content-center" style={{ maxWidth: 700, margin: '0 auto' }}>
+        <div className="row g-3 justify-content-center" style={{ maxWidth: 860, margin: '0 auto' }}>
           {Object.entries(TYPE_LABELS).map(([type, info]) => (
-            <div className="col-6" key={type}>
+            <div className="col-6 col-md-4" key={type}>
               <div
                 className="card text-center card-hover shadow-sm h-100"
                 style={{ cursor: 'pointer' }}

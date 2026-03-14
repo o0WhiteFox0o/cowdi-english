@@ -1,18 +1,24 @@
 import { NavLink } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
+import { usePet } from '../hooks/usePet';
 import { LEVELS } from '../data/lessons';
+import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 
 export default function Navbar() {
   const { userData } = useUser();
   const { user, loginWithGoogle, logout } = useAuth();
+  const { petData, getActivePetWithDecay } = usePet();
   const level = getUserLevel(userData.totalXP);
+  const activePet = getActivePetWithDecay();
+  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
 
   return (
     <nav className="navbar navbar-expand-lg bg-white fixed-top shadow-sm border-bottom">
       <div className="container">
         <NavLink className="navbar-brand fw-bold text-cowdi-primary" to="/">
-          <span className="me-1 fs-5">🐮</span> Cowdi English
+          <span className="me-1 fs-5">{evo?.emoji || '🐮'}</span> Cowdi English
         </NavLink>
 
         <button
@@ -54,6 +60,21 @@ export default function Navbar() {
                 <i className="fas fa-chart-line me-1"></i>Tiến trình
               </NavLink>
             </li>
+            <li className="nav-item">
+              <NavLink to="/pet" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                {evo?.emoji || '🐮'} Pet
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to="/collection" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <i className="fas fa-th me-1"></i>Bộ sưu tập
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to="/shop" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <i className="fas fa-store me-1"></i>Shop
+              </NavLink>
+            </li>
           </ul>
 
           <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0 flex-wrap">
@@ -61,6 +82,7 @@ export default function Navbar() {
             <span className="badge bg-warning text-dark fw-bold">⭐ {userData.totalXP} XP</span>
             <span className="badge bg-danger fw-bold">🔥 {userData.streak}</span>
             <span className="badge bg-primary fw-bold">Lv.{level.level}</span>
+            <span className="badge bg-success fw-bold">🪙 {petData.coins}</span>
 
             {/* Auth */}
             {user ? (

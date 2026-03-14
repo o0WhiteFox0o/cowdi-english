@@ -2,12 +2,14 @@ import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LESSONS } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
+import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
 
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { userData, addXP, markLessonCompleted } = useUser();
+  const { onLessonComplete, addCoins } = usePet();
   const showToast = useToast();
   const lesson = LESSONS.find((l) => l.id === id);
 
@@ -54,7 +56,9 @@ export default function LessonDetailPage() {
         const xp = finalScore * 10;
         addXP(xp);
         markLessonCompleted(lesson.id);
-        showToast(`+${xp} XP! Bạn đã hoàn thành bài học! 🎉`, 'success');
+        onLessonComplete();
+        addCoins(10);
+        showToast(`+${xp} XP! +10 🪙 Bạn đã hoàn thành bài học! 🎉`, 'success');
       }
     }, 1000);
   }
