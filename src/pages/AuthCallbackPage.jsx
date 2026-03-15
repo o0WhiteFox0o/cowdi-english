@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 /**
  * Trang trung gian nhận JWT sau khi Google OAuth hoàn tất.
- * Backend redirect tới: /#/auth-callback?token=JWT
+ * Backend redirect tới: /auth-callback?token=JWT
  */
 export default function AuthCallbackPage() {
   const [params]    = useSearchParams();

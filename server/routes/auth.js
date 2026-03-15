@@ -18,7 +18,7 @@ router.get(
 // ── Bước 2: Google redirect về đây sau khi user đồng ý ──────────────────────
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${FRONTEND}/#/?login=failed` }),
+  passport.authenticate('google', { session: false, failureRedirect: `${FRONTEND}/?login=failed` }),
   (req, res) => {
     // Tạo JWT chứa thông tin cơ bản của user
     const token = jwt.sign(
@@ -32,9 +32,8 @@ router.get(
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
-    // Redirect về frontend, đặt token trong hash (tránh ghi vào server logs)
-    // HashRouter sẽ bắt route /auth-callback
-    res.redirect(`${FRONTEND}/#/auth-callback?token=${token}`);
+    // Redirect về frontend với token
+    res.redirect(`${FRONTEND}/auth-callback?token=${token}`);
   }
 );
 
