@@ -36,39 +36,73 @@ function savePetData(data, userId) {
   localStorage.setItem(getPetStorageKey(userId), JSON.stringify(data));
 }
 
+// ── Đảm bảo luôn có pet khởi tạo (Cowdi) ──────────────────────────────────
+function ensureInitialPet(data) {
+  if (Object.keys(data.collection).length > 0) return data;
+  return {
+    ...data,
+    activePetId: 'cowdi_1',
+    collection: {
+      cowdi_1: {
+        speciesId: 'cowdi',
+        customName: 'Cowdi',
+        evolution: 0,
+        skills: { speech: 0, intelligence: 0, perception: 0, creativity: 0 },
+        needs: { energy: 80, happiness: 80, health: 80, knowledge: 80 },
+        cosmetics: { hat: null, outfit: null, room: null, effect: null },
+        totalXpEarned: 0,
+        needsUpdatedAt: new Date().toISOString(),
+        unlockedAt: new Date().toISOString(),
+      },
+    },
+  };
+}
+
 const PetContext = createContext(null);
 
 export function PetProvider({ children }) {
   const { user, authFetch } = useAuth();
   const { userData } = useUser();
-  const [petData, setPetData] = useState(() => loadPetData(null));
+  const [petData, setPetData] = useState(() => ensureInitialPet(loadPetData(user?.id || null)));
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
+  // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại
+  const readyRef = useRef(!user);
 
   // ── Load pet data on user change ─────────────────────────────────────────
   useEffect(() => {
     const uid = user?.id || null;
     if (uid === currentUserIdRef.current) return;
     currentUserIdRef.current = uid;
+    readyRef.current = false; // Block persist cho đến khi load xong
+
     if (!uid) {
-      setPetData(loadPetData(null));
+      setPetData(ensureInitialPet(loadPetData(null)));
+      readyRef.current = true;
       return;
     }
     authFetch('/api/pet-data')
       .then((r) => r.ok ? r.json() : null)
       .then((remote) => {
         const local = loadPetData(uid);
+        let merged;
         if (remote && Object.keys(remote.collection || {}).length >= Object.keys(local.collection || {}).length) {
-          setPetData({ ...DEFAULT_PET_DATA, ...remote });
+          merged = { ...DEFAULT_PET_DATA, ...remote };
         } else {
-          setPetData(local);
+          merged = local;
         }
+        setPetData(ensureInitialPet(merged));
+        readyRef.current = true;
       })
-      .catch(() => setPetData(loadPetData(uid)));
+      .catch(() => {
+        setPetData(ensureInitialPet(loadPetData(uid)));
+        readyRef.current = true;
+      });
   }, [user?.id]);
 
   // ── Auto-save + sync ─────────────────────────────────────────────────────
   useEffect(() => {
+    if (!readyRef.current) return; // Chưa load xong – không ghi đè
     savePetData(petData, user?.id || null);
     if (user) {
       clearTimeout(syncTimerRef.current);
@@ -80,29 +114,6 @@ export function PetProvider({ children }) {
       }, 3000);
     }
   }, [petData]);
-
-  // ── Initialize first pet (Cowdi) if none ─────────────────────────────────
-  useEffect(() => {
-    if (Object.keys(petData.collection).length === 0) {
-      setPetData((prev) => ({
-        ...prev,
-        activePetId: 'cowdi_1',
-        collection: {
-          cowdi_1: {
-            speciesId: 'cowdi',
-            customName: 'Cowdi',
-            evolution: 0,
-            skills: { speech: 0, intelligence: 0, perception: 0, creativity: 0 },
-            needs: { energy: 80, happiness: 80, health: 80, knowledge: 80 },
-            cosmetics: { hat: null, outfit: null, room: null, effect: null },
-            totalXpEarned: 0,
-            needsUpdatedAt: new Date().toISOString(),
-            unlockedAt: new Date().toISOString(),
-          },
-        },
-      }));
-    }
-  }, []);
 
   // ── Reset daily/weekly quests ────────────────────────────────────────────
   useEffect(() => {

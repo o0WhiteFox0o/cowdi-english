@@ -4,12 +4,29 @@ import { useAuth } from '../hooks/useAuth';
 import { PET_REGISTRY, calculatePowerScore, getSkillLevel, SKILL_META, getPetEvolution } from '../data/pets';
 
 const TABS = [
-  { id: 'power', icon: '⚡', label: 'Tổng sức mạnh' },
-  { id: 'skill', icon: '🎯', label: 'Theo kỹ năng' },
+  { id: 'power', icon: '⚡', label: 'Sức mạnh' },
+  { id: 'skill', icon: '🎯', label: 'Kỹ năng' },
   { id: 'collection', icon: '📦', label: 'Bộ sưu tập' },
+  { id: 'league', icon: '🏅', label: 'Giải đấu' },
 ];
 
 const SKILL_TABS = Object.entries(SKILL_META).map(([key, meta]) => ({ id: key, ...meta }));
+
+const LEAGUES = {
+  bronze:  { name: 'Đồng',      icon: '🥉', color: '#CD7F32' },
+  silver:  { name: 'Bạc',       icon: '🥈', color: '#9E9E9E' },
+  gold:    { name: 'Vàng',      icon: '🥇', color: '#FFC107' },
+  diamond: { name: 'Kim cương', icon: '💎', color: '#00BCD4' },
+  master:  { name: 'Cao thủ',   icon: '👑', color: '#E91E63' },
+};
+
+function resolveEmoji(speciesId, totalXpEarned) {
+  if (!speciesId) return '🐾';
+  const species = PET_REGISTRY[speciesId];
+  if (!species) return '🐾';
+  const evo = getPetEvolution(speciesId, totalXpEarned || 0);
+  return evo?.emoji || species.emoji;
+}
 
 export default function LeaderboardPage() {
   const { petData, setNickname } = usePet();
@@ -17,12 +34,14 @@ export default function LeaderboardPage() {
   const [tab, setTab] = useState('power');
   const [skillTab, setSkillTab] = useState('speech');
   const [leaderboard, setLeaderboard] = useState([]);
+  const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingNick, setEditingNick] = useState(false);
   const [nickInput, setNickInput] = useState(petData.nickname || '');
 
-  // Fetch leaderboard from server
+  // Fetch leaderboard from server (power/skill/collection)
   useEffect(() => {
+    if (tab === 'league') return; // league uses /api/rankings
     setLoading(true);
     const type = tab === 'skill' ? `skill_${skillTab}` : tab;
     authFetch(`/api/leaderboard?type=${encodeURIComponent(type)}`)
@@ -31,6 +50,17 @@ export default function LeaderboardPage() {
       .catch(() => setLeaderboard([]))
       .finally(() => setLoading(false));
   }, [tab, skillTab]);
+
+  // Fetch league rankings
+  useEffect(() => {
+    if (tab !== 'league') return;
+    setLoading(true);
+    authFetch('/api/rankings')
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setRankings(Array.isArray(data) ? data : []))
+      .catch(() => setRankings([]))
+      .finally(() => setLoading(false));
+  }, [tab]);
 
   // My pet stats
   const myPet = useMemo(() => {
@@ -59,8 +89,8 @@ export default function LeaderboardPage() {
   return (
     <div className="fade-in">
       <div className="text-center mb-4">
-        <h2 className="fw-bold">🏆 Bảng xếp hạng Pet</h2>
-        <p className="text-muted small">So sánh pet, không so sánh người chơi</p>
+        <h2 className="fw-bold">🏆 Bảng xếp hạng</h2>
+        <p className="text-muted small">So sánh pet & leo hạng giải đấu</p>
       </div>
 
       {/* Nickname */}
@@ -107,44 +137,88 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      {/* Leaderboard entries */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-body p-0">
-          {loading ? (
-            <div className="text-center py-4">
-              <div className="spinner-border spinner-border-sm text-cowdi-primary"></div>
-              <p className="text-muted small mt-2">Đang tải...</p>
-            </div>
-          ) : leaderboard.length > 0 ? (
-            <div className="list-group list-group-flush">
-              {leaderboard.slice(0, 20).map((entry, i) => (
-                <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
-                  <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
-                  <span className="fs-4">{entry.emoji || '🐾'}</span>
-                  <div className="flex-grow-1">
-                    <div className="fw-bold small">{entry.pet_name || 'Pet'}</div>
-                    <div style={{ fontSize: '0.7rem' }} className="text-muted">
-                      {entry.species_name || ''} · {entry.evo_name || ''}
+      {/* League Rankings */}
+      {tab === 'league' && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body p-0">
+            {loading ? (
+              <div className="text-center py-4">
+                <div className="spinner-border spinner-border-sm text-cowdi-primary"></div>
+                <p className="text-muted small mt-2">Đang tải...</p>
+              </div>
+            ) : rankings.length > 0 ? (
+              <div className="list-group list-group-flush">
+                {rankings.slice(0, 20).map((entry, i) => {
+                  const lg = LEAGUES[entry.league] || LEAGUES.bronze;
+                  return (
+                    <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
+                      <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
+                      <span className="fs-4">{entry.pet ? resolveEmoji(entry.pet.speciesId, entry.pet.totalXpEarned) : '🐾'}</span>
+                      <div className="flex-grow-1">
+                        <div className="fw-bold small">{entry.nickname}</div>
+                        <div style={{ fontSize: '0.7rem' }} className="text-muted">
+                          <span className="text-success">{entry.duelWins}W</span> / <span className="text-danger">{entry.duelLosses}L</span>
+                          {entry.duelStreak > 0 && <span className="ms-1">🔥{entry.duelStreak}</span>}
+                        </div>
+                      </div>
+                      <div className="text-end">
+                        <span className="badge" style={{ backgroundColor: lg.color, color: '#fff', fontSize: '0.7rem' }}>
+                          {lg.icon} {lg.name}
+                        </span>
+                        <div className="fw-bold small mt-1">{entry.leaguePoints} LP</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <div className="fs-2 mb-2">🏅</div>
+                <p className="text-muted small">Chưa có dữ liệu. Hãy đấu trường để leo hạng!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Pet Leaderboard entries (power/skill/collection) */}
+      {tab !== 'league' && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body p-0">
+            {loading ? (
+              <div className="text-center py-4">
+                <div className="spinner-border spinner-border-sm text-cowdi-primary"></div>
+                <p className="text-muted small mt-2">Đang tải...</p>
+              </div>
+            ) : leaderboard.length > 0 ? (
+              <div className="list-group list-group-flush">
+                {leaderboard.slice(0, 20).map((entry, i) => (
+                  <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
+                    <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
+                    <span className="fs-4">{resolveEmoji(entry.speciesId, entry.totalXpEarned)}</span>
+                    <div className="flex-grow-1">
+                      <div className="fw-bold small">{entry.petName || entry.nickname || 'Pet'}</div>
+                      <div style={{ fontSize: '0.7rem' }} className="text-muted">{entry.nickname}</div>
+                    </div>
+                    <div className="text-end">
+                      {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power}</span>}
+                      {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} Lv.{getSkillLevel(entry.skill || 0)}</span>}
+                      {tab === 'collection' && <span className="badge bg-success">📦 {entry.collectionCount}</span>}
                     </div>
                   </div>
-                  <div className="text-end">
-                    {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power_score}</span>}
-                    {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} Lv.{getSkillLevel(entry.skill_value || 0)}</span>}
-                    {tab === 'collection' && <span className="badge bg-success">📦 {entry.collection_count}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <div className="fs-2 mb-2">🏆</div>
-              <p className="text-muted small">
-                {user ? 'Chưa có dữ liệu. Hãy học bài để leo hạng!' : 'Đăng nhập để xem bảng xếp hạng!'}
-              </p>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <div className="fs-2 mb-2">🏆</div>
+                <p className="text-muted small">
+                  {user ? 'Chưa có dữ liệu. Hãy học bài để leo hạng!' : 'Đăng nhập để xem bảng xếp hạng!'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* My ranking */}
       {myPet && (

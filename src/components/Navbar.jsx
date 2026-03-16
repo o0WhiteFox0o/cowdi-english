@@ -81,6 +81,16 @@ export default function Navbar() {
               </NavLink>
             </li>
             <li className="nav-item">
+              <NavLink to="/duel" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <i className="fas fa-crossed-swords me-1"></i>⚔️ Đấu trường
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to="/student-ranking" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                📊 Xếp hạng
+              </NavLink>
+            </li>
+            <li className="nav-item">
               <NavLink to="/shop" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                 <i className="fas fa-store me-1"></i>Shop
               </NavLink>

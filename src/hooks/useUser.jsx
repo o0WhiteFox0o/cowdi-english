@@ -69,23 +69,28 @@ const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const { user, authFetch } = useAuth();
-  const [userData, setUserData] = useState(() => loadUserData(null));
+  const [userData, setUserData] = useState(() => loadUserData(user?.id || null));
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
+  // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại
+  const readyRef = useRef(!user);
 
   // ── Khi user thay đổi (login/logout) – load đúng dữ liệu ───────────────────
   useEffect(() => {
     const uid = user?.id || null;
     if (uid === currentUserIdRef.current) return; // không thay đổi
     currentUserIdRef.current = uid;
+    readyRef.current = false; // Block persist cho đến khi load xong
 
     if (!uid) {
       // Logout – reset về data không đăng nhập (anonymous)
       setUserData(loadUserData(null));
+      readyRef.current = true;
       return;
     }
 
     // Reset về defaults ngay lập tức để không hiển thị data cũ của anonymous
+    // persist bị block bởi readyRef nên KHÔNG ghi đè lên localStorage/server
     setUserData({ ...DEFAULT_DATA });
 
     // Login – ưu tiên lấy từ backend, fallback localStorage theo user
@@ -102,14 +107,17 @@ export function UserProvider({ children }) {
         } else {
           setUserData(localForUser);
         }
+        readyRef.current = true;
       })
       .catch(() => {
         setUserData(loadUserData(uid));
+        readyRef.current = true;
       });
   }, [user?.id]);
 
   // ── Persist to localStorage on every userData change ────────────────────
   useEffect(() => {
+    if (!readyRef.current) return; // Chưa load xong – không ghi đè
     saveUserData(userData, user?.id || null);
     // Debounce sync lên backend 3 giây sau lần thay đổi cuối
     if (user) {

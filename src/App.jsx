@@ -17,6 +17,8 @@ import MiniGamePage from './pages/MiniGamePage';
 import AccountPage from './pages/AccountPage';
 import ReviewPage from './pages/ReviewPage';
 import LearningPathPage from './pages/LearningPathPage';
+import DuelPage from './pages/DuelPage';
+import StudentRankingPage from './pages/StudentRankingPage';
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
           <Route path="/collection" element={<CollectionPage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/duel" element={<DuelPage />} />
+          <Route path="/student-ranking" element={<StudentRankingPage />} />
           <Route path="/mini-games" element={<MiniGamePage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/auth-callback" element={<AuthCallbackPage />} />
