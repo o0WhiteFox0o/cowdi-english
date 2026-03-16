@@ -929,3 +929,72 @@ export const LEVELS = [
   { level: 7, title: 'Bậc thầy tiếng Anh', xpRequired: 1800 },
   { level: 8, title: 'Huyền thoại Cowdi', xpRequired: 2500 },
 ];
+
+// ── Learning Path: 5 Units ──────────────────────────────────
+export const UNITS = [
+  {
+    id: 'unit-1',
+    title: 'Cơ bản 1',
+    subtitle: 'Chào hỏi & Gia đình',
+    icon: '🌱',
+    color: '#4CAF50',
+    lessons: ['greetings', 'family', 'colors', 'numbers'],
+    checkpoint: {
+      title: 'Kiểm tra Unit 1',
+      passRate: 0.7,
+      questionCount: 15,
+    },
+  },
+  {
+    id: 'unit-2',
+    title: 'Cơ bản 2',
+    subtitle: 'Cuộc sống hàng ngày',
+    icon: '🌿',
+    color: '#2196F3',
+    lessons: ['daily-routine', 'food', 'travel', 'tenses'],
+    checkpoint: {
+      title: 'Kiểm tra Unit 2',
+      passRate: 0.7,
+      questionCount: 15,
+    },
+  },
+  {
+    id: 'unit-3',
+    title: 'Trung cấp 1',
+    subtitle: 'Trường học & Nghề nghiệp',
+    icon: '🌳',
+    color: '#FF9800',
+    lessons: ['school', 'weather', 'jobs', 'body'],
+    checkpoint: {
+      title: 'Kiểm tra Unit 3',
+      passRate: 0.7,
+      questionCount: 15,
+    },
+  },
+  {
+    id: 'unit-4',
+    title: 'Trung cấp 2',
+    subtitle: 'Đời sống & Cảm xúc',
+    icon: '🍀',
+    color: '#9C27B0',
+    lessons: ['clothing', 'house', 'emotions', 'hobbies'],
+    checkpoint: {
+      title: 'Kiểm tra Unit 4',
+      passRate: 0.7,
+      questionCount: 15,
+    },
+  },
+  {
+    id: 'unit-5',
+    title: 'Nâng cao',
+    subtitle: 'Thế giới & Xã hội',
+    icon: '🌟',
+    color: '#F44336',
+    lessons: ['nature', 'technology', 'shopping', 'health', 'comparisons'],
+    checkpoint: {
+      title: 'Kiểm tra Unit 5',
+      passRate: 0.7,
+      questionCount: 15,
+    },
+  },
+];

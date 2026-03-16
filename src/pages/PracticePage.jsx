@@ -11,6 +11,8 @@ const TYPE_LABELS = {
   sentences:  { icon: '✍️', title: 'Hoàn thành câu', desc: 'Dịch và điền vào chỗ trống' },
   dictation:  { icon: '🎙️', title: 'Nghe chép', desc: 'Nghe và viết lại từ tiếng Anh' },
   matching:   { icon: '🔗', title: 'Nối cặp',   desc: 'Nối từ tiếng Anh với tiếng Việt' },
+  fillin:     { icon: '🔤', title: 'Điền từ',   desc: 'Điền từ còn thiếu vào câu' },
+  reorder:    { icon: '🧩', title: 'Sắp xếp câu', desc: 'Sắp xếp các từ thành câu đúng' },
   mixed:      { icon: '🎲', title: 'Tổng hợp',  desc: 'Mix tất cả các loại câu hỏi' },
 };
 
@@ -43,6 +45,27 @@ function buildMatchingRound() {
   };
 }
 
+/* ── Build fill-in-the-blank questions from vocab examples ── */
+function buildFillInQuestions(count = 10) {
+  const allVocab = LESSONS.flatMap((l) => l.vocabulary);
+  return shuffleArray(allVocab).slice(0, count).map((v) => {
+    // Replace the target word in the example with ___
+    const regex = new RegExp(`\\b${v.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    const blanked = v.example.replace(regex, '______');
+    return { sentence: blanked, answer: v.word, meaning: v.meaning, original: v.example };
+  });
+}
+
+/* ── Build sentence reorder questions from vocab examples ── */
+function buildReorderQuestions(count = 8) {
+  const allVocab = LESSONS.flatMap((l) => l.vocabulary)
+    .filter((v) => v.example.split(/\s+/).length >= 4); // need ≥4 words
+  return shuffleArray(allVocab).slice(0, count).map((v) => {
+    const words = v.example.replace(/[.!?]$/, '').split(/\s+/);
+    return { correctOrder: words, shuffled: shuffleArray(words), meaning: v.meaning, original: v.example };
+  });
+}
+
 export default function PracticePage() {
   const { addXP, incrementQuizzes } = useUser();
   const { onQuizComplete, addCoins } = usePet();
@@ -73,6 +96,21 @@ export default function PracticePage() {
   const [matchWrong, setMatchWrong] = useState(false);
   const [matchScore, setMatchScore] = useState(0);
   const [matchTotal, setMatchTotal] = useState(3); // 3 rounds
+
+  // Fill-in-the-blank state
+  const [fillQuestions, setFillQuestions] = useState([]);
+  const [fillIdx, setFillIdx] = useState(0);
+  const [fillInput, setFillInput] = useState('');
+  const [fillChecked, setFillChecked] = useState(null);
+  const [fillScore, setFillScore] = useState(0);
+
+  // Reorder state
+  const [reorderQuestions, setReorderQuestions] = useState([]);
+  const [reorderIdx, setReorderIdx] = useState(0);
+  const [reorderSelected, setReorderSelected] = useState([]);
+  const [reorderPool, setReorderPool] = useState([]);
+  const [reorderChecked, setReorderChecked] = useState(null);
+  const [reorderScore, setReorderScore] = useState(0);
 
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
@@ -108,6 +146,29 @@ export default function PracticePage() {
       setFinished(false);
       return;
     }
+    if (type === 'fillin') {
+      const qs = buildFillInQuestions(10);
+      setQuizType('fillin');
+      setFillQuestions(qs);
+      setFillIdx(0);
+      setFillInput('');
+      setFillChecked(null);
+      setFillScore(0);
+      setFinished(false);
+      return;
+    }
+    if (type === 'reorder') {
+      const qs = buildReorderQuestions(8);
+      setQuizType('reorder');
+      setReorderQuestions(qs);
+      setReorderIdx(0);
+      setReorderSelected([]);
+      setReorderPool([...qs[0].shuffled]);
+      setReorderChecked(null);
+      setReorderScore(0);
+      setFinished(false);
+      return;
+    }
     const bank = type === 'mixed'
       ? [...QUIZ_BANK.vocab, ...QUIZ_BANK.grammar, ...QUIZ_BANK.listening, ...QUIZ_BANK.sentences]
       : QUIZ_BANK[type] || [];
@@ -121,13 +182,14 @@ export default function PracticePage() {
     setTimeLeft(30);
   }
 
+  const NON_MCQ = ['dictation', 'matching', 'fillin', 'reorder'];
   /* ── MCQ Timer ── */
   useEffect(() => {
-    if (quizType && quizType !== 'dictation' && quizType !== 'matching' && !finished && answered === null && timeLeft > 0) {
+    if (quizType && !NON_MCQ.includes(quizType) && !finished && answered === null && timeLeft > 0) {
       timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
       return () => clearTimeout(timerRef.current);
     }
-    if (timeLeft === 0 && quizType && quizType !== 'dictation' && quizType !== 'matching' && !finished && answered === null) {
+    if (timeLeft === 0 && quizType && !NON_MCQ.includes(quizType) && !finished && answered === null) {
       handleAnswer(-1);
     }
   }, [timeLeft, quizType, finished, answered]);
@@ -181,6 +243,80 @@ export default function PracticePage() {
       setFinished(true);
       setScore(finalScore);
       setQuestions(dictQuestions);
+      showToast(`+${xp} XP! 🎉`, 'success');
+    }
+  }
+
+  /* ── Fill-in-the-blank check ── */
+  function checkFillIn() {
+    if (fillChecked !== null) return;
+    const q = fillQuestions[fillIdx];
+    const correct = fillInput.trim().toLowerCase() === q.answer.toLowerCase();
+    setFillChecked(correct);
+    if (correct) setFillScore((s) => s + 1);
+  }
+
+  function nextFillIn() {
+    if (fillIdx + 1 < fillQuestions.length) {
+      setFillIdx((i) => i + 1);
+      setFillInput('');
+      setFillChecked(null);
+    } else {
+      const finalScore = fillScore;
+      const isPerfect = finalScore === fillQuestions.length;
+      const xp = finalScore * 10 + (isPerfect ? 20 : 0);
+      addXP(xp);
+      incrementQuizzes(isPerfect);
+      addCoins(finalScore * 2 + (isPerfect ? 15 : 0));
+      setFinished(true);
+      setScore(finalScore);
+      showToast(`+${xp} XP! 🎉`, 'success');
+    }
+  }
+
+  /* ── Reorder logic ── */
+  function reorderTapWord(word, idx) {
+    if (reorderChecked !== null) return;
+    // Move from pool to selected
+    const newPool = [...reorderPool];
+    newPool.splice(idx, 1);
+    setReorderPool(newPool);
+    setReorderSelected((prev) => [...prev, word]);
+  }
+
+  function reorderUntapWord(idx) {
+    if (reorderChecked !== null) return;
+    const word = reorderSelected[idx];
+    const newSelected = [...reorderSelected];
+    newSelected.splice(idx, 1);
+    setReorderSelected(newSelected);
+    setReorderPool((prev) => [...prev, word]);
+  }
+
+  function checkReorder() {
+    if (reorderChecked !== null) return;
+    const q = reorderQuestions[reorderIdx];
+    const correct = reorderSelected.join(' ') === q.correctOrder.join(' ');
+    setReorderChecked(correct);
+    if (correct) setReorderScore((s) => s + 1);
+  }
+
+  function nextReorder() {
+    if (reorderIdx + 1 < reorderQuestions.length) {
+      const nextQ = reorderQuestions[reorderIdx + 1];
+      setReorderIdx((i) => i + 1);
+      setReorderSelected([]);
+      setReorderPool([...nextQ.shuffled]);
+      setReorderChecked(null);
+    } else {
+      const finalScore = reorderScore;
+      const isPerfect = finalScore === reorderQuestions.length;
+      const xp = finalScore * 12 + (isPerfect ? 25 : 0);
+      addXP(xp);
+      incrementQuizzes(isPerfect);
+      addCoins(finalScore * 3 + (isPerfect ? 20 : 0));
+      setFinished(true);
+      setScore(finalScore);
       showToast(`+${xp} XP! 🎉`, 'success');
     }
   }
@@ -259,7 +395,7 @@ export default function PracticePage() {
                   <h6 className="card-title fw-bold">{info.title}</h6>
                   <p className="card-text text-muted small mb-2">{info.desc}</p>
                   <span className="badge bg-light text-secondary">
-                    {type === 'mixed' ? 'Ngẫu nhiên' : type === 'dictation' ? '10 từ' : type === 'matching' ? '3 vòng' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
+                    {type === 'mixed' ? 'Ngẫu nhiên' : type === 'dictation' ? '10 từ' : type === 'matching' ? '3 vòng' : type === 'fillin' ? '10 câu' : type === 'reorder' ? '8 câu' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
                   </span>
                 </div>
               </div>
@@ -276,8 +412,13 @@ export default function PracticePage() {
   if (finished) {
     const total = quizType === 'dictation' ? dictQuestions.length
                 : quizType === 'matching' ? matchTotal * 6
+                : quizType === 'fillin' ? fillQuestions.length
+                : quizType === 'reorder' ? reorderQuestions.length
                 : questions.length;
-    const finalScore = quizType === 'dictation' ? dictScore : score;
+    const finalScore = quizType === 'dictation' ? dictScore
+                     : quizType === 'fillin' ? fillScore
+                     : quizType === 'reorder' ? reorderScore
+                     : score;
     const pct = Math.round((finalScore / total) * 100);
     const xpEarned = finalScore * 10 + (finalScore === total ? 20 : 0);
     return (
@@ -418,6 +559,136 @@ export default function PracticePage() {
               })}
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
+     FILL-IN-THE-BLANK MODE
+     ══════════════════════════════════════════ */
+  if (quizType === 'fillin') {
+    const q = fillQuestions[fillIdx];
+    return (
+      <div className="fade-in" style={{ maxWidth: 600, margin: '0 auto' }}>
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
+          <span className="text-muted fw-bold">Câu {fillIdx + 1}/{fillQuestions.length}</span>
+          <span className="badge bg-warning text-dark fs-6">⭐ {fillScore}</span>
+        </div>
+        <div className="progress mb-4" style={{ height: '6px' }}>
+          <div className="progress-bar progress-bar-cowdi" style={{ width: `${((fillIdx + 1) / fillQuestions.length) * 100}%` }}></div>
+        </div>
+
+        <div className="card shadow-sm mb-4">
+          <div className="card-body py-4 text-center">
+            <p className="text-muted mb-2">Điền từ còn thiếu vào câu:</p>
+            <p className="fs-5 fw-bold mb-2">{q.sentence}</p>
+            <p className="text-muted small mb-0">💡 Nghĩa: {q.meaning}</p>
+          </div>
+        </div>
+
+        <div className="mb-3">
+          <input
+            type="text"
+            className={`form-control form-control-lg text-center fw-bold ${fillChecked === true ? 'border-success bg-success bg-opacity-10' : fillChecked === false ? 'border-danger bg-danger bg-opacity-10' : ''}`}
+            placeholder="Gõ từ còn thiếu..."
+            value={fillInput}
+            onChange={(e) => setFillInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { fillChecked === null ? checkFillIn() : nextFillIn(); } }}
+            disabled={fillChecked !== null}
+            autoFocus
+          />
+        </div>
+
+        {fillChecked !== null && (
+          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${fillChecked ? 'text-success' : 'text-danger'}`}>
+            {fillChecked ? '✅ Chính xác!' : `❌ Đáp án: ${q.answer}`}
+            {!fillChecked && <p className="text-muted small mt-1">{q.original}</p>}
+          </div>
+        )}
+
+        <div className="text-center">
+          {fillChecked === null ? (
+            <button className="btn btn-cowdi-primary" onClick={checkFillIn} disabled={!fillInput.trim()}>Kiểm tra</button>
+          ) : (
+            <button className="btn btn-cowdi-primary" onClick={nextFillIn}>
+              {fillIdx + 1 < fillQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
+     SENTENCE REORDER MODE
+     ══════════════════════════════════════════ */
+  if (quizType === 'reorder') {
+    const q = reorderQuestions[reorderIdx];
+    return (
+      <div className="fade-in" style={{ maxWidth: 650, margin: '0 auto' }}>
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
+          <span className="text-muted fw-bold">Câu {reorderIdx + 1}/{reorderQuestions.length}</span>
+          <span className="badge bg-warning text-dark fs-6">⭐ {reorderScore}</span>
+        </div>
+        <div className="progress mb-4" style={{ height: '6px' }}>
+          <div className="progress-bar progress-bar-cowdi" style={{ width: `${((reorderIdx + 1) / reorderQuestions.length) * 100}%` }}></div>
+        </div>
+
+        <div className="card shadow-sm mb-4">
+          <div className="card-body text-center">
+            <p className="text-muted mb-1">Sắp xếp các từ thành câu đúng:</p>
+            <p className="text-muted small mb-0">💡 Nghĩa: {q.meaning}</p>
+          </div>
+        </div>
+
+        {/* Selected words (answer area) */}
+        <div className="card mb-3" style={{ minHeight: 56 }}>
+          <div className="card-body d-flex flex-wrap gap-2 justify-content-center py-3">
+            {reorderSelected.length === 0 && <span className="text-muted small">Nhấn vào các từ bên dưới để sắp xếp</span>}
+            {reorderSelected.map((w, i) => (
+              <button
+                key={i}
+                className={`btn btn-sm fw-bold ${reorderChecked === true ? 'btn-success' : reorderChecked === false ? 'btn-danger' : 'btn-cowdi-primary'}`}
+                onClick={() => reorderUntapWord(i)}
+                disabled={reorderChecked !== null}
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Word pool */}
+        <div className="d-flex flex-wrap gap-2 justify-content-center mb-4">
+          {reorderPool.map((w, i) => (
+            <button
+              key={i}
+              className="btn btn-sm btn-outline-primary fw-bold"
+              onClick={() => reorderTapWord(w, i)}
+              disabled={reorderChecked !== null}
+            >
+              {w}
+            </button>
+          ))}
+        </div>
+
+        {reorderChecked !== null && (
+          <div className={`text-center mb-3 fw-bold fs-6 fade-in ${reorderChecked ? 'text-success' : 'text-danger'}`}>
+            {reorderChecked ? '✅ Chính xác!' : `❌ Đáp án: ${q.correctOrder.join(' ')}`}
+          </div>
+        )}
+
+        <div className="text-center">
+          {reorderChecked === null ? (
+            <button className="btn btn-cowdi-primary" onClick={checkReorder} disabled={reorderPool.length > 0}>Kiểm tra</button>
+          ) : (
+            <button className="btn btn-cowdi-primary" onClick={nextReorder}>
+              {reorderIdx + 1 < reorderQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+            </button>
+          )}
         </div>
       </div>
     );

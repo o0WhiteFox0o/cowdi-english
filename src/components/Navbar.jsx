@@ -61,6 +61,11 @@ export default function Navbar() {
               </NavLink>
             </li>
             <li className="nav-item">
+              <NavLink to="/learning-path" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <i className="fas fa-route me-1"></i>Lộ trình
+              </NavLink>
+            </li>
+            <li className="nav-item">
               <NavLink to="/progress" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                 <i className="fas fa-chart-line me-1"></i>Tiến trình
               </NavLink>

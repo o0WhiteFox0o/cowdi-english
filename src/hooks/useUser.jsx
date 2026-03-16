@@ -25,6 +25,8 @@ const DEFAULT_DATA = {
   // SRS – Spaced Repetition data per word
   // { [word]: { interval, easeFactor, nextReview (ISO string), repetitions } }
   srsData: {},
+  // Learning Path – checkpoint best scores { [unitId]: { score, total, passed } }
+  checkpointScores: {},
 };
 
 // ── SRS SM-2 algorithm helpers ──────────────────────────────
@@ -236,6 +238,22 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Learning Path – save checkpoint score (keep best)
+  const saveCheckpointScore = useCallback((unitId, score, total) => {
+    setUserData((prev) => {
+      const existing = prev.checkpointScores?.[unitId];
+      const pct = score / total;
+      if (existing && existing.score / existing.total >= pct) return prev;
+      return {
+        ...prev,
+        checkpointScores: {
+          ...prev.checkpointScores,
+          [unitId]: { score, total, passed: pct >= 0.7, date: new Date().toISOString() },
+        },
+      };
+    });
+  }, []);
+
   const value = {
     userData,
     addXP,
@@ -246,6 +264,7 @@ export function UserProvider({ children }) {
     reviewWord,
     getWordsForReview,
     addWordToSRS,
+    saveCheckpointScore,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

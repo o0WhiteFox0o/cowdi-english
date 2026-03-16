@@ -1,1 +1,19 @@
 ﻿/* pages.css - Layout handled by Bootstrap. Kept for future page-specific tweaks. */
+
+/* Learning Path - hide alternate side spacer on mobile */
+@media (max-width: 767px) {
+  .learning-path .d-flex {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  .learning-path .d-flex > div:last-child:not(.card):not(.rounded-circle) {
+    display: none !important;
+  }
+  .learning-path .d-flex > div:first-child {
+    order: 2;
+    width: 100%;
+  }
+  .learning-path .d-flex > .rounded-circle {
+    order: 1;
+  }
+}
