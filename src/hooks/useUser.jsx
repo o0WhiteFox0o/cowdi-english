@@ -22,7 +22,30 @@ const DEFAULT_DATA = {
   dailyTasks: { lessonDone: false, vocabDone: false },
   dailyDate: null,
   achievements: [],
+  // SRS – Spaced Repetition data per word
+  // { [word]: { interval, easeFactor, nextReview (ISO string), repetitions } }
+  srsData: {},
 };
+
+// ── SRS SM-2 algorithm helpers ──────────────────────────────
+const SRS_DEFAULT = { interval: 1, easeFactor: 2.5, repetitions: 0, nextReview: null };
+
+function srsGrade(card, quality) {
+  // quality: 0-5 (0-2 = fail, 3 = hard, 4 = good, 5 = easy)
+  let { interval, easeFactor, repetitions } = card;
+  if (quality >= 3) {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 3;
+    else interval = Math.round(interval * easeFactor);
+    repetitions += 1;
+  } else {
+    repetitions = 0;
+    interval = 1;
+  }
+  easeFactor = Math.max(1.3, easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+  const nextReview = new Date(Date.now() + interval * 86400000).toISOString();
+  return { interval, easeFactor, repetitions, nextReview };
+}
 
 function loadUserData(userId) {
   try {
@@ -176,6 +199,43 @@ export function UserProvider({ children }) {
     [userData.wordStatus]
   );
 
+  // ── SRS functions ──────────────────────────────────────────
+  const reviewWord = useCallback((word, quality) => {
+    // quality: 0-5
+    setUserData((prev) => {
+      const srsData = { ...prev.srsData };
+      const card = srsData[word] || { ...SRS_DEFAULT };
+      srsData[word] = srsGrade(card, quality);
+      return { ...prev, srsData };
+    });
+  }, []);
+
+  const getWordsForReview = useCallback(() => {
+    const now = Date.now();
+    const due = [];
+    for (const [word, card] of Object.entries(userData.srsData || {})) {
+      if (!card.nextReview || new Date(card.nextReview).getTime() <= now) {
+        due.push({ word, ...card });
+      }
+    }
+    // Sort by overdue first (oldest nextReview)
+    due.sort((a, b) => {
+      const at = a.nextReview ? new Date(a.nextReview).getTime() : 0;
+      const bt = b.nextReview ? new Date(b.nextReview).getTime() : 0;
+      return at - bt;
+    });
+    return due;
+  }, [userData.srsData]);
+
+  // Add a word to SRS if not already tracked
+  const addWordToSRS = useCallback((word) => {
+    setUserData((prev) => {
+      if (prev.srsData[word]) return prev;
+      const srsData = { ...prev.srsData, [word]: { ...SRS_DEFAULT, nextReview: new Date().toISOString() } };
+      return { ...prev, srsData };
+    });
+  }, []);
+
   const value = {
     userData,
     addXP,
@@ -183,6 +243,9 @@ export function UserProvider({ children }) {
     incrementQuizzes,
     setWordStatus,
     getWordStatus,
+    reviewWord,
+    getWordsForReview,
+    addWordToSRS,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -15,6 +15,7 @@ import ShopPage from './pages/ShopPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import MiniGamePage from './pages/MiniGamePage';
 import AccountPage from './pages/AccountPage';
+import ReviewPage from './pages/ReviewPage';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/lessons/:id" element={<LessonDetailPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/practice" element={<PracticePage />} />
+          <Route path="/review" element={<ReviewPage />} />
           <Route path="/progress" element={<ProgressPage />} />
           <Route path="/pet" element={<PetPage />} />
           <Route path="/collection" element={<CollectionPage />} />

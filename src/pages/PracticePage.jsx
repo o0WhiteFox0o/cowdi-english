@@ -1,16 +1,47 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { QUIZ_BANK } from '../data/lessons';
+import { QUIZ_BANK, LESSONS } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
 
 const TYPE_LABELS = {
-  vocab:     { icon: '📝', title: 'Từ vựng',   desc: 'Ôn tập từ vựng đã học' },
-  grammar:   { icon: '📖', title: 'Ngữ pháp',  desc: 'Kiểm tra kiến thức ngữ pháp' },
-  listening: { icon: '🎧', title: 'Nghe hiểu', desc: 'Luyện nghe và nhận diện từ' },
-  sentences: { icon: '✍️', title: 'Hoàn thành câu', desc: 'Dịch và điền vào chỗ trống' },
-  mixed:     { icon: '🎲', title: 'Tổng hợp',  desc: 'Mix tất cả các loại câu hỏi' },
+  vocab:      { icon: '📝', title: 'Từ vựng',   desc: 'Ôn tập từ vựng đã học' },
+  grammar:    { icon: '📖', title: 'Ngữ pháp',  desc: 'Kiểm tra kiến thức ngữ pháp' },
+  listening:  { icon: '🎧', title: 'Nghe hiểu', desc: 'Luyện nghe và nhận diện từ' },
+  sentences:  { icon: '✍️', title: 'Hoàn thành câu', desc: 'Dịch và điền vào chỗ trống' },
+  dictation:  { icon: '🎙️', title: 'Nghe chép', desc: 'Nghe và viết lại từ tiếng Anh' },
+  matching:   { icon: '🔗', title: 'Nối cặp',   desc: 'Nối từ tiếng Anh với tiếng Việt' },
+  mixed:      { icon: '🎲', title: 'Tổng hợp',  desc: 'Mix tất cả các loại câu hỏi' },
 };
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ── Build dictation & matching data from LESSONS vocab ── */
+function buildDictationQuestions(count = 10) {
+  const allVocab = LESSONS.flatMap((l) => l.vocabulary);
+  return shuffleArray(allVocab).slice(0, count).map((v) => ({
+    word: v.word,
+    meaning: v.meaning,
+    phonetic: v.phonetic,
+    example: v.example,
+  }));
+}
+
+function buildMatchingRound() {
+  const allVocab = LESSONS.flatMap((l) => l.vocabulary);
+  const picked = shuffleArray(allVocab).slice(0, 6);
+  return {
+    english: shuffleArray(picked.map((v) => ({ word: v.word, id: v.word }))),
+    vietnamese: shuffleArray(picked.map((v) => ({ meaning: v.meaning, id: v.word }))),
+  };
+}
 
 export default function PracticePage() {
   const { addXP, incrementQuizzes } = useUser();
@@ -18,6 +49,7 @@ export default function PracticePage() {
   const showToast = useToast();
 
   const [quizType, setQuizType] = useState(null);
+  // Standard MCQ state
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -26,8 +58,25 @@ export default function PracticePage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef(null);
 
+  // Dictation state
+  const [dictQuestions, setDictQuestions] = useState([]);
+  const [dictIdx, setDictIdx] = useState(0);
+  const [dictInput, setDictInput] = useState('');
+  const [dictChecked, setDictChecked] = useState(null);
+  const [dictScore, setDictScore] = useState(0);
+
+  // Matching state
+  const [matchData, setMatchData] = useState(null);
+  const [matchRound, setMatchRound] = useState(0);
+  const [matchSelected, setMatchSelected] = useState({ en: null, vi: null });
+  const [matchPaired, setMatchPaired] = useState([]);
+  const [matchWrong, setMatchWrong] = useState(false);
+  const [matchScore, setMatchScore] = useState(0);
+  const [matchTotal, setMatchTotal] = useState(3); // 3 rounds
+
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'en-US';
       u.rate = 0.8;
@@ -35,16 +84,30 @@ export default function PracticePage() {
     }
   }, []);
 
-  function shuffleArray(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
+  /* ── Start different quiz types ── */
   function startQuiz(type) {
+    if (type === 'dictation') {
+      setQuizType('dictation');
+      setDictQuestions(buildDictationQuestions(10));
+      setDictIdx(0);
+      setDictInput('');
+      setDictChecked(null);
+      setDictScore(0);
+      setFinished(false);
+      return;
+    }
+    if (type === 'matching') {
+      setQuizType('matching');
+      setMatchData(buildMatchingRound());
+      setMatchRound(0);
+      setMatchSelected({ en: null, vi: null });
+      setMatchPaired([]);
+      setMatchWrong(false);
+      setMatchScore(0);
+      setMatchTotal(3);
+      setFinished(false);
+      return;
+    }
     const bank = type === 'mixed'
       ? [...QUIZ_BANK.vocab, ...QUIZ_BANK.grammar, ...QUIZ_BANK.listening, ...QUIZ_BANK.sentences]
       : QUIZ_BANK[type] || [];
@@ -58,12 +121,13 @@ export default function PracticePage() {
     setTimeLeft(30);
   }
 
+  /* ── MCQ Timer ── */
   useEffect(() => {
-    if (quizType && !finished && answered === null && timeLeft > 0) {
+    if (quizType && quizType !== 'dictation' && quizType !== 'matching' && !finished && answered === null && timeLeft > 0) {
       timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
       return () => clearTimeout(timerRef.current);
     }
-    if (timeLeft === 0 && quizType && !finished && answered === null) {
+    if (timeLeft === 0 && quizType && quizType !== 'dictation' && quizType !== 'matching' && !finished && answered === null) {
       handleAnswer(-1);
     }
   }, [timeLeft, quizType, finished, answered]);
@@ -93,7 +157,82 @@ export default function PracticePage() {
     }, 1000);
   }
 
-  /* ── Type selection ── */
+  /* ── Dictation check ── */
+  function checkDictation() {
+    if (dictChecked !== null) return;
+    const q = dictQuestions[dictIdx];
+    const correct = dictInput.trim().toLowerCase() === q.word.toLowerCase();
+    setDictChecked(correct);
+    if (correct) setDictScore((s) => s + 1);
+  }
+
+  function nextDictation() {
+    if (dictIdx + 1 < dictQuestions.length) {
+      setDictIdx((i) => i + 1);
+      setDictInput('');
+      setDictChecked(null);
+    } else {
+      const finalScore = dictScore;
+      const isPerfect = finalScore === dictQuestions.length;
+      const xp = finalScore * 10 + (isPerfect ? 20 : 0);
+      addXP(xp);
+      incrementQuizzes(isPerfect);
+      addCoins(finalScore * 2 + (isPerfect ? 15 : 0));
+      setFinished(true);
+      setScore(finalScore);
+      setQuestions(dictQuestions);
+      showToast(`+${xp} XP! 🎉`, 'success');
+    }
+  }
+
+  /* ── Matching logic ── */
+  function handleMatchSelect(type, id) {
+    const next = { ...matchSelected, [type]: id };
+    setMatchSelected(next);
+
+    // If both selected, check match
+    if (next.en && next.vi) {
+      if (next.en === next.vi) {
+        // Correct pair
+        setMatchPaired((prev) => [...prev, next.en]);
+        setMatchScore((s) => s + 1);
+        setMatchSelected({ en: null, vi: null });
+        setMatchWrong(false);
+
+        // Check if round complete (all 6 paired)
+        const newPaired = [...matchPaired, next.en];
+        if (newPaired.length === matchData.english.length) {
+          setTimeout(() => {
+            if (matchRound + 1 < matchTotal) {
+              setMatchRound((r) => r + 1);
+              setMatchData(buildMatchingRound());
+              setMatchPaired([]);
+              setMatchSelected({ en: null, vi: null });
+            } else {
+              const totalPairs = matchTotal * 6;
+              const xp = matchScore * 3 + 6 * 3; // include current round
+              addXP(xp);
+              addCoins(Math.round(matchScore * 2));
+              setFinished(true);
+              setScore(matchScore + 6);
+              showToast(`+${xp} XP! 🎉`, 'success');
+            }
+          }, 500);
+        }
+      } else {
+        // Wrong pair
+        setMatchWrong(true);
+        setTimeout(() => {
+          setMatchSelected({ en: null, vi: null });
+          setMatchWrong(false);
+        }, 600);
+      }
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     TYPE SELECTION
+     ══════════════════════════════════════════ */
   if (!quizType) {
     return (
       <div className="fade-in">
@@ -101,12 +240,12 @@ export default function PracticePage() {
           <h2 className="fw-bold">
             <i className="fas fa-pen text-cowdi me-2"></i>Luyện tập
           </h2>
-          <p className="text-muted">Chọn loại quiz để bắt đầu!</p>
+          <p className="text-muted">Chọn loại bài tập để bắt đầu!</p>
         </div>
 
-        <div className="row g-3 justify-content-center" style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div className="row g-3 justify-content-center" style={{ maxWidth: 960, margin: '0 auto' }}>
           {Object.entries(TYPE_LABELS).map(([type, info]) => (
-            <div className="col-6 col-md-4" key={type}>
+            <div className="col-6 col-md-4 col-lg-3" key={type}>
               <div
                 className="card text-center card-hover shadow-sm h-100"
                 style={{ cursor: 'pointer' }}
@@ -117,10 +256,10 @@ export default function PracticePage() {
               >
                 <div className="card-body py-4">
                   <div className="fs-1 mb-2">{info.icon}</div>
-                  <h5 className="card-title fw-bold">{info.title}</h5>
-                  <p className="card-text text-muted small">{info.desc}</p>
+                  <h6 className="card-title fw-bold">{info.title}</h6>
+                  <p className="card-text text-muted small mb-2">{info.desc}</p>
                   <span className="badge bg-light text-secondary">
-                    {type === 'mixed' ? 'Ngẫu nhiên' : `${QUIZ_BANK[type]?.length ?? 0} câu hỏi`}
+                    {type === 'mixed' ? 'Ngẫu nhiên' : type === 'dictation' ? '10 từ' : type === 'matching' ? '3 vòng' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
                   </span>
                 </div>
               </div>
@@ -131,15 +270,22 @@ export default function PracticePage() {
     );
   }
 
-  /* ── Finished ── */
+  /* ══════════════════════════════════════════
+     FINISHED (shared for all types)
+     ══════════════════════════════════════════ */
   if (finished) {
-    const pct = Math.round((score / questions.length) * 100);
-    const xpEarned = score * 10 + (score === questions.length ? 20 : 0);
+    const total = quizType === 'dictation' ? dictQuestions.length
+                : quizType === 'matching' ? matchTotal * 6
+                : questions.length;
+    const finalScore = quizType === 'dictation' ? dictScore : score;
+    const pct = Math.round((finalScore / total) * 100);
+    const xpEarned = finalScore * 10 + (finalScore === total ? 20 : 0);
     return (
       <div className="text-center py-5 fade-in">
         <div style={{ fontSize: '5rem' }}>{pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪'}</div>
         <h2 className="fw-bold mt-3">Kết quả luyện tập</h2>
-        <div className="display-4 fw-bold text-cowdi-primary my-3">{score}/{questions.length}</div>
+        <p className="text-muted mb-1">{TYPE_LABELS[quizType]?.icon} {TYPE_LABELS[quizType]?.title}</p>
+        <div className="display-4 fw-bold text-cowdi-primary my-3">{finalScore}/{total}</div>
         <p className="lead text-muted">
           {pct}% — {pct >= 80 ? 'Xuất sắc!' : pct >= 50 ? 'Khá tốt!' : 'Cố gắng thêm nhé!'}
         </p>
@@ -152,7 +298,134 @@ export default function PracticePage() {
     );
   }
 
-  /* ── Quiz in progress ── */
+  /* ══════════════════════════════════════════
+     DICTATION MODE
+     ══════════════════════════════════════════ */
+  if (quizType === 'dictation') {
+    const q = dictQuestions[dictIdx];
+    return (
+      <div className="fade-in" style={{ maxWidth: 600, margin: '0 auto' }}>
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
+          <span className="text-muted fw-bold">Từ {dictIdx + 1}/{dictQuestions.length}</span>
+          <span className="badge bg-warning text-dark fs-6">⭐ {dictScore}</span>
+        </div>
+        <div className="progress mb-4" style={{ height: '6px' }}>
+          <div className="progress-bar progress-bar-cowdi" style={{ width: `${((dictIdx + 1) / dictQuestions.length) * 100}%` }}></div>
+        </div>
+
+        <div className="card shadow-sm mb-4 text-center">
+          <div className="card-body py-4">
+            <p className="text-muted mb-2">Nghe và viết lại từ tiếng Anh:</p>
+            <button className="btn btn-cowdi-primary btn-lg mb-3" onClick={() => speakWord(q.word)}>
+              🔊 Nghe phát âm
+            </button>
+            <p className="text-muted small mb-0">Gợi ý: {q.meaning}</p>
+          </div>
+        </div>
+
+        <div className="mb-3">
+          <input
+            type="text"
+            className={`form-control form-control-lg text-center fw-bold ${dictChecked === true ? 'border-success bg-success bg-opacity-10' : dictChecked === false ? 'border-danger bg-danger bg-opacity-10' : ''}`}
+            placeholder="Gõ từ tiếng Anh..."
+            value={dictInput}
+            onChange={(e) => setDictInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { dictChecked === null ? checkDictation() : nextDictation(); } }}
+            disabled={dictChecked !== null}
+            autoFocus
+          />
+        </div>
+
+        {dictChecked !== null && (
+          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${dictChecked ? 'text-success' : 'text-danger'}`}>
+            {dictChecked ? '✅ Chính xác!' : `❌ Đáp án đúng: ${q.word}`}
+          </div>
+        )}
+
+        <div className="text-center">
+          {dictChecked === null ? (
+            <button className="btn btn-cowdi-primary" onClick={checkDictation} disabled={!dictInput.trim()}>
+              Kiểm tra
+            </button>
+          ) : (
+            <button className="btn btn-cowdi-primary" onClick={nextDictation}>
+              {dictIdx + 1 < dictQuestions.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
+     MATCHING MODE
+     ══════════════════════════════════════════ */
+  if (quizType === 'matching') {
+    return (
+      <div className="fade-in" style={{ maxWidth: 700, margin: '0 auto' }}>
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
+          <span className="text-muted fw-bold">Vòng {matchRound + 1}/{matchTotal}</span>
+          <span className="badge bg-warning text-dark fs-6">⭐ {matchScore}</span>
+        </div>
+        <div className="progress mb-4" style={{ height: '6px' }}>
+          <div className="progress-bar progress-bar-cowdi" style={{ width: `${((matchRound) / matchTotal) * 100}%` }}></div>
+        </div>
+
+        <p className="text-center text-muted mb-3">Chọn 1 từ tiếng Anh và 1 nghĩa tiếng Việt tương ứng</p>
+
+        <div className="row g-3">
+          {/* English column */}
+          <div className="col-6">
+            <h6 className="text-center fw-bold mb-2">🇬🇧 English</h6>
+            <div className="d-flex flex-column gap-2">
+              {matchData.english.map((item) => {
+                const isPaired = matchPaired.includes(item.id);
+                const isSelected = matchSelected.en === item.id;
+                const isWrongFlash = matchWrong && isSelected;
+                return (
+                  <button
+                    key={item.id}
+                    className={`btn w-100 fw-bold ${isPaired ? 'btn-success disabled' : isWrongFlash ? 'btn-danger wrong-shake' : isSelected ? 'btn-cowdi-primary' : 'btn-outline-primary'}`}
+                    onClick={() => !isPaired && handleMatchSelect('en', item.id)}
+                    disabled={isPaired}
+                  >
+                    {isPaired ? '✅ ' : ''}{item.word}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {/* Vietnamese column */}
+          <div className="col-6">
+            <h6 className="text-center fw-bold mb-2">🇻🇳 Tiếng Việt</h6>
+            <div className="d-flex flex-column gap-2">
+              {matchData.vietnamese.map((item) => {
+                const isPaired = matchPaired.includes(item.id);
+                const isSelected = matchSelected.vi === item.id;
+                const isWrongFlash = matchWrong && isSelected;
+                return (
+                  <button
+                    key={item.id}
+                    className={`btn w-100 fw-bold ${isPaired ? 'btn-success disabled' : isWrongFlash ? 'btn-danger wrong-shake' : isSelected ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => !isPaired && handleMatchSelect('vi', item.id)}
+                    disabled={isPaired}
+                  >
+                    {isPaired ? '✅ ' : ''}{item.meaning}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
+     MCQ Quiz in progress (vocab/grammar/listening/sentences/mixed)
+     ══════════════════════════════════════════ */
   const q = questions[qIndex];
   return (
     <div className="fade-in" style={{ maxWidth: 700, margin: '0 auto' }}>
