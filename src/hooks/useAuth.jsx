@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const JWT_KEY = 'cowdi_jwt';
 const API     = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -6,7 +7,11 @@ const API     = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function parseJwt(token) {
   try {
-    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(base64);
+    // Decode UTF-8 (hỗ trợ tiếng Việt)
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return null;
   }
@@ -39,6 +44,8 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem(JWT_KEY);
     setToken(null);
+    // Redirect về trang chủ sau khi đăng xuất
+    window.location.href = '/';
   }, []);
 
   /** Redirect tới Google OAuth (server sẽ xử lý flow) */

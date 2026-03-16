@@ -14,6 +14,7 @@ import CollectionPage from './pages/CollectionPage';
 import ShopPage from './pages/ShopPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import MiniGamePage from './pages/MiniGamePage';
+import AccountPage from './pages/AccountPage';
 
 export default function App() {
   return (
@@ -32,7 +33,9 @@ export default function App() {
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/mini-games" element={<MiniGamePage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/auth-callback" element={<AuthCallbackPage />} />
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </main>
       <CowdiChat />

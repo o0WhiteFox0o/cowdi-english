@@ -75,6 +75,11 @@ export default function Navbar() {
                 <i className="fas fa-store me-1"></i>Shop
               </NavLink>
             </li>
+            <li className="nav-item">
+              <NavLink to="/account" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <i className="fas fa-user-circle me-1"></i>Tài khoản
+              </NavLink>
+            </li>
           </ul>
 
           <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0 flex-wrap">
@@ -86,7 +91,7 @@ export default function Navbar() {
 
             {/* Auth */}
             {user ? (
-              <div className="d-flex align-items-center gap-2 ms-2">
+              <NavLink to="/account" className="d-flex align-items-center gap-2 ms-2 text-decoration-none">
                 {user.avatar_url && (
                   <img
                     src={user.avatar_url}
@@ -100,11 +105,7 @@ export default function Navbar() {
                 <span className="small fw-semibold text-secondary d-none d-xl-inline text-truncate" style={{ maxWidth: 120 }}>
                   {user.display_name}
                 </span>
-                <button className="btn btn-sm btn-outline-secondary" onClick={logout} title="Đăng xuất">
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span className="ms-1 d-none d-md-inline">Đăng xuất</span>
-                </button>
-              </div>
+              </NavLink>
             ) : (
               <button className="btn btn-cowdi-primary btn-sm ms-2" onClick={loginWithGoogle}>
                 <i className="fab fa-google me-1"></i>Đăng nhập

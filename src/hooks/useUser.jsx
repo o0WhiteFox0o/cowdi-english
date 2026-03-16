@@ -60,6 +60,9 @@ export function UserProvider({ children }) {
       return;
     }
 
+    // Reset về defaults ngay lập tức để không hiển thị data cũ của anonymous
+    setUserData({ ...DEFAULT_DATA });
+
     // Login – ưu tiên lấy từ backend, fallback localStorage theo user
     authFetch('/api/progress')
       .then((r) => r.ok ? r.json() : null)

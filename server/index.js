@@ -16,6 +16,9 @@ import pool from './config/database.js';
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
+// ── Trust proxy (Nginx reverse proxy trên aaPanel) ───────────────────────────
+app.set('trust proxy', 1);
+
 // ── CORS: chỉ cho phép frontend domain ──────────────────────────────────────
 app.use(cors({
   origin:      process.env.FRONTEND_URL || 'http://localhost:5173',

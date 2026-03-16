@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -8,19 +8,33 @@ import { useAuth } from '../hooks/useAuth';
  */
 export default function AuthCallbackPage() {
   const [params]    = useSearchParams();
-  const { saveToken } = useAuth();
+  const { saveToken, user } = useAuth();
   const navigate    = useNavigate();
+  const [saved, setSaved] = useState(false);
 
+  // Bước 1: Lưu token (hỗ trợ cả query string lẫn hash)
   useEffect(() => {
-    const token = params.get('token');
+    let token = params.get('token');
+    // Fallback: lấy token từ hash nếu Nginx thêm # vào URL
+    if (!token) {
+      const hash = window.location.hash;
+      const match = hash.match(/[?&]token=([^&]+)/);
+      if (match) token = match[1];
+    }
     if (token) {
       saveToken(token);
-      navigate('/', { replace: true });
+      setSaved(true);
     } else {
-      // Đăng nhập thất bại
       navigate('/?login=failed', { replace: true });
     }
   }, []);
+
+  // Bước 2: Chờ user state cập nhật rồi mới navigate
+  useEffect(() => {
+    if (saved && user) {
+      navigate('/account', { replace: true });
+    }
+  }, [saved, user, navigate]);
 
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
