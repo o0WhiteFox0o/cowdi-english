@@ -66,7 +66,11 @@ export function UserProvider({ children }) {
       .then((remote) => {
         const localForUser = loadUserData(uid);
         if (remote && remote.totalXP >= localForUser.totalXP) {
-          setUserData({ ...DEFAULT_DATA, ...remote });
+          // Loại bỏ null values để DEFAULT_DATA giữ nguyên defaults
+          const cleaned = Object.fromEntries(
+            Object.entries(remote).filter(([, v]) => v != null)
+          );
+          setUserData({ ...DEFAULT_DATA, ...cleaned });
         } else {
           setUserData(localForUser);
         }

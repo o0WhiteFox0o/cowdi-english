@@ -32,6 +32,13 @@ router.get('/progress', requireAuth, async (req, res) => {
     );
     if (!row) return res.status(404).json({ error: 'Progress chưa được khởi tạo.' });
 
+    // Parse JSON fields – trả về default nếu NULL
+    const parseJSON = (val, fallback) => {
+      if (val == null) return fallback;
+      if (typeof val === 'object') return val;
+      try { return JSON.parse(val); } catch { return fallback; }
+    };
+
     // Chuyển về camelCase để khớp với frontend userData
     res.json({
       totalXP:          row.total_xp,
@@ -41,11 +48,11 @@ router.get('/progress', requireAuth, async (req, res) => {
       quizzesCompleted: row.quizzes_completed,
       perfectQuizzes:   row.perfect_quizzes,
       wordsLearned:     row.words_learned,
-      completedLessons: row.completed_lessons,
-      wordStatus:       row.word_status,
-      activeDays:       row.active_days,
-      achievements:     row.achievements,
-      dailyTasks:       row.daily_tasks,
+      completedLessons: parseJSON(row.completed_lessons, []),
+      wordStatus:       parseJSON(row.word_status, {}),
+      activeDays:       parseJSON(row.active_days, []),
+      achievements:     parseJSON(row.achievements, []),
+      dailyTasks:       parseJSON(row.daily_tasks, { lessonDone: false, vocabDone: false }),
       dailyDate:        row.daily_date,
       updatedAt:        row.updated_at,
     });
