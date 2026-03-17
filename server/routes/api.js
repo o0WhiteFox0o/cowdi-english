@@ -131,6 +131,24 @@ router.put('/progress', requireAuth, async (req, res) => {
   }
 });
 
+// ── PUT /api/word-status – lưu chỉ wordStatus (lightweight, <50KB) ──────────
+router.put('/word-status', requireAuth, async (req, res) => {
+  const { wordStatus, wordsLearned } = req.body;
+  if (!wordStatus || typeof wordStatus !== 'object') {
+    return res.status(400).json({ error: 'wordStatus is required.' });
+  }
+  try {
+    await pool.execute(
+      `UPDATE user_progress SET word_status = ?, words_learned = ? WHERE user_id = ?`,
+      [JSON.stringify(wordStatus), wordsLearned ?? 0, req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('PUT /api/word-status error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
 // ── GET /api/pet-data – lấy dữ liệu pet ─────────────────────────────────────
 router.get('/pet-data', requireAuth, async (req, res) => {
   try {

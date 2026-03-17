@@ -1,12 +1,16 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { ACHIEVEMENTS } from '../data/lessons';
+import { ACHIEVEMENTS, LESSONS } from '../data/lessons';
 import { useAuth } from './useAuth';
 
 const STORAGE_KEY_PREFIX = 'cowdi_english_data';
+const SYNC_DIRTY_KEY = 'cowdi_sync_dirty';
 
 function getStorageKey(userId) {
   return userId ? `${STORAGE_KEY_PREFIX}_${userId}` : STORAGE_KEY_PREFIX;
 }
+
+// Tập hợp tất cả từ vựng hợp lệ từ LESSONS (dùng để lọc data rác)
+const VALID_WORDS = new Set(LESSONS.flatMap((l) => l.vocabulary.map((v) => v.word)));
 
 const DEFAULT_DATA = {
   totalXP: 0,
@@ -22,11 +26,9 @@ const DEFAULT_DATA = {
   dailyTasks: { lessonDone: false, vocabDone: false },
   dailyDate: null,
   achievements: [],
-  // SRS – Spaced Repetition data per word
-  // { [word]: { interval, easeFactor, nextReview (ISO string), repetitions } }
   srsData: {},
-  // Learning Path – checkpoint best scores { [unitId]: { score, total, passed } }
   checkpointScores: {},
+  _lastModified: null,
 };
 
 // ── SRS SM-2 algorithm helpers ──────────────────────────────
@@ -53,7 +55,8 @@ function loadUserData(userId) {
   try {
     const raw = localStorage.getItem(getStorageKey(userId));
     if (raw) {
-      return { ...DEFAULT_DATA, ...JSON.parse(raw) };
+      const parsed = { ...DEFAULT_DATA, ...JSON.parse(raw) };
+      return sanitizeData(parsed);
     }
   } catch {
     // ignore
@@ -61,8 +64,154 @@ function loadUserData(userId) {
   return { ...DEFAULT_DATA };
 }
 
+// Lọc bỏ dữ liệu rác – chỉ giữ từ vựng có trong LESSONS
+function sanitizeData(data) {
+  const sanitized = { ...data };
+
+  // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
+  if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
+    const clean = {};
+    const validStatuses = ['new', 'learning', 'learned'];
+    for (const [word, status] of Object.entries(sanitized.wordStatus)) {
+      if (VALID_WORDS.has(word) && validStatuses.includes(status)) {
+        clean[word] = status;
+      }
+    }
+    sanitized.wordStatus = clean;
+    sanitized.wordsLearned = Object.values(clean).filter((s) => s === 'learned').length;
+  }
+
+  // Lọc srsData: chỉ giữ từ hợp lệ
+  if (sanitized.srsData && typeof sanitized.srsData === 'object') {
+    const clean = {};
+    for (const [word, card] of Object.entries(sanitized.srsData)) {
+      if (VALID_WORDS.has(word) && card && typeof card === 'object') {
+        clean[word] = card;
+      }
+    }
+    sanitized.srsData = clean;
+  }
+
+  // Giới hạn activeDays
+  if (Array.isArray(sanitized.activeDays) && sanitized.activeDays.length > 365) {
+    sanitized.activeDays = sanitized.activeDays.slice(-365);
+  }
+
+  return sanitized;
+}
+
+function compactData(data) {
+  const compacted = sanitizeData(data);
+  // Loại bỏ internal fields khi gửi lên server
+  delete compacted._lastModified;
+  return compacted;
+}
+
+// Tính "trọng số tiến trình" để so sánh local vs remote
+function progressWeight(data) {
+  return (data.totalXP || 0)
+    + (data.wordsLearned || 0) * 10
+    + (data.lessonsCompleted || 0) * 20
+    + Object.keys(data.wordStatus || {}).length;
+}
+
+// Merge: giữ lại nhiều từ vựng hơn giữa local và remote
+function mergeProgress(local, remote) {
+  // So sánh _lastModified nếu có
+  const localTime = local._lastModified ? new Date(local._lastModified).getTime() : 0;
+  const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+
+  // Nếu remote cũ hơn local → giữ local
+  if (localTime > remoteTime) return local;
+
+  // Nếu remote mới hơn → dùng remote nhưng merge wordStatus (giữ "learned" > "learning" > "new")
+  const mergedWordStatus = { ...(local.wordStatus || {}) };
+  const remoteWordStatus = remote.wordStatus || {};
+  const statusPriority = { learned: 3, learning: 2, new: 1 };
+
+  for (const [word, rStatus] of Object.entries(remoteWordStatus)) {
+    const lStatus = mergedWordStatus[word] || 'new';
+    if ((statusPriority[rStatus] || 0) >= (statusPriority[lStatus] || 0)) {
+      mergedWordStatus[word] = rStatus;
+    }
+  }
+
+  // Dùng remote làm base nhưng với merged wordStatus
+  const cleaned = Object.fromEntries(
+    Object.entries(remote).filter(([, v]) => v != null)
+  );
+  const merged = { ...DEFAULT_DATA, ...cleaned };
+  merged.wordStatus = mergedWordStatus;
+  merged.wordsLearned = Object.values(mergedWordStatus).filter((s) => s === 'learned').length;
+
+  // Giữ completedLessons nhiều hơn
+  const localLessons = new Set(local.completedLessons || []);
+  const remoteLessons = new Set(remote.completedLessons || []);
+  const allLessons = [...new Set([...localLessons, ...remoteLessons])];
+  merged.completedLessons = allLessons;
+  merged.lessonsCompleted = allLessons.length;
+
+  // Giữ achievements nhiều hơn
+  merged.achievements = [...new Set([...(local.achievements || []), ...(remote.achievements || [])])];
+
+  // Giữ XP cao nhất
+  merged.totalXP = Math.max(local.totalXP || 0, remote.totalXP || 0);
+
+  // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
+  const mergedSrs = { ...(local.srsData || {}) };
+  for (const [word, rCard] of Object.entries(remote.srsData || {})) {
+    const lCard = mergedSrs[word];
+    if (!lCard || (rCard.repetitions || 0) > (lCard.repetitions || 0)) {
+      mergedSrs[word] = rCard;
+    }
+  }
+  merged.srsData = mergedSrs;
+
+  // Merge checkpointScores – giữ score cao hơn
+  const mergedCheckpoints = { ...(local.checkpointScores || {}) };
+  for (const [uid, rScore] of Object.entries(remote.checkpointScores || {})) {
+    const lScore = mergedCheckpoints[uid];
+    if (!lScore || (rScore.score / rScore.total) > (lScore.score / lScore.total)) {
+      mergedCheckpoints[uid] = rScore;
+    }
+  }
+  merged.checkpointScores = mergedCheckpoints;
+
+  return sanitizeData(merged);
+}
+
+// Đánh dấu rằng local có data chưa sync lên server
+function markSyncDirty(userId) {
+  try { localStorage.setItem(`${SYNC_DIRTY_KEY}_${userId || ''}`, '1'); } catch { /* ignore */ }
+}
+function clearSyncDirty(userId) {
+  try { localStorage.removeItem(`${SYNC_DIRTY_KEY}_${userId || ''}`); } catch { /* ignore */ }
+}
+function isSyncDirty(userId) {
+  try { return localStorage.getItem(`${SYNC_DIRTY_KEY}_${userId || ''}`) === '1'; } catch { return false; }
+}
+
 function saveUserData(data, userId) {
-  localStorage.setItem(getStorageKey(userId), JSON.stringify(data));
+  try {
+    const compacted = compactData(data);
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(compacted));
+  } catch (e) {
+    if (e?.name === 'QuotaExceededError' || e?.code === 22) {
+      // localStorage đầy – thử xoá bớt dữ liệu cũ rồi lưu lại
+      try {
+        const minimal = compactData(data);
+        // Trim activeDays xuống 90 ngày
+        if (Array.isArray(minimal.activeDays)) {
+          minimal.activeDays = minimal.activeDays.slice(-90);
+        }
+        localStorage.setItem(getStorageKey(userId), JSON.stringify(minimal));
+      } catch {
+        console.warn('localStorage quota exceeded – không thể lưu offline.');
+      }
+    } else {
+      console.warn('Lỗi lưu localStorage:', e);
+    }
+  }
 }
 
 const UserContext = createContext(null);
@@ -93,20 +242,25 @@ export function UserProvider({ children }) {
     // persist bị block bởi readyRef nên KHÔNG ghi đè lên localStorage/server
     setUserData({ ...DEFAULT_DATA });
 
-    // Login – ưu tiên lấy từ backend, fallback localStorage theo user
+    // Login – merge backend + localStorage, không mất dữ liệu
     authFetch('/api/progress')
       .then((r) => r.ok ? r.json() : null)
       .then((remote) => {
         const localForUser = loadUserData(uid);
-        if (remote && remote.totalXP >= localForUser.totalXP) {
-          // Loại bỏ null values để DEFAULT_DATA giữ nguyên defaults
-          const cleaned = Object.fromEntries(
-            Object.entries(remote).filter(([, v]) => v != null)
-          );
-          setUserData({ ...DEFAULT_DATA, ...cleaned });
+        let final;
+
+        if (!remote) {
+          // Server không có data → dùng local
+          final = localForUser;
+        } else if (isSyncDirty(uid)) {
+          // Local có thay đổi chưa sync → merge thông minh
+          final = mergeProgress(localForUser, remote);
         } else {
-          setUserData(localForUser);
+          // Sync sạch – vẫn merge để không mất wordStatus
+          final = mergeProgress(localForUser, remote);
         }
+        final._lastModified = new Date().toISOString();
+        setUserData(final);
         readyRef.current = true;
       })
       .catch(() => {
@@ -118,15 +272,33 @@ export function UserProvider({ children }) {
   // ── Persist to localStorage on every userData change ────────────────────
   useEffect(() => {
     if (!readyRef.current) return; // Chưa load xong – không ghi đè
-    saveUserData(userData, user?.id || null);
+    const dataToSave = { ...userData, _lastModified: new Date().toISOString() };
+    saveUserData(dataToSave, user?.id || null);
+
     // Debounce sync lên backend 3 giây sau lần thay đổi cuối
     if (user) {
+      markSyncDirty(user.id); // Đánh dấu có thay đổi chưa sync
       clearTimeout(syncTimerRef.current);
       syncTimerRef.current = setTimeout(() => {
+        const payload = compactData(userData);
         authFetch('/api/progress', {
           method: 'PUT',
-          body: JSON.stringify(userData),
-        }).catch(() => {/* silent fail – localStorage là fallback */});
+          body: JSON.stringify(payload),
+        })
+          .then((r) => {
+            if (r.ok) { clearSyncDirty(user.id); return; }
+            // 413 = payload quá lớn → gửi chỉ wordStatus (nhẹ, <50KB)
+            if (r.status === 413) {
+              return authFetch('/api/word-status', {
+                method: 'PUT',
+                body: JSON.stringify({
+                  wordStatus: userData.wordStatus,
+                  wordsLearned: userData.wordsLearned,
+                }),
+              }).then((r2) => { if (r2.ok) clearSyncDirty(user.id); });
+            }
+          })
+          .catch(() => {/* silent fail – localStorage là fallback */});
       }, 3000);
     }
   }, [userData]);
@@ -199,7 +371,7 @@ export function UserProvider({ children }) {
       const wordStatus = { ...prev.wordStatus, [word]: status };
       const wordsLearned = Object.values(wordStatus).filter((s) => s === 'learned').length;
       const dailyTasks = { ...prev.dailyTasks, vocabDone: true };
-      const next = { ...prev, wordStatus, wordsLearned, dailyTasks };
+      const next = { ...prev, wordStatus, wordsLearned, dailyTasks, _lastModified: new Date().toISOString() };
       return checkAchievements(next);
     });
   }, []);
