@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePet } from '../hooks/usePet';
-import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution } from '../data/pets';
+import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution, COWDI_IMAGES } from '../data/pets';
 
 export default function CowdiChat() {
   const { getActivePetWithDecay } = usePet();
@@ -21,6 +21,7 @@ export default function CowdiChat() {
   const species = pet ? PET_REGISTRY[pet.speciesId] : null;
   const evo = pet && species ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
   const petEmoji = evo?.emoji || '🐮';
+  const petImage = evo?.image || (species?.id === 'cowdi' ? COWDI_IMAGES.junior : null);
 
   return (
     <>
@@ -30,7 +31,11 @@ export default function CowdiChat() {
         </div>
       )}
       <button className="cowdi-chat-btn" onClick={toggle} title={`Chat với ${species?.name || 'Cowdi'}`}>
-        {petEmoji}
+        {petImage ? (
+          <img src={petImage} alt={species?.name || 'Cowdi'} className="cowdi-chat-img" />
+        ) : (
+          petEmoji
+        )}
       </button>
     </>
   );

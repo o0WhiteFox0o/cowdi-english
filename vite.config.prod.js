@@ -10,5 +10,13 @@ export default defineConfig({
   build: {
     outDir: 'dist-prod',
     sourcemap: false,
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
   },
 });

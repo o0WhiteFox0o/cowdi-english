@@ -3,6 +3,20 @@
 // Thêm pet mới = thêm 1 entry vào PET_REGISTRY
 // ============================================
 
+// ── Cowdi Image Paths ────────────────────────────────────────────────────────
+const COWDI_IMG = '/assets/images/Pet/Cowdi';
+export const COWDI_IMAGES = {
+  egg: `${COWDI_IMG}/Group%208.webp`,
+  baby: `${COWDI_IMG}/baby%202.webp`,
+  junior: `${COWDI_IMG}/Cowdi.webp`,
+  super: `${COWDI_IMG}/cowdi_2.webp`,
+  legendary: `${COWDI_IMG}/dad.webp`,
+  doc: `${COWDI_IMG}/cowdi_doc.webp`,
+  alt: `${COWDI_IMG}/cow.webp`,
+  cow6: `${COWDI_IMG}/Cow%206.webp`,
+  group9: `${COWDI_IMG}/Group%209.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -15,11 +29,11 @@ export const PET_REGISTRY = {
     baseStats: { speech: 5, intelligence: 5, perception: 5, creativity: 5 },
     description: 'Chú bò hiền lành yêu tiếng Anh, luôn đồng hành cùng bạn từ ngày đầu.',
     evolutions: [
-      { stage: 0, name: 'Trứng Cowdi', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Cowdi', xp: 100, emoji: '🐄' },
-      { stage: 2, name: 'Junior Cowdi', xp: 500, emoji: '🐮' },
-      { stage: 3, name: 'Super Cowdi', xp: 1200, emoji: '🦬' },
-      { stage: 4, name: 'Legendary Cowdi', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Cowdi', xp: 0, emoji: '🥚', image: COWDI_IMAGES.egg },
+      { stage: 1, name: 'Baby Cowdi', xp: 100, emoji: '🐄', image: COWDI_IMAGES.baby },
+      { stage: 2, name: 'Junior Cowdi', xp: 500, emoji: '🐮', image: COWDI_IMAGES.junior },
+      { stage: 3, name: 'Super Cowdi', xp: 1200, emoji: '🦬', image: COWDI_IMAGES.super },
+      { stage: 4, name: 'Legendary Cowdi', xp: 2500, emoji: '👑', image: COWDI_IMAGES.legendary },
     ],
     unlockCondition: null, // Starter — có sẵn
     chatMessages: {
