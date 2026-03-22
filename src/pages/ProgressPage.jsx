@@ -119,6 +119,40 @@ export default function ProgressPage() {
         ))}
       </div>
 
+      {/* 4-Skill Progress (User) */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="fw-bold mb-3">🎯 Kỹ năng ngôn ngữ</h5>
+          {(() => {
+            const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
+            const maxXP = Math.max(1, ...Object.values(sk));
+            return (
+              <div className="row g-3">
+                {Object.entries(SKILL_META).map(([key, meta]) => {
+                  const xp = sk[key] || 0;
+                  const pct = Math.round((xp / maxXP) * 100);
+                  return (
+                    <div className="col-6" key={key}>
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <span className="fs-5">{meta.icon}</span>
+                        <span className="fw-bold small" style={{ color: meta.color }}>{meta.name}</span>
+                        <span className="text-muted small ms-auto">{xp} XP</span>
+                      </div>
+                      <div className="progress" style={{ height: '8px' }}>
+                        <div
+                          className="progress-bar"
+                          style={{ width: `${pct}%`, backgroundColor: meta.color }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
       {/* Vocabulary stats */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">

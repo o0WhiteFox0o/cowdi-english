@@ -2,6 +2,7 @@
 import Navbar from './components/Navbar';
 import CowdiChat from './components/CowdiChat';
 import { ToastProvider } from './components/Toast';
+import { SoundProvider } from './hooks/useSound';
 import HomePage from './pages/HomePage';
 import LessonsPage from './pages/LessonsPage';
 import LessonDetailPage from './pages/LessonDetailPage';
@@ -22,6 +23,7 @@ import StudentRankingPage from './pages/StudentRankingPage';
 
 export default function App() {
   return (
+    <SoundProvider>
     <ToastProvider>
       <Navbar />
       <main className="container py-4" style={{ marginTop: '70px' }}>
@@ -48,5 +50,6 @@ export default function App() {
       </main>
       <CowdiChat />
     </ToastProvider>
+    </SoundProvider>
   );
 }

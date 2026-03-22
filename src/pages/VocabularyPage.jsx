@@ -4,12 +4,14 @@ import { VOCAB_TOPICS, getTopicWordCount } from '../data/vocab-topics';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
 export default function VocabularyPage() {
   const { userData, setWordStatus, getWordStatus } = useUser();
   const { onVocabReview } = usePet();
   const showToast = useToast();
+  const { play } = useSound();
 
   // Navigation state
   const [view, setView] = useState('topics');       // topics | subtopics | words
@@ -95,17 +97,20 @@ export default function VocabularyPage() {
 
   function nextCard() {
     setFlipped(false);
+    play('flip');
     setCardIndex((i) => (i + 1) % filteredWords.length);
   }
 
   function prevCard() {
     setFlipped(false);
+    play('flip');
     setCardIndex((i) => (i - 1 + filteredWords.length) % filteredWords.length);
   }
 
   function markWord(word, status) {
     setWordStatus(word, status);
     onVocabReview();
+    if (status === 'learned') play('wordLearned'); else play('click');
     showToast(
       status === 'learned' ? `Đã đánh dấu "${word}" là đã thuộc! ✅` : `Đã đánh dấu "${word}" cần ôn lại 📝`,
       'success'

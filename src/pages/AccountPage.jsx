@@ -200,7 +200,9 @@ export default function AccountPage() {
           <div className="card-body">
             <h5 className="fw-bold mb-3"><i className="fas fa-paw text-cowdi me-2"></i>Pet đang hoạt động</h5>
             <div className="d-flex align-items-center gap-3">
-              <div style={{ fontSize: '3rem' }}>{evo.emoji}</div>
+              {evo.image
+                ? <img src={evo.image} alt={evo.name} width="64" height="64" style={{ objectFit: 'contain' }} />
+                : <div style={{ fontSize: '3rem' }}>{evo.emoji}</div>}
               <div>
                 <div className="fw-bold fs-5">{activePet.customName || species.name}</div>
                 <small className="text-muted">{evo.name} • {species.name}</small>

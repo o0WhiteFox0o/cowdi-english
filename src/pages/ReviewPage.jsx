@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LESSONS } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 // Build a lookup map: word → vocab object (with lesson info)
 function buildWordMap() {
@@ -19,6 +20,7 @@ export default function ReviewPage() {
   const navigate = useNavigate();
   const { userData, reviewWord, getWordsForReview, addXP, addWordToSRS } = useUser();
   const showToast = useToast();
+  const { play } = useSound();
 
   const wordMap = useMemo(buildWordMap, []);
   const dueWords = useMemo(() => getWordsForReview(), [getWordsForReview]);
@@ -60,6 +62,7 @@ export default function ReviewPage() {
       }
     }
     showToast('Đã thêm từ vào hệ thống ôn tập! 📚', 'success');
+    play('click');
   }
 
   function handleGrade(quality) {
@@ -70,6 +73,11 @@ export default function ReviewPage() {
     // Track session stats
     const label = quality >= 5 ? 'easy' : quality >= 4 ? 'good' : quality >= 3 ? 'hard' : 'again';
     setSessionScore((prev) => ({ ...prev, [label]: prev[label] + 1 }));
+    // Sound feedback based on quality
+    if (quality >= 5) play('reviewEasy');
+    else if (quality >= 4) play('correct');
+    else if (quality >= 3) play('reviewHard');
+    else play('wrong');
 
     // Next card
     if (idx + 1 < Math.min(dueWords.length, 20)) {
@@ -80,6 +88,7 @@ export default function ReviewPage() {
       const totalReviewed = idx + 1;
       addXP(totalReviewed * 3);
       setSessionDone(true);
+      play('celebration');
       showToast(`Ôn tập xong ${totalReviewed} từ! +${totalReviewed * 3} XP 🎉`, 'success');
     }
   }
@@ -127,7 +136,7 @@ export default function ReviewPage() {
         {/* Card */}
         <div
           className="flashcard-wrapper mx-auto mb-4"
-          onClick={() => { setFlipped(!flipped); if (!flipped && info) speakWord(info.word); }}
+          onClick={() => { setFlipped(!flipped); play('flip'); if (!flipped && info) speakWord(info.word); }}
           style={{ maxWidth: 460, height: 280 }}
         >
           <div className={`flashcard-inner ${flipped ? 'flipped' : ''}`}>

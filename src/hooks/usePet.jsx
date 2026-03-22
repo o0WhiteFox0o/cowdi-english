@@ -12,6 +12,36 @@ function getPetStorageKey(userId) {
   return userId ? `${PET_STORAGE_PREFIX}_${userId}` : PET_STORAGE_PREFIX;
 }
 
+// ── Migrate old skill names → new 4-language-skill names ───────────────────
+function migrateSkills(skills) {
+  if (!skills) return { listening: 0, speaking: 0, reading: 0, writing: 0 };
+  // Already migrated?
+  if ('listening' in skills || 'speaking' in skills || 'reading' in skills || 'writing' in skills) {
+    return {
+      listening: skills.listening || 0,
+      speaking: skills.speaking || 0,
+      reading: skills.reading || 0,
+      writing: skills.writing || 0,
+    };
+  }
+  // Old format: speech→speaking, intelligence→reading, perception→listening, creativity→writing
+  return {
+    listening: skills.perception || 0,
+    speaking: skills.speech || 0,
+    reading: skills.intelligence || 0,
+    writing: skills.creativity || 0,
+  };
+}
+
+function migratePetCollection(collection) {
+  if (!collection) return {};
+  const migrated = {};
+  for (const [id, pet] of Object.entries(collection)) {
+    migrated[id] = { ...pet, skills: migrateSkills(pet.skills) };
+  }
+  return migrated;
+}
+
 const DEFAULT_PET_DATA = {
   activePetId: null,
   nickname: '',
@@ -27,7 +57,11 @@ const DEFAULT_PET_DATA = {
 function loadPetData(userId) {
   try {
     const raw = localStorage.getItem(getPetStorageKey(userId));
-    if (raw) return { ...DEFAULT_PET_DATA, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = { ...DEFAULT_PET_DATA, ...JSON.parse(raw) };
+      parsed.collection = migratePetCollection(parsed.collection);
+      return parsed;
+    }
   } catch { /* ignore */ }
   return { ...DEFAULT_PET_DATA };
 }
@@ -47,7 +81,7 @@ function ensureInitialPet(data) {
         speciesId: 'cowdi',
         customName: 'Cowdi',
         evolution: 0,
-        skills: { speech: 0, intelligence: 0, perception: 0, creativity: 0 },
+        skills: { listening: 0, speaking: 0, reading: 0, writing: 0 },
         needs: { energy: 80, happiness: 80, health: 80, knowledge: 80 },
         cosmetics: { hat: null, outfit: null, room: null, effect: null },
         totalXpEarned: 0,
@@ -88,6 +122,7 @@ export function PetProvider({ children }) {
         let merged;
         if (remote && Object.keys(remote.collection || {}).length >= Object.keys(local.collection || {}).length) {
           merged = { ...DEFAULT_PET_DATA, ...remote };
+          merged.collection = migratePetCollection(merged.collection);
         } else {
           merged = local;
         }
@@ -173,9 +208,24 @@ export function PetProvider({ children }) {
   // ── Add skill points to active pet ───────────────────────────────────────
   const addSkillPoints = useCallback((quizCategory, correct, total) => {
     const skill = QUIZ_TO_SKILL[quizCategory];
-    if (!skill) return;
     const isPerfect = correct === total;
-    const points = isPerfect ? correct + 5 : correct; // bonus for perfect
+    const points = isPerfect ? correct + 5 : correct;
+    if (skill === null || skill === undefined) {
+      // mixed → distribute evenly across 4 skills
+      const each = Math.max(1, Math.floor(points / 4));
+      updateActivePet((pet) => ({
+        ...pet,
+        skills: {
+          listening: (pet.skills.listening || 0) + each,
+          speaking: (pet.skills.speaking || 0) + each,
+          reading: (pet.skills.reading || 0) + each,
+          writing: (pet.skills.writing || 0) + each,
+        },
+        totalXpEarned: pet.totalXpEarned + correct * 10 + (isPerfect ? 20 : 0),
+        needsUpdatedAt: new Date().toISOString(),
+      }));
+      return;
+    }
     updateActivePet((pet) => ({
       ...pet,
       skills: { ...pet.skills, [skill]: (pet.skills[skill] || 0) + points },
@@ -189,10 +239,10 @@ export function PetProvider({ children }) {
     updateActivePet((pet) => ({
       ...pet,
       skills: {
-        speech: (pet.skills.speech || 0) + amount,
-        intelligence: (pet.skills.intelligence || 0) + amount,
-        perception: (pet.skills.perception || 0) + amount,
-        creativity: (pet.skills.creativity || 0) + amount,
+        listening: (pet.skills.listening || 0) + amount,
+        speaking: (pet.skills.speaking || 0) + amount,
+        reading: (pet.skills.reading || 0) + amount,
+        writing: (pet.skills.writing || 0) + amount,
       },
       totalXpEarned: pet.totalXpEarned + amount * 10,
       needs: {
@@ -280,7 +330,7 @@ export function PetProvider({ children }) {
           speciesId,
           customName: species.name,
           evolution: 0,
-          skills: { speech: 0, intelligence: 0, perception: 0, creativity: 0 },
+          skills: { listening: 0, speaking: 0, reading: 0, writing: 0 },
           needs: { energy: 100, happiness: 100, health: 100, knowledge: 100 },
           cosmetics: { hat: null, outfit: null, room: null, effect: null },
           totalXpEarned: 0,

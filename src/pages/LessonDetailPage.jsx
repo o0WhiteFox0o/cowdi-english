@@ -4,62 +4,9 @@ import { LESSONS } from '../data/lessons';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 /* ── Tiny helpers ────────────────────────────────── */
-
-function playCorrectSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime);    // C5
-    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
-    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
-    gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.45);
-  } catch (_) { /* silent fallback */ }
-}
-
-function playWrongSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(200, ctx.currentTime);
-    osc.frequency.setValueAtTime(150, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.3);
-  } catch (_) { /* silent fallback */ }
-}
-
-function playCelebrationSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523.25, 659.25, 783.99, 1046.5];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.4);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.4);
-    });
-  } catch (_) { /* silent fallback */ }
-}
 
 /** Spawn emoji confetti particles */
 function spawnConfetti(containerRef) {
@@ -85,6 +32,7 @@ export default function LessonDetailPage() {
   const { userData, addXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus } = useUser();
   const { onLessonComplete, addCoins } = usePet();
   const showToast = useToast();
+  const { play } = useSound();
   const lesson = LESSONS.find((l) => l.id === id);
 
   const confettiRef = useRef(null);
@@ -148,11 +96,11 @@ export default function LessonDetailPage() {
     if (isCorrect) {
       setScore((s) => s + 1);
       setCorrectAnim(true);
-      playCorrectSound();
+      play('correct');
       setTimeout(() => setCorrectAnim(false), 700);
     } else {
       setWrongAnim(true);
-      playWrongSound();
+      play('wrong');
       setTimeout(() => setWrongAnim(false), 500);
     }
     setTimeout(() => {
@@ -169,7 +117,7 @@ export default function LessonDetailPage() {
         incrementQuizzes(isPerfect);
         onLessonComplete();
         addCoins(10);
-        playCelebrationSound();
+        play('celebration');
         spawnConfetti(confettiRef);
         showToast(`+${xp} XP! +10 🪙 Bạn đã hoàn thành bài học! 🎉`, 'success');
       }
@@ -203,7 +151,7 @@ export default function LessonDetailPage() {
       } else {
         next.add(word);
         setWordStatus(word, 'learned');
-        playCorrectSound();
+        play('wordLearned');
       }
       return next;
     });

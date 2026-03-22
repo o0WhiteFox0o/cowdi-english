@@ -5,6 +5,7 @@ import { useUser } from '../hooks/useUser';
 import { QUIZ_BANK, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 // ── League definitions ──────────────────────────────────────
 const LEAGUES = {
@@ -102,6 +103,7 @@ export default function DuelPage() {
   // Result state
   const [result, setResult] = useState(null);
   const showToast = useToast();
+  const { play } = useSound();
 
   // ── Load lobby data ─────────────────────────────────────────
   const loadLobby = useCallback(async () => {
@@ -140,6 +142,7 @@ export default function DuelPage() {
       showToast('Không đủ câu hỏi!', 'danger');
       return;
     }
+    play('click');
     setQuestions(quiz);
     setAnswers(new Array(quiz.length).fill(-1));
     setCurrentQ(0);
@@ -152,6 +155,7 @@ export default function DuelPage() {
   // ── Select an answer ────────────────────────────────────────
   function selectAnswer(optionIdx) {
     if (selectedOption !== null || submitting) return;
+    play('pop');
     setSelectedOption(optionIdx);
     const newAnswers = [...answers];
     newAnswers[currentQ] = optionIdx;
@@ -188,6 +192,7 @@ export default function DuelPage() {
           setMode('result');
           addXP(score * 5);
           addCoins(10);
+          play('celebration');
         } else {
           showToast(data.error || 'Lỗi tạo thách đấu.', 'danger');
           setMode('lobby');
@@ -220,6 +225,7 @@ export default function DuelPage() {
           setMode('result');
           addXP(data.opponentScore * 5);
           addCoins(isWin ? 50 : isDraw ? 25 : 10);
+          play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
         } else {
           showToast(data.error || 'Lỗi nộp bài.', 'danger');
           setMode('lobby');

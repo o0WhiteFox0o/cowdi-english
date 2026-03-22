@@ -78,6 +78,38 @@ export default function HomePage() {
         ))}
       </div>
 
+      {/* 4-Skill Quick View */}
+      <div className="card shadow-sm mb-5">
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h5 className="fw-bold mb-0">🎯 4 Kỹ năng</h5>
+            <Link to="/progress" className="btn btn-sm btn-outline-cowdi">Xem chi tiết</Link>
+          </div>
+          {(() => {
+            const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
+            const maxXP = Math.max(1, ...Object.values(sk));
+            return (
+              <div className="d-flex gap-3 flex-wrap">
+                {Object.entries(SKILL_META).map(([key, meta]) => {
+                  const xp = sk[key] || 0;
+                  const pct = Math.round((xp / maxXP) * 100);
+                  return (
+                    <div key={key} className="flex-fill text-center" style={{ minWidth: 70 }}>
+                      <div className="fs-4">{meta.icon}</div>
+                      <div className="fw-bold small" style={{ color: meta.color }}>{meta.name}</div>
+                      <div className="progress mx-auto mt-1" style={{ height: '6px', maxWidth: 80 }}>
+                        <div className="progress-bar" style={{ width: `${pct}%`, backgroundColor: meta.color }}></div>
+                      </div>
+                      <div className="text-muted" style={{ fontSize: '0.7rem' }}>{xp} XP</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
       {/* Level Progress */}
       <div className="card shadow-sm mb-5">
         <div className="card-body">

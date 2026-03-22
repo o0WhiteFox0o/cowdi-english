@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { usePet } from '../hooks/usePet';
 import { SHOP_ITEMS, PET_REGISTRY } from '../data/pets';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 const CATEGORIES = [
   { id: 'hat', icon: '🎩', label: 'Mũ' },
@@ -14,6 +15,7 @@ const CATEGORIES = [
 export default function ShopPage() {
   const { petData, buyItem, equipItem, useFood } = usePet();
   const showToast = useToast();
+  const { play } = useSound();
   const [category, setCategory] = useState('hat');
 
   const items = useMemo(() =>
@@ -26,8 +28,10 @@ export default function ShopPage() {
   function handleBuy(item) {
     const ok = buyItem(item.id, item.price);
     if (ok) {
+      play('purchase');
       showToast(`Đã mua ${item.name}! ${item.emoji}`, 'success');
     } else {
+      play('denied');
       showToast('Không đủ coins! 💸', 'warning');
     }
   }
@@ -39,9 +43,11 @@ export default function ShopPage() {
     if (currentlyEquipped === item.id) {
       // Unequip
       equipItem(petData.activePetId, slot, null);
+      play('equip');
       showToast(`Đã tháo ${item.name}`, 'info');
     } else {
       equipItem(petData.activePetId, slot, item.id);
+      play('equip');
       showToast(`Đã trang bị ${item.name}! ${item.emoji}`, 'success');
     }
   }
@@ -49,6 +55,7 @@ export default function ShopPage() {
   function handleUseFood(item) {
     const ok = useFood(item.id);
     if (ok) {
+      play('petEat');
       // Remove from owned after use
       showToast(`${activePet?.customName || 'Pet'} đã ăn ${item.name}! ${item.emoji}`, 'success');
     }

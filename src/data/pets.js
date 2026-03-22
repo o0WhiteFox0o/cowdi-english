@@ -31,7 +31,7 @@ export const PET_REGISTRY = {
     emoji: '🐮',
     element: 'neutral',
     rarity: 'starter',
-    baseStats: { speech: 5, intelligence: 5, perception: 5, creativity: 5 },
+    baseStats: { listening: 5, speaking: 5, reading: 5, writing: 5 },
     description: 'Chú bò hiền lành yêu tiếng Anh, luôn đồng hành cùng bạn từ ngày đầu.',
     evolutions: [
       { stage: 0, name: 'Trứng Cowdi', xp: 0, emoji: '🥚' },
@@ -68,7 +68,7 @@ export const PET_REGISTRY = {
     emoji: '🦊',
     element: 'fire',
     rarity: 'common',
-    baseStats: { speech: 3, intelligence: 8, perception: 4, creativity: 5 },
+    baseStats: { listening: 4, speaking: 3, reading: 8, writing: 5 },
     description: 'Cáo thông minh, giỏi ngữ pháp, thích giải đố.',
     evolutions: [
       { stage: 0, name: 'Trứng Foxie', xp: 0, emoji: '🥚', image: FOXIE_IMAGES.egg },
@@ -97,7 +97,7 @@ export const PET_REGISTRY = {
     emoji: '🐧',
     element: 'water',
     rarity: 'common',
-    baseStats: { speech: 4, intelligence: 4, perception: 8, creativity: 4 },
+    baseStats: { listening: 8, speaking: 4, reading: 4, writing: 4 },
     description: 'Cánh cụt chăm chỉ, thính giác siêu nhạy, yêu âm nhạc.',
     evolutions: [
       { stage: 0, name: 'Trứng Pingu', xp: 0, emoji: '🥚' },
@@ -125,7 +125,7 @@ export const PET_REGISTRY = {
     emoji: '🐢',
     element: 'nature',
     rarity: 'common',
-    baseStats: { speech: 8, intelligence: 4, perception: 4, creativity: 4 },
+    baseStats: { listening: 4, speaking: 8, reading: 4, writing: 4 },
     description: 'Rùa kiên nhẫn, nhớ từ vựng rất giỏi, chậm mà chắc.',
     evolutions: [
       { stage: 0, name: 'Trứng Leafy', xp: 0, emoji: '🥚' },
@@ -153,7 +153,7 @@ export const PET_REGISTRY = {
     emoji: '🐉',
     element: 'fire',
     rarity: 'rare',
-    baseStats: { speech: 4, intelligence: 5, perception: 4, creativity: 8 },
+    baseStats: { listening: 4, speaking: 4, reading: 5, writing: 8 },
     description: 'Rồng nhỏ đầy năng lượng, sáng tạo vô hạn, thích viết câu.',
     evolutions: [
       { stage: 0, name: 'Trứng Sparky', xp: 0, emoji: '🥚' },
@@ -181,7 +181,7 @@ export const PET_REGISTRY = {
     emoji: '🐱',
     element: 'cosmic',
     rarity: 'rare',
-    baseStats: { speech: 4, intelligence: 7, perception: 7, creativity: 3 },
+    baseStats: { listening: 7, speaking: 4, reading: 7, writing: 3 },
     description: 'Mèo thần bí từ thiên hà xa xôi, giỏi phân tích và lắng nghe.',
     evolutions: [
       { stage: 0, name: 'Trứng Mimi', xp: 0, emoji: '🥚' },
@@ -209,7 +209,7 @@ export const PET_REGISTRY = {
     emoji: '🦉',
     element: 'nature',
     rarity: 'rare',
-    baseStats: { speech: 3, intelligence: 10, perception: 4, creativity: 4 },
+    baseStats: { listening: 4, speaking: 3, reading: 10, writing: 4 },
     description: 'Cú vọ thông thái, bậc thầy ngữ pháp, biết mọi quy tắc.',
     evolutions: [
       { stage: 0, name: 'Trứng Owlbert', xp: 0, emoji: '🥚' },
@@ -237,7 +237,7 @@ export const PET_REGISTRY = {
     emoji: '🐬',
     element: 'water',
     rarity: 'rare',
-    baseStats: { speech: 7, intelligence: 3, perception: 7, creativity: 4 },
+    baseStats: { listening: 7, speaking: 7, reading: 3, writing: 4 },
     description: 'Cá heo vui vẻ, giao tiếp tuyệt vời, nghe hiểu siêu nhanh.',
     evolutions: [
       { stage: 0, name: 'Trứng Flippy', xp: 0, emoji: '🥚' },
@@ -265,7 +265,7 @@ export const PET_REGISTRY = {
     emoji: '🦁',
     element: 'fire',
     rarity: 'epic',
-    baseStats: { speech: 6, intelligence: 6, perception: 6, creativity: 6 },
+    baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Sư tử dũng mãnh, mạnh mẽ toàn diện, vua của muôn loài.',
     evolutions: [
       { stage: 0, name: 'Trứng Leo', xp: 0, emoji: '🥚' },
@@ -293,7 +293,7 @@ export const PET_REGISTRY = {
     emoji: '🐼',
     element: 'nature',
     rarity: 'epic',
-    baseStats: { speech: 9, intelligence: 4, perception: 5, creativity: 5 },
+    baseStats: { listening: 5, speaking: 9, reading: 4, writing: 5 },
     description: 'Gấu trúc dễ thương, bậc thầy giao tiếp, nói chuyện suốt ngày.',
     evolutions: [
       { stage: 0, name: 'Trứng Bamboo', xp: 0, emoji: '🥚' },
@@ -321,7 +321,7 @@ export const PET_REGISTRY = {
     emoji: '🦅',
     element: 'cosmic',
     rarity: 'epic',
-    baseStats: { speech: 4, intelligence: 4, perception: 7, creativity: 8 },
+    baseStats: { listening: 7, speaking: 4, reading: 4, writing: 8 },
     description: 'Đại bàng kiên cường, bay qua mọi giông bão, sáng tạo vô tận.',
     evolutions: [
       { stage: 0, name: 'Trứng Storm', xp: 0, emoji: '🥚' },
@@ -349,7 +349,7 @@ export const PET_REGISTRY = {
     emoji: '🐺',
     element: 'cosmic',
     rarity: 'epic',
-    baseStats: { speech: 3, intelligence: 8, perception: 4, creativity: 8 },
+    baseStats: { listening: 4, speaking: 3, reading: 8, writing: 8 },
     description: 'Sói huyền bí, trí tuệ sâu sắc, sáng tạo trong bóng tối.',
     evolutions: [
       { stage: 0, name: 'Trứng Shadow', xp: 0, emoji: '🥚' },
@@ -377,7 +377,7 @@ export const PET_REGISTRY = {
     emoji: '🦄',
     element: 'cosmic',
     rarity: 'legendary',
-    baseStats: { speech: 8, intelligence: 8, perception: 8, creativity: 8 },
+    baseStats: { listening: 8, speaking: 8, reading: 8, writing: 8 },
     description: 'Kỳ lân huyền thoại, tỏa sáng bởi kiến thức toàn diện.',
     evolutions: [
       { stage: 0, name: 'Trứng Prisma', xp: 0, emoji: '🥚' },
@@ -405,7 +405,7 @@ export const PET_REGISTRY = {
     emoji: '🐲',
     element: 'fire',
     rarity: 'legendary',
-    baseStats: { speech: 9, intelligence: 9, perception: 9, creativity: 9 },
+    baseStats: { listening: 9, speaking: 9, reading: 9, writing: 9 },
     description: 'Rồng cổ đại, bậc thầy vạn vật, chỉ xuất hiện khi thu thập đủ tất cả.',
     evolutions: [
       { stage: 0, name: 'Trứng Draco', xp: 0, emoji: '🥚' },
@@ -433,7 +433,7 @@ export const PET_REGISTRY = {
     emoji: '🎃',
     element: 'cosmic',
     rarity: 'event',
-    baseStats: { speech: 6, intelligence: 6, perception: 6, creativity: 6 },
+    baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Bí ngô phép thuật từ lễ hội Halloween, mang bonus XP đặc biệt.',
     evolutions: [
       { stage: 0, name: 'Trứng Pumpkin', xp: 0, emoji: '🥚' },
@@ -525,20 +525,57 @@ export const RARITY_COLORS = {
   event:     { bg: '#FBE9E7', text: '#E64A19', name: '🎃 Sự kiện' },
 };
 
-// ── Skill metadata ───────────────────────────────────────────────────────────
+// ── Skill metadata (4 kỹ năng ngôn ngữ) ─────────────────────────────────────
 export const SKILL_META = {
-  speech:       { icon: '🗣️', name: 'Giao tiếp', color: '#4CAF50' },
-  intelligence: { icon: '🧠', name: 'Trí tuệ',   color: '#2196F3' },
-  perception:   { icon: '👂', name: 'Thính giác', color: '#9C27B0' },
-  creativity:   { icon: '✍️', name: 'Sáng tạo',  color: '#FF9800' },
+  listening: { icon: '👂', name: 'Nghe',  color: '#9C27B0' },
+  speaking:  { icon: '🗣️', name: 'Nói',   color: '#4CAF50' },
+  reading:   { icon: '📖', name: 'Đọc',   color: '#2196F3' },
+  writing:   { icon: '✍️', name: 'Viết',  color: '#FF9800' },
+};
+
+// ── Nhóm quiz theo 4 kỹ năng ────────────────────────────────────────────────
+export const SKILL_GROUPS = {
+  listening: {
+    icon: '👂', name: 'Nghe', color: '#9C27B0',
+    types: ['listening', 'dictation', 'listenPick', 'listenSentence'],
+    desc: 'Luyện nghe hiểu và nhận diện từ',
+  },
+  speaking: {
+    icon: '🗣️', name: 'Nói', color: '#4CAF50',
+    types: ['vocab', 'matching', 'speedRound', 'wordGuess'],
+    desc: 'Từ vựng, phát âm và phản xạ nhanh',
+  },
+  reading: {
+    icon: '📖', name: 'Đọc', color: '#2196F3',
+    types: ['grammar', 'fillin', 'trueFalse', 'contextClue'],
+    desc: 'Ngữ pháp, điền từ và đoán nghĩa',
+  },
+  writing: {
+    icon: '✍️', name: 'Viết', color: '#FF9800',
+    types: ['sentences', 'reorder', 'wordBuild', 'translateWrite'],
+    desc: 'Viết câu, sắp xếp từ và ghép chữ',
+  },
 };
 
 // ── Helper: Quiz category → Pet skill ────────────────────────────────────────
 export const QUIZ_TO_SKILL = {
-  vocab:     'speech',
-  grammar:   'intelligence',
-  listening: 'perception',
-  sentences: 'creativity',
+  vocab:          'speaking',
+  grammar:        'reading',
+  listening:      'listening',
+  sentences:      'writing',
+  dictation:      'listening',
+  matching:       'speaking',
+  fillin:         'reading',
+  reorder:        'writing',
+  listenPick:     'listening',
+  listenSentence: 'listening',
+  speedRound:     'speaking',
+  wordGuess:      'speaking',
+  trueFalse:      'reading',
+  contextClue:    'reading',
+  wordBuild:      'writing',
+  translateWrite: 'writing',
+  mixed:          null, // điểm chia đều cho 4 kỹ năng
 };
 
 // ── Helper: Get current evolution stage ──────────────────────────────────────
@@ -559,8 +596,8 @@ const RARITY_BONUS = { starter: 1.0, common: 1.0, rare: 1.1, epic: 1.2, legendar
 
 export function calculatePowerScore(petInstance, species) {
   if (!petInstance || !species) return 0;
-  const { speech = 0, intelligence = 0, perception = 0, creativity = 0 } = petInstance.skills;
-  const base = speech + intelligence + perception + creativity;
+  const { listening = 0, speaking = 0, reading = 0, writing = 0 } = petInstance.skills;
+  const base = listening + speaking + reading + writing;
   const evoMul = EVOLUTION_MULTIPLIER[petInstance.evolution] ?? 1.0;
   const rarMul = RARITY_BONUS[species.rarity] ?? 1.0;
   return Math.floor(base * evoMul * rarMul);

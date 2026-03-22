@@ -11,10 +11,13 @@
 | Hạng mục | Số liệu |
 |---|---|
 | Bài học | 21 bài (210+ từ vựng) |
+| Từ vựng Mind Map | 13 chủ đề, 42 chủ đề con, 702 từ |
+| Tổng từ vựng | ~912 từ (bài học + mind map) |
 | Unit (Lộ trình) | 5 unit, checkpoint test |
 | Ngân hàng câu hỏi | ~500 câu (vocab, grammar, listening, sentences) |
-| Dạng bài tập | 9 loại (MCQ, dictation, matching, fill-in, reorder, mixed...) |
-| Pet | 15 con, 5 giai đoạn tiến hóa, 4 kỹ năng, 4 nhu cầu |
+| 4 Kỹ năng ngôn ngữ | Nghe, Nói, Đọc, Viết — tính điểm riêng cho pet & người học |
+| Dạng bài tập | 9 loại nhóm theo 4 kỹ năng (MCQ, dictation, matching, fill-in, reorder, mixed...) |
+| Pet | 15 con, 5 giai đoạn tiến hóa, 4 kỹ năng ngôn ngữ, 4 nhu cầu |
 | Shop | 26 items (hats, outfits, rooms, effects, food) |
 | Mini-games | 2 (Bắt từ, Ghép câu) |
 | Thành tích | 18 (10 user + 8 pet) |
@@ -30,18 +33,20 @@
 | Tính năng | Mô tả |
 |---|---|
 | 📖 **21 Bài học** | Từ cơ bản đến nâng cao: chào hỏi, gia đình, màu sắc, số đếm, thói quen, đồ ăn, du lịch, thì, trường học, thời tiết, nghề nghiệp, cơ thể, quần áo, nhà cửa, cảm xúc, sở thích, thiên nhiên, công nghệ, mua sắm, sức khỏe, so sánh |
+| 🗺️ **Mind Map từ vựng** | 13 chủ đề × 42 chủ đề con × 702 từ — duyệt theo sơ đồ tư duy 3 cấp, flashcard & list view |
 | 🃏 **Flashcard 3D** | Lật thẻ 3D, nút phát âm (Web Speech API normal + slow) |
-| 🎯 **9 dạng bài tập** | Vocabulary, Grammar, Listening, Sentences, Dictation, Matching, Fill-in-blank, Sentence Reorder, Mixed |
+| 🎯 **4 Kỹ năng × 9 dạng bài** | Nghe (listening, dictation) · Nói (vocab, matching) · Đọc (grammar, fill-in) · Viết (sentences, reorder) + Mixed |
 | 🧠 **SRS (Spaced Repetition)** | Thuật toán SM-2: ôn tập thông minh theo chu kỳ 1→3→7→14 ngày |
 | 🗺️ **Learning Path** | 5 unit lộ trình, checkpoint test (≥70% mới mở unit tiếp) |
-| 📋 **Từ vựng** | Tìm kiếm, lọc, đánh dấu trạng thái (mới/đang học/đã thuộc) |
+| 📊 **Skill XP** | Người học tích lũy XP riêng cho từng kỹ năng (Nghe/Nói/Đọc/Viết) — hiển thị trên Home & Progress |
 
 ### 🐾 Hệ thống Pet (Tamagotchi)
 | Tính năng | Mô tả |
 |---|---|
 | 🐮 **15 Pet** | Cowdi, Foxie, Pingu, Leafy, Sparky, Mimi, Owlbert, Flippy, Leo, Bamboo, Storm, Shadow, Prisma, Draco, Pumpkin |
-| ⚡ **Tiến hóa 5 giai đoạn** | Trứng → Baby → Junior → Adult → Legendary (theo XP) |
-| 📊 **4 Kỹ năng** | Speech, Intelligence, Perception, Creativity (tăng qua quiz) |
+| ⚡ **Tiến hóa 5 giai đoạn** | Trứng → Baby → Junior → Super → Legendary (theo XP) |
+| 🖼️ **Hình ảnh WebP** | Cowdi (4 ảnh) + Foxie (5 ảnh) — hiển thị trên Pet, Home, Navbar |
+| 📊 **4 Kỹ năng ngôn ngữ** | 👂 Nghe, 🗣️ Nói, 📖 Đọc, ✍️ Viết — tăng qua quiz theo mapping kỹ năng |
 | 💗 **4 Nhu cầu** | Năng lượng, Vui vẻ, Sức khỏe, Kiến thức (decay theo thời gian) |
 | 🛍️ **Shop 26 items** | Hats, Outfits, Rooms, Effects, Food — trang trí & chăm sóc pet |
 | 📦 **Bộ sưu tập** | Grid 15 pet với điều kiện mở khóa |
@@ -107,8 +112,8 @@ cowdi-english/
 │   │   ├── HomePage.jsx          # Trang chủ
 │   │   ├── LessonsPage.jsx       # Danh sách 21 bài học
 │   │   ├── LessonDetailPage.jsx  # Chi tiết bài + quiz + flashcard
-│   │   ├── VocabularyPage.jsx    # Flashcard 3D + danh sách từ
-│   │   ├── PracticePage.jsx      # 9 dạng bài tập quiz
+│   │   ├── VocabularyPage.jsx    # Mind Map từ vựng 3 cấp (chủ đề → chủ đề con → từ)
+│   │   ├── PracticePage.jsx      # 9 dạng bài tập nhóm theo 4 kỹ năng Nghe/Nói/Đọc/Viết
 │   │   ├── ReviewPage.jsx        # Ôn tập SRS (SM-2)
 │   │   ├── LearningPathPage.jsx  # Lộ trình 5 unit + checkpoint
 │   │   ├── ProgressPage.jsx      # Tiến trình + thành tích
@@ -127,7 +132,8 @@ cowdi-english/
 │   │   └── usePet.jsx            # Pet system: collection, skills, needs, coins
 │   ├── data/
 │   │   ├── lessons.js            # 21 bài, 500 quiz, units, achievements, levels
-│   │   ├── pets.js               # 15 pet, 26 shop items, quests, power score
+│   │   ├── pets.js               # 15 pet, 26 shop items, quests, 4 skill groups, power score
+│   │   ├── vocab-topics.js       # 13 chủ đề, 42 chủ đề con, 702 từ — mind map
 │   │   └── quiz-bank-extra.js    # ~445 câu hỏi bổ sung
 │   └── styles/
 │       ├── styles.css            # Biến màu Cowdi + Bootstrap override
@@ -151,6 +157,8 @@ cowdi-english/
 ├── dist-prod/                    # Build output (deploy lên server)
 ├── SETUP.md                      # Hướng dẫn cài đặt chi tiết
 ├── GAME-DESIGN.md                # Game design document
+├── VOCABULARY.md                 # Tài liệu 13 chủ đề từ vựng mind map
+├── PET-IMAGE-GUIDE.md            # Hướng dẫn thêm hình ảnh pet
 ├── REPORT.md                     # Báo cáo phân tích & roadmap
 └── vite.config.prod.js           # Vite production config
 ```
@@ -187,6 +195,42 @@ cowdi-english/
 | **Unit 3: Trung cấp 1** | Trường học, Thời tiết, Nghề nghiệp, Cơ thể | 🌿 Intermediate |
 | **Unit 4: Trung cấp 2** | Quần áo, Nhà cửa, Cảm xúc, Sở thích | 🌿 Intermediate |
 | **Unit 5: Nâng cao** | Thiên nhiên, Công nghệ, Mua sắm, Sức khỏe, So sánh | 🌳 Advanced |
+
+---
+
+## Từ vựng Mind Map (702 từ)
+
+| Chủ đề | Chủ đề con | Từ |
+|---|---|---|
+| 🧑 Con người | Cơ thể, Tính cách, Ngoại hình, Cảm xúc, Gia đình | 62 |
+| 🍽️ Ăn uống | Thức ăn, Đồ uống, Nấu nướng, Nhà hàng | 55 |
+| 🏠 Nhà cửa | Phòng, Đồ nội thất, Thiết bị, Vườn | 52 |
+| 🚗 Giao thông | Phương tiện, Đường phố, Chỉ đường, Du lịch | 54 |
+| ❤️ Tình yêu | Tình cảm, Hẹn hò, Đám cưới | 40 |
+| 🔢 Số đếm | Số cơ bản, Số thứ tự, Phân số, Đo lường | 56 |
+| ⚽ Thể thao | Bóng đá, Bơi lội, Thể dục, Điền kinh | 50 |
+| 🎄 Lễ hội | Giáng sinh, Tết, Halloween, Sinh nhật | 52 |
+| 🐾 Động vật | Thú nuôi, Hoang dã, Côn trùng, Biển | 68 |
+| 🌿 Thiên nhiên | Cây cối, Thời tiết, Địa lý, Vũ trụ | 60 |
+| 🏛️ Địa điểm | Trường học, Bệnh viện, Siêu thị, Công viên | 56 |
+| 🌍 Quốc gia | Châu Á, Châu Âu, Châu Mỹ | 52 |
+| 🧠 Tổng hợp | (từ nâng cao trải đều) | 45 |
+
+---
+
+## 4 Kỹ năng ngôn ngữ
+
+Toàn bộ hệ thống bài tập & tính điểm xoay quanh **4 kỹ năng** chuẩn ngôn ngữ:
+
+| Kỹ năng | Icon | Dạng bài | Mô tả |
+|---|---|---|---|
+| **Nghe** | 👂 | Listening, Dictation | Nghe hiểu & chép chính tả |
+| **Nói** | 🗣️ | Vocabulary, Matching | Từ vựng, phát âm, nối cặp |
+| **Đọc** | 📖 | Grammar, Fill-in | Ngữ pháp & điền từ vào câu |
+| **Viết** | ✍️ | Sentences, Reorder | Hoàn thành câu & sắp xếp từ |
+
+- **Người học**: Tích lũy **Skill XP** riêng cho từng kỹ năng, hiển thị progress bar trên Home & Progress.
+- **Pet**: Tăng **Skill Points** (Lv.1–10) theo kỹ năng tương ứng khi làm quiz. Power Score = tổng skills × evolution × rarity.
 
 ---
 

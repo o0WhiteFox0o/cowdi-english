@@ -32,7 +32,7 @@ export default function LeaderboardPage() {
   const { petData, setNickname } = usePet();
   const { authFetch, user } = useAuth();
   const [tab, setTab] = useState('power');
-  const [skillTab, setSkillTab] = useState('speech');
+  const [skillTab, setSkillTab] = useState('listening');
   const [leaderboard, setLeaderboard] = useState([]);
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,8 +43,10 @@ export default function LeaderboardPage() {
   useEffect(() => {
     if (tab === 'league') return; // league uses /api/rankings
     setLoading(true);
-    const type = tab === 'skill' ? `skill_${skillTab}` : tab;
-    authFetch(`/api/leaderboard?type=${encodeURIComponent(type)}`)
+    const type = tab === 'skill' ? 'skill' : tab;
+    const params = new URLSearchParams({ type });
+    if (tab === 'skill') params.set('skill', skillTab);
+    authFetch(`/api/leaderboard?${params}`)
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setLeaderboard(Array.isArray(data) ? data : []))
       .catch(() => setLeaderboard([]))

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { useSound } from '../hooks/useSound';
 
 const ToastContext = createContext(null);
 
@@ -9,16 +10,25 @@ const TYPE_CLASS = {
   info:    'bg-info',
 };
 
+const TYPE_SOUND = {
+  success: 'toastSuccess',
+  danger:  'toastError',
+  warning: 'toastWarning',
+};
+
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const { play } = useSound();
 
   const showToast = useCallback((message, type = 'info') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
+    const snd = TYPE_SOUND[type];
+    if (snd) play(snd);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);
-  }, []);
+  }, [play]);
 
   return (
     <ToastContext.Provider value={showToast}>

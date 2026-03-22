@@ -32,6 +32,7 @@ const DEFAULT_DATA = {
   achievements: [],
   srsData: {},
   checkpointScores: {},
+  skillXP: { listening: 0, speaking: 0, reading: 0, writing: 0 },
   _lastModified: null,
 };
 
@@ -180,6 +181,16 @@ function mergeProgress(local, remote) {
     }
   }
   merged.checkpointScores = mergedCheckpoints;
+
+  // Merge skillXP – keep highest per skill
+  const localSkill = local.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
+  const remoteSkill = remote.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
+  merged.skillXP = {
+    listening: Math.max(localSkill.listening || 0, remoteSkill.listening || 0),
+    speaking: Math.max(localSkill.speaking || 0, remoteSkill.speaking || 0),
+    reading: Math.max(localSkill.reading || 0, remoteSkill.reading || 0),
+    writing: Math.max(localSkill.writing || 0, remoteSkill.writing || 0),
+  };
 
   return sanitizeData(merged);
 }
@@ -346,6 +357,23 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  const addSkillXP = useCallback((skill, amount) => {
+    setUserData((prev) => {
+      const skillXP = { ...(prev.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 }) };
+      if (skill && skillXP[skill] !== undefined) {
+        skillXP[skill] += amount;
+      } else {
+        // mixed or unknown → distribute evenly
+        const each = Math.max(1, Math.floor(amount / 4));
+        skillXP.listening += each;
+        skillXP.speaking += each;
+        skillXP.reading += each;
+        skillXP.writing += each;
+      }
+      return { ...prev, skillXP };
+    });
+  }, []);
+
   const markLessonCompleted = useCallback((lessonId) => {
     setUserData((prev) => {
       if (prev.completedLessons.includes(lessonId)) return prev;
@@ -441,6 +469,7 @@ export function UserProvider({ children }) {
   const value = {
     userData,
     addXP,
+    addSkillXP,
     markLessonCompleted,
     incrementQuizzes,
     setWordStatus,

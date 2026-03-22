@@ -3,6 +3,7 @@ import { LESSONS } from '../data/lessons';
 import { usePet } from '../hooks/usePet';
 import { useUser } from '../hooks/useUser';
 import { useToast } from '../components/Toast';
+import { useSound } from '../hooks/useSound';
 
 const GAMES = [
   { id: 'word-catch', icon: '🎯', title: 'Cowdi Bắt Từ', desc: 'Chọn nghĩa đúng cho từ rơi xuống!' },
@@ -54,6 +55,7 @@ function WordCatchGame() {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
+  const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
@@ -81,10 +83,12 @@ function WordCatchGame() {
   useEffect(() => {
     if (finished || answered !== null || !current) return;
     if (timeLeft > 0) {
+      if (timeLeft <= 3) play('tickUrgent'); else play('tick');
       timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
       return () => clearTimeout(timerRef.current);
     }
     // Time out
+    play('wrong');
     setAnswered(-1);
     setTimeout(() => nextRound(), 1200);
   }, [timeLeft, finished, answered, current]);
@@ -93,7 +97,8 @@ function WordCatchGame() {
     if (answered !== null) return;
     const correct = meaning === current.meaning;
     setAnswered(meaning);
-    if (correct) setScore((s) => s + 1);
+    if (correct) { setScore((s) => s + 1); play('correct'); }
+    else play('wrong');
     setTimeout(() => nextRound(), 1000);
   }
 
@@ -104,6 +109,7 @@ function WordCatchGame() {
       addXP(xp);
       onQuizComplete('vocab', score, total);
       if (score >= 8) addCoins(15);
+      score >= 8 ? play('perfect') : play('celebration');
       showToast(`+${xp} XP! ${score >= 8 ? '+15🪙' : ''} 🎮`, 'success');
     } else {
       setRound((r) => r + 1);
@@ -189,6 +195,7 @@ function SentencePuzzleGame() {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
+  const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
@@ -214,6 +221,7 @@ function SentencePuzzleGame() {
 
   function toggleWord(wordObj) {
     if (result !== null) return;
+    play('pop');
     if (selected.find((s) => s.id === wordObj.id)) {
       setSelected(selected.filter((s) => s.id !== wordObj.id));
     } else {
@@ -225,7 +233,8 @@ function SentencePuzzleGame() {
     const answer = selected.map((s) => s.word).join(' ');
     const correct = answer === current.en;
     setResult(correct);
-    if (correct) setScore((s) => s + 1);
+    if (correct) { setScore((s) => s + 1); play('correct'); }
+    else play('wrong');
     setTimeout(() => {
       if (round + 1 >= total) {
         setFinished(true);
@@ -233,6 +242,7 @@ function SentencePuzzleGame() {
         addXP(xp);
         onQuizComplete('sentences', correct ? score + 1 : score, total);
         if (score >= 6) addCoins(15);
+        score >= 6 ? play('perfect') : play('celebration');
         showToast(`+${xp} XP! 🧩`, 'success');
       } else {
         setRound((r) => r + 1);

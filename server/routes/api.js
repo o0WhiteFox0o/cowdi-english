@@ -192,7 +192,7 @@ router.put('/pet-data', requireAuth, async (req, res) => {
 // ── GET /api/leaderboard – bảng xếp hạng pet (ẩn danh) ──────────────────────
 router.get('/leaderboard', async (req, res) => {
   const type = req.query.type || 'power'; // power | collection | skill
-  const skill = req.query.skill || 'speech';
+  const skill = req.query.skill || 'listening';
   try {
     const [rows] = await pool.execute(
       'SELECT pet_data, league_points, duel_wins, duel_losses FROM user_progress WHERE pet_data IS NOT NULL'
@@ -220,7 +220,7 @@ router.get('/leaderboard', async (req, res) => {
         const evoMul = [0.5, 0.8, 1.0, 1.3, 1.5][pet.evolution || 0] || 1.0;
         const rarityBonus = { starter: 1.0, common: 1.0, rare: 1.1, epic: 1.2, legendary: 1.3, event: 1.1 }[pet.rarity] || 1.0;
         const sk = pet.skills || {};
-        const base = (sk.speech || 0) + (sk.intelligence || 0) + (sk.perception || 0) + (sk.creativity || 0);
+        const base = (sk.listening || sk.perception || 0) + (sk.speaking || sk.speech || 0) + (sk.reading || sk.intelligence || 0) + (sk.writing || sk.creativity || 0);
         const power = Math.floor(base * evoMul * rarityBonus);
         if (power > bestPower) bestPower = power;
         const skillVal = sk[skill] || 0;

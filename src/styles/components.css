@@ -100,6 +100,194 @@
 }
 
 /* ============================================
+   COWDI NAVBAR — Child-friendly redesign
+   ============================================ */
+
+/* Desktop active nav link */
+.navbar .nav-link.active {
+  color: var(--cowdi-primary) !important;
+}
+
+/* ── Desktop dropdown menus (rounded, colorful) ── */
+.cowdi-dropdown-menu {
+  border-radius: 14px !important;
+  border: 2px solid #FFE0EB !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 157, .12) !important;
+  padding: 6px !important;
+  min-width: 170px;
+  animation: fadeInUp 0.15s ease;
+}
+.cowdi-dropdown-menu .dropdown-item {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  transition: background .15s, color .15s;
+}
+.cowdi-dropdown-menu .dropdown-item:hover,
+.cowdi-dropdown-menu .dropdown-item.active {
+  background: #FFF0F5;
+  color: var(--cowdi-primary);
+}
+.cowdi-dropdown-menu .dropdown-divider {
+  border-color: #FFE0EB;
+  margin: 4px 8px;
+}
+
+/* ── Mobile Bottom Tab Bar ── */
+.cowdi-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 2px solid #FFE0EB;
+  display: flex;
+  justify-content: space-around;
+  padding: 4px 0 calc(4px + env(safe-area-inset-bottom, 0px));
+  z-index: 1040;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, .06);
+}
+
+.bottom-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #bbb;
+  padding: 2px 4px;
+  flex: 1;
+  position: relative;
+  transition: color .2s;
+  -webkit-tap-highlight-color: transparent;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bottom-tab.active {
+  color: var(--cowdi-primary);
+}
+
+.bottom-tab.open {
+  color: var(--cowdi-primary);
+}
+
+/* Active indicator bar */
+.bottom-tab.active::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 3px;
+  background: var(--cowdi-primary);
+  border-radius: 0 0 4px 4px;
+}
+
+.bottom-tab-icon {
+  font-size: 1.45rem;
+  line-height: 1;
+  transition: transform .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bottom-tab.active .bottom-tab-icon {
+  transform: scale(1.15);
+}
+.bottom-tab:active .bottom-tab-icon {
+  transform: scale(0.88);
+}
+
+.bottom-tab-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  margin-top: 1px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Mobile popup sub-menu (above bottom nav) ── */
+.bottom-popup-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 8px;
+  right: 8px;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #FFE0EB;
+  box-shadow: 0 -8px 28px rgba(255, 107, 157, 0.15);
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  animation: popupSlideUp .18s ease-out;
+  margin-bottom: 6px;
+}
+@keyframes popupSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bottom-popup-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 calc(50% - 6px);
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: #FFF8F0;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #555;
+  cursor: pointer;
+  transition: background .15s, color .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+.bottom-popup-item:active {
+  transform: scale(0.96);
+}
+.bottom-popup-item.active {
+  background: var(--cowdi-primary);
+  color: white;
+}
+.bottom-popup-item:not(.active):hover {
+  background: #FFE8F0;
+  color: var(--cowdi-primary);
+}
+
+.bottom-popup-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.bottom-popup-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Mobile adjustments when bottom nav is present ── */
+@media (max-width: 991.98px) {
+  /* Extra bottom padding so content isn't hidden behind bottom nav */
+  main.container {
+    padding-bottom: 72px !important;
+  }
+  /* Push floating chat button above bottom nav */
+  .cowdi-chat-btn {
+    bottom: 5.5rem !important;
+  }
+  .cowdi-chat-bubble {
+    bottom: 9rem !important;
+  }
+}
+
+/* ============================================
    STREAK CALENDAR GRID
    ============================================ */
 .streak-calendar {

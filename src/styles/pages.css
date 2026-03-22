@@ -1,5 +1,9 @@
 ﻿/* pages.css - Layout handled by Bootstrap. Kept for future page-specific tweaks. */
 
+/* ── Skill card (Practice page) ── */
+.skill-card { transition: transform 0.15s, box-shadow 0.15s; }
+.skill-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,.12) !important; }
+
 /* Learning Path - hide alternate side spacer on mobile */
 @media (max-width: 767px) {
   .learning-path .d-flex {

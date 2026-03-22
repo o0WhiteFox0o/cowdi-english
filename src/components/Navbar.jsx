@@ -1,143 +1,263 @@
-import { NavLink } from 'react-router-dom';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
+import { useSound } from '../hooks/useSound';
 import { LEVELS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 
+/* Route groups for highlighting active nav section */
+const LEARN_PATHS    = ['/lessons', '/vocabulary', '/learning-path', '/review'];
+const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel'];
+const PET_PATHS      = ['/pet', '/collection', '/shop'];
+const ME_PATHS       = ['/progress', '/student-ranking', '/leaderboard', '/account'];
+
 export default function Navbar() {
   const { userData } = useUser();
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, loginWithGoogle } = useAuth();
   const { petData, getActivePetWithDecay } = usePet();
+  const { muted, toggleMute } = useSound();
   const level = getUserLevel(userData.totalXP);
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const isIn = (paths) => paths.some(p => pathname === p || pathname.startsWith(p + '/'));
+
+  /* Close Bootstrap dropdown after SPA navigation */
+  const closeDD = () => {
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(el => {
+      window.bootstrap?.Dropdown?.getInstance(el)?.hide();
+    });
+  };
+
+  const petEmoji = evo?.emoji || '🐮';
+
+  /* ── User avatar helper ── */
+  const avatarUrl = user?.avatar_url;
+  const displayName = user?.display_name || 'Tôi';
+
+  /* ── Mobile popup sub-menu state ── */
+  const [openTab, setOpenTab] = useState(null);
+  const popupRef = useRef(null);
+
+  // Close popup when route changes
+  useEffect(() => { setOpenTab(null); }, [pathname]);
+
+  // Close popup when tapping outside
+  useEffect(() => {
+    if (!openTab) return;
+    const handler = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) setOpenTab(null);
+    };
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
+  }, [openTab]);
+
+  const handleTabTap = useCallback((key, defaultPath) => {
+    if (openTab === key) { setOpenTab(null); return; }
+    setOpenTab(key);
+  }, [openTab]);
+
+  const goTo = useCallback((path) => {
+    setOpenTab(null);
+    navigate(path);
+  }, [navigate]);
+
+  /* Sub-menu definitions */
+  const MOBILE_MENUS = {
+    learn:    { items: [
+      { icon: '📖', label: 'Bài học',    path: '/lessons' },
+      { icon: '🗺️', label: 'Từ vựng',    path: '/vocabulary' },
+      { icon: '🛤️', label: 'Lộ trình',   path: '/learning-path' },
+      { icon: '🧠', label: 'Ôn tập',     path: '/review' },
+    ]},
+    practice: { items: [
+      { icon: '🎯', label: 'Bài tập',    path: '/practice' },
+      { icon: '🎮', label: 'Mini-games', path: '/mini-games' },
+      { icon: '⚔️', label: 'Đấu trường', path: '/duel' },
+    ]},
+    pet:      { items: [
+      { icon: '🐮', label: 'Pet của tôi', path: '/pet' },
+      { icon: '📦', label: 'Bộ sưu tập', path: '/collection' },
+      { icon: '🛍️', label: 'Shop',       path: '/shop' },
+    ]},
+    me:       { items: [
+      { icon: '📊', label: 'Tiến trình',      path: '/progress' },
+      { icon: '🏆', label: 'Xếp hạng',        path: '/student-ranking' },
+      { icon: '🏅', label: 'Xếp hạng Pet',    path: '/leaderboard' },
+      { icon: '👤', label: 'Tài khoản',       path: '/account' },
+    ]},
+  };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white fixed-top shadow-sm border-bottom">
-      <div className="container">
-        <NavLink className="navbar-brand fw-bold text-cowdi-primary d-flex align-items-center" to="/">
-          <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="Cowdi" width="32" height="32" className="me-1" /> Cowdi English
-        </NavLink>
+    <>
+      {/* ═══════════ Top Bar ═══════════ */}
+      <nav className="navbar bg-white fixed-top shadow-sm border-bottom" style={{ zIndex: 1040 }}>
+        <div className="container d-flex align-items-center gap-2">
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+          {/* Brand */}
+          <NavLink className="navbar-brand fw-bold text-cowdi-primary d-flex align-items-center mb-0 me-1 flex-shrink-0" to="/">
+            <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="Cowdi" width="28" height="28" className="me-1" />
+            <span className="d-none d-sm-inline fs-6">Cowdi</span>
+          </NavLink>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          {/* ── Desktop nav (≥ 992 px) ── */}
+          <ul className="navbar-nav flex-row d-none d-lg-flex me-auto" style={{ minWidth: 0 }}>
             <li className="nav-item">
-              <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-home me-1"></i>Trang chủ
+              <NavLink to="/" end className={({ isActive }) => `nav-link px-2 fw-semibold ${isActive ? 'active' : ''}`}>
+                🏠 Home
               </NavLink>
             </li>
-            <li className="nav-item">
-              <NavLink to="/lessons" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-book me-1"></i>Bài học
-              </NavLink>
+
+            {/* 📚 Học tập */}
+            <li className="nav-item dropdown">
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(LEARN_PATHS) ? 'active' : ''}`}
+                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                📚 Học tập
+              </a>
+              <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><NavLink className="dropdown-item" to="/lessons" onClick={closeDD}>📖 Bài học</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/vocabulary" onClick={closeDD}>🗺️ Từ vựng</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/learning-path" onClick={closeDD}>🛤️ Lộ trình</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/review" onClick={closeDD}>🧠 Ôn tập</NavLink></li>
+              </ul>
             </li>
-            <li className="nav-item">
-              <NavLink to="/vocabulary" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-language me-1"></i>Từ vựng
-              </NavLink>
+
+            {/* ✏️ Luyện tập */}
+            <li className="nav-item dropdown">
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
+                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ✏️ Luyện tập
+              </a>
+              <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><NavLink className="dropdown-item" to="/practice" onClick={closeDD}>🎯 Bài tập</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/mini-games" onClick={closeDD}>🎮 Mini-games</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/duel" onClick={closeDD}>⚔️ Đấu trường</NavLink></li>
+              </ul>
             </li>
-            <li className="nav-item">
-              <NavLink to="/practice" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-pen me-1"></i>Luyện tập
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/review" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-brain me-1"></i>Ôn tập
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/learning-path" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-route me-1"></i>Lộ trình
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/progress" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-chart-line me-1"></i>Tiến trình
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/pet" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+
+            {/* 🐮 Pet */}
+            <li className="nav-item dropdown">
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PET_PATHS) ? 'active' : ''}`}
+                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {evo?.image
-                  ? <img src={evo.image} alt="Pet" width="20" height="20" style={{ objectFit: 'contain' }} className="me-1" />
-                  : <span className="me-1">{evo?.emoji || '🐮'}</span>
-                } Pet
-              </NavLink>
+                  ? <img src={evo.image} alt="" width="20" height="20" style={{ objectFit: 'contain' }} />
+                  : <span>{petEmoji}</span>} Pet
+              </a>
+              <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><NavLink className="dropdown-item" to="/pet" onClick={closeDD}>🐮 Pet của tôi</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/collection" onClick={closeDD}>📦 Bộ sưu tập</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/shop" onClick={closeDD}>🛍️ Shop</NavLink></li>
+              </ul>
             </li>
-            <li className="nav-item">
-              <NavLink to="/collection" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-th me-1"></i>Bộ sưu tập
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/duel" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-crossed-swords me-1"></i>⚔️ Đấu trường
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/student-ranking" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                📊 Xếp hạng
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/shop" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-store me-1"></i>Shop
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/account" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <i className="fas fa-user-circle me-1"></i>Tài khoản
-              </NavLink>
+
+            {/* � Tôi — avatar + name */}
+            <li className="nav-item dropdown">
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(ME_PATHS) ? 'active' : ''}`}
+                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="" width="22" height="22" className="rounded-circle" referrerPolicy="no-referrer" />
+                  : <span>👤</span>}
+                <span className="d-none d-xl-inline" style={{ maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</span>
+                <span className="d-xl-none">Tôi</span>
+              </a>
+              <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><NavLink className="dropdown-item" to="/progress" onClick={closeDD}>📊 Tiến trình</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/student-ranking" onClick={closeDD}>🏆 Xếp hạng</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/leaderboard" onClick={closeDD}>🏅 Xếp hạng Pet</NavLink></li>
+                <li><hr className="dropdown-divider" /></li>
+                <li><NavLink className="dropdown-item" to="/account" onClick={closeDD}>👤 Tài khoản</NavLink></li>
+              </ul>
             </li>
           </ul>
 
-          <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0 flex-wrap">
-            {/* XP / Streak / Level */}
-            <span className="badge bg-warning text-dark fw-bold">⭐ {userData.totalXP} XP</span>
-            <span className="badge bg-danger fw-bold">🔥 {userData.streak}</span>
-            <span className="badge bg-primary fw-bold">Lv.{level.level}</span>
-            <span className="badge bg-success fw-bold">🪙 {petData.coins}</span>
+          {/* ── Stats + Auth (all sizes) ── */}
+          <div className="d-flex align-items-center gap-1 ms-auto flex-shrink-0">
+            <span className="badge bg-warning text-dark" style={{ fontSize: '.72rem' }}>⭐{userData.totalXP}</span>
+            <span className="badge bg-danger" style={{ fontSize: '.72rem' }}>🔥{userData.streak}</span>
+            <span className="badge bg-primary d-none d-sm-inline" style={{ fontSize: '.72rem' }}>Lv.{level.level}</span>
+            <span className="badge bg-success" style={{ fontSize: '.72rem' }}>🪙{petData.coins}</span>
+            <button className="btn btn-sm p-0 border-0 ms-1" onClick={toggleMute}
+              title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+              style={{ fontSize: '1rem', lineHeight: 1, background: 'none', opacity: muted ? 0.5 : 1 }}>
+              {muted ? '🔇' : '🔊'}
+            </button>
 
-            {/* Auth */}
             {user ? (
-              <NavLink to="/account" className="d-flex align-items-center gap-2 ms-2 text-decoration-none">
-                {user.avatar_url && (
-                  <img
-                    src={user.avatar_url}
-                    width="30" height="30"
+              <NavLink to="/account" className="ms-1">
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} width="28" height="28"
                     className="rounded-circle border border-2 border-cowdi"
-                    alt={user.display_name}
-                    title={user.display_name}
-                    referrerPolicy="no-referrer"
-                  />
+                    alt={user.display_name} referrerPolicy="no-referrer" />
+                ) : (
+                  <span className="badge bg-secondary rounded-circle p-1">👤</span>
                 )}
-                <span className="small fw-semibold text-secondary d-none d-xl-inline text-truncate" style={{ maxWidth: 120 }}>
-                  {user.display_name}
-                </span>
               </NavLink>
             ) : (
-              <button className="btn btn-cowdi-primary btn-sm ms-2" onClick={loginWithGoogle}>
-                <i className="fab fa-google me-1"></i>Đăng nhập
+              <button className="btn btn-cowdi-primary btn-sm ms-1 px-2" onClick={loginWithGoogle}
+                style={{ fontSize: '.75rem' }}>
+                <i className="fab fa-google me-1"></i><span className="d-none d-sm-inline">Đăng nhập</span>
               </button>
             )}
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* ═══════════ Mobile Bottom Tab Bar (< 992 px) ═══════════ */}
+      <nav className="cowdi-bottom-nav d-lg-none" aria-label="Mobile navigation" ref={popupRef}>
+
+        {/* Popup sub-menu */}
+        {openTab && MOBILE_MENUS[openTab] && (
+          <div className="bottom-popup-menu">
+            {MOBILE_MENUS[openTab].items.map((item) => (
+              <button
+                key={item.path}
+                className={`bottom-popup-item ${pathname === item.path ? 'active' : ''}`}
+                onClick={() => goTo(item.path)}
+              >
+                <span className="bottom-popup-icon">{item.icon}</span>
+                <span className="bottom-popup-label">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Tab buttons */}
+        <NavLink to="/" end className={({ isActive }) => `bottom-tab ${isActive ? 'active' : ''}`}
+          onClick={() => setOpenTab(null)}>
+          <span className="bottom-tab-icon">🏠</span>
+          <span className="bottom-tab-label">Home</span>
+        </NavLink>
+        <button type="button" className={`bottom-tab ${isIn(LEARN_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
+          onClick={() => handleTabTap('learn', '/lessons')}>
+          <span className="bottom-tab-icon">📚</span>
+          <span className="bottom-tab-label">Học</span>
+        </button>
+        <button type="button" className={`bottom-tab ${isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'practice' ? 'open' : ''}`}
+          onClick={() => handleTabTap('practice', '/practice')}>
+          <span className="bottom-tab-icon">✏️</span>
+          <span className="bottom-tab-label">Luyện</span>
+        </button>
+        <button type="button" className={`bottom-tab ${isIn(PET_PATHS) ? 'active' : ''} ${openTab === 'pet' ? 'open' : ''}`}
+          onClick={() => handleTabTap('pet', '/pet')}>
+          <span className="bottom-tab-icon">{petEmoji}</span>
+          <span className="bottom-tab-label">Pet</span>
+        </button>
+        <button type="button" className={`bottom-tab ${isIn(ME_PATHS) ? 'active' : ''} ${openTab === 'me' ? 'open' : ''}`}
+          onClick={() => handleTabTap('me', '/progress')}>
+          <span className="bottom-tab-icon">
+            {avatarUrl
+              ? <img src={avatarUrl} alt="" width="24" height="24" className="rounded-circle" referrerPolicy="no-referrer" />
+              : '👤'}
+          </span>
+          <span className="bottom-tab-label">Tôi</span>
+        </button>
+      </nav>
+    </>
   );
 }
 
