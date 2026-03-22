@@ -27,13 +27,6 @@ export default function Navbar() {
 
   const isIn = (paths) => paths.some(p => pathname === p || pathname.startsWith(p + '/'));
 
-  /* Close Bootstrap dropdown after SPA navigation */
-  const closeDD = () => {
-    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(el => {
-      window.bootstrap?.Dropdown?.getInstance(el)?.hide();
-    });
-  };
-
   const petEmoji = evo?.emoji || '🐮';
 
   /* ── User avatar helper ── */
@@ -96,7 +89,7 @@ export default function Navbar() {
   return (
     <>
       {/* ═══════════ Top Bar ═══════════ */}
-      <nav className="navbar bg-white fixed-top shadow-sm border-bottom" style={{ zIndex: 1040 }}>
+      <nav className="navbar navbar-expand-lg bg-white fixed-top shadow-sm border-bottom" style={{ zIndex: 1040 }}>
         <div className="container d-flex align-items-center gap-2">
 
           {/* Brand */}
@@ -116,49 +109,49 @@ export default function Navbar() {
             {/* 📚 Học tập */}
             <li className="nav-item dropdown">
               <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(LEARN_PATHS) ? 'active' : ''}`}
-                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                href="#" role="button">
                 📚 Học tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
-                <li><NavLink className="dropdown-item" to="/lessons" onClick={closeDD}>📖 Bài học</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/vocabulary" onClick={closeDD}>🗺️ Từ vựng</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/learning-path" onClick={closeDD}>🛤️ Lộ trình</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/review" onClick={closeDD}>🧠 Ôn tập</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/lessons">📖 Bài học</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/vocabulary">🗺️ Từ vựng</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/learning-path">🛤️ Lộ trình</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/review">🧠 Ôn tập</NavLink></li>
               </ul>
             </li>
 
             {/* ✏️ Luyện tập */}
             <li className="nav-item dropdown">
               <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
-                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                href="#" role="button">
                 ✏️ Luyện tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
-                <li><NavLink className="dropdown-item" to="/practice" onClick={closeDD}>🎯 Bài tập</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/mini-games" onClick={closeDD}>🎮 Mini-games</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/duel" onClick={closeDD}>⚔️ Đấu trường</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/practice">🎯 Bài tập</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/mini-games">🎮 Mini-games</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/duel">⚔️ Đấu trường</NavLink></li>
               </ul>
             </li>
 
             {/* 🐮 Pet */}
             <li className="nav-item dropdown">
               <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PET_PATHS) ? 'active' : ''}`}
-                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                href="#" role="button">
                 {evo?.image
                   ? <img src={evo.image} alt="" width="20" height="20" style={{ objectFit: 'contain' }} />
                   : <span>{petEmoji}</span>} Pet
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
-                <li><NavLink className="dropdown-item" to="/pet" onClick={closeDD}>🐮 Pet của tôi</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/collection" onClick={closeDD}>📦 Bộ sưu tập</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/shop" onClick={closeDD}>🛍️ Shop</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/pet">🐮 Pet của tôi</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/collection">📦 Bộ sưu tập</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/shop">🛍️ Shop</NavLink></li>
               </ul>
             </li>
 
-            {/* � Tôi — avatar + name */}
+            {/* 👤 Tôi — avatar + name */}
             <li className="nav-item dropdown">
               <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(ME_PATHS) ? 'active' : ''}`}
-                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                href="#" role="button">
                 {avatarUrl
                   ? <img src={avatarUrl} alt="" width="22" height="22" className="rounded-circle" referrerPolicy="no-referrer" />
                   : <span>👤</span>}
@@ -166,11 +159,11 @@ export default function Navbar() {
                 <span className="d-xl-none">Tôi</span>
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
-                <li><NavLink className="dropdown-item" to="/progress" onClick={closeDD}>📊 Tiến trình</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/student-ranking" onClick={closeDD}>🏆 Xếp hạng</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/leaderboard" onClick={closeDD}>🏅 Xếp hạng Pet</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/progress">📊 Tiến trình</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/student-ranking">🏆 Xếp hạng</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/leaderboard">🏅 Xếp hạng Pet</NavLink></li>
                 <li><hr className="dropdown-divider" /></li>
-                <li><NavLink className="dropdown-item" to="/account" onClick={closeDD}>👤 Tài khoản</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/account">👤 Tài khoản</NavLink></li>
               </ul>
             </li>
           </ul>
