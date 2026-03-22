@@ -25,7 +25,12 @@ export default function HomePage() {
       <div className="row align-items-center py-5 mb-4">
         <div className="col-lg-8">
           <h1 className="display-5 fw-bold mb-3">
-            Học tiếng Anh cùng <span className="text-cowdi-primary">{species?.name || 'Cowdi'}</span>! {evo?.emoji || '🐮'}
+            Học tiếng Anh cùng <span className="text-cowdi-primary">{species?.name || 'Cowdi'}</span>!
+            {evo?.image ? (
+              <img src={evo.image} alt="pet" style={{ height: '1.2em', verticalAlign: 'middle', marginLeft: 8, objectFit: 'contain' }} />
+            ) : (
+              <span> {evo?.emoji || '🐮'}</span>
+            )}
           </h1>
           <p className="lead text-secondary mb-4">
             Chào mừng bạn đến với Cowdi English! Hãy bắt đầu hành trình học tiếng Anh thú vị cùng chú bò đáng yêu nhé!
@@ -41,7 +46,11 @@ export default function HomePage() {
         </div>
         <div className="col-lg-4 text-center d-none d-lg-block">
           <Link to="/pet" className="text-decoration-none">
-            <div style={{ fontSize: '6rem', lineHeight: 1 }}>{evo?.emoji || '🐮'}</div>
+            {evo?.image ? (
+              <img src={evo.image} alt={evo.name} style={{ maxWidth: 160, maxHeight: 200, objectFit: 'contain' }} />
+            ) : (
+              <div style={{ fontSize: '6rem', lineHeight: 1 }}>{evo?.emoji || '🐮'}</div>
+            )}
             <div className="mt-2 fw-bold text-cowdi-primary">{activePet?.customName || 'Cowdi'}</div>
             <small className="text-muted">{evo?.name || ''}</small>
           </Link>

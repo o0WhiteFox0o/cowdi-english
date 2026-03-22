@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { ACHIEVEMENTS, LESSONS } from '../data/lessons';
+import { getAllTopicWords } from '../data/vocab-topics';
 import { useAuth } from './useAuth';
 
 const STORAGE_KEY_PREFIX = 'cowdi_english_data';
@@ -9,8 +10,11 @@ function getStorageKey(userId) {
   return userId ? `${STORAGE_KEY_PREFIX}_${userId}` : STORAGE_KEY_PREFIX;
 }
 
-// Tập hợp tất cả từ vựng hợp lệ từ LESSONS (dùng để lọc data rác)
-const VALID_WORDS = new Set(LESSONS.flatMap((l) => l.vocabulary.map((v) => v.word)));
+// Tập hợp tất cả từ vựng hợp lệ từ LESSONS + VOCAB_TOPICS (dùng để lọc data rác)
+const VALID_WORDS = new Set([
+  ...LESSONS.flatMap((l) => l.vocabulary.map((v) => v.word)),
+  ...getAllTopicWords().map((w) => w.word),
+]);
 
 const DEFAULT_DATA = {
   totalXP: 0,

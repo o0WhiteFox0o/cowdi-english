@@ -1,13 +1,25 @@
 # 🎨 Hướng dẫn thiết kế & nâng cấp hình ảnh Pet — Cowdi English
 
-> Tài liệu dành cho đội thiết kế. Cập nhật: 19/03/2026
+> Tài liệu dành cho đội thiết kế. Cập nhật: 21/03/2026
 
 ---
 
 ## 1. Tổng quan hệ thống Pet
 
-Cowdi English có **10 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
-Hiện tại chỉ **Cowdi** có hình ảnh, 9 pet còn lại đang dùng emoji thay thế.
+Cowdi English có **15 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
+Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 13 pet còn lại đang dùng emoji thay thế.
+
+### Hệ thống bài học hiện tại
+
+| Cấp độ | Số bài | Ghi chú |
+|--------|--------|---------|
+| Beginner | 10 | Chào hỏi, Gia đình, Màu sắc, Số đếm, Sinh hoạt, Thức ăn, Du lịch, Các thì, Trường học, Thời tiết |
+| Intermediate | 8 | Nghề nghiệp, Cơ thể, Quần áo, Nhà cửa, Cảm xúc, Sở thích, Thiên nhiên, Công nghệ |
+| Advanced | 3 | Mua sắm, Sức khỏe, So sánh |
+| Unit Test | 5 | Cơ bản 1–2, Trung cấp 1–2, Nâng cao |
+| **Tổng** | **26 bài** | |
+
+→ Điều kiện mở khóa pet liên quan đến bài học: Foxie (5 bài), Bamboo (8 bài).
 
 ---
 
@@ -78,58 +90,59 @@ Hiện tại chỉ **Cowdi** có hình ảnh, 9 pet còn lại đang dùng emoji
 ### Thư mục gốc
 
 ```
-public/assets/images/Pet/
+public/assets/images/pets/
 ```
 
 ### Quy tắc đặt tên
 
 ```
-public/assets/images/Pet/{TênPet}/
-  ├── egg.webp            ← Stage 0: Trứng
-  ├── baby.webp           ← Stage 1: Baby
-  ├── junior.webp         ← Stage 2: Junior
-  ├── super.webp          ← Stage 3: Super
-  ├── legendary.webp      ← Stage 4: Legendary
-  ├── chat.webp           ← Dùng cho chat bubble (tuỳ chọn)
-  └── alt.webp            ← Biến thể phụ (tuỳ chọn)
+public/assets/images/pets/{TênPet}/
+  ├── {TênPet}_egg.webp       ← Stage 0: Trứng
+  ├── {TênPet}_baby.webp      ← Stage 1: Baby
+  ├── {TênPet}_junior.webp    ← Stage 2: Junior
+  ├── {TênPet}_super.webp     ← Stage 3: Super
+  ├── {TênPet}_legendary.webp ← Stage 4: Legendary
+  ├── {TênPet}_chat.webp      ← Dùng cho chat bubble (tuỳ chọn)
+  └── {TênPet}_alt.webp       ← Biến thể phụ (tuỳ chọn)
 ```
 
 **Quy tắc:**
 - Tên thư mục: **viết hoa chữ cái đầu** (PascalCase) → `Cowdi`, `Foxie`, `Pingu`
-- Tên file: **viết thường**, không dấu, không khoảng trắng → `egg.webp`, `baby.webp`
+- Tên file: **Prefix tên pet + underscore + stage**, không dấu, không khoảng trắng → `Cowdi_baby.webp`, `Foxie_egg.png`
+- Định dạng: `.webp` (ưu tiên) hoặc `.png`
 - Không dùng khoảng trắng hay ký tự đặc biệt trong tên file
 
-### Ví dụ đầy đủ cho Cowdi
+### Ví dụ đầy đủ — Cấu trúc hiện tại
 
 ```
-public/assets/images/Pet/
-  └── Cowdi/
-        ├── egg.webp
-        ├── baby.webp
-        ├── junior.webp
-        ├── super.webp
-        ├── legendary.webp
-        ├── chat.webp
-        └── alt.webp
+public/assets/images/pets/
+  ├── Cowdi/
+  │     ├── Cowdi_baby.webp      (14.9 KB) ← Stage 1
+  │     ├── Cowdi_junior.webp    (23.2 KB) ← Stage 2
+  │     ├── Cowdi_super.webp     (25.8 KB) ← Stage 3
+  │     └── Cowdi_legandary.webp (45.1 KB) ← Stage 4
+  │     ⚠️ Thiếu: Cowdi_egg.webp (Stage 0)
+  │
+  └── Foxie/
+        ├── Foxie_egg.webp       (103 KB)  ← Stage 0
+        ├── Foxie_baby.webp      (96 KB)   ← Stage 1
+        ├── Foxie_junior.webp    (35 KB)   ← Stage 2
+        ├── Foxie_super.webp     (54 KB)   ← Stage 3
+        └── Foxie_legandary.webp (216 KB)  ← Stage 4
+        ✅ Đã chuyển từ PNG sang WebP (giảm ~95% dung lượng)
 ```
 
-### So sánh tên file cũ → mới (Cowdi)
+### Trạng thái hình ảnh hiện tại
 
-| File cũ (hiện tại) | File mới | Stage |
-|--------------------|----------|-------|
-| `Group 8.webp` (36.5 KB) | `egg.webp` | 0 — Trứng |
-| `baby 2.webp` (14.6 KB) | `baby.webp` | 1 — Baby |
-| `Cowdi.webp` (14.2 KB) | `junior.webp` | 2 — Junior |
-| `cowdi_2.webp` (22.7 KB) | `super.webp` | 3 — Super |
-| `dad.webp` (26.3 KB) | `legendary.webp` | 4 — Legendary |
-| `cowdi_doc.webp` (44.1 KB) | `chat.webp` | Chat bubble |
-| `cow.webp` (25.2 KB) | `alt.webp` | Biến thể phụ |
-| `Cow 6.webp` (12.6 KB) | *(loại bỏ hoặc giữ nếu cần)* | — |
-| `Group 9.webp` (36.5 KB) | *(loại bỏ hoặc giữ nếu cần)* | — |
+| Pet | Trạng thái | Stage có hình | Ghi chú |
+|-----|-----------|---------------|----------|
+| Cowdi | ✅ Có hình | 1, 2, 3, 4 | Thiếu egg (stage 0) |
+| Foxie | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — đã chuyển WebP |
+| 13 pet khác | ❌ Emoji | — | Chưa có hình |
 
 ---
 
-## 5. Danh sách 10 Pet cần thiết kế
+## 5. Danh sách 15 Pet cần thiết kế
 
 ### 5.1 Cowdi 🐮 — Bò sữa (Starter)
 
@@ -139,7 +152,7 @@ public/assets/images/Pet/
 | **Rarity** | Starter (có sẵn từ đầu) |
 | **Tính cách** | Hiền lành, yêu tiếng Anh, đồng hành từ ngày đầu |
 | **Màu chủ đạo** | Trắng + đốm đen, mũi hồng |
-| **Trạng thái** | ✅ Có hình (cần nâng cấp chất lượng) |
+| **Trạng thái** | ✅ Có hình (4/5 stage — thiếu egg) |
 
 **Giai đoạn tiến hóa:**
 
@@ -161,15 +174,16 @@ public/assets/images/Pet/
 | **Rarity** | Common |
 | **Tính cách** | Thông minh, giỏi ngữ pháp, thích giải đố |
 | **Màu chủ đạo** | Cam đỏ, bụng trắng |
-| **Mở khóa** | Hoàn thành 5 bài học |
+| **Mở khóa** | Hoàn thành 5 bài học (hiện có 26 bài) |
+| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
 
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Foxie | 0 | Trứng cam có vân lửa |
-| 1 | Baby Foxie | 100 | Cáo con nhỏ, đuôi bông xù |
-| 2 | Junior Foxie | 500 | Cáo trẻ nhanh nhẹn, ánh mắt thông minh |
-| 3 | Super Foxie | 1200 | Cáo lửa, đuôi có hiệu ứng lửa nhẹ |
-| 4 | Legendary Foxie | 2500 | Cáo huyền thoại, bốc lửa, uy nghiêm |
+| Stage | Tên | XP | Hướng dẫn visual | File |
+|-------|-----|----|-----------------|------|
+| 0 | Trứng Foxie | 0 | Trứng cam có vân lửa | `Foxie_egg.webp` ✅ |
+| 1 | Baby Foxie | 100 | Cáo con nhỏ, đuôi bông xù | `Foxie_baby.webp` ✅ |
+| 2 | Junior Foxie | 500 | Cáo trẻ nhanh nhẹn, ánh mắt thông minh | `Foxie_junior.webp` ✅ |
+| 3 | Super Foxie | 1200 | Cáo lửa, đuôi có hiệu ứng lửa nhẹ | `Foxie_super.webp` ✅ |
+| 4 | Legendary Foxie | 2500 | Cáo huyền thoại, bốc lửa, uy nghiêm | `Foxie_legandary.webp` ✅ |
 
 ---
 
@@ -182,6 +196,7 @@ public/assets/images/Pet/
 | **Tính cách** | Chăm chỉ, thính giác siêu nhạy, yêu âm nhạc |
 | **Màu chủ đạo** | Đen trắng, mỏ cam |
 | **Mở khóa** | Hoàn thành 10 quiz Listening |
+| **Trạng thái** | ❌ Chưa có hình |
 
 | Stage | Tên | XP | Hướng dẫn visual |
 |-------|-----|----|-----------------|
@@ -321,7 +336,7 @@ public/assets/images/Pet/
 | **Rarity** | Epic |
 | **Tính cách** | Dễ thương, bậc thầy giao tiếp, nói chuyện suốt ngày |
 | **Màu chủ đạo** | Đen trắng, tre xanh |
-| **Mở khóa** | Hoàn thành 8 bài học |
+| **Mở khóa** | Hoàn thành 8 bài học (hiện có 26 bài) |
 
 | Stage | Tên | XP | Hướng dẫn visual |
 |-------|-----|----|-----------------|
@@ -330,6 +345,106 @@ public/assets/images/Pet/
 | 2 | Junior Bamboo | 500 | Gấu trúc vui, ngồi ăn tre |
 | 3 | Super Bamboo | 1200 | Gấu trúc kung fu, rừng tre |
 | 4 | Legendary Bamboo | 2500 | Gấu trúc tiên, hào quang thiên nhiên |
+
+---
+
+### 5.11 Storm 🦅 — Đại bàng (Epic)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Cosmic 🌙 |
+| **Rarity** | Epic |
+| **Tính cách** | Kiên cường, bay qua mọi giông bão, sáng tạo vô tận |
+| **Màu chủ đạo** | Xám bạc, tím sấm sét |
+| **Mở khóa** | Streak 30 ngày liên tục |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Storm | 0 | Trứng xám có tia sét |
+| 1 | Baby Storm | 100 | Đại bàng con, lông bông |
+| 2 | Junior Storm | 500 | Đại bàng trẻ, cánh rộng |
+| 3 | Super Storm | 1200 | Đại bàng bão, sấm sét quanh mình |
+| 4 | Legendary Storm | 2500 | Đại bàng huyền thoại, cánh sấm chớp |
+
+---
+
+### 5.12 Shadow 🐺 — Sói bóng (Epic)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Cosmic 🌙 |
+| **Rarity** | Epic |
+| **Tính cách** | Huyền bí, trí tuệ sâu sắc, sáng tạo trong bóng tối |
+| **Màu chủ đạo** | Đen, tím đậm |
+| **Mở khóa** | Hoàn thành 50 quiz |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Shadow | 0 | Trứng đen có vân bóng tối |
+| 1 | Baby Shadow | 100 | Sói con đen, mắt sáng |
+| 2 | Junior Shadow | 500 | Sói trẻ, bóng tối nhẹ quanh |
+| 3 | Super Shadow | 1200 | Sói bóng đêm, hiệu ứng tối |
+| 4 | Legendary Shadow | 2500 | Sói huyền bí, áo choàng bóng tối |
+
+---
+
+### 5.13 Prisma 🦄 — Kỳ lân (Legendary)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Cosmic 🌙 |
+| **Rarity** | Legendary |
+| **Tính cách** | Tỏa sáng bởi kiến thức toàn diện |
+| **Màu chủ đạo** | Cầu vồng, trắng lấp lánh |
+| **Mở khóa** | Đạt 2,500 XP tổng |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Prisma | 0 | Trứng trắng lấp lánh cầu vồng |
+| 1 | Baby Prisma | 100 | Kỳ lân con, sừng nhỏ |
+| 2 | Junior Prisma | 500 | Kỳ lân trẻ, bờm cầu vồng nhẹ |
+| 3 | Super Prisma | 1200 | Kỳ lân mạnh, hào quang 7 sắc |
+| 4 | Legendary Prisma | 2500 | Kỳ lân huyền thoại, toàn thân tỏa sáng |
+
+---
+
+### 5.14 Draco 🐲 — Rồng cổ đại (Legendary)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Fire 🔥 |
+| **Rarity** | Legendary |
+| **Tính cách** | Cổ đại, sức mạnh tối thượng, stats x2 |
+| **Màu chủ đạo** | Đỏ sẫm, vàng kim |
+| **Mở khóa** | Sở hữu tất cả pet khác |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Draco | 0 | Trứng đỏ sẫm có vảy rồng cổ |
+| 1 | Baby Draco | 100 | Rồng cổ con, cánh nhỏ |
+| 2 | Junior Draco | 500 | Rồng trẻ, bắt đầu oai vệ |
+| 3 | Super Draco | 1200 | Rồng mạnh, lửa cổ đại |
+| 4 | Legendary Draco | 2500 | Rồng cổ đại huyền thoại, vương miện lửa |
+
+---
+
+### 5.15 Pumpkin 🎃 — Bí ngô (Event)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Cosmic 🌙 |
+| **Rarity** | Event |
+| **Tính cách** | Vui nhộn, bonus XP, chỉ xuất hiện trong sự kiện |
+| **Màu chủ đạo** | Cam bí ngô, tím Halloween |
+| **Mở khóa** | Sự kiện Halloween |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Pumpkin | 0 | Trứng cam có mặt bí ngô |
+| 1 | Baby Pumpkin | 100 | Bí ngô con dễ thương |
+| 2 | Junior Pumpkin | 500 | Bí ngô cười, đội mũ phù thủy nhỏ |
+| 3 | Super Pumpkin | 1200 | Bí ngô lửa, hiệu ứng Halloween |
+| 4 | Legendary Pumpkin | 2500 | Vua bí ngô, hào quang ma thuật |
 
 ---
 
@@ -372,43 +487,42 @@ Khi designer hoàn thành, kiểm tra:
 - [ ] Tất cả file đều **nền trong suốt**
 - [ ] Kích thước canvas **512×512 px**
 - [ ] Định dạng **WebP**, dung lượng **≤ 50 KB/file**
-- [ ] Tên file đúng quy tắc: `egg.webp`, `baby.webp`, `junior.webp`, `super.webp`, `legendary.webp`
-- [ ] Thư mục đúng: `public/assets/images/Pet/{TênPet}/`
+- [ ] Tên file đúng quy tắc: `{TênPet}_egg.webp`, `{TênPet}_baby.webp`, ...
+- [ ] Thư mục đúng: `public/assets/images/pets/{TênPet}/`
 - [ ] Hình rõ ràng ở kích thước thu nhỏ **48×48 px** (zoom out kiểm tra)
 - [ ] Các stage có **sự khác biệt rõ ràng** và **tăng dần độ hoành tráng**
-- [ ] File phụ `chat.webp` (nếu có) — phù hợp hiển thị nhỏ cạnh chat bubble
+- [ ] File phụ `{TênPet}_chat.webp` (nếu có) — phù hợp hiển thị nhỏ cạnh chat bubble
 
 ### Tổng số file cần bàn giao
 
 | Loại | Số lượng |
 |------|----------|
-| 10 pet × 5 stage | **50 file** (bắt buộc) |
-| 10 pet × 1 chat | **10 file** (tuỳ chọn) |
-| 10 pet × 1 alt | **10 file** (tuỳ chọn) |
-| **Tổng tối thiểu** | **50 file** |
-| **Tổng đầy đủ** | **~70 file** |
+| 15 pet × 5 stage | **75 file** (bắt buộc) |
+| 15 pet × 1 chat | **15 file** (tuỳ chọn) |
+| 15 pet × 1 alt | **15 file** (tuỳ chọn) |
+| **Đã hoàn thành** | **9 file** (Cowdi 4 + Foxie 5) |
+| **Tổng tối thiểu còn lại** | **66 file** |
+| **Tổng đầy đủ** | **~105 file** |
 
 ---
 
 ## 8. Cấu trúc thư mục hoàn chỉnh sau khi bàn giao
 
 ```
-public/assets/images/Pet/
-  ├── Cowdi/
-  │     ├── egg.webp
-  │     ├── baby.webp
-  │     ├── junior.webp
-  │     ├── super.webp
-  │     ├── legendary.webp
-  │     └── chat.webp
-  ├── Foxie/
-  │     ├── egg.webp
-  │     ├── baby.webp
-  │     ├── junior.webp
-  │     ├── super.webp
-  │     └── legendary.webp
-  ├── Pingu/
-  │     └── ... (tương tự)
+public/assets/images/pets/
+  ├── Cowdi/                    ← ✅ có hình (thiếu egg)
+  │     ├── Cowdi_baby.webp
+  │     ├── Cowdi_junior.webp
+  │     ├── Cowdi_super.webp
+  │     └── Cowdi_legandary.webp
+  └── Foxie/                    ← ✅ có hình đầy đủ
+  │     ├── Foxie_egg.webp
+  │     ├── Foxie_baby.webp
+  │     ├── Foxie_junior.webp
+  │     ├── Foxie_super.webp
+  │     └── Foxie_legandary.webp
+  ├── Pingu/                    ← ❌ chưa có
+  │     └── ...
   ├── Leafy/
   │     └── ...
   ├── Sparky/
@@ -421,10 +535,51 @@ public/assets/images/Pet/
   │     └── ...
   ├── Leo/
   │     └── ...
-  └── Bamboo/
+  ├── Bamboo/
+  │     └── ...
+  ├── Storm/
+  │     └── ...
+  ├── Shadow/
+  │     └── ...
+  ├── Prisma/
+  │     └── ...
+  ├── Draco/
+  │     └── ...
+  └── Pumpkin/
         └── ...
 ```
 
 ---
 
-*Sau khi nhận hình mới, dev sẽ cập nhật code trong `src/data/pets.js` để map đường dẫn hình ảnh cho từng pet và stage.*
+---
+
+## 9. Mapping code hiện tại (`src/data/pets.js`)
+
+Đường dẫn hình ảnh đã được cập nhật trong code:
+
+```js
+// Cowdi — 4 stage có hình (thiếu egg)
+const COWDI_IMG = '/assets/images/pets/Cowdi';
+export const COWDI_IMAGES = {
+  baby: `${COWDI_IMG}/Cowdi_baby.webp`,
+  junior: `${COWDI_IMG}/Cowdi_junior.webp`,
+  super: `${COWDI_IMG}/Cowdi_super.webp`,
+  legendary: `${COWDI_IMG}/Cowdi_legandary.webp`,
+};
+
+// Foxie — 5 stage đầy đủ (WebP)
+const FOXIE_IMG = '/assets/images/pets/Foxie';
+export const FOXIE_IMAGES = {
+  egg: `${FOXIE_IMG}/Foxie_egg.webp`,
+  baby: `${FOXIE_IMG}/Foxie_baby.webp`,
+  junior: `${FOXIE_IMG}/Foxie_junior.webp`,
+  super: `${FOXIE_IMG}/Foxie_super.webp`,
+  legendary: `${FOXIE_IMG}/Foxie_legandary.webp`,
+};
+```
+
+Khi thêm pet mới, tạo block tương tự và gán `image` vào mỗi evolution stage.
+
+---
+
+*Cập nhật lần cuối: 21/03/2026 — Đã cập nhật Cowdi (4 stage) + Foxie (5 stage) lên giao diện.*

@@ -17,8 +17,8 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg bg-white fixed-top shadow-sm border-bottom">
       <div className="container">
-        <NavLink className="navbar-brand fw-bold text-cowdi-primary" to="/">
-          <span className="me-1 fs-5">{evo?.emoji || '🐮'}</span> Cowdi English
+        <NavLink className="navbar-brand fw-bold text-cowdi-primary d-flex align-items-center" to="/">
+          <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="Cowdi" width="32" height="32" className="me-1" /> Cowdi English
         </NavLink>
 
         <button
@@ -72,7 +72,10 @@ export default function Navbar() {
             </li>
             <li className="nav-item">
               <NavLink to="/pet" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                {evo?.emoji || '🐮'} Pet
+                {evo?.image
+                  ? <img src={evo.image} alt="Pet" width="20" height="20" style={{ objectFit: 'contain' }} className="me-1" />
+                  : <span className="me-1">{evo?.emoji || '🐮'}</span>
+                } Pet
               </NavLink>
             </li>
             <li className="nav-item">

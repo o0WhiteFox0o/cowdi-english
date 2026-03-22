@@ -85,7 +85,13 @@ export default function CollectionPage() {
                       onClick={() => setSelected(sp.id)}
                     >
                       <div className="card-body text-center py-3">
-                        <div className="fs-1 mb-1">{owned ? (evo?.emoji || sp.emoji) : '🔒'}</div>
+                        {owned && evo?.image ? (
+                          <div className="mb-1">
+                            <img src={evo.image} alt={sp.name} className="collection-pet-img" />
+                          </div>
+                        ) : (
+                          <div className="fs-1 mb-1">{owned ? (evo?.emoji || sp.emoji) : '🔒'}</div>
+                        )}
                         <div className="fw-bold small">{sp.name}</div>
                         <div style={{ fontSize: '0.7rem' }} className="text-muted">{sp.species}</div>
                         {owned ? (
@@ -129,9 +135,17 @@ export default function CollectionPage() {
               </div>
               <div className="modal-body">
                 <div className="text-center mb-3">
-                  <div style={{ fontSize: '4rem' }}>
-                    {selectedOwned ? (getPetEvolution(selected, selectedOwned.totalXpEarned)?.emoji || selectedSpecies.emoji) : '🔒'}
-                  </div>
+                  {selectedOwned && getPetEvolution(selected, selectedOwned.totalXpEarned)?.image ? (
+                    <img
+                      src={getPetEvolution(selected, selectedOwned.totalXpEarned).image}
+                      alt={selectedSpecies.name}
+                      className="collection-modal-pet-img"
+                    />
+                  ) : (
+                    <div style={{ fontSize: '4rem' }}>
+                      {selectedOwned ? (getPetEvolution(selected, selectedOwned.totalXpEarned)?.emoji || selectedSpecies.emoji) : '🔒'}
+                    </div>
+                  )}
                   <div className="d-flex justify-content-center gap-1 mt-1">
                     <span className="badge" style={{ background: ELEMENT_COLORS[selectedSpecies.element]?.bg, color: ELEMENT_COLORS[selectedSpecies.element]?.text }}>
                       {ELEMENT_COLORS[selectedSpecies.element]?.name}
@@ -203,7 +217,11 @@ export default function CollectionPage() {
                     const reached = selectedOwned && selectedOwned.totalXpEarned >= evo.xp;
                     return (
                       <div key={evo.stage} className={`text-center p-1 rounded flex-fill ${reached ? 'bg-success bg-opacity-10' : 'bg-light'}`} style={{ minWidth: 55 }}>
-                        <div>{reached ? evo.emoji : '❓'}</div>
+                        {reached && evo.image ? (
+                          <img src={evo.image} alt={evo.name} className="collection-evo-thumb" />
+                        ) : (
+                          <div>{reached ? evo.emoji : '❓'}</div>
+                        )}
                         <div style={{ fontSize: '0.6rem' }} className={reached ? 'fw-bold' : 'text-muted'}>{evo.name}</div>
                         <div style={{ fontSize: '0.55rem' }} className="text-muted">{evo.xp} XP</div>
                       </div>

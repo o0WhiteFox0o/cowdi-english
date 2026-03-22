@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePet } from '../hooks/usePet';
-import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution, COWDI_IMAGES } from '../data/pets';
+import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution } from '../data/pets';
 
 export default function CowdiChat() {
   const { getActivePetWithDecay } = usePet();
@@ -21,7 +21,7 @@ export default function CowdiChat() {
   const species = pet ? PET_REGISTRY[pet.speciesId] : null;
   const evo = pet && species ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
   const petEmoji = evo?.emoji || '🐮';
-  const petImage = evo?.image || (species?.id === 'cowdi' ? COWDI_IMAGES.junior : null);
+  const petImage = evo?.image || null;
 
   return (
     <>
