@@ -447,6 +447,63 @@ public/assets/images/pets/
 | 4 | Legendary Pumpkin | 2500 | Vua bí ngô, hào quang ma thuật |
 
 ---
+5.16 Mushroom 🍄 — Nấm rơm
+Thuộc tính	Giá trị
+Nguyên tố	Earth 🌱
+Rarity	Common
+Tính cách	Nhút nhát nhưng hồi phục tốt, hỗ trợ team
+Màu chủ đạo	Đỏ chấm trắng, xanh rêu
+Mở khóa	Map rừng
+Stage	Tên	XP	Hướng dẫn visual
+0	Trứng Nấm	0	Trứng hình nấm nhỏ, có đốm
+1	Baby Mushroom	100	Nấm con mắt to, hơi run
+2	Junior Mushroom	500	Nấm cao hơn, phát sáng nhẹ
+3	Super Mushroom	1200	Nấm phát tán bào tử, aura xanh
+4	Legendary Mushroom	2500	Nấm khổng lồ, hệ sinh thái mini xung quanh
+
+5.17 Bamboo 🎋 — Tre
+Thuộc tính	Giá trị
+Nguyên tố	Wind 🌪️
+Rarity	Rare
+Tính cách	Kiên cường, linh hoạt, phản đòn tốt
+Màu chủ đạo	Xanh lá, xanh đậm
+Mở khóa	Map rừng tre / châu Á
+Stage	Tên	XP	Hướng dẫn visual
+0	Trứng Tre	0	Trứng xanh có vân tre
+1	Baby Bamboo	100	Măng tre nhỏ có mặt
+2	Junior Bamboo	500	Tre mọc cao, có khớp rõ
+3	Super Bamboo	1200	Tre uốn cong, hiệu ứng gió
+4	Legendary Bamboo	2500	Tre thần, xoay gió, aura lốc xoáy
+
+5.18 Bao 🥟 — Bánh bao
+Thuộc tính	Giá trị
+Nguyên tố	Fire 🔥
+Rarity	Common
+Tính cách	Ấm áp, hồi máu, dễ gần
+Màu chủ đạo	Trắng, vàng nhẹ
+Mở khóa	Shop / Food map
+Stage	Tên	XP	Hướng dẫn visual
+0	Trứng Bao	0	Trứng trắng mềm
+1	Baby Bao	100	Bánh bao nhỏ, mặt cười
+2	Junior Bao	500	Có nhân lộ nhẹ, bốc hơi nóng
+3	Super Bao	1200	Bánh bao nóng hổi, aura nhiệt
+4	Legendary Bao	2500	Bao thần, ánh sáng vàng, hồi phục mạnh
+
+5.19 Rice 🌾 — Lúa
+Thuộc tính	Giá trị
+Nguyên tố	Earth 🌱
+Rarity	Common
+Tính cách	Chăm chỉ, tích lũy tài nguyên
+Màu chủ đạo	Vàng lúa, xanh nhạt
+Mở khóa	Map đồng ruộng
+Stage	Tên	XP	Hướng dẫn visual
+0	Trứng Lúa	0	Hạt giống
+1	Baby Rice	100	Mầm lúa nhỏ
+2	Junior Rice	500	Lúa cao, có bông
+3	Super Rice	1200	Lúa vàng rực, hiệu ứng gió
+4	Legendary Rice	2500	Thần lúa, aura mùa màng
+
+---
 
 ## 6. Nguyên tắc thiết kế chung
 
