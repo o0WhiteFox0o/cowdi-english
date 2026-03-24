@@ -6,18 +6,18 @@
 
 ## 1. Tổng quan hệ thống Pet
 
-Cowdi English có **15 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
+Cowdi English có **16 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
 Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 13 pet còn lại đang dùng emoji thay thế.
 
 ### Hệ thống bài học hiện tại
 
-| Cấp độ | Số bài | Ghi chú |
-|--------|--------|---------|
-| Beginner | 10 | Chào hỏi, Gia đình, Màu sắc, Số đếm, Sinh hoạt, Thức ăn, Du lịch, Các thì, Trường học, Thời tiết |
-| Intermediate | 8 | Nghề nghiệp, Cơ thể, Quần áo, Nhà cửa, Cảm xúc, Sở thích, Thiên nhiên, Công nghệ |
-| Advanced | 3 | Mua sắm, Sức khỏe, So sánh |
-| Unit Test | 5 | Cơ bản 1–2, Trung cấp 1–2, Nâng cao |
-| **Tổng** | **26 bài** | |
+| Cấp độ | Số bài | Số từ/bài | Ghi chú |
+|--------|--------|-----------|---------|
+| Beginner | 10 | 10 từ | Chào hỏi, Gia đình, Màu sắc, Số đếm, Trường học, Thời tiết, Nghề nghiệp, Cơ thể, Quần áo, Nhà cửa |
+| Intermediate | 8 | 20 từ | Sinh hoạt, Thức ăn, Du lịch, Cảm xúc, Sở thích, Thiên nhiên, Công nghệ, Mua sắm |
+| Advanced | 9 | 30 từ | Các thì, Sức khỏe, So sánh, Môi trường, Truyền thông, Văn hóa, Kinh doanh, Khoa học, Giáo dục |
+| Unit Test | 6 | — | Cơ bản 1–2, Trung cấp 1–2, Nâng cao 1–2 |
+| **Tổng** | **33 bài** | | |
 
 → Điều kiện mở khóa pet liên quan đến bài học: Foxie (5 bài), Bamboo (8 bài).
 
@@ -138,11 +138,12 @@ public/assets/images/pets/
 |-----|-----------|---------------|----------|
 | Cowdi | ✅ Có hình | 1, 2, 3, 4 | Thiếu egg (stage 0) |
 | Foxie | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — đã chuyển WebP |
+| Ginseng | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — WebP |
 | 13 pet khác | ❌ Emoji | — | Chưa có hình |
 
 ---
 
-## 5. Danh sách 15 Pet cần thiết kế
+## 5. Danh sách 16 Pet cần thiết kế
 
 ### 5.1 Cowdi 🐮 — Bò sữa (Starter)
 
@@ -447,63 +448,100 @@ public/assets/images/pets/
 | 4 | Legendary Pumpkin | 2500 | Vua bí ngô, hào quang ma thuật |
 
 ---
-5.16 Mushroom 🍄 — Nấm rơm
-Thuộc tính	Giá trị
-Nguyên tố	Earth 🌱
-Rarity	Common
-Tính cách	Nhút nhát nhưng hồi phục tốt, hỗ trợ team
-Màu chủ đạo	Đỏ chấm trắng, xanh rêu
-Mở khóa	Map rừng
-Stage	Tên	XP	Hướng dẫn visual
-0	Trứng Nấm	0	Trứng hình nấm nhỏ, có đốm
-1	Baby Mushroom	100	Nấm con mắt to, hơi run
-2	Junior Mushroom	500	Nấm cao hơn, phát sáng nhẹ
-3	Super Mushroom	1200	Nấm phát tán bào tử, aura xanh
-4	Legendary Mushroom	2500	Nấm khổng lồ, hệ sinh thái mini xung quanh
 
-5.17 Bamboo 🎋 — Tre
-Thuộc tính	Giá trị
-Nguyên tố	Wind 🌪️
-Rarity	Rare
-Tính cách	Kiên cường, linh hoạt, phản đòn tốt
-Màu chủ đạo	Xanh lá, xanh đậm
-Mở khóa	Map rừng tre / châu Á
-Stage	Tên	XP	Hướng dẫn visual
-0	Trứng Tre	0	Trứng xanh có vân tre
-1	Baby Bamboo	100	Măng tre nhỏ có mặt
-2	Junior Bamboo	500	Tre mọc cao, có khớp rõ
-3	Super Bamboo	1200	Tre uốn cong, hiệu ứng gió
-4	Legendary Bamboo	2500	Tre thần, xoay gió, aura lốc xoáy
+### 5.16 Mushroom 🍄 — Nấm rơm (Common)
 
-5.18 Bao 🥟 — Bánh bao
-Thuộc tính	Giá trị
-Nguyên tố	Fire 🔥
-Rarity	Common
-Tính cách	Ấm áp, hồi máu, dễ gần
-Màu chủ đạo	Trắng, vàng nhẹ
-Mở khóa	Shop / Food map
-Stage	Tên	XP	Hướng dẫn visual
-0	Trứng Bao	0	Trứng trắng mềm
-1	Baby Bao	100	Bánh bao nhỏ, mặt cười
-2	Junior Bao	500	Có nhân lộ nhẹ, bốc hơi nóng
-3	Super Bao	1200	Bánh bao nóng hổi, aura nhiệt
-4	Legendary Bao	2500	Bao thần, ánh sáng vàng, hồi phục mạnh
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Earth 🌱 |
+| **Rarity** | Common |
+| **Tính cách** | Nhút nhát nhưng hồi phục tốt, hỗ trợ team |
+| **Màu chủ đạo** | Đỏ chấm trắng, xanh rêu |
+| **Mở khóa** | Map rừng |
 
-5.19 Rice 🌾 — Lúa
-Thuộc tính	Giá trị
-Nguyên tố	Earth 🌱
-Rarity	Common
-Tính cách	Chăm chỉ, tích lũy tài nguyên
-Màu chủ đạo	Vàng lúa, xanh nhạt
-Mở khóa	Map đồng ruộng
-Stage	Tên	XP	Hướng dẫn visual
-0	Trứng Lúa	0	Hạt giống
-1	Baby Rice	100	Mầm lúa nhỏ
-2	Junior Rice	500	Lúa cao, có bông
-3	Super Rice	1200	Lúa vàng rực, hiệu ứng gió
-4	Legendary Rice	2500	Thần lúa, aura mùa màng
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Nấm | 0 | Trứng hình nấm nhỏ, có đốm |
+| 1 | Baby Mushroom | 100 | Nấm con mắt to, hơi run |
+| 2 | Junior Mushroom | 500 | Nấm cao hơn, phát sáng nhẹ |
+| 3 | Super Mushroom | 1200 | Nấm phát tán bào tử, aura xanh |
+| 4 | Legendary Mushroom | 2500 | Nấm khổng lồ, hệ sinh thái mini xung quanh |
 
----
+
+### 5.17 Bamboo 🎋 — Tre (Rare)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Wind 🌪️ |
+| **Rarity** | Rare |
+| **Tính cách** | Kiên cường, linh hoạt, phản đòn tốt |
+| **Màu chủ đạo** | Xanh lá, xanh đậm |
+| **Mở khóa** | Map rừng tre / châu Á |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Tre | 0 | Trứng xanh có vân tre |
+| 1 | Baby Bamboo | 100 | Măng tre nhỏ có mặt |
+| 2 | Junior Bamboo | 500 | Tre mọc cao, có khớp rõ |
+| 3 | Super Bamboo | 1200 | Tre uốn cong, hiệu ứng gió |
+| 4 | Legendary Bamboo | 2500 | Tre thần, xoay gió, aura lốc xoáy |
+
+
+### 5.18 Bao 🥟 — Bánh bao (Common)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Fire 🔥 |
+| **Rarity** | Common |
+| **Tính cách** | Ấm áp, hồi máu, dễ gần |
+| **Màu chủ đạo** | Trắng, vàng nhẹ |
+| **Mở khóa** | Shop / Food map |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Bao | 0 | Trứng trắng mềm |
+| 1 | Baby Bao | 100 | Bánh bao nhỏ, mặt cười |
+| 2 | Junior Bao | 500 | Có nhân lộ nhẹ, bốc hơi nóng |
+| 3 | Super Bao | 1200 | Bánh bao nóng hổi, aura nhiệt |
+| 4 | Legendary Bao | 2500 | Bao thần, ánh sáng vàng, hồi phục mạnh |
+
+
+### 5.19 Rice 🌾 — Lúa (Common)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Earth 🌱 |
+| **Rarity** | Common |
+| **Tính cách** | Chăm chỉ, tích lũy tài nguyên |
+| **Màu chủ đạo** | Vàng lúa, xanh nhạt |
+| **Mở khóa** | Map đồng ruộng |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Lúa | 0 | Hạt giống |
+| 1 | Baby Rice | 100 | Mầm lúa nhỏ |
+| 2 | Junior Rice | 500 | Lúa cao, có bông |
+| 3 | Super Rice | 1200 | Lúa vàng rực, hiệu ứng gió |
+| 4 | Legendary Rice | 2500 | Thần lúa, aura mùa màng |
+
+### 5.20 Ginseng 🥕 — Nhân sâm (Epic)
+
+| Thuộc tính | Giá trị |
+|------------|---------|
+| **Nguyên tố** | Earth 🌱 |
+| **Rarity** | Epic |
+| **Tính cách** | Sống lâu, hồi phục mạnh, trí tuệ cổ xưa |
+| **Màu chủ đạo** | Vàng nhạt, trắng kem, rễ tua rua |
+| **Mở khóa** | Sưu tầm đủ 4 loại cây (Leafy, Bamboo, Rice, Mushroom) |
+
+| Stage | Tên | XP | Hướng dẫn visual |
+|-------|-----|----|-----------------|
+| 0 | Trứng Ginseng | 0 | Trứng trắng ngà, vân rễ cây |
+| 1 | Baby Ginseng | 100 | Nhân sâm con, rễ nhỏ, mặt cười |
+| 2 | Junior Ginseng | 500 | Nhân sâm trẻ, rễ dài, lá non |
+| 3 | Super Ginseng | 1200 | Nhân sâm trưởng thành, rễ tua rua, lá xanh |
+| 4 | Legendary Ginseng | 2500 | Nhân sâm cổ đại, rễ phức tạp, hào quang vàng |
+
 
 ## 6. Nguyên tắc thiết kế chung
 
@@ -554,12 +592,12 @@ Khi designer hoàn thành, kiểm tra:
 
 | Loại | Số lượng |
 |------|----------|
-| 15 pet × 5 stage | **75 file** (bắt buộc) |
-| 15 pet × 1 chat | **15 file** (tuỳ chọn) |
-| 15 pet × 1 alt | **15 file** (tuỳ chọn) |
+| 16 pet × 5 stage | **80 file** (bắt buộc) |
+| 16 pet × 1 chat | **16 file** (tuỳ chọn) |
+| 16 pet × 1 alt | **16 file** (tuỳ chọn) |
 | **Đã hoàn thành** | **9 file** (Cowdi 4 + Foxie 5) |
-| **Tổng tối thiểu còn lại** | **66 file** |
-| **Tổng đầy đủ** | **~105 file** |
+| **Tổng tối thiểu còn lại** | **71 file** |
+| **Tổng đầy đủ** | **~112 file** |
 
 ---
 
@@ -602,7 +640,9 @@ public/assets/images/pets/
   │     └── ...
   ├── Draco/
   │     └── ...
-  └── Pumpkin/
+  ├── Pumpkin/
+  │     └── ...
+  └── Ginseng/
         └── ...
 ```
 

@@ -22,6 +22,16 @@ export const FOXIE_IMAGES = {
   legendary: `${FOXIE_IMG}/Foxie_legandary.webp`,
 };
 
+// ── Ginseng Image Paths ──────────────────────────────────────────────────────
+const GINSENG_IMG = '/assets/images/pets/Ginseng';
+export const GINSENG_IMAGES = {
+  egg: `${GINSENG_IMG}/Ginseng_egg.webp`,
+  baby: `${GINSENG_IMG}/Ginseng_baby.webp`,
+  junior: `${GINSENG_IMG}/Ginseng_junior.webp`,
+  super: `${GINSENG_IMG}/Ginseng_super.webp`,
+  legendary: `${GINSENG_IMG}/Ginseng_legendary.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -414,7 +424,7 @@ export const PET_REGISTRY = {
       { stage: 3, name: 'Super Draco', xp: 1200, emoji: '🔥' },
       { stage: 4, name: 'Legendary Draco', xp: 2500, emoji: '👑' },
     ],
-    unlockCondition: { type: 'collection', value: 14 },
+    unlockCondition: { type: 'collection', value: 15 },
     chatMessages: {
       happy: [
         'ROARRRR! Draco bậc thầy đây! 🐲',
@@ -451,6 +461,35 @@ export const PET_REGISTRY = {
       ],
       sad: ['Pumpkin héo rồi... 😢'],
       sick: ['Pumpkin ốm... 🤒'],
+    },
+  },
+
+  ginseng: {
+    id: 'ginseng',
+    name: 'Ginseng',
+    species: 'Nhân sâm',
+    emoji: '🥕',
+    element: 'nature',
+    rarity: 'epic',
+    baseStats: { listening: 5, speaking: 5, reading: 7, writing: 7 },
+    description: 'Nhân sâm cổ đại, sống lâu nghìn năm, hồi phục mạnh và trí tuệ sâu sắc.',
+    evolutions: [
+      { stage: 0, name: 'Trứng Ginseng', xp: 0, emoji: '🥚', image: GINSENG_IMAGES.egg },
+      { stage: 1, name: 'Baby Ginseng', xp: 100, emoji: '🌱', image: GINSENG_IMAGES.baby },
+      { stage: 2, name: 'Junior Ginseng', xp: 500, emoji: '🥕', image: GINSENG_IMAGES.junior },
+      { stage: 3, name: 'Super Ginseng', xp: 1200, emoji: '🌿', image: GINSENG_IMAGES.super },
+      { stage: 4, name: 'Legendary Ginseng', xp: 2500, emoji: '👑', image: GINSENG_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'collection', value: 5 },
+    chatMessages: {
+      happy: [
+        'Nhân sâm nghìn năm đây! 🌱',
+        'Ginseng hồi phục năng lượng cho bạn! 💚',
+        'Trí tuệ cổ xưa, kiến thức vĩnh cửu! ✨',
+        'Rễ sâu gốc vững, học chắc nhớ lâu! 🌿',
+      ],
+      sad: ['Ginseng héo rồi... Cần bạn tưới nước 🥺'],
+      sick: ['Ginseng ốm... Rễ yếu lắm... 🤒'],
     },
   },
 };
