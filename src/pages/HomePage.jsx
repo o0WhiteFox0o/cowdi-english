@@ -142,13 +142,13 @@ export default function HomePage() {
       <h4 className="fw-bold mb-3"><i className="fas fa-star text-warning me-2"></i>Tính năng nổi bật</h4>
       <div className="row g-3 mb-5">
         {[
-          { icon: '📖', title: 'Bài học tương tác',   desc: '8 bài học từ cơ bản đến nâng cao' },
-          { icon: '🃏', title: 'Flashcard thông minh', desc: 'Học từ vựng với thẻ lật và phát âm' },
-          { icon: '🎯', title: 'Quiz đa dạng',         desc: 'Từ vựng, ngữ pháp & nghe hiểu' },
-          { icon: '🏆', title: 'Thành tích & XP',      desc: 'Theo dõi tiến trình và mở khóa huy hiệu' },
-          { icon: '🐾', title: 'Nuôi Pet',            desc: 'Chăm sóc pet, tiến hóa và sưu tầm' },
+          { icon: '📖', title: 'Bài học tương tác',   desc: '8 bài học từ cơ bản đến nâng cao', link: '/lessons' },
+          { icon: '🃏', title: 'Flashcard thông minh', desc: 'Học từ vựng với thẻ lật và phát âm', link: '/vocabulary' },
+          { icon: '🎯', title: 'Quiz đa dạng',         desc: 'Từ vựng, ngữ pháp & nghe hiểu', link: '/practice' },
+          { icon: '🏆', title: 'Thành tích & XP',      desc: 'Theo dõi tiến trình và mở khóa huy hiệu', link: '/progress' },
+          { icon: '🐾', title: 'Nuôi Pet',            desc: 'Chăm sóc pet, tiến hóa và sưu tầm', link: '/pet' },
         ].map((f, i) => (
-          <div className="col-6 col-md-3" key={i}>
+          <Link to={f.link} key={i} className="col-6 col-md-3 text-decoration-none">
             <div className="card text-center shadow-sm h-100 card-hover">
               <div className="card-body">
                 <div className="fs-2 mb-2">{f.icon}</div>
@@ -156,7 +156,7 @@ export default function HomePage() {
                 <p className="card-text text-muted small mb-0">{f.desc}</p>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
