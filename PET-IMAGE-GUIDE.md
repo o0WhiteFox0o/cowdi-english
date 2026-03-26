@@ -141,6 +141,8 @@ public/assets/images/pets/
 | Ginseng | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — WebP |
 | 13 pet khác | ❌ Emoji | — | Chưa có hình |
 
+____________________________________________________________
+
 ---
 
 ## 5. Danh sách 16 Pet cần thiết kế
