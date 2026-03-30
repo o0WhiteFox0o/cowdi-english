@@ -247,6 +247,10 @@ function getConditionText(condition) {
     case 'quizzes': return `${condition.value} quiz${condition.category ? ` ${condition.category}` : ''}`;
     case 'perfectQuizzes': return `${condition.value} perfect quiz`;
     case 'collection': return `Sở hữu ${condition.value} pet`;
+    case 'collection_species': {
+      const names = condition.value.map((id) => PET_REGISTRY[id]?.name || id).join(', ');
+      return `Sưu tầm: ${names}`;
+    }
     case 'event': return `Sự kiện ${condition.eventId}`;
     default: return '???';
   }

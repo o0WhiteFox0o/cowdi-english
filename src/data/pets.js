@@ -469,7 +469,7 @@ export const PET_REGISTRY = {
     name: 'Ginseng',
     species: 'Nhân sâm',
     emoji: '🥕',
-    element: 'nature',
+    element: 'earth',
     rarity: 'epic',
     baseStats: { listening: 5, speaking: 5, reading: 7, writing: 7 },
     description: 'Nhân sâm cổ đại, sống lâu nghìn năm, hồi phục mạnh và trí tuệ sâu sắc.',
@@ -480,7 +480,7 @@ export const PET_REGISTRY = {
       { stage: 3, name: 'Super Ginseng', xp: 1200, emoji: '🌿', image: GINSENG_IMAGES.super },
       { stage: 4, name: 'Legendary Ginseng', xp: 2500, emoji: '👑', image: GINSENG_IMAGES.legendary },
     ],
-    unlockCondition: { type: 'collection', value: 5 },
+    unlockCondition: { type: 'collection_species', value: ['leafy', 'bamboo', 'rice', 'mushroom'] },
     chatMessages: {
       happy: [
         'Nhân sâm nghìn năm đây! 🌱',
@@ -552,6 +552,7 @@ export const ELEMENT_COLORS = {
   fire:    { bg: '#FFE0D0', text: '#E0527E', name: 'Lửa' },
   water:   { bg: '#D0E8FF', text: '#4A90D9', name: 'Nước' },
   nature:  { bg: '#D0F0D0', text: '#2E8B57', name: 'Thiên nhiên' },
+  earth:   { bg: '#F0E8D0', text: '#8B6914', name: 'Đất 🌱' },
   cosmic:  { bg: '#E8D0FF', text: '#8B5CF6', name: 'Vũ trụ' },
 };
 
@@ -674,6 +675,13 @@ export function checkUnlockCondition(condition, userData, petData) {
       return (userData.perfectQuizzes || 0) >= condition.value;
     case 'collection':
       return Object.keys(petData.collection || {}).length >= condition.value;
+    case 'collection_species': {
+      // Yêu cầu sở hữu tất cả species trong danh sách
+      const ownedSpecies = new Set(
+        Object.values(petData.collection || {}).map((p) => p.speciesId)
+      );
+      return condition.value.every((sp) => ownedSpecies.has(sp));
+    }
     case 'event': {
       // Halloween: tháng 10, Christmas: tháng 12
       const month = new Date().getMonth();
