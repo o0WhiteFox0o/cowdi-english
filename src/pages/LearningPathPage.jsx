@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { LESSONS, UNITS, QUIZ_BANK } from '../data/lessons';
+import { EXAM_LESSONS, EXAM_PATHS } from '../data/exam-paths';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
+
+const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -20,7 +23,7 @@ function buildCheckpointQuestions(unit, count) {
   const questions = [];
 
   // Grab quiz questions from lessons in this unit
-  for (const lesson of LESSONS) {
+  for (const lesson of ALL_LESSONS) {
     if (lessonIds.includes(lesson.id)) {
       for (const q of lesson.quiz || []) {
         questions.push(q);
@@ -30,7 +33,7 @@ function buildCheckpointQuestions(unit, count) {
 
   // Also pull from QUIZ_BANK matching unit vocab
   const unitWords = new Set();
-  for (const lesson of LESSONS) {
+  for (const lesson of ALL_LESSONS) {
     if (lessonIds.includes(lesson.id)) {
       for (const v of lesson.vocabulary) unitWords.add(v.word.toLowerCase());
     }
@@ -65,9 +68,12 @@ export default function LearningPathPage() {
   const [testAnswered, setTestAnswered] = useState(null);
   const [testFinished, setTestFinished] = useState(false);
 
+  // Path tab: 'general' or exam path id (ielts, b1, b2, toeic)
+  const [pathTab, setPathTab] = useState('general');
+
   const lessonMap = useMemo(() => {
     const m = {};
-    for (const l of LESSONS) m[l.id] = l;
+    for (const l of ALL_LESSONS) m[l.id] = l;
     return m;
   }, []);
 
@@ -91,6 +97,26 @@ export default function LearningPathPage() {
       return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
     });
   }, [userData.completedLessons, userData.checkpointScores]);
+
+  // Compute exam path unit statuses
+  const activeExamPath = useMemo(() => EXAM_PATHS.find((p) => p.id === pathTab), [pathTab]);
+  const examUnitStatuses = useMemo(() => {
+    if (!activeExamPath) return [];
+    return activeExamPath.units.map((unit, uIdx) => {
+      const completedInUnit = unit.lessons.filter((lid) => userData.completedLessons.includes(lid)).length;
+      const totalInUnit = unit.lessons.length;
+      const allLessonsDone = completedInUnit === totalInUnit;
+      const checkpoint = userData.checkpointScores?.[unit.id];
+      const passed = checkpoint?.passed || false;
+      let locked = false;
+      if (uIdx > 0) {
+        const prevUnit = activeExamPath.units[uIdx - 1];
+        const prevCheckpoint = userData.checkpointScores?.[prevUnit.id];
+        locked = !prevCheckpoint?.passed;
+      }
+      return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
+    });
+  }, [activeExamPath, userData.completedLessons, userData.checkpointScores]);
 
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
@@ -210,28 +236,17 @@ export default function LearningPathPage() {
     );
   }
 
-  /* ── Visual Learning Path / Roadmap ── */
-  return (
-    <div className="fade-in">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold"><i className="fas fa-route text-cowdi me-2"></i>Lộ trình học tập</h2>
-        <p className="text-muted">Hoàn thành từng unit để mở khoá kiến thức mới!</p>
-      </div>
-
+  /* ── Reusable roadmap renderer for any unit list ── */
+  function renderRoadmap(units, gradientColors) {
+    return (
       <div className="learning-path" style={{ maxWidth: 700, margin: '0 auto', position: 'relative' }}>
-        {/* Vertical connector line */}
-        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 4, background: 'linear-gradient(to bottom, #4CAF50, #F44336)', borderRadius: 2, transform: 'translateX(-50%)', zIndex: 0 }}></div>
+        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 4, background: `linear-gradient(to bottom, ${gradientColors[0]}, ${gradientColors[1]})`, borderRadius: 2, transform: 'translateX(-50%)', zIndex: 0 }}></div>
 
-        {unitStatuses.map((unit, uIdx) => {
+        {units.map((unit, uIdx) => {
           const isEven = uIdx % 2 === 0;
           return (
             <div key={unit.id} className="position-relative mb-5" style={{ zIndex: 1 }}>
-              {/* Unit node on the timeline */}
-              <div
-                className="d-flex align-items-start gap-3"
-                style={{ flexDirection: isEven ? 'row' : 'row-reverse' }}
-              >
-                {/* Card side */}
+              <div className="d-flex align-items-start gap-3" style={{ flexDirection: isEven ? 'row' : 'row-reverse' }}>
                 <div style={{ flex: 1 }}>
                   <div
                     className={`card shadow-sm ${unit.locked ? 'opacity-50' : ''} ${unit.passed ? 'border-success border-2' : ''}`}
@@ -249,15 +264,10 @@ export default function LearningPathPage() {
                       </div>
                       <p className="text-muted small mb-3">{unit.subtitle}</p>
 
-                      {/* Lesson progress */}
                       <div className="progress mb-3" style={{ height: 8 }}>
-                        <div
-                          className="progress-bar"
-                          style={{ width: `${(unit.completedInUnit / unit.totalInUnit) * 100}%`, backgroundColor: unit.color }}
-                        ></div>
+                        <div className="progress-bar" style={{ width: `${(unit.completedInUnit / unit.totalInUnit) * 100}%`, backgroundColor: unit.color }}></div>
                       </div>
 
-                      {/* Lesson chips */}
                       <div className="d-flex flex-wrap gap-2 mb-3">
                         {unit.lessons.map((lid) => {
                           const lesson = lessonMap[lid];
@@ -277,29 +287,23 @@ export default function LearningPathPage() {
                         })}
                       </div>
 
-                      {/* Checkpoint button */}
-                      {!unit.locked && (
-                        <div>
-                          {unit.checkpoint && (
-                            <button
-                              className={`btn btn-sm w-100 fw-bold ${unit.passed ? 'btn-outline-success' : unit.allLessonsDone ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-                              onClick={() => startCheckpoint(unit)}
-                              disabled={!unit.allLessonsDone && !unit.passed}
-                            >
-                              {unit.passed
-                                ? `✅ Đã đạt ${unit.checkpoint?.score !== undefined ? `(${userData.checkpointScores?.[unit.id]?.score}/${userData.checkpointScores?.[unit.id]?.total})` : ''} – Làm lại?`
-                                : unit.allLessonsDone
-                                  ? `📝 ${unit.checkpoint.title}`
-                                  : `🔒 Hoàn thành ${unit.totalInUnit} bài để mở kiểm tra`}
-                            </button>
-                          )}
-                        </div>
+                      {!unit.locked && unit.checkpoint && (
+                        <button
+                          className={`btn btn-sm w-100 fw-bold ${unit.passed ? 'btn-outline-success' : unit.allLessonsDone ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                          onClick={() => startCheckpoint(unit)}
+                          disabled={!unit.allLessonsDone && !unit.passed}
+                        >
+                          {unit.passed
+                            ? `✅ Đã đạt ${unit.checkpoint?.score !== undefined ? `(${userData.checkpointScores?.[unit.id]?.score}/${userData.checkpointScores?.[unit.id]?.total})` : ''} – Làm lại?`
+                            : unit.allLessonsDone
+                              ? `📝 ${unit.checkpoint.title}`
+                              : `🔒 Hoàn thành ${unit.totalInUnit} bài để mở kiểm tra`}
+                        </button>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Center dot */}
                 <div
                   className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
                   style={{
@@ -313,30 +317,81 @@ export default function LearningPathPage() {
                   {unit.locked ? '🔒' : unit.passed ? '✅' : uIdx + 1}
                 </div>
 
-                {/* Spacer for the other side */}
                 <div style={{ flex: 1 }}></div>
               </div>
             </div>
           );
         })}
 
-        {/* Finish badge */}
         <div className="text-center position-relative" style={{ zIndex: 1 }}>
           <div
             className="d-inline-flex align-items-center justify-content-center rounded-circle mx-auto"
             style={{
               width: 64, height: 64,
-              background: unitStatuses.every((u) => u.passed) ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#e9ecef',
+              background: units.every((u) => u.passed) ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#e9ecef',
               fontSize: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
             }}
           >
-            {unitStatuses.every((u) => u.passed) ? '🏆' : '🎯'}
+            {units.every((u) => u.passed) ? '🏆' : '🎯'}
           </div>
           <p className="text-muted small mt-2">
-            {unitStatuses.every((u) => u.passed) ? 'Hoàn thành tất cả! Bạn thật xuất sắc! 🎉' : 'Hoàn thành tất cả unit để đạt thành tích!'}
+            {units.every((u) => u.passed) ? 'Hoàn thành tất cả! Bạn thật xuất sắc! 🎉' : 'Hoàn thành tất cả unit để đạt thành tích!'}
           </p>
         </div>
       </div>
+    );
+  }
+
+  /* ── Visual Learning Path / Roadmap ── */
+  return (
+    <div className="fade-in">
+      <div className="text-center mb-4">
+        <h2 className="fw-bold"><i className="fas fa-route text-cowdi me-2"></i>Lộ trình học tập</h2>
+        <p className="text-muted">Hoàn thành từng unit để mở khoá kiến thức mới!</p>
+      </div>
+
+      {/* ── Path Tabs ── */}
+      <div className="d-flex justify-content-center mb-4 flex-wrap gap-2">
+        <button
+          className={`btn btn-sm fw-bold ${pathTab === 'general' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+          onClick={() => setPathTab('general')}
+        >
+          🌱 Lộ trình chung
+        </button>
+        {EXAM_PATHS.map((ep) => (
+          <button
+            key={ep.id}
+            className={`btn btn-sm fw-bold ${pathTab === ep.id ? '' : 'btn-outline-secondary'}`}
+            style={pathTab === ep.id ? { backgroundColor: ep.color, color: '#fff', borderColor: ep.color } : {}}
+            onClick={() => setPathTab(ep.id)}
+          >
+            {ep.icon} {ep.title}
+          </button>
+        ))}
+      </div>
+
+      {/* ── General Path ── */}
+      {pathTab === 'general' && renderRoadmap(unitStatuses, ['#4CAF50', '#F44336'])}
+
+      {/* ── Exam Path ── */}
+      {activeExamPath && (
+        <div>
+          {/* Exam path header */}
+          <div className="card shadow-sm mb-4" style={{ maxWidth: 700, margin: '0 auto', borderTop: `4px solid ${activeExamPath.color}` }}>
+            <div className="card-body text-center">
+              <span style={{ fontSize: '2.5rem' }}>{activeExamPath.icon}</span>
+              <h4 className="fw-bold mt-2" style={{ color: activeExamPath.color }}>{activeExamPath.title}</h4>
+              <p className="text-muted small mb-1">{activeExamPath.subtitle}</p>
+              <p className="mb-2">{activeExamPath.description}</p>
+              <span className="badge" style={{ backgroundColor: activeExamPath.color, color: '#fff', fontSize: '0.85rem' }}>
+                🎯 Mục tiêu: {activeExamPath.targetLevel}
+              </span>
+            </div>
+          </div>
+
+          {renderRoadmap(examUnitStatuses, [activeExamPath.color, activeExamPath.color + '88'])}
+        </div>
+      )}
     </div>
   );
 }

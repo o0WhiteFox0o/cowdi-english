@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LESSONS } from '../data/lessons';
+import { EXAM_LESSONS } from '../data/exam-paths';
+
+const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/Toast';
@@ -33,7 +36,7 @@ export default function LessonDetailPage() {
   const { onLessonComplete, addCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();
-  const lesson = LESSONS.find((l) => l.id === id);
+  const lesson = ALL_LESSONS.find((l) => l.id === id);
 
   const confettiRef = useRef(null);
 
