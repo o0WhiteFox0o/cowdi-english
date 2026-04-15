@@ -32,6 +32,96 @@ export const GINSENG_IMAGES = {
   legendary: `${GINSENG_IMG}/Ginseng_legendary.webp`,
 };
 
+// ── Bamboo Image Paths ───────────────────────────────────────────────────────
+const BAMBOO_IMG = '/assets/images/pets/Bamboo';
+export const BAMBOO_IMAGES = {
+  egg: `${BAMBOO_IMG}/Bamboo_Egg.webp`,
+  baby: `${BAMBOO_IMG}/Bamboo_Baby.webp`,
+  junior: `${BAMBOO_IMG}/Bamboo_Junior.webp`,
+  super: `${BAMBOO_IMG}/Bamboo_Super.webp`,
+  legendary: `${BAMBOO_IMG}/Bamboo_Legendary.webp`,
+};
+
+// ── Flippy Image Paths ───────────────────────────────────────────────────────
+const FLIPPY_IMG = '/assets/images/pets/Flippy';
+export const FLIPPY_IMAGES = {
+  egg: `${FLIPPY_IMG}/Flippy_Egg.webp`,
+  baby: `${FLIPPY_IMG}/Flippy_Baby.webp`,
+  junior: `${FLIPPY_IMG}/Flippy_Junior.webp`,
+  super: `${FLIPPY_IMG}/Flippy_Super.webp`,
+  legendary: `${FLIPPY_IMG}/Flippy_Legendary.webp`,
+};
+
+// ── Leafy Image Paths ────────────────────────────────────────────────────────
+const LEAFY_IMG = '/assets/images/pets/Leafy';
+export const LEAFY_IMAGES = {
+  egg: `${LEAFY_IMG}/Leafy_Egg.webp`,
+  baby: `${LEAFY_IMG}/Leafy_Baby.webp`,
+  junior: `${LEAFY_IMG}/Leafy_Junior.webp`,
+  super: `${LEAFY_IMG}/Leafy_Super.webp`,
+  legendary: `${LEAFY_IMG}/Leafy_Legendary.webp`,
+};
+
+// ── Leo Image Paths ──────────────────────────────────────────────────────────
+const LEO_IMG = '/assets/images/pets/Leo';
+export const LEO_IMAGES = {
+  egg: `${LEO_IMG}/Leo_Egg.webp`,
+  baby: `${LEO_IMG}/Leo_Baby.webp`,
+  junior: `${LEO_IMG}/Leo_Junior.webp`,
+  super: `${LEO_IMG}/Leo_Super.webp`,
+  legendary: `${LEO_IMG}/Leo_Legendary.webp`,
+};
+
+// ── Sparky Image Paths ───────────────────────────────────────────────────────
+const SPARKY_IMG = '/assets/images/pets/Sparky';
+export const SPARKY_IMAGES = {
+  egg: `${SPARKY_IMG}/Sparky_Egg.webp`,
+  baby: `${SPARKY_IMG}/Sparky_Baby.webp`,
+  junior: `${SPARKY_IMG}/Sparky_Junior.webp`,
+  super: `${SPARKY_IMG}/Sparky_Super.webp`,
+  legendary: `${SPARKY_IMG}/Sparky_Legendary.webp`,
+};
+
+// ── Owlbert Image Paths ──────────────────────────────────────────────────────
+const OWLBERT_IMG = '/assets/images/pets/Owlbert';
+export const OWLBERT_IMAGES = {
+  egg: `${OWLBERT_IMG}/Owlbert_Egg.webp`,
+  baby: `${OWLBERT_IMG}/Owlbert_Baby.webp`,
+  junior: `${OWLBERT_IMG}/Owlbert_Junior.webp`,
+  super: `${OWLBERT_IMG}/Owlbert_Super.webp`,
+  legendary: `${OWLBERT_IMG}/Owlbert_Legendary.webp`,
+};
+
+// ── Mimi Image Paths ─────────────────────────────────────────────────────────
+const MIMI_IMG = '/assets/images/pets/Mimi';
+export const MIMI_IMAGES = {
+  egg: `${MIMI_IMG}/Mini_Egg.webp`,
+  baby: `${MIMI_IMG}/Mini_Baby.webp`,
+  junior: `${MIMI_IMG}/Mini_Junior.webp`,
+  super: `${MIMI_IMG}/Mini_Super.webp`,
+  legendary: `${MIMI_IMG}/Mini_Legendary.webp`,
+};
+
+// ── Paddy (Lúa) Image Paths ─────────────────────────────────────────────────
+const PADDY_IMG = '/assets/images/pets/Lua';
+export const PADDY_IMAGES = {
+  egg: `${PADDY_IMG}/Lua_Egg.webp`,
+  baby: `${PADDY_IMG}/Lua_Baby.webp`,
+  junior: `${PADDY_IMG}/Lua_Junior.webp`,
+  super: `${PADDY_IMG}/Lua_Super.webp`,
+  legendary: `${PADDY_IMG}/Lua_Legendary.webp`,
+};
+
+// ── Sprout (Măng tre) Image Paths ────────────────────────────────────────────
+const SPROUT_IMG = '/assets/images/pets/Mangtre';
+export const SPROUT_IMAGES = {
+  egg: `${SPROUT_IMG}/Mangtre_Egg.webp`,
+  baby: `${SPROUT_IMG}/Mangtre_Baby.webp`,
+  junior: `${SPROUT_IMG}/Mangtre_Junior.webp`,
+  super: `${SPROUT_IMG}/Mangtre_Super.webp`,
+  legendary: `${SPROUT_IMG}/Mangtre_Legendary.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -138,11 +228,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 4, speaking: 8, reading: 4, writing: 4 },
     description: 'Rùa kiên nhẫn, nhớ từ vựng rất giỏi, chậm mà chắc.',
     evolutions: [
-      { stage: 0, name: 'Trứng Leafy', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Leafy', xp: 100, emoji: '🐢' },
-      { stage: 2, name: 'Junior Leafy', xp: 500, emoji: '🐢' },
-      { stage: 3, name: 'Super Leafy', xp: 1200, emoji: '🌿' },
-      { stage: 4, name: 'Legendary Leafy', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Leafy', xp: 0, emoji: '🥚', image: LEAFY_IMAGES.egg },
+      { stage: 1, name: 'Baby Leafy', xp: 100, emoji: '🐢', image: LEAFY_IMAGES.baby },
+      { stage: 2, name: 'Junior Leafy', xp: 500, emoji: '🐢', image: LEAFY_IMAGES.junior },
+      { stage: 3, name: 'Super Leafy', xp: 1200, emoji: '🌿', image: LEAFY_IMAGES.super },
+      { stage: 4, name: 'Legendary Leafy', xp: 2500, emoji: '👑', image: LEAFY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'words', value: 50 },
     chatMessages: {
@@ -166,11 +256,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 4, speaking: 4, reading: 5, writing: 8 },
     description: 'Rồng nhỏ đầy năng lượng, sáng tạo vô hạn, thích viết câu.',
     evolutions: [
-      { stage: 0, name: 'Trứng Sparky', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Sparky', xp: 100, emoji: '🐉' },
-      { stage: 2, name: 'Junior Sparky', xp: 500, emoji: '🐉' },
-      { stage: 3, name: 'Super Sparky', xp: 1200, emoji: '🔥' },
-      { stage: 4, name: 'Legendary Sparky', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Sparky', xp: 0, emoji: '🥚', image: SPARKY_IMAGES.egg },
+      { stage: 1, name: 'Baby Sparky', xp: 100, emoji: '🐉', image: SPARKY_IMAGES.baby },
+      { stage: 2, name: 'Junior Sparky', xp: 500, emoji: '🐉', image: SPARKY_IMAGES.junior },
+      { stage: 3, name: 'Super Sparky', xp: 1200, emoji: '🔥', image: SPARKY_IMAGES.super },
+      { stage: 4, name: 'Legendary Sparky', xp: 2500, emoji: '👑', image: SPARKY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'streak', value: 7 },
     chatMessages: {
@@ -194,11 +284,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 7, speaking: 4, reading: 7, writing: 3 },
     description: 'Mèo thần bí từ thiên hà xa xôi, giỏi phân tích và lắng nghe.',
     evolutions: [
-      { stage: 0, name: 'Trứng Mimi', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Mimi', xp: 100, emoji: '🐱' },
-      { stage: 2, name: 'Junior Mimi', xp: 500, emoji: '🐱' },
-      { stage: 3, name: 'Super Mimi', xp: 1200, emoji: '🌙' },
-      { stage: 4, name: 'Legendary Mimi', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Mimi', xp: 0, emoji: '🥚', image: MIMI_IMAGES.egg },
+      { stage: 1, name: 'Baby Mimi', xp: 100, emoji: '🐱', image: MIMI_IMAGES.baby },
+      { stage: 2, name: 'Junior Mimi', xp: 500, emoji: '🐱', image: MIMI_IMAGES.junior },
+      { stage: 3, name: 'Super Mimi', xp: 1200, emoji: '🌙', image: MIMI_IMAGES.super },
+      { stage: 4, name: 'Legendary Mimi', xp: 2500, emoji: '👑', image: MIMI_IMAGES.legendary },
     ],
     unlockCondition: { type: 'perfectQuizzes', value: 3 },
     chatMessages: {
@@ -222,11 +312,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 4, speaking: 3, reading: 10, writing: 4 },
     description: 'Cú vọ thông thái, bậc thầy ngữ pháp, biết mọi quy tắc.',
     evolutions: [
-      { stage: 0, name: 'Trứng Owlbert', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Owlbert', xp: 100, emoji: '🦉' },
-      { stage: 2, name: 'Junior Owlbert', xp: 500, emoji: '🦉' },
-      { stage: 3, name: 'Super Owlbert', xp: 1200, emoji: '📚' },
-      { stage: 4, name: 'Legendary Owlbert', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Owlbert', xp: 0, emoji: '🥚', image: OWLBERT_IMAGES.egg },
+      { stage: 1, name: 'Baby Owlbert', xp: 100, emoji: '🦉', image: OWLBERT_IMAGES.baby },
+      { stage: 2, name: 'Junior Owlbert', xp: 500, emoji: '🦉', image: OWLBERT_IMAGES.junior },
+      { stage: 3, name: 'Super Owlbert', xp: 1200, emoji: '📚', image: OWLBERT_IMAGES.super },
+      { stage: 4, name: 'Legendary Owlbert', xp: 2500, emoji: '👑', image: OWLBERT_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 15, category: 'grammar' },
     chatMessages: {
@@ -250,11 +340,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 7, speaking: 7, reading: 3, writing: 4 },
     description: 'Cá heo vui vẻ, giao tiếp tuyệt vời, nghe hiểu siêu nhanh.',
     evolutions: [
-      { stage: 0, name: 'Trứng Flippy', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Flippy', xp: 100, emoji: '🐬' },
-      { stage: 2, name: 'Junior Flippy', xp: 500, emoji: '🐬' },
-      { stage: 3, name: 'Super Flippy', xp: 1200, emoji: '🌊' },
-      { stage: 4, name: 'Legendary Flippy', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Flippy', xp: 0, emoji: '🥚', image: FLIPPY_IMAGES.egg },
+      { stage: 1, name: 'Baby Flippy', xp: 100, emoji: '🐬', image: FLIPPY_IMAGES.baby },
+      { stage: 2, name: 'Junior Flippy', xp: 500, emoji: '🐬', image: FLIPPY_IMAGES.junior },
+      { stage: 3, name: 'Super Flippy', xp: 1200, emoji: '🌊', image: FLIPPY_IMAGES.super },
+      { stage: 4, name: 'Legendary Flippy', xp: 2500, emoji: '👑', image: FLIPPY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'words', value: 100 },
     chatMessages: {
@@ -278,11 +368,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Sư tử dũng mãnh, mạnh mẽ toàn diện, vua của muôn loài.',
     evolutions: [
-      { stage: 0, name: 'Trứng Leo', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Leo', xp: 100, emoji: '🦁' },
-      { stage: 2, name: 'Junior Leo', xp: 500, emoji: '🦁' },
-      { stage: 3, name: 'Super Leo', xp: 1200, emoji: '🔥' },
-      { stage: 4, name: 'Legendary Leo', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Leo', xp: 0, emoji: '🥚', image: LEO_IMAGES.egg },
+      { stage: 1, name: 'Baby Leo', xp: 100, emoji: '🦁', image: LEO_IMAGES.baby },
+      { stage: 2, name: 'Junior Leo', xp: 500, emoji: '🦁', image: LEO_IMAGES.junior },
+      { stage: 3, name: 'Super Leo', xp: 1200, emoji: '🔥', image: LEO_IMAGES.super },
+      { stage: 4, name: 'Legendary Leo', xp: 2500, emoji: '👑', image: LEO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'xp', value: 1000 },
     chatMessages: {
@@ -306,11 +396,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 5, speaking: 9, reading: 4, writing: 5 },
     description: 'Gấu trúc dễ thương, bậc thầy giao tiếp, nói chuyện suốt ngày.',
     evolutions: [
-      { stage: 0, name: 'Trứng Bamboo', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Bamboo', xp: 100, emoji: '🐼' },
-      { stage: 2, name: 'Junior Bamboo', xp: 500, emoji: '🐼' },
-      { stage: 3, name: 'Super Bamboo', xp: 1200, emoji: '🎋' },
-      { stage: 4, name: 'Legendary Bamboo', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Bamboo', xp: 0, emoji: '🥚', image: BAMBOO_IMAGES.egg },
+      { stage: 1, name: 'Baby Bamboo', xp: 100, emoji: '🐼', image: BAMBOO_IMAGES.baby },
+      { stage: 2, name: 'Junior Bamboo', xp: 500, emoji: '🐼', image: BAMBOO_IMAGES.junior },
+      { stage: 3, name: 'Super Bamboo', xp: 1200, emoji: '🎋', image: BAMBOO_IMAGES.super },
+      { stage: 4, name: 'Legendary Bamboo', xp: 2500, emoji: '👑', image: BAMBOO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 8 },
     chatMessages: {
@@ -424,7 +514,7 @@ export const PET_REGISTRY = {
       { stage: 3, name: 'Super Draco', xp: 1200, emoji: '🔥' },
       { stage: 4, name: 'Legendary Draco', xp: 2500, emoji: '👑' },
     ],
-    unlockCondition: { type: 'collection', value: 15 },
+    unlockCondition: { type: 'collection', value: 17 },
     chatMessages: {
       happy: [
         'ROARRRR! Draco bậc thầy đây! 🐲',
@@ -490,6 +580,64 @@ export const PET_REGISTRY = {
       ],
       sad: ['Ginseng héo rồi... Cần bạn tưới nước 🥺'],
       sick: ['Ginseng ốm... Rễ yếu lắm... 🤒'],
+    },
+  },
+
+  paddy: {
+    id: 'paddy',
+    name: 'Paddy',
+    species: 'Lúa',
+    emoji: '🌾',
+    element: 'nature',
+    rarity: 'common',
+    baseStats: { listening: 4, speaking: 4, reading: 6, writing: 6 },
+    description: 'Cây lúa chăm chỉ, tích lũy tài nguyên, bền bỉ qua mọi mùa vụ.',
+    evolutions: [
+      { stage: 0, name: 'Trứng Paddy', xp: 0, emoji: '🥚', image: PADDY_IMAGES.egg },
+      { stage: 1, name: 'Baby Paddy', xp: 100, emoji: '🌱', image: PADDY_IMAGES.baby },
+      { stage: 2, name: 'Junior Paddy', xp: 500, emoji: '🌾', image: PADDY_IMAGES.junior },
+      { stage: 3, name: 'Super Paddy', xp: 1200, emoji: '🌾', image: PADDY_IMAGES.super },
+      { stage: 4, name: 'Legendary Paddy', xp: 2500, emoji: '👑', image: PADDY_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'lessons', value: 12 },
+    chatMessages: {
+      happy: [
+        'Mùa vàng bội thu! 🌾',
+        'Paddy chăm chỉ như cánh đồng lúa! 🌱',
+        'Từng hạt kiến thức, tích lũy mỗi ngày! ✨',
+        'Gió đồng mát rượi, học thôi nào! 🍃',
+      ],
+      sad: ['Paddy héo rồi... Cần nước tưới 🥺'],
+      sick: ['Paddy ốm... Sâu bệnh rồi... 🤒'],
+    },
+  },
+
+  sprout: {
+    id: 'sprout',
+    name: 'Sprout',
+    species: 'Măng tre',
+    emoji: '🎋',
+    element: 'nature',
+    rarity: 'rare',
+    baseStats: { listening: 5, speaking: 6, reading: 5, writing: 6 },
+    description: 'Măng tre kiên cường, linh hoạt, vươn cao không ngừng.',
+    evolutions: [
+      { stage: 0, name: 'Trứng Sprout', xp: 0, emoji: '🥚', image: SPROUT_IMAGES.egg },
+      { stage: 1, name: 'Baby Sprout', xp: 100, emoji: '🌱', image: SPROUT_IMAGES.baby },
+      { stage: 2, name: 'Junior Sprout', xp: 500, emoji: '🎋', image: SPROUT_IMAGES.junior },
+      { stage: 3, name: 'Super Sprout', xp: 1200, emoji: '🎋', image: SPROUT_IMAGES.super },
+      { stage: 4, name: 'Legendary Sprout', xp: 2500, emoji: '👑', image: SPROUT_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'streak', value: 14 },
+    chatMessages: {
+      happy: [
+        'Vươn cao nào! 🎋',
+        'Sprout cứng cáp hơn mỗi ngày! 💪',
+        'Tre già măng mọc, kiến thức bất tận! 🌿',
+        'Gió lớn không gãy, kiên cường học tập! 🌪️',
+      ],
+      sad: ['Sprout buồn... Thiếu ánh sáng 🥺'],
+      sick: ['Sprout ốm... Lá vàng rồi... 🤒'],
     },
   },
 };

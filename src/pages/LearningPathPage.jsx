@@ -86,12 +86,12 @@ export default function LearningPathPage() {
       const checkpoint = userData.checkpointScores?.[unit.id];
       const passed = checkpoint?.passed || false;
 
-      // Locked if previous unit's checkpoint not passed (unit-1 is always unlocked)
+      // Unlocked if first unit OR all lessons in previous unit completed
       let locked = false;
       if (uIdx > 0) {
         const prevUnit = UNITS[uIdx - 1];
-        const prevCheckpoint = userData.checkpointScores?.[prevUnit.id];
-        locked = !prevCheckpoint?.passed;
+        const prevAllDone = prevUnit.lessons.every((lid) => userData.completedLessons.includes(lid));
+        locked = !prevAllDone;
       }
 
       return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
@@ -111,8 +111,8 @@ export default function LearningPathPage() {
       let locked = false;
       if (uIdx > 0) {
         const prevUnit = activeExamPath.units[uIdx - 1];
-        const prevCheckpoint = userData.checkpointScores?.[prevUnit.id];
-        locked = !prevCheckpoint?.passed;
+        const prevAllDone = prevUnit.lessons.every((lid) => userData.completedLessons.includes(lid));
+        locked = !prevAllDone;
       }
       return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
     });
