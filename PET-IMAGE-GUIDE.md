@@ -6,7 +6,7 @@
 
 ## 1. Tổng quan hệ thống Pet
 
-Cowdi English có **16 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
+Cowdi English có **18 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
 Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 13 pet còn lại đang dùng emoji thay thế.
 
 ### Hệ thống bài học hiện tại
@@ -145,7 +145,7 @@ ____________________________________________________________
 
 ---
 
-## 5. Danh sách 16 Pet cần thiết kế
+## 5. Danh sách 18 Pet cần thiết kế
 
 ### 5.1 Cowdi 🐮 — Bò sữa (Starter)
 
@@ -470,23 +470,24 @@ ____________________________________________________________
 | 4 | Legendary Mushroom | 2500 | Nấm khổng lồ, hệ sinh thái mini xung quanh |
 
 
-### 5.17 Bamboo 🎋 — Tre (Rare)
+### 5.17 Sprout 🎋 — Măng tre (Rare)
 
 | Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Wind 🌪️ |
+|------------|--------|
+| **Nguyên tố** | Nature 🌿 |
 | **Rarity** | Rare |
-| **Tính cách** | Kiên cường, linh hoạt, phản đòn tốt |
+| **Tính cách** | Kiên cường, linh hoạt, vươn cao không ngừng |
 | **Màu chủ đạo** | Xanh lá, xanh đậm |
-| **Mở khóa** | Map rừng tre / châu Á |
+| **Mở khóa** | Streak 14 ngày liên tục |
+| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
 
 | Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Tre | 0 | Trứng xanh có vân tre |
-| 1 | Baby Bamboo | 100 | Măng tre nhỏ có mặt |
-| 2 | Junior Bamboo | 500 | Tre mọc cao, có khớp rõ |
-| 3 | Super Bamboo | 1200 | Tre uốn cong, hiệu ứng gió |
-| 4 | Legendary Bamboo | 2500 | Tre thần, xoay gió, aura lốc xoáy |
+|-------|-----|----|------------------|
+| 0 | Trứng Sprout | 0 | Trứng xanh có vân tre |
+| 1 | Baby Sprout | 100 | Măng tre nhỏ có mặt |
+| 2 | Junior Sprout | 500 | Tre mọc cao, có khớp rõ |
+| 3 | Super Sprout | 1200 | Tre uốn cong, hiệu ứng gió |
+| 4 | Legendary Sprout | 2500 | Tre thần, xoay gió, aura lốc xoáy |
 
 
 ### 5.18 Bao 🥟 — Bánh bao (Common)
@@ -508,23 +509,24 @@ ____________________________________________________________
 | 4 | Legendary Bao | 2500 | Bao thần, ánh sáng vàng, hồi phục mạnh |
 
 
-### 5.19 Rice 🌾 — Lúa (Common)
+### 5.19 Paddy 🌾 — Lúa (Common)
 
 | Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Earth 🌱 |
+|------------|--------|
+| **Nguyên tố** | Nature 🌿 |
 | **Rarity** | Common |
 | **Tính cách** | Chăm chỉ, tích lũy tài nguyên |
 | **Màu chủ đạo** | Vàng lúa, xanh nhạt |
-| **Mở khóa** | Map đồng ruộng |
+| **Mở khóa** | Hoàn thành 12 bài học |
+| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
 
 | Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Lúa | 0 | Hạt giống |
-| 1 | Baby Rice | 100 | Mầm lúa nhỏ |
-| 2 | Junior Rice | 500 | Lúa cao, có bông |
-| 3 | Super Rice | 1200 | Lúa vàng rực, hiệu ứng gió |
-| 4 | Legendary Rice | 2500 | Thần lúa, aura mùa màng |
+|-------|-----|----|------------------|
+| 0 | Trứng Paddy | 0 | Hạt giống |
+| 1 | Baby Paddy | 100 | Mầm lúa nhỏ |
+| 2 | Junior Paddy | 500 | Lúa cao, có bông |
+| 3 | Super Paddy | 1200 | Lúa vàng rực, hiệu ứng gió |
+| 4 | Legendary Paddy | 2500 | Thần lúa, aura mùa màng |
 
 ### 5.20 Ginseng 🥕 — Nhân sâm (Epic)
 
@@ -594,12 +596,12 @@ Khi designer hoàn thành, kiểm tra:
 
 | Loại | Số lượng |
 |------|----------|
-| 16 pet × 5 stage | **80 file** (bắt buộc) |
-| 16 pet × 1 chat | **16 file** (tuỳ chọn) |
-| 16 pet × 1 alt | **16 file** (tuỳ chọn) |
+| 18 pet × 5 stage | **90 file** (bắt buộc) |
+| 18 pet × 1 chat | **18 file** (tuỳ chọn) |
+| 18 pet × 1 alt | **18 file** (tuỳ chọn) |
 | **Đã hoàn thành** | **9 file** (Cowdi 4 + Foxie 5) |
-| **Tổng tối thiểu còn lại** | **71 file** |
-| **Tổng đầy đủ** | **~112 file** |
+| **Tổng tối thiểu còn lại** | **81 file** |
+| **Tổng đầy đủ** | **~126 file** |
 
 ---
 

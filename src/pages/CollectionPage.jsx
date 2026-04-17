@@ -56,7 +56,7 @@ export default function CollectionPage() {
         <div className="progress mx-auto mb-2" style={{ maxWidth: 400, height: 10 }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${pct}%` }}></div>
         </div>
-        {collectionCount < 14 && (
+        {collectionCount < 17 && (
           <small className="text-muted">Thu thập tất cả pet để mở khóa Draco! 🐲</small>
         )}
       </div>

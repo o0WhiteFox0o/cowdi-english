@@ -294,7 +294,22 @@ export default function VocabularyPage() {
               <div className="flashcard-back">
                 <h2 className="text-cowdi-primary mb-2">{currentWord.meaning}</h2>
                 <p className="fst-italic text-muted">"{currentWord.example}"</p>
-                <small className="text-muted">Nhấn để lật lại</small>
+                {currentWord.memoryTip && (
+                  <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', fontSize: '0.85rem' }}>
+                    <strong>💡 Mẹo nhớ:</strong> {currentWord.memoryTip}
+                  </div>
+                )}
+                {currentWord.context && (
+                  <div className="mt-2 text-start" style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                    {currentWord.context}
+                  </div>
+                )}
+                {currentWord.related && (
+                  <div className="mt-2 text-start" style={{ fontSize: '0.8rem', color: '#0d6efd' }}>
+                    🔗 {currentWord.related}
+                  </div>
+                )}
+                <small className="text-muted d-block mt-2">Nhấn để lật lại</small>
               </div>
             </div>
           </div>
@@ -333,6 +348,12 @@ export default function VocabularyPage() {
                       <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(w.word)}>🔊</button>
                       <div className="mt-1">{w.meaning}</div>
                       <div className="text-muted small fst-italic">{w.example}</div>
+                      {w.memoryTip && (
+                        <div className="mt-1 small" style={{ color: '#b8860b' }}>💡 {w.memoryTip}</div>
+                      )}
+                      {w.related && (
+                        <div className="mt-1 small" style={{ color: '#0d6efd' }}>🔗 {w.related}</div>
+                      )}
                     </div>
                     <div className="d-flex gap-2 align-self-center">
                       <button
