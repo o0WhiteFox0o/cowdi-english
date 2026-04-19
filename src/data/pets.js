@@ -112,6 +112,16 @@ export const PADDY_IMAGES = {
   legendary: `${PADDY_IMG}/Lua_Legendary.webp`,
 };
 
+// ── Storm Image Paths ────────────────────────────────────────────────────────
+const STORM_IMG = '/assets/images/pets/Storm';
+export const STORM_IMAGES = {
+  egg: `${STORM_IMG}/Storm_Egg.webp`,
+  baby: `${STORM_IMG}/Storm-Baby.webp`,
+  junior: `${STORM_IMG}/Storm_Junior.webp`,
+  super: `${STORM_IMG}/Storm_Super.webp`,
+  legendary: `${STORM_IMG}/Storm_Legendary.webp`,
+};
+
 // ── Sprout (Măng tre) Image Paths ────────────────────────────────────────────
 const SPROUT_IMG = '/assets/images/pets/Mangtre';
 export const SPROUT_IMAGES = {
@@ -424,11 +434,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 7, speaking: 4, reading: 4, writing: 8 },
     description: 'Đại bàng kiên cường, bay qua mọi giông bão, sáng tạo vô tận.',
     evolutions: [
-      { stage: 0, name: 'Trứng Storm', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Storm', xp: 100, emoji: '🦅' },
-      { stage: 2, name: 'Junior Storm', xp: 500, emoji: '🦅' },
-      { stage: 3, name: 'Super Storm', xp: 1200, emoji: '⚡' },
-      { stage: 4, name: 'Legendary Storm', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Storm', xp: 0, emoji: '🥚', image: STORM_IMAGES.egg },
+      { stage: 1, name: 'Baby Storm', xp: 100, emoji: '🦅', image: STORM_IMAGES.baby },
+      { stage: 2, name: 'Junior Storm', xp: 500, emoji: '🦅', image: STORM_IMAGES.junior },
+      { stage: 3, name: 'Super Storm', xp: 1200, emoji: '⚡', image: STORM_IMAGES.super },
+      { stage: 4, name: 'Legendary Storm', xp: 2500, emoji: '👑', image: STORM_IMAGES.legendary },
     ],
     unlockCondition: { type: 'streak', value: 30 },
     chatMessages: {
