@@ -8,7 +8,8 @@ import { LEVELS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 
 /* Route groups for highlighting active nav section */
-const LEARN_PATHS    = ['/lessons', '/vocabulary', '/learning-path', '/review'];
+const LEARN_PATHS    = ['/lessons', '/vocabulary', '/review'];
+const EXAM_PATHS_NAV = ['/learning-path'];
 const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
 const ME_PATHS       = ['/progress', '/student-ranking', '/leaderboard', '/account'];
@@ -65,13 +66,17 @@ export default function Navbar() {
     learn:    { items: [
       { icon: '📖', label: 'Bài học',    path: '/lessons' },
       { icon: '🗺️', label: 'Từ vựng',    path: '/vocabulary' },
-      { icon: '🛤️', label: 'Lộ trình',   path: '/learning-path' },
       { icon: '🧠', label: 'Ôn tập',     path: '/review' },
-    ]},
-    practice: { items: [
       { icon: '🎯', label: 'Bài tập',    path: '/practice' },
       { icon: '🎮', label: 'Mini-games', path: '/mini-games' },
       { icon: '⚔️', label: 'Đấu trường', path: '/duel' },
+    ]},
+    exam:     { items: [
+      { icon: '🛤️', label: 'Lộ trình',       path: '/learning-path' },
+      { icon: '🎯', label: 'IELTS',          path: '/learning-path?tab=ielts' },
+      { icon: '🌍', label: 'B1 Preliminary', path: '/learning-path?tab=b1' },
+      { icon: '📘', label: 'B2 First',       path: '/learning-path?tab=b2' },
+      { icon: '🏢', label: 'TOEIC',          path: '/learning-path?tab=toeic' },
     ]},
     pet:      { items: [
       { icon: '🐮', label: 'Pet của tôi', path: '/pet' },
@@ -115,8 +120,23 @@ export default function Navbar() {
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/lessons">📖 Bài học</NavLink></li>
                 <li><NavLink className="dropdown-item" to="/vocabulary">🗺️ Từ vựng</NavLink></li>
-                <li><NavLink className="dropdown-item" to="/learning-path">🛤️ Lộ trình</NavLink></li>
                 <li><NavLink className="dropdown-item" to="/review">🧠 Ôn tập</NavLink></li>
+              </ul>
+            </li>
+
+            {/* 🎓 Khóa thi */}
+            <li className="nav-item dropdown">
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(EXAM_PATHS_NAV) ? 'active' : ''}`}
+                href="#" role="button">
+                🎓 Khóa thi
+              </a>
+              <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><NavLink className="dropdown-item" to="/learning-path">🛤️ Lộ trình chung</NavLink></li>
+                <li><hr className="dropdown-divider" /></li>
+                <li><NavLink className="dropdown-item" to="/learning-path?tab=ielts">🎯 IELTS</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/learning-path?tab=b1">🌍 B1 Preliminary</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/learning-path?tab=b2">📘 B2 First</NavLink></li>
+                <li><NavLink className="dropdown-item" to="/learning-path?tab=toeic">🏢 TOEIC</NavLink></li>
               </ul>
             </li>
 
@@ -225,15 +245,15 @@ export default function Navbar() {
           <span className="bottom-tab-icon">🏠</span>
           <span className="bottom-tab-label">Home</span>
         </NavLink>
-        <button type="button" className={`bottom-tab ${isIn(LEARN_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
+        <button type="button" className={`bottom-tab ${isIn(LEARN_PATHS) || isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
           onClick={() => handleTabTap('learn', '/lessons')}>
           <span className="bottom-tab-icon">📚</span>
           <span className="bottom-tab-label">Học</span>
         </button>
-        <button type="button" className={`bottom-tab ${isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'practice' ? 'open' : ''}`}
-          onClick={() => handleTabTap('practice', '/practice')}>
-          <span className="bottom-tab-icon">✏️</span>
-          <span className="bottom-tab-label">Luyện</span>
+        <button type="button" className={`bottom-tab ${isIn(EXAM_PATHS_NAV) ? 'active' : ''} ${openTab === 'exam' ? 'open' : ''}`}
+          onClick={() => handleTabTap('exam', '/learning-path')}>
+          <span className="bottom-tab-icon">🎓</span>
+          <span className="bottom-tab-label">Thi</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(PET_PATHS) ? 'active' : ''} ${openTab === 'pet' ? 'open' : ''}`}
           onClick={() => handleTabTap('pet', '/pet')}>

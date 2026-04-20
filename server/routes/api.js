@@ -195,13 +195,16 @@ router.get('/leaderboard', async (req, res) => {
   const skill = req.query.skill || 'listening';
   try {
     const [rows] = await pool.execute(
-      'SELECT pet_data, league_points, duel_wins, duel_losses FROM user_progress WHERE pet_data IS NOT NULL'
+      `SELECT up.pet_data, up.league_points, up.duel_wins, up.duel_losses, u.display_name
+       FROM user_progress up
+       LEFT JOIN users u ON u.id = up.user_id
+       WHERE up.pet_data IS NOT NULL`
     );
     const entries = [];
     for (const row of rows) {
       const data = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;
       if (!data || !data.collection) continue;
-      const nick = data.nickname || 'Ẩn danh';
+      const nick = data.nickname || row.display_name || 'Ẩn danh';
       const collection = data.collection;
       const collectionCount = Object.keys(collection).length;
       // Find best pet (for power), active pet (for display)
@@ -525,8 +528,9 @@ router.get('/rankings', async (req, res) => {
   try {
     const [rows] = await pool.execute(
       `SELECT up.nickname, up.pet_data, up.league_points,
-              up.duel_wins, up.duel_losses, up.duel_streak
+              up.duel_wins, up.duel_losses, up.duel_streak, u.display_name
        FROM user_progress up
+       LEFT JOIN users u ON u.id = up.user_id
        WHERE up.pet_data IS NOT NULL
        ORDER BY COALESCE(up.league_points, 0) DESC
        LIMIT 50`
@@ -536,7 +540,7 @@ router.get('/rankings', async (req, res) => {
       const lp = row.league_points || 0;
       const pet = parsePetSummary(row.pet_data);
       return {
-        nickname: row.nickname || pd?.nickname || 'Ẩn danh',
+        nickname: row.nickname || pd?.nickname || row.display_name || 'Ẩn danh',
         leaguePoints: lp,
         league: getLeague(lp),
         duelWins: row.duel_wins || 0,
@@ -559,8 +563,9 @@ router.get('/student-rankings', async (req, res) => {
     const [rows] = await pool.execute(
       `SELECT up.total_xp, up.streak, up.lessons_completed, up.quizzes_completed,
               up.perfect_quizzes, up.words_learned, up.achievements, up.active_days,
-              up.nickname, up.pet_data
+              up.nickname, up.pet_data, u.display_name
        FROM user_progress up
+       LEFT JOIN users u ON u.id = up.user_id
        WHERE up.total_xp > 0`
     );
     const entries = rows.map(row => {
@@ -569,7 +574,7 @@ router.get('/student-rankings', async (req, res) => {
       const activeDays = typeof row.active_days === 'string' ? JSON.parse(row.active_days || '[]') : (row.active_days || []);
       const pet = parsePetSummary(row.pet_data);
       return {
-        nickname: row.nickname || pd?.nickname || 'Ẩn danh',
+        nickname: row.nickname || pd?.nickname || row.display_name || 'Ẩn danh',
         totalXP: row.total_xp || 0,
         streak: row.streak || 0,
         lessonsCompleted: row.lessons_completed || 0,

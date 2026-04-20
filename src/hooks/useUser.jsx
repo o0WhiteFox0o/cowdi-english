@@ -192,6 +192,17 @@ function mergeProgress(local, remote) {
     writing: Math.max(localSkill.writing || 0, remoteSkill.writing || 0),
   };
 
+  // Merge activeDays – union of both sets
+  const localDays = new Set(local.activeDays || []);
+  const remoteDays = new Set(remote.activeDays || []);
+  merged.activeDays = [...new Set([...localDays, ...remoteDays])];
+
+  // Keep streak & lastActiveDate from the more recent source
+  if ((local.lastActiveDate || '') > (remote.lastActiveDate || '')) {
+    merged.streak = local.streak || 0;
+    merged.lastActiveDate = local.lastActiveDate;
+  }
+
   return sanitizeData(merged);
 }
 
@@ -275,7 +286,20 @@ export function UserProvider({ children }) {
           final = mergeProgress(localForUser, remote);
         }
         final._lastModified = new Date().toISOString();
-        setUserData(final);
+        // Re-apply streak logic after merge so server data doesn't overwrite today
+        const today = new Date().toDateString();
+        if (final.lastActiveDate !== today) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          final.streak = final.lastActiveDate === yesterday.toDateString() ? (final.streak || 0) + 1 : 1;
+          final.lastActiveDate = today;
+          if (!final.activeDays.includes(today)) final.activeDays.push(today);
+          if (final.dailyDate !== today) {
+            final.dailyTasks = { lessonDone: false, vocabDone: false };
+            final.dailyDate = today;
+          }
+        }
+        setUserData(checkAchievements(final));
         readyRef.current = true;
       })
       .catch(() => {
@@ -339,14 +363,14 @@ export function UserProvider({ children }) {
         dailyDate  = today;
       }
 
-      return {
+      return checkAchievements({
         ...prev,
         streak: newStreak,
         lastActiveDate: today,
         activeDays,
         dailyTasks,
         dailyDate,
-      };
+      });
     });
   }, []);
 

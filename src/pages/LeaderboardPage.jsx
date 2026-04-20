@@ -20,24 +20,28 @@ const LEAGUES = {
   master:  { name: 'Cao thủ',   icon: '👑', color: '#E91E63' },
 };
 
-function resolveEmoji(speciesId, totalXpEarned) {
-  if (!speciesId) return '🐾';
+function resolvePetAvatar(speciesId, totalXpEarned) {
+  if (!speciesId) return { emoji: '🐾', image: null };
   const species = PET_REGISTRY[speciesId];
-  if (!species) return '🐾';
+  if (!species) return { emoji: '🐾', image: null };
   const evo = getPetEvolution(speciesId, totalXpEarned || 0);
-  return evo?.emoji || species.emoji;
+  return { emoji: evo?.emoji || species.emoji, image: evo?.image || null };
+}
+
+function PetAvatarInline({ speciesId, totalXpEarned, size = 32 }) {
+  const { emoji, image } = resolvePetAvatar(speciesId, totalXpEarned);
+  if (image) return <img src={image} alt="pet" style={{ width: size, height: size, objectFit: 'contain' }} />;
+  return <span style={{ fontSize: size * 0.8 }}>{emoji}</span>;
 }
 
 export default function LeaderboardPage() {
-  const { petData, setNickname } = usePet();
+  const { petData } = usePet();
   const { authFetch, user } = useAuth();
   const [tab, setTab] = useState('power');
   const [skillTab, setSkillTab] = useState('listening');
   const [leaderboard, setLeaderboard] = useState([]);
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editingNick, setEditingNick] = useState(false);
-  const [nickInput, setNickInput] = useState(petData.nickname || '');
 
   // Fetch leaderboard from server (power/skill/collection)
   useEffect(() => {
@@ -74,17 +78,13 @@ export default function LeaderboardPage() {
       name: pet.customName,
       species: species?.name,
       emoji: evo?.emoji || species?.emoji,
+      image: evo?.image || null,
       evoName: evo?.name,
       power: calculatePowerScore(pet, species),
       skills: pet.skills,
       collectionCount: Object.keys(petData.collection).length,
     };
   }, [petData]);
-
-  function handleSaveNick() {
-    setNickname(nickInput.trim());
-    setEditingNick(false);
-  }
 
   const rankMedal = (i) => ['🥇', '🥈', '🥉'][i] || `${i + 1}.`;
 
@@ -99,19 +99,8 @@ export default function LeaderboardPage() {
       <div className="card shadow-sm mb-4">
         <div className="card-body d-flex align-items-center gap-2 py-2">
           <span className="text-muted small">Tên hiển thị:</span>
-          {editingNick ? (
-            <>
-              <input type="text" className="form-control form-control-sm" style={{ maxWidth: 150 }}
-                value={nickInput} onChange={(e) => setNickInput(e.target.value)}
-                maxLength={20} autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSaveNick()} />
-              <button className="btn btn-sm btn-cowdi-primary" onClick={handleSaveNick}>✓</button>
-            </>
-          ) : (
-            <>
-              <span className="fw-bold">{petData.nickname || '(Ẩn danh)'}</span>
-              <button className="btn btn-sm btn-link text-muted" onClick={() => { setEditingNick(true); setNickInput(petData.nickname || ''); }}>✏️</button>
-            </>
-          )}
+          <span className="fw-bold">{petData.nickname || user?.display_name || user?.name || '(Ẩn danh)'}</span>
+          <span className="text-muted small ms-auto">Đổi tên tại Tài khoản</span>
         </div>
       </div>
 
@@ -155,9 +144,9 @@ export default function LeaderboardPage() {
                   return (
                     <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
                       <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
-                      <span className="fs-4">{entry.pet ? resolveEmoji(entry.pet.speciesId, entry.pet.totalXpEarned) : '🐾'}</span>
+                      <PetAvatarInline speciesId={entry.pet?.speciesId} totalXpEarned={entry.pet?.totalXpEarned} size={36} />
                       <div className="flex-grow-1">
-                        <div className="fw-bold small">{entry.nickname}</div>
+                        <div className="fw-bold small">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>
                         <div style={{ fontSize: '0.7rem' }} className="text-muted">
                           <span className="text-success">{entry.duelWins}W</span> / <span className="text-danger">{entry.duelLosses}L</span>
                           {entry.duelStreak > 0 && <span className="ms-1">🔥{entry.duelStreak}</span>}
@@ -197,10 +186,10 @@ export default function LeaderboardPage() {
                 {leaderboard.slice(0, 20).map((entry, i) => (
                   <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
                     <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
-                    <span className="fs-4">{resolveEmoji(entry.speciesId, entry.totalXpEarned)}</span>
+                    <PetAvatarInline speciesId={entry.speciesId} totalXpEarned={entry.totalXpEarned} size={36} />
                     <div className="flex-grow-1">
-                      <div className="fw-bold small">{entry.petName || entry.nickname || 'Pet'}</div>
-                      <div style={{ fontSize: '0.7rem' }} className="text-muted">{entry.nickname}</div>
+                      <div className="fw-bold small">{entry.petName || entry.nickname || entry.displayName || 'Pet'}</div>
+                      <div style={{ fontSize: '0.7rem' }} className="text-muted">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>
                     </div>
                     <div className="text-end">
                       {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power}</span>}
@@ -228,7 +217,9 @@ export default function LeaderboardPage() {
           <div className="card-body">
             <h6 className="fw-bold small mb-2">📊 Pet của bạn</h6>
             <div className="d-flex align-items-center gap-2">
-              <span className="fs-3">{myPet.emoji}</span>
+              {myPet.image
+                ? <img src={myPet.image} alt={myPet.name} style={{ width: 40, height: 40, objectFit: 'contain' }} />
+                : <span className="fs-3">{myPet.emoji}</span>}
               <div className="flex-grow-1">
                 <div className="fw-bold">{myPet.name}</div>
                 <div className="text-muted small">{myPet.species} · {myPet.evoName}</div>

@@ -11,6 +11,128 @@ import { useSound } from '../hooks/useSound';
 
 /* ── Tiny helpers ────────────────────────────────── */
 
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/**
+ * Generate random quiz questions from lesson vocabulary & grammar.
+ * Returns 10 questions (or fewer if lesson is small).
+ * Question types: word→meaning, meaning→word, example fill-in, grammar.
+ */
+function generateQuizFromLesson(lesson) {
+  const vocab = lesson.vocabulary || [];
+  const questions = [];
+
+  // Type 1: Word → Meaning (from vocab)
+  for (const v of vocab) {
+    const distractors = shuffleArray(vocab.filter((w) => w.word !== v.word))
+      .slice(0, 3)
+      .map((w) => w.meaning);
+    if (distractors.length < 3) continue;
+    const options = shuffleArray([v.meaning, ...distractors]);
+    questions.push({
+      question: `"${v.word}" nghĩa là:`,
+      options,
+      correct: options.indexOf(v.meaning),
+      _type: 'word2meaning',
+    });
+  }
+
+  // Type 2: Meaning → Word (from vocab)
+  for (const v of vocab) {
+    const distractors = shuffleArray(vocab.filter((w) => w.word !== v.word))
+      .slice(0, 3)
+      .map((w) => w.word);
+    if (distractors.length < 3) continue;
+    const options = shuffleArray([v.word, ...distractors]);
+    questions.push({
+      question: `Từ nào có nghĩa "${v.meaning}"?`,
+      options,
+      correct: options.indexOf(v.word),
+      _type: 'meaning2word',
+    });
+  }
+
+  // Type 3: Grammar questions from lesson.grammar examples
+  if (lesson.grammar) {
+    for (const g of lesson.grammar) {
+      for (const ex of g.examples) {
+        // Try to create a fill-in-blank from the English sentence
+        const words = ex.en.split(/\s+/);
+        if (words.length >= 4) {
+          // Pick a meaningful word to blank out (skip first/last, skip short words)
+          const candidates = words
+            .map((w, i) => ({ w: w.replace(/[.,!?;:'"]/g, ''), i }))
+            .filter((c) => c.i > 0 && c.i < words.length - 1 && c.w.length >= 3);
+          if (candidates.length > 0) {
+            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            const blank = words.map((w, i) => (i === pick.i ? '___' : w)).join(' ');
+            const otherWords = shuffleArray(
+              words.filter((_, i) => i !== pick.i && _.replace(/[.,!?;:'"]/g, '').length >= 3)
+            ).slice(0, 2);
+            // Add a random vocab word as distractor
+            const vocabDistractor = vocab.length > 0
+              ? vocab[Math.floor(Math.random() * vocab.length)].word.toLowerCase()
+              : 'something';
+            const distractors = [...new Set([...otherWords.map((w) => w.replace(/[.,!?;:'"]/g, '')), vocabDistractor])]
+              .filter((d) => d.toLowerCase() !== pick.w.toLowerCase())
+              .slice(0, 3);
+            if (distractors.length >= 3) {
+              const options = shuffleArray([pick.w, ...distractors.slice(0, 3)]);
+              questions.push({
+                question: `Điền vào chỗ trống: "${blank}"`,
+                options,
+                correct: options.indexOf(pick.w),
+                _type: 'grammar',
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Also include original quiz questions (shuffled)
+  if (lesson.quiz) {
+    for (const q of lesson.quiz) {
+      questions.push({ ...q, _type: 'original' });
+    }
+  }
+
+  // Shuffle all and pick up to 10, ensuring variety
+  const byType = {};
+  for (const q of shuffleArray(questions)) {
+    const t = q._type;
+    if (!byType[t]) byType[t] = [];
+    byType[t].push(q);
+  }
+
+  const selected = [];
+  const maxPerType = { word2meaning: 4, meaning2word: 3, grammar: 2, original: 3 };
+  for (const [type, qs] of Object.entries(byType)) {
+    const limit = maxPerType[type] || 3;
+    selected.push(...qs.slice(0, limit));
+  }
+
+  // If not enough, fill from remaining
+  const selectedSet = new Set(selected);
+  for (const q of shuffleArray(questions)) {
+    if (selected.length >= 10) break;
+    if (!selectedSet.has(q)) {
+      selected.push(q);
+      selectedSet.add(q);
+    }
+  }
+
+  return shuffleArray(selected).slice(0, Math.max(10, (lesson.quiz || []).length));
+}
+
 /** Spawn emoji confetti particles */
 function spawnConfetti(containerRef) {
   if (!containerRef.current) return;
@@ -55,6 +177,9 @@ export default function LessonDetailPage() {
   const [fcFlipped, setFcFlipped] = useState(false);
   const [fcMastered, setFcMastered] = useState(new Set());
 
+  // Generated quiz questions (randomized each attempt)
+  const [quizQuestions, setQuizQuestions] = useState([]);
+
   // Speak-along state
   const [speakIdx, setSpeakIdx] = useState(0);
   const [speakPlaying, setSpeakPlaying] = useState(false);
@@ -82,7 +207,7 @@ export default function LessonDetailPage() {
     );
   }
 
-  const quiz = lesson.quiz;
+  const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson.quiz || []);
   const vocab = lesson.vocabulary;
 
   /* ── speakAlong sentences: combine vocab examples + grammar examples ── */
@@ -128,6 +253,7 @@ export default function LessonDetailPage() {
   }
 
   function restartQuiz() {
+    setQuizQuestions(generateQuizFromLesson(lesson));
     setQIndex(0);
     setScore(0);
     setAnswered(null);
@@ -211,7 +337,7 @@ export default function LessonDetailPage() {
             <p className="fs-5 fw-bold mb-0 text-center">{q.question}</p>
           </div>
         </div>
-        <div className="row g-2">
+        <div className="row g-2" key={qIndex}>
           {q.options.map((opt, i) => {
             let cls = 'btn w-100 quiz-option-btn';
             if (answered !== null) {
@@ -222,7 +348,7 @@ export default function LessonDetailPage() {
               cls += ' btn-outline-primary';
             }
             return (
-              <div className="col-12 col-md-6" key={i}>
+              <div className="col-12 col-md-6" key={`${qIndex}-${i}`}>
                 <button className={cls} onClick={() => handleAnswer(i)} disabled={answered !== null}>
                   <span className="me-2 fw-bold text-muted">{String.fromCharCode(65 + i)}.</span>
                   {opt}

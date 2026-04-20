@@ -14,12 +14,15 @@ const SORT_TABS = [
   { id: 'achievements', icon: '🏅', label: 'Thành tích' },
 ];
 
-function resolveEmoji(pet) {
-  if (!pet?.speciesId) return '🐾';
+function resolvePetAvatar(pet) {
+  if (!pet?.speciesId) return { emoji: '🐾', image: null };
   const species = PET_REGISTRY[pet.speciesId];
-  if (!species) return '🐾';
+  if (!species) return { emoji: '🐾', image: null };
   const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned || 0);
-  return evo?.emoji || species.emoji;
+  return {
+    emoji: evo?.emoji || species.emoji,
+    image: evo?.image || null,
+  };
 }
 
 function getUserLevel(xp) {
@@ -68,6 +71,7 @@ export default function StudentRankingPage() {
     const level = getUserLevel(userData.totalXP);
     return {
       emoji: evo?.emoji || species?.emoji || '🐮',
+      image: evo?.image || null,
       level,
       totalXP: userData.totalXP,
       streak: userData.streak,
@@ -103,7 +107,11 @@ export default function StudentRankingPage() {
         <div className="card shadow-sm mb-4 border-cowdi">
           <div className="card-body">
             <div className="d-flex align-items-center gap-3 mb-3">
-              <div className="fs-1">{myStats.emoji}</div>
+              <div style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {myStats.image
+                  ? <img src={myStats.image} alt="pet" width="48" height="48" style={{ objectFit: 'contain' }} />
+                  : <span className="fs-1">{myStats.emoji}</span>}
+              </div>
               <div className="flex-grow-1">
                 <div className="fw-bold">{petData.nickname || user.display_name || 'Bạn'}</div>
                 <div className="text-muted small">
@@ -163,6 +171,7 @@ export default function StudentRankingPage() {
                 const stat = getStatValue(entry, sort);
                 const level = getUserLevel(entry.totalXP);
                 const isTop3 = i < 3;
+                const avatar = resolvePetAvatar(entry.pet);
                 return (
                   <div
                     key={i}
@@ -171,7 +180,11 @@ export default function StudentRankingPage() {
                     <span className="fw-bold" style={{ minWidth: 36, fontSize: isTop3 ? '1.2rem' : '0.9rem' }}>
                       {rankMedal(i)}
                     </span>
-                    <span className="fs-4">{resolveEmoji(entry.pet)}</span>
+                    <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {avatar.image
+                        ? <img src={avatar.image} alt="pet" width="36" height="36" style={{ objectFit: 'contain' }} />
+                        : <span className="fs-4">{avatar.emoji}</span>}
+                    </div>
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{entry.nickname}</div>
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">

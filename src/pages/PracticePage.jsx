@@ -1218,7 +1218,7 @@ export default function PracticePage() {
           </div>
         </div>
 
-        <div className="row g-2">
+        <div className="row g-2" key={dynIdx}>
           {dq.options.map((opt, i) => {
             let cls = 'btn w-100 fw-bold py-2';
             if (dynPicked !== null) {
@@ -1227,7 +1227,7 @@ export default function PracticePage() {
               cls += ' btn-outline-primary';
             }
             return (
-              <div className="col-6" key={i}>
+              <div className="col-6" key={`${dynIdx}-${i}`}>
                 <button className={cls} onClick={() => handleDynAnswer(i)} disabled={dynPicked !== null}>{opt}</button>
               </div>
             );
@@ -1507,7 +1507,7 @@ export default function PracticePage() {
         </div>
       </div>
 
-      <div className="row g-2">
+      <div className="row g-2" key={qIndex}>
         {q.options.map((opt, i) => {
           let cls = 'btn w-100 quiz-option-btn';
           if (answered !== null) {
@@ -1516,7 +1516,7 @@ export default function PracticePage() {
             cls += ' btn-outline-primary';
           }
           return (
-            <div className="col-12 col-md-6" key={i}>
+            <div className="col-12 col-md-6" key={`${qIndex}-${i}`}>
               <button className={cls} onClick={() => handleAnswer(i)} disabled={answered !== null}>
                 {opt}
               </button>

@@ -9,10 +9,19 @@ import { useNavigate } from 'react-router-dom';
 export default function AccountPage() {
   const { user, loginWithGoogle, logout } = useAuth();
   const { userData } = useUser();
-  const { petData, getActivePetWithDecay } = usePet();
+  const { petData, getActivePetWithDecay, setNickname } = usePet();
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const [editingNick, setEditingNick] = useState(false);
+  const [nickInput, setNickInput] = useState('');
+
+  // Auto-fill nickname from Google display_name if not set
+  useEffect(() => {
+    if (user && !petData.nickname && user.display_name) {
+      setNickname(user.display_name);
+    }
+  }, [user?.id]);
 
   const level = useMemo(() => {
     let cur = LEVELS[0];
@@ -285,6 +294,54 @@ export default function AccountPage() {
               {userData.dailyTasks?.vocabDone ? '✅' : '⬜'} Ôn tập từ vựng
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Display Name / Nickname */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="fw-bold mb-3"><i className="fas fa-id-card text-cowdi me-2"></i>Tên hiển thị</h5>
+          <p className="text-muted small mb-3">
+            Tên này sẽ hiển thị trên bảng xếp hạng. Nếu bạn không đặt tên, tên tài khoản Google sẽ được sử dụng.
+          </p>
+          {editingNick ? (
+            <div className="d-flex align-items-center gap-2">
+              <input
+                type="text"
+                className="form-control"
+                style={{ maxWidth: 250 }}
+                value={nickInput}
+                onChange={(e) => setNickInput(e.target.value)}
+                maxLength={20}
+                placeholder={user.display_name || 'Nhập tên hiển thị...'}
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && (() => {
+                  const name = nickInput.trim() || user.display_name || '';
+                  setNickname(name);
+                  setEditingNick(false);
+                })()}
+              />
+              <button className="btn btn-cowdi-primary" onClick={() => {
+                const name = nickInput.trim() || user.display_name || '';
+                setNickname(name);
+                setEditingNick(false);
+              }}>Lưu</button>
+              <button className="btn btn-outline-secondary" onClick={() => setEditingNick(false)}>Huỷ</button>
+            </div>
+          ) : (
+            <div className="d-flex align-items-center gap-2">
+              <span className="fw-bold fs-5">{petData.nickname || user.display_name || '(Ẩn danh)'}</span>
+              {!petData.nickname && user.display_name && (
+                <span className="badge bg-secondary bg-opacity-25 text-secondary">Tên Google</span>
+              )}
+              <button className="btn btn-sm btn-outline-cowdi ms-auto" onClick={() => {
+                setNickInput(petData.nickname || user.display_name || '');
+                setEditingNick(true);
+              }}>
+                <i className="fas fa-edit me-1"></i>Đổi tên
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { LESSONS, UNITS, QUIZ_BANK } from '../data/lessons';
 import { EXAM_LESSONS, EXAM_PATHS } from '../data/exam-paths';
 import { useUser } from '../hooks/useUser';
@@ -69,7 +69,21 @@ export default function LearningPathPage() {
   const [testFinished, setTestFinished] = useState(false);
 
   // Path tab: 'general' or exam path id (ielts, b1, b2, toeic)
-  const [pathTab, setPathTab] = useState('general');
+  const [searchParams] = useSearchParams();
+  const [pathTab, setPathTab] = useState(() => {
+    const tab = searchParams.get('tab');
+    return tab && ['ielts', 'b1', 'b2', 'toeic'].includes(tab) ? tab : 'general';
+  });
+
+  // Sync pathTab when URL search params change
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['ielts', 'b1', 'b2', 'toeic'].includes(tab)) {
+      setPathTab(tab);
+    } else if (!tab) {
+      setPathTab('general');
+    }
+  }, [searchParams]);
 
   const lessonMap = useMemo(() => {
     const m = {};

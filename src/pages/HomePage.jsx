@@ -60,30 +60,30 @@ export default function HomePage() {
       {/* Stats */}
       <div className="row g-3 mb-5">
         {[
-          { icon: '⭐', value: userData.totalXP,        label: 'Điểm XP' },
-          { icon: '🔥', value: userData.streak,          label: 'Ngày streak' },
-          { icon: '📚', value: userData.lessonsCompleted, label: 'Bài đã học' },
-          { icon: '🃏', value: userData.wordsLearned,    label: 'Từ đã thuộc' },
-          { icon: '🪙', value: petData.coins,            label: 'Coins' },
+          { icon: '⭐', value: userData.totalXP,        label: 'Điểm XP',      link: '/progress' },
+          { icon: '🔥', value: userData.streak,          label: 'Ngày streak',  link: '/progress' },
+          { icon: '📚', value: userData.lessonsCompleted, label: 'Bài đã học',  link: '/lessons' },
+          { icon: '🃏', value: userData.wordsLearned,    label: 'Từ đã thuộc', link: '/vocabulary' },
+          { icon: '🪙', value: petData.coins,            label: 'Coins',        link: '/shop' },
         ].map((s, i) => (
-          <div className="col-6 col-md-3" key={i}>
-            <div className="card text-center shadow-sm h-100">
+          <Link to={s.link} className="col-6 col-md-3 text-decoration-none" key={i}>
+            <div className="card text-center shadow-sm h-100 card-hover">
               <div className="card-body py-3">
                 <div className="fs-3 mb-1">{s.icon}</div>
                 <div className="fs-2 fw-bold text-cowdi-primary">{s.value}</div>
                 <div className="text-muted small">{s.label}</div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* 4-Skill Quick View */}
-      <div className="card shadow-sm mb-5">
+      <Link to="/progress" className="card shadow-sm mb-5 text-decoration-none d-block card-hover">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-2">
             <h5 className="fw-bold mb-0">🎯 4 Kỹ năng</h5>
-            <Link to="/progress" className="btn btn-sm btn-outline-cowdi">Xem chi tiết</Link>
+            <span className="btn btn-sm btn-outline-cowdi">Xem chi tiết</span>
           </div>
           {(() => {
             const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
@@ -108,10 +108,10 @@ export default function HomePage() {
             );
           })()}
         </div>
-      </div>
+      </Link>
 
       {/* Level Progress */}
-      <div className="card shadow-sm mb-5">
+      <Link to="/progress" className="card shadow-sm mb-5 text-decoration-none card-hover d-block">
         <div className="card-body">
           <h5 className="card-title mb-3">
             <i className="fas fa-trophy text-warning me-2"></i>Cấp độ của bạn
@@ -136,7 +136,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Features */}
       <h4 className="fw-bold mb-3"><i className="fas fa-star text-warning me-2"></i>Tính năng nổi bật</h4>
