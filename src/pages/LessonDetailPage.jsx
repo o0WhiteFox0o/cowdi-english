@@ -11,6 +11,78 @@ import { useSound } from '../hooks/useSound';
 
 /* ── Tiny helpers ────────────────────────────────── */
 
+/* ── Text similarity scoring (word-level) ── */
+function normalizeText(text) {
+  return (text || '')
+    .toLowerCase()
+    .replace(/[^\w\s']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function scorePronunciation(expected, spoken) {
+  const expWords = normalizeText(expected).split(' ');
+  const spkWords = normalizeText(spoken).split(' ');
+  if (!expWords.length || !spkWords.length) return { score: 0, matched: [], missed: [], extra: [] };
+
+  const matched = [];
+  const missed = [];
+  const usedSpk = new Set();
+
+  for (const ew of expWords) {
+    let found = false;
+    for (let i = 0; i < spkWords.length; i++) {
+      if (!usedSpk.has(i) && spkWords[i] === ew) {
+        matched.push(ew);
+        usedSpk.add(i);
+        found = true;
+        break;
+      }
+    }
+    // Fuzzy: allow 1-char diff for words >= 4 chars
+    if (!found) {
+      for (let i = 0; i < spkWords.length; i++) {
+        if (!usedSpk.has(i) && ew.length >= 4 && levenshtein(ew, spkWords[i]) <= 1) {
+          matched.push(ew);
+          usedSpk.add(i);
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) missed.push(ew);
+  }
+
+  const extra = spkWords.filter((_, i) => !usedSpk.has(i));
+  const score = Math.round((matched.length / expWords.length) * 100);
+  return { score, matched, missed, extra };
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+  return dp[m][n];
+}
+
+function getScoreLabel(score) {
+  if (score >= 90) return { text: 'Xuất sắc! 🌟', color: '#00B894', icon: '🌟' };
+  if (score >= 70) return { text: 'Tốt lắm! 👍', color: '#00B894', icon: '👍' };
+  if (score >= 50) return { text: 'Khá ổn! 💪', color: '#FDCB6E', icon: '💪' };
+  if (score >= 30) return { text: 'Cố thêm! 📖', color: '#E17055', icon: '📖' };
+  return { text: 'Thử lại nhé! 🔄', color: '#D63031', icon: '🔄' };
+}
+
+const SpeechRecognitionAPI = typeof window !== 'undefined'
+  ? (window.SpeechRecognition || window.webkitSpeechRecognition)
+  : null;
+
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -183,6 +255,68 @@ export default function LessonDetailPage() {
   // Speak-along state
   const [speakIdx, setSpeakIdx] = useState(0);
   const [speakPlaying, setSpeakPlaying] = useState(false);
+
+  // Speech recognition state
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [speakResult, setSpeakResult] = useState(null); // { score, matched, missed }
+  const [recError, setRecError] = useState('');
+  const recognitionRef = useRef(null);
+
+  const startRecording = useCallback((expectedText) => {
+    if (!SpeechRecognitionAPI) {
+      setRecError('Trình duyệt không hỗ trợ nhận diện giọng nói. Vui lòng dùng Chrome hoặc Edge.');
+      return;
+    }
+    // Stop any ongoing TTS
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+
+    setTranscript('');
+    setSpeakResult(null);
+    setRecError('');
+    setIsRecording(true);
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event) => {
+      const last = event.results[event.results.length - 1];
+      setTranscript(last[0].transcript);
+      if (last.isFinal) {
+        const finalText = last[0].transcript;
+        setTranscript(finalText);
+        const result = scorePronunciation(expectedText, finalText);
+        setSpeakResult(result);
+        setIsRecording(false);
+        if (result.score >= 70) play('correct');
+        else if (result.score >= 40) play('click');
+        else play('wrong');
+      }
+    };
+    recognition.onerror = (event) => {
+      setIsRecording(false);
+      if (event.error === 'no-speech') {
+        setRecError('Không nghe thấy giọng nói. Hãy nói to hơn nhé!');
+      } else if (event.error === 'not-allowed') {
+        setRecError('Trình duyệt chưa cấp quyền microphone. Hãy cho phép truy cập micro.');
+      } else {
+        setRecError('Lỗi nhận diện giọng nói. Vui lòng thử lại.');
+      }
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.start();
+  }, [play]);
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsRecording(false);
+  }, []);
 
   const speakWord = useCallback((text, rate = 0.8) => {
     if ('speechSynthesis' in window) {
@@ -554,38 +688,168 @@ export default function LessonDetailPage() {
             <div className="card-body text-center py-4">
               <div style={{ fontSize: '3rem' }}>🐮🎤</div>
               <h4 className="fw-bold mt-2">Nói theo Cowdi!</h4>
-              <p className="mb-0 opacity-75">Nghe → Nhắc lại → Tự tin nói tiếng Anh!</p>
+              <p className="mb-0 opacity-75">Nghe → Nhấn mic → Nói → Xem điểm!</p>
             </div>
           </div>
+
+          {/* Browser support warning */}
+          {!SpeechRecognitionAPI && (
+            <div className="alert alert-warning d-flex align-items-center gap-2 mb-3">
+              <i className="fas fa-exclamation-triangle"></i>
+              <div>
+                <strong>Trình duyệt không hỗ trợ nhận diện giọng nói.</strong><br />
+                <small>Vui lòng sử dụng <b>Google Chrome</b> hoặc <b>Microsoft Edge</b> để dùng tính năng chấm điểm phát âm. Bạn vẫn có thể nghe và tập nói.</small>
+              </div>
+            </div>
+          )}
+
           <div className="mb-3 text-center text-muted fw-bold">
             {speakIdx + 1} / {speakSentences.length}
           </div>
+
+          {/* Sentence card */}
           <div className="card shadow-sm mb-3">
             <div className="card-body text-center py-4">
               <div className="badge bg-light text-muted mb-2">{speakSentences[speakIdx].label}</div>
               <h4 className="fw-bold text-cowdi-primary mb-2">{speakSentences[speakIdx].en}</h4>
               <p className="text-muted mb-3">→ {speakSentences[speakIdx].vi}</p>
-              <div className="d-flex gap-2 justify-content-center flex-wrap">
+
+              {/* Listen buttons */}
+              <div className="d-flex gap-2 justify-content-center flex-wrap mb-3">
                 <button
                   className="btn btn-cowdi-primary btn-lg"
                   onClick={() => { speakWord(speakSentences[speakIdx].en); setSpeakPlaying(true); setTimeout(() => setSpeakPlaying(false), 2000); }}
+                  disabled={isRecording}
                 >
                   {speakPlaying ? '🔊 Đang phát...' : '🔊 Nghe'}
                 </button>
                 <button
                   className="btn btn-outline-cowdi btn-lg"
                   onClick={() => speakSlow(speakSentences[speakIdx].en)}
+                  disabled={isRecording}
                 >
-                  🐌 Nghe chậm
+                  🐌 Chậm
                 </button>
               </div>
+
+              {/* Record button */}
+              <div className="mb-3">
+                {isRecording ? (
+                  <button
+                    className="btn btn-danger btn-lg rounded-pill px-4"
+                    onClick={stopRecording}
+                    style={{ animation: 'pulse 1s infinite' }}
+                  >
+                    <i className="fas fa-stop me-2"></i>Dừng ghi âm...
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-outline-danger btn-lg rounded-pill px-4"
+                    onClick={() => {
+                      setTranscript('');
+                      setSpeakResult(null);
+                      setRecError('');
+                      startRecording(speakSentences[speakIdx].en);
+                    }}
+                    disabled={!SpeechRecognitionAPI}
+                    title={!SpeechRecognitionAPI ? 'Trình duyệt không hỗ trợ' : 'Nhấn để nói'}
+                  >
+                    <i className="fas fa-microphone me-2"></i>Nhấn để nói
+                  </button>
+                )}
+              </div>
+
+              {/* Recording indicator */}
+              {isRecording && (
+                <div className="text-danger fw-bold mb-2" style={{ animation: 'pulse 1s infinite' }}>
+                  🎙️ Đang nghe... Hãy đọc to câu trên!
+                </div>
+              )}
+
+              {/* Interim transcript */}
+              {isRecording && transcript && (
+                <div className="alert alert-light py-2 mb-2">
+                  <small className="text-muted">Đang nhận diện:</small><br />
+                  <span className="fst-italic">{transcript}</span>
+                </div>
+              )}
+
+              {/* Error message */}
+              {recError && (
+                <div className="alert alert-warning py-2 mb-2">
+                  <i className="fas fa-exclamation-circle me-1"></i>{recError}
+                </div>
+              )}
+
+              {/* Result */}
+              {speakResult && !isRecording && (
+                <div className="mt-3">
+                  {/* Score circle */}
+                  <div className="mb-3">
+                    <div
+                      className="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold"
+                      style={{
+                        width: 80, height: 80, fontSize: '1.5rem',
+                        border: `4px solid ${getScoreLabel(speakResult.score).color}`,
+                        color: getScoreLabel(speakResult.score).color,
+                      }}
+                    >
+                      {speakResult.score}%
+                    </div>
+                    <div className="fw-bold mt-1" style={{ color: getScoreLabel(speakResult.score).color }}>
+                      {getScoreLabel(speakResult.score).text}
+                    </div>
+                  </div>
+
+                  {/* Your transcript */}
+                  <div className="alert alert-light py-2 text-start">
+                    <small className="text-muted d-block mb-1">Bạn nói:</small>
+                    <span className="fw-bold">{transcript}</span>
+                  </div>
+
+                  {/* Word-by-word highlight */}
+                  <div className="text-start mb-2">
+                    <small className="text-muted d-block mb-1">Chi tiết từng từ:</small>
+                    <div className="d-flex flex-wrap gap-1">
+                      {normalizeText(speakSentences[speakIdx].en).split(' ').map((w, i) => (
+                        <span
+                          key={i}
+                          className="badge rounded-pill"
+                          style={{
+                            backgroundColor: speakResult.matched.includes(w) ? '#00B894' : '#D63031',
+                            color: '#fff',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          {w} {speakResult.matched.includes(w) ? '✓' : '✗'}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Retry button */}
+                  <button
+                    className="btn btn-outline-cowdi btn-sm mt-2"
+                    onClick={() => {
+                      setTranscript('');
+                      setSpeakResult(null);
+                      setRecError('');
+                      startRecording(speakSentences[speakIdx].en);
+                    }}
+                  >
+                    🔄 Thử lại
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Navigation */}
           <div className="d-flex gap-3 justify-content-center">
-            <button className="btn btn-outline-secondary" disabled={speakIdx === 0} onClick={() => setSpeakIdx((i) => i - 1)}>
+            <button className="btn btn-outline-secondary" disabled={speakIdx === 0} onClick={() => { setSpeakIdx((i) => i - 1); setTranscript(''); setSpeakResult(null); setRecError(''); }}>
               <i className="fas fa-chevron-left"></i> Trước
             </button>
-            <button className="btn btn-outline-secondary" disabled={speakIdx === speakSentences.length - 1} onClick={() => setSpeakIdx((i) => i + 1)}>
+            <button className="btn btn-outline-secondary" disabled={speakIdx === speakSentences.length - 1} onClick={() => { setSpeakIdx((i) => i + 1); setTranscript(''); setSpeakResult(null); setRecError(''); }}>
               Tiếp <i className="fas fa-chevron-right"></i>
             </button>
           </div>
