@@ -54,8 +54,7 @@ function resolvePetImage(speciesId, xp) {
   const species = PET_REGISTRY[speciesId];
   if (!species) return null;
   const evo = getPetEvolution(speciesId, xp || 0);
-  if (evo?.image) return `/assets/images/pets/${species.name}/${evo.image}`;
-  return null;
+  return evo?.image || null;
 }
 
 function timeAgo(dateStr) {
