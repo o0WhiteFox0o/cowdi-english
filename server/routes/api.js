@@ -425,12 +425,19 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
       question, options, category,
     }));
 
+    // Send challenger's per-question results (correct/wrong) without revealing answers
+    const challengerAnswers = typeof row.challenger_answers === 'string' ? JSON.parse(row.challenger_answers) : (row.challenger_answers || []);
+    const challengerResults = (quizData || []).map((q, i) => ({
+      correct: parseInt(challengerAnswers[i]) === q.correct,
+    }));
+
     res.json({
       id: row.id,
       challengerId: row.challenger_id,
       status: row.status,
       challengerNick: row.challenger_nick || 'Ẩn danh',
       challengerPet: parsePetSummary(row.challenger_pet),
+      challengerResults,
       questions,
       createdAt: row.created_at,
     });

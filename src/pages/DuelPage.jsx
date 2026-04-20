@@ -122,11 +122,13 @@ export default function DuelPage() {
   // Battle state
   const [myHp, setMyHp] = useState(100);
   const [opponentHp, setOpponentHp] = useState(100);
-  const [battleAnim, setBattleAnim] = useState(null); // { type, target } — 'attack-mine', 'damage-opponent', etc.
+  const [battleAnim, setBattleAnim] = useState(null); // 'attack-mine', 'damage-opponent', etc.
   const [effectClass, setEffectClass] = useState(null); // element effect CSS class
   const [damagePopup, setDamagePopup] = useState(null); // { target, amount, isCritical }
   const [comboCount, setComboCount] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(null);
+  const [opponentPet, setOpponentPet] = useState(null); // { speciesId, xp, name, emoji, image, element }
+  const [challengerResults, setChallengerResults] = useState([]); // [{correct: bool}] per question
   const battleAnimTimeoutRef = useRef(null);
 
   // Result state
@@ -185,6 +187,20 @@ export default function DuelPage() {
     setEffectClass(null);
     setDamagePopup(null);
     setComboCount(0);
+    setChallengerResults([]); // no challenger results in creating mode
+    // Pick a random opponent pet for the entire match
+    const petKeys = Object.keys(PET_REGISTRY).filter(k => k !== myPetInfo.speciesId);
+    const randKey = petKeys[Math.floor(Math.random() * petKeys.length)] || Object.keys(PET_REGISTRY)[0];
+    const randSpecies = PET_REGISTRY[randKey];
+    const randImg = resolvePetImage(randKey, 500);
+    setOpponentPet({
+      speciesId: randKey,
+      xp: 500,
+      name: randSpecies?.name || 'Đối thủ',
+      emoji: randSpecies?.emoji || '🐾',
+      image: randImg,
+      element: randSpecies?.element || 'neutral',
+    });
     setMode('creating');
   }
 
@@ -206,56 +222,86 @@ export default function DuelPage() {
   const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
 
   // ── Run battle animation sequence ───────────────────────────
-  function runBattleAnimation(isCorrect, isCritical, callback) {
-    const element = myPetInfo.element;
-    const effectCls = `effect-${element}`;
+  // Both pets can attack: my pet attacks if I answer correctly,
+  // opponent attacks if they answered this question correctly (from challengerResults)
+  function runBattleAnimation(isCorrect, isCritical, questionIdx, callback) {
+    const myElement = myPetInfo.element;
+    const oppElement = opponentPet?.element || 'neutral';
+    const oppAnsweredCorrectly = challengerResults[questionIdx]?.correct || false;
 
     clearTimeout(battleAnimTimeoutRef.current);
 
-    if (isCorrect) {
-      // My pet attacks opponent
-      setBattleAnim('attack-mine');
-      play('battleAttack');
+    // Determine what happens this turn
+    const myPetAttacks = isCorrect;
+    const oppPetAttacks = mode === 'playing' ? oppAnsweredCorrectly : !isCorrect;
+    // In creating mode: if I'm wrong, opponent "attacks" (visual only)
+    // In playing mode: opponent attacks based on their real answer
 
-      battleAnimTimeoutRef.current = setTimeout(() => {
-        setBattleAnim('damage-opponent');
-        setEffectClass(effectCls);
-        if (isCritical) {
-          play('battleCritical');
-          setDamagePopup({ target: 'opponent', amount: 15, isCritical: true });
-        } else {
-          play('battleHit');
-          setDamagePopup({ target: 'opponent', amount: 10, isCritical: false });
-        }
-        setOpponentHp(prev => Math.max(0, prev - (isCritical ? 15 : 10)));
+    const sequence = [];
 
+    // Phase 1: My pet attacks (if I answered correctly)
+    if (myPetAttacks) {
+      sequence.push((next) => {
+        setBattleAnim('attack-mine');
+        play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
-          setBattleAnim(null);
-          setEffectClass(null);
-          setDamagePopup(null);
-          callback();
-        }, 600);
-      }, 400);
-    } else {
-      // Opponent attacks me
-      setBattleAnim('attack-opponent');
-      play('battleAttack');
-
-      battleAnimTimeoutRef.current = setTimeout(() => {
-        setBattleAnim('damage-mine');
-        setEffectClass('effect-neutral');
-        play('battleDamage');
-        setDamagePopup({ target: 'mine', amount: 10, isCritical: false });
-        setMyHp(prev => Math.max(0, prev - 10));
-
-        battleAnimTimeoutRef.current = setTimeout(() => {
-          setBattleAnim(null);
-          setEffectClass(null);
-          setDamagePopup(null);
-          callback();
-        }, 600);
-      }, 400);
+          setBattleAnim('damage-opponent');
+          setEffectClass(`effect-${myElement}`);
+          const dmg = isCritical ? 15 : 10;
+          if (isCritical) {
+            play('battleCritical');
+          } else {
+            play('battleHit');
+          }
+          setDamagePopup({ target: 'opponent', amount: dmg, isCritical });
+          setOpponentHp(prev => Math.max(0, prev - dmg));
+          battleAnimTimeoutRef.current = setTimeout(() => {
+            setBattleAnim(null);
+            setEffectClass(null);
+            setDamagePopup(null);
+            next();
+          }, 500);
+        }, 350);
+      });
     }
+
+    // Phase 2: Opponent pet attacks (if they answered correctly, or in creating mode if I was wrong)
+    if (oppPetAttacks) {
+      sequence.push((next) => {
+        setBattleAnim('attack-opponent');
+        play('battleAttack');
+        battleAnimTimeoutRef.current = setTimeout(() => {
+          setBattleAnim('damage-mine');
+          setEffectClass(`effect-${oppElement}`);
+          play('battleDamage');
+          setDamagePopup({ target: 'mine', amount: 10, isCritical: false });
+          setMyHp(prev => Math.max(0, prev - 10));
+          battleAnimTimeoutRef.current = setTimeout(() => {
+            setBattleAnim(null);
+            setEffectClass(null);
+            setDamagePopup(null);
+            next();
+          }, 500);
+        }, 350);
+      });
+    }
+
+    // If neither attacks (shouldn't happen often), just advance
+    if (sequence.length === 0) {
+      callback();
+      return;
+    }
+
+    // Run sequence
+    let idx = 0;
+    function runNext() {
+      if (idx >= sequence.length) {
+        callback();
+        return;
+      }
+      sequence[idx++](runNext);
+    }
+    runNext();
   }
 
   // ── Select an answer (battle version) ──────────────────────
@@ -281,7 +327,7 @@ export default function DuelPage() {
     }
 
     // Run battle animation, then advance
-    runBattleAnimation(isCorrect, isCritical, () => {
+    runBattleAnimation(isCorrect, isCritical, currentQ, () => {
       if (currentQ < questions.length - 1) {
         setCurrentQ(prev => prev + 1);
         setSelectedOption(null);
@@ -378,6 +424,23 @@ export default function DuelPage() {
         setEffectClass(null);
         setDamagePopup(null);
         setComboCount(0);
+        // Store challenger's per-question results for battle animation
+        setChallengerResults(data.challengerResults || []);
+        // Use challenger's pet as opponent
+        if (data.challengerPet?.speciesId) {
+          const cSpecies = PET_REGISTRY[data.challengerPet.speciesId];
+          const cImg = resolvePetImage(data.challengerPet.speciesId, data.challengerPet.totalXpEarned);
+          setOpponentPet({
+            speciesId: data.challengerPet.speciesId,
+            xp: data.challengerPet.totalXpEarned || 0,
+            name: cSpecies?.name || 'Đối thủ',
+            emoji: cSpecies?.emoji || '🐾',
+            image: cImg,
+            element: cSpecies?.element || 'neutral',
+          });
+        } else {
+          setOpponentPet({ speciesId: null, xp: 0, name: 'Đối thủ', emoji: '🐾', image: null, element: 'neutral' });
+        }
         setMode('playing');
       } else {
         showToast('Thách đấu không khả dụng.', 'danger');
@@ -425,13 +488,6 @@ export default function DuelPage() {
     // HP bar color
     const hpColor = (hp) => hp > 50 ? '#2ECC71' : hp > 25 ? '#F39C12' : '#E74C3C';
 
-    // Random opponent pet for visual (since we don't know their actual pet in creating mode)
-    const opponentPetKeys = Object.keys(PET_REGISTRY);
-    const opponentPetId = mode === 'playing' ? null : opponentPetKeys[currentQ % opponentPetKeys.length];
-    const opponentSpecies = opponentPetId ? PET_REGISTRY[opponentPetId] : null;
-    const opponentImage = opponentPetId ? resolvePetImage(opponentPetId, 500) : null;
-    const opponentEmoji = opponentSpecies?.emoji || '🐾';
-
     return (
       <div className="fade-in">
         {/* Battle Header */}
@@ -465,7 +521,7 @@ export default function DuelPage() {
           {/* Opponent HUD (top-left) */}
           <div className="battle-hud battle-hud-opponent">
             <div className="d-flex justify-content-between align-items-center mb-1">
-              <span className="fw-bold small">Đối thủ</span>
+              <span className="fw-bold small">{opponentPet?.name || 'Đối thủ'}</span>
               <span className="small text-muted">{opponentHp}/100</span>
             </div>
             <div className="hp-bar">
@@ -508,10 +564,10 @@ export default function DuelPage() {
             battleAnim === 'damage-opponent' ? 'anim-damage' :
             opponentHp <= 0 ? 'anim-faint' : ''
           }`}>
-            {opponentImage ? (
-              <img src={opponentImage} alt="Opponent" />
+            {opponentPet?.image ? (
+              <img src={opponentPet.image} alt={opponentPet.name} />
             ) : (
-              <div className="pet-emoji-lg">{opponentEmoji}</div>
+              <div className="pet-emoji-lg">{opponentPet?.emoji || '🐾'}</div>
             )}
           </div>
 
@@ -659,8 +715,14 @@ export default function DuelPage() {
 
           {/* Opponent pet */}
           <div className="text-center">
-            <div className="fs-2 mb-1">🐾</div>
-            <div className="fw-bold small">Đối thủ</div>
+            <div className="mb-1">
+              {opponentPet?.image ? (
+                <img src={opponentPet.image} alt={opponentPet.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
+              ) : (
+                <div className="fs-2">{opponentPet?.emoji || '🐾'}</div>
+              )}
+            </div>
+            <div className="fw-bold small">{opponentPet?.name || 'Đối thủ'}</div>
             <div className="hp-bar mx-auto mt-1" style={{ width: 80 }}>
               <div className="hp-bar-fill" style={{
                 width: `${opponentHp}%`,
@@ -735,7 +797,7 @@ export default function DuelPage() {
                 {myStats.duelStreak > 0 && <span className="small">🔥 {myStats.duelStreak}</span>}
               </div>
             </div>
-            <div className="fs-2">{myPetEmoji}</div>
+            <div>{myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 48, height: 48, objectFit: 'contain' }} /> : <span className="fs-2">{myPetEmoji}</span>}</div>
           </div>
         </div>
       </div>
@@ -759,7 +821,11 @@ export default function DuelPage() {
           {openDuels.map(duel => (
             <div key={duel.id} className="card shadow-sm card-hover" style={{ cursor: 'pointer' }} onClick={() => playDuel(duel.id)}>
               <div className="card-body d-flex align-items-center gap-2 py-2">
-                <span className="fs-3">{petEmoji(duel.challengerPet)}</span>
+                {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned) ? (
+                  <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+                ) : (
+                  <span className="fs-3">{petEmoji(duel.challengerPet)}</span>
+                )}
                 <div className="flex-grow-1">
                   <div className="fw-bold small">{duel.challengerNick}</div>
                   <div className="text-muted" style={{ fontSize: '0.7rem' }}>
@@ -785,7 +851,7 @@ export default function DuelPage() {
             {pendingDuels.map(duel => (
               <div key={duel.id} className="card shadow-sm">
                 <div className="card-body d-flex align-items-center gap-2 py-2">
-                  <span className="fs-3">{myPetEmoji}</span>
+                  {myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 36, height: 36, objectFit: 'contain' }} /> : <span className="fs-3">{myPetEmoji}</span>}
                   <div className="flex-grow-1">
                     <div className="fw-bold small">Thách đấu #{duel.id}</div>
                     <div className="text-muted" style={{ fontSize: '0.7rem' }}>
@@ -812,7 +878,7 @@ export default function DuelPage() {
               const isWin = duel.winnerId === user.id;
               const isDraw = !duel.winnerId;
               const opponentNick = isChallenger ? (duel.opponentNick || 'Đối thủ') : duel.challengerNick;
-              const opponentPet = isChallenger ? duel.opponentPet : duel.challengerPet;
+              const opponentPetData = isChallenger ? duel.opponentPet : duel.challengerPet;
 
               return (
                 <div key={duel.id} className={`card shadow-sm ${isWin ? 'border-success' : isDraw ? 'border-warning' : 'border-danger'}`}>
@@ -820,7 +886,11 @@ export default function DuelPage() {
                     <span className={`fw-bold ${isWin ? 'text-success' : isDraw ? 'text-warning' : 'text-danger'}`}>
                       {isWin ? '✅' : isDraw ? '🤝' : '❌'}
                     </span>
-                    <span className="fs-4">{petEmoji(opponentPet)}</span>
+                    {resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned) ? (
+                      <img src={resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned)} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                    ) : (
+                      <span className="fs-4">{petEmoji(opponentPetData)}</span>
+                    )}
                     <div className="flex-grow-1">
                       <div className="fw-bold small">vs {opponentNick}</div>
                       <div className="text-muted" style={{ fontSize: '0.7rem' }}>{timeAgo(duel.createdAt)}</div>
