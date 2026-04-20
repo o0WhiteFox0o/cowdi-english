@@ -16,6 +16,16 @@ const LEAGUES = {
   master:  { name: 'Cao thủ',   icon: '👑', color: '#E91E63', bg: '#FCE4EC', min: 1000 },
 };
 
+// ── Element theming ──────────────────────────────────────────
+const ELEMENT_THEME = {
+  fire:    { color: '#FF6B35', label: '🔥 Lửa',    skillName: 'Fireball' },
+  water:   { color: '#0096FF', label: '💧 Nước',    skillName: 'Aqua Blast' },
+  nature:  { color: '#2ECC71', label: '🌿 Thiên nhiên', skillName: 'Leaf Storm' },
+  cosmic:  { color: '#9B59B6', label: '🌟 Vũ trụ',  skillName: 'Star Pulse' },
+  earth:   { color: '#8B5A2B', label: '🪨 Đất',     skillName: 'Rock Smash' },
+  neutral: { color: '#95A5A6', label: '⚪ Trung tính', skillName: 'Tackle' },
+};
+
 function getLeague(points) {
   if (points >= 1000) return 'master';
   if (points >= 600) return 'diamond';
@@ -36,6 +46,16 @@ function petEmoji(petSummary) {
   if (!species) return '🐾';
   const evo = getPetEvolution(petSummary.speciesId, petSummary.totalXpEarned || 0);
   return evo?.emoji || species.emoji;
+}
+
+// ── Resolve pet image or emoji ──
+function resolvePetImage(speciesId, xp) {
+  if (!speciesId) return null;
+  const species = PET_REGISTRY[speciesId];
+  if (!species) return null;
+  const evo = getPetEvolution(speciesId, xp || 0);
+  if (evo?.image) return `/assets/images/pets/${species.name}/${evo.image}`;
+  return null;
 }
 
 function timeAgo(dateStr) {
@@ -100,6 +120,16 @@ export default function DuelPage() {
   const [submitting, setSubmitting] = useState(false);
   const timerRef = useRef(null);
 
+  // Battle state
+  const [myHp, setMyHp] = useState(100);
+  const [opponentHp, setOpponentHp] = useState(100);
+  const [battleAnim, setBattleAnim] = useState(null); // { type, target } — 'attack-mine', 'damage-opponent', etc.
+  const [effectClass, setEffectClass] = useState(null); // element effect CSS class
+  const [damagePopup, setDamagePopup] = useState(null); // { target, amount, isCritical }
+  const [comboCount, setComboCount] = useState(0);
+  const [questionStartTime, setQuestionStartTime] = useState(null);
+  const battleAnimTimeoutRef = useRef(null);
+
   // Result state
   const [result, setResult] = useState(null);
   const showToast = useToast();
@@ -148,28 +178,119 @@ export default function DuelPage() {
     setCurrentQ(0);
     setSelectedOption(null);
     setQuizStartTime(Date.now());
+    setQuestionStartTime(Date.now());
     setElapsed(0);
+    setMyHp(100);
+    setOpponentHp(100);
+    setBattleAnim(null);
+    setEffectClass(null);
+    setDamagePopup(null);
+    setComboCount(0);
     setMode('creating');
   }
 
-  // ── Select an answer ────────────────────────────────────────
+  // ── Get my pet element ────────────────────────────────────
+  const myPetInfo = useMemo(() => {
+    const pet = petData.collection[petData.activePetId];
+    if (!pet) return { emoji: '🐮', element: 'neutral', speciesId: null, xp: 0 };
+    const species = PET_REGISTRY[pet.speciesId];
+    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned);
+    return {
+      emoji: evo?.emoji || species?.emoji || '🐮',
+      element: species?.element || 'neutral',
+      speciesId: pet.speciesId,
+      xp: pet.totalXpEarned || 0,
+      name: species?.name || 'Pet',
+    };
+  }, [petData]);
+
+  const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
+
+  // ── Run battle animation sequence ───────────────────────────
+  function runBattleAnimation(isCorrect, isCritical, callback) {
+    const element = myPetInfo.element;
+    const effectCls = `effect-${element}`;
+
+    clearTimeout(battleAnimTimeoutRef.current);
+
+    if (isCorrect) {
+      // My pet attacks opponent
+      setBattleAnim('attack-mine');
+      play('battleAttack');
+
+      battleAnimTimeoutRef.current = setTimeout(() => {
+        setBattleAnim('damage-opponent');
+        setEffectClass(effectCls);
+        if (isCritical) {
+          play('battleCritical');
+          setDamagePopup({ target: 'opponent', amount: 15, isCritical: true });
+        } else {
+          play('battleHit');
+          setDamagePopup({ target: 'opponent', amount: 10, isCritical: false });
+        }
+        setOpponentHp(prev => Math.max(0, prev - (isCritical ? 15 : 10)));
+
+        battleAnimTimeoutRef.current = setTimeout(() => {
+          setBattleAnim(null);
+          setEffectClass(null);
+          setDamagePopup(null);
+          callback();
+        }, 600);
+      }, 400);
+    } else {
+      // Opponent attacks me
+      setBattleAnim('attack-opponent');
+      play('battleAttack');
+
+      battleAnimTimeoutRef.current = setTimeout(() => {
+        setBattleAnim('damage-mine');
+        setEffectClass('effect-neutral');
+        play('battleDamage');
+        setDamagePopup({ target: 'mine', amount: 10, isCritical: false });
+        setMyHp(prev => Math.max(0, prev - 10));
+
+        battleAnimTimeoutRef.current = setTimeout(() => {
+          setBattleAnim(null);
+          setEffectClass(null);
+          setDamagePopup(null);
+          callback();
+        }, 600);
+      }, 400);
+    }
+  }
+
+  // ── Select an answer (battle version) ──────────────────────
   function selectAnswer(optionIdx) {
     if (selectedOption !== null || submitting) return;
-    play('pop');
     setSelectedOption(optionIdx);
+
+    const q = questions[currentQ];
+    const isCorrect = optionIdx === q.correct;
+    const answerTime = (Date.now() - (questionStartTime || Date.now())) / 1000;
+    const isCritical = isCorrect && answerTime < 3;
+
     const newAnswers = [...answers];
     newAnswers[currentQ] = optionIdx;
     setAnswers(newAnswers);
 
-    // Auto-advance after 600ms
-    setTimeout(() => {
+    if (isCorrect) {
+      setComboCount(prev => prev + 1);
+      play('correct');
+    } else {
+      setComboCount(0);
+      play('wrong');
+    }
+
+    // Run battle animation, then advance
+    runBattleAnimation(isCorrect, isCritical, () => {
       if (currentQ < questions.length - 1) {
         setCurrentQ(prev => prev + 1);
         setSelectedOption(null);
+        setQuestionStartTime(Date.now());
       } else {
         finishQuiz(newAnswers);
       }
-    }, 600);
+    });
   }
 
   // ── Finish quiz ─────────────────────────────────────────────
@@ -249,8 +370,15 @@ export default function DuelPage() {
         setCurrentQ(0);
         setSelectedOption(null);
         setQuizStartTime(Date.now());
+        setQuestionStartTime(Date.now());
         setElapsed(0);
         setActiveDuelId(duelId);
+        setMyHp(100);
+        setOpponentHp(100);
+        setBattleAnim(null);
+        setEffectClass(null);
+        setDamagePopup(null);
+        setComboCount(0);
         setMode('playing');
       } else {
         showToast('Thách đấu không khả dụng.', 'danger');
@@ -272,14 +400,8 @@ export default function DuelPage() {
     loadLobby();
   }
 
-  // My pet info
-  const myPetEmoji = useMemo(() => {
-    const pet = petData.collection[petData.activePetId];
-    if (!pet) return '🐮';
-    const species = PET_REGISTRY[pet.speciesId];
-    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned);
-    return evo?.emoji || species?.emoji || '🐮';
-  }, [petData]);
+  // My pet emoji (for lobby)
+  const myPetEmoji = myPetInfo.emoji;
 
   // ── Not logged in ───────────────────────────────────────────
   if (!user) {
@@ -293,54 +415,141 @@ export default function DuelPage() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  RENDER: QUIZ MODE (creating / playing)
+  //  RENDER: BATTLE MODE (creating / playing)
   // ═══════════════════════════════════════════════════════════
   if (mode === 'creating' || mode === 'playing') {
     const q = questions[currentQ];
     const progress = ((currentQ) / questions.length) * 100;
     const isCorrect = selectedOption !== null && mode === 'creating' ? selectedOption === q.correct : null;
+    const elementTheme = ELEMENT_THEME[myPetInfo.element] || ELEMENT_THEME.neutral;
+
+    // HP bar color
+    const hpColor = (hp) => hp > 50 ? '#2ECC71' : hp > 25 ? '#F39C12' : '#E74C3C';
+
+    // Random opponent pet for visual (since we don't know their actual pet in creating mode)
+    const opponentPetKeys = Object.keys(PET_REGISTRY);
+    const opponentPetId = mode === 'playing' ? null : opponentPetKeys[currentQ % opponentPetKeys.length];
+    const opponentSpecies = opponentPetId ? PET_REGISTRY[opponentPetId] : null;
+    const opponentImage = opponentPetId ? resolvePetImage(opponentPetId, 500) : null;
+    const opponentEmoji = opponentSpecies?.emoji || '🐾';
 
     return (
       <div className="fade-in">
-        {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <span className="fw-bold">
+        {/* Battle Header */}
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <span className="fw-bold small">
             {mode === 'creating' ? '⚔️ Tạo thách đấu' : '🎯 Chấp nhận thách đấu'}
           </span>
-          <span className="badge bg-dark">⏱️ {elapsed}s</span>
+          <div className="d-flex align-items-center gap-2">
+            {comboCount >= 3 && (
+              <span className="badge bg-warning text-dark combo-badge">🔥 x{comboCount}</span>
+            )}
+            <span className="badge bg-dark">⏱️ {elapsed}s</span>
+          </div>
         </div>
 
         {/* Progress */}
-        <div className="progress mb-3" style={{ height: 6 }}>
+        <div className="progress mb-2" style={{ height: 4 }}>
           <div className="progress-bar bg-cowdi-primary" style={{ width: `${progress}%`, transition: 'width 0.3s' }}></div>
         </div>
 
-        {/* Question card */}
-        <div className="card shadow-sm mb-3">
-          <div className="card-body">
-            <div className="d-flex justify-content-between mb-2">
-              <span className="badge bg-secondary">Câu {currentQ + 1}/{questions.length}</span>
-              <span className="badge bg-light text-dark">{q?.category}</span>
+        {/* ═══ BATTLE ARENA ═══ */}
+        <div className="battle-arena mb-3">
+          <div className="battle-ground-line"></div>
+
+          {/* Element effect overlay */}
+          {effectClass && <div className={`battle-effect ${effectClass}`}></div>}
+
+          {/* Critical flash */}
+          {damagePopup?.isCritical && <div className="battle-effect effect-critical"></div>}
+
+          {/* Opponent HUD (top-left) */}
+          <div className="battle-hud battle-hud-opponent">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <span className="fw-bold small">Đối thủ</span>
+              <span className="small text-muted">{opponentHp}/100</span>
             </div>
-            <h5 className="fw-bold mb-0">{q?.question}</h5>
+            <div className="hp-bar">
+              <div className="hp-bar-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
+            </div>
+          </div>
+
+          {/* My HUD (bottom-right) */}
+          <div className="battle-hud battle-hud-mine">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <span className="fw-bold small">{myPetInfo.name}</span>
+              <span className="small text-muted">{myHp}/100</span>
+            </div>
+            <div className="hp-bar">
+              <div className="hp-bar-fill" style={{ width: `${myHp}%`, backgroundColor: hpColor(myHp) }}></div>
+            </div>
+            <div className="text-end mt-1">
+              <span className="badge" style={{ backgroundColor: elementTheme.color, fontSize: '0.6rem', color: '#fff' }}>
+                {elementTheme.label}
+              </span>
+            </div>
+          </div>
+
+          {/* My Pet (bottom-left) */}
+          <div className={`battle-pet battle-pet-mine ${
+            battleAnim === 'attack-mine' ? 'anim-attack-mine' :
+            battleAnim === 'damage-mine' ? 'anim-damage' :
+            myHp <= 0 ? 'anim-faint' : ''
+          }`}>
+            {myPetImage ? (
+              <img src={myPetImage} alt={myPetInfo.name} />
+            ) : (
+              <div className="pet-emoji-lg">{myPetInfo.emoji}</div>
+            )}
+          </div>
+
+          {/* Opponent Pet (top-right) */}
+          <div className={`battle-pet battle-pet-opponent ${
+            battleAnim === 'attack-opponent' ? 'anim-attack-opponent' :
+            battleAnim === 'damage-opponent' ? 'anim-damage' :
+            opponentHp <= 0 ? 'anim-faint' : ''
+          }`}>
+            {opponentImage ? (
+              <img src={opponentImage} alt="Opponent" />
+            ) : (
+              <div className="pet-emoji-lg">{opponentEmoji}</div>
+            )}
+          </div>
+
+          {/* Damage Popup */}
+          {damagePopup && (
+            <div className={`damage-number ${damagePopup.target === 'opponent' ? 'damage-number-opponent' : 'damage-number-mine'}`}>
+              {damagePopup.isCritical ? '💥 ' : ''}-{damagePopup.amount}
+            </div>
+          )}
+        </div>
+
+        {/* Question card */}
+        <div className="card shadow-sm mb-3" style={{ borderLeft: `4px solid ${elementTheme.color}` }}>
+          <div className="card-body py-2">
+            <div className="d-flex justify-content-between mb-1">
+              <span className="badge bg-secondary" style={{ fontSize: '0.65rem' }}>Câu {currentQ + 1}/{questions.length}</span>
+              <span className="badge bg-light text-dark" style={{ fontSize: '0.65rem' }}>{q?.category}</span>
+            </div>
+            <h6 className="fw-bold mb-0">{q?.question}</h6>
           </div>
         </div>
 
         {/* Options */}
         <div className="d-grid gap-2">
           {(q?.options || []).map((opt, idx) => {
-            let btnClass = 'btn btn-outline-secondary text-start py-3 px-3';
+            let btnClass = 'btn btn-outline-secondary text-start py-2 px-3';
             if (selectedOption !== null) {
               if (mode === 'creating') {
-                if (idx === q.correct) btnClass = 'btn btn-success text-start py-3 px-3';
-                else if (idx === selectedOption && idx !== q.correct) btnClass = 'btn btn-danger text-start py-3 px-3';
+                if (idx === q.correct) btnClass = 'btn btn-success text-start py-2 px-3';
+                else if (idx === selectedOption && idx !== q.correct) btnClass = 'btn btn-danger text-start py-2 px-3';
               } else {
-                if (idx === selectedOption) btnClass = 'btn btn-primary text-start py-3 px-3';
+                if (idx === selectedOption) btnClass = 'btn btn-primary text-start py-2 px-3';
               }
             }
             return (
               <button
-                key={idx}
+                key={`${currentQ}-${idx}`}
                 className={btnClass}
                 onClick={() => selectAnswer(idx)}
                 disabled={selectedOption !== null}
@@ -354,7 +563,7 @@ export default function DuelPage() {
 
         {/* Score tracker (for creating mode) */}
         {mode === 'creating' && currentQ > 0 && (
-          <div className="text-center mt-3">
+          <div className="text-center mt-2">
             <span className="text-muted small">
               Đúng: {answers.slice(0, currentQ).filter((a, i) => a === questions[i].correct).length}/{currentQ}
             </span>
@@ -365,10 +574,11 @@ export default function DuelPage() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  RENDER: RESULT MODE
+  //  RENDER: BATTLE RESULT MODE
   // ═══════════════════════════════════════════════════════════
   if (mode === 'result' && result) {
     const league = LEAGUES[myStats.league] || LEAGUES.bronze;
+    const elementTheme = ELEMENT_THEME[myPetInfo.element] || ELEMENT_THEME.neutral;
 
     if (result.mode === 'created') {
       return (
@@ -377,8 +587,27 @@ export default function DuelPage() {
           <h3 className="fw-bold">Thách đấu đã tạo!</h3>
           <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
             <div className="card-body">
-              <div className="fs-2 mb-2">{myPetEmoji}</div>
+              {/* Battle Pet Display */}
+              <div className="mb-2">
+                {myPetImage ? (
+                  <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 80, maxHeight: 80, objectFit: 'contain' }} />
+                ) : (
+                  <div className="fs-1">{myPetInfo.emoji}</div>
+                )}
+              </div>
               <h4 className="fw-bold">{result.score}/{result.total}</h4>
+              <div className="mb-2">
+                <div className="d-flex justify-content-center align-items-center gap-2">
+                  <span className="small text-muted">HP còn lại:</span>
+                  <div className="hp-bar" style={{ width: 100 }}>
+                    <div className="hp-bar-fill" style={{
+                      width: `${myHp}%`,
+                      backgroundColor: myHp > 50 ? '#2ECC71' : myHp > 25 ? '#F39C12' : '#E74C3C'
+                    }}></div>
+                  </div>
+                  <span className="small fw-bold">{myHp}%</span>
+                </div>
+              </div>
               <p className="text-muted mb-1">⏱️ {result.time}s</p>
               <p className="text-muted small">Đang chờ đối thủ chấp nhận...</p>
               <div className="d-flex justify-content-center gap-2 mt-2">
@@ -395,28 +624,50 @@ export default function DuelPage() {
       );
     }
 
-    // Played result
+    // Played result — VS battle result
     return (
       <div className="text-center fade-in py-4">
         <div className="fs-1 mb-2">
           {result.isWin ? '🎉' : result.isDraw ? '🤝' : '😢'}
         </div>
-        <h3 className="fw-bold">
-          {result.isWin ? 'Bạn thắng!' : result.isDraw ? 'Hòa!' : 'Bạn thua!'}
+        <h3 className="fw-bold" style={{ color: result.isWin ? '#2ECC71' : result.isDraw ? '#F39C12' : '#E74C3C' }}>
+          {result.isWin ? 'CHIẾN THẮNG!' : result.isDraw ? 'HÒA!' : 'THẤT BẠI!'}
         </h3>
 
-        {/* VS comparison */}
+        {/* Battle VS comparison */}
         <div className="d-flex justify-content-center align-items-center gap-3 my-4">
+          {/* My pet */}
           <div className="text-center">
-            <div className="fs-2">{myPetEmoji}</div>
-            <div className="fw-bold">Bạn</div>
+            <div className="mb-1">
+              {myPetImage ? (
+                <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
+              ) : (
+                <div className="fs-2">{myPetInfo.emoji}</div>
+              )}
+            </div>
+            <div className="fw-bold small">{myPetInfo.name}</div>
+            <div className="hp-bar mx-auto mt-1" style={{ width: 80 }}>
+              <div className="hp-bar-fill" style={{
+                width: `${myHp}%`,
+                backgroundColor: myHp > 50 ? '#2ECC71' : myHp > 25 ? '#F39C12' : '#E74C3C'
+              }}></div>
+            </div>
             <h3 className={`fw-bold mb-0 ${result.isWin ? 'text-success' : ''}`}>{result.myScore}/{result.total}</h3>
             <small className="text-muted">⏱️ {result.myTime}s</small>
           </div>
+
           <div className="fs-3 text-muted fw-bold">VS</div>
+
+          {/* Opponent pet */}
           <div className="text-center">
-            <div className="fs-2">🐾</div>
-            <div className="fw-bold">Đối thủ</div>
+            <div className="fs-2 mb-1">🐾</div>
+            <div className="fw-bold small">Đối thủ</div>
+            <div className="hp-bar mx-auto mt-1" style={{ width: 80 }}>
+              <div className="hp-bar-fill" style={{
+                width: `${opponentHp}%`,
+                backgroundColor: opponentHp > 50 ? '#2ECC71' : opponentHp > 25 ? '#F39C12' : '#E74C3C'
+              }}></div>
+            </div>
             <h3 className={`fw-bold mb-0 ${!result.isWin && !result.isDraw ? 'text-success' : ''}`}>{result.theirScore}/{result.total}</h3>
             <small className="text-muted">⏱️ {result.theirTime}s</small>
           </div>

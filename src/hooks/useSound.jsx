@@ -265,6 +265,56 @@ const SOUNDS = {
     });
   },
 
+  /* ── Battle FX ── */
+  battleAttack() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Swoosh
+    tone(ctx, 800, 'sawtooth', 0.08, t, 0.06);
+    tone(ctx, 500, 'sawtooth', 0.06, t + 0.05, 0.08);
+    tone(ctx, 300, 'sawtooth', 0.04, t + 0.1, 0.06);
+  },
+
+  battleHit() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Impact thud
+    tone(ctx, 120, 'sine', 0.2, t, 0.1);
+    tone(ctx, 80, 'sine', 0.15, t + 0.05, 0.12);
+    // Noise burst via high-freq triangle
+    tone(ctx, 2000, 'triangle', 0.06, t, 0.04);
+  },
+
+  battleCritical() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Dramatic chord
+    [523.25, 659.25, 783.99].forEach(f => tone(ctx, f, 'sine', 0.12, t, 0.3));
+    tone(ctx, 1046.5, 'triangle', 0.1, t + 0.1, 0.25);
+    tone(ctx, 120, 'sine', 0.15, t + 0.15, 0.1);
+  },
+
+  battleDamage() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Low thud + high ping
+    tone(ctx, 100, 'sine', 0.18, t, 0.1);
+    tone(ctx, 600, 'triangle', 0.08, t + 0.05, 0.06);
+  },
+
+  battleFaint() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Descending tone
+    [500, 400, 300, 200, 120].forEach((f, i) => {
+      tone(ctx, f, 'sine', 0.1 - i * 0.015, t + i * 0.12, 0.2);
+    });
+  },
+
+  battleVictory() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    // Fanfare
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => {
+      tone(ctx, f, 'sine', 0.15, t + i * 0.12, 0.6);
+      tone(ctx, f * 0.5, 'triangle', 0.06, t + i * 0.12, 0.4);
+    });
+  },
+
   /* ── Word catch game ── */
   wordFall() {
     const ctx = getAudioCtx(); const t = ctx.currentTime;
