@@ -23,6 +23,30 @@ function shuffle(arr) {
   return a;
 }
 
+// ── Shared TTS helper ───────────────────────────────────────────────────────
+function speakText(text, rate = 0.9) {
+  if (!('speechSynthesis' in window) || !text) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = rate;
+  speechSynthesis.speak(u);
+}
+
+function SpeakBtn({ text, rate = 0.9, size = 'sm', label = '🔊' }) {
+  return (
+    <button
+      className={`btn btn-${size} btn-outline-info`}
+      style={{ lineHeight: 1, padding: '3px 8px' }}
+      onClick={(e) => { e.stopPropagation(); speakText(text, rate); }}
+      title={`Nghe phát âm: ${text}`}
+      type="button"
+    >
+      {label}
+    </button>
+  );
+}
+
 const GAMES = [
   { id: 'word-catch',      icon: '🎯', title: 'Cowdi Bắt Từ',   desc: 'Chọn nghĩa đúng cho từ rơi xuống!', color: '#6C5CE7' },
   { id: 'sentence-puzzle',  icon: '🧩', title: 'Ghép câu',       desc: 'Sắp xếp từ thành câu đúng!',       color: '#00B894' },
@@ -105,6 +129,9 @@ function WordCatchGame() {
 
   useEffect(() => { generateRound(); }, []);
 
+  // Auto-speak word when new round starts
+  useEffect(() => { if (current) speakText(current.word); }, [current]);
+
   useEffect(() => {
     if (finished || answered !== null || !current) return;
     if (timeLeft > 0) {
@@ -174,8 +201,11 @@ function WordCatchGame() {
       {/* Falling word */}
       <div className="card shadow-sm mb-4 text-center" style={{ animation: 'wordFall 0.5s ease-out' }}>
         <div className="card-body py-4">
-          <div className="fs-3 fw-bold text-cowdi-primary">{current.word}</div>
-          <div className="text-muted small">{current.phonetic}</div>
+          <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
+            <div className="fs-3 fw-bold text-cowdi-primary">{current.word}</div>
+            <SpeakBtn text={current.word} />
+          </div>
+          {current.phonetic && <div className="text-muted small">{current.phonetic}</div>}
         </div>
       </div>
 
@@ -296,6 +326,12 @@ function SentencePuzzleGame() {
         <div className="card-body text-center py-3">
           <div className="text-muted small">Dịch câu này sang tiếng Anh:</div>
           <div className="fs-5 fw-bold">{current.vi}</div>
+          {result !== null && (
+            <div className="d-flex align-items-center justify-content-center gap-2 mt-2">
+              <span className="text-muted small fst-italic">{current.en}</span>
+              <SpeakBtn text={current.en} label="🔊 Nghe câu" size="sm" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -377,6 +413,8 @@ function MemoryMatchGame() {
   function handleFlip(idx) {
     if (lockBoard || flipped.includes(idx) || matched.has(cards[idx].pairId)) return;
     play('flip');
+    // Speak English card text when revealed
+    if (cards[idx].type === 'en') speakText(cards[idx].text);
     const newFlipped = [...flipped, idx];
     setFlipped(newFlipped);
 
@@ -442,7 +480,15 @@ function MemoryMatchGame() {
               >
                 <div className="card-body p-2 d-flex align-items-center justify-content-center">
                   {isFlipped ? (
-                    <span className={`fw-bold small ${card.type === 'en' ? 'text-primary' : 'text-success'}`}>{card.text}</span>
+                    <div className="d-flex flex-column align-items-center gap-1">
+                      <span className={`fw-bold small ${card.type === 'en' ? 'text-primary' : 'text-success'}`}>{card.text}</span>
+                      {card.type === 'en' && (
+                        <button className="btn btn-link p-0" style={{ fontSize: '0.75rem', lineHeight: 1 }}
+                          onClick={(e) => { e.stopPropagation(); speakText(card.text); }} title="Nghe">
+                          🔊
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     <span className="fs-4">❓</span>
                   )}
@@ -632,6 +678,9 @@ function SpeedMatchGame() {
     setCurrentPair({ word: correct.word, meaning: displayMeaning, isMatch, correctMeaning: correct.meaning });
   }
 
+  // Auto-speak word when pair changes
+  useEffect(() => { if (phase === 'playing' && currentPair) speakText(currentPair.word); }, [currentPair, phase]);
+
   useEffect(() => {
     if (phase !== 'playing') return;
     if (timeLeft <= 0) {
@@ -697,7 +746,10 @@ function SpeedMatchGame() {
       {currentPair && (
         <div className="card shadow-sm mb-4">
           <div className="card-body text-center py-5">
-            <h3 className="fw-bold text-cowdi-primary mb-3">{currentPair.word}</h3>
+            <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
+              <h3 className="fw-bold text-cowdi-primary mb-0">{currentPair.word}</h3>
+              <SpeakBtn text={currentPair.word} />
+            </div>
             <div className="fs-5 text-muted mb-1">=</div>
             <h4 className="fw-bold mb-0">{currentPair.meaning}</h4>
           </div>
@@ -812,7 +864,14 @@ function WordScrambleGame() {
       <div className="card shadow-sm mb-3">
         <div className="card-body text-center py-4">
           <p className="text-muted mb-2">Nghĩa: <strong>{current.meaning}</strong></p>
-          {current.phonetic && <p className="text-muted small mb-3">{current.phonetic}</p>}
+          {current.phonetic && <p className="text-muted small mb-1">{current.phonetic}</p>}
+          {result !== null && (
+            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+              <span className="text-muted small fst-italic">{current.word}</span>
+              <SpeakBtn text={current.word} label="🔊" />
+              <SpeakBtn text={current.word} rate={0.5} label="🐌" />
+            </div>
+          )}
 
           {/* Answer slots */}
           <div className="d-flex gap-1 justify-content-center mb-3 flex-wrap">

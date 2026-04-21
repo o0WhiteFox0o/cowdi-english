@@ -74,11 +74,12 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
 }
-
-.cowdi-chat-btn:hover {
-  transform: scale(1.1);
-}
+.cowdi-chat-btn:hover  { transform: scale(1.1); }
+.cowdi-chat-btn.dragging { opacity: 0.85; transform: scale(1.08); cursor: grabbing; }
 
 .cowdi-chat-bubble {
   position: fixed;
@@ -86,13 +87,23 @@
   right: 2rem;
   background: white;
   border-radius: 16px;
-  padding: 1rem 1.25rem;
+  padding: 1rem 2.5rem 1rem 1.25rem;
   max-width: 280px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1050;
   border-left: 4px solid #FF6B9D;
   animation: fadeInUp 0.2s ease;
 }
+
+/* Close button inside bubble */
+.cowdi-chat-close {
+  position: absolute;
+  top: 6px; right: 8px;
+  background: none; border: none;
+  font-size: 1rem; line-height: 1;
+  color: #aaa; cursor: pointer; padding: 2px 4px;
+}
+.cowdi-chat-close:hover { color: #555; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }

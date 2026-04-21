@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
 import { useUser } from '../hooks/useUser';
-import { QUIZ_BANK, LESSONS } from '../data/lessons';
+import { generateDuelQuiz } from '../data/duel-quiz-pool';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useToast } from '../components/Toast';
 import { useSound } from '../hooks/useSound';
@@ -68,31 +68,7 @@ function timeAgo(dateStr) {
 }
 
 // ── Generate duel quiz from quiz bank + lesson quizzes ──────
-function generateDuelQuiz(count = 10) {
-  const pool = [];
-  // From QUIZ_BANK
-  for (const type of ['vocab', 'grammar', 'sentences']) {
-    for (const q of (QUIZ_BANK[type] || [])) {
-      if (q.options && q.options.length >= 2) {
-        pool.push({ question: q.question, options: q.options, correct: q.correct, category: type });
-      }
-    }
-  }
-  // From lesson quizzes
-  for (const lesson of LESSONS) {
-    for (const q of (lesson.quiz || [])) {
-      if (q.options && q.options.length >= 2) {
-        pool.push({ question: q.question, options: q.options, correct: q.correct, category: 'vocabulary' });
-      }
-    }
-  }
-  // Shuffle (Fisher-Yates)
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  return pool.slice(0, Math.min(count, pool.length));
-}
+// generateDuelQuiz is now imported from ../data/duel-quiz-pool
 
 export default function DuelPage() {
   const { user, authFetch } = useAuth();
@@ -215,7 +191,7 @@ export default function DuelPage() {
       element: species?.element || 'neutral',
       speciesId: pet.speciesId,
       xp: pet.totalXpEarned || 0,
-      name: species?.name || 'Pet',
+      name: pet.customName || species?.name || 'Pet',
     };
   }, [petData]);
 
@@ -227,15 +203,18 @@ export default function DuelPage() {
   function runBattleAnimation(isCorrect, isCritical, questionIdx, callback) {
     const myElement = myPetInfo.element;
     const oppElement = opponentPet?.element || 'neutral';
-    const oppAnsweredCorrectly = challengerResults[questionIdx]?.correct || false;
+    const challengerTurn = challengerResults[questionIdx];
+    const oppAnsweredCorrectly = typeof challengerTurn === 'object'
+      ? !!challengerTurn.correct
+      : !!challengerTurn;
 
     clearTimeout(battleAnimTimeoutRef.current);
 
-    // Determine what happens this turn
+    // Determine what happens this turn:
+    // Player answers correctly → my pet attacks
+    // Player answers incorrectly → opponent pet attacks
     const myPetAttacks = isCorrect;
-    const oppPetAttacks = mode === 'playing' ? oppAnsweredCorrectly : !isCorrect;
-    // In creating mode: if I'm wrong, opponent "attacks" (visual only)
-    // In playing mode: opponent attacks based on their real answer
+    const oppPetAttacks = !isCorrect;
 
     const sequence = [];
 
@@ -310,9 +289,10 @@ export default function DuelPage() {
     setSelectedOption(optionIdx);
 
     const q = questions[currentQ];
-    const isCorrect = optionIdx === q.correct;
+    const hasKnownCorrectAnswer = Number.isInteger(q?.correct);
+    const isCorrect = hasKnownCorrectAnswer ? optionIdx === q.correct : true;
     const answerTime = (Date.now() - (questionStartTime || Date.now())) / 1000;
-    const isCritical = isCorrect && answerTime < 3;
+    const isCritical = answerTime < 3 && (hasKnownCorrectAnswer ? isCorrect : true);
 
     const newAnswers = [...answers];
     newAnswers[currentQ] = optionIdx;
@@ -433,7 +413,7 @@ export default function DuelPage() {
           setOpponentPet({
             speciesId: data.challengerPet.speciesId,
             xp: data.challengerPet.totalXpEarned || 0,
-            name: cSpecies?.name || 'Đối thủ',
+            name: data.challengerPet.customName || cSpecies?.name || 'Đối thủ',
             emoji: cSpecies?.emoji || '🐾',
             image: cImg,
             element: cSpecies?.element || 'neutral',

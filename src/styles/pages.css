@@ -1,5 +1,247 @@
 ﻿/* pages.css - Layout handled by Bootstrap. Kept for future page-specific tweaks. */
 
+/* ============================================
+   HOME PAGE — Redesign 2026
+   ============================================ */
+
+/* ── Hero ── */
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: linear-gradient(135deg, #fff8f0 0%, #ffe0eb 100%);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 107, 157, 0.08);
+}
+.home-hero-greeting {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cowdi-primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+.home-hero-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #2d2d2d;
+  margin-bottom: 0.5rem;
+}
+.home-hero-petname { color: var(--cowdi-primary); }
+.home-hero-sub {
+  color: #777;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.home-hero-pet {
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.home-hero-pet-img {
+  width: 90px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+}
+.home-hero-pet-emoji { font-size: 5rem; line-height: 1; }
+.home-hero-pet-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--cowdi-primary);
+  background: rgba(255,107,157,0.1);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+/* ── XP Strip ── */
+.home-xp-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.home-xp-level {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.home-xp-level-badge {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.home-xp-level-title { font-weight: 700; font-size: 0.85rem; line-height: 1.2; }
+.home-xp-level-sub   { font-size: 0.72rem; color: #888; }
+.home-xp-bar-wrap    { min-width: 60px; }
+.home-xp-bar {
+  height: 8px; border-radius: 4px;
+  background: #f0f0f0; overflow: hidden;
+}
+.home-xp-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--cowdi-primary), #A29BFE);
+  transition: width 0.6s ease;
+}
+.home-streak-pill {
+  display: flex; align-items: center; gap: 3px;
+  background: #FFF3E0; border-radius: 20px;
+  padding: 4px 10px; flex-shrink: 0;
+  font-size: 0.85rem;
+}
+.home-streak-label { font-size: 0.7rem; color: #aaa; }
+
+/* ── Daily Challenge ── */
+.home-daily-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+}
+.home-daily-card.home-daily-done {
+  background: linear-gradient(135deg, #00B894, #55efc4);
+  box-shadow: 0 4px 16px rgba(0,184,148,0.3);
+}
+.home-daily-icon { font-size: 2rem; flex-shrink: 0; }
+.home-daily-body { flex-grow: 1; min-width: 0; }
+.home-daily-title { font-weight: 800; font-size: 0.95rem; }
+.home-daily-tasks { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 4px; font-size: 0.82rem; opacity: 0.9; }
+.task-done { opacity: 1; }
+.task-todo { opacity: 0.75; }
+.home-daily-btn {
+  background: rgba(255,255,255,0.25);
+  color: white;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.home-daily-btn:hover { background: rgba(255,255,255,0.4); color: white; }
+
+/* ── Section Title ── */
+.home-section-title {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* ── Quick Actions Grid ── */
+.home-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+.home-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  border-radius: 14px;
+  background: var(--qa-bg, #f9f9f9);
+  border: 1.5px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.home-quick-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  border-color: var(--qa-color, #ccc);
+}
+.home-quick-icon  { font-size: 1.6rem; margin-bottom: 4px; }
+.home-quick-label { font-weight: 700; font-size: 0.8rem; color: var(--qa-color, #333); line-height: 1.2; }
+.home-quick-sub   { font-size: 0.68rem; color: #999; margin-top: 2px; }
+
+/* ── Stats Row ── */
+.home-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+.home-stat-card {
+  background: white;
+  border-radius: 14px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.home-stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+.home-stat-icon  { font-size: 1.3rem; margin-bottom: 2px; }
+.home-stat-value { font-size: 1.4rem; font-weight: 800; color: var(--cowdi-primary); line-height: 1.1; }
+.home-stat-label { font-size: 0.68rem; color: #999; margin-top: 2px; }
+
+/* ── Skills ── */
+.home-skills-card { border-radius: 16px !important; }
+.home-skills-row  { display: flex; gap: 0.75rem; }
+.home-skill-item  { flex: 1; min-width: 0; }
+.home-skill-emoji { font-size: 1.3rem; text-align: center; }
+.home-skill-bar-wrap {
+  height: 6px; border-radius: 3px;
+  background: #f0f0f0; overflow: hidden; margin: 4px 0;
+}
+.home-skill-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.home-skill-name { font-size: 0.65rem; font-weight: 700; text-align: center; }
+
+/* ── Continue Card ── */
+.home-continue-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--cowdi-primary);
+}
+.home-continue-icon    { font-size: 1.8rem; flex-shrink: 0; }
+.home-continue-body    { flex-grow: 1; min-width: 0; }
+.home-continue-label   { font-size: 0.72rem; color: #999; font-weight: 700; text-transform: uppercase; }
+.home-continue-title   { font-weight: 800; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Responsive ── */
+@media (max-width: 575px) {
+  .home-hero { flex-direction: row; padding: 1.1rem; }
+  .home-hero-title { font-size: 1.3rem; }
+  .home-hero-pet-img { width: 72px; height: 88px; }
+  .home-quick-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .home-quick-icon  { font-size: 1.4rem; }
+  .home-quick-label { font-size: 0.72rem; }
+  .home-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .home-skills-row  { gap: 0.5rem; }
+  .home-xp-strip { padding: 0.6rem 0.75rem; gap: 0.5rem; }
+  .home-xp-level-badge { width: 38px; height: 38px; font-size: 0.75rem; }
+}
+
 /* ── Skill card (Practice page) ── */
 .skill-card { transition: transform 0.15s, box-shadow 0.15s; }
 .skill-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,.12) !important; }
