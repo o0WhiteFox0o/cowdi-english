@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS user_progress (
   daily_date          VARCHAR(64)     DEFAULT NULL,
   srs_data            LONGTEXT        DEFAULT NULL COMMENT 'SRS SM-2 repetition data per word',
   checkpoint_scores   LONGTEXT        DEFAULT NULL COMMENT 'Learning path checkpoint scores per unit',
+  skill_xp            LONGTEXT        DEFAULT NULL COMMENT 'User skill XP: listening/speaking/reading/writing',
   pet_data            LONGTEXT        DEFAULT NULL COMMENT 'Du lieu he thong pet (collection, coins, items...)',
   nickname            VARCHAR(20)     DEFAULT NULL COMMENT 'Nickname cho leaderboard',
   league_points       INT UNSIGNED    NOT NULL DEFAULT 0,

@@ -652,117 +652,181 @@ function SpeedMatchGame() {
   const { play } = useSound();
 
   const [phase, setPhase] = useState('ready'); // ready | playing | finished
-  const [pairs, setPairs] = useState([]);
-  const [currentPair, setCurrentPair] = useState(null);
+  const [current, setCurrent] = useState(null);   // { word, meaning, ... }
+  const [choices, setChoices] = useState([]);      // 4 options
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);
   const [total, setTotal] = useState(0);
-  const timerRef = useRef(null);
+  const [timeLeft, setTimeLeft] = useState(60);   // global timer
+  const [qTimer, setQTimer] = useState(5);         // per-question countdown
+  const [flash, setFlash] = useState(null);        // null | 'correct' | 'wrong'
+  const [frozen, setFrozen] = useState(false);     // 400ms button lock after new question
+  const [selected, setSelected] = useState(null);  // index of tapped choice
+  const globalRef = useRef(null);
+  const qRef = useRef(null);
+
+  function generateQuestion() {
+    const pool = shuffle(ALL_VOCAB);
+    const correct = pool[0];
+    const opts = shuffle([correct, ...pool.slice(1, 4)]);
+    setCurrent(correct);
+    setChoices(opts);
+    setQTimer(5);
+    setFlash(null);
+    setSelected(null);
+    setFrozen(true);
+    setTimeout(() => setFrozen(false), 400);
+    speakText(correct.word);
+  }
 
   function startGame() {
     setPhase('playing');
     setScore(0);
     setStreak(0);
-    setTimeLeft(60);
     setTotal(0);
-    generateNext();
+    setTimeLeft(60);
+    generateQuestion();
   }
 
-  function generateNext() {
-    const pool = shuffle(ALL_VOCAB);
-    const correct = pool[0];
-    // 50% chance: show correct pair, 50% chance: show wrong pair
-    const isMatch = Math.random() > 0.5;
-    const displayMeaning = isMatch ? correct.meaning : pool[1].meaning;
-    setCurrentPair({ word: correct.word, meaning: displayMeaning, isMatch, correctMeaning: correct.meaning });
-  }
-
-  // Auto-speak word when pair changes
-  useEffect(() => { if (phase === 'playing' && currentPair) speakText(currentPair.word); }, [currentPair, phase]);
-
+  // Global 60s countdown
   useEffect(() => {
     if (phase !== 'playing') return;
     if (timeLeft <= 0) {
       setPhase('finished');
-      const xp = score * 3;
+      const xp = score * 4;
       addXP(xp);
       onQuizComplete('vocab', score, Math.max(total, score));
-      if (score >= 20) addCoins(20);
-      else if (score >= 10) addCoins(10);
+      if (score >= 15) addCoins(20);
+      else if (score >= 8) addCoins(10);
       play('celebration');
       showToast(`+${xp} XP! ⚡`, 'success');
       return;
     }
-    timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
-    return () => clearTimeout(timerRef.current);
+    globalRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearTimeout(globalRef.current);
   }, [timeLeft, phase]);
 
-  function handleChoice(userSaysMatch) {
-    if (phase !== 'playing') return;
+  // Per-question 5s countdown → auto-skip on timeout
+  useEffect(() => {
+    if (phase !== 'playing' || flash !== null) return;
+    if (qTimer <= 0) {
+      setFlash('wrong');
+      setTotal((t) => t + 1);
+      setStreak(0);
+      play('wrong');
+      setTimeout(generateQuestion, 800);
+      return;
+    }
+    qRef.current = setTimeout(() => setQTimer((t) => t - 1), 1000);
+    return () => clearTimeout(qRef.current);
+  }, [qTimer, phase, flash]);
+
+  function handleChoice(idx) {
+    if (frozen || phase !== 'playing' || flash !== null) return;
+    clearTimeout(qRef.current);
+    setSelected(idx);
     setTotal((t) => t + 1);
-    const correct = userSaysMatch === currentPair.isMatch;
-    if (correct) {
+    if (choices[idx]?.word === current?.word) {
       setScore((s) => s + 1);
       setStreak((s) => s + 1);
+      setFlash('correct');
       play('correct');
     } else {
       setStreak(0);
+      setFlash('wrong');
       play('wrong');
     }
-    generateNext();
+    setTimeout(generateQuestion, 800);
   }
 
   if (phase === 'ready') {
     return (
-      <div className="text-center py-5" style={{ maxWidth: 400, margin: '0 auto' }}>
+      <div className="text-center py-5" style={{ maxWidth: 420, margin: '0 auto' }}>
         <div className="fs-1 mb-3">⚡</div>
         <h4 className="fw-bold">Tốc độ ánh sáng</h4>
-        <p className="text-muted">Từ và nghĩa hiện trên màn hình. Nhấn ✅ nếu đúng, ❌ nếu sai. Nhanh nhất có thể trong 60 giây!</p>
+        <p className="text-muted mb-1">Từ tiếng Anh hiện lên — chọn <strong>nghĩa đúng</strong> trong 4 đáp án.</p>
+        <p className="text-muted">Mỗi câu có <strong>5 giây</strong>. Tổng thời gian <strong>60 giây</strong>!</p>
         <button className="btn btn-cowdi-primary btn-lg" onClick={startGame}>🚀 Bắt đầu!</button>
       </div>
     );
   }
 
   if (phase === 'finished') {
+    const acc = total > 0 ? Math.round((score / total) * 100) : 0;
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{score >= 25 ? '🏆' : score >= 15 ? '⚡' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }}>{score >= 20 ? '🏆' : score >= 12 ? '⚡' : '💪'}</div>
         <h3 className="fw-bold mt-2">{score} câu đúng / {total} câu</h3>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 3} XP</div>
+        <div className="text-muted mb-2">Độ chính xác: {acc}%</div>
+        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 4} XP</div>
         <div><button className="btn btn-cowdi-primary mt-3" onClick={startGame}>Chơi lại</button></div>
       </div>
     );
   }
 
+  const qPct = (qTimer / 5) * 100;
+  const qColor = qTimer <= 2 ? '#e17055' : qTimer <= 3 ? '#fdcb6e' : '#00b894';
+
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
+      {/* Header bar */}
+      <div className="d-flex justify-content-between align-items-center mb-2">
         <span className={`badge ${timeLeft <= 10 ? 'bg-danger' : 'bg-secondary'} fs-6`}>⏱ {timeLeft}s</span>
         <span className="badge bg-warning text-dark fs-6">✅ {score}</span>
         {streak >= 3 && <span className="badge bg-danger fs-6">🔥 {streak}</span>}
       </div>
 
-      {currentPair && (
-        <div className="card shadow-sm mb-4">
-          <div className="card-body text-center py-5">
-            <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
-              <h3 className="fw-bold text-cowdi-primary mb-0">{currentPair.word}</h3>
-              <SpeakBtn text={currentPair.word} />
+      {/* Per-question timer bar */}
+      <div className="progress mb-3" style={{ height: 6 }}>
+        <div
+          className="progress-bar"
+          style={{ width: `${qPct}%`, backgroundColor: qColor, transition: 'width 1s linear, background-color 0.3s' }}
+        />
+      </div>
+
+      {/* Word card */}
+      {current && (
+        <div
+          className={`card shadow-sm mb-3 border-2 ${flash === 'correct' ? 'border-success bg-success bg-opacity-10' : flash === 'wrong' ? 'border-danger bg-danger bg-opacity-10' : 'border-0'}`}
+          style={{ transition: 'background 0.2s' }}
+        >
+          <div className="card-body text-center py-4">
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              <h2 className="fw-bold text-cowdi-primary mb-0">{current.word}</h2>
+              <SpeakBtn text={current.word} />
             </div>
-            <div className="fs-5 text-muted mb-1">=</div>
-            <h4 className="fw-bold mb-0">{currentPair.meaning}</h4>
+            {flash === 'correct' && <div className="text-success fw-bold mt-2">✅ Chính xác!</div>}
+            {flash === 'wrong' && selected !== null && (
+              <div className="text-danger small mt-2">❌ Đáp án đúng: <strong>{current.meaning}</strong></div>
+            )}
+            {flash === 'wrong' && selected === null && (
+              <div className="text-danger small mt-2">⏰ Hết giờ! Đáp án: <strong>{current.meaning}</strong></div>
+            )}
           </div>
         </div>
       )}
 
-      <div className="d-flex gap-3 justify-content-center">
-        <button className="btn btn-success btn-lg flex-fill" onClick={() => handleChoice(true)} style={{ fontSize: '1.5rem' }}>
-          ✅ Đúng
-        </button>
-        <button className="btn btn-danger btn-lg flex-fill" onClick={() => handleChoice(false)} style={{ fontSize: '1.5rem' }}>
-          ❌ Sai
-        </button>
+      {/* 4 choices */}
+      <div className="row g-2">
+        {choices.map((c, i) => {
+          let variant = 'outline-secondary';
+          if (flash !== null) {
+            if (c.word === current?.word) variant = 'success';
+            else if (i === selected && flash === 'wrong') variant = 'danger';
+          }
+          return (
+            <div className="col-6" key={i}>
+              <button
+                className={`btn btn-${variant} w-100 text-start py-2 px-3`}
+                style={{ fontSize: '0.88rem', minHeight: 52, opacity: frozen ? 0.6 : 1 }}
+                onClick={() => handleChoice(i)}
+                disabled={frozen || flash !== null}
+              >
+                {c.meaning}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ router.get('/progress', requireAuth, async (req, res) => {
               quizzes_completed, perfect_quizzes, words_learned,
               completed_lessons, word_status, active_days,
               achievements, daily_tasks, daily_date,
-              srs_data, checkpoint_scores, updated_at
+              srs_data, checkpoint_scores, skill_xp, updated_at
        FROM user_progress WHERE user_id = ?`,
       [req.user.id]
     );
@@ -57,6 +57,7 @@ router.get('/progress', requireAuth, async (req, res) => {
       dailyDate:        row.daily_date,
       srsData:          parseJSON(row.srs_data, {}),
       checkpointScores: parseJSON(row.checkpoint_scores, {}),
+      skillXP:          parseJSON(row.skill_xp, { listening: 0, speaking: 0, reading: 0, writing: 0 }),
       updatedAt:        row.updated_at,
     });
   } catch (err) {
@@ -73,7 +74,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
     'activeDays','achievements','dailyTasks','dailyDate',
-    'srsData','checkpointScores'
+    'srsData','checkpointScores','skillXP'
   ];
   for (const key of Object.keys(d)) {
     if (!allowed.includes(key)) delete d[key];
@@ -96,6 +97,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     d.dailyDate        ?? null,
     JSON.stringify(d.srsData          ?? {}),
     JSON.stringify(d.checkpointScores ?? {}),
+    JSON.stringify(d.skillXP          ?? { listening: 0, speaking: 0, reading: 0, writing: 0 }),
   ];
 
   try {
@@ -104,8 +106,8 @@ router.put('/progress', requireAuth, async (req, res) => {
          (user_id, total_xp, streak, last_active_date,
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
           completed_lessons, word_status, active_days, achievements,
-          daily_tasks, daily_date, srs_data, checkpoint_scores)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          total_xp          = VALUES(total_xp),
          streak            = VALUES(streak),
@@ -121,7 +123,8 @@ router.put('/progress', requireAuth, async (req, res) => {
          daily_tasks       = VALUES(daily_tasks),
          daily_date        = VALUES(daily_date),
          srs_data          = VALUES(srs_data),
-         checkpoint_scores = VALUES(checkpoint_scores)`,
+         checkpoint_scores = VALUES(checkpoint_scores),
+         skill_xp          = VALUES(skill_xp)`,
       params
     );
     res.json({ ok: true });
@@ -573,7 +576,7 @@ router.get('/student-rankings', async (req, res) => {
               up.nickname, up.pet_data, u.display_name
        FROM user_progress up
        LEFT JOIN users u ON u.id = up.user_id
-       WHERE up.total_xp > 0`
+       WHERE up.total_xp > 0 AND up.lessons_completed > 0`
     );
     const entries = rows.map(row => {
       const pd = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;

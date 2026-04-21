@@ -326,6 +326,7 @@
 
 .calendar-day {
   aspect-ratio: 1;
+  max-height: 52px;
   border-radius: 8px;
   display: flex;
   align-items: center;

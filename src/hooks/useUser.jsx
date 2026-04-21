@@ -112,6 +112,18 @@ function compactData(data) {
   return compacted;
 }
 
+// Tính streak từ activeDays: đếm ngày liên tiếp kết thúc hôm nay
+function calculateStreak(activeDays) {
+  const set = new Set(activeDays || []);
+  let streak = 0;
+  const d = new Date();
+  while (set.has(d.toDateString())) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
 // Tính "trọng số tiến trình" để so sánh local vs remote
 function progressWeight(data) {
   return (data.totalXP || 0)
@@ -288,17 +300,15 @@ export function UserProvider({ children }) {
         final._lastModified = new Date().toISOString();
         // Re-apply streak logic after merge so server data doesn't overwrite today
         const today = new Date().toDateString();
+        if (!final.activeDays.includes(today)) final.activeDays.push(today);
         if (final.lastActiveDate !== today) {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          final.streak = final.lastActiveDate === yesterday.toDateString() ? (final.streak || 0) + 1 : 1;
           final.lastActiveDate = today;
-          if (!final.activeDays.includes(today)) final.activeDays.push(today);
           if (final.dailyDate !== today) {
             final.dailyTasks = { lessonDone: false, vocabDone: false };
             final.dailyDate = today;
           }
         }
+        final.streak = calculateStreak(final.activeDays);
         setUserData(checkAchievements(final));
         readyRef.current = true;
       })
@@ -346,13 +356,6 @@ export function UserProvider({ children }) {
   useEffect(() => {
     setUserData((prev) => {
       const today = new Date().toDateString();
-      if (prev.lastActiveDate === today) return prev;
-
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const newStreak =
-        prev.lastActiveDate === yesterday.toDateString() ? prev.streak + 1 : 1;
-
       const activeDays = [...prev.activeDays];
       if (!activeDays.includes(today)) activeDays.push(today);
 
@@ -365,7 +368,7 @@ export function UserProvider({ children }) {
 
       return checkAchievements({
         ...prev,
-        streak: newStreak,
+        streak: calculateStreak(activeDays),
         lastActiveDate: today,
         activeDays,
         dailyTasks,

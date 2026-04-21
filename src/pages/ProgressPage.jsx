@@ -84,7 +84,10 @@ export default function ProgressPage() {
       {/* Streak Calendar */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h5 className="fw-bold mb-3">🔥 Streak: {userData.streak} ngày</h5>
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <h5 className="fw-bold mb-0">📅 Lịch hoạt động</h5>
+            <span className="badge bg-danger" style={{ fontSize: '0.85rem' }}>🔥 {userData.streak} ngày streak</span>
+          </div>
           <div className="streak-calendar">
             {calendarDays.map((d, i) => (
               <div
@@ -216,7 +219,13 @@ export default function ProgressPage() {
           <div className="card-body">
             <h5 className="fw-bold mb-3">🐾 Pet đang hoạt động</h5>
             <div className="d-flex align-items-center gap-3 mb-3">
-              <div style={{ fontSize: '3rem' }}>{evo?.emoji || species.emoji}</div>
+              <div>
+                {evo?.image ? (
+                  <img src={evo.image} alt={activePet.customName} style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                ) : (
+                  <div style={{ fontSize: '3rem' }}>{evo?.emoji || species.emoji}</div>
+                )}
+              </div>
               <div>
                 <div className="fw-bold">{activePet.customName}</div>
                 <small className="text-muted">{evo?.name} • Power: {calculatePowerScore(activePet, species)}</small>
