@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { QUIZ_BANK, LESSONS } from '../data/lessons';
 import { getAllTopicWords } from '../data/vocab-topics';
+import { LISTEN_SENTENCE_TOPICS, getListenTopic } from '../data/listen-sentences';
 import { SKILL_GROUPS, QUIZ_TO_SKILL } from '../data/pets';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
@@ -25,6 +26,10 @@ const TYPE_LABELS = {
   wordBuild:      { icon: '🧱', title: 'Ghép chữ',      desc: 'Sắp xếp chữ cái thành từ đúng' },
   translateWrite: { icon: '📝', title: 'Viết câu',      desc: 'Dịch nghĩa sang câu tiếng Anh' },
   mixed:          { icon: '🎲', title: 'Tổng hợp',      desc: 'Mix tất cả các loại câu hỏi' },
+  speakWord:      { icon: '🗣️', title: 'Nói từ',        desc: 'Nhìn nghĩa tiếng Việt → nói từ tiếng Anh' },
+  speakSentence:  { icon: '💬', title: 'Nói câu',        desc: 'Nhìn câu tiếng Việt → nói câu tiếng Anh' },
+  readAloud:      { icon: '📢', title: 'Đọc to',         desc: 'Nhìn chữ tiếng Anh → đọc to phát âm chuẩn' },
+  speakFast:      { icon: '⚡', title: 'Phản xạ nói',    desc: 'Nói từ tiếng Anh trong vòng 6 giây' },
 };
 
 function shuffleArray(arr) {
@@ -112,14 +117,16 @@ function buildListenPickQuestions(count = 12) {
   });
 }
 
-/* ── Listen Sentence: hear example sentence → pick correct Vietnamese meaning ── */
-function buildListenSentenceQuestions(count = 10) {
-  const pool = getAllVocab().filter((v) => v.example);
+/* ── Listen Sentence: hear a full sentence → pick correct Vietnamese translation ── */
+function buildListenSentenceQuestions(topicId, count = 20) {
+  const topic = getListenTopic(topicId);
+  const pool = topic.sentences;
   const picked = shuffleArray(pool).slice(0, count);
-  return picked.map((v) => {
-    const distractors = pickDistractors(pool, v.word).map((w) => w.meaning);
-    const options = shuffleArray([v.meaning, ...distractors]);
-    return { sentence: v.example, word: v.word, meaning: v.meaning, options, correct: options.indexOf(v.meaning) };
+  return picked.map((s) => {
+    const others = pool.filter((x) => x.vi !== s.vi);
+    const distractors = shuffleArray(others).slice(0, 3).map((x) => x.vi);
+    const options = shuffleArray([s.vi, ...distractors]);
+    return { sentence: s.en, meaning: s.vi, options, correct: options.indexOf(s.vi) };
   });
 }
 
@@ -194,6 +201,110 @@ function buildTranslateWriteQuestions(count = 8) {
   }));
 }
 
+/* ── Speaking: build question pools ── */
+function buildSpeakWordQuestions(count = 15) {
+  return shuffleArray(getAllVocab()).slice(0, count).map((v) => ({
+    expected: v.word,
+    prompt: v.meaning,
+    phonetic: v.phonetic || '',
+    example: v.example || '',
+  }));
+}
+function buildSpeakSentenceQuestions(count = 10) {
+  const pool = LISTEN_SENTENCE_TOPICS.flatMap((t) => t.sentences);
+  return shuffleArray(pool).slice(0, count).map((s) => ({
+    expected: s.en,
+    prompt: s.vi,
+  }));
+}
+function buildReadAloudQuestions(count = 12) {
+  const words = shuffleArray(getAllVocab()).slice(0, 7).map((v) => ({
+    expected: v.word,
+    prompt: v.word,
+    meaning: v.meaning,
+    isWord: true,
+  }));
+  const sentences = shuffleArray(LISTEN_SENTENCE_TOPICS[0].sentences).slice(0, 5).map((s) => ({
+    expected: s.en,
+    prompt: s.en,
+    meaning: s.vi,
+    isWord: false,
+  }));
+  return shuffleArray([...words, ...sentences]).slice(0, count);
+}
+function buildSpeakFastQuestions(count = 15) {
+  return shuffleArray(getAllVocab()).slice(0, count).map((v) => ({
+    expected: v.word,
+    prompt: v.meaning,
+    phonetic: v.phonetic || '',
+  }));
+}
+
+/* ── Speech scoring helper ── */
+function speechScore(transcript, expected) {
+  if (!transcript) return { correct: false, ratio: 0 };
+  const normalize = (s) => s.toLowerCase().replace(/[^\w\s]/g, '').trim();
+  const t = normalize(transcript);
+  const e = normalize(expected);
+  if (!e) return { correct: false, ratio: 0 };
+  if (t === e) return { correct: true, ratio: 1 };
+  const eWords = e.split(/\s+/).filter(Boolean);
+  if (eWords.length === 1) {
+    const correct = t.split(/\s+/).some((w) => w === eWords[0]);
+    return { correct, ratio: correct ? 1 : 0 };
+  }
+  const stopSet = new Set(['a','an','the','is','are','was','were','i','to','of','in','for','on','at','by','it','its','my','me','we','he','she','they','do','did','has','have','had','and','or','but','so','that','this','with']);
+  const keyWords = eWords.filter((w) => w.length > 2 && !stopSet.has(w));
+  const tWords = t.split(/\s+/);
+  const pool = keyWords.length > 0 ? keyWords : eWords;
+  const matched = pool.filter((kw) =>
+    tWords.some((tw) => tw === kw || (kw.length > 4 && (tw.startsWith(kw.slice(0, -1)) || kw.startsWith(tw.slice(0, -1)))))
+  );
+  const ratio = pool.length > 0 ? matched.length / pool.length : 0;
+  return { correct: ratio >= 0.6, ratio };
+}
+
+/* ── SpeechRecognition custom hook ── */
+function useSpeechRec() {
+  const recRef = useRef(null);
+  const [listening, setListening] = useState(false);
+  const supported = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  useEffect(() => () => { try { recRef.current?.stop(); } catch {} }, []);
+  function listen(onResult, onEnd) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    try { recRef.current?.stop(); } catch {}
+    const rec = new SR();
+    rec.lang = 'en-US';
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.maxAlternatives = 3;
+    recRef.current = rec;
+    let hasResult = false;
+    rec.onresult = (e) => {
+      hasResult = true;
+      const best = e.results[0][0].transcript;
+      setListening(false);
+      onResult(best);
+    };
+    rec.onend = () => {
+      setListening(false);
+      if (!hasResult) onEnd?.('');
+    };
+    rec.onerror = () => {
+      setListening(false);
+      if (!hasResult) onEnd?.('');
+    };
+    setListening(true);
+    rec.start();
+  }
+  function stop() {
+    try { recRef.current?.stop(); } catch {}
+    setListening(false);
+  }
+  return { supported, listening, listen, stop };
+}
+
 export default function PracticePage() {
   const { addXP, addSkillXP, incrementQuizzes } = useUser();
   const { onQuizComplete, addCoins } = usePet();
@@ -249,6 +360,10 @@ export default function PracticePage() {
   const [dynTimer, setDynTimer] = useState(0);
   const dynTimerRef = useRef(null);
 
+  // Listen Sentence topic selection
+  const [lsTopicModal, setLsTopicModal] = useState(false);
+  const [lsTopicId, setLsTopicId] = useState(null);
+
   // Word Guess state (text input)
   const [wgQs, setWgQs] = useState([]);
   const [wgIdx, setWgIdx] = useState(0);
@@ -277,6 +392,15 @@ export default function PracticePage() {
   const [twChecked, setTwChecked] = useState(null);
   const [twScore, setTwScore] = useState(0);
 
+  // Speaking quiz state (speakWord, speakSentence, readAloud, speakFast)
+  const [spkQs, setSpkQs] = useState([]);
+  const [spkIdx, setSpkIdx] = useState(0);
+  const [spkScore, setSpkScore] = useState(0);
+  const [spkResult, setSpkResult] = useState(null); // { correct, transcript, ratio }
+  const [spkTimer, setSpkTimer] = useState(0);
+  const spkTimerRef = useRef(null);
+  const speechRec = useSpeechRec();
+
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
@@ -286,6 +410,41 @@ export default function PracticePage() {
       speechSynthesis.speak(u);
     }
   }, []);
+
+  // Auto-play sentence when listenSentence question changes
+  useEffect(() => {
+    if (quizType === 'listenSentence' && dynQs.length > 0 && dynPicked === null) {
+      const dq = dynQs[dynIdx];
+      if (dq) {
+        const t = setTimeout(() => speakWord(dq.sentence), 400);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [quizType, dynIdx, dynQs]);
+
+  // Auto-play for readAloud when question changes
+  useEffect(() => {
+    if (quizType === 'readAloud' && spkQs.length > 0) {
+      const q = spkQs[spkIdx];
+      if (q) {
+        const t = setTimeout(() => speakWord(q.expected), 500);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [quizType, spkIdx, spkQs]);
+
+  // speakFast countdown timer
+  useEffect(() => {
+    if (quizType !== 'speakFast' || !speechRec.listening || spkResult || spkTimer <= 0) return;
+    spkTimerRef.current = setTimeout(() => setSpkTimer((t) => t - 1), 1000);
+    return () => clearTimeout(spkTimerRef.current);
+  }, [spkTimer, speechRec.listening, quizType, spkResult]);
+
+  useEffect(() => {
+    if (quizType === 'speakFast' && speechRec.listening && spkTimer === 0 && !spkResult) {
+      speechRec.stop();
+    }
+  }, [spkTimer, speechRec.listening, quizType, spkResult]);
 
   /* ── Start different quiz types ── */
   function startQuiz(type) {
@@ -343,10 +502,7 @@ export default function PracticePage() {
       return;
     }
     if (type === 'listenSentence') {
-      setQuizType('listenSentence');
-      setDynQs(buildListenSentenceQuestions(10));
-      setDynIdx(0); setDynScore(0); setDynPicked(null); setDynTimer(0);
-      setFinished(false);
+      setLsTopicModal(true);
       return;
     }
     if (type === 'speedRound') {
@@ -396,6 +552,35 @@ export default function PracticePage() {
       setFinished(false);
       return;
     }
+    /* ── Speaking types (mic required) ── */
+    if (type === 'speakWord') {
+      setQuizType('speakWord');
+      setSpkQs(buildSpeakWordQuestions(15));
+      setSpkIdx(0); setSpkScore(0); setSpkResult(null); setSpkTimer(0);
+      setFinished(false);
+      return;
+    }
+    if (type === 'speakSentence') {
+      setQuizType('speakSentence');
+      setSpkQs(buildSpeakSentenceQuestions(10));
+      setSpkIdx(0); setSpkScore(0); setSpkResult(null); setSpkTimer(0);
+      setFinished(false);
+      return;
+    }
+    if (type === 'readAloud') {
+      setQuizType('readAloud');
+      setSpkQs(buildReadAloudQuestions(12));
+      setSpkIdx(0); setSpkScore(0); setSpkResult(null); setSpkTimer(0);
+      setFinished(false);
+      return;
+    }
+    if (type === 'speakFast') {
+      setQuizType('speakFast');
+      setSpkQs(buildSpeakFastQuestions(15));
+      setSpkIdx(0); setSpkScore(0); setSpkResult(null); setSpkTimer(6);
+      setFinished(false);
+      return;
+    }
     const bank = type === 'mixed'
       ? [...QUIZ_BANK.vocab, ...QUIZ_BANK.grammar, ...QUIZ_BANK.listening, ...QUIZ_BANK.sentences]
       : QUIZ_BANK[type] || [];
@@ -409,9 +594,64 @@ export default function PracticePage() {
     setTimeLeft(30);
   }
 
+  function startListenSentence(topicId) {
+    setLsTopicModal(false);
+    setLsTopicId(topicId);
+    setQuizType('listenSentence');
+    setDynQs(buildListenSentenceQuestions(topicId, 20));
+    setDynIdx(0); setDynScore(0); setDynPicked(null); setDynTimer(0);
+    setFinished(false);
+  }
+
+  function handleSpeak() {
+    const q = spkQs[spkIdx];
+    if (!q) return;
+    if (quizType === 'speakFast') setSpkTimer(6);
+    speechRec.listen(
+      (transcript) => {
+        clearTimeout(spkTimerRef.current);
+        const { correct, ratio } = speechScore(transcript, q.expected);
+        setSpkResult({ correct, transcript, ratio });
+        if (correct) { setSpkScore((s) => s + 1); play('correct'); }
+        else play('wrong');
+      },
+      () => {
+        clearTimeout(spkTimerRef.current);
+        setSpkResult((prev) => prev || { correct: false, transcript: '', ratio: 0 });
+        play('wrong');
+      }
+    );
+  }
+
+  function handleSpkNext() {
+    speechRec.stop();
+    clearTimeout(spkTimerRef.current);
+    const nextIdx = spkIdx + 1;
+    if (nextIdx < spkQs.length) {
+      setSpkIdx(nextIdx);
+      setSpkResult(null);
+      if (quizType === 'speakFast') setSpkTimer(6);
+    } else {
+      const finalScore = spkScore;
+      const total = spkQs.length;
+      const isPerfect = finalScore === total;
+      const xp = finalScore * 10 + (isPerfect ? 20 : 0);
+      addXP(xp);
+      addSkillXP('speaking', xp);
+      incrementQuizzes(isPerfect);
+      onQuizComplete(quizType, finalScore, total);
+      addCoins(finalScore * 2 + (isPerfect ? 15 : 0));
+      showToast(`+${xp} XP! 🎤`, 'success');
+      isPerfect ? play('perfect') : play('celebration');
+      setScore(finalScore);
+      setFinished(true);
+    }
+  }
+
   const NON_MCQ = ['dictation', 'matching', 'fillin', 'reorder',
     'listenPick', 'listenSentence', 'speedRound', 'contextClue',
-    'wordGuess', 'trueFalse', 'wordBuild', 'translateWrite'];
+    'wordGuess', 'trueFalse', 'wordBuild', 'translateWrite',
+    'speakWord', 'speakSentence', 'readAloud', 'speakFast'];
   /* ── MCQ Timer ── */
   useEffect(() => {
     if (quizType && !NON_MCQ.includes(quizType) && !finished && answered === null && timeLeft > 0) {
@@ -782,6 +1022,41 @@ export default function PracticePage() {
   }
 
   /* ══════════════════════════════════════════
+     LISTEN SENTENCE — TOPIC PICKER
+     ══════════════════════════════════════════ */
+  if (lsTopicModal) {
+    return (
+      <div className="fade-in text-center py-4" style={{ maxWidth: 600, margin: '0 auto' }}>
+        <button className="btn btn-outline-secondary btn-sm mb-4" onClick={() => setLsTopicModal(false)}>← Quay lại</button>
+        <div style={{ fontSize: '3rem' }} className="mb-2">🎵</div>
+        <h4 className="fw-bold mb-1">Nghe câu</h4>
+        <p className="text-muted mb-4">Nghe câu tiếng Anh và chọn nghĩa đúng. Chọn chủ đề để bắt đầu!</p>
+        <div className="row g-3 justify-content-center">
+          {LISTEN_SENTENCE_TOPICS.map((topic) => (
+            <div className="col-12 col-sm-6" key={topic.id}>
+              <div
+                className="card card-hover shadow-sm h-100"
+                style={{ cursor: 'pointer', borderLeft: `4px solid ${topic.color}` }}
+                onClick={() => { play('click'); startListenSentence(topic.id); }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && startListenSentence(topic.id)}
+              >
+                <div className="card-body py-4 text-center">
+                  <div style={{ fontSize: '2.5rem' }} className="mb-2">{topic.icon}</div>
+                  <h6 className="fw-bold mb-1">{topic.nameVi}</h6>
+                  <p className="text-muted small mb-2">{topic.name}</p>
+                  <span className="badge bg-light text-secondary">{topic.sentences.length} câu · 20 câu/lượt</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
      TYPE SELECTION — grouped by 4 skills
      ══════════════════════════════════════════ */
   if (!quizType) {
@@ -822,7 +1097,7 @@ export default function PracticePage() {
                           <h6 className="card-title fw-bold mb-1">{info.title}</h6>
                           <p className="card-text text-muted small mb-2">{info.desc}</p>
                           <span className="badge bg-light text-secondary">
-                            {type === 'dictation' ? '15 từ' : type === 'matching' ? '3 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '10 câu' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
+                            {type === 'dictation' ? '15 từ' : type === 'matching' ? '3 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '20 câu/chủ đề' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : type === 'speakWord' ? '15 từ' : type === 'speakSentence' ? '10 câu' : type === 'readAloud' ? '12 mục' : type === 'speakFast' ? '15 từ' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
                           </span>
                         </div>
                       </div>
@@ -858,6 +1133,23 @@ export default function PracticePage() {
                   </div>
                 </div>
               </div>
+              <div className="col-6 col-md-4 col-lg-3">
+                <div
+                  className="card text-center card-hover shadow-sm h-100"
+                  style={{ cursor: 'pointer', borderLeft: '4px solid #888' }}
+                  onClick={() => { play('click'); startQuiz('matching'); }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && startQuiz('matching')}
+                >
+                  <div className="card-body py-3">
+                    <div className="fs-2 mb-1">🔗</div>
+                    <h6 className="card-title fw-bold mb-1">Nối cặp</h6>
+                    <p className="card-text text-muted small mb-2">Nối từ Anh–Việt</p>
+                    <span className="badge bg-light text-secondary">3 vòng</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -870,6 +1162,7 @@ export default function PracticePage() {
      ══════════════════════════════════════════ */
   if (finished) {
     const DYN_MCQ_TYPES = ['listenPick', 'listenSentence', 'speedRound', 'contextClue'];
+    const SPK_TYPES = ['speakWord', 'speakSentence', 'readAloud', 'speakFast'];
     const total = quizType === 'dictation' ? dictQuestions.length
                 : quizType === 'matching' ? matchTotal * 6
                 : quizType === 'fillin' ? fillQuestions.length
@@ -879,6 +1172,7 @@ export default function PracticePage() {
                 : quizType === 'trueFalse' ? tfQs.length
                 : quizType === 'wordBuild' ? wbQs.length
                 : quizType === 'translateWrite' ? twQs.length
+                : SPK_TYPES.includes(quizType) ? spkQs.length
                 : questions.length;
     const finalScore = quizType === 'dictation' ? dictScore
                      : quizType === 'fillin' ? fillScore
@@ -887,6 +1181,7 @@ export default function PracticePage() {
                      : quizType === 'trueFalse' ? tfScore
                      : quizType === 'wordBuild' ? wbScore
                      : quizType === 'translateWrite' ? twScore
+                     : SPK_TYPES.includes(quizType) ? score
                      : score;
     const pct = Math.round((finalScore / total) * 100);
     const xpEarned = finalScore * 10 + (finalScore === total ? 20 : 0);
@@ -1196,9 +1491,9 @@ export default function PracticePage() {
             {/* listenSentence: hear a sentence, pick Vietnamese meaning */}
             {quizType === 'listenSentence' && (
               <>
-                <p className="text-muted mb-2">Nghe câu và chọn nghĩa đúng:</p>
-                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.sentence)}>🔊 Nghe câu</button>
-                <p className="text-muted small mb-0">Từ khóa: <strong>{dq.word}</strong></p>
+                <p className="text-muted mb-3">Nghe câu và chọn nghĩa đúng:</p>
+                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.sentence)}>🔊 Nghe lại</button>
+                <p className="text-muted small mt-2 mb-0">💡 Câu sẽ tự động phát khi chuyển câu mới</p>
               </>
             )}
             {/* speedRound: Vietnamese meaning shown, pick English word */}
@@ -1226,9 +1521,11 @@ export default function PracticePage() {
             } else {
               cls += ' btn-outline-primary';
             }
+            // listenSentence: full-width buttons since translations are long
+            const colClass = quizType === 'listenSentence' ? 'col-12' : 'col-6';
             return (
-              <div className="col-6" key={`${dynIdx}-${i}`}>
-                <button className={cls} onClick={() => handleDynAnswer(i)} disabled={dynPicked !== null}>{opt}</button>
+              <div className={colClass} key={`${dynIdx}-${i}`}>
+                <button className={cls} style={quizType === 'listenSentence' ? { textAlign: 'left', whiteSpace: 'normal' } : {}} onClick={() => handleDynAnswer(i)} disabled={dynPicked !== null}>{opt}</button>
               </div>
             );
           })}
@@ -1464,6 +1761,112 @@ export default function PracticePage() {
             </button>
           )}
         </div>
+      </div>
+    );
+  }
+
+  /* ══════════════════════════════════════════
+     SPEAKING MODES (speakWord, speakSentence, readAloud, speakFast)
+     ══════════════════════════════════════════ */
+  const SPK_TYPES_SET = new Set(['speakWord', 'speakSentence', 'readAloud', 'speakFast']);
+  if (SPK_TYPES_SET.has(quizType) && spkQs.length > 0) {
+    const q = spkQs[spkIdx];
+    const isLast = spkIdx + 1 >= spkQs.length;
+    return (
+      <div className="fade-in" style={{ maxWidth: 600, margin: '0 auto' }}>
+        {/* Header */}
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => { speechRec.stop(); clearTimeout(spkTimerRef.current); setQuizType(null); }}>✕ Thoát</button>
+          <span className="text-muted fw-bold">
+            {TYPE_LABELS[quizType]?.icon} {TYPE_LABELS[quizType]?.title} — Câu {spkIdx + 1}/{spkQs.length}
+          </span>
+          {quizType === 'speakFast' && speechRec.listening && (
+            <span className={`badge fs-6 ${spkTimer <= 2 ? 'bg-danger' : 'bg-secondary'}`}>⏱ {spkTimer}s</span>
+          )}
+          <span className="badge bg-warning text-dark fs-6">⭐ {spkScore}</span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="progress mb-4" style={{ height: 6 }}>
+          <div className="progress-bar progress-bar-cowdi" style={{ width: `${((spkIdx + 1) / spkQs.length) * 100}%` }} />
+        </div>
+
+        {!speechRec.supported && (
+          <div className="alert alert-warning text-center fw-bold">
+            ⚠️ Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.<br />
+            Hãy dùng <strong>Chrome</strong> hoặc <strong>Edge</strong> để luyện nói.
+          </div>
+        )}
+
+        {/* Prompt card */}
+        <div className="card shadow mb-4">
+          <div className="card-body text-center py-4">
+            <p className="text-muted mb-2 small fw-bold text-uppercase" style={{ letterSpacing: 1 }}>
+              {quizType === 'speakWord' && '🇻🇳 Nhìn nghĩa → 🎤 Nói từ tiếng Anh'}
+              {quizType === 'speakSentence' && '🇻🇳 Nhìn câu → 🎤 Nói câu tiếng Anh'}
+              {quizType === 'readAloud' && '🇬🇧 Nhìn chữ → 🎤 Đọc to tiếng Anh'}
+              {quizType === 'speakFast' && '🇻🇳 Nhìn nghĩa → ⚡ Nói nhanh tiếng Anh'}
+            </p>
+            <div className={`fw-bold mb-2 ${quizType === 'speakSentence' ? 'fs-5' : 'fs-2'}`} style={{ color: quizType === 'readAloud' ? '#1565C0' : '#388E3C' }}>
+              {q.prompt}
+            </div>
+            {q.phonetic && quizType !== 'readAloud' && (
+              <p className="text-muted small mb-2">{q.phonetic}</p>
+            )}
+            {q.meaning && quizType === 'readAloud' && (
+              <p className="text-muted small mb-1">Nghĩa: {q.meaning}</p>
+            )}
+            {quizType === 'readAloud' && (
+              <button className="btn btn-outline-info btn-sm mt-1" onClick={() => speakWord(q.expected)}>
+                🔊 Nghe mẫu
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Mic section */}
+        {!spkResult && speechRec.supported && (
+          <div className="text-center mb-3">
+            {speechRec.listening ? (
+              <div>
+                <div className="mb-2" style={{ fontSize: '3rem', animation: 'pulse 1s infinite' }}>🎤</div>
+                <p className="text-danger fw-bold mb-2">Đang nghe... hãy nói rõ ràng!</p>
+                <button className="btn btn-outline-secondary btn-sm" onClick={() => speechRec.stop()}>Dừng</button>
+              </div>
+            ) : (
+              <button className="btn btn-cowdi-primary btn-lg px-5" onClick={handleSpeak}>
+                🎤 Bắt đầu nói
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Result */}
+        {spkResult && (
+          <div className={`card shadow-sm mb-3 border-3 ${spkResult.correct ? 'border-success' : 'border-danger'}`}>
+            <div className="card-body text-center py-3">
+              <div className="fs-1 mb-1">{spkResult.correct ? '✅' : '❌'}</div>
+              <p className="fw-bold mb-1 fs-5">{spkResult.correct ? 'Chính xác! 🎉' : 'Chưa đúng!'}</p>
+              <p className="text-muted small mb-1">
+                Bạn đã nói: &ldquo;<em>{spkResult.transcript || '(không nhận được giọng)'}</em>&rdquo;
+              </p>
+              {!spkResult.correct && (
+                <p className="fw-bold text-success mb-1">Đáp án đúng: <span style={{ color: '#1565C0' }}>{q.expected}</span></p>
+              )}
+              <button className="btn btn-outline-info btn-sm mt-1" onClick={() => speakWord(q.expected)}>
+                🔊 Nghe phát âm chuẩn
+              </button>
+            </div>
+          </div>
+        )}
+
+        {spkResult && (
+          <div className="text-center">
+            <button className="btn btn-cowdi-primary btn-lg px-5" onClick={handleSpkNext}>
+              {isLast ? 'Xem kết quả 🎉' : 'Tiếp theo →'}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

@@ -5,6 +5,81 @@ import { usePet } from '../hooks/usePet';
 import { useUser } from '../hooks/useUser';
 import { useToast } from '../components/Toast';
 import { useSound } from '../hooks/useSound';
+import { PET_REGISTRY, getPetEvolution } from '../data/pets';
+
+const COWDI_JUNIOR_IMG = '/assets/images/pets/Cowdi/Cowdi_junior.webp';
+
+function resolvePetImg(speciesId, xp) {
+  if (!speciesId) return null;
+  const evo = getPetEvolution(speciesId, xp || 0);
+  return evo?.image || null;
+}
+
+function hpColor(hp) {
+  if (hp > 60) return '#2ecc71';
+  if (hp > 30) return '#f39c12';
+  return '#e74c3c';
+}
+
+// ── Compact Battle Arena ─────────────────────────────────────────────────────
+function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg, myPetEmoji }) {
+  return (
+    <div className="battle-arena mb-3" style={{ minHeight: 200 }}>
+      <div className="battle-ground-line"></div>
+
+      {/* Opponent HUD */}
+      <div className="battle-hud battle-hud-opponent">
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <span className="fw-bold" style={{ fontSize: '0.75rem' }}>Cowdi Jr.</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{opponentHp}/100</span>
+        </div>
+        <div className="hp-bar">
+          <div className="hp-bar-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
+        </div>
+      </div>
+
+      {/* Player HUD */}
+      <div className="battle-hud battle-hud-mine">
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <span className="fw-bold" style={{ fontSize: '0.75rem' }}>Tôi</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{playerHp}/100</span>
+        </div>
+        <div className="hp-bar">
+          <div className="hp-bar-fill" style={{ width: `${playerHp}%`, backgroundColor: hpColor(playerHp) }}></div>
+        </div>
+      </div>
+
+      {/* My Pet */}
+      <div className={`battle-pet battle-pet-mine ${
+        battleAnim === 'attack-mine' ? 'anim-attack-mine' :
+        battleAnim === 'damage-mine' ? 'anim-damage' :
+        playerHp <= 0 ? 'anim-faint' : ''
+      }`}>
+        {myPetImg ? (
+          <img src={myPetImg} alt="My pet" />
+        ) : (
+          <div className="pet-emoji-lg">{myPetEmoji || '🐮'}</div>
+        )}
+      </div>
+
+      {/* Opponent: Cowdi Junior */}
+      <div className={`battle-pet battle-pet-opponent ${
+        battleAnim === 'attack-opponent' ? 'anim-attack-opponent' :
+        battleAnim === 'damage-opponent' ? 'anim-damage' :
+        opponentHp <= 0 ? 'anim-faint' : ''
+      }`}>
+        <img src={COWDI_JUNIOR_IMG} alt="Cowdi Junior" />
+      </div>
+
+      {/* Damage popup */}
+      {damagePopup && (
+        <div className={`damage-number ${damagePopup.target === 'opponent' ? 'damage-number-opponent' : 'damage-number-mine'}`}>
+          {damagePopup.isCritical ? '💥 ' : ''}-{damagePopup.amount}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const ALL_VOCAB = [...LESSONS, ...EXAM_LESSONS].flatMap((l) => l.vocabulary || []);
 const ALL_SENTENCES = [...LESSONS, ...EXAM_LESSONS].flatMap((l) =>
@@ -58,6 +133,64 @@ const GAMES = [
 
 export default function MiniGamePage() {
   const [game, setGame] = useState(null);
+  const { petData } = usePet();
+
+  // Battle state
+  const [playerHp, setPlayerHp] = useState(100);
+  const [opponentHp, setOpponentHp] = useState(100);
+  const [battleAnim, setBattleAnim] = useState(null);
+  const [damagePopup, setDamagePopup] = useState(null);
+  const battleAnimRef = useRef(null);
+
+  const myPetInfo = useMemo(() => {
+    const pet = petData?.collection?.[petData?.activePetId];
+    if (!pet) return { emoji: '🐮', speciesId: null, xp: 0 };
+    const species = PET_REGISTRY[pet.speciesId];
+    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned || 0);
+    return {
+      emoji: evo?.emoji || species?.emoji || '🐮',
+      speciesId: pet.speciesId,
+      xp: pet.totalXpEarned || 0,
+    };
+  }, [petData]);
+
+  const myPetImg = useMemo(() => resolvePetImg(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
+
+  function resetBattle() {
+    setPlayerHp(100);
+    setOpponentHp(100);
+    setBattleAnim(null);
+    setDamagePopup(null);
+  }
+
+  function handleCorrect() {
+    clearTimeout(battleAnimRef.current);
+    setBattleAnim('attack-mine');
+    const dmg = Math.floor(Math.random() * 6) + 8; // 8-13
+    setDamagePopup({ target: 'opponent', amount: dmg, isCritical: false });
+    setOpponentHp((h) => Math.max(5, h - dmg));
+    battleAnimRef.current = setTimeout(() => {
+      setBattleAnim(null);
+      setDamagePopup(null);
+    }, 700);
+  }
+
+  function handleWrong() {
+    clearTimeout(battleAnimRef.current);
+    setBattleAnim('attack-opponent');
+    const dmg = Math.floor(Math.random() * 5) + 6; // 6-10
+    setDamagePopup({ target: 'mine', amount: dmg, isCritical: false });
+    setPlayerHp((h) => Math.max(5, h - dmg));
+    battleAnimRef.current = setTimeout(() => {
+      setBattleAnim(null);
+      setDamagePopup(null);
+    }, 700);
+  }
+
+  function startGame(id) {
+    resetBattle();
+    setGame(id);
+  }
 
   if (!game) {
     return (
@@ -70,7 +203,7 @@ export default function MiniGamePage() {
           {GAMES.map((g) => (
             <div className="col-6 col-md-4" key={g.id}>
               <div className="card text-center card-hover shadow-sm h-100" style={{ cursor: 'pointer', borderTop: `3px solid ${g.color}` }}
-                onClick={() => setGame(g.id)} role="button">
+                onClick={() => startGame(g.id)} role="button">
                 <div className="card-body py-4">
                   <div className="fs-1 mb-2">{g.icon}</div>
                   <h6 className="card-title fw-bold">{g.title}</h6>
@@ -89,18 +222,28 @@ export default function MiniGamePage() {
       <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => setGame(null)}>
         ← Quay lại
       </button>
-      {game === 'word-catch' && <WordCatchGame />}
-      {game === 'sentence-puzzle' && <SentencePuzzleGame />}
-      {game === 'memory-match' && <MemoryMatchGame />}
-      {game === 'spelling-bee' && <SpellingBeeGame />}
-      {game === 'speed-match' && <SpeedMatchGame />}
-      {game === 'word-scramble' && <WordScrambleGame />}
+
+      <MiniGameArena
+        playerHp={playerHp}
+        opponentHp={opponentHp}
+        battleAnim={battleAnim}
+        damagePopup={damagePopup}
+        myPetImg={myPetImg}
+        myPetEmoji={myPetInfo.emoji}
+      />
+
+      {game === 'word-catch' && <WordCatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {game === 'sentence-puzzle' && <SentencePuzzleGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {game === 'memory-match' && <MemoryMatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {game === 'spelling-bee' && <SpellingBeeGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {game === 'speed-match' && <SpeedMatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {game === 'word-scramble' && <WordScrambleGame onCorrect={handleCorrect} onWrong={handleWrong} />}
     </div>
   );
 }
 
 // ── Word Catch Game ──────────────────────────────────────────────────────────
-function WordCatchGame() {
+function WordCatchGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -141,6 +284,7 @@ function WordCatchGame() {
     }
     // Time out
     play('wrong');
+    onWrong?.();
     setAnswered(-1);
     setTimeout(() => nextRound(), 1200);
   }, [timeLeft, finished, answered, current]);
@@ -149,8 +293,8 @@ function WordCatchGame() {
     if (answered !== null) return;
     const correct = meaning === current.meaning;
     setAnswered(meaning);
-    if (correct) { setScore((s) => s + 1); play('correct'); }
-    else play('wrong');
+    if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
+    else { play('wrong'); onWrong?.(); }
     setTimeout(() => nextRound(), 1000);
   }
 
@@ -232,7 +376,7 @@ function WordCatchGame() {
 }
 
 // ── Sentence Puzzle Game ─────────────────────────────────────────────────────
-function SentencePuzzleGame() {
+function SentencePuzzleGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -273,8 +417,8 @@ function SentencePuzzleGame() {
     const answer = selected.map((s) => s.word).join(' ');
     const correct = answer === current.en;
     setResult(correct);
-    if (correct) { setScore((s) => s + 1); play('correct'); }
-    else play('wrong');
+    if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
+    else { play('wrong'); onWrong?.(); }
     setTimeout(() => {
       if (round + 1 >= total) {
         setFinished(true);
@@ -380,7 +524,7 @@ function SentencePuzzleGame() {
 }
 
 // ── Memory Match Game ────────────────────────────────────────────────────────
-function MemoryMatchGame() {
+function MemoryMatchGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -424,6 +568,7 @@ function MemoryMatchGame() {
       const [a, b] = newFlipped;
       if (cards[a].pairId === cards[b].pairId) {
         play('correct');
+        onCorrect?.();
         const newMatched = new Set(matched);
         newMatched.add(cards[a].pairId);
         setMatched(newMatched);
@@ -443,6 +588,7 @@ function MemoryMatchGame() {
         }
       } else {
         play('wrong');
+        onWrong?.();
         setTimeout(() => { setFlipped([]); setLockBoard(false); }, 800);
       }
     }
@@ -503,7 +649,7 @@ function MemoryMatchGame() {
 }
 
 // ── Spelling Bee Game ────────────────────────────────────────────────────────
-function SpellingBeeGame() {
+function SpellingBeeGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -553,8 +699,10 @@ function SpellingBeeGame() {
     if (isCorrect) {
       setScore((s) => s + 1);
       play('correct');
+      onCorrect?.();
     } else {
       play('wrong');
+      onWrong?.();
     }
     setTimeout(() => {
       if (round + 1 >= total) {
@@ -645,7 +793,7 @@ function SpellingBeeGame() {
 }
 
 // ── Speed Match Game ─────────────────────────────────────────────────────────
-function SpeedMatchGame() {
+function SpeedMatchGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -714,6 +862,7 @@ function SpeedMatchGame() {
       setTotal((t) => t + 1);
       setStreak(0);
       play('wrong');
+      onWrong?.();
       setTimeout(generateQuestion, 800);
       return;
     }
@@ -731,10 +880,12 @@ function SpeedMatchGame() {
       setStreak((s) => s + 1);
       setFlash('correct');
       play('correct');
+      onCorrect?.();
     } else {
       setStreak(0);
       setFlash('wrong');
       play('wrong');
+      onWrong?.();
     }
     setTimeout(generateQuestion, 800);
   }
@@ -833,7 +984,7 @@ function SpeedMatchGame() {
 }
 
 // ── Word Scramble Game ───────────────────────────────────────────────────────
-function WordScrambleGame() {
+function WordScrambleGame({ onCorrect, onWrong }) {
   const { addXP } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
@@ -879,8 +1030,8 @@ function WordScrambleGame() {
         const answer = newSelected.map((s) => s.ch).join('');
         const correct = answer.toLowerCase() === current.word.toLowerCase();
         setResult(correct);
-        if (correct) { setScore((s) => s + 1); play('correct'); }
-        else play('wrong');
+        if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
+        else { play('wrong'); onWrong?.(); }
         setTimeout(() => {
           if (round + 1 >= total) {
             setFinished(true);

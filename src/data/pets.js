@@ -740,8 +740,8 @@ export const SKILL_GROUPS = {
   },
   speaking: {
     icon: '🗣️', name: 'Nói', color: '#4CAF50',
-    types: ['vocab', 'matching', 'speedRound', 'wordGuess'],
-    desc: 'Từ vựng, phát âm và phản xạ nhanh',
+    types: ['speakWord', 'speakSentence', 'readAloud', 'speakFast'],
+    desc: 'Luyện nói, phát âm và phản xạ tiếng Anh bằng giọng nói',
   },
   reading: {
     icon: '📖', name: 'Đọc', color: '#2196F3',
@@ -773,6 +773,10 @@ export const QUIZ_TO_SKILL = {
   contextClue:    'reading',
   wordBuild:      'writing',
   translateWrite: 'writing',
+  speakWord:      'speaking',
+  speakSentence:  'speaking',
+  readAloud:      'speaking',
+  speakFast:      'speaking',
   mixed:          null, // điểm chia đều cho 4 kỹ năng
 };
 
