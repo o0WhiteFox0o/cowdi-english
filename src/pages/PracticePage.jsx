@@ -466,7 +466,7 @@ export default function PracticePage() {
       setMatchPaired([]);
       setMatchWrong(false);
       setMatchScore(0);
-      setMatchTotal(3);
+      setMatchTotal(5);
       setFinished(false);
       return;
     }
@@ -997,13 +997,14 @@ export default function PracticePage() {
               setMatchSelected({ en: null, vi: null });
             } else {
               const totalPairs = matchTotal * 6;
-              const xp = matchScore * 3 + 6 * 3; // include current round
+              const finalMatchScore = matchScore + 1; // +1 for the last pair (matchScore closure is stale)
+              const xp = finalMatchScore * 3;
               addXP(xp);
               addSkillXP('speaking', xp);
-              addCoins(Math.round(matchScore * 2));
-              onQuizComplete('matching', matchScore + 6, totalPairs);
+              addCoins(Math.round(finalMatchScore * 2));
+              onQuizComplete('matching', finalMatchScore, totalPairs);
               setFinished(true);
-              setScore(matchScore + 6);
+              setScore(finalMatchScore);
               play('celebration');
               showToast(`+${xp} XP! 🎉`, 'success');
             }
@@ -1097,7 +1098,7 @@ export default function PracticePage() {
                           <h6 className="card-title fw-bold mb-1">{info.title}</h6>
                           <p className="card-text text-muted small mb-2">{info.desc}</p>
                           <span className="badge bg-light text-secondary">
-                            {type === 'dictation' ? '15 từ' : type === 'matching' ? '3 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '20 câu/chủ đề' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : type === 'speakWord' ? '15 từ' : type === 'speakSentence' ? '10 câu' : type === 'readAloud' ? '12 mục' : type === 'speakFast' ? '15 từ' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
+                            {type === 'dictation' ? '15 từ' : type === 'matching' ? '5 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '20 câu/chủ đề' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : type === 'speakWord' ? '15 từ' : type === 'speakSentence' ? '10 câu' : type === 'readAloud' ? '12 mục' : type === 'speakFast' ? '15 từ' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
                           </span>
                         </div>
                       </div>
@@ -1146,7 +1147,7 @@ export default function PracticePage() {
                     <div className="fs-2 mb-1">🔗</div>
                     <h6 className="card-title fw-bold mb-1">Nối cặp</h6>
                     <p className="card-text text-muted small mb-2">Nối từ Anh–Việt</p>
-                    <span className="badge bg-light text-secondary">3 vòng</span>
+                    <span className="badge bg-light text-secondary">5 vòng</span>
                   </div>
                 </div>
               </div>
@@ -1293,7 +1294,7 @@ export default function PracticePage() {
                   <button
                     key={item.id}
                     className={`btn w-100 fw-bold ${isPaired ? 'btn-success disabled' : isWrongFlash ? 'btn-danger wrong-shake' : isSelected ? 'btn-cowdi-primary' : 'btn-outline-primary'}`}
-                    onClick={() => !isPaired && handleMatchSelect('en', item.id)}
+                    onClick={() => { if (!isPaired) { speakWord(item.word); handleMatchSelect('en', item.id); } }}
                     disabled={isPaired}
                   >
                     {isPaired ? '✅ ' : ''}{item.word}
