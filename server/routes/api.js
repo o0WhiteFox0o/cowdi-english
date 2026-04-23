@@ -289,7 +289,7 @@ function formatDuelRow(row) {
     opponentNick: row.opponent_nick || null,
     challengerPet: parsePetSummary(row.challenger_pet),
     opponentPet: parsePetSummary(row.opponent_pet),
-    questionCount: Array.isArray(row.quiz_data) ? row.quiz_data.length : 0,
+    questionCount: (() => { try { const q = typeof row.quiz_data === 'string' ? JSON.parse(row.quiz_data) : row.quiz_data; return Array.isArray(q) ? q.length : 0; } catch { return 0; } })(),
   };
 }
 
@@ -365,9 +365,10 @@ router.get('/duel/open', requireAuth, async (req, res) => {
     const [rows] = await pool.execute(
       `SELECT c.*,
               p1.pet_data AS challenger_pet,
-              p1.nickname AS challenger_nick
+              COALESCE(p1.nickname, u1.display_name, 'Ẩn danh') AS challenger_nick
        FROM challenges c
        LEFT JOIN user_progress p1 ON c.challenger_id = p1.user_id
+       LEFT JOIN users u1 ON c.challenger_id = u1.id
        WHERE c.status = 'pending'
          AND c.challenger_id != ?
          AND c.expires_at > NOW()
@@ -388,12 +389,14 @@ router.get('/duel', requireAuth, async (req, res) => {
     const [rows] = await pool.execute(
       `SELECT c.*,
               p1.pet_data AS challenger_pet,
-              p1.nickname AS challenger_nick,
+              COALESCE(p1.nickname, u1.display_name, 'Ẩn danh') AS challenger_nick,
               p2.pet_data AS opponent_pet,
-              p2.nickname AS opponent_nick
+              COALESCE(p2.nickname, u2.display_name, 'Ẩn danh') AS opponent_nick
        FROM challenges c
        LEFT JOIN user_progress p1 ON c.challenger_id = p1.user_id
+       LEFT JOIN users u1 ON c.challenger_id = u1.id
        LEFT JOIN user_progress p2 ON c.opponent_id = p2.user_id
+       LEFT JOIN users u2 ON c.opponent_id = u2.id
        WHERE c.challenger_id = ? OR c.opponent_id = ?
        ORDER BY c.created_at DESC
        LIMIT 50`,
@@ -413,10 +416,11 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
   try {
     const [[row]] = await pool.execute(
       `SELECT c.*,
-              p1.nickname AS challenger_nick,
+              COALESCE(p1.nickname, u1.display_name, 'Ẩn danh') AS challenger_nick,
               p1.pet_data AS challenger_pet
        FROM challenges c
        LEFT JOIN user_progress p1 ON c.challenger_id = p1.user_id
+       LEFT JOIN users u1 ON c.challenger_id = u1.id
        WHERE c.id = ?`,
       [challengeId]
     );
