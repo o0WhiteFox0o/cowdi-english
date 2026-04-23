@@ -98,24 +98,23 @@ export default function Navbar() {
         <div className="container d-flex align-items-center gap-2">
 
           {/* Brand */}
-          <NavLink className="navbar-brand fw-bold text-cowdi-primary d-flex align-items-center mb-0 me-1 flex-shrink-0" to="/">
-            <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="Cowdi" width="28" height="28" className="me-1" />
-            <span className="d-none d-sm-inline fs-6">Cowdi</span>
+          <NavLink className="navbar-brand d-flex align-items-center mb-0 me-1 flex-shrink-0" to="/">
+            <img src="/assets/images/logo/Logo_Cowdi.svg" alt="Cowdi" height="32" style={{ maxWidth: 120 }} />
           </NavLink>
 
           {/* ── Desktop nav (≥ 992 px) ── */}
           <ul className="navbar-nav flex-row d-none d-lg-flex me-auto" style={{ minWidth: 0 }}>
             <li className="nav-item">
-              <NavLink to="/" end className={({ isActive }) => `nav-link px-2 fw-semibold ${isActive ? 'active' : ''}`}>
-                🏠 Home
+              <NavLink to="/" end className={({ isActive }) => `nav-link px-2 fw-semibold d-flex align-items-center gap-1 ${isActive ? 'active' : ''}`}>
+                <img src="/assets/images/Icons/icon_home.svg" alt="" width="18" height="18" /> Home
               </NavLink>
             </li>
 
-            {/* 📚 Học tập */}
+            {/* Học tập */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(LEARN_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(LEARN_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
-                📚 Học tập
+                <img src="/assets/images/Icons/icon_learn.svg" alt="" width="18" height="18" /> Học tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/lessons">📖 Bài học</NavLink></li>
@@ -124,11 +123,11 @@ export default function Navbar() {
               </ul>
             </li>
 
-            {/* 🎓 Khóa thi */}
+            {/* Khóa thi */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(EXAM_PATHS_NAV) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(EXAM_PATHS_NAV) ? 'active' : ''}`}
                 href="#" role="button">
-                🎓 Khóa thi
+                <img src="/assets/images/Icons/icon_exam.svg" alt="" width="18" height="18" /> Khóa thi
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/learning-path">🛤️ Lộ trình chung</NavLink></li>
@@ -140,11 +139,11 @@ export default function Navbar() {
               </ul>
             </li>
 
-            {/* ✏️ Luyện tập */}
+            {/* Luyện tập */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
-                ✏️ Luyện tập
+                <img src="/assets/images/Icons/icon_lesson.svg" alt="" width="18" height="18" /> Luyện tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/practice">🎯 Bài tập</NavLink></li>
@@ -157,9 +156,9 @@ export default function Navbar() {
             <li className="nav-item dropdown">
               <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PET_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
-                {evo?.image
-                  ? <img src={evo.image} alt="" width="20" height="20" style={{ objectFit: 'contain' }} />
-                  : <span>{petEmoji}</span>} Pet
+                <img
+                  src={evo?.image || '/assets/images/logo/MiniLogoCowdi.svg'}
+                  alt="" width="20" height="20" style={{ objectFit: 'contain' }} /> Pet
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/pet">🐮 Pet của tôi</NavLink></li>
@@ -242,22 +241,22 @@ export default function Navbar() {
         {/* Tab buttons */}
         <NavLink to="/" end className={({ isActive }) => `bottom-tab ${isActive ? 'active' : ''}`}
           onClick={() => setOpenTab(null)}>
-          <span className="bottom-tab-icon">🏠</span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_home.svg" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Home</span>
         </NavLink>
         <button type="button" className={`bottom-tab ${isIn(LEARN_PATHS) || isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
           onClick={() => handleTabTap('learn', '/lessons')}>
-          <span className="bottom-tab-icon">📚</span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_learn.svg" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Học</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(EXAM_PATHS_NAV) ? 'active' : ''} ${openTab === 'exam' ? 'open' : ''}`}
           onClick={() => handleTabTap('exam', '/learning-path')}>
-          <span className="bottom-tab-icon">🎓</span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_exam.svg" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Thi</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(PET_PATHS) ? 'active' : ''} ${openTab === 'pet' ? 'open' : ''}`}
           onClick={() => handleTabTap('pet', '/pet')}>
-          <span className="bottom-tab-icon">{petEmoji}</span>
+          <span className="bottom-tab-icon"><img src={evo?.image || '/assets/images/logo/MiniLogoCowdi.svg'} alt="" width="22" height="22" style={{ objectFit: 'contain' }} /></span>
           <span className="bottom-tab-label">Pet</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(ME_PATHS) ? 'active' : ''} ${openTab === 'me' ? 'open' : ''}`}

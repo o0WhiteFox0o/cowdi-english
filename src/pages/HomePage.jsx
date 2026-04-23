@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
+import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution, getPetMood, SKILL_META } from '../data/pets';
@@ -16,6 +17,7 @@ const QUICK_ACTIONS = [
 
 export default function HomePage() {
   const { userData } = useUser();
+  const { user, loginWithGoogle } = useAuth();
   const { petData, getActivePetWithDecay } = usePet();
   const level = getUserLevel(userData.totalXP);
   const activePet = getActivePetWithDecay();
@@ -34,6 +36,22 @@ export default function HomePage() {
 
   return (
     <div className="fade-in">
+
+      {/* ═══════════════════════════════════════
+          GUEST LOGIN BANNER
+      ═══════════════════════════════════════ */}
+      {!user && (
+        <div className="alert d-flex align-items-center gap-3 mb-4 shadow-sm" style={{ background: '#fff', border: '2px solid #e8d5f5', borderRadius: 16, padding: '14px 18px' }}>
+          <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="" width="40" height="40" style={{ flexShrink: 0 }} />
+          <div className="flex-grow-1">
+            <div className="fw-bold mb-1" style={{ color: '#6C3FC7' }}>Đăng nhập để lưu tiến trình!</div>
+            <div className="text-muted small">Đăng nhập bằng tài khoản Google để lưu XP, streak và pet của bạn trên mọi thiết bị.</div>
+          </div>
+          <button className="btn btn-cowdi-primary btn-sm d-flex align-items-center gap-2 flex-shrink-0" onClick={loginWithGoogle}>
+            <i className="fab fa-google"></i> Đăng nhập
+          </button>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════
           HERO BANNER
@@ -63,7 +81,7 @@ export default function HomePage() {
           {evo?.image ? (
             <img src={evo.image} alt={petName} className="home-hero-pet-img" />
           ) : (
-            <div className="home-hero-pet-emoji">{petEmoji}</div>
+            <img src="/assets/images/logo/MiniLogoCowdi.svg" alt={petName} className="home-hero-pet-img" />
           )}
           <div className="home-hero-pet-badge">{evo?.name || 'Starter'}</div>
         </Link>
