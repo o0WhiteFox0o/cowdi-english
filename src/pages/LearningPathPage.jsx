@@ -4,7 +4,7 @@ import { LESSONS, UNITS, QUIZ_BANK } from '../data/lessons';
 import { EXAM_LESSONS, EXAM_PATHS } from '../data/exam-paths';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/layout/Toast';
 
 const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 
@@ -409,3 +409,4 @@ export default function LearningPathPage() {
     </div>
   );
 }
+

@@ -3,7 +3,7 @@ import { LESSONS } from '../data/lessons';
 import { VOCAB_TOPICS, getTopicWordCount } from '../data/vocab-topics';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/layout/Toast';
 import { useSound } from '../hooks/useSound';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
@@ -377,4 +377,5 @@ export default function VocabularyPage() {
     </div>
   );
 }
+
 

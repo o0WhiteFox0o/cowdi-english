@@ -13,13 +13,13 @@
 | Bài học | 21 bài (210+ từ vựng) |
 | Từ vựng Mind Map | 13 chủ đề, 42 chủ đề con, 702 từ |
 | Tổng từ vựng | ~912 từ (bài học + mind map) |
-| Unit (Lộ trình) | 5 unit, checkpoint test |
-| Ngân hàng câu hỏi | ~500 câu (vocab, grammar, listening, sentences) |
+| Unit (Lộ trình) | 7 unit, checkpoint test |
+| Ngân hàng câu hỏi | ~1300+ câu (vocab, grammar, listening, sentences) |
 | 4 Kỹ năng ngôn ngữ | Nghe, Nói, Đọc, Viết — tính điểm riêng cho pet & người học |
-| Dạng bài tập | 9 loại nhóm theo 4 kỹ năng (MCQ, dictation, matching, fill-in, reorder, mixed...) |
+| Dạng bài tập | 9 loại nhóm theo 4 kỹ năng |
 | Pet | 15 con, 5 giai đoạn tiến hóa, 4 kỹ năng ngôn ngữ, 4 nhu cầu |
 | Shop | 26 items (hats, outfits, rooms, effects, food) |
-| Mini-games | 2 (Bắt từ, Ghép câu) |
+| Mini-games | 7 (Bắt từ, Ghép câu, Lật thẻ, Spelling Bee, Tốc độ, Xáo chữ, TyperShark 🦈) |
 | Thành tích | 18 (10 user + 8 pet) |
 | Level | 8 cấp (0 → 2500 XP) |
 | Trang | 17 trang |
@@ -27,228 +27,73 @@
 
 ---
 
-## Tính năng
+## Tính năng chính
 
-### 📖 Học tập
 | Tính năng | Mô tả |
 |---|---|
-| 📖 **21 Bài học** | Từ cơ bản đến nâng cao: chào hỏi, gia đình, màu sắc, số đếm, thói quen, đồ ăn, du lịch, thì, trường học, thời tiết, nghề nghiệp, cơ thể, quần áo, nhà cửa, cảm xúc, sở thích, thiên nhiên, công nghệ, mua sắm, sức khỏe, so sánh |
-| 🗺️ **Mind Map từ vựng** | 13 chủ đề × 42 chủ đề con × 702 từ — duyệt theo sơ đồ tư duy 3 cấp, flashcard & list view |
-| 🃏 **Flashcard 3D** | Lật thẻ 3D, nút phát âm (Web Speech API normal + slow) |
-| 🎯 **4 Kỹ năng × 9 dạng bài** | Nghe (listening, dictation) · Nói (vocab, matching) · Đọc (grammar, fill-in) · Viết (sentences, reorder) + Mixed |
-| 🧠 **SRS (Spaced Repetition)** | Thuật toán SM-2: ôn tập thông minh theo chu kỳ 1→3→7→14 ngày |
-| 🗺️ **Learning Path** | 5 unit lộ trình, checkpoint test (≥70% mới mở unit tiếp) |
-| 📊 **Skill XP** | Người học tích lũy XP riêng cho từng kỹ năng (Nghe/Nói/Đọc/Viết) — hiển thị trên Home & Progress |
-
-### 🐾 Hệ thống Pet (Tamagotchi)
-| Tính năng | Mô tả |
-|---|---|
-| 🐮 **15 Pet** | Cowdi, Foxie, Pingu, Leafy, Sparky, Mimi, Owlbert, Flippy, Leo, Bamboo, Storm, Shadow, Prisma, Draco, Pumpkin |
-| ⚡ **Tiến hóa 5 giai đoạn** | Trứng → Baby → Junior → Super → Legendary (theo XP) |
-| 🖼️ **Hình ảnh WebP** | Cowdi (4 ảnh) + Foxie (5 ảnh) — hiển thị trên Pet, Home, Navbar |
-| 📊 **4 Kỹ năng ngôn ngữ** | 👂 Nghe, 🗣️ Nói, 📖 Đọc, ✍️ Viết — tăng qua quiz theo mapping kỹ năng |
-| 💗 **4 Nhu cầu** | Năng lượng, Vui vẻ, Sức khỏe, Kiến thức (decay theo thời gian) |
-| 🛍️ **Shop 26 items** | Hats, Outfits, Rooms, Effects, Food — trang trí & chăm sóc pet |
-| 📦 **Bộ sưu tập** | Grid 15 pet với điều kiện mở khóa |
-
-### ⚔️ Social Features
-| Tính năng | Mô tả |
-|---|---|
-| ⚔️ **Pet Duel Quiz** | Thách đấu async — tạo 10 câu quiz, đối thủ chấp nhận, server chấm điểm chống gian lận |
-| 🏅 **League System** | 5 hạng: Đồng → Bạc → Vàng → Kim cương → Cao thủ (League Points) |
-| 📊 **Xếp hạng học tập** | Bảng xếp hạng theo 6 tiêu chí: XP, Streak, Bài học, Từ vựng, Quiz, Thành tích |
-| 🏆 **Bảng xếp hạng Pet** | 4 tab: Sức mạnh, Kỹ năng, Bộ sưu tập, Giải đấu (League) |
-| 💰 **Win/Loss record** | Thống kê thắng/thua/streak, lịch sử đấu |
-
-### 🎮 Gamification
-| Tính năng | Mô tả |
-|---|---|
-| ⭐ **XP & 8 Levels** | Từ "Người mới bắt đầu" đến "Huyền thoại Cowdi" |
-| 🔥 **Streak** | Chuỗi ngày học + lịch 28 ngày |
-| 🏅 **18 Thành tích** | 10 user + 8 pet — tự động check |
-| 📋 **Daily Quests** | 3 nhiệm vụ/ngày + bonus hoàn thành tất cả |
-| 🎮 **2 Mini-games** | Word Catch (bắt từ) + Sentence Puzzle (ghép câu) |
-| 🪙 **Coins Economy** | Nhiều nguồn thu — dùng mua shop items |
-
-### 🔐 Hệ thống
-| Tính năng | Mô tả |
-|---|---|
-| 🔐 **Google OAuth + JWT** | Đăng nhập Google, cloud sync dữ liệu |
-| 💾 **Sync** | localStorage + debounced PUT lên server (3s) |
-| 🔊 **Sound Effects** | Web Audio API (correct/wrong/celebration) |
-| 🗣️ **TTS** | Web Speech API (normal + slow speed) |
-| 🎉 **Confetti** | Animation khi hoàn thành quiz |
-| 📱 **Responsive** | Bootstrap 5 + custom CSS |
+| 📚 **Bài học** | 21 bài chia theo level (beginner/intermediate/advanced) + exam paths (IELTS/TOEIC/B1/B2) |
+| 🎯 **Quiz** | MCQ, fill-in, matching, reorder, dictation — 1300+ câu hỏi |
+| 🎧 **Luyện nghe** | TTS Web Speech API, nghe chuẩn tốc độ thường và chậm |
+| 🗣️ **Luyện nói** | Web Speech Recognition, chấm điểm phát âm realtime |
+| 🧠 **Ôn tập SRS** | Spaced repetition (SM-2) review thông minh |
+| 🐮 **Pet system** | Nuôi pet, tiến hóa 5 giai đoạn, 4 skill language |
+| ⚔️ **Duel** | Thách đấu quiz 1v1 theo league (Bronze → Master) |
+| 🎮 **Mini-games** | 7 game luyện từ vựng tương tác |
+| 🦈 **TyperShark** | Typing game — gõ tiêu diệt cá mập, 4 cấp độ tốc độ |
+| 🏆 **Leaderboard** | Xếp hạng theo XP, streak, pet power |
+| 🗺️ **Learning Path** | 7 Unit lộ trình học + checkpoint test |
 
 ---
 
-## Công nghệ
-
-### Frontend
-- **React 18** + React Router v6
-- **Vite 5** — build tool (dev + prod configs)
-- **Bootstrap 5.3** (CDN) — UI framework
-- **Font Awesome 6** — icons
-- **Web Speech API** — TTS phát âm tiếng Anh
-
-### Backend (`server/`)
-- **Node.js 22** + **Express 4** — REST API (14 endpoints)
-- **Passport.js** (`google-oauth20`) — Google OAuth 2.0
-- **JWT** (7 ngày) — xác thực stateless
-- **MySQL2/promise** — kết nối MySQL/MariaDB với `utf8mb4`
-
----
-
-## Cấu trúc thư mục
+## Cấu trúc dự án
 
 ```
-cowdi-english/
-├── src/                          # Frontend React
-│   ├── components/
-│   │   ├── Navbar.jsx            # Thanh điều hướng (13 links + auth)
-│   │   ├── CowdiChat.jsx         # Floating chat mascot
-│   │   └── Toast.jsx             # Hệ thống thông báo toast
-│   ├── pages/                    # 17 trang
-│   │   ├── HomePage.jsx          # Trang chủ
-│   │   ├── LessonsPage.jsx       # Danh sách 21 bài học
-│   │   ├── LessonDetailPage.jsx  # Chi tiết bài + quiz + flashcard
-│   │   ├── VocabularyPage.jsx    # Mind Map từ vựng 3 cấp (chủ đề → chủ đề con → từ)
-│   │   ├── PracticePage.jsx      # 9 dạng bài tập nhóm theo 4 kỹ năng Nghe/Nói/Đọc/Viết
-│   │   ├── ReviewPage.jsx        # Ôn tập SRS (SM-2)
-│   │   ├── LearningPathPage.jsx  # Lộ trình 5 unit + checkpoint
-│   │   ├── ProgressPage.jsx      # Tiến trình + thành tích
-│   │   ├── PetPage.jsx           # Chăm sóc pet + daily quests
-│   │   ├── CollectionPage.jsx    # Bộ sưu tập 15 pet
-│   │   ├── ShopPage.jsx          # Shop 26 items
-│   │   ├── DuelPage.jsx          # ⚔️ Đấu trường Pet Duel
-│   │   ├── LeaderboardPage.jsx   # 🏆 Bảng xếp hạng pet (4 tab)
-│   │   ├── StudentRankingPage.jsx # 📊 Xếp hạng học tập (6 tiêu chí)
-│   │   ├── MiniGamePage.jsx      # 2 mini-games
-│   │   ├── AccountPage.jsx       # Tài khoản + settings
-│   │   └── AuthCallbackPage.jsx  # OAuth callback
-│   ├── hooks/
-│   │   ├── useAuth.jsx           # JWT context: login/logout/authFetch
-│   │   ├── useUser.jsx           # XP, streak, SRS, checkpoint (localStorage + sync)
-│   │   └── usePet.jsx            # Pet system: collection, skills, needs, coins
-│   ├── data/
-│   │   ├── lessons.js            # 21 bài, 500 quiz, units, achievements, levels
-│   │   ├── pets.js               # 15 pet, 26 shop items, quests, 4 skill groups, power score
-│   │   ├── vocab-topics.js       # 13 chủ đề, 42 chủ đề con, 702 từ — mind map
-│   │   └── quiz-bank-extra.js    # ~445 câu hỏi bổ sung
-│   └── styles/
-│       ├── styles.css            # Biến màu Cowdi + Bootstrap override
-│       ├── components.css        # Flashcard 3D, floating chat, streak calendar
-│       ├── pages.css             # Learning path, practice page styles
-│       └── pet.css               # Pet display, evolution, cosmetics
-├── server/                       # Backend Express
-│   ├── index.js                  # Entry point
-│   ├── config/
-│   │   ├── database.js           # MySQL2 pool (utf8mb4)
-│   │   └── passport.js           # Google OAuth strategy
-│   ├── middleware/
-│   │   └── auth.js               # JWT verify middleware
-│   ├── routes/
-│   │   ├── auth.js               # /auth/google, /auth/google/callback
-│   │   └── api.js                # 14 API endpoints (CRUD + social)
-│   └── db/
-│       ├── schema.sql            # DDL: users + user_progress
-│       ├── migrate-pet.sql       # Thêm pet_data + nickname
-│       └── migrate-social.sql    # Thêm challenges table + league columns
-├── dist-prod/                    # Build output (deploy lên server)
-├── SETUP.md                      # Hướng dẫn cài đặt chi tiết
-├── GAME-DESIGN.md                # Game design document
-├── VOCABULARY.md                 # Tài liệu 13 chủ đề từ vựng mind map
-├── PET-IMAGE-GUIDE.md            # Hướng dẫn thêm hình ảnh pet
-├── REPORT.md                     # Báo cáo phân tích & roadmap
-└── vite.config.prod.js           # Vite production config
+src/
+├── components/
+│   └── layout/              # Navbar, CowdiChat, Toast
+│
+├── data/
+│   ├── config/              # levels.js, units.js, achievements.js, messages.js
+│   ├── lessons/             # Nội dung bài học
+│   ├── exam/                # IELTS, TOEIC, B1, B2 content
+│   ├── quiz/                # quiz-bank-extra, sentences-quiz, duel-quiz-pool
+│   ├── pets.js
+│   └── vocab-topics.js
+│
+├── features/                # Feature-based modules
+│   ├── practice/            # PracticePage + hooks (listening/speaking/reading/writing)
+│   ├── lesson/              # LessonDetailPage + hooks
+│   ├── mini-games/          # MiniGamePage + TyperShark + các game khác
+│   ├── duel/                # DuelPage
+│   ├── pet/                 # PetPage, CollectionPage, ShopPage
+│   └── review/              # ReviewPage
+│
+├── hooks/                   # useUser, usePet, useAuth, useSound
+│
+├── pages/                   # Thin re-exports + simple pages
+│
+└── styles/                  # CSS modules
 ```
 
----
+### Nguyên tắc tổ chức
 
-## API Endpoints
-
-| Method | Endpoint | Auth | Mô tả |
-|---|---|---|---|
-| GET | `/api/me` | ✅ | Thông tin user hiện tại |
-| GET | `/api/progress` | ✅ | Lấy tiến trình học |
-| PUT | `/api/progress` | ✅ | Lưu tiến trình học |
-| GET | `/api/pet-data` | ✅ | Lấy dữ liệu pet |
-| PUT | `/api/pet-data` | ✅ | Lưu dữ liệu pet |
-| GET | `/api/leaderboard` | ❌ | Bảng xếp hạng pet (power/skill/collection) |
-| GET | `/api/rankings` | ❌ | Xếp hạng giải đấu (League Points) |
-| GET | `/api/student-rankings` | ❌ | Xếp hạng học tập (6 tiêu chí) |
-| GET | `/api/my-stats` | ✅ | Thống kê đấu trường (LP/W/L/streak) |
-| POST | `/api/duel` | ✅ | Tạo thách đấu mới |
-| GET | `/api/duel/open` | ✅ | Danh sách thách đấu đang chờ |
-| GET | `/api/duel` | ✅ | Lịch sử thách đấu của tôi |
-| GET | `/api/duel/:id` | ✅ | Chi tiết thách đấu (câu hỏi) |
-| POST | `/api/duel/:id/join` | ✅ | Chấp nhận + nộp bài thách đấu |
+- **`features/`** — mỗi tính năng lớn là một thư mục riêng, tự đủ (component + hook + logic)
+- **`data/config/`** — constants tách biệt: levels, units, achievements, messages
+- **`data/quiz/`** — tất cả quiz data tập trung một chỗ
+- **`pages/`** — chỉ là thin re-exports từ `features/` hoặc simple page
+- **`components/layout/`** — shared UI (Navbar, Chat, Toast)
 
 ---
 
-## Bài học (21 bài)
-
-| Unit | Bài học | Cấp độ |
-|---|---|---|
-| **Unit 1: Cơ bản 1** | Chào hỏi, Gia đình, Màu sắc, Số đếm | 🌱 Beginner |
-| **Unit 2: Cơ bản 2** | Thói quen, Đồ ăn, Du lịch, Thì | 🌱 Beginner |
-| **Unit 3: Trung cấp 1** | Trường học, Thời tiết, Nghề nghiệp, Cơ thể | 🌿 Intermediate |
-| **Unit 4: Trung cấp 2** | Quần áo, Nhà cửa, Cảm xúc, Sở thích | 🌿 Intermediate |
-| **Unit 5: Nâng cao** | Thiên nhiên, Công nghệ, Mua sắm, Sức khỏe, So sánh | 🌳 Advanced |
-
----
-
-## Từ vựng Mind Map (702 từ)
-
-| Chủ đề | Chủ đề con | Từ |
-|---|---|---|
-| 🧑 Con người | Cơ thể, Tính cách, Ngoại hình, Cảm xúc, Gia đình | 62 |
-| 🍽️ Ăn uống | Thức ăn, Đồ uống, Nấu nướng, Nhà hàng | 55 |
-| 🏠 Nhà cửa | Phòng, Đồ nội thất, Thiết bị, Vườn | 52 |
-| 🚗 Giao thông | Phương tiện, Đường phố, Chỉ đường, Du lịch | 54 |
-| ❤️ Tình yêu | Tình cảm, Hẹn hò, Đám cưới | 40 |
-| 🔢 Số đếm | Số cơ bản, Số thứ tự, Phân số, Đo lường | 56 |
-| ⚽ Thể thao | Bóng đá, Bơi lội, Thể dục, Điền kinh | 50 |
-| 🎄 Lễ hội | Giáng sinh, Tết, Halloween, Sinh nhật | 52 |
-| 🐾 Động vật | Thú nuôi, Hoang dã, Côn trùng, Biển | 68 |
-| 🌿 Thiên nhiên | Cây cối, Thời tiết, Địa lý, Vũ trụ | 60 |
-| 🏛️ Địa điểm | Trường học, Bệnh viện, Siêu thị, Công viên | 56 |
-| 🌍 Quốc gia | Châu Á, Châu Âu, Châu Mỹ | 52 |
-| 🧠 Tổng hợp | (từ nâng cao trải đều) | 45 |
-
----
-
-## 4 Kỹ năng ngôn ngữ
-
-Toàn bộ hệ thống bài tập & tính điểm xoay quanh **4 kỹ năng** chuẩn ngôn ngữ:
-
-| Kỹ năng | Icon | Dạng bài | Mô tả |
-|---|---|---|---|
-| **Nghe** | 👂 | Listening, Dictation | Nghe hiểu & chép chính tả |
-| **Nói** | 🗣️ | Vocabulary, Matching | Từ vựng, phát âm, nối cặp |
-| **Đọc** | 📖 | Grammar, Fill-in | Ngữ pháp & điền từ vào câu |
-| **Viết** | ✍️ | Sentences, Reorder | Hoàn thành câu & sắp xếp từ |
-
-- **Người học**: Tích lũy **Skill XP** riêng cho từng kỹ năng, hiển thị progress bar trên Home & Progress.
-- **Pet**: Tăng **Skill Points** (Lv.1–10) theo kỹ năng tương ứng khi làm quiz. Power Score = tổng skills × evolution × rarity.
-
----
-
-## Cài đặt nhanh
-
-> Xem [SETUP.md](SETUP.md) để biết hướng dẫn chi tiết bao gồm tạo database và cấu hình Google OAuth.
-
-### Yêu cầu
-- Node.js 18+
-- MySQL / MariaDB
-- Google Cloud Console project với OAuth 2.0 credentials
+## Cài đặt & chạy
 
 ### Frontend
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
-npm run build:prod   # Build production → dist-prod/
+npm run dev          # localhost:5173
+npm run build        # build → dist/
+npm run build:prod   # build → dist-prod/
 ```
 
 ### Backend
@@ -256,67 +101,79 @@ npm run build:prod   # Build production → dist-prod/
 ```bash
 cd server
 npm install
-
 # Tạo server/.env (xem mẫu bên dưới)
-# Khởi tạo database:
-mysql -u root -p cowdi_english < db/schema.sql
-mysql -u root -p cowdi_english < db/migrate-pet.sql
-mysql -u root -p cowdi_english < db/migrate-social.sql
-
-# Khởi động:
-node --env-file=".env" index.js
+node index.js        # localhost:3001
 ```
+
+### Yêu cầu
+
+- Node.js >= 18
+- MySQL 8+
+- Google OAuth Client ID/Secret (xem [SETUP.md](SETUP.md))
 
 ---
 
-## Biến môi trường
-
-### `server/.env`
+## Biến môi trường (`server/.env`)
 
 ```env
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=
+DB_PASSWORD=your_password
 DB_NAME=cowdi_english
 
-GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=<your-client-secret>
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
 GOOGLE_CALLBACK_URL=http://localhost:3001/auth/google/callback
 
-JWT_SECRET=<random-64-char-string>
-SESSION_SECRET=<random-64-char-string>
+JWT_SECRET=random_secret_string
+SESSION_SECRET=random_secret_string
 
 FRONTEND_URL=http://localhost:5173
 PORT=3001
 ```
 
-### `.env` (root — Vite)
+---
 
-```env
-VITE_API_URL=http://localhost:3001
+## Thêm bài học mới
+
+```js
+// src/data/lessons/beginner/my-lesson.js
+export default {
+  id: 'my-lesson',
+  title: 'Tên bài học',
+  level: 'beginner',
+  icon: '📘',
+  vocabulary: [ /* ... */ ],
+  grammar:    [ /* ... */ ],
+  quiz:       [ /* ... */ ],
+};
 ```
 
----
+## Thêm mini-game mới
 
-## Màu sắc chủ đề
+```
+src/features/mini-games/
+└── MyGame/
+    ├── MyGame.jsx        # Component game
+    └── useMyGame.js      # Game logic hook (optional)
+```
 
-| Tên | Màu | Mã hex |
-|---|---|---|
-| Primary (Cowdi Pink) | 🩷 | `#FF6B9D` |
-| Primary Dark | 💗 | `#E0527E` |
-| Secondary (Teal) | 🩵 | `#4ECDC4` |
-| Background | 🟡 | `#FFF8F0` |
-
----
-
-## Deploy (aaPanel)
-
-1. Upload `dist-prod/` lên server (Nginx SPA)
-2. Chạy backend: `node --env-file=".env" index.js` (PM2 recommended)
-3. Chạy migrations: `mysql -u root -p cowdi_english < db/migrate-social.sql`
-4. Domain: cowdi.net
+Đăng ký vào `GAMES` array và thêm `{game === 'my-game' && <MyGame />}` trong `MiniGamePage.jsx`.
 
 ---
 
-> Được tạo với ❤️ bởi **Cowdi Team**
+## Tài liệu thêm
+
+| File | Nội dung |
+|---|---|
+| [SETUP.md](SETUP.md) | Hướng dẫn cài đặt chi tiết |
+| [GAME-DESIGN.md](GAME-DESIGN.md) | Thiết kế hệ thống game, XP, pet |
+| [DUEL-BATTLE-DESIGN.md](DUEL-BATTLE-DESIGN.md) | Thiết kế hệ thống đấu |
+| [VOCABULARY.md](VOCABULARY.md) | Danh sách từ vựng |
+| [PET-IMAGE-GUIDE.md](PET-IMAGE-GUIDE.md) | Hướng dẫn thêm ảnh pet |
+| [REPORT.md](REPORT.md) | Báo cáo tiến độ phát triển |
+
+---
+
+> Được tạo với ❤️ bởi **Hong Son Studio Team**

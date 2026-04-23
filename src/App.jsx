@@ -1,7 +1,7 @@
 ﻿import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import CowdiChat from './components/CowdiChat';
-import { ToastProvider } from './components/Toast';
+import Navbar from './components/layout/Navbar';
+import CowdiChat from './components/layout/CowdiChat';
+import { ToastProvider } from './components/layout/Toast';
 import { SoundProvider } from './hooks/useSound';
 import HomePage from './pages/HomePage';
 import LessonsPage from './pages/LessonsPage';
