@@ -757,12 +757,12 @@ export const SKILL_GROUPS = {
 
 // ── Helper: Quiz category → Pet skill ────────────────────────────────────────
 export const QUIZ_TO_SKILL = {
-  vocab:          'speaking',
+  vocab:          'reading',
   grammar:        'reading',
   listening:      'listening',
   sentences:      'writing',
   dictation:      'listening',
-  matching:       'speaking',
+  matching:       'reading',
   fillin:         'reading',
   reorder:        'writing',
   listenPick:     'listening',
