@@ -67,6 +67,32 @@ function timeAgo(dateStr) {
   return `${Math.floor(hrs / 24)} ngày trước`;
 }
 
+// ── Category info ────────────────────────────────────────────
+const CATEGORY_INFO = {
+  all:        { label: 'Hỗn hợp',    icon: '🎲' },
+  vocabulary: { label: 'Từ vựng',    icon: '📚' },
+  grammar:    { label: 'Ngữ pháp',   icon: '🔤' },
+  sentences:  { label: 'Câu',        icon: '✍️' },
+  listening:  { label: 'Nghe',       icon: '🎧' },
+};
+const CATEGORY_KEYS = ['all', 'vocabulary', 'grammar', 'sentences', 'listening'];
+const QUESTION_COUNT_OPTIONS = [10, 20, 30];
+const MESSAGE_MAX = 280;
+
+// ── Web Speech TTS helper (dùng cho câu nghe) ────────────────
+function speakText(text, rate = 0.9) {
+  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text));
+    u.lang = 'en-US';
+    u.rate = rate;
+    window.speechSynthesis.speak(u);
+  } catch {
+    /* silent */
+  }
+}
+
 // ── Generate duel quiz from quiz bank + lesson quizzes ──────
 // generateDuelQuiz is now imported from ../data/duel-quiz-pool
 
@@ -75,8 +101,13 @@ export default function DuelPage() {
   const { petData, addCoins } = usePet();
   const { addXP } = useUser();
 
-  // Mode: lobby | creating | playing | result
+  // Mode: lobby | setup | creating | playing | result
   const [mode, setMode] = useState('lobby');
+
+  // Setup state (pre-create)
+  const [setupCount, setSetupCount] = useState(10);
+  const [setupCategory, setSetupCategory] = useState('all');
+  const [setupMessage, setSetupMessage] = useState('');
 
   // Lobby data
   const [openDuels, setOpenDuels] = useState([]);
@@ -104,7 +135,10 @@ export default function DuelPage() {
   const [comboCount, setComboCount] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [opponentPet, setOpponentPet] = useState(null); // { speciesId, xp, name, emoji, image, element }
-  const [challengerResults, setChallengerResults] = useState([]); // [{correct: bool}] per question
+  const [challengerResults, setChallengerResults] = useState([]); // [{correct: bool, time}] per question
+  const [questionTimes, setQuestionTimes] = useState([]); // seconds per question (my side)
+  const [duelCategory, setDuelCategory] = useState('all'); // category of current active duel
+  const [duelMessage, setDuelMessage] = useState(null); // challenger's message
   const battleAnimTimeoutRef = useRef(null);
 
   // Result state
@@ -142,16 +176,49 @@ export default function DuelPage() {
     return () => clearInterval(timerRef.current);
   }, [mode, quizStartTime]);
 
-  // ── Start creating a new duel ───────────────────────────────
+  // Auto-play TTS for listening questions khi sang câu mới
+  useEffect(() => {
+    if (mode !== 'creating' && mode !== 'playing') return;
+    const q = questions[currentQ];
+    if (q && q.category === 'listening' && q.speak) {
+      // Delay nhẹ cho UI mount xong
+      const t = setTimeout(() => speakText(q.speak, 0.9), 200);
+      return () => clearTimeout(t);
+    }
+  }, [mode, currentQ, questions]);
+
+  // Dừng TTS khi rời battle mode
+  useEffect(() => {
+    if (mode !== 'creating' && mode !== 'playing') {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+  }, [mode]);
+
+  // ── Open setup screen to configure a new duel ──────────────
+  function openSetup() {
+    play('click');
+    setSetupCount(10);
+    setSetupCategory('all');
+    setSetupMessage('');
+    setMode('setup');
+  }
+
+  // ── Start creating a new duel (after setup) ────────────────
   function startCreate() {
-    const quiz = generateDuelQuiz(10);
-    if (quiz.length < 5) {
-      showToast('Không đủ câu hỏi!', 'danger');
+    const quiz = generateDuelQuiz(setupCount, setupCategory);
+    if (!quiz || quiz.length < Math.min(5, setupCount)) {
+      showToast('Không đủ câu hỏi cho chủ đề này!', 'danger');
       return;
+    }
+    if (quiz._fallbackUsed) {
+      showToast('Chủ đề này không đủ câu, đã dùng pool tổng hợp.', 'info');
     }
     play('click');
     setQuestions(quiz);
     setAnswers(new Array(quiz.length).fill(-1));
+    setQuestionTimes(new Array(quiz.length).fill(0));
     setCurrentQ(0);
     setSelectedOption(null);
     setQuizStartTime(Date.now());
@@ -164,6 +231,8 @@ export default function DuelPage() {
     setDamagePopup(null);
     setComboCount(0);
     setChallengerResults([]); // no challenger results in creating mode
+    setDuelCategory(setupCategory);
+    setDuelMessage(null);
     // Pick a random opponent pet for the entire match
     const petKeys = Object.keys(PET_REGISTRY).filter(k => k !== myPetInfo.speciesId);
     const randKey = petKeys[Math.floor(Math.random() * petKeys.length)] || Object.keys(PET_REGISTRY)[0];
@@ -298,6 +367,11 @@ export default function DuelPage() {
     newAnswers[currentQ] = optionIdx;
     setAnswers(newAnswers);
 
+    // Track per-question time (seconds, 1 decimal)
+    const newTimes = [...questionTimes];
+    newTimes[currentQ] = Math.round(answerTime * 10) / 10;
+    setQuestionTimes(newTimes);
+
     if (isCorrect) {
       setComboCount(prev => prev + 1);
       play('correct');
@@ -313,16 +387,17 @@ export default function DuelPage() {
         setSelectedOption(null);
         setQuestionStartTime(Date.now());
       } else {
-        finishQuiz(newAnswers);
+        finishQuiz(newAnswers, newTimes);
       }
     });
   }
 
   // ── Finish quiz ─────────────────────────────────────────────
-  async function finishQuiz(finalAnswers) {
+  async function finishQuiz(finalAnswers, finalTimes) {
     setSubmitting(true);
     clearInterval(timerRef.current);
     const time = Math.floor((Date.now() - quizStartTime) / 1000);
+    const qTimes = Array.isArray(finalTimes) ? finalTimes : questionTimes;
 
     if (mode === 'creating') {
       // Score locally (we know correct answers)
@@ -330,7 +405,14 @@ export default function DuelPage() {
       try {
         const res = await authFetch('/api/duel', {
           method: 'POST',
-          body: JSON.stringify({ quizData: questions, answers: finalAnswers, time }),
+          body: JSON.stringify({
+            quizData: questions,
+            answers: finalAnswers,
+            time,
+            questionTimes: qTimes,
+            category: setupCategory,
+            message: setupMessage.trim() || null,
+          }),
         });
         const data = await res.json();
         if (data.ok) {
@@ -351,7 +433,7 @@ export default function DuelPage() {
       try {
         const res = await authFetch(`/api/duel/${activeDuelId}/join`, {
           method: 'POST',
-          body: JSON.stringify({ answers: finalAnswers, time }),
+          body: JSON.stringify({ answers: finalAnswers, time, questionTimes: qTimes }),
         });
         const data = await res.json();
         if (data.ok) {
@@ -363,6 +445,9 @@ export default function DuelPage() {
             theirScore: data.challengerScore,
             myTime: time,
             theirTime: data.challengerTime,
+            myPoints: data.opponentPoints,
+            theirPoints: data.challengerPoints,
+            breakdown: data.breakdown || [],
             winnerId: data.winnerId,
             isWin,
             isDraw,
@@ -392,6 +477,7 @@ export default function DuelPage() {
       if (data?.questions && data.questions.length > 0) {
         setQuestions(data.questions);
         setAnswers(new Array(data.questions.length).fill(-1));
+        setQuestionTimes(new Array(data.questions.length).fill(0));
         setCurrentQ(0);
         setSelectedOption(null);
         setQuizStartTime(Date.now());
@@ -406,6 +492,8 @@ export default function DuelPage() {
         setComboCount(0);
         // Store challenger's per-question results for battle animation
         setChallengerResults(data.challengerResults || []);
+        setDuelCategory(data.category || 'all');
+        setDuelMessage(data.message || null);
         // Use challenger's pet as opponent
         if (data.challengerPet?.speciesId) {
           const cSpecies = PET_REGISTRY[data.challengerPet.speciesId];
@@ -457,6 +545,93 @@ export default function DuelPage() {
   }
 
   // ═══════════════════════════════════════════════════════════
+  //  RENDER: SETUP MODE (pre-create)
+  // ═══════════════════════════════════════════════════════════
+  if (mode === 'setup') {
+    const msgLen = setupMessage.length;
+    return (
+      <div className="fade-in">
+        <div className="d-flex align-items-center mb-3">
+          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { play('click'); setMode('lobby'); }}>
+            ← Quay lại
+          </button>
+          <h5 className="fw-bold mb-0">⚔️ Tạo thách đấu</h5>
+        </div>
+
+        {/* Số câu hỏi */}
+        <div className="card shadow-sm mb-3">
+          <div className="card-body py-3">
+            <div className="fw-bold small mb-2">📝 Số câu hỏi</div>
+            <div className="d-flex gap-2">
+              {QUESTION_COUNT_OPTIONS.map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`btn flex-grow-1 fw-bold ${setupCount === n ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                  onClick={() => { play('click'); setSetupCount(n); }}
+                >
+                  {n} câu
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Chủ đề */}
+        <div className="card shadow-sm mb-3">
+          <div className="card-body py-3">
+            <div className="fw-bold small mb-2">🎯 Chủ đề</div>
+            <div className="d-flex flex-wrap gap-2">
+              {CATEGORY_KEYS.map(key => {
+                const info = CATEGORY_INFO[key];
+                const active = setupCategory === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`btn btn-sm ${active ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => { play('click'); setSetupCategory(key); }}
+                  >
+                    {info.icon} {info.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Lời nhắn */}
+        <div className="card shadow-sm mb-3">
+          <div className="card-body py-3">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <span className="fw-bold small">💬 Lời nhắn thách đấu (tuỳ chọn)</span>
+              <span className={`small ${msgLen > MESSAGE_MAX ? 'text-danger' : 'text-muted'}`}>
+                {msgLen}/{MESSAGE_MAX}
+              </span>
+            </div>
+            <textarea
+              className="form-control"
+              rows={3}
+              maxLength={MESSAGE_MAX}
+              placeholder="Vd: Đến đây nào newbie! 😎"
+              value={setupMessage}
+              onChange={(e) => setSetupMessage(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <button
+          className="btn btn-cowdi-primary w-100 py-3 fw-bold"
+          onClick={startCreate}
+          disabled={msgLen > MESSAGE_MAX}
+        >
+          🚀 Bắt đầu thách đấu
+        </button>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
   //  RENDER: BATTLE MODE (creating / playing)
   // ═══════════════════════════════════════════════════════════
   if (mode === 'creating' || mode === 'playing') {
@@ -474,6 +649,10 @@ export default function DuelPage() {
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="fw-bold small">
             {mode === 'creating' ? '⚔️ Tạo thách đấu' : '🎯 Chấp nhận thách đấu'}
+            {' '}
+            <span className="badge bg-light text-dark ms-1" style={{ fontSize: '0.6rem' }}>
+              {(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).icon} {(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).label}
+            </span>
           </span>
           <div className="d-flex align-items-center gap-2">
             {comboCount >= 3 && (
@@ -482,6 +661,13 @@ export default function DuelPage() {
             <span className="badge bg-dark">⏱️ {elapsed}s</span>
           </div>
         </div>
+
+        {/* Challenger message banner (only when playing) */}
+        {mode === 'playing' && duelMessage && currentQ === 0 && selectedOption === null && (
+          <div className="alert alert-warning py-2 px-3 small mb-2 fst-italic" style={{ borderLeft: '3px solid #ffc107' }}>
+            💬 <strong>{opponentPet?.name || 'Đối thủ'}:</strong> "{duelMessage}"
+          </div>
+        )}
 
         {/* Progress */}
         <div className="progress mb-2" style={{ height: 4 }}>
@@ -567,6 +753,25 @@ export default function DuelPage() {
               <span className="badge bg-light text-dark" style={{ fontSize: '0.65rem' }}>{q?.category}</span>
             </div>
             <h6 className="fw-bold mb-0">{q?.question}</h6>
+            {q?.category === 'listening' && q?.speak && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-primary fw-bold"
+                  onClick={() => speakText(q.speak, 0.9)}
+                >
+                  🔊 Nghe lại
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary ms-2"
+                  onClick={() => speakText(q.speak, 0.55)}
+                  title="Nghe chậm"
+                >
+                  🐢 Chậm
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -728,6 +933,45 @@ export default function DuelPage() {
           </div>
         </div>
 
+        {/* Per-question breakdown */}
+        {Array.isArray(result.breakdown) && result.breakdown.length > 0 && (
+          <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
+            <div className="card-body">
+              <h6 className="fw-bold mb-2">🔍 Diễn biến từng câu</h6>
+              <div className="d-flex justify-content-around mb-2 small">
+                <span>🏆 Điểm thắng câu:</span>
+                <span><span className="fw-bold text-success">{result.myPoints}</span> - <span className="fw-bold text-danger">{result.theirPoints}</span></span>
+              </div>
+              <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                {result.breakdown.map((row, i) => {
+                  const mineOk = row.opponentCorrect; // "my" = opponent (this user joining)
+                  const theirOk = row.challengerCorrect;
+                  const mineT = row.opponentTime;
+                  const theirT = row.challengerTime;
+                  let tag = '';
+                  let tagCls = 'bg-light text-dark';
+                  if (row.winner === 'opponent') { tag = 'Bạn thắng'; tagCls = 'bg-success'; }
+                  else if (row.winner === 'challenger') { tag = 'Đối thủ thắng'; tagCls = 'bg-danger'; }
+                  else if (row.winner === 'tie') { tag = 'Hoà'; tagCls = 'bg-warning text-dark'; }
+                  else { tag = '—'; tagCls = 'bg-secondary'; }
+                  return (
+                    <div key={i} className="d-flex justify-content-between align-items-center py-1 border-bottom small">
+                      <span className="text-muted" style={{ minWidth: 30 }}>#{i + 1}</span>
+                      <span style={{ minWidth: 70 }} className="text-start">
+                        {mineOk ? '✅' : '❌'} {mineT ? `${mineT}s` : '-'}
+                      </span>
+                      <span className={`badge ${tagCls}`} style={{ fontSize: '0.65rem' }}>{tag}</span>
+                      <span style={{ minWidth: 70 }} className="text-end">
+                        {theirT ? `${theirT}s` : '-'} {theirOk ? '✅' : '❌'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         <button className="btn btn-cowdi-primary mt-4" onClick={backToLobby}>
           ← Quay về đấu trường
         </button>
@@ -783,7 +1027,7 @@ export default function DuelPage() {
       </div>
 
       {/* Create button */}
-      <button className="btn btn-cowdi-primary w-100 py-3 mb-4 fw-bold fs-5" onClick={startCreate}>
+      <button className="btn btn-cowdi-primary w-100 py-3 mb-4 fw-bold fs-5" onClick={openSetup}>
         ⚔️ Tạo thách đấu mới
       </button>
 
@@ -798,24 +1042,38 @@ export default function DuelPage() {
         </div>
       ) : openDuels.length > 0 ? (
         <div className="d-grid gap-2 mb-4">
-          {openDuels.map(duel => (
-            <div key={duel.id} className="card shadow-sm card-hover" style={{ cursor: 'pointer' }} onClick={() => playDuel(duel.id)}>
-              <div className="card-body d-flex align-items-center gap-2 py-2">
-                {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned) ? (
-                  <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
-                ) : (
-                  <span className="fs-3">{petEmoji(duel.challengerPet)}</span>
-                )}
-                <div className="flex-grow-1">
-                  <div className="fw-bold small">{duel.challengerNick}</div>
-                  <div className="text-muted" style={{ fontSize: '0.7rem' }}>
-                    {duel.questionCount} câu · {timeAgo(duel.createdAt)}
+          {openDuels.map(duel => {
+            const catInfo = CATEGORY_INFO[duel.category] || CATEGORY_INFO.all;
+            const msgPreview = duel.message ? (duel.message.length > 60 ? duel.message.slice(0, 60) + '…' : duel.message) : null;
+            return (
+              <div key={duel.id} className="card shadow-sm card-hover" style={{ cursor: 'pointer' }} onClick={() => playDuel(duel.id)}>
+                <div className="card-body py-2">
+                  <div className="d-flex align-items-center gap-2">
+                    {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned) ? (
+                      <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+                    ) : (
+                      <span className="fs-3">{petEmoji(duel.challengerPet)}</span>
+                    )}
+                    <div className="flex-grow-1">
+                      <div className="fw-bold small">{duel.challengerNick}</div>
+                      <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                        <span className="badge bg-light text-dark me-1" style={{ fontSize: '0.65rem' }}>
+                          {catInfo.icon} {catInfo.label}
+                        </span>
+                        {duel.questionCount} câu · {timeAgo(duel.createdAt)}
+                      </div>
+                    </div>
+                    <button className="btn btn-sm btn-outline-danger fw-bold">Đấu!</button>
                   </div>
+                  {msgPreview && (
+                    <div className="mt-2 px-2 py-1 rounded small fst-italic" style={{ background: '#fff8e1', borderLeft: '3px solid #ffc107', color: '#6c5300' }}>
+                      💬 "{msgPreview}"
+                    </div>
+                  )}
                 </div>
-                <button className="btn btn-sm btn-outline-danger fw-bold">Đấu!</button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center text-muted small py-3 mb-4">

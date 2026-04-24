@@ -272,6 +272,15 @@ function parsePetSummary(rawPetData) {
   return { speciesId: pet.speciesId, totalXpEarned: pet.totalXpEarned || 0, customName: pet.customName };
 }
 
+function safeParse(val, fallback) {
+  if (val == null) return fallback;
+  if (typeof val !== 'string') return val;
+  try { return JSON.parse(val); } catch { return fallback; }
+}
+
+const DUEL_VALID_CATEGORIES = ['all', 'vocabulary', 'grammar', 'sentences', 'listening'];
+const DUEL_VALID_COUNTS = [10, 20, 30];
+
 function formatDuelRow(row) {
   return {
     id: row.id,
@@ -289,6 +298,8 @@ function formatDuelRow(row) {
     opponentNick: row.opponent_nick || null,
     challengerPet: parsePetSummary(row.challenger_pet),
     opponentPet: parsePetSummary(row.opponent_pet),
+    category: row.category || 'all',
+    message: row.message || null,
     questionCount: (() => { try { const q = typeof row.quiz_data === 'string' ? JSON.parse(row.quiz_data) : row.quiz_data; return Array.isArray(q) ? q.length : 0; } catch { return 0; } })(),
   };
 }
@@ -330,6 +341,7 @@ router.post('/duel', requireAuth, async (req, res) => {
     options: (q.options || []).slice(0, 6).map(o => String(o).slice(0, 200)),
     correct: parseInt(q.correct) || 0,
     category: String(q.category || 'vocabulary').slice(0, 30),
+    ...(q.speak ? { speak: String(q.speak).slice(0, 200) } : {}),
   }));
   // Score challenger's answers
   const score = answers.reduce((s, a, i) => s + (parseInt(a) === cleanQuiz[i].correct ? 1 : 0), 0);
@@ -428,14 +440,17 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
 
     const quizData = typeof row.quiz_data === 'string' ? JSON.parse(row.quiz_data) : row.quiz_data;
     // Strip correct answers so opponent can't cheat
-    const questions = (quizData || []).map(({ question, options, category }) => ({
+    const questions = (quizData || []).map(({ question, options, category, speak }) => ({
       question, options, category,
+      ...(speak ? { speak } : {}),
     }));
 
     // Send challenger's per-question results (correct/wrong) without revealing answers
-    const challengerAnswers = typeof row.challenger_answers === 'string' ? JSON.parse(row.challenger_answers) : (row.challenger_answers || []);
+    const challengerAnswers = safeParse(row.challenger_answers, []);
+    const challengerQTimes = safeParse(row.challenger_question_times, []);
     const challengerResults = (quizData || []).map((q, i) => ({
       correct: parseInt(challengerAnswers[i]) === q.correct,
+      time: typeof challengerQTimes[i] === 'number' ? challengerQTimes[i] : null,
     }));
 
     res.json({
@@ -445,6 +460,9 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
       challengerNick: row.challenger_nick || 'Ẩn danh',
       challengerPet: parsePetSummary(row.challenger_pet),
       challengerResults,
+      challengerTime: row.challenger_time,
+      category: row.category || 'all',
+      message: row.message || null,
       questions,
       createdAt: row.created_at,
     });
@@ -457,7 +475,7 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
 // ── POST /api/duel/:id/join – Chấp nhận + nộp bài ──────────────────────────
 router.post('/duel/:id/join', requireAuth, async (req, res) => {
   const challengeId = parseInt(req.params.id);
-  const { answers, time } = req.body;
+  const { answers, time, questionTimes } = req.body;
   if (!challengeId) return res.status(400).json({ error: 'ID không hợp lệ.' });
   if (!Array.isArray(answers)) return res.status(400).json({ error: 'Answers không hợp lệ.' });
 
@@ -473,25 +491,59 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
 
     // Score opponent's answers server-side
     const opponentScore = answers.reduce((s, a, i) => s + (parseInt(a) === quizData[i].correct ? 1 : 0), 0);
-    const safeTime = Math.max(0, Math.min(parseInt(time) || 0, 600));
+    const safeTime = Math.max(0, Math.min(parseInt(time) || 0, 1800));
     const challengerScore = challenge.challenger_score;
     const challengerTime = challenge.challenger_time;
 
-    // Determine winner (higher score wins; tie-break by faster time)
+    // Normalize opponent per-question times
+    const cleanOppQTimes = Array.isArray(questionTimes) && questionTimes.length === quizData.length
+      ? questionTimes.map(t => Math.max(0, Math.min(parseFloat(t) || 0, 300)))
+      : new Array(quizData.length).fill(0);
+    const challengerQTimes = safeParse(challenge.challenger_question_times, new Array(quizData.length).fill(0));
+    const challengerAnswers = safeParse(challenge.challenger_answers, []);
+
+    // Per-question duel points:
+    //   - both correct -> faster gets +1 (tie: both +1)
+    //   - only one correct -> that side gets +1
+    //   - both wrong -> 0 for both
+    let challengerPoints = 0, opponentPoints = 0;
+    const breakdown = quizData.map((q, i) => {
+      const cOk = parseInt(challengerAnswers[i]) === q.correct;
+      const oOk = parseInt(answers[i]) === q.correct;
+      const cT = Number(challengerQTimes[i]) || 0;
+      const oT = Number(cleanOppQTimes[i]) || 0;
+      let winner = null;
+      if (cOk && oOk) {
+        if (cT < oT) { challengerPoints += 1; winner = 'challenger'; }
+        else if (oT < cT) { opponentPoints += 1; winner = 'opponent'; }
+        else { challengerPoints += 1; opponentPoints += 1; winner = 'tie'; }
+      } else if (cOk) { challengerPoints += 1; winner = 'challenger'; }
+      else if (oOk) { opponentPoints += 1; winner = 'opponent'; }
+      return { challengerCorrect: cOk, opponentCorrect: oOk, challengerTime: cT, opponentTime: oT, winner };
+    });
+
+    // Winner: nhiều points hơn; bằng -> tổng thời gian ít hơn
     let winnerId = null;
-    if (opponentScore > challengerScore) winnerId = req.user.id;
-    else if (opponentScore < challengerScore) winnerId = challenge.challenger_id;
+    if (opponentPoints > challengerPoints) winnerId = req.user.id;
+    else if (opponentPoints < challengerPoints) winnerId = challenge.challenger_id;
     else if (safeTime < challengerTime) winnerId = req.user.id;
     else if (safeTime > challengerTime) winnerId = challenge.challenger_id;
-    // else: draw (winnerId stays null)
 
     // Update challenge
     await pool.execute(
       `UPDATE challenges SET
          opponent_id = ?, opponent_answers = ?, opponent_score = ?, opponent_time = ?,
-         winner_id = ?, status = 'completed'
+         opponent_question_times = ?, winner_id = ?, status = 'completed'
        WHERE id = ?`,
-      [req.user.id, JSON.stringify(answers.map(a => parseInt(a) || 0)), opponentScore, safeTime, winnerId, challengeId]
+      [
+        req.user.id,
+        JSON.stringify(answers.map(a => parseInt(a) || 0)),
+        opponentScore,
+        safeTime,
+        JSON.stringify(cleanOppQTimes),
+        winnerId,
+        challengeId,
+      ]
     );
 
     // Update league points + duel stats for both players
@@ -529,6 +581,9 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       challengerScore,
       opponentTime: safeTime,
       challengerTime,
+      opponentPoints,
+      challengerPoints,
+      breakdown,
       winnerId,
     });
   } catch (err) {

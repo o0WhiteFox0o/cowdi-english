@@ -72,13 +72,13 @@ export default function LearningPathPage() {
   const [searchParams] = useSearchParams();
   const [pathTab, setPathTab] = useState(() => {
     const tab = searchParams.get('tab');
-    return tab && ['ielts', 'b1', 'b2', 'toeic'].includes(tab) ? tab : 'general';
+    return tab && ['ielts', 'b1', 'b2', 'toeic', 'advanced'].includes(tab) ? tab : 'general';
   });
 
   // Sync pathTab when URL search params change
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['ielts', 'b1', 'b2', 'toeic'].includes(tab)) {
+    if (tab && ['ielts', 'b1', 'b2', 'toeic', 'advanced'].includes(tab)) {
       setPathTab(tab);
     } else if (!tab) {
       setPathTab('general');

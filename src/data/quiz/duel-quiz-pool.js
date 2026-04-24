@@ -108,9 +108,11 @@ function buildPool() {
     if (q.options?.length >= 2) pool.push({ ...q, category: 'sentences', level: 'advanced' });
   }
 
-  // ── 4. QUIZ_BANK.listening ────────────────────────────────
+  // ── 4. QUIZ_BANK.listening (chỉ giữ câu có `speak` để TTS) ─
   for (const q of QUIZ_BANK.listening || []) {
-    if (q.options?.length >= 2) pool.push({ ...q, category: 'listening', level: 'intermediate' });
+    if (q.options?.length >= 2 && q.speak) {
+      pool.push({ ...q, category: 'listening', level: 'intermediate' });
+    }
   }
 
   // ── 5. Quiz từ mỗi lesson (gắn level theo bài) ───────────
@@ -132,6 +134,11 @@ function buildPool() {
   // ── Loại trùng theo nội dung câu hỏi ─────────────────────
   const seen = new Set();
   const unique = pool.filter(q => {
+    // Kiểm tra cấu trúc: phải có question, options ≥ 2, correct hợp lệ
+    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) return false;
+    // Câu nghe bắt buộc có `speak`
+    if (q.category === 'listening' && !q.speak) return false;
     if (seen.has(q.question)) return false;
     seen.add(q.question);
     return true;
@@ -154,9 +161,18 @@ function shuffle(arr) {
 /**
  * Sinh ra `count` câu hỏi ngẫu nhiên cho một trận đấu,
  * mix đa trình độ: ~20% beginner · ~50% intermediate · ~30% advanced.
+ * @param {number} count - số câu muốn sinh
+ * @param {'all'|'vocabulary'|'grammar'|'sentences'|'listening'} category - chủ đề lọc
  */
-export function generateDuelQuiz(count = 10) {
-  const pool = buildPool();
+export function generateDuelQuiz(count = 10, category = 'all') {
+  const fullPool = buildPool();
+  const filtered = category === 'all'
+    ? fullPool
+    : fullPool.filter(q => q.category === category);
+
+  // Nếu pool đã lọc không đủ câu, fallback sang 'all'
+  const pool = filtered.length >= Math.min(count, 5) ? filtered : fullPool;
+  const fallbackUsed = pool !== filtered;
 
   const byLevel = { beginner: [], intermediate: [], advanced: [] };
   for (const q of pool) {
@@ -190,6 +206,7 @@ export function generateDuelQuiz(count = 10) {
     }
   }
 
-  // Xáo trộn lần cuối để không nhóm theo cấp độ
-  return shuffle(picks.slice(0, Math.min(count, pool.length)));
+  const result = shuffle(picks.slice(0, Math.min(count, pool.length)));
+  result._fallbackUsed = fallbackUsed;
+  return result;
 }

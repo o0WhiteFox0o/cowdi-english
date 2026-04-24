@@ -8,8 +8,42 @@ export const EXAM_PATHS = [
     icon: "🎓",
     color: "#D32F2F",
     description: "Luyện 4 kỹ năng: Listening, Reading, Writing, Speaking cho kỳ thi IELTS Academic & General.",
-    targetLevel: "Band 5.0 – 7.0+",
+    targetLevel: "Band 4.0 – 7.5+",
     units: [
+      {
+        id: "ielts-unit-foundation",
+        title: "Foundation (A2) — Band 4.0",
+        subtitle: "Khởi động: Từ vựng, Nghe, Nói cơ bản cho IELTS",
+        icon: "🌱",
+        color: "#FFA726",
+        lessons: [
+          "ielts-foundation-vocab",
+          "ielts-foundation-listening",
+          "ielts-foundation-speaking"
+        ],
+        checkpoint: {
+          title: "Kiểm tra IELTS Foundation",
+          passRate: 0.7,
+          questionCount: 10
+        }
+      },
+      {
+        id: "ielts-unit-pre",
+        title: "Pre-Intermediate (B1) — Band 5.0",
+        subtitle: "Bước đệm: Vocab, Writing & Reading căn bản",
+        icon: "🌿",
+        color: "#FB8C00",
+        lessons: [
+          "ielts-pre-vocab",
+          "ielts-pre-writing",
+          "ielts-pre-reading"
+        ],
+        checkpoint: {
+          title: "Kiểm tra IELTS Pre-Intermediate",
+          passRate: 0.7,
+          questionCount: 10
+        }
+      },
       {
         id: "ielts-unit-1",
         title: "Module 1: Listening",
@@ -286,8 +320,40 @@ export const EXAM_PATHS = [
     icon: "💼",
     color: "#F57F17",
     description: "Luyện từ vựng kinh doanh, kỹ năng Listening & Reading cho kỳ thi TOEIC.",
-    targetLevel: "450 – 800+",
+    targetLevel: "300 – 900+",
     units: [
+      {
+        id: "toeic-unit-basics",
+        title: "Basics (A1) — TOEIC 300+",
+        subtitle: "Văn phòng & Sinh hoạt hàng ngày",
+        icon: "🌱",
+        color: "#FFA726",
+        lessons: [
+          "toeic-basics-office",
+          "toeic-basics-daily"
+        ],
+        checkpoint: {
+          title: "Kiểm tra TOEIC Basics",
+          passRate: 0.7,
+          questionCount: 10
+        }
+      },
+      {
+        id: "toeic-unit-elementary",
+        title: "Elementary (A2) — TOEIC 450+",
+        subtitle: "Hội thoại & Email công việc",
+        icon: "🌿",
+        color: "#FB8C00",
+        lessons: [
+          "toeic-elementary-convo",
+          "toeic-elementary-emails"
+        ],
+        checkpoint: {
+          title: "Kiểm tra TOEIC Elementary",
+          passRate: 0.7,
+          questionCount: 10
+        }
+      },
       {
         id: "toeic-unit-1",
         title: "Business Communication",
@@ -351,6 +417,67 @@ export const EXAM_PATHS = [
           title: "Kiểm tra TOEIC Unit 4",
           passRate: 0.7,
           questionCount: 12
+        }
+      },
+      {
+        id: "toeic-unit-advanced",
+        title: "Advanced (C1) — TOEIC 800+",
+        subtitle: "Meetings, Negotiations & Reports",
+        icon: "🏆",
+        color: "#E65100",
+        lessons: [
+          "toeic-advanced-meetings",
+          "toeic-advanced-reports"
+        ],
+        checkpoint: {
+          title: "Kiểm tra TOEIC Advanced",
+          passRate: 0.7,
+          questionCount: 12
+        }
+      }
+    ]
+  },
+  {
+    id: "advanced",
+    title: "Nâng cao C1–C2",
+    subtitle: "Mastery — CEFR C1 & C2",
+    icon: "🏆",
+    color: "#00897B",
+    description: "Lộ trình chuyên sâu cho người học trình độ C1 hướng tới C2: học thuật, tranh biện, thành ngữ & tu từ.",
+    targetLevel: "CEFR C1 → C2",
+    units: [
+      {
+        id: "adv-unit-c1",
+        title: "C1 — Effective Operational Proficiency",
+        subtitle: "Academic Vocab, Argumentative Writing & Lecture Listening",
+        icon: "🎓",
+        color: "#00897B",
+        lessons: [
+          "adv-c1-academic-vocab",
+          "adv-c1-writing-essays",
+          "adv-c1-listening"
+        ],
+        checkpoint: {
+          title: "Kiểm tra C1 Mastery",
+          passRate: 0.7,
+          questionCount: 12
+        }
+      },
+      {
+        id: "adv-unit-c2",
+        title: "C2 — Mastery",
+        subtitle: "Idioms, Advanced Debate & Literary Devices",
+        icon: "👑",
+        color: "#00695C",
+        lessons: [
+          "adv-c2-idioms",
+          "adv-c2-debate",
+          "adv-c2-literary"
+        ],
+        checkpoint: {
+          title: "Kiểm tra C2 Mastery",
+          passRate: 0.7,
+          questionCount: 15
         }
       }
     ]
