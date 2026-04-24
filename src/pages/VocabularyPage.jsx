@@ -130,11 +130,25 @@ export default function VocabularyPage() {
           </p>
         </div>
 
+        {/* Hero — Cowdi Super mascot */}
+        <div className="vocab-hero mb-4">
+          <div className="vocab-hero-badge">
+            <img
+              src="/assets/images/pets/Cowdi/Cowdi_super.webp"
+              alt="Cowdi Super"
+              className="vocab-hero-img"
+              loading="lazy"
+            />
+            <div className="vocab-hero-ring" aria-hidden />
+            <div className="vocab-hero-caption">
+              <span className="vocab-hero-title">Cowdi</span>
+              <span className="vocab-hero-sub">Từ vựng</span>
+            </div>
+          </div>
+        </div>
+
         {/* Mind map visual */}
         <div className="vocab-mindmap mb-4">
-          <div className="mindmap-center">
-            <div className="mindmap-hub">🧠<br /><small>Từ vựng</small></div>
-          </div>
           <div className="mindmap-branches">
             {VOCAB_TOPICS.map((topic) => {
               const progress = getTopicProgress(topic);

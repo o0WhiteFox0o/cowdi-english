@@ -84,6 +84,13 @@ src/
 - **`components/layout/`** — shared UI (Navbar, Chat, Toast)
 
 ---
+### Phân bố hiện tại:
+
+CEFR: A1×10, A2×8, B1×28, B2×23, C1×5
+IELTS: 6.0-7.0×9, 7.5+×5
+TOEIC: 500-695×6, 700-895×3
+VSTEP: B1×16, B2×20, C1×5
+---
 
 ## Cài đặt & chạy
 

@@ -1,25 +1,28 @@
-# 🎨 Hướng dẫn thiết kế & nâng cấp hình ảnh Pet — Cowdi English
+# 🎨 Hướng dẫn thiết kế & quản lý hình ảnh Pet — Cowdi English
 
-> Tài liệu dành cho đội thiết kế. Cập nhật: 21/03/2026
+> Tài liệu dành cho đội thiết kế & developer. Cập nhật: 24/04/2026
+> Đồng bộ với `src/data/pets.js` và thư mục `public/assets/images/pets/`.
 
 ---
 
-## 1. Tổng quan hệ thống Pet
+## 1. Tổng quan
 
-Cowdi English có **18 pet**, mỗi pet có **5 giai đoạn tiến hóa** (stage 0–4).  
-Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 13 pet còn lại đang dùng emoji thay thế.
+Cowdi English có **18 pet** trong `PET_REGISTRY`, mỗi pet có **5 giai đoạn tiến hóa** (stage 0 – egg → 4 – legendary).
 
-### Hệ thống bài học hiện tại
+- **13/18 pet** đã có bộ ảnh 5 stage (WebP).
+- **1/18 pet** (Cowdi — starter) có 4 stage, thiếu `egg`.
+- **4/18 pet** chưa có ảnh: Shadow, Prisma, Draco, Pumpkin → đang fallback bằng emoji.
+- Toàn bộ ảnh đã được chuyển sang **WebP** (tiết kiệm ~85% dung lượng so với PNG).
+
+### Hệ thống bài học (ngữ cảnh unlock pet)
 
 | Cấp độ | Số bài | Số từ/bài | Ghi chú |
 |--------|--------|-----------|---------|
 | Beginner | 10 | 10 từ | Chào hỏi, Gia đình, Màu sắc, Số đếm, Trường học, Thời tiết, Nghề nghiệp, Cơ thể, Quần áo, Nhà cửa |
 | Intermediate | 8 | 20 từ | Sinh hoạt, Thức ăn, Du lịch, Cảm xúc, Sở thích, Thiên nhiên, Công nghệ, Mua sắm |
-| Advanced | 9 | 30 từ | Các thì, Sức khỏe, So sánh, Môi trường, Truyền thông, Văn hóa, Kinh doanh, Khoa học, Giáo dục |
+| Advanced | 9 | 30 từ | Thì, Sức khỏe, So sánh, Môi trường, Truyền thông, Văn hóa, Kinh doanh, Khoa học, Giáo dục |
 | Unit Test | 6 | — | Cơ bản 1–2, Trung cấp 1–2, Nâng cao 1–2 |
 | **Tổng** | **33 bài** | | |
-
-→ Điều kiện mở khóa pet liên quan đến bài học: Foxie (5 bài), Bamboo (8 bài).
 
 ---
 
@@ -27,23 +30,38 @@ Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 1
 
 | Thuộc tính | Yêu cầu |
 |------------|---------|
-| **Định dạng** | `.webp` (ưu tiên) hoặc `.png` |
+| **Định dạng** | `.webp` (**bắt buộc** — dự án đã chuẩn hóa 100% WebP) |
 | **Nền** | **Trong suốt (transparent)** — bắt buộc |
-| **Kích thước canvas** | **512 × 512 px** (khuyến nghị) — tối thiểu 320 × 320 px |
+| **Canvas** | **512 × 512 px** (khuyến nghị) — tối thiểu 320 × 320 px |
 | **Tỷ lệ** | 1:1 (vuông) |
-| **Dung lượng** | ≤ 50 KB / file (WebP) — ≤ 100 KB nếu PNG |
-| **Chất lượng WebP** | 80–90% |
+| **Dung lượng** | ≤ 50 KB / file (quality 80–90) |
 | **Color space** | sRGB |
 
 ### Tại sao 512×512?
 
-- Hiển thị chính trong app: **160×160 px** (desktop), **120×120 px** (mobile)
-- Canvas 512px đảm bảo sắc nét trên màn hình Retina (3x)
-- Dùng được cho cả thumbnail 48×48 mà không cần file riêng
+- Hiển thị chính: **160×160 px** (desktop), **120×120 px** (mobile).
+- Canvas 512 đảm bảo sắc nét trên màn Retina (3x) và thumbnail 48×48.
+
+### Chuyển PNG → WebP
+
+Dự án đã có sẵn script:
+
+```powershell
+# Convert + xóa PNG gốc
+node scripts/convert-png-to-webp.mjs
+
+# Giữ PNG gốc
+node scripts/convert-png-to-webp.mjs --keep
+
+# Chỉ liệt kê, không ghi
+node scripts/convert-png-to-webp.mjs --dry
+```
+
+Script quét toàn workspace (trừ `node_modules`, `dist*`, `.git`), bỏ qua các file đã có `.webp` song song, và log mức tiết kiệm dung lượng.
 
 ---
 
-## 3. Cách hình ảnh hiển thị trong app
+## 3. Hiển thị hình ảnh trong app
 
 ```
 ┌─────────────────────────────────┐
@@ -51,624 +69,119 @@ Hiện tại **Cowdi** (4 stage) và **Foxie** (5 stage) đã có hình ảnh, 1
 │  ┌───────────────────────────┐  │
 │  │   Nền gradient theo mood  │  │
 │  │                           │  │
-│  │      ┌──────────┐        │  │
-│  │      │ 160×160  │ ← ảnh  │  │
-│  │      │ pet nổi  │   pet  │  │
-│  │      │ lên xuống│        │  │
-│  │      └──────────┘        │  │
+│  │      ┌──────────┐         │  │
+│  │      │ 160×160  │ ← ảnh   │  │
+│  │      │ pet float│   pet   │  │
+│  │      └──────────┘         │  │
 │  │                           │  │
 │  └───────────────────────────┘  │
 │  Tên pet — Stage — Power        │
-│  💬 "Chào bạn! Học gì nhé?"    │
+│  💬 "Chào bạn! Học gì nhé?"     │
 └─────────────────────────────────┘
 ```
 
-| Vị trí hiển thị | Kích thước khung | Ghi chú |
-|-----------------|-----------------|---------|
-| **Pet chính** (PetPage) | 160×160 px (desktop) / 120×120 px (mobile) | Có animation float, drop-shadow |
-| **Chat bubble** (CowdiChat) | ~64×64 px | Cạnh bong bóng chat |
-| **Evolution preview** | 48×48 px | Thumbnail tiến hóa kế tiếp |
-| **Collection grid** | ~80×80 px | Lưới pet đã mở khóa |
+| Vị trí | Kích thước khung | Ghi chú |
+|--------|------------------|---------|
+| Pet chính (`PetPage`) | 160×160 (desktop) / 120×120 (mobile) | Float animation + drop-shadow |
+| Chat bubble (`CowdiChat`) | ~64×64 | Cạnh bong bóng chat |
+| Evolution preview | 48×48 | Thumbnail tiến hóa kế tiếp |
+| Collection grid | ~80×80 | Lưới pet đã mở khóa |
+| Mini-game TyperShark | 160×160 | Dùng `Cowdi_junior.webp` |
 
-**Hiệu ứng CSS áp dụng lên hình:**
-- `object-fit: contain` — hình co vừa khung, không bị crop
-- `drop-shadow(0 8px 16px rgba(0,0,0,0.1))` — bóng đổ nhẹ
-- Hover: `scale(1.08)` — phóng nhẹ khi rê chuột
-- Float animation: nổi lên xuống nhẹ liên tục
+**CSS áp dụng:** `object-fit: contain`, `drop-shadow(0 8px 16px rgba(0,0,0,0.1))`, hover `scale(1.08)`, float animation.
 
-**Nền gradient phía sau (KHÔNG nằm trong ảnh):**
+**Nền gradient** phía sau **KHÔNG** nằm trong ảnh:
 - 😊 Happy: xanh lá → vàng nhạt
 - 😢 Sad: xanh dương → tím nhạt
 - 🤒 Sick: cam → hồng nhạt
 
-→ **Hình pet KHÔNG cần vẽ nền**, chỉ cần nhân vật trên nền trong suốt.
+→ Ảnh pet **không vẽ nền**, chỉ nhân vật trên nền trong suốt.
 
 ---
 
-## 4. Cấu trúc thư mục & quy tắc đặt tên
+## 4. Quy tắc đặt tên & cấu trúc thư mục
 
-### Thư mục gốc
-
-```
-public/assets/images/pets/
-```
-
-### Quy tắc đặt tên
+### Quy tắc chuẩn
 
 ```
 public/assets/images/pets/{TênPet}/
-  ├── {TênPet}_egg.webp       ← Stage 0: Trứng
-  ├── {TênPet}_baby.webp      ← Stage 1: Baby
-  ├── {TênPet}_junior.webp    ← Stage 2: Junior
-  ├── {TênPet}_super.webp     ← Stage 3: Super
-  ├── {TênPet}_legendary.webp ← Stage 4: Legendary
-  ├── {TênPet}_chat.webp      ← Dùng cho chat bubble (tuỳ chọn)
-  └── {TênPet}_alt.webp       ← Biến thể phụ (tuỳ chọn)
+  ├── {TênPet}_Egg.webp        ← Stage 0
+  ├── {TênPet}_Baby.webp       ← Stage 1
+  ├── {TênPet}_Junior.webp     ← Stage 2
+  ├── {TênPet}_Super.webp      ← Stage 3
+  └── {TênPet}_Legendary.webp  ← Stage 4
 ```
 
-**Quy tắc:**
-- Tên thư mục: **viết hoa chữ cái đầu** (PascalCase) → `Cowdi`, `Foxie`, `Pingu`
-- Tên file: **Prefix tên pet + underscore + stage**, không dấu, không khoảng trắng → `Cowdi_baby.webp`, `Foxie_egg.png`
-- Định dạng: `.webp` (ưu tiên) hoặc `.png`
-- Không dùng khoảng trắng hay ký tự đặc biệt trong tên file
+- Thư mục: **PascalCase** (`Cowdi`, `Foxie`, `Pingu`…).
+- Tên file: **PascalCase cả prefix lẫn stage**, dùng underscore (khuyến nghị chuẩn mới).
+- Không dấu, không khoảng trắng, không ký tự đặc biệt.
 
-### Ví dụ đầy đủ — Cấu trúc hiện tại
+### ⚠️ Các ngoại lệ hiện có (đã hard-code trong `pets.js`)
 
-```
-public/assets/images/pets/
-  ├── Cowdi/
-  │     ├── Cowdi_baby.webp      (14.9 KB) ← Stage 1
-  │     ├── Cowdi_junior.webp    (23.2 KB) ← Stage 2
-  │     ├── Cowdi_super.webp     (25.8 KB) ← Stage 3
-  │     └── Cowdi_legandary.webp (45.1 KB) ← Stage 4
-  │     ⚠️ Thiếu: Cowdi_egg.webp (Stage 0)
-  │
-  └── Foxie/
-        ├── Foxie_egg.webp       (103 KB)  ← Stage 0
-        ├── Foxie_baby.webp      (96 KB)   ← Stage 1
-        ├── Foxie_junior.webp    (35 KB)   ← Stage 2
-        ├── Foxie_super.webp     (54 KB)   ← Stage 3
-        └── Foxie_legandary.webp (216 KB)  ← Stage 4
-        ✅ Đã chuyển từ PNG sang WebP (giảm ~95% dung lượng)
-```
+Giữ nguyên để tránh phải đổi tên 60+ file:
 
-### Trạng thái hình ảnh hiện tại
+| Pet | Thư mục | Quy ước thực tế |
+|-----|---------|-----------------|
+| Cowdi | `Cowdi/` | lowercase stage: `Cowdi_baby.webp`, và typo `Cowdi_legandary.webp` |
+| Foxie | `Foxie/` | lowercase stage: `Foxie_egg.webp`, typo `Foxie_legandary.webp` |
+| Ginseng | `Ginseng/` | PascalCase — chuẩn |
+| Mimi | `Mimi/` | ⚠️ tên file bắt đầu bằng **`Mini_`** (`Mini_Egg.webp`…) |
+| Paddy | `Lua/` | tên folder & file dùng **`Lua`** (tiếng Việt) |
+| Sprout | `Mangtre/` | tên folder & file dùng **`Mangtre`** |
+| Storm | `Storm/` | stage 1 có 2 biến thể: `Storm-Baby.webp` (dấu gạch ngang) đang được code sử dụng |
 
-| Pet | Trạng thái | Stage có hình | Ghi chú |
-|-----|-----------|---------------|----------|
-| Cowdi | ✅ Có hình | 1, 2, 3, 4 | Thiếu egg (stage 0) |
-| Foxie | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — đã chuyển WebP |
-| Ginseng | ✅ Có hình | 0, 1, 2, 3, 4 | Đầy đủ — WebP |
-| 13 pet khác | ❌ Emoji | — | Chưa có hình |
-
-____________________________________________________________
+> Khi thêm pet mới, **dùng đúng chuẩn** `{Pet}_Stage.webp` (PascalCase + underscore).
 
 ---
 
-## 5. Danh sách 18 Pet cần thiết kế
+## 5. Trạng thái hiện tại của 18 pet
 
-### 5.1 Cowdi 🐮 — Bò sữa (Starter)
+Nguồn: `src/data/pets.js` → `PET_REGISTRY` + thư mục `public/assets/images/pets/`.
 
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Neutral |
-| **Rarity** | Starter (có sẵn từ đầu) |
-| **Tính cách** | Hiền lành, yêu tiếng Anh, đồng hành từ ngày đầu |
-| **Màu chủ đạo** | Trắng + đốm đen, mũi hồng |
-| **Trạng thái** | ✅ Có hình (4/5 stage — thiếu egg) |
+### 5.1 Pet đã có ảnh đầy đủ (13)
 
-**Giai đoạn tiến hóa:**
+| # | Pet | Emoji | Rarity | Element | Folder | Ghi chú |
+|---|-----|-------|--------|---------|--------|---------|
+| 1 | Foxie | 🦊 | Common | Fire 🔥 | `Foxie/` | ✅ 5 stage |
+| 2 | Leafy | 🐢 | Common | Nature 🌿 | `Leafy/` | ✅ 5 stage |
+| 3 | Sparky | 🐉 | Rare | Fire 🔥 | `Sparky/` | ✅ 5 stage |
+| 4 | Mimi | 🐱 | Rare | Cosmic 🌙 | `Mimi/` | ✅ 5 stage — file name `Mini_*` |
+| 5 | Owlbert | 🦉 | Rare | Nature 🌿 | `Owlbert/` | ✅ 5 stage |
+| 6 | Flippy | 🐬 | Rare | Water 💧 | `Flippy/` | ✅ 5 stage |
+| 7 | Leo | 🦁 | Epic | Fire 🔥 | `Leo/` | ✅ 5 stage |
+| 8 | Bamboo | 🐼 | Epic | Nature 🌿 | `Bamboo/` | ✅ 5 stage |
+| 9 | Storm | 🦅 | Epic | Cosmic 🌙 | `Storm/` | ✅ 5 stage (baby dùng `Storm-Baby.webp`) |
+| 10 | Ginseng | 🥕 | Epic | Earth 🌱 | `Ginseng/` | ✅ 5 stage |
+| 11 | Paddy | 🌾 | Common | Nature 🌿 | `Lua/` | ✅ 5 stage |
+| 12 | Sprout | 🎋 | Rare | Nature 🌿 | `Mangtre/` | ✅ 5 stage |
+| 13 | **Pingu** | 🐧 | Common | Water 💧 | `Pingu/` | ⚠️ có 5 file ảnh nhưng **chưa wire vào `pets.js`** |
 
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Cowdi | 0 | Quả trứng trắng có đốm đen kiểu bò sữa |
-| 1 | Baby Cowdi | 100 | Bê con nhỏ xíu, mắt to tròn, dễ thương |
-| 2 | Junior Cowdi | 500 | Bò sữa trẻ, rõ đặc trưng, vui vẻ |
-| 3 | Super Cowdi | 1200 | Bò khỏe mạnh, thêm chi tiết (sừng, cơ bắp nhẹ) |
-| 4 | Legendary Cowdi | 2500 | Bò oai vệ, vương miện/hào quang, mạnh mẽ |
+### 5.2 Pet thiếu ảnh (5)
 
----
+| # | Pet | Emoji | Rarity | Element | Trạng thái |
+|---|-----|-------|--------|---------|-----------|
+| 14 | **Cowdi** | 🐮 | Starter | Neutral ⚡ | 4/5 — **thiếu `egg`** |
+| 15 | Shadow | 🐺 | Epic | Cosmic 🌙 | ❌ 0/5 — emoji |
+| 16 | Prisma | 🦄 | Legendary | Cosmic 🌙 | ❌ 0/5 — emoji |
+| 17 | Draco | 🐲 | Legendary | Fire 🔥 | ❌ 0/5 — emoji |
+| 18 | Pumpkin | 🎃 | Event | Cosmic 🌙 | ❌ 0/5 — emoji |
 
-### 5.2 Foxie 🦊 — Cáo lửa (Common)
+### 5.3 Tổng kết file
 
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Fire 🔥 |
-| **Rarity** | Common |
-| **Tính cách** | Thông minh, giỏi ngữ pháp, thích giải đố |
-| **Màu chủ đạo** | Cam đỏ, bụng trắng |
-| **Mở khóa** | Hoàn thành 5 bài học (hiện có 26 bài) |
-| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
-
-| Stage | Tên | XP | Hướng dẫn visual | File |
-|-------|-----|----|-----------------|------|
-| 0 | Trứng Foxie | 0 | Trứng cam có vân lửa | `Foxie_egg.webp` ✅ |
-| 1 | Baby Foxie | 100 | Cáo con nhỏ, đuôi bông xù | `Foxie_baby.webp` ✅ |
-| 2 | Junior Foxie | 500 | Cáo trẻ nhanh nhẹn, ánh mắt thông minh | `Foxie_junior.webp` ✅ |
-| 3 | Super Foxie | 1200 | Cáo lửa, đuôi có hiệu ứng lửa nhẹ | `Foxie_super.webp` ✅ |
-| 4 | Legendary Foxie | 2500 | Cáo huyền thoại, bốc lửa, uy nghiêm | `Foxie_legandary.webp` ✅ |
+| Mục | Số lượng |
+|-----|----------|
+| File `.webp` hiện có (bao gồm Pingu chưa wire + duplicate Mimi/Mini) | **74** |
+| Cần bổ sung để đủ 18 pet × 5 stage | **21** (Cowdi egg + 4 pet × 5 stage) |
+| Tổng mục tiêu | **90** |
 
 ---
 
-### 5.3 Pingu 🐧 — Chim cánh cụt (Common)
+## 6. Mapping code trong `src/data/pets.js`
 
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Water 💧 |
-| **Rarity** | Common |
-| **Tính cách** | Chăm chỉ, thính giác siêu nhạy, yêu âm nhạc |
-| **Màu chủ đạo** | Đen trắng, mỏ cam |
-| **Mở khóa** | Hoàn thành 10 quiz Listening |
-| **Trạng thái** | ❌ Chưa có hình |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Pingu | 0 | Trứng trắng có vân băng tuyết |
-| 1 | Baby Pingu | 100 | Cánh cụt con bé tí, đeo tai nghe nhỏ |
-| 2 | Junior Pingu | 500 | Cánh cụt vui vẻ, quàng khăn |
-| 3 | Super Pingu | 1200 | Cánh cụt mạnh, hiệu ứng băng xung quanh |
-| 4 | Legendary Pingu | 2500 | Cánh cụt hoàng đế, vương miện băng |
-
----
-
-### 5.4 Leafy 🐢 — Rùa lá (Common)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Nature 🌿 |
-| **Rarity** | Common |
-| **Tính cách** | Kiên nhẫn, nhớ từ vựng giỏi, chậm mà chắc |
-| **Màu chủ đạo** | Xanh lá, nâu đất |
-| **Mở khóa** | Học 50 từ vựng |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Leafy | 0 | Trứng xanh lá có vân lá cây |
-| 1 | Baby Leafy | 100 | Rùa con nhỏ, mai có lá mọc |
-| 2 | Junior Leafy | 500 | Rùa trẻ, mai phủ rêu xanh |
-| 3 | Super Leafy | 1200 | Rùa lớn, cây mọc trên mai |
-| 4 | Legendary Leafy | 2500 | Rùa cổ thụ, cả khu rừng nhỏ trên mai |
-
----
-
-### 5.5 Sparky 🐉 — Rồng nhỏ (Rare)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Fire 🔥 |
-| **Rarity** | Rare |
-| **Tính cách** | Đầy năng lượng, sáng tạo vô hạn, thích viết câu |
-| **Màu chủ đạo** | Đỏ cam, vàng |
-| **Mở khóa** | Streak 7 ngày liên tục |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Sparky | 0 | Trứng đỏ có vảy rồng |
-| 1 | Baby Sparky | 100 | Rồng con siêu nhỏ, cánh nhỏ xíu |
-| 2 | Junior Sparky | 500 | Rồng trẻ, biết phun lửa nhỏ |
-| 3 | Super Sparky | 1200 | Rồng mạnh, cánh lớn, lửa bốc |
-| 4 | Legendary Sparky | 2500 | Rồng huyền thoại, áo giáp lửa |
-
----
-
-### 5.6 Mimi 🐱 — Mèo mây (Rare)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Cosmic 🌙 |
-| **Rarity** | Rare |
-| **Tính cách** | Thần bí, giỏi phân tích, lắng nghe |
-| **Màu chủ đạo** | Tím pastel, trắng mây |
-| **Mở khóa** | Đạt 3 quiz hoàn hảo (100%) |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Mimi | 0 | Trứng tím nhạt có lấp lánh sao |
-| 1 | Baby Mimi | 100 | Mèo con trên đám mây nhỏ |
-| 2 | Junior Mimi | 500 | Mèo bông xù, mắt sáng ngời |
-| 3 | Super Mimi | 1200 | Mèo mây, đuôi có sao lấp lánh |
-| 4 | Legendary Mimi | 2500 | Mèo thiên hà, cả vũ trụ quanh mình |
-
----
-
-### 5.7 Owlbert 🦉 — Cú vọ (Rare)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Nature 🌿 |
-| **Rarity** | Rare |
-| **Tính cách** | Thông thái, bậc thầy ngữ pháp, biết mọi quy tắc |
-| **Màu chủ đạo** | Nâu, vàng mật ong |
-| **Mở khóa** | Hoàn thành 15 quiz Grammar |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Owlbert | 0 | Trứng nâu có hoa văn lông vũ |
-| 1 | Baby Owlbert | 100 | Cú con mắt to, lông bông |
-| 2 | Junior Owlbert | 500 | Cú đeo kính tròn, cầm sách |
-| 3 | Super Owlbert | 1200 | Cú giáo sư, mũ tốt nghiệp |
-| 4 | Legendary Owlbert | 2500 | Cú pháp sư thông thái, áo choàng |
-
----
-
-### 5.8 Flippy 🐬 — Cá heo (Rare)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Water 💧 |
-| **Rarity** | Rare |
-| **Tính cách** | Vui vẻ, giao tiếp tuyệt vời, nghe hiểu siêu nhanh |
-| **Màu chủ đạo** | Xanh dương, bụng trắng |
-| **Mở khóa** | Học 100 từ vựng |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Flippy | 0 | Trứng xanh dương có bọt nước |
-| 1 | Baby Flippy | 100 | Cá heo con nhỏ, nhảy qua sóng |
-| 2 | Junior Flippy | 500 | Cá heo trẻ, nhanh nhẹn |
-| 3 | Super Flippy | 1200 | Cá heo mạnh, sóng nước bao quanh |
-| 4 | Legendary Flippy | 2500 | Cá heo đại dương, vương miện san hô |
-
----
-
-### 5.9 Leo 🦁 — Sư tử (Epic)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Fire 🔥 |
-| **Rarity** | Epic |
-| **Tính cách** | Dũng mãnh, mạnh mẽ toàn diện, vua muôn loài |
-| **Màu chủ đạo** | Vàng, cam đậm, bờm sư tử |
-| **Mở khóa** | Đạt 1,000 XP tổng |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Leo | 0 | Trứng vàng có vân bờm sư tử |
-| 1 | Baby Leo | 100 | Sư tử con, bờm nhỏ, mắt to |
-| 2 | Junior Leo | 500 | Sư tử trẻ, bờm bắt đầu rõ |
-| 3 | Super Leo | 1200 | Sư tử uy vũ, bờm lửa bốc cháy |
-| 4 | Legendary Leo | 2500 | Vua sư tử, vương miện vàng, hào quang |
-
----
-
-### 5.10 Bamboo 🐼 — Gấu trúc (Epic)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Nature 🌿 |
-| **Rarity** | Epic |
-| **Tính cách** | Dễ thương, bậc thầy giao tiếp, nói chuyện suốt ngày |
-| **Màu chủ đạo** | Đen trắng, tre xanh |
-| **Mở khóa** | Hoàn thành 8 bài học (hiện có 26 bài) |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Bamboo | 0 | Trứng trắng quấn lá tre |
-| 1 | Baby Bamboo | 100 | Gấu trúc con ôm cây tre |
-| 2 | Junior Bamboo | 500 | Gấu trúc vui, ngồi ăn tre |
-| 3 | Super Bamboo | 1200 | Gấu trúc kung fu, rừng tre |
-| 4 | Legendary Bamboo | 2500 | Gấu trúc tiên, hào quang thiên nhiên |
-
----
-
-### 5.11 Storm 🦅 — Đại bàng (Epic)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Cosmic 🌙 |
-| **Rarity** | Epic |
-| **Tính cách** | Kiên cường, bay qua mọi giông bão, sáng tạo vô tận |
-| **Màu chủ đạo** | Xám bạc, tím sấm sét |
-| **Mở khóa** | Streak 30 ngày liên tục |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Storm | 0 | Trứng xám có tia sét |
-| 1 | Baby Storm | 100 | Đại bàng con, lông bông |
-| 2 | Junior Storm | 500 | Đại bàng trẻ, cánh rộng |
-| 3 | Super Storm | 1200 | Đại bàng bão, sấm sét quanh mình |
-| 4 | Legendary Storm | 2500 | Đại bàng huyền thoại, cánh sấm chớp |
-
----
-
-### 5.12 Shadow 🐺 — Sói bóng (Epic)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Cosmic 🌙 |
-| **Rarity** | Epic |
-| **Tính cách** | Huyền bí, trí tuệ sâu sắc, sáng tạo trong bóng tối |
-| **Màu chủ đạo** | Đen, tím đậm |
-| **Mở khóa** | Hoàn thành 50 quiz |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Shadow | 0 | Trứng đen có vân bóng tối |
-| 1 | Baby Shadow | 100 | Sói con đen, mắt sáng |
-| 2 | Junior Shadow | 500 | Sói trẻ, bóng tối nhẹ quanh |
-| 3 | Super Shadow | 1200 | Sói bóng đêm, hiệu ứng tối |
-| 4 | Legendary Shadow | 2500 | Sói huyền bí, áo choàng bóng tối |
-
----
-
-### 5.13 Prisma 🦄 — Kỳ lân (Legendary)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Cosmic 🌙 |
-| **Rarity** | Legendary |
-| **Tính cách** | Tỏa sáng bởi kiến thức toàn diện |
-| **Màu chủ đạo** | Cầu vồng, trắng lấp lánh |
-| **Mở khóa** | Đạt 2,500 XP tổng |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Prisma | 0 | Trứng trắng lấp lánh cầu vồng |
-| 1 | Baby Prisma | 100 | Kỳ lân con, sừng nhỏ |
-| 2 | Junior Prisma | 500 | Kỳ lân trẻ, bờm cầu vồng nhẹ |
-| 3 | Super Prisma | 1200 | Kỳ lân mạnh, hào quang 7 sắc |
-| 4 | Legendary Prisma | 2500 | Kỳ lân huyền thoại, toàn thân tỏa sáng |
-
----
-
-### 5.14 Draco 🐲 — Rồng cổ đại (Legendary)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Fire 🔥 |
-| **Rarity** | Legendary |
-| **Tính cách** | Cổ đại, sức mạnh tối thượng, stats x2 |
-| **Màu chủ đạo** | Đỏ sẫm, vàng kim |
-| **Mở khóa** | Sở hữu tất cả pet khác |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Draco | 0 | Trứng đỏ sẫm có vảy rồng cổ |
-| 1 | Baby Draco | 100 | Rồng cổ con, cánh nhỏ |
-| 2 | Junior Draco | 500 | Rồng trẻ, bắt đầu oai vệ |
-| 3 | Super Draco | 1200 | Rồng mạnh, lửa cổ đại |
-| 4 | Legendary Draco | 2500 | Rồng cổ đại huyền thoại, vương miện lửa |
-
----
-
-### 5.15 Pumpkin 🎃 — Bí ngô (Event)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Cosmic 🌙 |
-| **Rarity** | Event |
-| **Tính cách** | Vui nhộn, bonus XP, chỉ xuất hiện trong sự kiện |
-| **Màu chủ đạo** | Cam bí ngô, tím Halloween |
-| **Mở khóa** | Sự kiện Halloween |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Pumpkin | 0 | Trứng cam có mặt bí ngô |
-| 1 | Baby Pumpkin | 100 | Bí ngô con dễ thương |
-| 2 | Junior Pumpkin | 500 | Bí ngô cười, đội mũ phù thủy nhỏ |
-| 3 | Super Pumpkin | 1200 | Bí ngô lửa, hiệu ứng Halloween |
-| 4 | Legendary Pumpkin | 2500 | Vua bí ngô, hào quang ma thuật |
-
----
-
-### 5.16 Mushroom 🍄 — Nấm rơm (Common)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Earth 🌱 |
-| **Rarity** | Common |
-| **Tính cách** | Nhút nhát nhưng hồi phục tốt, hỗ trợ team |
-| **Màu chủ đạo** | Đỏ chấm trắng, xanh rêu |
-| **Mở khóa** | Map rừng |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Nấm | 0 | Trứng hình nấm nhỏ, có đốm |
-| 1 | Baby Mushroom | 100 | Nấm con mắt to, hơi run |
-| 2 | Junior Mushroom | 500 | Nấm cao hơn, phát sáng nhẹ |
-| 3 | Super Mushroom | 1200 | Nấm phát tán bào tử, aura xanh |
-| 4 | Legendary Mushroom | 2500 | Nấm khổng lồ, hệ sinh thái mini xung quanh |
-
-
-### 5.17 Sprout 🎋 — Măng tre (Rare)
-
-| Thuộc tính | Giá trị |
-|------------|--------|
-| **Nguyên tố** | Nature 🌿 |
-| **Rarity** | Rare |
-| **Tính cách** | Kiên cường, linh hoạt, vươn cao không ngừng |
-| **Màu chủ đạo** | Xanh lá, xanh đậm |
-| **Mở khóa** | Streak 14 ngày liên tục |
-| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|------------------|
-| 0 | Trứng Sprout | 0 | Trứng xanh có vân tre |
-| 1 | Baby Sprout | 100 | Măng tre nhỏ có mặt |
-| 2 | Junior Sprout | 500 | Tre mọc cao, có khớp rõ |
-| 3 | Super Sprout | 1200 | Tre uốn cong, hiệu ứng gió |
-| 4 | Legendary Sprout | 2500 | Tre thần, xoay gió, aura lốc xoáy |
-
-
-### 5.18 Bao 🥟 — Bánh bao (Common)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Fire 🔥 |
-| **Rarity** | Common |
-| **Tính cách** | Ấm áp, hồi máu, dễ gần |
-| **Màu chủ đạo** | Trắng, vàng nhẹ |
-| **Mở khóa** | Shop / Food map |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Bao | 0 | Trứng trắng mềm |
-| 1 | Baby Bao | 100 | Bánh bao nhỏ, mặt cười |
-| 2 | Junior Bao | 500 | Có nhân lộ nhẹ, bốc hơi nóng |
-| 3 | Super Bao | 1200 | Bánh bao nóng hổi, aura nhiệt |
-| 4 | Legendary Bao | 2500 | Bao thần, ánh sáng vàng, hồi phục mạnh |
-
-
-### 5.19 Paddy 🌾 — Lúa (Common)
-
-| Thuộc tính | Giá trị |
-|------------|--------|
-| **Nguyên tố** | Nature 🌿 |
-| **Rarity** | Common |
-| **Tính cách** | Chăm chỉ, tích lũy tài nguyên |
-| **Màu chủ đạo** | Vàng lúa, xanh nhạt |
-| **Mở khóa** | Hoàn thành 12 bài học |
-| **Trạng thái** | ✅ Có hình đầy đủ 5 stage (WebP) |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|------------------|
-| 0 | Trứng Paddy | 0 | Hạt giống |
-| 1 | Baby Paddy | 100 | Mầm lúa nhỏ |
-| 2 | Junior Paddy | 500 | Lúa cao, có bông |
-| 3 | Super Paddy | 1200 | Lúa vàng rực, hiệu ứng gió |
-| 4 | Legendary Paddy | 2500 | Thần lúa, aura mùa màng |
-
-### 5.20 Ginseng 🥕 — Nhân sâm (Epic)
-
-| Thuộc tính | Giá trị |
-|------------|---------|
-| **Nguyên tố** | Earth 🌱 |
-| **Rarity** | Epic |
-| **Tính cách** | Sống lâu, hồi phục mạnh, trí tuệ cổ xưa |
-| **Màu chủ đạo** | Vàng nhạt, trắng kem, rễ tua rua |
-| **Mở khóa** | Sưu tầm đủ 4 loại cây (Leafy, Bamboo, Rice, Mushroom) |
-
-| Stage | Tên | XP | Hướng dẫn visual |
-|-------|-----|----|-----------------|
-| 0 | Trứng Ginseng | 0 | Trứng trắng ngà, vân rễ cây |
-| 1 | Baby Ginseng | 100 | Nhân sâm con, rễ nhỏ, mặt cười |
-| 2 | Junior Ginseng | 500 | Nhân sâm trẻ, rễ dài, lá non |
-| 3 | Super Ginseng | 1200 | Nhân sâm trưởng thành, rễ tua rua, lá xanh |
-| 4 | Legendary Ginseng | 2500 | Nhân sâm cổ đại, rễ phức tạp, hào quang vàng |
-
-
-## 6. Nguyên tắc thiết kế chung
-
-### Phong cách
-
-- **Art style:** Chibi / cute cartoon — phù hợp học sinh cấp 2–3 và đại học
-- **Nét vẽ:** Rõ ràng, line art sạch, dễ nhận diện ở kích thước nhỏ (48px)
-- **Biểu cảm:** Vui vẻ, thân thiện, khích lệ — phù hợp ứng dụng giáo dục
-- **Độ phức tạp tăng dần:** Trứng đơn giản → Legendary chi tiết nhất
-
-### Quy tắc tiến hóa visual
-
-| Stage | Độ phức tạp | Chi tiết |
-|-------|-------------|----------|
-| 0 — Egg | ★☆☆☆☆ | Quả trứng có đặc điểm loài (vân, màu). Đơn giản nhất |
-| 1 — Baby | ★★☆☆☆ | Nhỏ, tỷ lệ đầu to, mắt to tròn. Dễ thương tối đa |
-| 2 — Junior | ★★★☆☆ | Tỷ lệ cân đối hơn, rõ đặc trưng loài. Hình "chuẩn" |
-| 3 — Super | ★★★★☆ | Thêm phụ kiện, hiệu ứng nguyên tố (lửa/nước/lá/sao) |
-| 4 — Legendary | ★★★★★ | Hoàn chỉnh nhất, vương miện/hào quang, chi tiết tối đa |
-
-### Bảng màu nguyên tố (tham khảo)
-
-| Nguyên tố | Màu chính | Màu phụ | Hiệu ứng |
-|-----------|-----------|---------|-----------|
-| 🔥 Fire | `#FF5722` cam đỏ | `#FF9800` vàng cam | Lửa, tia lửa |
-| 💧 Water | `#2196F3` xanh dương | `#00BCD4` cyan | Sóng, bọt nước |
-| 🌿 Nature | `#4CAF50` xanh lá | `#8BC34A` xanh nhạt | Lá, hoa, dây leo |
-| 🌙 Cosmic | `#9C27B0` tím | `#E1BEE7` tím nhạt | Sao, mây, ánh trăng |
-| ⚡ Neutral | `#FF9800` cam | `#FFC107` vàng | Không hiệu ứng đặc biệt |
-
----
-
-## 7. Checklist bàn giao
-
-Khi designer hoàn thành, kiểm tra:
-
-- [ ] Mỗi pet có đủ **5 file** (egg, baby, junior, super, legendary)
-- [ ] Tất cả file đều **nền trong suốt**
-- [ ] Kích thước canvas **512×512 px**
-- [ ] Định dạng **WebP**, dung lượng **≤ 50 KB/file**
-- [ ] Tên file đúng quy tắc: `{TênPet}_egg.webp`, `{TênPet}_baby.webp`, ...
-- [ ] Thư mục đúng: `public/assets/images/pets/{TênPet}/`
-- [ ] Hình rõ ràng ở kích thước thu nhỏ **48×48 px** (zoom out kiểm tra)
-- [ ] Các stage có **sự khác biệt rõ ràng** và **tăng dần độ hoành tráng**
-- [ ] File phụ `{TênPet}_chat.webp` (nếu có) — phù hợp hiển thị nhỏ cạnh chat bubble
-
-### Tổng số file cần bàn giao
-
-| Loại | Số lượng |
-|------|----------|
-| 18 pet × 5 stage | **90 file** (bắt buộc) |
-| 18 pet × 1 chat | **18 file** (tuỳ chọn) |
-| 18 pet × 1 alt | **18 file** (tuỳ chọn) |
-| **Đã hoàn thành** | **9 file** (Cowdi 4 + Foxie 5) |
-| **Tổng tối thiểu còn lại** | **81 file** |
-| **Tổng đầy đủ** | **~126 file** |
-
----
-
-## 8. Cấu trúc thư mục hoàn chỉnh sau khi bàn giao
-
-```
-public/assets/images/pets/
-  ├── Cowdi/                    ← ✅ có hình (thiếu egg)
-  │     ├── Cowdi_baby.webp
-  │     ├── Cowdi_junior.webp
-  │     ├── Cowdi_super.webp
-  │     └── Cowdi_legandary.webp
-  └── Foxie/                    ← ✅ có hình đầy đủ
-  │     ├── Foxie_egg.webp
-  │     ├── Foxie_baby.webp
-  │     ├── Foxie_junior.webp
-  │     ├── Foxie_super.webp
-  │     └── Foxie_legandary.webp
-  ├── Pingu/                    ← ❌ chưa có
-  │     └── ...
-  ├── Leafy/
-  │     └── ...
-  ├── Sparky/
-  │     └── ...
-  ├── Mimi/
-  │     └── ...
-  ├── Owlbert/
-  │     └── ...
-  ├── Flippy/
-  │     └── ...
-  ├── Leo/
-  │     └── ...
-  ├── Bamboo/
-  │     └── ...
-  ├── Storm/
-  │     └── ...
-  ├── Shadow/
-  │     └── ...
-  ├── Prisma/
-  │     └── ...
-  ├── Draco/
-  │     └── ...
-  ├── Pumpkin/
-  │     └── ...
-  └── Ginseng/
-        └── ...
-```
-
----
-
----
-
-## 9. Mapping code hiện tại (`src/data/pets.js`)
-
-Đường dẫn hình ảnh đã được cập nhật trong code:
+Mỗi pet khai báo theo pattern:
 
 ```js
-// Cowdi — 4 stage có hình (thiếu egg)
-const COWDI_IMG = '/assets/images/pets/Cowdi';
-export const COWDI_IMAGES = {
-  baby: `${COWDI_IMG}/Cowdi_baby.webp`,
-  junior: `${COWDI_IMG}/Cowdi_junior.webp`,
-  super: `${COWDI_IMG}/Cowdi_super.webp`,
-  legendary: `${COWDI_IMG}/Cowdi_legandary.webp`,
-};
-
-// Foxie — 5 stage đầy đủ (WebP)
+// ── <Pet> Image Paths ─────────────────────────────────────────
 const FOXIE_IMG = '/assets/images/pets/Foxie';
 export const FOXIE_IMAGES = {
   egg: `${FOXIE_IMG}/Foxie_egg.webp`,
@@ -677,10 +190,260 @@ export const FOXIE_IMAGES = {
   super: `${FOXIE_IMG}/Foxie_super.webp`,
   legendary: `${FOXIE_IMG}/Foxie_legandary.webp`,
 };
+
+// ...
+
+foxie: {
+  // ...
+  evolutions: [
+    { stage: 0, name: 'Trứng Foxie', xp: 0, emoji: '🥚', image: FOXIE_IMAGES.egg },
+    { stage: 1, name: 'Baby Foxie', xp: 100, emoji: '🦊', image: FOXIE_IMAGES.baby },
+    { stage: 2, name: 'Junior Foxie', xp: 500, emoji: '🦊', image: FOXIE_IMAGES.junior },
+    { stage: 3, name: 'Super Foxie', xp: 1200, emoji: '🔥', image: FOXIE_IMAGES.super },
+    { stage: 4, name: 'Legendary Foxie', xp: 2500, emoji: '👑', image: FOXIE_IMAGES.legendary },
+  ],
+  // ...
+},
 ```
 
-Khi thêm pet mới, tạo block tương tự và gán `image` vào mỗi evolution stage.
+Evolution không có `image` → app fallback sang emoji.
+
+### Các hằng đang được export
+
+`COWDI_IMAGES`, `FOXIE_IMAGES`, `GINSENG_IMAGES`, `BAMBOO_IMAGES`, `FLIPPY_IMAGES`, `LEAFY_IMAGES`, `LEO_IMAGES`, `SPARKY_IMAGES`, `OWLBERT_IMAGES`, `MIMI_IMAGES`, `PADDY_IMAGES`, `STORM_IMAGES`, `SPROUT_IMAGES`.
+
+**Thiếu:** `PINGU_IMAGES` — tuy đã có file nhưng chưa khai báo.
+
+### Việc cần làm trong code (tách khỏi tài liệu thiết kế)
+
+- [ ] Thêm `PINGU_IMAGES` + gán `image` vào 5 evolution của `pingu`.
+- [ ] Bổ sung `Cowdi_egg.webp` + key `egg` trong `COWDI_IMAGES` + evolution `stage: 0`.
+- [ ] Khi có ảnh Shadow/Prisma/Draco/Pumpkin → thêm block `*_IMAGES` tương ứng.
 
 ---
 
-*Cập nhật lần cuối: 21/03/2026 — Đã cập nhật Cowdi (4 stage) + Foxie (5 stage) lên giao diện.*
+## 7. Danh sách thiết kế 18 pet
+
+### 7.1 Cowdi 🐮 — Bò sữa *(Starter / Neutral)*
+
+| | |
+|---|---|
+| Rarity | Starter (có sẵn) |
+| Tính cách | Hiền lành, yêu tiếng Anh, đồng hành từ ngày đầu |
+| Màu chủ đạo | Trắng + đốm đen, mũi hồng |
+| Trạng thái | ⚠️ 4/5 stage — thiếu `egg` |
+
+| Stage | XP | Hướng dẫn visual |
+|-------|----|------------------|
+| 0 Egg | 0 | **CẦN VẼ** — trứng trắng có đốm đen kiểu bò sữa |
+| 1 Baby | 100 | Bê con nhỏ xíu, mắt to tròn |
+| 2 Junior | 500 | Bò sữa trẻ, vui vẻ |
+| 3 Super | 1200 | Bò khỏe, sừng, cơ bắp nhẹ |
+| 4 Legendary | 2500 | Bò oai vệ, vương miện/hào quang |
+
+---
+
+### 7.2 Foxie 🦊 — Cáo lửa *(Common / Fire)* ✅
+
+| | |
+|---|---|
+| Mở khóa | Hoàn thành 5 bài học |
+| Stats | Listening 4 · Speaking 3 · Reading 8 · Writing 5 |
+| Tính cách | Thông minh, giỏi ngữ pháp, thích giải đố |
+| Màu chủ đạo | Cam đỏ, bụng trắng |
+
+---
+
+### 7.3 Pingu 🐧 — Chim cánh cụt *(Common / Water)* ⚠️
+
+| | |
+|---|---|
+| Mở khóa | 10 quiz Listening |
+| Tính cách | Chăm chỉ, thính giác nhạy, yêu âm nhạc |
+| Màu chủ đạo | Đen trắng, mỏ cam |
+| Trạng thái | Ảnh đã có nhưng **chưa wire vào code** → vẫn hiện emoji |
+
+| Stage | XP | Hướng dẫn visual |
+|-------|----|------------------|
+| 0 | 0 | Trứng trắng có vân băng tuyết |
+| 1 | 100 | Cánh cụt con, đeo tai nghe nhỏ |
+| 2 | 500 | Cánh cụt vui vẻ, quàng khăn |
+| 3 | 1200 | Cánh cụt mạnh, băng xung quanh |
+| 4 | 2500 | Cánh cụt hoàng đế, vương miện băng |
+
+---
+
+### 7.4 Leafy 🐢 — Rùa lá *(Common / Nature)* ✅
+
+Mở khóa: học 50 từ vựng. Kiên nhẫn, chậm mà chắc. Xanh lá + nâu đất.
+
+### 7.5 Sparky 🐉 — Rồng nhỏ *(Rare / Fire)* ✅
+
+Mở khóa: streak 7 ngày. Đầy năng lượng, thích viết câu. Đỏ cam + vàng.
+
+### 7.6 Mimi 🐱 — Mèo mây *(Rare / Cosmic)* ✅
+
+Mở khóa: 3 quiz 100%. Thần bí, giỏi phân tích. Tím pastel + trắng mây.
+
+### 7.7 Owlbert 🦉 — Cú vọ *(Rare / Nature)* ✅
+
+Mở khóa: 15 quiz Grammar. Thông thái. Nâu + vàng mật ong.
+
+### 7.8 Flippy 🐬 — Cá heo *(Rare / Water)* ✅
+
+Mở khóa: 100 từ vựng. Vui vẻ, nghe hiểu siêu nhanh. Xanh dương + bụng trắng.
+
+### 7.9 Leo 🦁 — Sư tử *(Epic / Fire)* ✅
+
+Mở khóa: 1,000 XP. Dũng mãnh toàn diện. Vàng + cam đậm.
+
+### 7.10 Bamboo 🐼 — Gấu trúc *(Epic / Nature)* ✅
+
+Mở khóa: 8 bài học. Bậc thầy giao tiếp. Đen trắng + tre xanh.
+
+### 7.11 Storm 🦅 — Đại bàng *(Epic / Cosmic)* ✅
+
+Mở khóa: streak 30 ngày. Kiên cường, sáng tạo. Xám bạc + tím sấm.
+
+### 7.12 Shadow 🐺 — Sói bóng *(Epic / Cosmic)* ❌
+
+| | |
+|---|---|
+| Mở khóa | 50 quiz |
+| Tính cách | Huyền bí, trí tuệ sâu sắc |
+| Màu chủ đạo | Đen + tím đậm |
+| Trạng thái | **Chưa có ảnh — cần vẽ 5 stage** |
+
+| Stage | Hướng dẫn |
+|-------|-----------|
+| 0 | Trứng đen vân bóng tối |
+| 1 | Sói con đen, mắt sáng |
+| 2 | Sói trẻ, bóng tối nhẹ |
+| 3 | Sói bóng đêm, hiệu ứng tối |
+| 4 | Sói huyền bí, áo choàng bóng tối |
+
+---
+
+### 7.13 Prisma 🦄 — Kỳ lân *(Legendary / Cosmic)* ❌
+
+| | |
+|---|---|
+| Mở khóa | 2,500 XP |
+| Màu chủ đạo | Cầu vồng + trắng lấp lánh |
+| Trạng thái | **Chưa có ảnh — cần vẽ 5 stage** |
+
+Stage: trứng lấp lánh → kỳ lân con sừng nhỏ → bờm cầu vồng → hào quang 7 sắc → toàn thân tỏa sáng.
+
+---
+
+### 7.14 Draco 🐲 — Rồng cổ đại *(Legendary / Fire)* ❌
+
+| | |
+|---|---|
+| Mở khóa | Sưu tầm đủ 17 pet khác |
+| Màu chủ đạo | Đỏ sẫm + vàng kim |
+| Trạng thái | **Chưa có ảnh — cần vẽ 5 stage** |
+
+Stage: trứng đỏ vảy rồng cổ → rồng con cánh nhỏ → rồng trẻ oai vệ → lửa cổ đại → vương miện lửa huyền thoại.
+
+---
+
+### 7.15 Pumpkin 🎃 — Bí ngô ma *(Event / Cosmic)* ❌
+
+| | |
+|---|---|
+| Mở khóa | Sự kiện Halloween |
+| Màu chủ đạo | Cam bí ngô + tím Halloween |
+| Trạng thái | **Chưa có ảnh — cần vẽ 5 stage** |
+
+Stage: trứng cam mặt bí ngô → bí ngô con → mũ phù thủy nhỏ → lửa Halloween → vua bí ngô hào quang ma thuật.
+
+---
+
+### 7.16 Ginseng 🥕 — Nhân sâm *(Epic / Earth)* ✅
+
+Mở khóa: sưu tầm `leafy + bamboo + rice + mushroom`. Sống lâu, trí tuệ cổ xưa. Vàng nhạt + trắng kem + rễ tua rua.
+
+### 7.17 Paddy 🌾 — Lúa *(Common / Nature)* ✅
+
+Mở khóa: 12 bài học. Chăm chỉ, tích lũy tài nguyên. Vàng lúa + xanh nhạt. Folder `Lua/`, file `Lua_*.webp`.
+
+### 7.18 Sprout 🎋 — Măng tre *(Rare / Nature)* ✅
+
+Mở khóa: streak 14 ngày. Kiên cường, vươn cao. Xanh lá + xanh đậm. Folder `Mangtre/`, file `Mangtre_*.webp`.
+
+---
+
+## 8. Nguyên tắc thiết kế
+
+### Phong cách
+
+- **Art style:** Chibi / cute cartoon — phù hợp học sinh cấp 2–3, đại học.
+- **Line art:** Sạch, rõ ràng, dễ nhận diện ở 48 px.
+- **Biểu cảm:** Vui vẻ, thân thiện, khích lệ.
+
+### Độ phức tạp theo stage
+
+| Stage | Mức độ | Đặc điểm |
+|-------|--------|----------|
+| 0 Egg | ★☆☆☆☆ | Trứng có vân/màu đặc trưng loài |
+| 1 Baby | ★★☆☆☆ | Tỷ lệ đầu to, mắt to tròn, dễ thương tối đa |
+| 2 Junior | ★★★☆☆ | Tỷ lệ cân đối, rõ đặc trưng loài |
+| 3 Super | ★★★★☆ | Thêm phụ kiện + hiệu ứng nguyên tố |
+| 4 Legendary | ★★★★★ | Vương miện / hào quang, chi tiết tối đa |
+
+### Bảng màu nguyên tố
+
+| Nguyên tố | Màu chính | Màu phụ | Hiệu ứng |
+|-----------|-----------|---------|----------|
+| 🔥 Fire | `#FF5722` | `#FF9800` | Lửa, tia lửa |
+| 💧 Water | `#2196F3` | `#00BCD4` | Sóng, bọt nước |
+| 🌿 Nature | `#4CAF50` | `#8BC34A` | Lá, hoa, dây leo |
+| 🌙 Cosmic | `#9C27B0` | `#E1BEE7` | Sao, mây, ánh trăng |
+| 🌱 Earth | `#8D6E63` | `#D7CCC8` | Đất, đá, rễ cây |
+| ⚡ Neutral | `#FF9800` | `#FFC107` | Không hiệu ứng |
+
+---
+
+## 9. Checklist bàn giao
+
+Khi designer hoàn thành một pet:
+
+- [ ] Đủ **5 file** (`_Egg`, `_Baby`, `_Junior`, `_Super`, `_Legendary`)
+- [ ] **Nền trong suốt**, không halo/viền mờ
+- [ ] Canvas **512×512 px**, tỷ lệ 1:1
+- [ ] Định dạng **`.webp`**, quality 80–90, ≤ **50 KB/file**
+- [ ] Tên file đúng quy ước: `{TênPet}_Egg.webp`…
+- [ ] Thư mục đúng: `public/assets/images/pets/{TênPet}/`
+- [ ] Rõ ràng ở thumbnail 48×48 (zoom out kiểm tra)
+- [ ] Chạy `node scripts/convert-png-to-webp.mjs --dry` để đảm bảo không còn PNG
+- [ ] Cập nhật `src/data/pets.js` → thêm `{PET}_IMAGES` + gán vào `evolutions[].image`
+- [ ] `npm run build` pass, test mở `PetPage` / `CollectionPage`
+
+---
+
+## 10. Cấu trúc thư mục hiện tại
+
+```
+public/assets/images/pets/
+├── Bamboo/      ✅  Bamboo_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Cowdi/       ⚠️  Cowdi_{baby,junior,super,legandary}.webp  (thiếu egg)
+├── Flippy/      ✅  Flippy_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Foxie/       ✅  Foxie_{egg,baby,junior,super,legandary}.webp
+├── Ginseng/     ✅  Ginseng_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Leafy/       ✅  Leafy_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Leo/         ✅  Leo_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Lua/         ✅  Lua_{Egg,Baby,Junior,Super,Legendary}.webp       (pet = Paddy)
+├── Mangtre/     ✅  Mangtre_{Egg,Baby,Junior,Super,Legendary}.webp   (pet = Sprout)
+├── Mimi/        ✅  Mini_{Egg,Baby,Junior,Super,Legendary}.webp      (prefix file = "Mini_")
+├── Owlbert/     ✅  Owlbert_{Egg,Baby,Junior,Super,Legendary}.webp
+├── Pingu/       ⚠️  Pingu_{Egg,Baby,Junior,Super,Legendary}.webp     (có file nhưng chưa wire)
+├── Sparky/      ✅  Sparky_{Egg,Baby,Junior,Super,Legendary}.webp
+└── Storm/       ✅  Storm_{Egg,Junior,Super,Legendary}.webp + Storm-Baby.webp
+
+(Chưa có): Shadow/, Prisma/, Draco/, Pumpkin/
+```
+
+---
+
+*Cập nhật lần cuối: 24/04/2026 — đồng bộ với `PET_REGISTRY` (18 pet), chuẩn hóa toàn bộ sang WebP.*

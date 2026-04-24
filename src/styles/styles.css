@@ -9,15 +9,86 @@
   --cowdi-secondary: #4ECDC4;
   --cowdi-bg: #FFF8F0;
   --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Typography scale ──
+     Root 17.5px (~109%) để toàn bộ rem-based Bootstrap scale đều.
+     Bố cục không vỡ nhưng chữ đọc dễ hơn rõ rệt. */
+  --cowdi-font-base: 20px; /* tăng lên 18px nếu muốn lớn hơn, giảm về 16.5px nếu thấy quá to */
+  --cowdi-line-height: 1.6;
 }
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  font-size: var(--cowdi-font-base);
+}
 
 body {
   font-family: var(--font) !important;
   background-color: var(--cowdi-bg);
+  font-size: 1rem;
+  line-height: var(--cowdi-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   TYPOGRAPHY — tăng nhẹ nhiều cỡ chữ so với
+   mặc định của Bootstrap để dễ đọc hơn
+   ============================================ */
+
+/* Các class text nhỏ của Bootstrap mặc định 0.875em → nâng lên 0.92em */
+.small, small, .form-text, .text-muted.small {
+  font-size: 0.92em !important;
+}
+
+/* Nav, dropdown, list-group: đồng bộ cỡ base */
+.nav-link, .dropdown-item, .list-group-item, .breadcrumb-item {
+  font-size: 1rem;
+}
+
+/* Badge vốn 0.75em — nâng nhẹ để số liệu dễ đọc */
+.badge {
+  font-size: 0.82em;
+  padding: 0.38em 0.62em;
+}
+
+/* Input & textarea: min 16px để iOS không auto-zoom */
+.form-control, .form-select, input, textarea, select {
+  font-size: 1rem;
+}
+.form-control-sm, .form-select-sm { font-size: 0.92rem; }
+.form-control-lg, .form-select-lg { font-size: 1.15rem; }
+
+/* Nút bấm: tăng nhẹ */
+.btn            { font-size: 1rem; }
+.btn-sm         { font-size: 0.92rem; }
+.btn-lg         { font-size: 1.15rem; }
+
+/* Heading scale — giữ hierarchy rõ ràng */
+h1, .h1 { font-size: 2.1rem; }
+h2, .h2 { font-size: 1.75rem; }
+h3, .h3 { font-size: 1.45rem; }
+h4, .h4 { font-size: 1.2rem; }
+h5, .h5 { font-size: 1.08rem; }
+h6, .h6 { font-size: 1rem; }
+
+/* Table: dữ liệu cần dễ đọc */
+.table { font-size: 1rem; }
+.table-sm { font-size: 0.92rem; }
+
+/* Tooltip & toast nhỏ vừa phải */
+.tooltip { font-size: 0.88rem; }
+.toast { font-size: 1rem; }
+
+/* Modal title rõ ràng hơn */
+.modal-title { font-size: 1.25rem; font-weight: 700; }
+
+/* Responsive: trên màn hình rất nhỏ giảm lại một chút
+   để tránh tràn bố cục (vẫn lớn hơn default) */
+@media (max-width: 400px) {
+  :root { --cowdi-font-base: 16px; }
 }
 
 /* ============================================

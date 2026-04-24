@@ -1,0 +1,4442 @@
+// Auto-generated — ngân hàng câu hỏi cho Practice Page
+
+export const QUIZ_BANK = {
+  vocab: [
+    {
+      question: "\"Hello\" có nghĩa là gì?",
+      options: [
+        "Tạm biệt",
+        "Xin chào",
+        "Cảm ơn",
+        "Xin lỗi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Mother\" nghĩa là:",
+      options: [
+        "Bố",
+        "Mẹ",
+        "Anh trai",
+        "Chị gái"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Blue\" nghĩa là:",
+      options: [
+        "Đỏ",
+        "Xanh dương",
+        "Vàng",
+        "Xanh lá"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Breakfast\" nghĩa là:",
+      options: [
+        "Bữa trưa",
+        "Bữa sáng",
+        "Bữa tối",
+        "Bữa phụ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Airport\" nghĩa là:",
+      options: [
+        "Nhà ga",
+        "Bến xe",
+        "Sân bay",
+        "Cảng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Delicious\" nghĩa là:",
+      options: [
+        "Cay",
+        "Mặn",
+        "Ngon",
+        "Ngọt"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Family\" nghĩa là:",
+      options: [
+        "Bạn bè",
+        "Gia đình",
+        "Đồng nghiệp",
+        "Hàng xóm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Sleep\" nghĩa là:",
+      options: [
+        "Ăn",
+        "Chạy",
+        "Ngủ",
+        "Đi"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Hungry\" nghĩa là:",
+      options: [
+        "No",
+        "Đói",
+        "Khát",
+        "Mệt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Passport\" nghĩa là:",
+      options: [
+        "Vé",
+        "Bản đồ",
+        "Hộ chiếu",
+        "Thẻ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Tomorrow\" nghĩa là:",
+      options: [
+        "Hôm qua",
+        "Hôm nay",
+        "Ngày mai",
+        "Bây giờ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Grandmother\" nghĩa là:",
+      options: [
+        "Bà",
+        "Mẹ",
+        "Cô",
+        "Dì"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Green\" nghĩa là:",
+      options: [
+        "Xanh dương",
+        "Xanh lá",
+        "Vàng",
+        "Đỏ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Water\" nghĩa là:",
+      options: [
+        "Lửa",
+        "Nước",
+        "Đất",
+        "Gió"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Friend\" nghĩa là:",
+      options: [
+        "Thầy giáo",
+        "Bạn bè",
+        "Gia đình",
+        "Hàng xóm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Football / Soccer\" nghĩa là:",
+      options: [
+        "Bóng rổ",
+        "Bóng chuyền",
+        "Bóng đá",
+        "Bóng bàn"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Basketball\" nghĩa là:",
+      options: [
+        "Bóng đá",
+        "Bóng rổ",
+        "Bóng chuyền",
+        "Quần vợt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Swimming\" nghĩa là:",
+      options: [
+        "Chạy bộ",
+        "Bơi lội",
+        "Đạp xe",
+        "Đi bộ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Running\" nghĩa là:",
+      options: [
+        "Bơi",
+        "Nhảy",
+        "Chạy",
+        "Leo núi"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Tennis\" nghĩa là:",
+      options: [
+        "Cầu lông",
+        "Quần vợt",
+        "Bóng bàn",
+        "Golf"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cycling\" nghĩa là:",
+      options: [
+        "Chạy bộ",
+        "Bơi lội",
+        "Đạp xe",
+        "Cưỡi ngựa"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Volleyball\" nghĩa là:",
+      options: [
+        "Bóng đá",
+        "Bóng rổ",
+        "Bóng chuyền",
+        "Bóng ném"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Boxing\" nghĩa là:",
+      options: [
+        "Đấu kiếm",
+        "Đấu vật",
+        "Quyền anh",
+        "Judo"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Yoga\" nghĩa là:",
+      options: [
+        "Thái cực quyền",
+        "Yoga",
+        "Aerobic",
+        "Pilates"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Team\" nghĩa là:",
+      options: [
+        "Cầu thủ",
+        "Đội",
+        "Trận đấu",
+        "Giải đấu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Score\" nghĩa là:",
+      options: [
+        "Tỷ số/Điểm số",
+        "Trận đấu",
+        "Cầu thủ",
+        "Đội"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Win\" nghĩa là:",
+      options: [
+        "Thua",
+        "Hòa",
+        "Thắng",
+        "Bỏ cuộc"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Lose\" nghĩa là:",
+      options: [
+        "Thắng",
+        "Thua",
+        "Hòa",
+        "Nghỉ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Champion\" nghĩa là:",
+      options: [
+        "Á quân",
+        "Nhà vô địch",
+        "Cầu thủ",
+        "Huấn luyện viên"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Coach\" nghĩa là:",
+      options: [
+        "Cầu thủ",
+        "Trọng tài",
+        "Huấn luyện viên",
+        "Khán giả"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Computer\" nghĩa là:",
+      options: [
+        "Điện thoại",
+        "Máy tính",
+        "Máy tính bảng",
+        "Tivi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Phone\" nghĩa là:",
+      options: [
+        "Máy tính",
+        "Điện thoại",
+        "Camera",
+        "Loa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Internet\" nghĩa là:",
+      options: [
+        "Mạng xã hội",
+        "Mạng internet",
+        "Wifi",
+        "Bluetooth"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Website\" nghĩa là:",
+      options: [
+        "Ứng dụng",
+        "Trang web",
+        "Trò chơi",
+        "Email"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Password\" nghĩa là:",
+      options: [
+        "Tên đăng nhập",
+        "Mật khẩu",
+        "Email",
+        "Số điện thoại"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Download\" nghĩa là:",
+      options: [
+        "Tải lên",
+        "Tải xuống",
+        "Gửi",
+        "Xóa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Upload\" nghĩa là:",
+      options: [
+        "Tải xuống",
+        "Tải lên",
+        "Nhận",
+        "Lưu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Software\" nghĩa là:",
+      options: [
+        "Phần cứng",
+        "Phần mềm",
+        "Thiết bị",
+        "Linh kiện"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Hardware\" nghĩa là:",
+      options: [
+        "Phần mềm",
+        "Phần cứng",
+        "Ứng dụng",
+        "Dữ liệu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Keyboard\" nghĩa là:",
+      options: [
+        "Chuột máy tính",
+        "Màn hình",
+        "Bàn phím",
+        "Loa"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Screen / Monitor\" nghĩa là:",
+      options: [
+        "Bàn phím",
+        "Màn hình",
+        "Chuột",
+        "Tai nghe"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Battery\" nghĩa là:",
+      options: [
+        "Sạc",
+        "Pin/Ắc quy",
+        "Cáp",
+        "Bộ nhớ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Camera\" nghĩa là:",
+      options: [
+        "Máy in",
+        "Máy quét",
+        "Máy ảnh/Camera",
+        "Máy chiếu"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Email\" nghĩa là:",
+      options: [
+        "Tin nhắn",
+        "Thư điện tử",
+        "Cuộc gọi",
+        "Video"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Search\" nghĩa là:",
+      options: [
+        "Lưu",
+        "Tìm kiếm",
+        "Xóa",
+        "Chia sẻ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Shop / Store\" nghĩa là:",
+      options: [
+        "Chợ",
+        "Cửa hàng",
+        "Siêu thị",
+        "Trung tâm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Price\" nghĩa là:",
+      options: [
+        "Chất lượng",
+        "Giá cả",
+        "Số lượng",
+        "Màu sắc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Expensive\" nghĩa là:",
+      options: [
+        "Rẻ",
+        "Miễn phí",
+        "Đắt tiền",
+        "Bình thường"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Cheap\" nghĩa là:",
+      options: [
+        "Đắt",
+        "Rẻ",
+        "Miễn phí",
+        "Khuyến mãi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Discount\" nghĩa là:",
+      options: [
+        "Giảm giá",
+        "Tăng giá",
+        "Miễn phí",
+        "Thuế"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Receipt\" nghĩa là:",
+      options: [
+        "Hóa đơn/Biên lai",
+        "Tiền mặt",
+        "Thẻ tín dụng",
+        "Phiếu giảm giá"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Cash\" nghĩa là:",
+      options: [
+        "Thẻ",
+        "Tiền mặt",
+        "Séc",
+        "Chuyển khoản"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Size\" nghĩa là:",
+      options: [
+        "Màu sắc",
+        "Kích cỡ",
+        "Chất liệu",
+        "Kiểu dáng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Fashion\" nghĩa là:",
+      options: [
+        "Màu sắc",
+        "Kích cỡ",
+        "Thời trang",
+        "Phong cách"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sale\" nghĩa là:",
+      options: [
+        "Mua",
+        "Bán/Khuyến mãi",
+        "Đổi hàng",
+        "Hoàn tiền"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Hospital\" nghĩa là:",
+      options: [
+        "Phòng khám",
+        "Bệnh viện",
+        "Nhà thuốc",
+        "Phòng mổ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Medicine\" nghĩa là:",
+      options: [
+        "Thức ăn",
+        "Thuốc",
+        "Vitamin",
+        "Thực phẩm chức năng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Sick / Ill\" nghĩa là:",
+      options: [
+        "Khỏe",
+        "Mệt",
+        "Bệnh",
+        "Đau bụng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Healthy\" nghĩa là:",
+      options: [
+        "Bệnh",
+        "Mệt mỏi",
+        "Khỏe mạnh",
+        "Yếu ớt"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Pain / Ache\" nghĩa là:",
+      options: [
+        "Ngứa",
+        "Đau",
+        "Buồn nôn",
+        "Chóng mặt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Fever\" nghĩa là:",
+      options: [
+        "Ho",
+        "Cảm lạnh",
+        "Sốt",
+        "Đau đầu"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Cough\" nghĩa là:",
+      options: [
+        "Hắt hơi",
+        "Ho",
+        "Sổ mũi",
+        "Đau họng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Nurse\" nghĩa là:",
+      options: [
+        "Bác sĩ",
+        "Y tá",
+        "Dược sĩ",
+        "Nha sĩ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Dentist\" nghĩa là:",
+      options: [
+        "Bác sĩ nội khoa",
+        "Bác sĩ phẫu thuật",
+        "Nha sĩ",
+        "Bác sĩ mắt"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Rest\" nghĩa là:",
+      options: [
+        "Tập thể dục",
+        "Nghỉ ngơi",
+        "Làm việc",
+        "Hoạt động"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Mountain\" nghĩa là:",
+      options: [
+        "Đồng bằng",
+        "Biển",
+        "Núi",
+        "Sông"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"River\" nghĩa là:",
+      options: [
+        "Biển",
+        "Hồ",
+        "Sông",
+        "Suối"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sea / Ocean\" nghĩa là:",
+      options: [
+        "Sông",
+        "Hồ",
+        "Biển/Đại dương",
+        "Ao"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Forest\" nghĩa là:",
+      options: [
+        "Sa mạc",
+        "Đồng cỏ",
+        "Rừng",
+        "Vườn"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Flower\" nghĩa là:",
+      options: [
+        "Cây",
+        "Lá",
+        "Hoa",
+        "Rễ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Tree\" nghĩa là:",
+      options: [
+        "Hoa",
+        "Cỏ",
+        "Cây",
+        "Bụi cây"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sand\" nghĩa là:",
+      options: [
+        "Đất",
+        "Cát",
+        "Đá",
+        "Bùn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Sky\" nghĩa là:",
+      options: [
+        "Đất",
+        "Biển",
+        "Bầu trời",
+        "Không gian"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sun\" nghĩa là:",
+      options: [
+        "Mặt trăng",
+        "Ngôi sao",
+        "Mặt trời",
+        "Hành tinh"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Moon\" nghĩa là:",
+      options: [
+        "Mặt trời",
+        "Mặt trăng",
+        "Sao",
+        "Hành tinh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Star\" nghĩa là:",
+      options: [
+        "Mặt trăng",
+        "Mặt trời",
+        "Ngôi sao",
+        "Thiên hà"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Snow\" nghĩa là:",
+      options: [
+        "Mưa",
+        "Sương",
+        "Tuyết",
+        "Băng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Storm\" nghĩa là:",
+      options: [
+        "Nắng",
+        "Sương mù",
+        "Bão",
+        "Gió nhẹ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Rainbow\" nghĩa là:",
+      options: [
+        "Tia sét",
+        "Cầu vồng",
+        "Sương mù",
+        "Mây"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Desert\" nghĩa là:",
+      options: [
+        "Rừng",
+        "Sa mạc",
+        "Đồng bằng",
+        "Vùng đất ngập nước"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bag\" nghĩa là:",
+      options: [
+        "Ví",
+        "Túi/Balo",
+        "Thùng",
+        "Hộp"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Wallet\" nghĩa là:",
+      options: [
+        "Túi xách",
+        "Ví tiền",
+        "Balo",
+        "Hộp"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Key\" nghĩa là:",
+      options: [
+        "Ổ khóa",
+        "Chìa khóa",
+        "Móc khóa",
+        "Cánh cửa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Watch\" nghĩa là:",
+      options: [
+        "Đồng hồ treo tường",
+        "Lịch",
+        "Đồng hồ đeo tay",
+        "Điện thoại"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Glasses\" nghĩa là:",
+      options: [
+        "Ly/Cốc",
+        "Kính mắt",
+        "Gương",
+        "Ống nhòm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Umbrella\" nghĩa là:",
+      options: [
+        "Áo mưa",
+        "Ô/Dù",
+        "Mũ",
+        "Ủng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Towel\" nghĩa là:",
+      options: [
+        "Khăn tắm",
+        "Chăn",
+        "Gối",
+        "Màn"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Mirror\" nghĩa là:",
+      options: [
+        "Cửa sổ",
+        "Tranh",
+        "Gương",
+        "Màn hình"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Soap\" nghĩa là:",
+      options: [
+        "Dầu gội",
+        "Xà phòng",
+        "Kem đánh răng",
+        "Nước hoa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Toothbrush\" nghĩa là:",
+      options: [
+        "Kem đánh răng",
+        "Bàn chải đánh răng",
+        "Chỉ nha khoa",
+        "Nước súc miệng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Shirt\" nghĩa là:",
+      options: [
+        "Quần",
+        "Giày",
+        "Áo sơ mi",
+        "Mũ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Trousers / Pants\" nghĩa là:",
+      options: [
+        "Váy",
+        "Áo",
+        "Quần dài",
+        "Tất"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Dress\" nghĩa là:",
+      options: [
+        "Áo sơ mi",
+        "Quần",
+        "Váy liền thân",
+        "Áo khoác"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Shoes\" nghĩa là:",
+      options: [
+        "Tất",
+        "Dép",
+        "Giày",
+        "Ủng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Hat\" nghĩa là:",
+      options: [
+        "Khăn",
+        "Nón/Mũ",
+        "Kính",
+        "Găng tay"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Jacket / Coat\" nghĩa là:",
+      options: [
+        "Áo phông",
+        "Áo sơ mi",
+        "Áo khoác",
+        "Áo len"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Socks\" nghĩa là:",
+      options: [
+        "Dép",
+        "Giày",
+        "Tất/Vớ",
+        "Ủng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Skirt\" nghĩa là:",
+      options: [
+        "Quần dài",
+        "Váy ngắn",
+        "Áo",
+        "Đầm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tie\" nghĩa là:",
+      options: [
+        "Thắt lưng",
+        "Cà vạt",
+        "Khăn quàng",
+        "Nơ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Jeans\" nghĩa là:",
+      options: [
+        "Quần kaki",
+        "Quần jeans",
+        "Quần shorts",
+        "Quần thể thao"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Car\" nghĩa là:",
+      options: [
+        "Xe máy",
+        "Ô tô",
+        "Xe tải",
+        "Xe buýt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Motorcycle\" nghĩa là:",
+      options: [
+        "Ô tô",
+        "Xe đạp",
+        "Xe máy",
+        "Xe buýt"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Bicycle\" nghĩa là:",
+      options: [
+        "Xe máy",
+        "Xe đạp",
+        "Xe scooter",
+        "Xe điện"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Airplane\" nghĩa là:",
+      options: [
+        "Tàu hỏa",
+        "Tàu thủy",
+        "Máy bay",
+        "Trực thăng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Ship / Boat\" nghĩa là:",
+      options: [
+        "Máy bay",
+        "Tàu hỏa",
+        "Tàu/Thuyền",
+        "Ca nô"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Taxi\" nghĩa là:",
+      options: [
+        "Xe buýt",
+        "Taxi",
+        "Xe ôm",
+        "Ô tô riêng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Road / Street\" nghĩa là:",
+      options: [
+        "Đường/Đường phố",
+        "Cầu",
+        "Đường hầm",
+        "Ngõ"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Traffic\" nghĩa là:",
+      options: [
+        "Đường",
+        "Giao thông",
+        "Biển báo",
+        "Đèn đường"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Traffic light\" nghĩa là:",
+      options: [
+        "Đèn đường",
+        "Đèn giao thông",
+        "Biển báo",
+        "Vạch kẻ đường"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bridge\" nghĩa là:",
+      options: [
+        "Hầm",
+        "Cầu",
+        "Đường bộ",
+        "Ngõ hẻm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Music\" nghĩa là:",
+      options: [
+        "Bài thơ",
+        "Âm nhạc",
+        "Hội họa",
+        "Điêu khắc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Song\" nghĩa là:",
+      options: [
+        "Bài thơ",
+        "Bài hát",
+        "Đoạn nhạc",
+        "Âm thanh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Guitar\" nghĩa là:",
+      options: [
+        "Đàn piano",
+        "Đàn guitar",
+        "Đàn violin",
+        "Sáo"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Piano\" nghĩa là:",
+      options: [
+        "Đàn guitar",
+        "Đàn violin",
+        "Đàn piano",
+        "Trống"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Dance\" nghĩa là:",
+      options: [
+        "Hát",
+        "Nhảy/Khiêu vũ",
+        "Chơi nhạc",
+        "Vẽ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Painting\" nghĩa là:",
+      options: [
+        "Tác phẩm điêu khắc",
+        "Tranh vẽ/Hội họa",
+        "Ảnh chụp",
+        "Bản thảo"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Movie / Film\" nghĩa là:",
+      options: [
+        "Phim hoạt hình",
+        "Phim điện ảnh",
+        "Chương trình TV",
+        "Video âm nhạc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Concert\" nghĩa là:",
+      options: [
+        "Buổi trình diễn nghệ thuật",
+        "Hòa nhạc/Buổi biểu diễn",
+        "Cuộc thi",
+        "Festival"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Singer\" nghĩa là:",
+      options: [
+        "Nhạc sĩ",
+        "Ca sĩ",
+        "Nhạc công",
+        "Nhà soạn nhạc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Artist\" nghĩa là:",
+      options: [
+        "Kỹ sư",
+        "Giáo viên",
+        "Nghệ sĩ",
+        "Nhà khoa học"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sweet\" nghĩa là:",
+      options: [
+        "Mặn",
+        "Chua",
+        "Ngọt",
+        "Đắng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Sour\" nghĩa là:",
+      options: [
+        "Ngọt",
+        "Chua",
+        "Mặn",
+        "Cay"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Salty\" nghĩa là:",
+      options: [
+        "Ngọt",
+        "Cay",
+        "Mặn",
+        "Đắng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Spicy\" nghĩa là:",
+      options: [
+        "Ngọt",
+        "Chua",
+        "Mặn",
+        "Cay"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Bitter\" nghĩa là:",
+      options: [
+        "Ngọt",
+        "Đắng",
+        "Chua",
+        "Mặn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Soup\" nghĩa là:",
+      options: [
+        "Cơm",
+        "Mì",
+        "Canh/Súp",
+        "Salad"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Noodle\" nghĩa là:",
+      options: [
+        "Cơm",
+        "Mì",
+        "Bánh mì",
+        "Khoai"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Egg\" nghĩa là:",
+      options: [
+        "Sữa",
+        "Bơ",
+        "Trứng",
+        "Phô mai"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Meat\" nghĩa là:",
+      options: [
+        "Cá",
+        "Rau",
+        "Thịt",
+        "Trứng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Fish\" nghĩa là:",
+      options: [
+        "Thịt",
+        "Cá",
+        "Tôm",
+        "Mực"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Beef\" nghĩa là:",
+      options: [
+        "Thịt lợn",
+        "Thịt bò",
+        "Thịt gà",
+        "Thịt cừu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Pork\" nghĩa là:",
+      options: [
+        "Thịt bò",
+        "Thịt gà",
+        "Thịt lợn",
+        "Thịt vịt"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Apple\" nghĩa là:",
+      options: [
+        "Cam",
+        "Chuối",
+        "Táo",
+        "Nho"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Banana\" nghĩa là:",
+      options: [
+        "Táo",
+        "Chuối",
+        "Xoài",
+        "Dứa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Orange\" (quả) nghĩa là:",
+      options: [
+        "Táo",
+        "Chuối",
+        "Quả cam",
+        "Quả bưởi"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Mango\" nghĩa là:",
+      options: [
+        "Dứa",
+        "Xoài",
+        "Ổi",
+        "Vải"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Watermelon\" nghĩa là:",
+      options: [
+        "Dưa leo",
+        "Bí đỏ",
+        "Dưa hấu",
+        "Dưa lưới"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Strawberry\" nghĩa là:",
+      options: [
+        "Việt quất",
+        "Mâm xôi",
+        "Dâu tây",
+        "Anh đào"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Salad\" nghĩa là:",
+      options: [
+        "Cháo",
+        "Súp",
+        "Salad/Rau trộn",
+        "Sandwich"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Cake\" nghĩa là:",
+      options: [
+        "Bánh quy",
+        "Bánh ngọt/Bánh kem",
+        "Kẹo",
+        "Kem"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Confident\" nghĩa là:",
+      options: [
+        "Nhút nhát",
+        "Tự tin",
+        "Vui vẻ",
+        "Bình tĩnh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Nervous\" nghĩa là:",
+      options: [
+        "Bình tĩnh",
+        "Tự tin",
+        "Lo lắng/Hồi hộp",
+        "Vui"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Surprised\" nghĩa là:",
+      options: [
+        "Buồn",
+        "Tức giận",
+        "Ngạc nhiên",
+        "Thất vọng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Bored\" nghĩa là:",
+      options: [
+        "Hứng thú",
+        "Chán nản",
+        "Vui vẻ",
+        "Phấn khích"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Proud\" nghĩa là:",
+      options: [
+        "Xấu hổ",
+        "Tự hào",
+        "Thất vọng",
+        "Tức giận"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Ashamed\" nghĩa là:",
+      options: [
+        "Tự hào",
+        "Xấu hổ",
+        "Ngạc nhiên",
+        "Vui"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Lonely\" nghĩa là:",
+      options: [
+        "Vui vẻ",
+        "Cô đơn",
+        "Nhộn nhịp",
+        "Bình tĩnh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Brave\" nghĩa là:",
+      options: [
+        "Nhút nhát",
+        "Dũng cảm",
+        "Mạnh mẽ",
+        "Thông minh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Clever / Smart\" nghĩa là:",
+      options: [
+        "Ngốc nghếch",
+        "Thông minh",
+        "Nhanh nhẹn",
+        "Cẩn thận"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Kind / Friendly\" nghĩa là:",
+      options: [
+        "Khó tính",
+        "Thân thiện/Tốt bụng",
+        "Lạnh lùng",
+        "Ích kỷ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Library\" nghĩa là:",
+      options: [
+        "Hiệu sách",
+        "Thư viện",
+        "Phòng đọc sách",
+        "Trường học"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Museum\" nghĩa là:",
+      options: [
+        "Rạp chiếu phim",
+        "Bảo tàng",
+        "Phòng trưng bày",
+        "Nhà hát"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bank\" nghĩa là:",
+      options: [
+        "Bưu điện",
+        "Ngân hàng",
+        "Công ty bảo hiểm",
+        "Sàn giao dịch"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Pharmacy / Drugstore\" nghĩa là:",
+      options: [
+        "Bệnh viện",
+        "Phòng khám",
+        "Nhà thuốc",
+        "Hiệu thuốc tây"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Post office\" nghĩa là:",
+      options: [
+        "Văn phòng",
+        "Bưu điện",
+        "Trụ sở cơ quan",
+        "Chi nhánh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cinema / Theater\" nghĩa là:",
+      options: [
+        "Sân khấu",
+        "Rạp chiếu phim/Nhà hát",
+        "Hội trường",
+        "Phòng hòa nhạc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Supermarket\" nghĩa là:",
+      options: [
+        "Chợ",
+        "Siêu thị",
+        "Cửa hàng tiện lợi",
+        "Trung tâm thương mại"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Park\" nghĩa là:",
+      options: [
+        "Sân vận động",
+        "Công viên",
+        "Khu vui chơi",
+        "Quảng trường"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Station\" nghĩa là:",
+      options: [
+        "Sân bay",
+        "Nhà ga/Trạm",
+        "Bến cảng",
+        "Điểm dừng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Gym\" nghĩa là:",
+      options: [
+        "Bể bơi",
+        "Sân tennis",
+        "Phòng tập thể hình",
+        "Sân bóng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Remember\" nghĩa là:",
+      options: [
+        "Quên",
+        "Nhớ",
+        "Suy nghĩ",
+        "Học"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Forget\" nghĩa là:",
+      options: [
+        "Nhớ",
+        "Quên",
+        "Bỏ lỡ",
+        "Mất"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Understand\" nghĩa là:",
+      options: [
+        "Nghe",
+        "Đọc",
+        "Hiểu",
+        "Biết"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Explain\" nghĩa là:",
+      options: [
+        "Hỏi",
+        "Trả lời",
+        "Giải thích",
+        "Mô tả"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Choose\" nghĩa là:",
+      options: [
+        "Từ chối",
+        "Chọn",
+        "Mua",
+        "Lấy"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Find\" nghĩa là:",
+      options: [
+        "Mất",
+        "Để",
+        "Tìm thấy",
+        "Nhìn"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Lose\" (đồ vật) nghĩa là:",
+      options: [
+        "Tìm thấy",
+        "Đặt",
+        "Mất",
+        "Quên"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Carry\" nghĩa là:",
+      options: [
+        "Đặt",
+        "Mang/Mang theo",
+        "Đẩy",
+        "Kéo"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Jump\" nghĩa là:",
+      options: [
+        "Chạy",
+        "Nhảy",
+        "Bước",
+        "Trèo"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Climb\" nghĩa là:",
+      options: [
+        "Nhảy",
+        "Leo/Trèo",
+        "Bơi",
+        "Chạy"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Smile\" nghĩa là:",
+      options: [
+        "Khóc",
+        "Cười (mỉm)",
+        "Cười to",
+        "Nhăn mặt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cry\" nghĩa là:",
+      options: [
+        "Cười",
+        "Hét",
+        "Khóc",
+        "Thì thầm"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Push\" nghĩa là:",
+      options: [
+        "Kéo",
+        "Đẩy",
+        "Đặt",
+        "Nhấc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Pull\" nghĩa là:",
+      options: [
+        "Đẩy",
+        "Kéo",
+        "Thả",
+        "Nhấc"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Open\" nghĩa là:",
+      options: [
+        "Đóng",
+        "Mở",
+        "Khóa",
+        "Đập"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Close / Shut\" nghĩa là:",
+      options: [
+        "Mở",
+        "Khóa",
+        "Đóng",
+        "Nhét"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Start / Begin\" nghĩa là:",
+      options: [
+        "Kết thúc",
+        "Bắt đầu",
+        "Dừng lại",
+        "Tiếp tục"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Finish / End\" nghĩa là:",
+      options: [
+        "Bắt đầu",
+        "Dừng lại",
+        "Kết thúc",
+        "Hoàn thiện"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Stop\" nghĩa là:",
+      options: [
+        "Bắt đầu",
+        "Tiếp tục",
+        "Dừng lại",
+        "Chờ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Wait\" nghĩa là:",
+      options: [
+        "Đi",
+        "Đến",
+        "Chờ",
+        "Ở lại"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Meet\" nghĩa là:",
+      options: [
+        "Gặp gỡ",
+        "Chia tay",
+        "Bắt đầu",
+        "Rời đi"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Ask\" nghĩa là:",
+      options: [
+        "Trả lời",
+        "Hỏi",
+        "Nói",
+        "Giải thích"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Answer\" nghĩa là:",
+      options: [
+        "Hỏi",
+        "Trả lời",
+        "Giải thích",
+        "Gợi ý"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Show\" nghĩa là:",
+      options: [
+        "Giấu",
+        "Chỉ/Cho xem",
+        "Tìm",
+        "Mang"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Use\" nghĩa là:",
+      options: [
+        "Mua",
+        "Sử dụng",
+        "Cần",
+        "Muốn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tall\" nghĩa là:",
+      options: [
+        "Ngắn",
+        "Thấp",
+        "Cao",
+        "Gầy"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Short\" (chiều cao) nghĩa là:",
+      options: [
+        "Cao",
+        "Thấp/Lùn",
+        "To",
+        "Nhỏ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Long\" nghĩa là:",
+      options: [
+        "Ngắn",
+        "Dài",
+        "Cao",
+        "Rộng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Wide / Broad\" nghĩa là:",
+      options: [
+        "Hẹp",
+        "Rộng",
+        "Dài",
+        "Ngắn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Narrow\" nghĩa là:",
+      options: [
+        "Rộng",
+        "Hẹp",
+        "Dài",
+        "Ngắn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Heavy\" nghĩa là:",
+      options: [
+        "Nhẹ",
+        "Nặng",
+        "To",
+        "Cứng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Light\" (trọng lượng) nghĩa là:",
+      options: [
+        "Nặng",
+        "Tối",
+        "Nhẹ",
+        "Mỏng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Thick\" nghĩa là:",
+      options: [
+        "Mỏng",
+        "Dày",
+        "Rộng",
+        "Nặng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Thin\" (vật thể) nghĩa là:",
+      options: [
+        "Dày",
+        "Mỏng",
+        "Nhẹ",
+        "Nhỏ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Strong\" nghĩa là:",
+      options: [
+        "Yếu",
+        "Mạnh mẽ",
+        "Khỏe mạnh",
+        "To lớn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Weak\" nghĩa là:",
+      options: [
+        "Mạnh",
+        "Yếu",
+        "Nhỏ",
+        "Thấp"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Soft\" nghĩa là:",
+      options: [
+        "Cứng",
+        "Thô ráp",
+        "Mềm",
+        "Trơn"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Hard\" (độ cứng) nghĩa là:",
+      options: [
+        "Mềm",
+        "Cứng",
+        "Dẻo",
+        "Nhẵn"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Clean\" nghĩa là:",
+      options: [
+        "Bẩn",
+        "Sạch",
+        "Lộn xộn",
+        "Nhớp"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Dirty\" nghĩa là:",
+      options: [
+        "Sạch",
+        "Bẩn",
+        "Trơn",
+        "Ẩm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Wet\" nghĩa là:",
+      options: [
+        "Khô",
+        "Ướt",
+        "Lạnh",
+        "Nóng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Dry\" nghĩa là:",
+      options: [
+        "Ướt",
+        "Khô",
+        "Nóng",
+        "Lạnh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Loud\" nghĩa là:",
+      options: [
+        "Yên tĩnh",
+        "Ồn ào/To",
+        "Nhẹ",
+        "Mờ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Quiet\" nghĩa là:",
+      options: [
+        "Ồn ào",
+        "Yên tĩnh/Im lặng",
+        "Nhỏ",
+        "Nhanh"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bright\" nghĩa là:",
+      options: [
+        "Tối",
+        "Tối tăm",
+        "Sáng/Rực rỡ",
+        "Mờ"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Dark\" nghĩa là:",
+      options: [
+        "Sáng",
+        "Tối",
+        "Mờ",
+        "Nhạt"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Full\" nghĩa là:",
+      options: [
+        "Rỗng/Trống",
+        "Đầy",
+        "Nhiều",
+        "Thừa"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Empty\" nghĩa là:",
+      options: [
+        "Đầy",
+        "Rỗng/Trống",
+        "Ít",
+        "Thiếu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Round\" nghĩa là:",
+      options: [
+        "Vuông",
+        "Tam giác",
+        "Tròn",
+        "Bầu dục"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Square\" nghĩa là:",
+      options: [
+        "Tròn",
+        "Vuông",
+        "Chữ nhật",
+        "Tam giác"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tuesday\" nghĩa là:",
+      options: [
+        "Thứ Hai",
+        "Thứ Ba",
+        "Thứ Tư",
+        "Thứ Năm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Wednesday\" nghĩa là:",
+      options: [
+        "Thứ Ba",
+        "Thứ Tư",
+        "Thứ Năm",
+        "Thứ Sáu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Thursday\" nghĩa là:",
+      options: [
+        "Thứ Tư",
+        "Thứ Năm",
+        "Thứ Sáu",
+        "Thứ Bảy"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Saturday\" nghĩa là:",
+      options: [
+        "Thứ Sáu",
+        "Thứ Bảy",
+        "Chủ nhật",
+        "Thứ Hai"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"February\" nghĩa là:",
+      options: [
+        "Tháng Một",
+        "Tháng Hai",
+        "Tháng Ba",
+        "Tháng Tư"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"March\" nghĩa là:",
+      options: [
+        "Tháng Hai",
+        "Tháng Ba",
+        "Tháng Tư",
+        "Tháng Năm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"June\" nghĩa là:",
+      options: [
+        "Tháng Năm",
+        "Tháng Sáu",
+        "Tháng Bảy",
+        "Tháng Tám"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"August\" nghĩa là:",
+      options: [
+        "Tháng Sáu",
+        "Tháng Bảy",
+        "Tháng Tám",
+        "Tháng Chín"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"October\" nghĩa là:",
+      options: [
+        "Tháng Chín",
+        "Tháng Mười",
+        "Tháng Mười Một",
+        "Tháng Mười Hai"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Hour\" nghĩa là:",
+      options: [
+        "Phút",
+        "Giây",
+        "Giờ",
+        "Ngày"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Minute\" nghĩa là:",
+      options: [
+        "Giờ",
+        "Phút",
+        "Giây",
+        "Ngày"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Second\" (thời gian) nghĩa là:",
+      options: [
+        "Thứ hai",
+        "Phút",
+        "Giây",
+        "Tiếng"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Week\" nghĩa là:",
+      options: [
+        "Ngày",
+        "Tuần",
+        "Tháng",
+        "Năm"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Year\" nghĩa là:",
+      options: [
+        "Tháng",
+        "Tuần",
+        "Ngày",
+        "Năm"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Season\" nghĩa là:",
+      options: [
+        "Thời gian",
+        "Mùa",
+        "Thời tiết",
+        "Ngày lễ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Spring\" (mùa) nghĩa là:",
+      options: [
+        "Mùa hè",
+        "Mùa thu",
+        "Mùa đông",
+        "Mùa xuân"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Summer\" nghĩa là:",
+      options: [
+        "Mùa xuân",
+        "Mùa hè",
+        "Mùa thu",
+        "Mùa đông"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Autumn / Fall\" nghĩa là:",
+      options: [
+        "Mùa xuân",
+        "Mùa hè",
+        "Mùa thu",
+        "Mùa đông"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Winter\" nghĩa là:",
+      options: [
+        "Mùa xuân",
+        "Mùa hè",
+        "Mùa thu",
+        "Mùa đông"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Holiday\" nghĩa là:",
+      options: [
+        "Ngày thường",
+        "Ngày nghỉ/Ngày lễ",
+        "Cuối tuần",
+        "Kỳ thi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Exam / Test\" nghĩa là:",
+      options: [
+        "Bài tập",
+        "Bài kiểm tra/Kỳ thi",
+        "Hệ thống đánh giá",
+        "Điểm số"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Homework\" nghĩa là:",
+      options: [
+        "Bài tập trên lớp",
+        "Dự án",
+        "Bài tập về nhà",
+        "Bài luận"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Grade / Mark\" nghĩa là:",
+      options: [
+        "Bài kiểm tra",
+        "Điểm số",
+        "Hạng",
+        "Trình độ"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Pass\" (thi) nghĩa là:",
+      options: [
+        "Trượt",
+        "Đạt/Qua",
+        "Xuất sắc",
+        "Bỏ thi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Fail\" nghĩa là:",
+      options: [
+        "Đạt",
+        "Thi lại",
+        "Trượt/Thất bại",
+        "Bỏ học"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Notebook\" nghĩa là:",
+      options: [
+        "Sách giáo khoa",
+        "Vở ghi/Sổ tay",
+        "Từ điển",
+        "Tài liệu"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Dictionary\" nghĩa là:",
+      options: [
+        "Sách giáo khoa",
+        "Tạp chí",
+        "Từ điển",
+        "Bách khoa toàn thư"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Subject\" (học đường) nghĩa là:",
+      options: [
+        "Giờ học",
+        "Môn học",
+        "Khóa học",
+        "Chương trình"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Mathematics / Math\" nghĩa là:",
+      options: [
+        "Khoa học",
+        "Toán học",
+        "Lịch sử",
+        "Địa lý"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"History\" nghĩa là:",
+      options: [
+        "Địa lý",
+        "Khoa học",
+        "Lịch sử",
+        "Văn học"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Six\" nghĩa là:",
+      options: [
+        "Bốn",
+        "Năm",
+        "Sáu",
+        "Bảy"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Seven\" nghĩa là:",
+      options: [
+        "Năm",
+        "Sáu",
+        "Bảy",
+        "Tám"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Eight\" nghĩa là:",
+      options: [
+        "Sáu",
+        "Bảy",
+        "Tám",
+        "Chín"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Nine\" nghĩa là:",
+      options: [
+        "Bảy",
+        "Tám",
+        "Chín",
+        "Mười"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Eleven\" nghĩa là:",
+      options: [
+        "Chín",
+        "Mười",
+        "Mười một",
+        "Mười hai"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Twelve\" nghĩa là:",
+      options: [
+        "Mười",
+        "Mười một",
+        "Mười hai",
+        "Mười ba"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Thirty\" nghĩa là:",
+      options: [
+        "Mười ba",
+        "Hai mươi",
+        "Ba mươi",
+        "Bốn mươi"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Forty\" nghĩa là:",
+      options: [
+        "Ba mươi",
+        "Bốn mươi",
+        "Năm mươi",
+        "Sáu mươi"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Add / Plus\" nghĩa là:",
+      options: [
+        "Trừ",
+        "Cộng",
+        "Nhân",
+        "Chia"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Subtract / Minus\" nghĩa là:",
+      options: [
+        "Cộng",
+        "Trừ",
+        "Nhân",
+        "Chia"
+      ],
+      correct: 1
+    }
+  ],
+  grammar: [
+    {
+      question: "Điền: \"She ___ to school every day.\"",
+      options: [
+        "go",
+        "goes",
+        "going",
+        "went"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I ___ English yesterday.\"",
+      options: [
+        "study",
+        "studies",
+        "studied",
+        "will study"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"___ name is Cowdi.\"",
+      options: [
+        "I",
+        "Me",
+        "My",
+        "Mine"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I ___ two brothers.\"",
+      options: [
+        "has",
+        "have",
+        "having",
+        "had"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"She ___ study tomorrow.\"",
+      options: [
+        "is",
+        "was",
+        "will",
+        "did"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"How ___ you?\"",
+      options: [
+        "is",
+        "am",
+        "are",
+        "do"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"There ___ five people in my family.\"",
+      options: [
+        "is",
+        "are",
+        "am",
+        "be"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I ___ wake up early.\" (luôn luôn)",
+      options: [
+        "always",
+        "never",
+        "sometimes",
+        "rarely"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Can I ___ some water?\"",
+      options: [
+        "has",
+        "have",
+        "having",
+        "had"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"They didn't ___ to the party.\"",
+      options: [
+        "came",
+        "comes",
+        "coming",
+        "come"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"The sky ___ blue.\"",
+      options: [
+        "am",
+        "is",
+        "are",
+        "be"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I ___ breakfast at 7 AM.\"",
+      options: [
+        "eat",
+        "eats",
+        "eating",
+        "ate"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"She ___ a big family.\"",
+      options: [
+        "have",
+        "has",
+        "having",
+        "had"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"___ do I get to the airport?\"",
+      options: [
+        "What",
+        "Where",
+        "How",
+        "When"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I need ___ water.\"",
+      options: [
+        "a",
+        "an",
+        "some",
+        "many"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I ___ to Paris three times.\"",
+      options: [
+        "go",
+        "went",
+        "have been",
+        "had gone"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She ___ her homework yet.\"",
+      options: [
+        "doesn't finish",
+        "didn't finish",
+        "hasn't finished",
+        "won't finish"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"___ you ever eaten sushi?\"",
+      options: [
+        "Do",
+        "Did",
+        "Have",
+        "Had"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"He ___ here since 2020.\"",
+      options: [
+        "lives",
+        "lived",
+        "has lived",
+        "had lived"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"They ___ just arrived.\"",
+      options: [
+        "are",
+        "were",
+        "have",
+        "had"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I ___ this book for two weeks.\"",
+      options: [
+        "read",
+        "am reading",
+        "have been reading",
+        "had read"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She ___ already left when I arrived.\"",
+      options: [
+        "has",
+        "have",
+        "had",
+        "was"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I ___ when the phone rang.\"",
+      options: [
+        "sleep",
+        "slept",
+        "was sleeping",
+        "have slept"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"They ___ while I was cooking.\"",
+      options: [
+        "talked",
+        "talk",
+        "were talking",
+        "have talked"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"What ___ you doing at 8 PM yesterday?\"",
+      options: [
+        "do",
+        "did",
+        "were",
+        "are"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"If I ___ rich, I would travel the world.\"",
+      options: [
+        "am",
+        "was",
+        "were",
+        "be"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"If she had studied harder, she ___ passed.\"",
+      options: [
+        "will have",
+        "would have",
+        "had",
+        "has"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"___ it rain, we will stay inside.\"",
+      options: [
+        "Had",
+        "Were",
+        "Should",
+        "Would"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"If I were you, I ___ accept the offer.\"",
+      options: [
+        "will",
+        "would",
+        "had",
+        "have"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Unless you hurry, you ___ miss the bus.\"",
+      options: [
+        "don't",
+        "won't",
+        "will",
+        "would"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The woman ___ lives next door is a doctor.\"",
+      options: [
+        "which",
+        "who",
+        "whom",
+        "whose"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"The book ___ I bought yesterday is interesting.\"",
+      options: [
+        "who",
+        "whom",
+        "which/that",
+        "whose"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The student ___ father is a teacher studies well.\"",
+      options: [
+        "who",
+        "which",
+        "that",
+        "whose"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"That's the house ___ I was born.\"",
+      options: [
+        "which",
+        "where",
+        "who",
+        "that"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I remember the day ___ we first met.\"",
+      options: [
+        "which",
+        "who",
+        "when",
+        "where"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The report ___ next week.\" (sẽ được nộp)",
+      options: [
+        "submits",
+        "will submit",
+        "will be submitted",
+        "submitted"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The car ___ yesterday.\" (đã được sửa)",
+      options: [
+        "repaired",
+        "was repaired",
+        "has repaired",
+        "is repaired"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Pizza ___ worldwide.\" (được ưa chuộng)",
+      options: [
+        "enjoys",
+        "enjoyed",
+        "is enjoyed",
+        "was enjoying"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The documents ___ by the manager.\" (đã được ký)",
+      options: [
+        "signed",
+        "have signed",
+        "were signed",
+        "had signed"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I enjoy ___ music.\" (nghe)",
+      options: [
+        "listen",
+        "to listen",
+        "listening",
+        "listened"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She wants ___ a doctor.\"",
+      options: [
+        "become",
+        "becoming",
+        "to become",
+        "became"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"They avoid ___ during rush hour.\"",
+      options: [
+        "drive",
+        "to drive",
+        "driving",
+        "drove"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"He decided ___ abroad.\"",
+      options: [
+        "study",
+        "studying",
+        "to study",
+        "studied"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I finished ___ the report.\"",
+      options: [
+        "write",
+        "to write",
+        "writing",
+        "wrote"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She forgot ___ the door.\"",
+      options: [
+        "lock",
+        "locking",
+        "to lock",
+        "locked"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"We considered ___ a new house.\"",
+      options: [
+        "buy",
+        "to buy",
+        "buying",
+        "bought"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"You ___ be tired after such a long trip.\" (chắc hẳn)",
+      options: [
+        "can",
+        "may",
+        "must",
+        "should"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She ___ be at home now. I'm not sure.\" (có thể)",
+      options: [
+        "must",
+        "might",
+        "should",
+        "shall"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"You ___ have told me earlier. Now it's too late.\" (đáng lẽ phải)",
+      options: [
+        "must",
+        "could",
+        "should",
+        "would"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"He ___ swim when he was five.\" (có thể – quá khứ)",
+      options: [
+        "can",
+        "could",
+        "might",
+        "would"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"___ you like some coffee?\" (lịch sự)",
+      options: [
+        "Do",
+        "Will",
+        "Would",
+        "Should"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"___ Eiffel Tower is in Paris.\"",
+      options: [
+        "A",
+        "An",
+        "The",
+        "No article"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She plays ___ piano.\"",
+      options: [
+        "a",
+        "an",
+        "the",
+        "No article"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I need to buy ___ new phone.\"",
+      options: [
+        "a",
+        "an",
+        "the",
+        "some"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"___ gold is expensive.\"",
+      options: [
+        "A",
+        "An",
+        "The",
+        "No article"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"He is ___ honest man.\"",
+      options: [
+        "a",
+        "an",
+        "the",
+        "some"
+      ],
+      correct: 1
+    },
+    {
+      question: "She said: \"I will come.\" → She said that she ___ come.",
+      options: [
+        "will",
+        "would",
+        "can",
+        "shall"
+      ],
+      correct: 1
+    },
+    {
+      question: "He said: \"I am working.\" → He said that he ___ working.",
+      options: [
+        "is",
+        "was",
+        "has been",
+        "had been"
+      ],
+      correct: 1
+    },
+    {
+      question: "She asked: \"Are you tired?\" → She asked ___ I was tired.",
+      options: [
+        "that",
+        "what",
+        "if",
+        "when"
+      ],
+      correct: 2
+    },
+    {
+      question: "He said: \"I have finished.\" → He said that he ___ finished.",
+      options: [
+        "has",
+        "had",
+        "have",
+        "having"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"She is intelligent ___ hardworking.\" (vừa...vừa)",
+      options: [
+        "both...and",
+        "either...or",
+        "neither...nor",
+        "not only...but also"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"___ it was raining, she went out without an umbrella.\"",
+      options: [
+        "Because",
+        "Although",
+        "So",
+        "Since"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"He studied hard; ___, he failed the exam.\" (tuy nhiên)",
+      options: [
+        "therefore",
+        "moreover",
+        "however",
+        "furthermore"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I was tired; ___, I went to bed early.\" (vì vậy)",
+      options: [
+        "however",
+        "moreover",
+        "nevertheless",
+        "therefore"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"___ you finish early, you can go home.\" (miễn là)",
+      options: [
+        "Unless",
+        "Even though",
+        "As long as",
+        "In spite of"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"This is ___ interesting book I've ever read.\" (nhất)",
+      options: [
+        "more",
+        "most",
+        "the most",
+        "the more"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"The more you practice, ___ you become.\"",
+      options: [
+        "the better",
+        "a better",
+        "better",
+        "the good"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"She is not as tall ___ her sister.\"",
+      options: [
+        "than",
+        "as",
+        "like",
+        "so"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"This bag is ___ expensive than that one.\" (ít hơn)",
+      options: [
+        "less",
+        "fewer",
+        "little",
+        "more less"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"He runs ___ of all the students.\" (nhanh nhất)",
+      options: [
+        "fast",
+        "faster",
+        "the faster",
+        "the fastest"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Can you tell me where ___ ?\"",
+      options: [
+        "does he live",
+        "he lives",
+        "he does live",
+        "is he living"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Do you know what time ___ ?\"",
+      options: [
+        "is it",
+        "it is",
+        "does it",
+        "it does"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I wonder whether she ___ come.\"",
+      options: [
+        "will",
+        "would",
+        "cả A và B đều đúng",
+        "shall"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She arrived ___ time for the meeting.\"",
+      options: [
+        "on",
+        "in",
+        "at",
+        "by"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"The movie starts ___ 7:30.\"",
+      options: [
+        "in",
+        "on",
+        "at",
+        "by"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"He has been learning English ___ three years.\"",
+      options: [
+        "since",
+        "for",
+        "during",
+        "ago"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I haven't seen her ___ last summer.\"",
+      options: [
+        "for",
+        "since",
+        "in",
+        "during"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"She finished the project ___ the deadline.\"",
+      options: [
+        "on time / by",
+        "for",
+        "since",
+        "until"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"We were talking ___ the phone for an hour.\"",
+      options: [
+        "in",
+        "on",
+        "at",
+        "by"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Please ___ the form.\" (điền vào)",
+      options: [
+        "fill out",
+        "fill up",
+        "fill in / fill out",
+        "fill over"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"We need to ___ this problem soon.\" (giải quyết)",
+      options: [
+        "deal with",
+        "deal on",
+        "deal for",
+        "deal about"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"She ___ studying medicine.\" (từ bỏ)",
+      options: [
+        "gave up",
+        "gave in",
+        "gave out",
+        "gave away"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"I'll ___ you at the airport tomorrow.\" (đón)",
+      options: [
+        "pick up",
+        "pick on",
+        "pick out",
+        "pick off"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Could you ___ the music?\" (giảm âm thanh)",
+      options: [
+        "turn down",
+        "turn off",
+        "turn up",
+        "turn out"
+      ],
+      correct: 0
+    },
+    {
+      question: "Danh từ của \"happy\" là:",
+      options: [
+        "happily",
+        "unhappy",
+        "happiness",
+        "happier"
+      ],
+      correct: 2
+    },
+    {
+      question: "Trạng từ của \"quick\" là:",
+      options: [
+        "quicken",
+        "quicker",
+        "quickest",
+        "quickly"
+      ],
+      correct: 3
+    },
+    {
+      question: "Tính từ của \"beauty\" là:",
+      options: [
+        "beautifully",
+        "beautify",
+        "beautiful",
+        "beauteous"
+      ],
+      correct: 2
+    },
+    {
+      question: "Danh từ của \"decide\" là:",
+      options: [
+        "decisive",
+        "decided",
+        "decision",
+        "deciding"
+      ],
+      correct: 2
+    },
+    {
+      question: "Động từ của \"suggestion\" là:",
+      options: [
+        "suggestive",
+        "suggest",
+        "suggested",
+        "suggesting"
+      ],
+      correct: 1
+    },
+    {
+      question: "Tính từ của \"use\" là:",
+      options: [
+        "usefully",
+        "usefulness",
+        "useful",
+        "using"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Their\" nghĩa là:",
+      options: [
+        "Ở đó",
+        "Họ",
+        "Của họ",
+        "Họ đang"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"There\" nghĩa là:",
+      options: [
+        "Của họ",
+        "Ở đó/Có",
+        "Họ",
+        "Chúng"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Its\" nghĩa là:",
+      options: [
+        "Nó là",
+        "Của nó",
+        "Đó",
+        "Bản thân nó"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"It's\" nghĩa là:",
+      options: [
+        "Của nó",
+        "Nó là (it is)",
+        "Bản thân nó",
+        "Chính nó"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Whose\" nghĩa là:",
+      options: [
+        "Ai",
+        "Của ai",
+        "Người mà",
+        "Điều mà"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Who's\" nghĩa là:",
+      options: [
+        "Của ai",
+        "Ai đó",
+        "Ai là (who is)",
+        "Người mà"
+      ],
+      correct: 2
+    }
+  ],
+  listening: [
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /həˈloʊ/?",
+      options: [
+        "Hello",
+        "Yellow",
+        "Follow",
+        "Fellow"
+      ],
+      correct: 0,
+      speak: "Hello"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈfæmɪli/?",
+      options: [
+        "Finally",
+        "Family",
+        "Famine",
+        "Famous"
+      ],
+      correct: 1,
+      speak: "Family"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /bluː/?",
+      options: [
+        "Blow",
+        "Blue",
+        "Blew",
+        "Bloo"
+      ],
+      correct: 1,
+      speak: "Blue"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈbrɛkfəst/?",
+      options: [
+        "Bookfast",
+        "Breakfast",
+        "Breakfest",
+        "Breadfast"
+      ],
+      correct: 1,
+      speak: "Breakfast"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈwɔːtər/?",
+      options: [
+        "Waiter",
+        "Water",
+        "Wetter",
+        "Writer"
+      ],
+      correct: 1,
+      speak: "Water"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /θriː/?",
+      options: [
+        "Tree",
+        "Free",
+        "Three",
+        "Flee"
+      ],
+      correct: 2,
+      speak: "Three"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈmʌðər/?",
+      options: [
+        "Murder",
+        "Mutter",
+        "Mother",
+        "Matter"
+      ],
+      correct: 2,
+      speak: "Mother"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈjɛstərdeɪ/?",
+      options: [
+        "Yester",
+        "Yesterday",
+        "Yesterdai",
+        "Yestarday"
+      ],
+      correct: 1,
+      speak: "Yesterday"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /ˈɛrpɔːrt/?",
+      options: [
+        "Apart",
+        "Airport",
+        "Airpot",
+        "Aport"
+      ],
+      correct: 1,
+      speak: "Airport"
+    },
+    {
+      question: "Nghe và chọn: Từ nào phát âm là /pliːz/?",
+      options: [
+        "Pleas",
+        "Plaza",
+        "Please",
+        "Plays"
+      ],
+      correct: 2,
+      speak: "Please"
+    },
+    {
+      question: "Nghe và chọn: /ˈkɒmˌpjuːtər/",
+      options: [
+        "Commuter",
+        "Computer",
+        "Cumputer",
+        "Computter"
+      ],
+      correct: 1,
+      speak: "Computer"
+    },
+    {
+      question: "Nghe và chọn: /ˈtɛlɪˌfəʊn/",
+      options: [
+        "Telephone",
+        "Telephon",
+        "Telefonn",
+        "Telifone"
+      ],
+      correct: 0,
+      speak: "Telephone"
+    },
+    {
+      question: "Nghe và chọn: /ˈhɒspɪtəl/",
+      options: [
+        "Hospitel",
+        "Hospital",
+        "Hospittal",
+        "Hispital"
+      ],
+      correct: 1,
+      speak: "Hospital"
+    },
+    {
+      question: "Nghe và chọn: /ˈɛdʒʊkeɪʃən/",
+      options: [
+        "Edukation",
+        "Educashon",
+        "Education",
+        "Educacion"
+      ],
+      correct: 2,
+      speak: "Education"
+    },
+    {
+      question: "Nghe và chọn: /ˈɪntənɛt/",
+      options: [
+        "Internett",
+        "Intternet",
+        "Internet",
+        "Internett"
+      ],
+      correct: 2,
+      speak: "Internet"
+    },
+    {
+      question: "Nghe và chọn: /ˌɪntəˈnæʃənəl/",
+      options: [
+        "Internatonal",
+        "International",
+        "Internashional",
+        "Internatioal"
+      ],
+      correct: 1,
+      speak: "International"
+    },
+    {
+      question: "Nghe và chọn: /ˌɒpərˈtjuːnɪti/",
+      options: [
+        "Oportunity",
+        "Oppertunity",
+        "Opportunity",
+        "Oppurtunity"
+      ],
+      correct: 2,
+      speak: "Opportunity"
+    },
+    {
+      question: "Nghe và chọn: /ɪˈkɒnəmi/",
+      options: [
+        "Ekonamy",
+        "Econamy",
+        "Economy",
+        "Ecconomy"
+      ],
+      correct: 2,
+      speak: "Economy"
+    },
+    {
+      question: "Nghe và chọn: /ˈenɪθɪŋ/",
+      options: [
+        "Anething",
+        "Anything",
+        "Enything",
+        "Anythin"
+      ],
+      correct: 1,
+      speak: "Anything"
+    },
+    {
+      question: "Nghe và chọn: /ˈevriθɪŋ/",
+      options: [
+        "Evrything",
+        "Everything",
+        "Everythin",
+        "Everrything"
+      ],
+      correct: 1,
+      speak: "Everything"
+    },
+    {
+      question: "Nghe và chọn: /ˈbiːtwiːn/",
+      options: [
+        "Betwean",
+        "Betwen",
+        "Between",
+        "Bitween"
+      ],
+      correct: 2,
+      speak: "Between"
+    },
+    {
+      question: "Nghe và chọn: /ˈwɛðər/",
+      options: [
+        "Wether",
+        "Wheather",
+        "Weather",
+        "Wethar"
+      ],
+      correct: 2,
+      speak: "Weather"
+    },
+    {
+      question: "Nghe và chọn: /ˌkɒnvəˈseɪʃən/",
+      options: [
+        "Conversasion",
+        "Conversaton",
+        "Conversation",
+        "Convercation"
+      ],
+      correct: 2,
+      speak: "Conversation"
+    },
+    {
+      question: "Nghe và chọn: /ˌɪnfəˈmeɪʃən/",
+      options: [
+        "Infomation",
+        "Information",
+        "Informasion",
+        "Informatoin"
+      ],
+      correct: 1,
+      speak: "Information"
+    },
+    {
+      question: "Nghe và chọn: /ˈwʌndəfəl/",
+      options: [
+        "Wonderfull",
+        "Wunderful",
+        "Wonderfal",
+        "Wonderful"
+      ],
+      correct: 3,
+      speak: "Wonderful"
+    },
+    {
+      question: "Nghe và chọn: /ˈpɒpjʊlər/",
+      options: [
+        "Populer",
+        "Pupular",
+        "Popular",
+        "Popullar"
+      ],
+      correct: 2,
+      speak: "Popular"
+    },
+    {
+      question: "Nghe và chọn: /ˌɪntəˈrɛstɪŋ/",
+      options: [
+        "Interresting",
+        "Intresting",
+        "Interesting",
+        "Intresting"
+      ],
+      correct: 2,
+      speak: "Interesting"
+    },
+    {
+      question: "Nghe và chọn: /dɪˈfɪkəlt/",
+      options: [
+        "Dificult",
+        "Diffecult",
+        "Difficult",
+        "Dificullt"
+      ],
+      correct: 2,
+      speak: "Difficult"
+    },
+    {
+      question: "Nghe và chọn: /ˈpɒsɪbl/",
+      options: [
+        "Posible",
+        "Possibel",
+        "Possibble",
+        "Possible"
+      ],
+      correct: 3,
+      speak: "Possible"
+    },
+    {
+      question: "Nghe và chọn: /ˈnɛsəsəri/",
+      options: [
+        "Necesary",
+        "Nessecary",
+        "Necesarry",
+        "Necessary"
+      ],
+      correct: 3,
+      speak: "Necessary"
+    },
+    {
+      question: "Nghe và chọn: /kəˈmjuːnɪkeɪt/",
+      options: [
+        "Comunicate",
+        "Communicate",
+        "Comunnicatte",
+        "Communciate"
+      ],
+      correct: 1,
+      speak: "Communicate"
+    },
+    {
+      question: "Nghe và chọn: /dɪˈvɛləpmənt/",
+      options: [
+        "Devellopment",
+        "Develpment",
+        "Development",
+        "Develorment"
+      ],
+      correct: 2,
+      speak: "Development"
+    },
+    {
+      question: "Nghe và chọn: /ˈæktʃuəli/",
+      options: [
+        "Actualy",
+        "Actuelly",
+        "Actually",
+        "Actuallly"
+      ],
+      correct: 2,
+      speak: "Actually"
+    },
+    {
+      question: "Nghe và chọn: /ˈjuːʒuəli/",
+      options: [
+        "Usualy",
+        "Usully",
+        "Usuallly",
+        "Usually"
+      ],
+      correct: 3,
+      speak: "Usually"
+    },
+    {
+      question: "Nghe và chọn: /ˈdɪfrənt/",
+      options: [
+        "Differrent",
+        "Diferent",
+        "Different",
+        "Difrent"
+      ],
+      correct: 2,
+      speak: "Different"
+    },
+    {
+      question: "Nghe và chọn: /ɪˈspɛʃəli/",
+      options: [
+        "Especialy",
+        "Especially",
+        "Especialley",
+        "Especialy"
+      ],
+      correct: 1,
+      speak: "Especially"
+    },
+    {
+      question: "Nghe và chọn: /ˈkʌrɪdʒ/",
+      options: [
+        "Currage",
+        "Courage",
+        "Courrige",
+        "Corage"
+      ],
+      correct: 1,
+      speak: "Courage"
+    },
+    {
+      question: "Nghe và chọn: /ˈdʒɔːni/",
+      options: [
+        "Jorney",
+        "Jurney",
+        "Journy",
+        "Journey"
+      ],
+      correct: 3,
+      speak: "Journey"
+    },
+    {
+      question: "Nghe và chọn: /ˈprɒbəbli/",
+      options: [
+        "Probaly",
+        "Probably",
+        "Probabaly",
+        "Probibly"
+      ],
+      correct: 1,
+      speak: "Probably"
+    },
+    {
+      question: "Nghe và chọn: /ˌɪmɪˈdaɪətli/",
+      options: [
+        "Imediatly",
+        "Immediatley",
+        "Immediately",
+        "Immedately"
+      ],
+      correct: 2,
+      speak: "Immediately"
+    },
+    {
+      question: "Nghe và chọn: /səˈsaɪəti/",
+      options: [
+        "Socety",
+        "Sociaty",
+        "Society",
+        "Socity"
+      ],
+      correct: 2,
+      speak: "Society"
+    },
+    {
+      question: "Nghe và chọn: /ˌɛnvɪrənˈmɛnt/",
+      options: [
+        "Enviroment",
+        "Environnment",
+        "Envirenment",
+        "Environment"
+      ],
+      correct: 3,
+      speak: "Environment"
+    },
+    {
+      question: "Nghe và chọn: /ɡʌvənmənt/",
+      options: [
+        "Goverment",
+        "Governement",
+        "Government",
+        "Goverment"
+      ],
+      correct: 2,
+      speak: "Government"
+    },
+    {
+      question: "Nghe và chọn: /ˈpɜːsənl/",
+      options: [
+        "Personel",
+        "Perssonel",
+        "Personnal",
+        "Personal"
+      ],
+      correct: 3,
+      speak: "Personal"
+    },
+    {
+      question: "Nghe và chọn: /ˌɒpəˈzɪʃən/",
+      options: [
+        "Opisition",
+        "Oposition",
+        "Opposition",
+        "Opposision"
+      ],
+      correct: 2,
+      speak: "Opposition"
+    },
+    {
+      question: "Nghe và chọn: /ˌɪmɪˈɡreɪʃən/",
+      options: [
+        "Imigration",
+        "Immigrasion",
+        "Immegration",
+        "Immigration"
+      ],
+      correct: 3,
+      speak: "Immigration"
+    },
+    {
+      question: "Nghe và chọn: /rɪˈspɒnsɪbl/",
+      options: [
+        "Responsable",
+        "Responsibel",
+        "Responsible",
+        "Responssible"
+      ],
+      correct: 2,
+      speak: "Responsible"
+    },
+    {
+      question: "Nghe và chọn: /ˈɔːdɪəns/",
+      options: [
+        "Audiance",
+        "Audiens",
+        "Audience",
+        "Audiense"
+      ],
+      correct: 2,
+      speak: "Audience"
+    },
+    {
+      question: "Nghe và chọn: /ˈlæŋɡwɪdʒ/",
+      options: [
+        "Languge",
+        "Languege",
+        "Lenguage",
+        "Language"
+      ],
+      correct: 3,
+      speak: "Language"
+    },
+    {
+      question: "Nghe và chọn: /ˈɡrætɪtjuːd/",
+      options: [
+        "Gratitude",
+        "Gratitute",
+        "Grattitude",
+        "Grattitide"
+      ],
+      correct: 0,
+      speak: "Gratitude"
+    }
+  ],
+  sentences: [
+    {
+      question: "\"Bạn bao nhiêu tuổi?\" = ?",
+      options: [
+        "How old is you?",
+        "How old are you?",
+        "How age are you?",
+        "What your age?"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bạn ở đâu vậy?\" = ?",
+      options: [
+        "Where do you from?",
+        "Where are you from?",
+        "Where you come?",
+        "From where you?"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tôi không hiểu.\" = ?",
+      options: [
+        "I not understand.",
+        "I don't understand.",
+        "I doesn't understand.",
+        "I no understand."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Bạn có thể lặp lại không?\" = ?",
+      options: [
+        "Can you repeat?",
+        "Can you repeat that?",
+        "You can repeat?",
+        "Could you repeat that, please?"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"Tôi xin lỗi, tôi không nói tiếng Anh tốt lắm.\" = ?",
+      options: [
+        "I'm sorry, I don't speak English well.",
+        "I sorry, I not speak English.",
+        "Sorry, my English not good.",
+        "I apologize, I no speak English good."
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Rất vui được gặp bạn!\" = ?",
+      options: [
+        "Nice meet you!",
+        "Nice to meeting you!",
+        "Nice to meet you!",
+        "Nice meet to you!"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Tôi đang tìm siêu thị.\" = ?",
+      options: [
+        "I look for supermarket.",
+        "I'm looking for a supermarket.",
+        "I look a supermarket.",
+        "I search the supermarket."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Mất bao lâu để đến đó?\" = ?",
+      options: [
+        "How long take to get there?",
+        "How long does it take to get there?",
+        "How time to go there?",
+        "How much time takes to go there?"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cái này bao nhiêu tiền?\" = ?",
+      options: [
+        "How much this cost?",
+        "How much does this cost?",
+        "How much is cost this?",
+        "What cost is this?"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cho tôi một tờ thực đơn được không?\" = ?",
+      options: [
+        "Give me menu.",
+        "Can I have a menu, please?",
+        "I want menu now.",
+        "Menu, please give."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tôi muốn nộp đơn xin việc.\" = ?",
+      options: [
+        "I want to apply for the job.",
+        "I want apply the job.",
+        "I would like apply to job.",
+        "I want to apply at the job."
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Bạn học tiếng Anh được bao lâu rồi?\" = ?",
+      options: [
+        "How long did you study English?",
+        "How long have you been studying English?",
+        "How long you study English?",
+        "How long were you study English?"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tôi hy vọng sẽ trở thành kỹ sư.\" = ?",
+      options: [
+        "I hope become engineer.",
+        "I hope to become an engineer.",
+        "I hope becoming engineer.",
+        "I hope I become engineer."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Anh ấy làm việc chăm chỉ hơn cô ấy.\" = ?",
+      options: [
+        "He works harder as her.",
+        "He works harder than her.",
+        "He work harder than she.",
+        "He works more harder than her."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tôi đã học tiếng Anh từ khi còn nhỏ.\" = ?",
+      options: [
+        "I have learned English since I was young.",
+        "I learned English when I was young.",
+        "Cả A và B đều đúng",
+        "I learn English since young."
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Theo tôi, sức khỏe quan trọng hơn tiền bạc.\" = ?",
+      options: [
+        "In my opinion, health is more important than money.",
+        "I think health is more important money.",
+        "For me, health more important than money.",
+        "According me, health is important than money."
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Tôi đồng ý với bạn.\" = ?",
+      options: [
+        "I agree you.",
+        "I agree to you.",
+        "I agree with you.",
+        "I am agree with you."
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Tôi không đồng ý với ý kiến đó.\" = ?",
+      options: [
+        "I don't agree that idea.",
+        "I disagree with that idea.",
+        "I not agree with that idea.",
+        "I am disagree to that idea."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Hà Nội lớn hơn Huế.\" = ?",
+      options: [
+        "Hanoi is more big than Hue.",
+        "Hanoi is bigger than Hue.",
+        "Hanoi bigger than Hue.",
+        "Hanoi is the bigger than Hue."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Đây là bộ phim thú vị nhất tôi từng xem.\" = ?",
+      options: [
+        "This is the most interesting film I have ever seen.",
+        "This is the more interesting film I ever saw.",
+        "This most interesting film I ever see.",
+        "This is most interesting film I have seen."
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Khi tôi đến, cô ấy đã rời đi rồi.\" = ?",
+      options: [
+        "When I arrived, she has already left.",
+        "When I arrived, she had already left.",
+        "When I arrive, she already left.",
+        "When I came, she already has left."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Tôi sẽ gọi cho bạn ngay khi tôi đến nơi.\" = ?",
+      options: [
+        "I will call you as soon as I will arrive.",
+        "I will call you as soon as I arrive.",
+        "I call you as soon as I arrive.",
+        "I would call you as soon as I arrive."
+      ],
+      correct: 1
+    },
+    {
+      question: "\"Cô ấy đang nấu ăn khi điện thoại đổ chuông.\" = ?",
+      options: [
+        "She was cooking when the phone rang.",
+        "She cooked when the phone rang.",
+        "She is cooking when the phone rang.",
+        "She has cooked when the phone rang."
+      ],
+      correct: 0
+    },
+    {
+      question: "\"___ the rain, we enjoyed the trip.\" (Mặc dù trời mưa)",
+      options: [
+        "Although",
+        "Despite",
+        "Even though",
+        "Despite of"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"In spite of ___ tired, she kept working.\" (mệt)",
+      options: [
+        "being",
+        "is",
+        "was",
+        "be"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"Could you tell me how ___ get to the station?\"",
+      options: [
+        "can I",
+        "I can",
+        "to",
+        "do I"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"Do you know when the train ___?\"",
+      options: [
+        "arrives",
+        "arrive",
+        "will arrive",
+        "Cả A và C đúng"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"It was ___ a boring movie that I fell asleep.\"",
+      options: [
+        "so",
+        "such",
+        "very",
+        "too"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"She speaks English ___ fluently that everyone is impressed.\"",
+      options: [
+        "such",
+        "so",
+        "very",
+        "too"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"The weather was ___ hot that we stayed indoors.\"",
+      options: [
+        "such",
+        "so",
+        "very",
+        "much"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"He is ___ young to drive.\" (quá trẻ)",
+      options: [
+        "so",
+        "enough",
+        "too",
+        "very"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She is not old ___ to vote.\" (đủ)",
+      options: [
+        "too",
+        "enough",
+        "very",
+        "so"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I'm very fond ___ classical music.\"",
+      options: [
+        "at",
+        "on",
+        "of",
+        "about"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She's afraid ___ spiders.\"",
+      options: [
+        "from",
+        "about",
+        "at",
+        "of"
+      ],
+      correct: 3
+    },
+    {
+      question: "\"He's very good ___ painting.\"",
+      options: [
+        "in",
+        "on",
+        "at",
+        "about"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"I'm not used ___ getting up early.\"",
+      options: [
+        "for",
+        "to",
+        "at",
+        "in"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"They are excited ___ the upcoming trip.\"",
+      options: [
+        "about",
+        "for",
+        "on",
+        "at"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"You ___ study now or you'll fail.\" (tốt hơn nên)",
+      options: [
+        "would rather",
+        "had better",
+        "would prefer",
+        "should rather"
+      ],
+      correct: 1
+    },
+    {
+      question: "\"I would rather ___ home than go out.\"",
+      options: [
+        "to stay",
+        "staying",
+        "stay",
+        "stayed"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"She made her son ___ his homework.\" (buộc phải)",
+      options: [
+        "to do",
+        "doing",
+        "do",
+        "done"
+      ],
+      correct: 2
+    },
+    {
+      question: "\"They let us ___ the class early.\" (cho phép)",
+      options: [
+        "leave",
+        "to leave",
+        "leaving",
+        "left"
+      ],
+      correct: 0
+    },
+    {
+      question: "\"I got my car ___.\" (được sửa)",
+      options: [
+        "repair",
+        "to repair",
+        "repaired",
+        "repairing"
+      ],
+      correct: 2
+    }
+  ]
+};

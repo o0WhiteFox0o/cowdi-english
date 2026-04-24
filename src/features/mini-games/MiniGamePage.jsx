@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LESSONS } from '../../data/lessons';
-import { EXAM_LESSONS } from '../../data/exam/index';
+import { EXAM_LESSONS } from '../../data/lessons';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';

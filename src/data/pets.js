@@ -35,101 +35,111 @@ export const GINSENG_IMAGES = {
 // ── Bamboo Image Paths ───────────────────────────────────────────────────────
 const BAMBOO_IMG = '/assets/images/pets/Bamboo';
 export const BAMBOO_IMAGES = {
-  egg: `${BAMBOO_IMG}/Bamboo_Egg.webp`,
-  baby: `${BAMBOO_IMG}/Bamboo_Baby.webp`,
-  junior: `${BAMBOO_IMG}/Bamboo_Junior.webp`,
-  super: `${BAMBOO_IMG}/Bamboo_Super.webp`,
-  legendary: `${BAMBOO_IMG}/Bamboo_Legendary.webp`,
+  egg: `${BAMBOO_IMG}/Bamboo_egg.webp`,
+  baby: `${BAMBOO_IMG}/Bamboo_baby.webp`,
+  junior: `${BAMBOO_IMG}/Bamboo_junior.webp`,
+  super: `${BAMBOO_IMG}/Bamboo_super.webp`,
+  legendary: `${BAMBOO_IMG}/Bamboo_legendary.webp`,
 };
 
 // ── Flippy Image Paths ───────────────────────────────────────────────────────
 const FLIPPY_IMG = '/assets/images/pets/Flippy';
 export const FLIPPY_IMAGES = {
-  egg: `${FLIPPY_IMG}/Flippy_Egg.webp`,
-  baby: `${FLIPPY_IMG}/Flippy_Baby.webp`,
-  junior: `${FLIPPY_IMG}/Flippy_Junior.webp`,
-  super: `${FLIPPY_IMG}/Flippy_Super.webp`,
-  legendary: `${FLIPPY_IMG}/Flippy_Legendary.webp`,
+  egg: `${FLIPPY_IMG}/Flippy_egg.webp`,
+  baby: `${FLIPPY_IMG}/Flippy_baby.webp`,
+  junior: `${FLIPPY_IMG}/Flippy_junior.webp`,
+  super: `${FLIPPY_IMG}/Flippy_super.webp`,
+  legendary: `${FLIPPY_IMG}/Flippy_legendary.webp`,
 };
 
 // ── Leafy Image Paths ────────────────────────────────────────────────────────
 const LEAFY_IMG = '/assets/images/pets/Leafy';
 export const LEAFY_IMAGES = {
-  egg: `${LEAFY_IMG}/Leafy_Egg.webp`,
-  baby: `${LEAFY_IMG}/Leafy_Baby.webp`,
-  junior: `${LEAFY_IMG}/Leafy_Junior.webp`,
-  super: `${LEAFY_IMG}/Leafy_Super.webp`,
-  legendary: `${LEAFY_IMG}/Leafy_Legendary.webp`,
+  egg: `${LEAFY_IMG}/Leafy_egg.webp`,
+  baby: `${LEAFY_IMG}/Leafy_baby.webp`,
+  junior: `${LEAFY_IMG}/Leafy_junior.webp`,
+  super: `${LEAFY_IMG}/Leafy_super.webp`,
+  legendary: `${LEAFY_IMG}/Leafy_legendary.webp`,
 };
 
 // ── Leo Image Paths ──────────────────────────────────────────────────────────
 const LEO_IMG = '/assets/images/pets/Leo';
 export const LEO_IMAGES = {
-  egg: `${LEO_IMG}/Leo_Egg.webp`,
-  baby: `${LEO_IMG}/Leo_Baby.webp`,
-  junior: `${LEO_IMG}/Leo_Junior.webp`,
-  super: `${LEO_IMG}/Leo_Super.webp`,
-  legendary: `${LEO_IMG}/Leo_Legendary.webp`,
+  egg: `${LEO_IMG}/Leo_egg.webp`,
+  baby: `${LEO_IMG}/Leo_baby.webp`,
+  junior: `${LEO_IMG}/Leo_junior.webp`,
+  super: `${LEO_IMG}/Leo_super.webp`,
+  legendary: `${LEO_IMG}/Leo_legendary.webp`,
 };
 
 // ── Sparky Image Paths ───────────────────────────────────────────────────────
 const SPARKY_IMG = '/assets/images/pets/Sparky';
 export const SPARKY_IMAGES = {
-  egg: `${SPARKY_IMG}/Sparky_Egg.webp`,
-  baby: `${SPARKY_IMG}/Sparky_Baby.webp`,
-  junior: `${SPARKY_IMG}/Sparky_Junior.webp`,
-  super: `${SPARKY_IMG}/Sparky_Super.webp`,
-  legendary: `${SPARKY_IMG}/Sparky_Legendary.webp`,
+  egg: `${SPARKY_IMG}/Sparky_egg.webp`,
+  baby: `${SPARKY_IMG}/Sparky_baby.webp`,
+  junior: `${SPARKY_IMG}/Sparky_junior.webp`,
+  super: `${SPARKY_IMG}/Sparky_super.webp`,
+  legendary: `${SPARKY_IMG}/Sparky_legendary.webp`,
 };
 
 // ── Owlbert Image Paths ──────────────────────────────────────────────────────
 const OWLBERT_IMG = '/assets/images/pets/Owlbert';
 export const OWLBERT_IMAGES = {
-  egg: `${OWLBERT_IMG}/Owlbert_Egg.webp`,
-  baby: `${OWLBERT_IMG}/Owlbert_Baby.webp`,
-  junior: `${OWLBERT_IMG}/Owlbert_Junior.webp`,
-  super: `${OWLBERT_IMG}/Owlbert_Super.webp`,
-  legendary: `${OWLBERT_IMG}/Owlbert_Legendary.webp`,
+  egg: `${OWLBERT_IMG}/Owlbert_egg.webp`,
+  baby: `${OWLBERT_IMG}/Owlbert_baby.webp`,
+  junior: `${OWLBERT_IMG}/Owlbert_junior.webp`,
+  super: `${OWLBERT_IMG}/Owlbert_super.webp`,
+  legendary: `${OWLBERT_IMG}/Owlbert_legendary.webp`,
 };
 
 // ── Mimi Image Paths ─────────────────────────────────────────────────────────
 const MIMI_IMG = '/assets/images/pets/Mimi';
 export const MIMI_IMAGES = {
-  egg: `${MIMI_IMG}/Mini_Egg.webp`,
-  baby: `${MIMI_IMG}/Mini_Baby.webp`,
-  junior: `${MIMI_IMG}/Mini_Junior.webp`,
-  super: `${MIMI_IMG}/Mini_Super.webp`,
-  legendary: `${MIMI_IMG}/Mini_Legendary.webp`,
+  egg: `${MIMI_IMG}/Mimi_egg.webp`,
+  baby: `${MIMI_IMG}/Mimi_baby.webp`,
+  junior: `${MIMI_IMG}/Mimi_junior.webp`,
+  super: `${MIMI_IMG}/Mimi_super.webp`,
+  legendary: `${MIMI_IMG}/Mimi_legendary.webp`,
 };
 
 // ── Paddy (Lúa) Image Paths ─────────────────────────────────────────────────
 const PADDY_IMG = '/assets/images/pets/Lua';
 export const PADDY_IMAGES = {
-  egg: `${PADDY_IMG}/Lua_Egg.webp`,
-  baby: `${PADDY_IMG}/Lua_Baby.webp`,
-  junior: `${PADDY_IMG}/Lua_Junior.webp`,
-  super: `${PADDY_IMG}/Lua_Super.webp`,
-  legendary: `${PADDY_IMG}/Lua_Legendary.webp`,
+  egg: `${PADDY_IMG}/Lua_egg.webp`,
+  baby: `${PADDY_IMG}/Lua_baby.webp`,
+  junior: `${PADDY_IMG}/Lua_junior.webp`,
+  super: `${PADDY_IMG}/Lua_super.webp`,
+  legendary: `${PADDY_IMG}/Lua_legendary.webp`,
 };
 
 // ── Storm Image Paths ────────────────────────────────────────────────────────
 const STORM_IMG = '/assets/images/pets/Storm';
 export const STORM_IMAGES = {
-  egg: `${STORM_IMG}/Storm_Egg.webp`,
-  baby: `${STORM_IMG}/Storm-Baby.webp`,
-  junior: `${STORM_IMG}/Storm_Junior.webp`,
-  super: `${STORM_IMG}/Storm_Super.webp`,
-  legendary: `${STORM_IMG}/Storm_Legendary.webp`,
+  egg: `${STORM_IMG}/Storm_egg.webp`,
+  baby: `${STORM_IMG}/Storm_baby.webp`,
+  junior: `${STORM_IMG}/Storm_junior.webp`,
+  super: `${STORM_IMG}/Storm_super.webp`,
+  legendary: `${STORM_IMG}/Storm_legendary.webp`,
 };
 
 // ── Sprout (Măng tre) Image Paths ────────────────────────────────────────────
 const SPROUT_IMG = '/assets/images/pets/Mangtre';
 export const SPROUT_IMAGES = {
-  egg: `${SPROUT_IMG}/Mangtre_Egg.webp`,
-  baby: `${SPROUT_IMG}/Mangtre_Baby.webp`,
-  junior: `${SPROUT_IMG}/Mangtre_Junior.webp`,
-  super: `${SPROUT_IMG}/Mangtre_Super.webp`,
-  legendary: `${SPROUT_IMG}/Mangtre_Legendary.webp`,
+  egg: `${SPROUT_IMG}/Mangtre_egg.webp`,
+  baby: `${SPROUT_IMG}/Mangtre_baby.webp`,
+  junior: `${SPROUT_IMG}/Mangtre_junior.webp`,
+  super: `${SPROUT_IMG}/Mangtre_super.webp`,
+  legendary: `${SPROUT_IMG}/Mangtre_legendary.webp`,
+};
+
+// ── Pingu Image Paths ────────────────────────────────────────────────────────
+const PINGU_IMG = '/assets/images/pets/Pingu';
+export const PINGU_IMAGES = {
+  egg: `${PINGU_IMG}/Pingu_egg.webp`,
+  baby: `${PINGU_IMG}/Pingu_baby.webp`,
+  junior: `${PINGU_IMG}/Pingu_junior.webp`,
+  super: `${PINGU_IMG}/Pingu_super.webp`,
+  legendary: `${PINGU_IMG}/Pingu_legendary.webp`,
 };
 
 // ── Pet Registry ─────────────────────────────────────────────────────────────
@@ -210,11 +220,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 8, speaking: 4, reading: 4, writing: 4 },
     description: 'Cánh cụt chăm chỉ, thính giác siêu nhạy, yêu âm nhạc.',
     evolutions: [
-      { stage: 0, name: 'Trứng Pingu', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Pingu', xp: 100, emoji: '🐧' },
-      { stage: 2, name: 'Junior Pingu', xp: 500, emoji: '🐧' },
-      { stage: 3, name: 'Super Pingu', xp: 1200, emoji: '🧊' },
-      { stage: 4, name: 'Legendary Pingu', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Pingu', xp: 0, emoji: '🥚', image: PINGU_IMAGES.egg },
+      { stage: 1, name: 'Baby Pingu', xp: 100, emoji: '🐧', image: PINGU_IMAGES.baby },
+      { stage: 2, name: 'Junior Pingu', xp: 500, emoji: '🐧', image: PINGU_IMAGES.junior },
+      { stage: 3, name: 'Super Pingu', xp: 1200, emoji: '🧊', image: PINGU_IMAGES.super },
+      { stage: 4, name: 'Legendary Pingu', xp: 2500, emoji: '👑', image: PINGU_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 10, category: 'listening' },
     chatMessages: {

@@ -271,29 +271,74 @@
   text-align: center;
 }
 
-.mindmap-center {
-  margin-bottom: 1.5rem;
+/* ── Hero với Cowdi Super mascot ── */
+.vocab-hero {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
 }
-
-.mindmap-hub {
-  display: inline-block;
-  font-size: 2.5rem;
-  background: linear-gradient(135deg, var(--cowdi-primary), var(--cowdi-secondary));
-  color: white;
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  line-height: 1;
-  display: inline-flex;
-  flex-direction: column;
+.vocab-hero-badge {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+}
+.vocab-hero-img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 20px rgba(255, 107, 157, 0.35));
+  animation: vocabFloat 4s ease-in-out infinite;
+  z-index: 2;
+  position: relative;
+}
+.vocab-hero-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 55%, rgba(255,107,157,0.22), rgba(78,205,196,0.15) 60%, transparent 72%);
+  filter: blur(4px);
+  animation: vocabPulse 3s ease-in-out infinite;
+}
+.vocab-hero-caption {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255,107,157,0.35);
+  white-space: nowrap;
+  z-index: 3;
+}
+.vocab-hero-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.vocab-hero-sub {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-top: -4px;
 }
 
-.mindmap-hub small {
-  font-size: 0.7rem;
-  font-weight: 700;
+@keyframes vocabFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-8px); }
+}
+@keyframes vocabPulse {
+  0%,100% { opacity: 0.7; transform: scale(1); }
+  50%     { opacity: 1;   transform: scale(1.06); }
 }
 
 .mindmap-branches {
@@ -368,9 +413,6 @@
     width: 130px;
     padding: 0.75rem;
   }
-  .mindmap-hub {
-    width: 80px;
-    height: 80px;
-    font-size: 2rem;
-  }
+  .vocab-hero-badge { width: 140px; height: 140px; }
+  .vocab-hero-img   { width: 118px; height: 118px; }
 }
