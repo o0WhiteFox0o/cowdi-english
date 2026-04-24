@@ -25,7 +25,6 @@ const TRACK_COLORS = {
 
 export default function LessonsPage() {
   const { userData } = useUser();
-  const [track, setTrack] = useState('all');
   const [standardId, setStandardId] = useState('all'); // 'all' | 'cefr' | 'ielts' | 'toeic' | 'vstep'
   const [band, setBand] = useState('all');
 
@@ -47,7 +46,6 @@ export default function LessonsPage() {
 
   const filtered = useMemo(() => {
     return ALL_LESSONS.filter((l) => {
-      if (track !== 'all' && l.track !== track) return false;
       if (standardId !== 'all') {
         const lessonBand = l.standards?.[standardId];
         if (!lessonBand) return false;
@@ -55,26 +53,17 @@ export default function LessonsPage() {
       }
       return true;
     });
-  }, [track, standardId, band]);
+  }, [standardId, band]);
 
-  const trackCounts = useMemo(() => {
-    const c = { all: ALL_LESSONS.length };
-    for (const t of TRACKS) {
-      c[t.id] = ALL_LESSONS.filter((l) => l.track === t.id).length;
-    }
-    return c;
-  }, []);
-
-  // Đếm bài theo từng band của chuẩn đang chọn (áp dụng sẵn filter track)
+  // Đếm bài theo từng band của chuẩn đang chọn
   const bandCounts = useMemo(() => {
     if (standardId === 'all') return {};
-    const pool = track === 'all' ? ALL_LESSONS : ALL_LESSONS.filter((l) => l.track === track);
-    const c = { all: pool.filter((l) => l.standards?.[standardId]).length };
+    const c = { all: ALL_LESSONS.filter((l) => l.standards?.[standardId]).length };
     for (const b of standardMap[standardId].bands) {
-      c[b.id] = pool.filter((l) => l.standards?.[standardId] === b.id).length;
+      c[b.id] = ALL_LESSONS.filter((l) => l.standards?.[standardId] === b.id).length;
     }
     return c;
-  }, [standardId, track, standardMap]);
+  }, [standardId, standardMap]);
 
   const currentStandard = standardId !== 'all' ? standardMap[standardId] : null;
 
@@ -90,29 +79,8 @@ export default function LessonsPage() {
           <i className="fas fa-book text-cowdi me-2"></i>Danh sách bài học
         </h2>
         <p className="text-muted">
-          Lọc bài học theo chương trình (IELTS, Cambridge, TOEIC…) hoặc theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP).
+          Lọc bài học theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP).
         </p>
-      </div>
-
-      {/* Track tabs */}
-      <div className="mb-2 small text-muted text-center">Chương trình</div>
-      <div className="d-flex justify-content-center gap-2 mb-3 flex-wrap">
-        <button
-          className={`btn btn-sm rounded-pill ${track === 'all' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-          onClick={() => setTrack('all')}
-        >
-          🌐 Tất cả <span className="badge bg-light text-dark ms-1">{trackCounts.all}</span>
-        </button>
-        {TRACKS.map((t) => (
-          <button
-            key={t.id}
-            className={`btn btn-sm rounded-pill ${track === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-            onClick={() => setTrack(t.id)}
-          >
-            {t.icon} {t.label}{' '}
-            <span className="badge bg-light text-dark ms-1">{trackCounts[t.id] || 0}</span>
-          </button>
-        ))}
       </div>
 
       {/* Standard selector */}
