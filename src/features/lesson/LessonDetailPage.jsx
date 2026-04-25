@@ -481,6 +481,13 @@ export default function LessonDetailPage() {
   const [speakIdx, setSpeakIdx] = useState(0);
   const [speakPlaying, setSpeakPlaying] = useState(false);
 
+  // Listen-sentence state (MCQ: nghe câu → chọn nghĩa)
+  const [listenIdx, setListenIdx] = useState(0);
+  const [listenPicked, setListenPicked] = useState(null);
+  const [listenScore, setListenScore] = useState(0);
+  const [listenQs, setListenQs] = useState([]);
+  const [listenDone, setListenDone] = useState(false);
+
   // Speech recognition state
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -573,7 +580,91 @@ export default function LessonDetailPage() {
   const speakSentences = [
     ...vocab.map((v) => ({ en: v.example, vi: v.meaning, label: v.word })),
     ...lesson.grammar.flatMap((g) => g.examples.map((ex) => ({ en: ex.en, vi: ex.vi, label: g.title }))),
-  ];
+  ].filter((s) => s.en && s.vi);
+
+  /* ── Listen-sentence pool: cùng nguồn với speak nhưng dedupe theo en ── */
+  const listenPool = (() => {
+    const seen = new Set();
+    const out = [];
+    for (const s of speakSentences) {
+      const key = s.en.trim().toLowerCase();
+      if (!seen.has(key)) { seen.add(key); out.push(s); }
+    }
+    return out;
+  })();
+
+  function buildLessonListenQuestions(count = 10) {
+    if (listenPool.length === 0) return [];
+    const shuffle = (a) => {
+      const arr = [...a];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+    const picked = shuffle(listenPool).slice(0, Math.min(count, listenPool.length));
+    return picked.map((s) => {
+      const others = listenPool.filter((x) => x.vi !== s.vi);
+      const distractors = shuffle(others).slice(0, 3).map((x) => x.vi);
+      // Đảm bảo đủ 4 lựa chọn — nếu không đủ thì lặp lại từ pool gốc
+      while (distractors.length < 3 && listenPool.length > 1) {
+        const extra = listenPool[Math.floor(Math.random() * listenPool.length)].vi;
+        if (extra !== s.vi && !distractors.includes(extra)) distractors.push(extra);
+        else if (distractors.length < 3) distractors.push('— (không có lựa chọn khác)');
+      }
+      const options = shuffle([s.vi, ...distractors]);
+      return {
+        sentence: s.en,
+        meaning: s.vi,
+        label: s.label,
+        options,
+        correct: options.indexOf(s.vi),
+      };
+    });
+  }
+
+  function startLessonListen() {
+    const qs = buildLessonListenQuestions(Math.min(10, listenPool.length));
+    setListenQs(qs);
+    setListenIdx(0);
+    setListenPicked(null);
+    setListenScore(0);
+    setListenDone(false);
+  }
+
+  function handleListenPick(i) {
+    if (listenPicked !== null) return;
+    setListenPicked(i);
+    const q = listenQs[listenIdx];
+    if (i === q.correct) {
+      setListenScore((s) => s + 1);
+      play('correct');
+    } else {
+      play('wrong');
+    }
+  }
+
+  function handleListenNext() {
+    if (listenIdx + 1 < listenQs.length) {
+      setListenIdx((i) => i + 1);
+      setListenPicked(null);
+    } else {
+      setListenDone(true);
+      addXP(listenQs.length * 2);
+      play('celebration');
+      showToast(`Hoàn thành nghe câu! +${listenQs.length * 2} XP 🎧`, 'success');
+    }
+  }
+
+  /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
+  useEffect(() => {
+    if (tab !== 'listen' || listenQs.length === 0 || listenDone) return;
+    const q = listenQs[listenIdx];
+    if (!q) return;
+    const t = setTimeout(() => speakWord(q.sentence, 0.85), 300);
+    return () => clearTimeout(t);
+  }, [tab, listenIdx, listenQs, listenDone, speakWord]);
 
   /* ── Quiz answer handler ── */
   function handleAnswer(idx) {
@@ -758,6 +849,7 @@ export default function LessonDetailPage() {
           { key: 'flashcard', label: '🃏 Flashcard', variant: 'primary' },
           { key: 'grammar', label: '📖 Ngữ pháp', variant: 'primary' },
           { key: 'reading', label: '📚 Đoạn văn', variant: 'primary' },
+          { key: 'listen', label: '🎵 Nghe câu', variant: 'primary' },
           { key: 'speak', label: '🎤 Nói theo', variant: 'primary' },
         ].map((t) => (
           <button
@@ -1094,6 +1186,201 @@ export default function LessonDetailPage() {
           {/* Progress */}
           <div className="progress mt-3" style={{ height: '6px' }}>
             <div className="progress-bar progress-bar-cowdi" style={{ width: `${((speakIdx + 1) / speakSentences.length) * 100}%` }}></div>
+          </div>
+        </div>
+      )}
+
+      {/* ── LISTEN SENTENCES TAB ── */}
+      {tab === 'listen' && (
+        <div className="card shadow-sm" style={{ borderRadius: 16, maxWidth: 720, margin: '0 auto' }}>
+          <div className="card-body p-4">
+            {listenPool.length === 0 ? (
+              <div className="text-center py-4">
+                <div style={{ fontSize: '3rem' }}>🎧</div>
+                <p className="text-muted mb-0">Bài học này chưa có câu ví dụ để luyện nghe.</p>
+              </div>
+            ) : listenQs.length === 0 ? (
+              /* Intro / start */
+              <div className="text-center py-3">
+                <div style={{ fontSize: '3rem' }}>🎧</div>
+                <h4 className="fw-bold mt-2">Nghe câu — luyện tai theo bài</h4>
+                <p className="text-muted small mb-3">
+                  Nghe câu bằng tiếng Anh từ bài <strong>{lesson.title}</strong> rồi chọn bản dịch đúng.
+                  Có <strong>{listenPool.length}</strong> câu trong bài này — phiên luyện gồm{' '}
+                  <strong>{Math.min(10, listenPool.length)}</strong> câu.
+                </p>
+                <button className="btn btn-cowdi-primary btn-lg" onClick={startLessonListen}>
+                  🚀 Bắt đầu luyện nghe
+                </button>
+              </div>
+            ) : listenDone ? (
+              /* Done */
+              <div className="text-center py-4">
+                <div style={{ fontSize: '4rem' }}>🎉</div>
+                <h4 className="fw-bold mt-2">Hoàn thành!</h4>
+                <p className="lead mb-1">
+                  Bạn nghe đúng <strong>{listenScore}</strong> / {listenQs.length} câu
+                </p>
+                <p className="text-muted small mb-3">
+                  +{listenQs.length * 2} XP đã được cộng vào tài khoản của bạn 🎧
+                </p>
+                <div className="d-flex gap-2 justify-content-center flex-wrap">
+                  <button className="btn btn-cowdi-primary" onClick={startLessonListen}>
+                    🔁 Luyện lại
+                  </button>
+                  <button className="btn btn-outline-secondary" onClick={() => setTab('vocab')}>
+                    Quay về bài học
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Active question */
+              (() => {
+                const q = listenQs[listenIdx];
+                return (
+                  <>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="badge bg-light text-muted">{q.label}</span>
+                      <small className="text-muted fw-bold">{listenIdx + 1} / {listenQs.length}</small>
+                    </div>
+                    <div className="progress mb-3" style={{ height: 6, borderRadius: 999 }}>
+                      <div
+                        className="progress-bar progress-bar-cowdi"
+                        style={{ width: `${((listenIdx + 1) / listenQs.length) * 100}%`, transition: 'width .3s' }}
+                      />
+                    </div>
+
+                    {/* Audio area */}
+                    <div
+                      className="text-center text-white py-4 px-3 mb-3"
+                      style={{
+                        background: 'linear-gradient(135deg, #FF6B9D 0%, #A29BFE 100%)',
+                        borderRadius: 16,
+                        boxShadow: '0 6px 20px rgba(255,107,157,.25)',
+                      }}
+                    >
+                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }}>
+                        🔊
+                      </div>
+                      <p className="mb-2 opacity-90 small">Nghe câu sau và chọn nghĩa đúng</p>
+                      <div className="d-flex gap-2 justify-content-center flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => speakWord(q.sentence, 0.85)}
+                          style={{
+                            background: 'rgba(255,255,255,.22)',
+                            border: '1px solid rgba(255,255,255,.4)',
+                            color: '#fff',
+                            borderRadius: 999,
+                            padding: '6px 16px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          🔊 Nghe lại
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => speakSlow(q.sentence)}
+                          style={{
+                            background: 'rgba(255,255,255,.22)',
+                            border: '1px solid rgba(255,255,255,.4)',
+                            color: '#fff',
+                            borderRadius: 999,
+                            padding: '6px 16px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          🐢 Chậm
+                        </button>
+                        {listenPicked !== null && (
+                          <button
+                            type="button"
+                            onClick={() => { /* reveal text already shown */ }}
+                            style={{
+                              background: '#fff',
+                              color: '#E0527E',
+                              border: 'none',
+                              borderRadius: 999,
+                              padding: '6px 16px',
+                              fontWeight: 600,
+                              cursor: 'default',
+                            }}
+                          >
+                            📝 {q.sentence}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="row g-2">
+                      {q.options.map((opt, i) => {
+                        const picked = listenPicked === i;
+                        const isCorrect = i === q.correct;
+                        const showResult = listenPicked !== null;
+                        let cls = 'btn w-100 text-start py-2 px-3';
+                        let extraStyle = { borderRadius: 12, fontSize: '.95rem' };
+                        if (showResult) {
+                          if (isCorrect) cls += ' btn-success';
+                          else if (picked) cls += ' btn-danger';
+                          else cls += ' btn-outline-secondary';
+                        } else {
+                          cls += ' btn-outline-cowdi';
+                        }
+                        return (
+                          <div className="col-12" key={i}>
+                            <button
+                              className={cls}
+                              style={extraStyle}
+                              onClick={() => handleListenPick(i)}
+                              disabled={showResult}
+                            >
+                              <strong className="me-2">{String.fromCharCode(65 + i)}.</strong>
+                              {opt}
+                              {showResult && isCorrect && <span className="float-end">✅</span>}
+                              {showResult && picked && !isCorrect && <span className="float-end">❌</span>}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Feedback + next */}
+                    {listenPicked !== null && (
+                      <div className="mt-3">
+                        {listenPicked === q.correct ? (
+                          <div
+                            className="alert mb-2 py-2"
+                            style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: 12 }}
+                          >
+                            ✅ <strong>Chính xác!</strong> Câu nghe: <em>"{q.sentence}"</em>
+                          </div>
+                        ) : (
+                          <div
+                            className="alert mb-2 py-2"
+                            style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: 12 }}
+                          >
+                            ❌ <strong>Chưa đúng.</strong> Đáp án: <em>"{q.options[q.correct]}"</em>
+                            <div className="small mt-1 text-muted">Câu nghe: "{q.sentence}"</div>
+                          </div>
+                        )}
+                        <button className="btn btn-cowdi-primary w-100" onClick={handleListenNext}>
+                          {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : '🏁 Hoàn thành'}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="text-center mt-3">
+                      <small className="text-muted">
+                        Điểm hiện tại: <strong>{listenScore}</strong> / {listenIdx + (listenPicked !== null ? 1 : 0)}
+                      </small>
+                    </div>
+                  </>
+                );
+              })()
+            )}
           </div>
         </div>
       )}
