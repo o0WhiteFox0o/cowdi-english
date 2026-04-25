@@ -139,6 +139,8 @@ export default function DuelPage() {
   const [questionTimes, setQuestionTimes] = useState([]); // seconds per question (my side)
   const [duelCategory, setDuelCategory] = useState('all'); // category of current active duel
   const [duelMessage, setDuelMessage] = useState(null); // challenger's message
+  const [challengerNick, setChallengerNick] = useState(null); // challenger's nickname (when accepting)
+  const [challengerTotalTime, setChallengerTotalTime] = useState(null); // challenger's total time (seconds)
   const battleAnimTimeoutRef = useRef(null);
 
   // Result state
@@ -233,6 +235,8 @@ export default function DuelPage() {
     setChallengerResults([]); // no challenger results in creating mode
     setDuelCategory(setupCategory);
     setDuelMessage(null);
+    setChallengerNick(null);
+    setChallengerTotalTime(null);
     // Pick a random opponent pet for the entire match
     const petKeys = Object.keys(PET_REGISTRY).filter(k => k !== myPetInfo.speciesId);
     const randKey = petKeys[Math.floor(Math.random() * petKeys.length)] || Object.keys(PET_REGISTRY)[0];
@@ -267,8 +271,11 @@ export default function DuelPage() {
   const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
 
   // ── Run battle animation sequence ───────────────────────────
-  // Both pets can attack: my pet attacks if I answer correctly,
-  // opponent attacks if they answered this question correctly (from challengerResults)
+  // Both pets can attack independently:
+  //  - My pet attacks if I answer this question correctly
+  //  - Opponent pet attacks if THEY answered this question correctly
+  //    (in 'playing' mode, derived from challengerResults persisted by the creator;
+  //     in 'creating' mode there is no real opponent so we mirror: opponent attacks when I miss)
   function runBattleAnimation(isCorrect, isCritical, questionIdx, callback) {
     const myElement = myPetInfo.element;
     const oppElement = opponentPet?.element || 'neutral';
@@ -276,14 +283,19 @@ export default function DuelPage() {
     const oppAnsweredCorrectly = typeof challengerTurn === 'object'
       ? !!challengerTurn.correct
       : !!challengerTurn;
+    // Was the challenger faster than ~3s on this question? Use their stored time for crit.
+    const oppTime = (challengerTurn && typeof challengerTurn === 'object' && typeof challengerTurn.time === 'number')
+      ? challengerTurn.time
+      : null;
+    const oppCritical = oppAnsweredCorrectly && oppTime !== null && oppTime < 3;
 
     clearTimeout(battleAnimTimeoutRef.current);
 
-    // Determine what happens this turn:
-    // Player answers correctly → my pet attacks
-    // Player answers incorrectly → opponent pet attacks
+    // Decide who attacks this turn
     const myPetAttacks = isCorrect;
-    const oppPetAttacks = !isCorrect;
+    const oppPetAttacks = mode === 'playing'
+      ? oppAnsweredCorrectly       // real challenger result
+      : !isCorrect;                // creating mode mock
 
     const sequence = [];
 
@@ -321,9 +333,14 @@ export default function DuelPage() {
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-mine');
           setEffectClass(`effect-${oppElement}`);
-          play('battleDamage');
-          setDamagePopup({ target: 'mine', amount: 10, isCritical: false });
-          setMyHp(prev => Math.max(0, prev - 10));
+          const oppDmg = oppCritical ? 15 : 10;
+          if (oppCritical) {
+            play('battleCritical');
+          } else {
+            play('battleDamage');
+          }
+          setDamagePopup({ target: 'mine', amount: oppDmg, isCritical: oppCritical });
+          setMyHp(prev => Math.max(0, prev - oppDmg));
           battleAnimTimeoutRef.current = setTimeout(() => {
             setBattleAnim(null);
             setEffectClass(null);
@@ -494,6 +511,8 @@ export default function DuelPage() {
         setChallengerResults(data.challengerResults || []);
         setDuelCategory(data.category || 'all');
         setDuelMessage(data.message || null);
+        setChallengerNick(data.challengerNick || null);
+        setChallengerTotalTime(typeof data.challengerTime === 'number' ? data.challengerTime : null);
         // Use challenger's pet as opponent
         if (data.challengerPet?.speciesId) {
           const cSpecies = PET_REGISTRY[data.challengerPet.speciesId];
@@ -665,7 +684,26 @@ export default function DuelPage() {
         {/* Challenger message banner (only when playing) */}
         {mode === 'playing' && duelMessage && currentQ === 0 && selectedOption === null && (
           <div className="alert alert-warning py-2 px-3 small mb-2 fst-italic" style={{ borderLeft: '3px solid #ffc107' }}>
-            💬 <strong>{opponentPet?.name || 'Đối thủ'}:</strong> "{duelMessage}"
+            💬 <strong>{challengerNick || opponentPet?.name || 'Đối thủ'}:</strong> "{duelMessage}"
+          </div>
+        )}
+
+        {/* Challenger info card (only when playing) – cho thấy thông tin người tạo được dùng */}
+        {mode === 'playing' && (currentQ === 0 && selectedOption === null) && (
+          <div className="card border-0 bg-light mb-2">
+            <div className="card-body py-2 px-3 d-flex align-items-center gap-2">
+              <div style={{ fontSize: '1.6rem' }}>{opponentPet?.emoji || '🐾'}</div>
+              <div className="flex-grow-1">
+                <div className="small fw-bold">
+                  {challengerNick || 'Người thách đấu'}
+                  {opponentPet?.name && <span className="text-muted fw-normal"> · {opponentPet.name}</span>}
+                </div>
+                <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                  Đã trả lời đúng {challengerResults.filter(r => r?.correct).length}/{challengerResults.length} câu
+                  {typeof challengerTotalTime === 'number' && ` · ⏱️ ${challengerTotalTime}s`}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

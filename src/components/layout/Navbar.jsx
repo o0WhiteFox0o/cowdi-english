@@ -34,6 +34,10 @@ export default function Navbar() {
   const avatarUrl = user?.avatar_url;
   const displayName = user?.display_name || 'Tôi';
 
+  /* ── Đã học hôm nay chưa? (dùng cho nút nhắc nhở học tập) ── */
+  const today = new Date().toDateString();
+  const hasStudiedToday = userData?.dailyDate === today && (userData?.dailyXP || 0) > 0;
+
   /* ── Mobile popup sub-menu state ── */
   const [openTab, setOpenTab] = useState(null);
   const popupRef = useRef(null);
@@ -187,12 +191,39 @@ export default function Navbar() {
             </li>
           </ul>
 
-          {/* ── Stats + Auth (all sizes) ── */}
-          <div className="d-flex align-items-center gap-1 ms-auto flex-shrink-0">
-            <span className="badge bg-warning text-dark" style={{ fontSize: '.72rem' }}>⭐{userData.totalXP}</span>
-            <span className="badge bg-danger" style={{ fontSize: '.72rem' }}>🔥{userData.streak}</span>
-            <span className="badge bg-primary d-none d-sm-inline" style={{ fontSize: '.72rem' }}>Lv.{level.level}</span>
-            <span className="badge bg-success" style={{ fontSize: '.72rem' }}>🪙{petData.coins}</span>
+          {/* ── Desktop-only right action (≥ 992 px) ── */}
+          <div className="d-none d-lg-flex align-items-center ms-auto">
+            {!user ? (
+              <button
+                type="button"
+                className="navbar-action-btn navbar-login-btn"
+                onClick={loginWithGoogle}
+                title="Đăng nhập với Google để đồng bộ tiến trình"
+              >
+                <i className="fab fa-google" />
+                <span className="navbar-action-label">Đăng nhập</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={`navbar-action-btn navbar-reminder-btn ${hasStudiedToday ? '' : 'has-reminder'}`}
+                onClick={() => navigate('/lessons')}
+                title={hasStudiedToday
+                  ? `Hôm nay bạn đã học ${userData.dailyXP || 0} XP rồi! 🎉`
+                  : 'Đến giờ học rồi nè! Nhấn để vào bài học 📚'}
+              >
+                <span className="navbar-action-icon">{hasStudiedToday ? '🔔' : '⏰'}</span>
+                <span className="navbar-action-label">{hasStudiedToday ? 'Nhắc học' : 'Học ngay'}</span>
+              </button>
+            )}
+          </div>
+
+          {/* ── Stats + Auth (mobile only — hidden on desktop via CSS) ── */}
+          <div className="navbar-stats ms-auto flex-shrink-0">
+            <span className="badge bg-warning text-dark">⭐{userData.totalXP}</span>
+            <span className="badge bg-danger">🔥{userData.streak}</span>
+            <span className="badge bg-primary d-none d-sm-inline">Lv.{level.level}</span>
+            <span className="badge bg-success">🪙{petData.coins}</span>
             <button className="btn btn-sm p-0 border-0 ms-1" onClick={toggleMute}
               title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}
               style={{ fontSize: '1rem', lineHeight: 1, background: 'none', opacity: muted ? 0.5 : 1 }}>

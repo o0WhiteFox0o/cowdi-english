@@ -11,10 +11,11 @@
   --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* ── Typography scale ──
-     Root 17.5px (~109%) để toàn bộ rem-based Bootstrap scale đều.
-     Bố cục không vỡ nhưng chữ đọc dễ hơn rõ rệt. */
-  --cowdi-font-base: 20px; /* tăng lên 18px nếu muốn lớn hơn, giảm về 16.5px nếu thấy quá to */
-  --cowdi-line-height: 1.6;
+     Root 24px (≈150% so với Bootstrap default 16px) để toàn bộ rem-based
+     scale đều. Các heading & badge cũng to theo. Trên màn hình rất nhỏ
+     giảm nhẹ để tránh tràn bố cục. */
+  --cowdi-font-base: 24px;
+  --cowdi-line-height: 1.55;
 }
 
 * { box-sizing: border-box; }
@@ -85,10 +86,16 @@ h6, .h6 { font-size: 1rem; }
 /* Modal title rõ ràng hơn */
 .modal-title { font-size: 1.25rem; font-weight: 700; }
 
-/* Responsive: trên màn hình rất nhỏ giảm lại một chút
-   để tránh tràn bố cục (vẫn lớn hơn default) */
+/* Responsive: giảm dần base font theo bề rộng để cân đối trên mobile.
+   Mục tiêu: tablet/desktop ~24px (150%), mobile ~21px (~131%), siu nhỏ ~19px (~119%). */
+@media (max-width: 991.98px) {
+  :root { --cowdi-font-base: 21px; }
+}
+@media (max-width: 575.98px) {
+  :root { --cowdi-font-base: 20px; }
+}
 @media (max-width: 400px) {
-  :root { --cowdi-font-base: 16px; }
+  :root { --cowdi-font-base: 19px; }
 }
 
 /* ============================================

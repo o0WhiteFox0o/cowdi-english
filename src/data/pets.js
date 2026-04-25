@@ -6,10 +6,11 @@
 // ── Cowdi Image Paths ────────────────────────────────────────────────────────
 const COWDI_IMG = '/assets/images/pets/Cowdi';
 export const COWDI_IMAGES = {
+  egg: `${COWDI_IMG}/Cowdi_egg.webp`,
   baby: `${COWDI_IMG}/Cowdi_baby.webp`,
   junior: `${COWDI_IMG}/Cowdi_junior.webp`,
   super: `${COWDI_IMG}/Cowdi_super.webp`,
-  legendary: `${COWDI_IMG}/Cowdi_legandary.webp`,
+  legendary: `${COWDI_IMG}/Cowdi_legendary.webp`,
 };
 
 // ── Foxie Image Paths ────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ export const FOXIE_IMAGES = {
   baby: `${FOXIE_IMG}/Foxie_baby.webp`,
   junior: `${FOXIE_IMG}/Foxie_junior.webp`,
   super: `${FOXIE_IMG}/Foxie_super.webp`,
-  legendary: `${FOXIE_IMG}/Foxie_legandary.webp`,
+  legendary: `${FOXIE_IMG}/Foxie_legendary.webp`,
 };
 
 // ── Ginseng Image Paths ──────────────────────────────────────────────────────
@@ -154,7 +155,7 @@ export const PET_REGISTRY = {
     baseStats: { listening: 5, speaking: 5, reading: 5, writing: 5 },
     description: 'Chú bò hiền lành yêu tiếng Anh, luôn đồng hành cùng bạn từ ngày đầu.',
     evolutions: [
-      { stage: 0, name: 'Trứng Cowdi', xp: 0, emoji: '🥚' },
+      { stage: 0, name: 'Trứng Cowdi', xp: 0, emoji: '🥚', image: COWDI_IMAGES.egg },
       { stage: 1, name: 'Baby Cowdi', xp: 100, emoji: '🐄', image: COWDI_IMAGES.baby },
       { stage: 2, name: 'Junior Cowdi', xp: 500, emoji: '🐮', image: COWDI_IMAGES.junior },
       { stage: 3, name: 'Super Cowdi', xp: 1200, emoji: '🦬', image: COWDI_IMAGES.super },

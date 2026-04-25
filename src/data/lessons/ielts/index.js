@@ -20,6 +20,38 @@ import { IELTS_SPEAKING_ADVANCED_LESSON } from './ielts-speaking-advanced.js';
 import { IELTS_LISTENING_ADVANCED_LESSON } from './ielts-listening-advanced.js';
 import { IELTS_READING_ADVANCED_LESSON } from './ielts-reading-advanced.js';
 
+// ── 30 bài học mới ──
+import { IELTS_VOCAB_TECHNOLOGY_LESSON } from './ielts-vocab-technology.js';
+import { IELTS_VOCAB_MEDIA_LESSON } from './ielts-vocab-media.js';
+import { IELTS_VOCAB_TOURISM_LESSON } from './ielts-vocab-tourism.js';
+import { IELTS_VOCAB_GLOBALIZATION_LESSON } from './ielts-vocab-globalization.js';
+import { IELTS_VOCAB_CRIME_LESSON } from './ielts-vocab-crime.js';
+import { IELTS_VOCAB_ECONOMY_LESSON } from './ielts-vocab-economy.js';
+import { IELTS_VOCAB_FAMILY_LESSON } from './ielts-vocab-family.js';
+import { IELTS_VOCAB_CULTURE_LESSON } from './ielts-vocab-culture.js';
+import { IELTS_VOCAB_TRANSPORT_LESSON } from './ielts-vocab-transport.js';
+import { IELTS_VOCAB_URBANIZATION_LESSON } from './ielts-vocab-urbanization.js';
+import { IELTS_VOCAB_EMPLOYMENT_LESSON } from './ielts-vocab-employment.js';
+import { IELTS_VOCAB_ART_LESSON } from './ielts-vocab-art.js';
+import { IELTS_VOCAB_FOOD_LESSON } from './ielts-vocab-food.js';
+import { IELTS_VOCAB_GOVERNMENT_LESSON } from './ielts-vocab-government.js';
+import { IELTS_VOCAB_SCIENCE_LESSON } from './ielts-vocab-science.js';
+import { IELTS_VOCAB_LANGUAGE_LESSON } from './ielts-vocab-language.js';
+import { IELTS_VOCAB_SPORTS_LESSON } from './ielts-vocab-sports.js';
+import { IELTS_VOCAB_HISTORY_LESSON } from './ielts-vocab-history.js';
+import { IELTS_VOCAB_ARCHITECTURE_LESSON } from './ielts-vocab-architecture.js';
+import { IELTS_VOCAB_AGRICULTURE_LESSON } from './ielts-vocab-agriculture.js';
+import { IELTS_VOCAB_ENERGY_LESSON } from './ielts-vocab-energy.js';
+import { IELTS_VOCAB_SHOPPING_LESSON } from './ielts-vocab-shopping.js';
+import { IELTS_VOCAB_CHILDHOOD_LESSON } from './ielts-vocab-childhood.js';
+import { IELTS_VOCAB_AGING_LESSON } from './ielts-vocab-aging.js';
+import { IELTS_GRAMMAR_CONDITIONALS_LESSON } from './ielts-grammar-conditionals.js';
+import { IELTS_GRAMMAR_PASSIVE_LESSON } from './ielts-grammar-passive.js';
+import { IELTS_WRITING_TASK1_MAPS_LESSON } from './ielts-writing-task1-maps.js';
+import { IELTS_WRITING_TASK1_PROCESS_LESSON } from './ielts-writing-task1-process.js';
+import { IELTS_SPEAKING_PART2_LESSON } from './ielts-speaking-part2-cue.js';
+import { IELTS_SPEAKING_PART3_LESSON } from './ielts-speaking-part3-discussion.js';
+
 export const TRACK_ID = "ielts";
 export const TRACK_LABEL = "IELTS";
 export const TRACK_ICON = "🎓";
@@ -42,11 +74,42 @@ export const LESSONS = [
   IELTS_VOCAB_ENVIRONMENT_LESSON,
   IELTS_VOCAB_EDUCATION_LESSON,
   IELTS_VOCAB_HEALTH_LESSON,
+  // Vocab chuyên đề mở rộng (Topic Vocabulary)
+  IELTS_VOCAB_TECHNOLOGY_LESSON,
+  IELTS_VOCAB_MEDIA_LESSON,
+  IELTS_VOCAB_TOURISM_LESSON,
+  IELTS_VOCAB_GLOBALIZATION_LESSON,
+  IELTS_VOCAB_CRIME_LESSON,
+  IELTS_VOCAB_ECONOMY_LESSON,
+  IELTS_VOCAB_FAMILY_LESSON,
+  IELTS_VOCAB_CULTURE_LESSON,
+  IELTS_VOCAB_TRANSPORT_LESSON,
+  IELTS_VOCAB_URBANIZATION_LESSON,
+  IELTS_VOCAB_EMPLOYMENT_LESSON,
+  IELTS_VOCAB_ART_LESSON,
+  IELTS_VOCAB_FOOD_LESSON,
+  IELTS_VOCAB_GOVERNMENT_LESSON,
+  IELTS_VOCAB_SCIENCE_LESSON,
+  IELTS_VOCAB_LANGUAGE_LESSON,
+  IELTS_VOCAB_SPORTS_LESSON,
+  IELTS_VOCAB_HISTORY_LESSON,
+  IELTS_VOCAB_ARCHITECTURE_LESSON,
+  IELTS_VOCAB_AGRICULTURE_LESSON,
+  IELTS_VOCAB_ENERGY_LESSON,
+  IELTS_VOCAB_SHOPPING_LESSON,
+  IELTS_VOCAB_CHILDHOOD_LESSON,
+  IELTS_VOCAB_AGING_LESSON,
   // Band 7.5+ (Advanced)
   IELTS_GRAMMAR_ADVANCED_LESSON,
+  IELTS_GRAMMAR_CONDITIONALS_LESSON,
+  IELTS_GRAMMAR_PASSIVE_LESSON,
   IELTS_TASK1_PRACTICE_LESSON,
+  IELTS_WRITING_TASK1_MAPS_LESSON,
+  IELTS_WRITING_TASK1_PROCESS_LESSON,
   IELTS_TASK2_ESSAYS_LESSON,
   IELTS_SPEAKING_ADVANCED_LESSON,
+  IELTS_SPEAKING_PART2_LESSON,
+  IELTS_SPEAKING_PART3_LESSON,
   IELTS_LISTENING_ADVANCED_LESSON,
   IELTS_READING_ADVANCED_LESSON,
 ].map(l => ({ ...l, track: TRACK_ID }));

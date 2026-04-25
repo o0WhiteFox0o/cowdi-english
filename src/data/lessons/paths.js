@@ -319,121 +319,181 @@ export const EXAM_PATHS = [
     subtitle: "Test of English for International Communication",
     icon: "💼",
     color: "#F57F17",
-    description: "Luyện từ vựng kinh doanh, kỹ năng Listening & Reading cho kỳ thi TOEIC.",
+    description: "Lộ trình toàn diện 53 bài: từ vựng kinh doanh, ngữ pháp, Listening & Reading từ Part 1 đến Part 7.",
     targetLevel: "300 – 900+",
     units: [
       {
         id: "toeic-unit-basics",
         title: "Basics (A1) — TOEIC 300+",
-        subtitle: "Văn phòng & Sinh hoạt hàng ngày",
+        subtitle: "Văn phòng, sinh hoạt & thiết bị",
         icon: "🌱",
         color: "#FFA726",
         lessons: [
           "toeic-basics-office",
-          "toeic-basics-daily"
+          "toeic-basics-daily",
+          "toeic-vocab-office-equipment"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Basics",
-          passRate: 0.7,
-          questionCount: 10
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Basics", passRate: 0.7, questionCount: 10 }
       },
       {
         id: "toeic-unit-elementary",
         title: "Elementary (A2) — TOEIC 450+",
-        subtitle: "Hội thoại & Email công việc",
+        subtitle: "Hội thoại, email & gọi điện",
         icon: "🌿",
         color: "#FB8C00",
         lessons: [
           "toeic-elementary-convo",
-          "toeic-elementary-emails"
+          "toeic-elementary-emails",
+          "toeic-vocab-telephoning"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Elementary",
-          passRate: 0.7,
-          questionCount: 10
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Elementary", passRate: 0.7, questionCount: 10 }
       },
       {
-        id: "toeic-unit-1",
+        id: "toeic-unit-daily-work",
+        title: "Daily Work Vocabulary",
+        subtitle: "Lịch trình, bán lẻ, dịch vụ khách hàng & HR-tài chính",
+        icon: "📅",
+        color: "#FFA000",
+        lessons: [
+          "toeic-vocab-schedules",
+          "toeic-vocab-retail",
+          "toeic-vocab-customer-service",
+          "toeic-vocab-hr-finance",
+          "toeic-business-comm"
+        ],
+        checkpoint: { title: "Kiểm tra TOEIC Daily Work", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "toeic-unit-business-comm",
         title: "Business Communication",
-        subtitle: "Từ vựng doanh nghiệp & Kỹ năng giao tiếp",
+        subtitle: "Email, họp, phỏng vấn, đánh giá & đào tạo",
         icon: "🏢",
         color: "#F57F17",
         lessons: [
-          "toeic-business-comm",
-          "toeic-listening-reading"
+          "toeic-vocab-emails-business",
+          "toeic-vocab-meetings",
+          "toeic-vocab-interview",
+          "toeic-vocab-performance-review",
+          "toeic-vocab-training"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Unit 1",
-          passRate: 0.7,
-          questionCount: 10
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Business Communication", passRate: 0.7, questionCount: 12 }
       },
       {
-        id: "toeic-unit-2",
-        title: "Listening Skills",
-        subtitle: "Part 1–4: Photographs, Q&A, Conversations, Talks",
+        id: "toeic-unit-travel-finance",
+        title: "Travel, Banking & Logistics",
+        subtitle: "Công tác, khách sạn, ngân hàng, hóa đơn, vận chuyển",
+        icon: "✈️",
+        color: "#FF8F00",
+        lessons: [
+          "toeic-vocab-business-travel",
+          "toeic-vocab-hotel",
+          "toeic-vocab-banking",
+          "toeic-vocab-invoicing",
+          "toeic-vocab-shipping"
+        ],
+        checkpoint: { title: "Kiểm tra TOEIC Travel & Finance", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "toeic-unit-industries",
+        title: "Industries Vocabulary",
+        subtitle: "Y tế, công nghệ, sản xuất, BĐS, marketing, sự kiện",
+        icon: "🏭",
+        color: "#EF6C00",
+        lessons: [
+          "toeic-vocab-healthcare",
+          "toeic-vocab-technology",
+          "toeic-vocab-manufacturing",
+          "toeic-vocab-real-estate",
+          "toeic-vocab-marketing-logistics",
+          "toeic-vocab-corporate-events"
+        ],
+        checkpoint: { title: "Kiểm tra TOEIC Industries", passRate: 0.7, questionCount: 15 }
+      },
+      {
+        id: "toeic-unit-advanced-vocab",
+        title: "Advanced Business Vocabulary",
+        subtitle: "Hợp đồng, quảng cáo, đàm phán, tin kinh doanh, CSR",
+        icon: "💼",
+        color: "#E65100",
+        lessons: [
+          "toeic-vocab-contracts",
+          "toeic-vocab-advertising",
+          "toeic-vocab-business-news",
+          "toeic-vocab-negotiations",
+          "toeic-vocab-csr"
+        ],
+        checkpoint: { title: "Kiểm tra TOEIC Advanced Vocab", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "toeic-unit-listening",
+        title: "Listening Skills (Part 1–4)",
+        subtitle: "Photographs, Q&A, Conversations & Talks",
         icon: "🎧",
         color: "#F9A825",
         lessons: [
+          "toeic-listening-reading",
+          "toeic-part1-photos",
+          "toeic-part2-qa",
           "toeic-listening-part12",
-          "toeic-listening-part34"
+          "toeic-listening-part34",
+          "toeic-part3-conversations-advanced",
+          "toeic-part4-talks-advanced"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Unit 2",
-          passRate: 0.7,
-          questionCount: 10
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Listening", passRate: 0.7, questionCount: 15 }
       },
       {
-        id: "toeic-unit-3",
-        title: "Reading Skills",
-        subtitle: "Part 5–7: Sentences, Text Completion, Comprehension",
+        id: "toeic-unit-reading",
+        title: "Reading Skills (Part 5–6)",
+        subtitle: "Incomplete Sentences & Text Completion",
         icon: "📖",
         color: "#FF8F00",
         lessons: [
           "toeic-reading-part5",
+          "toeic-part5-tenses",
+          "toeic-part5-prepositions",
           "toeic-reading-part6",
-          "toeic-reading-part7"
+          "toeic-part6-text-completion-advanced"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Unit 3",
-          passRate: 0.7,
-          questionCount: 12
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Reading 5–6", passRate: 0.7, questionCount: 15 }
       },
       {
-        id: "toeic-unit-4",
-        title: "Business Vocabulary Advanced",
-        subtitle: "HR, Tài chính, Marketing & Logistics",
-        icon: "💼",
-        color: "#EF6C00",
+        id: "toeic-unit-reading-advanced",
+        title: "Reading Comprehension (Part 7)",
+        subtitle: "Single, Double & Triple Passages",
+        icon: "📚",
+        color: "#E65100",
         lessons: [
-          "toeic-vocab-hr-finance",
-          "toeic-vocab-marketing-logistics"
+          "toeic-reading-part7",
+          "toeic-part7-double-passages",
+          "toeic-part7-triple-passages"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Unit 4",
-          passRate: 0.7,
-          questionCount: 12
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Part 7", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "toeic-unit-grammar",
+        title: "Grammar Focus",
+        subtitle: "Passive, Gerund/Infinitive, Conditionals, Relative Clauses",
+        icon: "📐",
+        color: "#BF360C",
+        lessons: [
+          "toeic-grammar-passive",
+          "toeic-grammar-gerund-infinitive",
+          "toeic-grammar-conditionals",
+          "toeic-grammar-relative-clauses"
+        ],
+        checkpoint: { title: "Kiểm tra TOEIC Grammar", passRate: 0.7, questionCount: 12 }
       },
       {
         id: "toeic-unit-advanced",
         title: "Advanced (C1) — TOEIC 800+",
-        subtitle: "Meetings, Negotiations & Reports",
+        subtitle: "Meetings & Reports cao cấp",
         icon: "🏆",
-        color: "#E65100",
+        color: "#3E2723",
         lessons: [
           "toeic-advanced-meetings",
           "toeic-advanced-reports"
         ],
-        checkpoint: {
-          title: "Kiểm tra TOEIC Advanced",
-          passRate: 0.7,
-          questionCount: 12
-        }
+        checkpoint: { title: "Kiểm tra TOEIC Advanced 800+", passRate: 0.7, questionCount: 12 }
       }
     ]
   },
@@ -443,42 +503,94 @@ export const EXAM_PATHS = [
     subtitle: "Mastery — CEFR C1 & C2",
     icon: "🏆",
     color: "#00897B",
-    description: "Lộ trình chuyên sâu cho người học trình độ C1 hướng tới C2: học thuật, tranh biện, thành ngữ & tu từ.",
+    description: "Lộ trình 26 bài chuyên sâu C1 → C2: học thuật, tu từ, thành ngữ tinh tế và ngữ pháp bậc thầy.",
     targetLevel: "CEFR C1 → C2",
     units: [
       {
-        id: "adv-unit-c1",
-        title: "C1 — Effective Operational Proficiency",
-        subtitle: "Academic Vocab, Argumentative Writing & Lecture Listening",
+        id: "adv-unit-c1-foundations",
+        title: "C1 — Foundations (Vocabulary)",
+        subtitle: "Academic vocab, collocations, phrasal verbs & register",
         icon: "🎓",
         color: "#00897B",
         lessons: [
           "adv-c1-academic-vocab",
-          "adv-c1-writing-essays",
-          "adv-c1-listening"
+          "adv-c1-collocations",
+          "adv-c1-phrasal-verbs",
+          "adv-c1-register"
         ],
-        checkpoint: {
-          title: "Kiểm tra C1 Mastery",
-          passRate: 0.7,
-          questionCount: 12
-        }
+        checkpoint: { title: "Kiểm tra C1 Foundations", passRate: 0.7, questionCount: 12 }
       },
       {
-        id: "adv-unit-c2",
-        title: "C2 — Mastery",
-        subtitle: "Idioms, Advanced Debate & Literary Devices",
-        icon: "👑",
+        id: "adv-unit-c1-skills",
+        title: "C1 — Four Skills",
+        subtitle: "Writing, Listening, Presentations, Paraphrasing & Summarizing",
+        icon: "🛠️",
+        color: "#00796B",
+        lessons: [
+          "adv-c1-writing-essays",
+          "adv-c1-listening",
+          "adv-c1-presentations",
+          "adv-c1-paraphrasing",
+          "adv-c1-summarizing"
+        ],
+        checkpoint: { title: "Kiểm tra C1 Skills", passRate: 0.7, questionCount: 15 }
+      },
+      {
+        id: "adv-unit-c1-academic",
+        title: "C1 — Academic & Thinking",
+        subtitle: "Critical thinking, research paper, abstract topics & complex grammar",
+        icon: "🧠",
         color: "#00695C",
         lessons: [
-          "adv-c2-idioms",
-          "adv-c2-debate",
-          "adv-c2-literary"
+          "adv-c1-critical-thinking",
+          "adv-c1-research-paper",
+          "adv-c1-abstract-topics",
+          "adv-c1-complex-grammar"
         ],
-        checkpoint: {
-          title: "Kiểm tra C2 Mastery",
-          passRate: 0.7,
-          questionCount: 15
-        }
+        checkpoint: { title: "Kiểm tra C1 Academic", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "adv-unit-c2-style",
+        title: "C2 — Idioms & Style",
+        subtitle: "Idioms, advanced idioms, literary devices & cultural references",
+        icon: "💎",
+        color: "#5D4037",
+        lessons: [
+          "adv-c2-idioms",
+          "adv-c2-advanced-idioms",
+          "adv-c2-literary",
+          "adv-c2-cultural-refs"
+        ],
+        checkpoint: { title: "Kiểm tra C2 Style", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "adv-unit-c2-rhetoric",
+        title: "C2 — Discourse & Rhetoric",
+        subtitle: "Debate, rhetoric, satire/irony & public speaking",
+        icon: "🎭",
+        color: "#4E342E",
+        lessons: [
+          "adv-c2-debate",
+          "adv-c2-rhetoric",
+          "adv-c2-satire-irony",
+          "adv-c2-public-speaking"
+        ],
+        checkpoint: { title: "Kiểm tra C2 Rhetoric", passRate: 0.7, questionCount: 12 }
+      },
+      {
+        id: "adv-unit-c2-mastery",
+        title: "C2 — Mastery",
+        subtitle: "Fluency, etymology, philosophy, academic publishing & mastery grammar",
+        icon: "👑",
+        color: "#3E2723",
+        lessons: [
+          "adv-c2-fluency",
+          "adv-c2-etymology",
+          "adv-c2-philosophy",
+          "adv-c2-academic-publishing",
+          "adv-c2-mastery-grammar"
+        ],
+        checkpoint: { title: "Kiểm tra C2 Mastery", passRate: 0.7, questionCount: 15 }
       }
     ]
   }

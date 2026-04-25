@@ -582,11 +582,17 @@ export default function LessonDetailPage() {
     ...lesson.grammar.flatMap((g) => g.examples.map((ex) => ({ en: ex.en, vi: ex.vi, label: g.title }))),
   ].filter((s) => s.en && s.vi);
 
-  /* ── Listen-sentence pool: cùng nguồn với speak nhưng dedupe theo en ── */
+  /* ── Listen-sentence pool: chỉ dùng cặp câu en↔vi đầy đủ (không dùng vocab
+       vì vocab.meaning là nghĩa của TỪ, không phải bản dịch của ví dụ). ── */
   const listenPool = (() => {
+    const sentencePairs = lesson.grammar.flatMap((g) =>
+      g.examples
+        .filter((ex) => ex.en && ex.vi && ex.en.trim().split(/\s+/).length >= 2)
+        .map((ex) => ({ en: ex.en, vi: ex.vi, label: g.title })),
+    );
     const seen = new Set();
     const out = [];
-    for (const s of speakSentences) {
+    for (const s of sentencePairs) {
       const key = s.en.trim().toLowerCase();
       if (!seen.has(key)) { seen.add(key); out.push(s); }
     }

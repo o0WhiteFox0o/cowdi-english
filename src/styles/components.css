@@ -119,6 +119,142 @@
   color: var(--cowdi-primary) !important;
 }
 
+/* Navbar 1 dòng duy nhất (không wrap) */
+.navbar > .container-fluid,
+.navbar > .container {
+  flex-wrap: nowrap;
+  column-gap: 0.5rem;
+}
+
+/* Báo người đọc: các icon SVG trong navbar cố định w/h theo attribute,
+   ta bức phá bằng CSS để đồng bộ size lớn hơn cho dễ nhìn. */
+.navbar .nav-link img,
+.navbar .navbar-brand img {
+  width: auto !important;
+  height: 1.6em !important;
+  max-height: 32px;
+}
+.navbar .navbar-brand img {
+  height: 2em !important;
+  max-height: 44px;
+  max-width: 160px;
+}
+.navbar .badge {
+  font-size: 0.78rem !important;
+  padding: 0.4em 0.6em;
+  white-space: nowrap;
+}
+
+/* ── Desktop nav: icon bứ ở trên, chữ nhỏ bên dưới ── */
+@media (min-width: 992px) {
+  .navbar .navbar-nav.flex-row {
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+  .navbar .nav-link {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem !important;
+    padding: 0.35rem 0.85rem !important;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.1;
+    border-radius: 12px;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .navbar .nav-link:hover {
+    background: #FFF0F5;
+  }
+  .navbar .nav-link.active {
+    background: #FFE4EC;
+  }
+  .navbar .nav-link img {
+    height: 30px !important;
+    max-height: 30px;
+  }
+  /* Thoát mũi tên dropdown-toggle ra cạnh chữ cho gọn */
+  .navbar .dropdown-toggle::after {
+    margin-left: 0.25rem;
+    vertical-align: 0.05em;
+  }
+  /* Avatar trong nav-link: màu tròn */
+  .navbar .nav-link .rounded-circle {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  /* Ẩn cụm stats trên desktop — thanh trên chỉ 1 dòng sạch sẽ */
+  .navbar-stats {
+    display: none !important;
+  }
+}
+
+/* Stats cluster: chỉ hiển thị trên mobile (top bar) */
+.navbar-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+/* ── Desktop right-side action button (Login / Reminder) ── */
+.navbar-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.95rem;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #555;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+  position: relative;
+  font-family: inherit;
+}
+.navbar-action-btn:hover { background: #FFF0F5; transform: translateY(-1px); }
+.navbar-action-btn:active { transform: translateY(0); }
+
+.navbar-login-btn { color: #4285F4; }
+.navbar-login-btn i { font-size: 1.45rem; line-height: 1; }
+
+.navbar-reminder-btn .navbar-action-icon { font-size: 1.45rem; line-height: 1; }
+.navbar-reminder-btn.has-reminder { color: #FF3B5C; }
+.navbar-reminder-btn.has-reminder .navbar-action-icon {
+  animation: cowdi-bell-shake 1.6s ease-in-out infinite;
+  transform-origin: top center;
+}
+.navbar-reminder-btn.has-reminder::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  background: #FF3B5C;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  animation: cowdi-pulse 1.4s ease-out infinite;
+}
+@keyframes cowdi-bell-shake {
+  0%, 60%, 100% { transform: rotate(0); }
+  10%, 30%, 50% { transform: rotate(-12deg); }
+  20%, 40%      { transform: rotate(12deg); }
+}
+@keyframes cowdi-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 59, 92, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(255, 59, 92, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 59, 92, 0); }
+}
+
 /* ── Desktop dropdown menus (rounded, colorful) ── */
 .cowdi-dropdown-menu {
   border-radius: 14px !important;
@@ -148,8 +284,8 @@
 .cowdi-dropdown-menu .dropdown-item {
   border-radius: 10px;
   font-weight: 600;
-  padding: 8px 14px;
-  font-size: 0.88rem;
+  padding: 10px 16px;
+  font-size: 1rem;
   transition: background .15s, color .15s;
 }
 .cowdi-dropdown-menu .dropdown-item:hover,
@@ -172,7 +308,7 @@
   border-top: 2px solid #FFE0EB;
   display: flex;
   justify-content: space-around;
-  padding: 4px 0 calc(4px + env(safe-area-inset-bottom, 0px));
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
   z-index: 1040;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, .06);
 }
@@ -183,7 +319,7 @@
   align-items: center;
   text-decoration: none;
   color: #bbb;
-  padding: 2px 4px;
+  padding: 4px 4px;
   flex: 1;
   position: relative;
   transition: color .2s;
@@ -193,6 +329,7 @@
   outline: none;
   font-family: inherit;
   cursor: pointer;
+  min-height: 56px;
 }
 
 .bottom-tab.active {
@@ -217,12 +354,19 @@
 }
 
 .bottom-tab-icon {
-  font-size: 1.45rem;
+  font-size: 1.9rem;
   line-height: 1;
   transition: transform .15s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.bottom-tab-icon img {
+  width: 1.6em !important;
+  height: 1.6em !important;
+  max-width: 32px;
+  max-height: 32px;
+  object-fit: contain;
 }
 .bottom-tab.active .bottom-tab-icon {
   transform: scale(1.15);
@@ -232,9 +376,9 @@
 }
 
 .bottom-tab-label {
-  font-size: 0.6rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  margin-top: 1px;
+  margin-top: 3px;
   letter-spacing: 0.02em;
 }
 
@@ -263,15 +407,15 @@
 .bottom-popup-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: 1 1 calc(50% - 6px);
   min-width: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 12px;
   border: none;
   background: #FFF8F0;
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 1rem;
   color: #555;
   cursor: pointer;
   transition: background .15s, color .15s, transform .1s;
@@ -291,7 +435,7 @@
 }
 
 .bottom-popup-icon {
-  font-size: 1.2rem;
+  font-size: 1.45rem;
   flex-shrink: 0;
 }
 .bottom-popup-label {
@@ -304,14 +448,14 @@
 @media (max-width: 991.98px) {
   /* Extra bottom padding so content isn't hidden behind bottom nav */
   main.container {
-    padding-bottom: 72px !important;
+    padding-bottom: 96px !important;
   }
   /* Push floating chat button above bottom nav */
   .cowdi-chat-btn {
-    bottom: 5.5rem !important;
+    bottom: 6.5rem !important;
   }
   .cowdi-chat-bubble {
-    bottom: 9rem !important;
+    bottom: 10rem !important;
   }
 }
 
