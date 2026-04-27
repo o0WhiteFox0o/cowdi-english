@@ -1,6 +1,8 @@
 import express from 'express';
 import pool from '../config/database.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendPushToUser, getPublicKey, isPushReady } from '../config/push.js';
+import { pickPetIcon } from '../utils/pet-icon.js';
 
 const router = express.Router();
 
@@ -586,6 +588,37 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       breakdown,
       winnerId,
     });
+
+    // ── Push notification cho challenger biết duel của họ đã có người chơi ──
+    try {
+      const [[chRow]] = await pool.execute(
+        'SELECT pet_data FROM user_progress WHERE user_id = ?',
+        [challenge.challenger_id]
+      );
+      const { petName, icon, badge } = pickPetIcon(chRow?.pet_data);
+      const opponentName = req.user.display_name || 'Một người';
+      const isWin = winnerId === challenge.challenger_id;
+      const isDraw = winnerId === null;
+
+      const title = isDraw
+        ? `🤝 Duel của ${petName} hòa rồi!`
+        : isWin
+          ? `🏆 ${petName} thắng duel!`
+          : `⚔️ ${petName} bị đánh bại!`;
+      const body = isDraw
+        ? `${opponentName} vừa hoà với bạn ${challengerScore}-${opponentScore}.`
+        : isWin
+          ? `${opponentName} đã thua ${opponentScore}-${challengerScore}. Vào nhận coin nào!`
+          : `${opponentName} đã thắng ${opponentScore}-${challengerScore}. Phục thù ngay!`;
+
+      sendPushToUser(challenge.challenger_id, {
+        title, body, icon, badge,
+        tag: `duel-${challengeId}`, url: '/duel',
+        renotify: true,
+      }).catch(() => {});
+    } catch (pushErr) {
+      console.warn('Push duel result failed:', pushErr.message);
+    }
   } catch (err) {
     console.error('POST /api/duel/:id/join error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
@@ -669,6 +702,93 @@ router.get('/student-rankings', async (req, res) => {
   } catch (err) {
     console.error('GET /api/student-rankings error:', err);
     res.json([]);
+  }
+});
+
+// ============================================================
+//  PUSH NOTIFICATION
+// ============================================================
+
+// ── GET /api/push/vapid-public-key – public VAPID để FE subscribe ─────────
+router.get('/push/vapid-public-key', (_req, res) => {
+  if (!isPushReady()) return res.status(503).json({ error: 'Push notification chưa sẵn sàng.' });
+  res.json({ publicKey: getPublicKey() });
+});
+
+// ── POST /api/push/subscribe – đăng ký 1 thiết bị nhận push ───────────────
+router.post('/push/subscribe', requireAuth, async (req, res) => {
+  if (!isPushReady()) return res.status(503).json({ error: 'Push chưa sẵn sàng.' });
+  const { endpoint, keys } = req.body || {};
+  if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    return res.status(400).json({ error: 'Subscription không hợp lệ.' });
+  }
+  try {
+    const userAgent = (req.headers['user-agent'] || '').slice(0, 250);
+    await pool.execute(
+      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth_key, user_agent)
+       VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), p256dh = VALUES(p256dh),
+                               auth_key = VALUES(auth_key), user_agent = VALUES(user_agent)`,
+      [req.user.id, endpoint, keys.p256dh, keys.auth, userAgent]
+    );
+    // Bật cờ push_enabled
+    await pool.execute(
+      'UPDATE user_progress SET push_enabled = 1 WHERE user_id = ?',
+      [req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/push/subscribe error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── DELETE /api/push/subscribe – tắt notif cho 1 thiết bị ─────────────────
+router.delete('/push/subscribe', requireAuth, async (req, res) => {
+  const { endpoint } = req.body || {};
+  try {
+    if (endpoint) {
+      await pool.execute(
+        'DELETE FROM push_subscriptions WHERE user_id = ? AND endpoint = ?',
+        [req.user.id, endpoint]
+      );
+    } else {
+      // Không cung cấp endpoint → xóa hết các subscription của user
+      await pool.execute('DELETE FROM push_subscriptions WHERE user_id = ?', [req.user.id]);
+    }
+    // Tắt cờ nếu không còn subscription nào
+    const [[count]] = await pool.execute(
+      'SELECT COUNT(*) AS n FROM push_subscriptions WHERE user_id = ?',
+      [req.user.id]
+    );
+    if (count.n === 0) {
+      await pool.execute('UPDATE user_progress SET push_enabled = 0 WHERE user_id = ?', [req.user.id]);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('DELETE /api/push/subscribe error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── POST /api/push/test – gửi push thử (dev only) ─────────────────────────
+router.post('/push/test', requireAuth, async (req, res) => {
+  try {
+    const [[row]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    const { petName, icon, badge } = pickPetIcon(row?.pet_data);
+    const result = await sendPushToUser(req.user.id, {
+      title: `${petName} chào bạn! 👋`,
+      body: 'Push notification đã hoạt động — Cowdi sẽ nhắc bạn học mỗi ngày 💪',
+      icon, badge,
+      tag: 'test', url: '/',
+    });
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/push/test error:', err);
+    res.status(500).json({ error: 'Lỗi gửi push.' });
   }
 });
 

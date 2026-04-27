@@ -6,6 +6,8 @@ import passport from './config/passport.js';
 import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
 import pool from './config/database.js';
+import { startReminderJob } from './jobs/reminder.js';
+import { isPushReady } from './config/push.js';
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -53,7 +55,16 @@ async function start() {
     app.listen(PORT, () => {
       console.log(`🚀 Backend chạy tại http://localhost:${PORT}`);
       console.log(`   Google OAuth: http://localhost:${PORT}/auth/google`);
+      if (isPushReady()) {
+        console.log('🔔 Push notifications: ENABLED');
+      } else {
+        console.log('🔔 Push notifications: DISABLED (missing VAPID keys)');
+      }
     });
+    if (isPushReady()) {
+      startReminderJob();
+      console.log('⏰ Reminder job: started (runs every 1h)');
+    }
   } catch (err) {
     console.error('❌ Không kết nối được database:', err.message);
     console.error('   Kiểm tra .env và đảm bảo MySQL đang chạy.');

@@ -1,6 +1,7 @@
 import { useAuth } from '../hooks/useAuth';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
+import { usePush } from '../hooks/usePush';
 import { LEVELS, ACHIEVEMENTS, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useMemo, useEffect, useState } from 'react';
@@ -345,6 +346,9 @@ export default function AccountPage() {
         </div>
       </div>
 
+      {/* Push Notification Settings */}
+      <PushSettingsCard petName={petData.nickname || species?.name || 'Pet'} petIcon={evo?.image} />
+
       {/* Account Actions */}
       <div className="card shadow-sm mb-4 border-danger border-opacity-25">
         <div className="card-body">
@@ -359,6 +363,122 @@ export default function AccountPage() {
             Đăng nhập bằng: <strong>{user.email}</strong>
           </small>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Push Notification Card ─────────────────────────────────────────────────
+function PushSettingsCard({ petName, petIcon }) {
+  const { isSupported, permission, isSubscribed, loading, error, subscribe, unsubscribe, sendTest } = usePush();
+  const [testSent, setTestSent] = useState(false);
+
+  const isIOSStandalone =
+    typeof navigator !== 'undefined' &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !window.matchMedia('(display-mode: standalone)').matches;
+
+  const handleToggle = async () => {
+    if (isSubscribed) {
+      await unsubscribe();
+    } else {
+      await subscribe();
+    }
+  };
+
+  const handleTest = async () => {
+    await sendTest();
+    setTestSent(true);
+    setTimeout(() => setTestSent(false), 3000);
+  };
+
+  return (
+    <div className="card shadow-sm mb-4">
+      <div className="card-body">
+        <div className="d-flex align-items-center mb-3">
+          {petIcon && (
+            <img
+              src={petIcon}
+              alt={petName}
+              style={{ width: 48, height: 48, objectFit: 'contain' }}
+              className="me-3"
+            />
+          )}
+          <div className="flex-grow-1">
+            <h5 className="fw-bold mb-0">
+              <i className="fas fa-bell me-2 text-cowdi-primary"></i>Thông báo từ {petName}
+            </h5>
+            <small className="text-muted">
+              Nhận nhắc nhở học tập, thông báo duel, sự kiện đặc biệt
+            </small>
+          </div>
+        </div>
+
+        {!isSupported ? (
+          <div className="alert alert-warning mb-0">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            Trình duyệt này không hỗ trợ thông báo. Hãy dùng Chrome, Edge hoặc Safari.
+          </div>
+        ) : isIOSStandalone ? (
+          <div className="alert alert-info mb-0">
+            <i className="fas fa-info-circle me-2"></i>
+            Trên iPhone/iPad, bạn cần <strong>"Thêm vào Màn hình chính"</strong> trước rồi mở app từ icon đó để bật thông báo.
+          </div>
+        ) : permission === 'denied' ? (
+          <div className="alert alert-danger mb-0">
+            <i className="fas fa-ban me-2"></i>
+            Bạn đã chặn thông báo. Hãy mở cài đặt trình duyệt và bật quyền cho cowdi.net.
+          </div>
+        ) : (
+          <>
+            <div className="d-flex align-items-center justify-content-between p-3 rounded-3" style={{ background: 'var(--bs-light, #f8f9fa)' }}>
+              <div>
+                <div className="fw-semibold">
+                  {isSubscribed ? '🔔 Đang bật' : '🔕 Đang tắt'}
+                </div>
+                <small className="text-muted">
+                  {isSubscribed
+                    ? `${petName} sẽ nhắc bạn quay lại học mỗi ngày`
+                    : 'Bật để không bỏ lỡ chuỗi học và lời nhắn từ pet'}
+                </small>
+              </div>
+              <div className="form-check form-switch m-0" style={{ fontSize: '1.5rem' }}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  checked={isSubscribed}
+                  onChange={handleToggle}
+                  disabled={loading}
+                  style={{ cursor: loading ? 'wait' : 'pointer' }}
+                />
+              </div>
+            </div>
+
+            {isSubscribed && (
+              <div className="mt-3 d-flex gap-2 align-items-center">
+                <button
+                  className="btn btn-sm btn-outline-cowdi"
+                  onClick={handleTest}
+                  disabled={loading}
+                >
+                  <i className="fas fa-paper-plane me-1"></i>Gửi thử
+                </button>
+                {testSent && (
+                  <small className="text-success">
+                    <i className="fas fa-check me-1"></i>Đã gửi! Kiểm tra thông báo...
+                  </small>
+                )}
+              </div>
+            )}
+
+            {error && (
+              <div className="alert alert-danger mt-3 mb-0 py-2">
+                <small><i className="fas fa-times-circle me-2"></i>{error}</small>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

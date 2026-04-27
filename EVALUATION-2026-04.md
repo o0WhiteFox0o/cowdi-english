@@ -1,6 +1,6 @@
 # 📊 BẢNG ĐÁNH GIÁ DỰ ÁN COWDI-REACT — THÁNG 4/2026
 
-> **Thời điểm đánh giá:** 24/04/2026
+> **Thời điểm đánh giá:** 24/04/2026 · **Cập nhật:** 27/04/2026 (PWA)
 > **Phạm vi:** Toàn bộ codebase FE + BE + Data + Deployment
 > **Trạng thái tổng quan:** ✅ Vượt MVP, cần tối ưu & mở rộng
 
@@ -44,6 +44,7 @@ REST API: /api/progress, /api/pet-data, /api/duel*, /api/rankings
 | ✨ **Gamification** | Streak 28 ngày, 18 achievements auto-check, Daily Quests, XP 8 level (0→2500), sound FX | ✅ Đầy đủ |
 | 🎯 **Mini-games** | Word Catch, Sentence Puzzle, TyperShark | ✅ 3 game |
 | 📊 **Persistence** | Google OAuth, JWT, MySQL cloud sync, SM-2 schema sẵn sàng | ⚠️ SRS chưa triển khai UI |
+| 📱 **PWA** | Service worker (Workbox), Web Manifest, install prompt Android/iOS, offline API cache, OG meta, Apple touch icons | ✅ Triển khai 27/04/2026 |
 
 ### Nâng cấp tháng 4/2026
 - ✅ LearningPath: thêm IELTS Foundation/Pre, TOEIC Basics/Elementary/Advanced, track C1-C2
@@ -51,6 +52,7 @@ REST API: /api/progress, /api/pet-data, /api/duel*, /api/rankings
 - ✅ ReviewPage: 3-state landing, SM-2 preview, UX không ép suy nghĩ
 - ✅ Duel v2: per-question timing, chọn 10/20/30 câu, chọn chủ đề, gửi lời nhắn, round-win scoring
 - ✅ Listening TTS: tự phát + nút 🔊 Nghe lại/🐢 Chậm
+- ✅ **PWA** (27/04): `vite-plugin-pwa` Workbox generateSW, Web Manifest (name/icons/shortcuts/categories), install prompt Android + iOS, offline cache API (StaleWhileRevalidate cho progress/pet-data, NetworkFirst cho rankings), Google Fonts/CDN cache, OG/Twitter meta, Apple touch icons 192px/512px, `pwa:icons` npm script
 
 ---
 
@@ -104,7 +106,7 @@ REST API: /api/progress, /api/pet-data, /api/duel*, /api/rankings
 |---|---|---|
 | 11 | Accessibility ~Level A, thiếu aria-label cho quiz options | WCAG chưa đạt AA |
 | 12 | i18n hard-code tiếng Việt, không có framework | Khó mở rộng EN/vi-vi UI |
-| 13 | Không PWA/offline | Mất user khi mất mạng |
+| 13 | ~~Không PWA/offline~~ | ✅ **Đã xử lý 27/04/2026** — vite-plugin-pwa, service worker, install prompt |
 | 14 | Không `.env.example` | Dev mới khó bootstrap |
 | 15 | Không ErrorBoundary | 1 crash = trắng trang |
 
@@ -123,6 +125,7 @@ REST API: /api/progress, /api/pet-data, /api/duel*, /api/rankings
 | TypeScript | 0% | 🔴 |
 | Accessibility (WCAG) | ~Level A | ⚠️ |
 | Mobile responsive | Partial | ⚠️ |
+| PWA (installable) | **✅ Đã có** — sw.js + manifest | 🟢 |
 | DB indexes (critical tables) | Thiếu 4 | 🔴 |
 | Rate limiting | Không | 🔴 |
 
@@ -150,7 +153,8 @@ REST API: /api/progress, /api/pet-data, /api/duel*, /api/rankings
 - **Pet AI companion**: gợi ý trong lesson, động viên khi streak thấp
 - **Testing foundation**: Vitest + RTL, cover useAuth/usePet/useUser + duel scoring
 - **TypeScript incremental**: allowJs=true, hooks → .ts trước
-- **PWA**: service worker offline review, push notif duel invite
+- ~~**PWA**: service worker offline review, push notif duel invite~~ → ✅ Hoàn thành 27/04/2026 (service worker + manifest + install prompt + offline API cache)
+- **PWA Push Notification**: Web Push API cho streak reminder & duel invite (bước tiếp theo)
 - **Progress analytics dashboard**: biểu đồ XP/streak/win-rate theo tuần
 
 ### 🌟 Dài hạn (3-6 tháng — Scale)
@@ -192,3 +196,17 @@ Với 2 developer + 6 tháng theo roadmap trên, dự án có thể đạt **pro
 ---
 
 *Đánh giá bởi: GitHub Copilot · Phiên bản: 2026-04-24*
+
+---
+
+## 9. CHANGELOG CẬP NHẬT
+
+### 27/04/2026 — PWA Implementation
+- **`vite-plugin-pwa` v1.2.0** — generateSW mode (Workbox)
+- **Web Manifest** (`dist-prod/manifest.webmanifest`): name, short_name, theme_color, icons 192/512, shortcuts (/practice, /duel), categories education/games
+- **Service Worker** (`dist-prod/sw.js` + `workbox-*.js`): precache 17 entries (1748 KiB), navigateFallback /index.html, exclude /api /auth /health
+- **Runtime cache**: StaleWhileRevalidate cho progress/pet-data (1h), NetworkFirst cho rankings (5 phút), CacheFirst cho Fonts/CDN (365/30 ngày)
+- **PWAInstallPrompt component** (`src/components/PWAInstallPrompt.jsx`): Android `beforeinstallprompt`, iOS hướng dẫn Share→Add, dismiss persist vào localStorage
+- **index.html**: theme-color, apple-mobile-web-app-*, OG/Twitter meta, apple-touch-icon, `pwaSlideUp` animation
+- **`scripts/generate-pwa-icons.mjs`** + `npm run pwa:icons`: tự sinh pwa-192×192.png, pwa-512×512.png từ SVG logo bằng sharp
+- **Loại trừ icon lớn** khỏi precache: `/assets/images/Icons/` và `/assets/images/pets/` (SVG 4.87MB→ không precache, cached on demand)

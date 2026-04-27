@@ -1,7 +1,9 @@
-﻿import { Routes, Route } from 'react-router-dom';
+﻿import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Navbar from './components/layout/Navbar';
 import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { SoundProvider } from './hooks/useSound';
 import HomePage from './pages/HomePage';
 import LessonsPage from './pages/LessonsPage';
@@ -22,6 +24,24 @@ import DuelPage from './pages/DuelPage';
 import StudentRankingPage from './pages/StudentRankingPage';
 
 export default function App() {
+  const navigate = useNavigate();
+
+  // Lắng nghe message từ Service Worker (notification click navigate / bg-sync done)
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const handler = (event) => {
+      const data = event.data || {};
+      if (data.type === 'NAVIGATE' && data.url) {
+        navigate(data.url);
+      } else if (data.type === 'BG_SYNC_DONE') {
+        // Có thể tích hợp toast nếu cần — để tránh dependency, console log
+        console.log(`[Cowdi] Đã đồng bộ ${data.count} thay đổi offline`);
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', handler);
+    return () => navigator.serviceWorker.removeEventListener('message', handler);
+  }, [navigate]);
+
   return (
     <SoundProvider>
     <ToastProvider>
@@ -49,6 +69,7 @@ export default function App() {
         </Routes>
       </main>
       <CowdiChat />
+      <PWAInstallPrompt />
     </ToastProvider>
     </SoundProvider>
   );
