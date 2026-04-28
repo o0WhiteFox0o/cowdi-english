@@ -62,10 +62,20 @@ export default defineConfig({
     outDir: 'dist-prod',
     sourcemap: false,
     cssMinify: true,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            if (id.includes('/src/data/lessons/')) return 'data-lessons';
+            if (id.includes('/src/data/vocab/')) return 'data-vocab';
+            if (id.includes('/src/data/quiz/')) return 'data-quiz';
+            return undefined;
+          }
+          if (id.includes('react-router')) return 'router';
+          if (id.includes('react-dom')) return 'react-dom';
+          if (id.includes('/react/')) return 'react';
+          return 'vendor';
         },
       },
     },

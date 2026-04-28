@@ -30,7 +30,7 @@ function resolvePetAvatar(speciesId, totalXpEarned) {
 
 function PetAvatarInline({ speciesId, totalXpEarned, size = 32 }) {
   const { emoji, image } = resolvePetAvatar(speciesId, totalXpEarned);
-  if (image) return <img src={image} alt="pet" style={{ width: size, height: size, objectFit: 'contain' }} />;
+  if (image) return <img src={image} alt="pet" loading="lazy" decoding="async" style={{ width: size, height: size, objectFit: 'contain' }} />;
   return <span style={{ fontSize: size * 0.8 }}>{emoji}</span>;
 }
 

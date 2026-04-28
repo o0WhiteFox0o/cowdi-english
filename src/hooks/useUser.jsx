@@ -41,11 +41,21 @@ const SRS_DEFAULT = { interval: 1, easeFactor: 2.5, repetitions: 0, nextReview: 
 
 function srsGrade(card, quality) {
   // quality: 0-5 (0-2 = fail, 3 = hard, 4 = good, 5 = easy)
+  // SM-2 chuẩn + Easy bonus để các nút hiển thị khác nhau và khớp
+  // với ví dụ: Khó→1 → Nhớ→3 → Dễ→8 → Dễ→21.
   let { interval, easeFactor, repetitions } = card;
   if (quality >= 3) {
-    if (repetitions === 0) interval = 1;
-    else if (repetitions === 1) interval = 3;
-    else interval = Math.round(interval * easeFactor);
+    if (repetitions === 0) {
+      interval = quality >= 5 ? 2 : 1;
+    } else if (repetitions === 1) {
+      if (quality >= 5) interval = 5;
+      else if (quality >= 4) interval = 3;
+      else interval = 2;
+    } else {
+      if (quality === 3) interval = Math.max(2, Math.round(interval * 1.2));
+      else if (quality === 4) interval = Math.round(interval * easeFactor);
+      else interval = Math.round(interval * easeFactor * 1.15); // Easy bonus
+    }
     repetitions += 1;
   } else {
     repetitions = 0;

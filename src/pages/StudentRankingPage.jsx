@@ -6,13 +6,40 @@ import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { LEVELS, ACHIEVEMENTS } from '../data/lessons';
 
 const SORT_TABS = [
+  { id: 'score',        icon: '🏆', label: 'Tổng điểm', info: true },
   { id: 'xp',           icon: '⭐', label: 'Tổng XP' },
   { id: 'streak',       icon: '🔥', label: 'Streak' },
   { id: 'lessons',      icon: '📚', label: 'Bài học' },
-  { id: 'words',        icon: '🃏', label: 'Từ vựng' },
+  { id: 'words',        icon: '🎴', label: 'Từ vựng' },
   { id: 'quizzes',      icon: '🎯', label: 'Quiz' },
   { id: 'achievements', icon: '🏅', label: 'Thành tích' },
 ];
+
+// Công thức tính điểm tổng hợp (khớp với server computeRankScore)
+const SCORE_WEIGHTS = {
+  xp: 0.4,
+  lessons: 50,
+  words: 8,
+  quizzes: 12,
+  perfect: 30,
+  streak: 25,
+  activeDays: 8,
+  achievements: 120,
+};
+function computeRankScore(e) {
+  const xpCapped = Math.min(e.totalXP || 0, 50000);
+  const streakCapped = Math.min(e.streak || 0, 365);
+  return Math.round(
+    xpCapped * SCORE_WEIGHTS.xp +
+    (e.lessonsCompleted || 0) * SCORE_WEIGHTS.lessons +
+    (e.wordsLearned || 0) * SCORE_WEIGHTS.words +
+    (e.quizzesCompleted || 0) * SCORE_WEIGHTS.quizzes +
+    (e.perfectQuizzes || 0) * SCORE_WEIGHTS.perfect +
+    streakCapped * SCORE_WEIGHTS.streak +
+    (e.activeDaysCount || 0) * SCORE_WEIGHTS.activeDays +
+    (e.achievementCount || 0) * SCORE_WEIGHTS.achievements
+  );
+}
 
 function resolvePetAvatar(pet) {
   if (!pet?.speciesId) return { emoji: '🐾', image: null };
@@ -36,13 +63,14 @@ function getUserLevel(xp) {
 
 function getStatValue(entry, sort) {
   switch (sort) {
+    case 'score':        return { value: entry.rankScore ?? computeRankScore(entry), unit: 'điểm', icon: '🏆' };
     case 'xp':           return { value: entry.totalXP, unit: 'XP', icon: '⭐' };
     case 'streak':       return { value: entry.streak, unit: 'ngày', icon: '🔥' };
     case 'lessons':      return { value: entry.lessonsCompleted, unit: 'bài', icon: '📚' };
-    case 'words':        return { value: entry.wordsLearned, unit: 'từ', icon: '🃏' };
+    case 'words':        return { value: entry.wordsLearned, unit: 'từ', icon: '🎴' };
     case 'quizzes':      return { value: entry.quizzesCompleted, unit: 'quiz', icon: '🎯' };
     case 'achievements': return { value: entry.achievementCount, unit: '', icon: '🏅' };
-    default:             return { value: entry.totalXP, unit: 'XP', icon: '⭐' };
+    default:             return { value: entry.rankScore ?? computeRankScore(entry), unit: 'điểm', icon: '🏆' };
   }
 }
 
@@ -50,7 +78,8 @@ export default function StudentRankingPage() {
   const { authFetch, user } = useAuth();
   const { userData } = useUser();
   const { petData } = usePet();
-  const [sort, setSort] = useState('xp');
+  const [sort, setSort] = useState('score');
+  const [showFormula, setShowFormula] = useState(false);
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -69,10 +98,7 @@ export default function StudentRankingPage() {
     const species = pet ? PET_REGISTRY[pet.speciesId] : null;
     const evo = pet && species ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
     const level = getUserLevel(userData.totalXP);
-    return {
-      emoji: evo?.emoji || species?.emoji || '🐮',
-      image: evo?.image || null,
-      level,
+    const base = {
       totalXP: userData.totalXP,
       streak: userData.streak,
       lessonsCompleted: userData.lessonsCompleted,
@@ -81,6 +107,13 @@ export default function StudentRankingPage() {
       wordsLearned: userData.wordsLearned,
       achievementCount: userData.achievements?.length || 0,
       activeDaysCount: userData.activeDays?.length || 0,
+    };
+    return {
+      emoji: evo?.emoji || species?.emoji || '🐮',
+      image: evo?.image || null,
+      level,
+      ...base,
+      rankScore: computeRankScore(base),
     };
   }, [userData, petData]);
 
@@ -119,6 +152,12 @@ export default function StudentRankingPage() {
                   {myRank && <span className="ms-2 badge bg-cowdi-primary">Hạng #{myRank}</span>}
                 </div>
               </div>
+              <div className="text-end">
+                <div className="fw-bold" style={{ fontSize: '1.4rem', color: '#E91E63' }}>
+                  🏆 {myStats.rankScore.toLocaleString()}
+                </div>
+                <div className="text-muted" style={{ fontSize: '0.65rem' }}>tổng điểm</div>
+              </div>
             </div>
             <div className="row g-2">
               {[
@@ -145,17 +184,60 @@ export default function StudentRankingPage() {
       )}
 
       {/* Sort Tabs */}
-      <div className="d-flex gap-2 mb-3 flex-wrap justify-content-center">
+      <div className="d-flex gap-2 mb-3 flex-wrap justify-content-center align-items-center">
         {SORT_TABS.map(t => (
-          <button
-            key={t.id}
-            className={`btn btn-sm rounded-pill ${sort === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-            onClick={() => setSort(t.id)}
-          >
-            {t.icon} {t.label}
-          </button>
+          <div key={t.id} className="d-flex align-items-center" style={{ gap: 2 }}>
+            <button
+              className={`btn btn-sm rounded-pill ${sort === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+              onClick={() => setSort(t.id)}
+            >
+              {t.icon} {t.label}
+            </button>
+            {t.info && (
+              <button
+                className="btn btn-sm p-0 border-0 bg-transparent text-muted"
+                style={{ fontSize: '0.75rem', lineHeight: 1, marginLeft: 2 }}
+                title="Xem cách tính điểm"
+                onClick={() => setShowFormula(v => !v)}
+                aria-label="Cách tính điểm"
+              >ℹ️</button>
+            )}
+          </div>
         ))}
       </div>
+
+      {/* Formula explanation (collapsed, shown via ℹ️ button) */}
+      {showFormula && (
+        <div className="card border mb-3">
+          <div className="card-body py-2 px-3" style={{ fontSize: '0.72rem' }}>
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <span className="fw-bold">🏆 Cách tính tổng điểm</span>
+              <button className="btn btn-sm p-0 border-0 bg-transparent text-muted" style={{ fontSize: '1rem', lineHeight: 1 }} onClick={() => setShowFormula(false)}>✕</button>
+            </div>
+            <div className="row g-1">
+              {[
+                { label: 'XP (cap 50k)', weight: '× 0.4', icon: '⭐', note: 'khối lượng' },
+                { label: 'Bài học',      weight: '× 50',  icon: '📚', note: 'học có cấu trúc' },
+                { label: 'Từ vựng',      weight: '× 8',   icon: '🎴', note: 'vốn từ' },
+                { label: 'Quiz',         weight: '× 12',  icon: '🎯', note: 'luyện tập' },
+                { label: 'Quiz tối đa',  weight: '× 30',  icon: '💯', note: 'chất lượng' },
+                { label: 'Streak (cap 365)', weight: '× 25', icon: '🔥', note: 'kiên trì' },
+                { label: 'Ngày học',     weight: '× 8',   icon: '📅', note: 'đều đặn' },
+                { label: 'Thành tích',   weight: '× 120', icon: '🏅', note: 'cột mốc lớn' },
+              ].map((row, idx) => (
+                <div className="col-6" key={idx}>
+                  <div className="d-flex align-items-center gap-1 py-1 border-bottom" style={{ borderColor: '#eee' }}>
+                    <span>{row.icon}</span>
+                    <span className="flex-grow-1 text-muted">{row.label}</span>
+                    <span className="fw-bold" style={{ color: '#E91E63' }}>{row.weight}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-muted mt-2" style={{ fontSize: '0.65rem' }}>Cân bằng giữa <b>khối lượng</b>, <b>chất lượng</b> và <b>sự kiên trì</b>.</div>
+          </div>
+        </div>
+      )}
 
       {/* Rankings List */}
       <div className="card shadow-sm">
@@ -188,7 +270,7 @@ export default function StudentRankingPage() {
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{entry.nickname}</div>
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">
-                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ
+                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · 🔥 {entry.streak}
                       </div>
                     </div>
                     <div className="text-end">
@@ -196,6 +278,11 @@ export default function StudentRankingPage() {
                         {stat.icon} {stat.value.toLocaleString?.() ?? stat.value}
                       </div>
                       <div className="text-muted" style={{ fontSize: '0.65rem' }}>{stat.unit}</div>
+                      {sort !== 'score' && (
+                        <div className="text-muted" style={{ fontSize: '0.6rem', marginTop: 2 }}>
+                          🏆 {(entry.rankScore ?? computeRankScore(entry)).toLocaleString()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

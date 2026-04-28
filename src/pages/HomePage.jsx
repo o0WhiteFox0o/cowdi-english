@@ -79,9 +79,25 @@ export default function HomePage() {
         {/* Pet side */}
         <Link to="/pet" className="home-hero-pet text-decoration-none">
           {evo?.image ? (
-            <img src={evo.image} alt={petName} className="home-hero-pet-img" />
+            <img
+              src={evo.image}
+              alt={petName}
+              className="home-hero-pet-img"
+              fetchpriority="high"
+              decoding="async"
+              width="180"
+              height="180"
+            />
           ) : (
-            <img src="/assets/images/logo/MiniLogoCowdi.svg" alt={petName} className="home-hero-pet-img" />
+            <img
+              src="/assets/images/logo/MiniLogoCowdi.svg"
+              alt={petName}
+              className="home-hero-pet-img"
+              fetchpriority="high"
+              decoding="async"
+              width="180"
+              height="180"
+            />
           )}
           <div className="home-hero-pet-badge">{evo?.name || 'Starter'}</div>
         </Link>

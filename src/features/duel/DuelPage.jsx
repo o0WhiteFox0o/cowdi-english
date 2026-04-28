@@ -297,6 +297,13 @@ export default function DuelPage() {
       ? oppAnsweredCorrectly       // real challenger result
       : !isCorrect;                // creating mode mock
 
+    // Scale damage to question count so HP=100 survives the full duel.
+    // Budget total damage ≤ ~85% HP even when EVERY answer is a critical hit:
+    //   max total per pet ≈ totalQ * critDmg ≤ 85
+    const totalQ = Math.max(1, questions.length);
+    const baseDmg = Math.max(2, Math.floor(70 / totalQ));
+    const critDmg = Math.max(baseDmg + 1, Math.round(baseDmg * 1.4));
+
     const sequence = [];
 
     // Phase 1: My pet attacks (if I answered correctly)
@@ -307,7 +314,7 @@ export default function DuelPage() {
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-opponent');
           setEffectClass(`effect-${myElement}`);
-          const dmg = isCritical ? 15 : 10;
+          const dmg = isCritical ? critDmg : baseDmg;
           if (isCritical) {
             play('battleCritical');
           } else {
@@ -333,7 +340,7 @@ export default function DuelPage() {
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-mine');
           setEffectClass(`effect-${oppElement}`);
-          const oppDmg = oppCritical ? 15 : 10;
+          const oppDmg = oppCritical ? critDmg : baseDmg;
           if (oppCritical) {
             play('battleCritical');
           } else {

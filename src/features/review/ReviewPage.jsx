@@ -63,9 +63,17 @@ function previewInterval(card, quality) {
   const c = card || { interval: 1, easeFactor: 2.5, repetitions: 0 };
   let { interval = 1, easeFactor = 2.5, repetitions = 0 } = c;
   if (quality >= 3) {
-    if (repetitions === 0) interval = 1;
-    else if (repetitions === 1) interval = 3;
-    else interval = Math.round(interval * easeFactor);
+    if (repetitions === 0) {
+      interval = quality >= 5 ? 2 : 1;
+    } else if (repetitions === 1) {
+      if (quality >= 5) interval = 5;
+      else if (quality >= 4) interval = 3;
+      else interval = 2;
+    } else {
+      if (quality === 3) interval = Math.max(2, Math.round(interval * 1.2));
+      else if (quality === 4) interval = Math.round(interval * easeFactor);
+      else interval = Math.round(interval * easeFactor * 1.15);
+    }
   } else {
     interval = 1;
   }

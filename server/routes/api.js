@@ -331,7 +331,7 @@ router.get('/my-stats', requireAuth, async (req, res) => {
 // ── POST /api/duel – Tạo thách đấu mới ──────────────────────────────────────
 router.post('/duel', requireAuth, async (req, res) => {
   const { quizData, answers, time } = req.body;
-  if (!Array.isArray(quizData) || quizData.length < 5 || quizData.length > 20) {
+  if (!Array.isArray(quizData) || quizData.length < 5 || quizData.length > 30) {
     return res.status(400).json({ error: 'Quiz data không hợp lệ.' });
   }
   if (!Array.isArray(answers) || answers.length !== quizData.length) {
@@ -659,8 +659,33 @@ router.get('/rankings', async (req, res) => {
 });
 
 // ── GET /api/student-rankings – xếp hạng học tập ────────────────────────────
+// ── Composite ranking score: cân bằng các module, ưu tiên chất lượng ───────
+// Trọng số (mỗi event đóng góp ~điểm có ý nghĩa rõ rệt):
+//   - XP (cap 50k để chống cày)        : 0.4 / xp
+//   - Mỗi bài học hoàn thành           : 50
+//   - Mỗi từ vựng đã thuộc             : 8
+//   - Mỗi quiz hoàn thành              : 12
+//   - Mỗi quiz đạt điểm tối đa         : 30  (chất lượng)
+//   - Streak (cap 365 ngày)            : 25 / ngày  (kiên trì)
+//   - Mỗi ngày học khác nhau           : 8
+//   - Mỗi thành tựu                    : 120
+function computeRankScore(e) {
+  const xpCapped = Math.min(e.totalXP || 0, 50000);
+  const streakCapped = Math.min(e.streak || 0, 365);
+  return Math.round(
+    xpCapped * 0.4 +
+    (e.lessonsCompleted || 0) * 50 +
+    (e.wordsLearned || 0) * 8 +
+    (e.quizzesCompleted || 0) * 12 +
+    (e.perfectQuizzes || 0) * 30 +
+    streakCapped * 25 +
+    (e.activeDaysCount || 0) * 8 +
+    (e.achievementCount || 0) * 120
+  );
+}
+
 router.get('/student-rankings', async (req, res) => {
-  const sort = req.query.sort || 'xp'; // xp | streak | lessons | words | quizzes | achievements
+  const sort = req.query.sort || 'score'; // score | xp | streak | lessons | words | quizzes | achievements
   try {
     const [rows] = await pool.execute(
       `SELECT up.total_xp, up.streak, up.lessons_completed, up.quizzes_completed,
@@ -668,14 +693,14 @@ router.get('/student-rankings', async (req, res) => {
               up.nickname, up.pet_data, u.display_name
        FROM user_progress up
        LEFT JOIN users u ON u.id = up.user_id
-       WHERE up.total_xp > 0 AND up.lessons_completed > 0`
+       WHERE up.total_xp > 0 OR up.lessons_completed > 0`
     );
     const entries = rows.map(row => {
       const pd = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;
       const achList = typeof row.achievements === 'string' ? JSON.parse(row.achievements || '[]') : (row.achievements || []);
       const activeDays = typeof row.active_days === 'string' ? JSON.parse(row.active_days || '[]') : (row.active_days || []);
       const pet = parsePetSummary(row.pet_data);
-      return {
+      const e = {
         nickname: row.nickname || pd?.nickname || row.display_name || 'Ẩn danh',
         totalXP: row.total_xp || 0,
         streak: row.streak || 0,
@@ -687,9 +712,12 @@ router.get('/student-rankings', async (req, res) => {
         activeDaysCount: Array.isArray(activeDays) ? activeDays.length : 0,
         pet,
       };
+      e.rankScore = computeRankScore(e);
+      return e;
     });
     // Sort
     const sortMap = {
+      score: (a, b) => b.rankScore - a.rankScore,
       xp: (a, b) => b.totalXP - a.totalXP,
       streak: (a, b) => b.streak - a.streak,
       lessons: (a, b) => b.lessonsCompleted - a.lessonsCompleted,
@@ -697,7 +725,7 @@ router.get('/student-rankings', async (req, res) => {
       quizzes: (a, b) => b.quizzesCompleted - a.quizzesCompleted,
       achievements: (a, b) => b.achievementCount - a.achievementCount,
     };
-    entries.sort(sortMap[sort] || sortMap.xp);
+    entries.sort(sortMap[sort] || sortMap.score);
     res.json(entries.slice(0, 50));
   } catch (err) {
     console.error('GET /api/student-rankings error:', err);

@@ -107,18 +107,18 @@ export default function Navbar() {
           </NavLink>
 
           {/* ── Desktop nav (≥ 992 px) ── */}
-          <ul className="navbar-nav flex-row d-none d-lg-flex me-auto" style={{ minWidth: 0 }}>
+          <ul className="navbar-nav flex-row d-none d-lg-flex me-auto gap-1" style={{ minWidth: 0 }}>
             <li className="nav-item">
-              <NavLink to="/" end className={({ isActive }) => `nav-link px-2 fw-semibold d-flex align-items-center gap-1 ${isActive ? 'active' : ''}`}>
-                <img src="/assets/images/Icons/icon_home.svg" alt="" width="18" height="18" /> Home
+              <NavLink to="/" end className={({ isActive }) => `nav-link px-3 fw-semibold d-flex align-items-center gap-1 ${isActive ? 'active' : ''}`}>
+                <img src="/assets/images/Icons/icon_home.webp" alt="" width="18" height="18" /> Home
               </NavLink>
             </li>
 
             {/* Học tập */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(LEARN_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-3 fw-semibold d-flex align-items-center gap-1 ${isIn(LEARN_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
-                <img src="/assets/images/Icons/icon_learn.svg" alt="" width="18" height="18" /> Học tập
+                <img src="/assets/images/Icons/icon_learn.webp" alt="" width="18" height="18" /> Học tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/lessons">📖 Bài học</NavLink></li>
@@ -129,9 +129,9 @@ export default function Navbar() {
 
             {/* Khóa thi */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(EXAM_PATHS_NAV) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-3 fw-semibold d-flex align-items-center gap-1 ${isIn(EXAM_PATHS_NAV) ? 'active' : ''}`}
                 href="#" role="button">
-                <img src="/assets/images/Icons/icon_exam.svg" alt="" width="18" height="18" /> Khóa thi
+                <img src="/assets/images/Icons/icon_exam.webp" alt="" width="18" height="18" /> Khóa thi
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/learning-path">🛤️ Lộ trình chung</NavLink></li>
@@ -145,9 +145,9 @@ export default function Navbar() {
 
             {/* Luyện tập */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-3 fw-semibold d-flex align-items-center gap-1 ${isIn(PRACTICE_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
-                <img src="/assets/images/Icons/icon_lesson.svg" alt="" width="18" height="18" /> Luyện tập
+                <img src="/assets/images/Icons/icon_lesson.webp" alt="" width="18" height="18" /> Luyện tập
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
                 <li><NavLink className="dropdown-item" to="/practice">🎯 Bài tập</NavLink></li>
@@ -158,7 +158,7 @@ export default function Navbar() {
 
             {/* 🐮 Pet */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(PET_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-3 fw-semibold d-flex align-items-center gap-1 ${isIn(PET_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
                 <img
                   src={evo?.image || '/assets/images/logo/MiniLogoCowdi.svg'}
@@ -173,7 +173,7 @@ export default function Navbar() {
 
             {/* 👤 Tôi — avatar + name */}
             <li className="nav-item dropdown">
-              <a className={`nav-link dropdown-toggle px-2 fw-semibold d-flex align-items-center gap-1 ${isIn(ME_PATHS) ? 'active' : ''}`}
+              <a className={`nav-link dropdown-toggle px-3 fw-semibold d-flex align-items-center gap-1 ${isIn(ME_PATHS) ? 'active' : ''}`}
                 href="#" role="button">
                 {avatarUrl
                   ? <img src={avatarUrl} alt="" width="22" height="22" className="rounded-circle" referrerPolicy="no-referrer" />
@@ -272,17 +272,17 @@ export default function Navbar() {
         {/* Tab buttons */}
         <NavLink to="/" end className={({ isActive }) => `bottom-tab ${isActive ? 'active' : ''}`}
           onClick={() => setOpenTab(null)}>
-          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_home.svg" alt="" width="22" height="22" /></span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_home.webp" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Home</span>
         </NavLink>
         <button type="button" className={`bottom-tab ${isIn(LEARN_PATHS) || isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
           onClick={() => handleTabTap('learn', '/lessons')}>
-          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_learn.svg" alt="" width="22" height="22" /></span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_learn.webp" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Học</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(EXAM_PATHS_NAV) ? 'active' : ''} ${openTab === 'exam' ? 'open' : ''}`}
           onClick={() => handleTabTap('exam', '/learning-path')}>
-          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_exam.svg" alt="" width="22" height="22" /></span>
+          <span className="bottom-tab-icon"><img src="/assets/images/Icons/icon_exam.webp" alt="" width="22" height="22" /></span>
           <span className="bottom-tab-label">Thi</span>
         </button>
         <button type="button" className={`bottom-tab ${isIn(PET_PATHS) ? 'active' : ''} ${openTab === 'pet' ? 'open' : ''}`}
