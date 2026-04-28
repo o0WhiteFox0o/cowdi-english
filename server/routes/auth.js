@@ -27,6 +27,7 @@ router.get(
         email:        req.user.email,
         display_name: req.user.display_name,
         avatar_url:   req.user.avatar_url,
+        is_admin:     req.user.is_admin ? 1 : 0,
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }

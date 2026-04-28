@@ -30,7 +30,7 @@ passport.use(
 
         // Lấy user vừa insert/update
         const [[user]] = await pool.execute(
-          'SELECT id, google_sub, email, display_name, avatar_url FROM users WHERE google_sub = ?',
+          'SELECT id, google_sub, email, display_name, avatar_url, is_admin FROM users WHERE google_sub = ?',
           [googleSub]
         );
 

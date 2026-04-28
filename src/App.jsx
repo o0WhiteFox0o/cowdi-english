@@ -24,6 +24,7 @@ const ReviewPage          = lazy(() => import('./pages/ReviewPage'));
 const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'));
 const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
+const AdminPage           = lazy(() => import('./pages/AdminPage'));
 
 function PageFallback() {
   return (
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/duel" element={<DuelPage />} />
             <Route path="/student-ranking" element={<StudentRankingPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />

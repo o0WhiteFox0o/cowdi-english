@@ -6,11 +6,11 @@ import { pickPetIcon } from '../utils/pet-icon.js';
 
 const router = express.Router();
 
-// ── GET /api/me – thông tin user hiện tại ───────────────────────────────────
+// ── GET /api/me – thông tin user hiện tại ─────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const [[user]] = await pool.execute(
-      'SELECT id, email, display_name, avatar_url, created_at, last_seen_at FROM users WHERE id = ?',
+      'SELECT id, email, display_name, avatar_url, created_at, last_seen_at, is_admin FROM users WHERE id = ?',
       [req.user.id]
     );
     if (!user) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });

@@ -187,6 +187,12 @@ export default function Navbar() {
                 <li><NavLink className="dropdown-item" to="/leaderboard">🏅 Xếp hạng Pet</NavLink></li>
                 <li><hr className="dropdown-divider" /></li>
                 <li><NavLink className="dropdown-item" to="/account">👤 Tài khoản</NavLink></li>
+                {user?.is_admin ? (
+                  <>
+                    <li><hr className="dropdown-divider" /></li>
+                    <li><NavLink className="dropdown-item" to="/admin">🛠️ Quản trị</NavLink></li>
+                  </>
+                ) : null}
               </ul>
             </li>
           </ul>

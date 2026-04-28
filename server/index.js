@@ -5,6 +5,7 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
+import adminRouter from './routes/admin.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
 import { isPushReady } from './config/push.js';
@@ -43,6 +44,7 @@ app.use(passport.session());
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/auth', authRouter);
 app.use('/api',  apiRouter);
+app.use('/api/admin', adminRouter);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date() }));
