@@ -2,6 +2,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { usePush } from '../hooks/usePush';
+import { useSchedule } from '../hooks/useSchedule';
 import { LEVELS, ACHIEVEMENTS, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useMemo, useEffect, useState } from 'react';
@@ -349,6 +350,9 @@ export default function AccountPage() {
       {/* Push Notification Settings */}
       <PushSettingsCard petName={petData.nickname || species?.name || 'Pet'} petIcon={evo?.image} />
 
+      {/* Study Schedule */}
+      <ScheduleSettingsCard petName={petData.nickname || species?.name || 'Pet'} />
+
       {/* Account Actions */}
       <div className="card shadow-sm mb-4 border-danger border-opacity-25">
         <div className="card-body">
@@ -471,6 +475,187 @@ function PushSettingsCard({ petName, petIcon }) {
                 )}
               </div>
             )}
+
+            {error && (
+              <div className="alert alert-danger mt-3 mb-0 py-2">
+                <small><i className="fas fa-times-circle me-2"></i>{error}</small>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Study Schedule Card ────────────────────────────────────────────────────
+const DAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+function ScheduleSettingsCard({ petName }) {
+  const { schedule, loading, saving, error, save } = useSchedule();
+  const { isSubscribed } = usePush();
+  const [draft, setDraft] = useState(schedule);
+  const [savedAt, setSavedAt] = useState(null);
+
+  // Sync draft khi schedule load xong từ server
+  useEffect(() => {
+    setDraft(schedule);
+  }, [schedule.enabled, schedule.timeLocal, schedule.daysOfWeek?.join(','), schedule.message]);
+
+  const toggleDay = (d) => {
+    const set = new Set(draft.daysOfWeek);
+    if (set.has(d)) set.delete(d); else set.add(d);
+    setDraft({ ...draft, daysOfWeek: [...set].sort() });
+  };
+
+  const handleSave = async () => {
+    const ok = await save(draft);
+    if (ok) {
+      setSavedAt(Date.now());
+      setTimeout(() => setSavedAt(null), 2500);
+    }
+  };
+
+  const presetWeekdays = () => setDraft({ ...draft, daysOfWeek: [1, 2, 3, 4, 5] });
+  const presetDaily    = () => setDraft({ ...draft, daysOfWeek: [0, 1, 2, 3, 4, 5, 6] });
+  const presetWeekend  = () => setDraft({ ...draft, daysOfWeek: [0, 6] });
+
+  const tz = draft.timezone ||
+    (typeof Intl !== 'undefined' && Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+    'Asia/Ho_Chi_Minh';
+
+  return (
+    <div className="card shadow-sm mb-4">
+      <div className="card-body">
+        <div className="d-flex align-items-center mb-3">
+          <div className="flex-grow-1">
+            <h5 className="fw-bold mb-0">
+              <i className="fas fa-calendar-alt me-2 text-cowdi-primary"></i>
+              Lịch học của bạn
+            </h5>
+            <small className="text-muted">
+              Đặt giờ học cố định để {petName} tự nhắc bạn vào mỗi ngày bạn chọn
+            </small>
+          </div>
+        </div>
+
+        {!isSubscribed && (
+          <div className="alert alert-warning py-2 small mb-3">
+            <i className="fas fa-bell-slash me-2"></i>
+            Bật <strong>Thông báo từ {petName}</strong> ở khung phía trên để nhận lịch nhắc.
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-3">
+            <div className="spinner-border spinner-border-sm text-cowdi-primary"></div>
+          </div>
+        ) : (
+          <>
+            {/* Toggle bật/tắt */}
+            <div className="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3"
+                 style={{ background: 'var(--bs-light, #f8f9fa)' }}>
+              <div>
+                <div className="fw-semibold">
+                  {draft.enabled ? '⏰ Đang bật lịch nhắc' : '💤 Đang tắt'}
+                </div>
+                <small className="text-muted">
+                  {draft.enabled
+                    ? `Sẽ nhắc lúc ${draft.timeLocal} (${tz})`
+                    : 'Bật để Cowdi tự nhắc bạn học mỗi ngày'}
+                </small>
+              </div>
+              <div className="form-check form-switch m-0" style={{ fontSize: '1.5rem' }}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  checked={!!draft.enabled}
+                  onChange={(e) => setDraft({ ...draft, enabled: e.target.checked })}
+                />
+              </div>
+            </div>
+
+            {/* Giờ */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold small mb-1">⏱ Giờ nhắc</label>
+              <input
+                type="time"
+                className="form-control"
+                style={{ maxWidth: 180 }}
+                value={draft.timeLocal}
+                onChange={(e) => setDraft({ ...draft, timeLocal: e.target.value })}
+              />
+            </div>
+
+            {/* Ngày trong tuần */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold small mb-1">📅 Các ngày trong tuần</label>
+              <div className="d-flex flex-wrap gap-2 mb-2">
+                {DAY_LABELS.map((label, i) => {
+                  const active = draft.daysOfWeek?.includes(i);
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`btn btn-sm ${active ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                      style={{ minWidth: 48 }}
+                      onClick={() => toggleDay(i)}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="d-flex flex-wrap gap-1">
+                <button type="button" className="btn btn-sm btn-link p-0 me-2" onClick={presetWeekdays}>
+                  T2-T6
+                </button>
+                <button type="button" className="btn btn-sm btn-link p-0 me-2" onClick={presetDaily}>
+                  Mỗi ngày
+                </button>
+                <button type="button" className="btn btn-sm btn-link p-0" onClick={presetWeekend}>
+                  Cuối tuần
+                </button>
+              </div>
+            </div>
+
+            {/* Lời nhắc tuỳ chỉnh */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold small mb-1">💬 Lời nhắc (tuỳ chọn)</label>
+              <input
+                type="text"
+                className="form-control"
+                maxLength={200}
+                placeholder={`Ví dụ: "Đi học thôi, ${petName} đợi rồi!"`}
+                value={draft.message || ''}
+                onChange={(e) => setDraft({ ...draft, message: e.target.value })}
+              />
+              <small className="text-muted">Để trống thì Cowdi sẽ chọn câu nhắc ngẫu nhiên dễ thương.</small>
+            </div>
+
+            {/* Save */}
+            <div className="d-flex align-items-center gap-2">
+              <button
+                className="btn btn-cowdi-primary"
+                onClick={handleSave}
+                disabled={saving || !draft.daysOfWeek?.length}
+              >
+                {saving ? (
+                  <><span className="spinner-border spinner-border-sm me-2"></span>Đang lưu...</>
+                ) : (
+                  <><i className="fas fa-save me-2"></i>Lưu lịch học</>
+                )}
+              </button>
+              {savedAt && (
+                <small className="text-success">
+                  <i className="fas fa-check me-1"></i>Đã lưu lúc {new Date(savedAt).toLocaleTimeString('vi-VN')}
+                </small>
+              )}
+              {!draft.daysOfWeek?.length && (
+                <small className="text-muted">Hãy chọn ít nhất 1 ngày.</small>
+              )}
+            </div>
 
             {error && (
               <div className="alert alert-danger mt-3 mb-0 py-2">

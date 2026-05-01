@@ -22,6 +22,12 @@ export const COUNTRIES_TOPIC = {
           example: "Vietnam is in Southeast Asia.",
           illustration: "🇻🇳",
           memoryTip: "Vietnam → Việt Nam 🇻🇳 (quê hương)"
+        ,
+          examples: [
+            {"en":"Vietnam is in Southeast Asia.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit vietnam.","vi":"Tôi luôn muốn đi Việt Nam.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to vietnam?","vi":"Bạn đã từng đến Việt Nam chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Japan",
@@ -30,6 +36,12 @@ export const COUNTRIES_TOPIC = {
           example: "Japan is famous for sushi.",
           illustration: "🇯🇵",
           memoryTip: "Japan → \"Gia-pan\" → Nhật Bản 🇯🇵"
+        ,
+          examples: [
+            {"en":"Japan is famous for sushi.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit japan.","vi":"Tôi luôn muốn đi Nhật Bản.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to japan?","vi":"Bạn đã từng đến Nhật Bản chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "China",
@@ -38,6 +50,12 @@ export const COUNTRIES_TOPIC = {
           example: "China has the Great Wall.",
           illustration: "🇨🇳",
           memoryTip: "China → \"Chai-na\" → Trung Quốc 🇨🇳"
+        ,
+          examples: [
+            {"en":"China has the Great Wall.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit china.","vi":"Tôi luôn muốn đi Trung Quốc.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to china?","vi":"Bạn đã từng đến Trung Quốc chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Korea",
@@ -46,6 +64,12 @@ export const COUNTRIES_TOPIC = {
           example: "Korea is known for K-pop.",
           illustration: "🇰🇷",
           memoryTip: "Korea → Hàn Quốc 🇰🇷 (K-pop)"
+        ,
+          examples: [
+            {"en":"Korea is known for K-pop.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit korea.","vi":"Tôi luôn muốn đi Hàn Quốc.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to korea?","vi":"Bạn đã từng đến Hàn Quốc chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Thailand",
@@ -54,6 +78,12 @@ export const COUNTRIES_TOPIC = {
           example: "Thailand has beautiful temples.",
           illustration: "🇹🇭",
           memoryTip: "Thai + Land → đất nước Thái 🇹🇭"
+        ,
+          examples: [
+            {"en":"Thailand has beautiful temples.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit thailand.","vi":"Tôi luôn muốn đi Thái Lan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to thailand?","vi":"Bạn đã từng đến Thái Lan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "India",
@@ -62,6 +92,12 @@ export const COUNTRIES_TOPIC = {
           example: "India has a large population.",
           illustration: "🇮🇳",
           memoryTip: "India → \"In-đi-a\" → Ấn Độ 🇮🇳"
+        ,
+          examples: [
+            {"en":"India has a large population.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit india.","vi":"Tôi luôn muốn đi Ấn Độ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to india?","vi":"Bạn đã từng đến Ấn Độ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Singapore",
@@ -71,6 +107,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇸🇬",
           memoryTip: "Singapore → \"Xing-ga-po\" → Singapore 🇸🇬. Singa = sư tử",
           context: "💡 Singa (sư tử) + pore (thành phố). \"Quốc đảo sư tử\""
+        ,
+          examples: [
+            {"en":"Singapore is a clean city.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit singapore.","vi":"Tôi luôn muốn đi Singapore.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to singapore?","vi":"Bạn đã từng đến Singapore chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Philippines",
@@ -79,6 +121,12 @@ export const COUNTRIES_TOPIC = {
           example: "The Philippines has many islands.",
           illustration: "🇵🇭",
           memoryTip: "Philippines → \"Phi-líp-pin\" → Philippines 🇵🇭"
+        ,
+          examples: [
+            {"en":"The Philippines has many islands.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit philippines.","vi":"Tôi luôn muốn đi Philippines.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to philippines?","vi":"Bạn đã từng đến Philippines chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Malaysia",
@@ -87,6 +135,12 @@ export const COUNTRIES_TOPIC = {
           example: "Malaysia has diverse cultures.",
           illustration: "🇲🇾",
           memoryTip: "Malaysia → \"Ma-lay-xi-a\" → Malaysia 🇲🇾"
+        ,
+          examples: [
+            {"en":"Malaysia has diverse cultures.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit malaysia.","vi":"Tôi luôn muốn đi Malaysia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to malaysia?","vi":"Bạn đã từng đến Malaysia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Indonesia",
@@ -95,6 +149,12 @@ export const COUNTRIES_TOPIC = {
           example: "Indonesia has thousands of islands.",
           illustration: "🇮🇩",
           memoryTip: "Indonesia → \"In-đô-nê-xi-a\" → Indonesia 🇮🇩"
+        ,
+          examples: [
+            {"en":"Indonesia has thousands of islands.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit indonesia.","vi":"Tôi luôn muốn đi Indonesia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to indonesia?","vi":"Bạn đã từng đến Indonesia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Cambodia",
@@ -103,6 +163,12 @@ export const COUNTRIES_TOPIC = {
           example: "Cambodia has Angkor Wat.",
           illustration: "🇰🇭",
           memoryTip: "Cambodia → \"Cam-bô-đi-a\" → Campuchia 🇰🇭"
+        ,
+          examples: [
+            {"en":"Cambodia has Angkor Wat.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit cambodia.","vi":"Tôi luôn muốn đi Campuchia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to cambodia?","vi":"Bạn đã từng đến Campuchia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Myanmar",
@@ -111,6 +177,12 @@ export const COUNTRIES_TOPIC = {
           example: "Myanmar has ancient pagodas.",
           illustration: "🇲🇲",
           memoryTip: "Myanmar → \"Mi-an-ma\" → Myanmar (Burma) 🇲🇲"
+        ,
+          examples: [
+            {"en":"Myanmar has ancient pagodas.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit myanmar.","vi":"Tôi luôn muốn đi Myanmar.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to myanmar?","vi":"Bạn đã từng đến Myanmar chưa?","context":"❓ Hỏi đáp"}
+          ]
         }
       ]
     },
@@ -127,6 +199,12 @@ export const COUNTRIES_TOPIC = {
           example: "America is a big country.",
           illustration: "🇺🇸",
           memoryTip: "America → \"Ơ-me-ri-ca\" → Mỹ 🇺🇸"
+        ,
+          examples: [
+            {"en":"America is a big country.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit america.","vi":"Tôi luôn muốn đi Mỹ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to america?","vi":"Bạn đã từng đến Mỹ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "England",
@@ -135,6 +213,12 @@ export const COUNTRIES_TOPIC = {
           example: "England is famous for tea.",
           illustration: "🇬🇧",
           memoryTip: "England → \"Ing-lần-đ\" → Anh 🇬🇧"
+        ,
+          examples: [
+            {"en":"England is famous for tea.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit england.","vi":"Tôi luôn muốn đi Anh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to england?","vi":"Bạn đã từng đến Anh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "France",
@@ -143,6 +227,12 @@ export const COUNTRIES_TOPIC = {
           example: "France is known for the Eiffel Tower.",
           illustration: "🇫🇷",
           memoryTip: "France → \"Phờ-ran-x\" → Pháp 🇫🇷"
+        ,
+          examples: [
+            {"en":"France is known for the Eiffel Tower.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit france.","vi":"Tôi luôn muốn đi Pháp.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to france?","vi":"Bạn đã từng đến Pháp chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Germany",
@@ -152,6 +242,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇩🇪",
           memoryTip: "Germany → \"Giơ-mơ-ni\" → Đức 🇩🇪. Deutsch",
           related: "German (người/ngôn ngữ), Berlin, Oktoberfest"
+        ,
+          examples: [
+            {"en":"Germany makes great cars.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit germany.","vi":"Tôi luôn muốn đi Đức.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to germany?","vi":"Bạn đã từng đến Đức chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Italy",
@@ -161,6 +257,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇮🇹",
           memoryTip: "Italy → \"Ý-tơ-li\" → Ý 🇮🇹. Pizza + Pasta",
           related: "Italian, Rome, Venice, Milan, pizza, pasta"
+        ,
+          examples: [
+            {"en":"Italy is famous for pizza and pasta.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit italy.","vi":"Tôi luôn muốn đi Ý.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to italy?","vi":"Bạn đã từng đến Ý chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Spain",
@@ -170,6 +272,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇪🇸",
           memoryTip: "Spain → \"X-pây-n\" → Tây Ban Nha 🇪🇸",
           related: "Spanish, Madrid, Barcelona, flamenco"
+        ,
+          examples: [
+            {"en":"Spain has beautiful beaches.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit spain.","vi":"Tôi luôn muốn đi Tây Ban Nha.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to spain?","vi":"Bạn đã từng đến Tây Ban Nha chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Russia",
@@ -178,6 +286,12 @@ export const COUNTRIES_TOPIC = {
           example: "Russia is the largest country.",
           illustration: "🇷🇺",
           memoryTip: "Russia → \"Ra-shơ\" → Nga 🇷🇺"
+        ,
+          examples: [
+            {"en":"Russia is the largest country.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit russia.","vi":"Tôi luôn muốn đi Nga.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to russia?","vi":"Bạn đã từng đến Nga chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Canada",
@@ -188,6 +302,12 @@ export const COUNTRIES_TOPIC = {
           memoryTip: "Canada → \"Ca-na-đa\" → Canada 🇨🇦. Maple leaf 🍁",
           context: "💡 Biểu tượng: lá phong (maple leaf) 🍁. O Canada!",
           related: "Canadian, Ottawa, Toronto, maple syrup"
+        ,
+          examples: [
+            {"en":"Canada has beautiful nature.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit canada.","vi":"Tôi luôn muốn đi Canada.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to canada?","vi":"Bạn đã từng đến Canada chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Brazil",
@@ -198,6 +318,12 @@ export const COUNTRIES_TOPIC = {
           memoryTip: "Brazil → \"Brơ-zin\" → Brazil 🇧🇷. Bóng đá + Carnival",
           context: "💡 Nổi tiếng: bóng đá, Carnival, rừng Amazon",
           related: "Brazilian, São Paulo, Rio, Amazon, samba"
+        ,
+          examples: [
+            {"en":"Brazil is famous for football.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit brazil.","vi":"Tôi luôn muốn đi Brazil.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to brazil?","vi":"Bạn đã từng đến Brazil chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Australia",
@@ -206,6 +332,12 @@ export const COUNTRIES_TOPIC = {
           example: "Australia has unique animals.",
           illustration: "🇦🇺",
           memoryTip: "Australia → \"Ớt-trây-li-a\" → Úc 🇦🇺"
+        ,
+          examples: [
+            {"en":"Australia has unique animals.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit australia.","vi":"Tôi luôn muốn đi Úc.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to australia?","vi":"Bạn đã từng đến Úc chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Mexico",
@@ -214,6 +346,12 @@ export const COUNTRIES_TOPIC = {
           example: "Mexico has delicious tacos.",
           illustration: "🇲🇽",
           memoryTip: "Mexico → \"Méc-xi-cô\" → Mexico 🇲🇽"
+        ,
+          examples: [
+            {"en":"Mexico has delicious tacos.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit mexico.","vi":"Tôi luôn muốn đi Mexico.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to mexico?","vi":"Bạn đã từng đến Mexico chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Egypt",
@@ -223,6 +361,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇪🇬",
           memoryTip: "Egypt → \"Í-gíp-t\" → Ai Cập 🇪🇬. Kim tự tháp 🏛️",
           context: "💡 Pyramids (kim tự tháp) + Sphinx. Ancient civilization"
+        ,
+          examples: [
+            {"en":"Egypt has the pyramids.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit egypt.","vi":"Tôi luôn muốn đi Ai Cập.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to egypt?","vi":"Bạn đã từng đến Ai Cập chưa?","context":"❓ Hỏi đáp"}
+          ]
         }
       ]
     },
@@ -240,6 +384,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇻🇳",
           memoryTip: "Vietnam + ese → tiếng/người Việt",
           related: "Vietnam, Hanoi, Ho Chi Minh City, phở, áo dài"
+        ,
+          examples: [
+            {"en":"She speaks Vietnamese fluently.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit vietnamese.","vi":"Tôi luôn muốn đi Tiếng Việt / Người Việt.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to vietnamese?","vi":"Bạn đã từng đến Tiếng Việt / Người Việt chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "English",
@@ -249,6 +399,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇬🇧",
           memoryTip: "England + ish → tiếng Anh. #1 ngôn ngữ toàn cầu",
           related: "England, British, American English, IELTS, TOEFL"
+        ,
+          examples: [
+            {"en":"English is an international language.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit english.","vi":"Tôi luôn muốn đi Tiếng Anh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to english?","vi":"Bạn đã từng đến Tiếng Anh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Japanese",
@@ -258,6 +414,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇯🇵",
           memoryTip: "Japan + ese → tiếng Nhật",
           related: "Japan, Tokyo, anime, sushi, sakura"
+        ,
+          examples: [
+            {"en":"She is learning Japanese.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit japanese.","vi":"Tôi luôn muốn đi Tiếng Nhật / Người Nhật.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to japanese?","vi":"Bạn đã từng đến Tiếng Nhật / Người Nhật chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Chinese",
@@ -267,6 +429,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇨🇳",
           memoryTip: "China + ese → tiếng Trung",
           related: "China, Beijing, Mandarin, dim sum, Great Wall"
+        ,
+          examples: [
+            {"en":"Chinese is a tonal language.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit chinese.","vi":"Tôi luôn muốn đi Tiếng Trung / Người Trung.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to chinese?","vi":"Bạn đã từng đến Tiếng Trung / Người Trung chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "French",
@@ -276,6 +444,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇫🇷",
           memoryTip: "France + ch → tiếng Pháp",
           related: "France, Paris, croissant, Eiffel Tower"
+        ,
+          examples: [
+            {"en":"French is the language of love.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit french.","vi":"Tôi luôn muốn đi Tiếng Pháp / Người Pháp.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to french?","vi":"Bạn đã từng đến Tiếng Pháp / Người Pháp chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Spanish",
@@ -285,6 +459,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇪🇸",
           memoryTip: "Spain + ish → tiếng Tây Ban Nha. #2 phổ biến nhất",
           related: "Spain, Latin America, flamenco, paella"
+        ,
+          examples: [
+            {"en":"Many people speak Spanish.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit spanish.","vi":"Tôi luôn muốn đi Tiếng Tây Ban Nha.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to spanish?","vi":"Bạn đã từng đến Tiếng Tây Ban Nha chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Korean",
@@ -294,6 +474,12 @@ export const COUNTRIES_TOPIC = {
           illustration: "🇰🇷",
           memoryTip: "Korea + n → tiếng Hàn. K-pop, K-drama",
           related: "Korea, Seoul, K-pop, kimchi, K-drama"
+        ,
+          examples: [
+            {"en":"Korean dramas are popular.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit korean.","vi":"Tôi luôn muốn đi Tiếng Hàn / Người Hàn.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to korean?","vi":"Bạn đã từng đến Tiếng Hàn / Người Hàn chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "German",
@@ -302,6 +488,12 @@ export const COUNTRIES_TOPIC = {
           example: "German is spoken in Germany.",
           illustration: "🇩🇪",
           memoryTip: "Germany → German → tiếng Đức"
+        ,
+          examples: [
+            {"en":"German is spoken in Germany.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit german.","vi":"Tôi luôn muốn đi Tiếng Đức / Người Đức.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to german?","vi":"Bạn đã từng đến Tiếng Đức / Người Đức chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Italian",
@@ -310,6 +502,12 @@ export const COUNTRIES_TOPIC = {
           example: "Italian food is delicious.",
           illustration: "🇮🇹",
           memoryTip: "Italy → Italian → tiếng Ý"
+        ,
+          examples: [
+            {"en":"Italian food is delicious.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit italian.","vi":"Tôi luôn muốn đi Tiếng Ý / Người Ý.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to italian?","vi":"Bạn đã từng đến Tiếng Ý / Người Ý chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Thai",
@@ -318,6 +516,12 @@ export const COUNTRIES_TOPIC = {
           example: "Thai food is spicy.",
           illustration: "🇹🇭",
           memoryTip: "Thai → tiếng/người Thái 🇹🇭"
+        ,
+          examples: [
+            {"en":"Thai food is spicy.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit thai.","vi":"Tôi luôn muốn đi Tiếng Thái / Người Thái.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to thai?","vi":"Bạn đã từng đến Tiếng Thái / Người Thái chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Foreign",
@@ -328,6 +532,12 @@ export const COUNTRIES_TOPIC = {
           memoryTip: "Foreign → \"pho-rần\" → nước ngoài. Foreign language = ngoại ngữ",
           context: "💡 \"Foreign country\" = nước ngoài. \"Foreigner\" = người nước ngoài",
           related: "foreigner, foreign exchange, foreign policy"
+        ,
+          examples: [
+            {"en":"She speaks three foreign languages.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit foreign.","vi":"Tôi luôn muốn đi Nước ngoài.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to foreign?","vi":"Bạn đã từng đến Nước ngoài chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Native",
@@ -338,6 +548,12 @@ export const COUNTRIES_TOPIC = {
           memoryTip: "Native → \"nây-típ\" → bản xứ. Native speaker = người bản ngữ",
           context: "💡 \"Native speaker\" = người nói tiếng mẹ đẻ. \"Native language\" = tiếng mẹ đẻ",
           related: "native speaker, native language, native plant"
+        ,
+          examples: [
+            {"en":"Vietnamese is my native language.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit native.","vi":"Tôi luôn muốn đi Bản địa / Bản xứ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to native?","vi":"Bạn đã từng đến Bản địa / Bản xứ chưa?","context":"❓ Hỏi đáp"}
+          ]
         }
       ]
     },
@@ -353,6 +569,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Mỹ",
           example: "Travel to USA.",
           illustration: "🇺🇸"
+        ,
+          examples: [
+            {"en":"Travel to USA.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit usa.","vi":"Tôi luôn muốn đi Mỹ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to usa?","vi":"Bạn đã từng đến Mỹ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "UK",
@@ -360,6 +582,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Anh (Vương quốc Anh)",
           example: "UK London.",
           illustration: "🇬🇧"
+        ,
+          examples: [
+            {"en":"UK London.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit uk.","vi":"Tôi luôn muốn đi Anh (Vương quốc Anh).","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to uk?","vi":"Bạn đã từng đến Anh (Vương quốc Anh) chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Scotland",
@@ -367,6 +595,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Scotland",
           example: "Scotland highlands.",
           illustration: "🏴󠁧󠁢󠁳󠁣󠁴󠁿"
+        ,
+          examples: [
+            {"en":"Scotland highlands.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit scotland.","vi":"Tôi luôn muốn đi Scotland.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to scotland?","vi":"Bạn đã từng đến Scotland chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Ireland",
@@ -374,6 +608,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ai-len",
           example: "Green Ireland.",
           illustration: "🇮🇪"
+        ,
+          examples: [
+            {"en":"Green Ireland.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit ireland.","vi":"Tôi luôn muốn đi Ai-len.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to ireland?","vi":"Bạn đã từng đến Ai-len chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Wales",
@@ -381,6 +621,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Xứ Wales",
           example: "Welsh mountains.",
           illustration: "🏴󠁧󠁢󠁷󠁬󠁳󠁿"
+        ,
+          examples: [
+            {"en":"Welsh mountains.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit wales.","vi":"Tôi luôn muốn đi Xứ Wales.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to wales?","vi":"Bạn đã từng đến Xứ Wales chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Portugal",
@@ -388,6 +634,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bồ Đào Nha",
           example: "Portugal coast.",
           illustration: "🇵🇹"
+        ,
+          examples: [
+            {"en":"Portugal coast.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit portugal.","vi":"Tôi luôn muốn đi Bồ Đào Nha.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to portugal?","vi":"Bạn đã từng đến Bồ Đào Nha chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Netherlands",
@@ -395,6 +647,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hà Lan",
           example: "Netherlands tulips.",
           illustration: "🇳🇱"
+        ,
+          examples: [
+            {"en":"Netherlands tulips.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit netherlands.","vi":"Tôi luôn muốn đi Hà Lan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to netherlands?","vi":"Bạn đã từng đến Hà Lan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Belgium",
@@ -402,6 +660,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bỉ",
           example: "Belgium chocolate.",
           illustration: "🇧🇪"
+        ,
+          examples: [
+            {"en":"Belgium chocolate.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit belgium.","vi":"Tôi luôn muốn đi Bỉ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to belgium?","vi":"Bạn đã từng đến Bỉ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Switzerland",
@@ -409,6 +673,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thụy Sĩ",
           example: "Switzerland Alps.",
           illustration: "🇨🇭"
+        ,
+          examples: [
+            {"en":"Switzerland Alps.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit switzerland.","vi":"Tôi luôn muốn đi Thụy Sĩ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to switzerland?","vi":"Bạn đã từng đến Thụy Sĩ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Austria",
@@ -416,6 +686,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Áo",
           example: "Austria Vienna.",
           illustration: "🇦🇹"
+        ,
+          examples: [
+            {"en":"Austria Vienna.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit austria.","vi":"Tôi luôn muốn đi Áo.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to austria?","vi":"Bạn đã từng đến Áo chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Sweden",
@@ -423,6 +699,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thụy Điển",
           example: "Sweden IKEA.",
           illustration: "🇸🇪"
+        ,
+          examples: [
+            {"en":"Sweden IKEA.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit sweden.","vi":"Tôi luôn muốn đi Thụy Điển.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to sweden?","vi":"Bạn đã từng đến Thụy Điển chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Norway",
@@ -430,6 +712,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Na Uy",
           example: "Norway fjords.",
           illustration: "🇳🇴"
+        ,
+          examples: [
+            {"en":"Norway fjords.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit norway.","vi":"Tôi luôn muốn đi Na Uy.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to norway?","vi":"Bạn đã từng đến Na Uy chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Denmark",
@@ -437,6 +725,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đan Mạch",
           example: "Denmark LEGO.",
           illustration: "🇩🇰"
+        ,
+          examples: [
+            {"en":"Denmark LEGO.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit denmark.","vi":"Tôi luôn muốn đi Đan Mạch.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to denmark?","vi":"Bạn đã từng đến Đan Mạch chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Finland",
@@ -444,6 +738,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Phần Lan",
           example: "Finland sauna.",
           illustration: "🇫🇮"
+        ,
+          examples: [
+            {"en":"Finland sauna.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit finland.","vi":"Tôi luôn muốn đi Phần Lan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to finland?","vi":"Bạn đã từng đến Phần Lan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Iceland",
@@ -451,6 +751,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Băng Đảo",
           example: "Iceland glaciers.",
           illustration: "🇮🇸"
+        ,
+          examples: [
+            {"en":"Iceland glaciers.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit iceland.","vi":"Tôi luôn muốn đi Băng Đảo.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to iceland?","vi":"Bạn đã từng đến Băng Đảo chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Poland",
@@ -458,6 +764,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ba Lan",
           example: "Poland Warsaw.",
           illustration: "🇵🇱"
+        ,
+          examples: [
+            {"en":"Poland Warsaw.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit poland.","vi":"Tôi luôn muốn đi Ba Lan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to poland?","vi":"Bạn đã từng đến Ba Lan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Ukraine",
@@ -465,6 +777,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ukraine",
           example: "Ukraine Kyiv.",
           illustration: "🇺🇦"
+        ,
+          examples: [
+            {"en":"Ukraine Kyiv.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit ukraine.","vi":"Tôi luôn muốn đi Ukraine.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to ukraine?","vi":"Bạn đã từng đến Ukraine chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Greece",
@@ -472,6 +790,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hy Lạp",
           example: "Greece Athens.",
           illustration: "🇬🇷"
+        ,
+          examples: [
+            {"en":"Greece Athens.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit greece.","vi":"Tôi luôn muốn đi Hy Lạp.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to greece?","vi":"Bạn đã từng đến Hy Lạp chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Turkey",
@@ -479,6 +803,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thổ Nhĩ Kỳ",
           example: "Turkey Istanbul.",
           illustration: "🇹🇷"
+        ,
+          examples: [
+            {"en":"Turkey Istanbul.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit turkey.","vi":"Tôi luôn muốn đi Thổ Nhĩ Kỳ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to turkey?","vi":"Bạn đã từng đến Thổ Nhĩ Kỳ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Czech Republic",
@@ -486,6 +816,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Cộng hòa Séc",
           example: "Czech Prague.",
           illustration: "🇨🇿"
+        ,
+          examples: [
+            {"en":"Czech Prague.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit czech republic.","vi":"Tôi luôn muốn đi Cộng hòa Séc.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to czech republic?","vi":"Bạn đã từng đến Cộng hòa Séc chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Hungary",
@@ -493,6 +829,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hungary",
           example: "Hungary Budapest.",
           illustration: "🇭🇺"
+        ,
+          examples: [
+            {"en":"Hungary Budapest.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit hungary.","vi":"Tôi luôn muốn đi Hungary.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to hungary?","vi":"Bạn đã từng đến Hungary chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Romania",
@@ -500,6 +842,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Romania",
           example: "Romania Dracula.",
           illustration: "🇷🇴"
+        ,
+          examples: [
+            {"en":"Romania Dracula.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit romania.","vi":"Tôi luôn muốn đi Romania.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to romania?","vi":"Bạn đã từng đến Romania chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "North Korea",
@@ -507,6 +855,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bắc Triều Tiên",
           example: "North Korea border.",
           illustration: "🇰🇵"
+        ,
+          examples: [
+            {"en":"North Korea border.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit north korea.","vi":"Tôi luôn muốn đi Bắc Triều Tiên.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to north korea?","vi":"Bạn đã từng đến Bắc Triều Tiên chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Pakistan",
@@ -514,6 +868,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Pakistan",
           example: "Pakistan Lahore.",
           illustration: "🇵🇰"
+        ,
+          examples: [
+            {"en":"Pakistan Lahore.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit pakistan.","vi":"Tôi luôn muốn đi Pakistan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to pakistan?","vi":"Bạn đã từng đến Pakistan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Bangladesh",
@@ -521,6 +881,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bangladesh",
           example: "Bangladesh Dhaka.",
           illustration: "🇧🇩"
+        ,
+          examples: [
+            {"en":"Bangladesh Dhaka.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit bangladesh.","vi":"Tôi luôn muốn đi Bangladesh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to bangladesh?","vi":"Bạn đã từng đến Bangladesh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Laos",
@@ -528,6 +894,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Lào",
           example: "Laos Vientiane.",
           illustration: "🇱🇦"
+        ,
+          examples: [
+            {"en":"Laos Vientiane.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit laos.","vi":"Tôi luôn muốn đi Lào.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to laos?","vi":"Bạn đã từng đến Lào chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Brunei",
@@ -535,6 +907,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Brunei",
           example: "Brunei oil.",
           illustration: "🇧🇳"
+        ,
+          examples: [
+            {"en":"Brunei oil.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit brunei.","vi":"Tôi luôn muốn đi Brunei.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to brunei?","vi":"Bạn đã từng đến Brunei chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "New Zealand",
@@ -542,6 +920,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "New Zealand",
           example: "New Zealand sheep.",
           illustration: "🇳🇿"
+        ,
+          examples: [
+            {"en":"New Zealand sheep.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit new zealand.","vi":"Tôi luôn muốn đi New Zealand.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to new zealand?","vi":"Bạn đã từng đến New Zealand chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Argentina",
@@ -549,6 +933,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Argentina",
           example: "Argentina tango.",
           illustration: "🇦🇷"
+        ,
+          examples: [
+            {"en":"Argentina tango.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit argentina.","vi":"Tôi luôn muốn đi Argentina.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to argentina?","vi":"Bạn đã từng đến Argentina chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Chile",
@@ -556,6 +946,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Chile",
           example: "Chile Santiago.",
           illustration: "🇨🇱"
+        ,
+          examples: [
+            {"en":"Chile Santiago.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit chile.","vi":"Tôi luôn muốn đi Chile.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to chile?","vi":"Bạn đã từng đến Chile chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Peru",
@@ -563,6 +959,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Peru",
           example: "Peru Machu Picchu.",
           illustration: "🇵🇪"
+        ,
+          examples: [
+            {"en":"Peru Machu Picchu.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit peru.","vi":"Tôi luôn muốn đi Peru.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to peru?","vi":"Bạn đã từng đến Peru chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Colombia",
@@ -570,6 +972,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Colombia",
           example: "Colombia coffee.",
           illustration: "🇨🇴"
+        ,
+          examples: [
+            {"en":"Colombia coffee.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit colombia.","vi":"Tôi luôn muốn đi Colombia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to colombia?","vi":"Bạn đã từng đến Colombia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Venezuela",
@@ -577,6 +985,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Venezuela",
           example: "Venezuela Caracas.",
           illustration: "🇻🇪"
+        ,
+          examples: [
+            {"en":"Venezuela Caracas.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit venezuela.","vi":"Tôi luôn muốn đi Venezuela.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to venezuela?","vi":"Bạn đã từng đến Venezuela chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Cuba",
@@ -584,6 +998,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Cuba",
           example: "Cuba Havana.",
           illustration: "🇨🇺"
+        ,
+          examples: [
+            {"en":"Cuba Havana.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit cuba.","vi":"Tôi luôn muốn đi Cuba.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to cuba?","vi":"Bạn đã từng đến Cuba chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Morocco",
@@ -591,6 +1011,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ma-rốc",
           example: "Morocco Marrakech.",
           illustration: "🇲🇦"
+        ,
+          examples: [
+            {"en":"Morocco Marrakech.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit morocco.","vi":"Tôi luôn muốn đi Ma-rốc.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to morocco?","vi":"Bạn đã từng đến Ma-rốc chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "South Africa",
@@ -598,6 +1024,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nam Phi",
           example: "South Africa safari.",
           illustration: "🇿🇦"
+        ,
+          examples: [
+            {"en":"South Africa safari.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit south africa.","vi":"Tôi luôn muốn đi Nam Phi.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to south africa?","vi":"Bạn đã từng đến Nam Phi chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Nigeria",
@@ -605,6 +1037,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nigeria",
           example: "Nigeria Lagos.",
           illustration: "🇳🇬"
+        ,
+          examples: [
+            {"en":"Nigeria Lagos.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit nigeria.","vi":"Tôi luôn muốn đi Nigeria.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to nigeria?","vi":"Bạn đã từng đến Nigeria chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Kenya",
@@ -612,6 +1050,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Kenya",
           example: "Kenya safari.",
           illustration: "🇰🇪"
+        ,
+          examples: [
+            {"en":"Kenya safari.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit kenya.","vi":"Tôi luôn muốn đi Kenya.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to kenya?","vi":"Bạn đã từng đến Kenya chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Ethiopia",
@@ -619,6 +1063,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ethiopia",
           example: "Ethiopia coffee.",
           illustration: "🇪🇹"
+        ,
+          examples: [
+            {"en":"Ethiopia coffee.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit ethiopia.","vi":"Tôi luôn muốn đi Ethiopia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to ethiopia?","vi":"Bạn đã từng đến Ethiopia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Ghana",
@@ -626,6 +1076,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ghana",
           example: "Ghana Accra.",
           illustration: "🇬🇭"
+        ,
+          examples: [
+            {"en":"Ghana Accra.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit ghana.","vi":"Tôi luôn muốn đi Ghana.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to ghana?","vi":"Bạn đã từng đến Ghana chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Saudi Arabia",
@@ -633,6 +1089,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ả Rập Saudi",
           example: "Saudi Arabia Mecca.",
           illustration: "🇸🇦"
+        ,
+          examples: [
+            {"en":"Saudi Arabia Mecca.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit saudi arabia.","vi":"Tôi luôn muốn đi Ả Rập Saudi.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to saudi arabia?","vi":"Bạn đã từng đến Ả Rập Saudi chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "UAE",
@@ -640,6 +1102,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "UAE",
           example: "UAE Dubai.",
           illustration: "🇦🇪"
+        ,
+          examples: [
+            {"en":"UAE Dubai.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit uae.","vi":"Tôi luôn muốn đi UAE.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to uae?","vi":"Bạn đã từng đến UAE chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Israel",
@@ -647,6 +1115,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Israel",
           example: "Israel Jerusalem.",
           illustration: "🇮🇱"
+        ,
+          examples: [
+            {"en":"Israel Jerusalem.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit israel.","vi":"Tôi luôn muốn đi Israel.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to israel?","vi":"Bạn đã từng đến Israel chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Iran",
@@ -654,6 +1128,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Iran",
           example: "Iran Tehran.",
           illustration: "🇮🇷"
+        ,
+          examples: [
+            {"en":"Iran Tehran.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit iran.","vi":"Tôi luôn muốn đi Iran.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to iran?","vi":"Bạn đã từng đến Iran chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Iraq",
@@ -661,6 +1141,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Iraq",
           example: "Iraq Baghdad.",
           illustration: "🇮🇶"
+        ,
+          examples: [
+            {"en":"Iraq Baghdad.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit iraq.","vi":"Tôi luôn muốn đi Iraq.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to iraq?","vi":"Bạn đã từng đến Iraq chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Syria",
@@ -668,6 +1154,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Syria",
           example: "Syria Damascus.",
           illustration: "🇸🇾"
+        ,
+          examples: [
+            {"en":"Syria Damascus.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit syria.","vi":"Tôi luôn muốn đi Syria.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to syria?","vi":"Bạn đã từng đến Syria chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Jordan",
@@ -675,6 +1167,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Jordan",
           example: "Jordan Petra.",
           illustration: "🇯🇴"
+        ,
+          examples: [
+            {"en":"Jordan Petra.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit jordan.","vi":"Tôi luôn muốn đi Jordan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to jordan?","vi":"Bạn đã từng đến Jordan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Lebanon",
@@ -682,6 +1180,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Lebanon",
           example: "Lebanon Beirut.",
           illustration: "🇱🇧"
+        ,
+          examples: [
+            {"en":"Lebanon Beirut.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit lebanon.","vi":"Tôi luôn muốn đi Lebanon.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to lebanon?","vi":"Bạn đã từng đến Lebanon chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Nationality",
@@ -689,6 +1193,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Quốc tịch",
           example: "What is your nationality?",
           illustration: "🛂"
+        ,
+          examples: [
+            {"en":"What is your nationality?","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit nationality.","vi":"Tôi luôn muốn đi Quốc tịch.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to nationality?","vi":"Bạn đã từng đến Quốc tịch chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Citizen",
@@ -696,6 +1206,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Công dân",
           example: "A good citizen.",
           illustration: "🧑"
+        ,
+          examples: [
+            {"en":"A good citizen.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit citizen.","vi":"Tôi luôn muốn đi Công dân.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to citizen?","vi":"Bạn đã từng đến Công dân chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Capital",
@@ -703,6 +1219,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thủ đô",
           example: "Hanoi is the capital.",
           illustration: "🏛️"
+        ,
+          examples: [
+            {"en":"Hanoi is the capital.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit capital.","vi":"Tôi luôn muốn đi Thủ đô.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to capital?","vi":"Bạn đã từng đến Thủ đô chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Country",
@@ -710,6 +1232,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đất nước",
           example: "Beautiful country.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"Beautiful country.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit country.","vi":"Tôi luôn muốn đi Đất nước.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to country?","vi":"Bạn đã từng đến Đất nước chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Nation",
@@ -717,6 +1245,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Quốc gia",
           example: "The whole nation.",
           illustration: "🌏"
+        ,
+          examples: [
+            {"en":"The whole nation.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit nation.","vi":"Tôi luôn muốn đi Quốc gia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to nation?","vi":"Bạn đã từng đến Quốc gia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "State",
@@ -724,6 +1258,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bang",
           example: "The state of California.",
           illustration: "🗺️"
+        ,
+          examples: [
+            {"en":"The state of California.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit state.","vi":"Tôi luôn muốn đi Bang.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to state?","vi":"Bạn đã từng đến Bang chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Province",
@@ -731,6 +1271,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Tỉnh",
           example: "Ontario province.",
           illustration: "🗺️"
+        ,
+          examples: [
+            {"en":"Ontario province.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit province.","vi":"Tôi luôn muốn đi Tỉnh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to province?","vi":"Bạn đã từng đến Tỉnh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Region",
@@ -738,6 +1284,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Vùng",
           example: "Tropical region.",
           illustration: "🗺️"
+        ,
+          examples: [
+            {"en":"Tropical region.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit region.","vi":"Tôi luôn muốn đi Vùng.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to region?","vi":"Bạn đã từng đến Vùng chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Continent",
@@ -745,6 +1297,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Lục địa",
           example: "Seven continents.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"Seven continents.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit continent.","vi":"Tôi luôn muốn đi Lục địa.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to continent?","vi":"Bạn đã từng đến Lục địa chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Asia",
@@ -752,6 +1310,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Châu Á",
           example: "Travel Asia.",
           illustration: "🌏"
+        ,
+          examples: [
+            {"en":"Travel Asia.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit asia.","vi":"Tôi luôn muốn đi Châu Á.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to asia?","vi":"Bạn đã từng đến Châu Á chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Europe",
@@ -759,6 +1323,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Châu Âu",
           example: "Visit Europe.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"Visit Europe.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit europe.","vi":"Tôi luôn muốn đi Châu Âu.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to europe?","vi":"Bạn đã từng đến Châu Âu chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Africa",
@@ -766,6 +1336,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Châu Phi",
           example: "Safari in Africa.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"Safari in Africa.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit africa.","vi":"Tôi luôn muốn đi Châu Phi.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to africa?","vi":"Bạn đã từng đến Châu Phi chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "North America",
@@ -773,6 +1349,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bắc Mỹ",
           example: "North America.",
           illustration: "🌎"
+        ,
+          examples: [
+            {"en":"North America.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit north america.","vi":"Tôi luôn muốn đi Bắc Mỹ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to north america?","vi":"Bạn đã từng đến Bắc Mỹ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "South America",
@@ -780,6 +1362,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nam Mỹ",
           example: "South America jungle.",
           illustration: "🌎"
+        ,
+          examples: [
+            {"en":"South America jungle.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit south america.","vi":"Tôi luôn muốn đi Nam Mỹ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to south america?","vi":"Bạn đã từng đến Nam Mỹ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Oceania",
@@ -787,6 +1375,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Châu Đại Dương",
           example: "Oceania islands.",
           illustration: "🌏"
+        ,
+          examples: [
+            {"en":"Oceania islands.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit oceania.","vi":"Tôi luôn muốn đi Châu Đại Dương.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to oceania?","vi":"Bạn đã từng đến Châu Đại Dương chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Antarctica",
@@ -794,6 +1388,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nam Cực",
           example: "Antarctica penguins.",
           illustration: "🐧"
+        ,
+          examples: [
+            {"en":"Antarctica penguins.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit antarctica.","vi":"Tôi luôn muốn đi Nam Cực.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to antarctica?","vi":"Bạn đã từng đến Nam Cực chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Passport",
@@ -801,6 +1401,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hộ chiếu",
           example: "Show your passport.",
           illustration: "🛂"
+        ,
+          examples: [
+            {"en":"Show your passport.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit passport.","vi":"Tôi luôn muốn đi Hộ chiếu.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to passport?","vi":"Bạn đã từng đến Hộ chiếu chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Visa",
@@ -808,6 +1414,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thị thực",
           example: "Tourist visa.",
           illustration: "📄"
+        ,
+          examples: [
+            {"en":"Tourist visa.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit visa.","vi":"Tôi luôn muốn đi Thị thực.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to visa?","vi":"Bạn đã từng đến Thị thực chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Border",
@@ -815,6 +1427,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Biên giới",
           example: "Cross the border.",
           illustration: "🚧"
+        ,
+          examples: [
+            {"en":"Cross the border.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit border.","vi":"Tôi luôn muốn đi Biên giới.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to border?","vi":"Bạn đã từng đến Biên giới chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Customs",
@@ -822,6 +1440,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hải quan",
           example: "Pass customs.",
           illustration: "🛃"
+        ,
+          examples: [
+            {"en":"Pass customs.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit customs.","vi":"Tôi luôn muốn đi Hải quan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to customs?","vi":"Bạn đã từng đến Hải quan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Immigrant",
@@ -829,6 +1453,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người nhập cư",
           example: "An immigrant family.",
           illustration: "👥"
+        ,
+          examples: [
+            {"en":"An immigrant family.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit immigrant.","vi":"Tôi luôn muốn đi Người nhập cư.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to immigrant?","vi":"Bạn đã từng đến Người nhập cư chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Embassy",
@@ -836,6 +1466,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đại sứ quán",
           example: "Visit the embassy.",
           illustration: "🏛️"
+        ,
+          examples: [
+            {"en":"Visit the embassy.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit embassy.","vi":"Tôi luôn muốn đi Đại sứ quán.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to embassy?","vi":"Bạn đã từng đến Đại sứ quán chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Ambassador",
@@ -843,6 +1479,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đại sứ",
           example: "US ambassador.",
           illustration: "🧑"
+        ,
+          examples: [
+            {"en":"US ambassador.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit ambassador.","vi":"Tôi luôn muốn đi Đại sứ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to ambassador?","vi":"Bạn đã từng đến Đại sứ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Flag",
@@ -850,6 +1492,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Quốc kỳ",
           example: "Country flag.",
           illustration: "🏳️"
+        ,
+          examples: [
+            {"en":"Country flag.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit flag.","vi":"Tôi luôn muốn đi Quốc kỳ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to flag?","vi":"Bạn đã từng đến Quốc kỳ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Anthem",
@@ -857,6 +1505,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Quốc ca",
           example: "National anthem.",
           illustration: "🎵"
+        ,
+          examples: [
+            {"en":"National anthem.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit anthem.","vi":"Tôi luôn muốn đi Quốc ca.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to anthem?","vi":"Bạn đã từng đến Quốc ca chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Currency",
@@ -864,6 +1518,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Tiền tệ",
           example: "National currency.",
           illustration: "💵"
+        ,
+          examples: [
+            {"en":"National currency.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit currency.","vi":"Tôi luôn muốn đi Tiền tệ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to currency?","vi":"Bạn đã từng đến Tiền tệ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Dollar",
@@ -871,6 +1531,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đô la",
           example: "US dollar.",
           illustration: "💵"
+        ,
+          examples: [
+            {"en":"US dollar.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit dollar.","vi":"Tôi luôn muốn đi Đô la.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to dollar?","vi":"Bạn đã từng đến Đô la chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Euro",
@@ -878,6 +1544,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Euro",
           example: "Use euro in Europe.",
           illustration: "💶"
+        ,
+          examples: [
+            {"en":"Use euro in Europe.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit euro.","vi":"Tôi luôn muốn đi Euro.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to euro?","vi":"Bạn đã từng đến Euro chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Pound",
@@ -885,6 +1557,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Bảng Anh",
           example: "British pound.",
           illustration: "💷"
+        ,
+          examples: [
+            {"en":"British pound.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit pound.","vi":"Tôi luôn muốn đi Bảng Anh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to pound?","vi":"Bạn đã từng đến Bảng Anh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Yen",
@@ -892,6 +1570,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Yên",
           example: "Japanese yen.",
           illustration: "💴"
+        ,
+          examples: [
+            {"en":"Japanese yen.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit yen.","vi":"Tôi luôn muốn đi Yên.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to yen?","vi":"Bạn đã từng đến Yên chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Dong",
@@ -899,6 +1583,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Đồng",
           example: "Vietnamese dong.",
           illustration: "💴"
+        ,
+          examples: [
+            {"en":"Vietnamese dong.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit dong.","vi":"Tôi luôn muốn đi Đồng.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to dong?","vi":"Bạn đã từng đến Đồng chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Government",
@@ -906,6 +1596,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Chính phủ",
           example: "Federal government.",
           illustration: "🏛️"
+        ,
+          examples: [
+            {"en":"Federal government.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit government.","vi":"Tôi luôn muốn đi Chính phủ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to government?","vi":"Bạn đã từng đến Chính phủ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "President",
@@ -913,6 +1609,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Tổng thống",
           example: "The president speaks.",
           illustration: "👔"
+        ,
+          examples: [
+            {"en":"The president speaks.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit president.","vi":"Tôi luôn muốn đi Tổng thống.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to president?","vi":"Bạn đã từng đến Tổng thống chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Prime Minister",
@@ -920,6 +1622,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Thủ tướng",
           example: "Prime Minister visit.",
           illustration: "👔"
+        ,
+          examples: [
+            {"en":"Prime Minister visit.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit prime minister.","vi":"Tôi luôn muốn đi Thủ tướng.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to prime minister?","vi":"Bạn đã từng đến Thủ tướng chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "King",
@@ -927,6 +1635,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Vua",
           example: "The new king.",
           illustration: "🤴"
+        ,
+          examples: [
+            {"en":"The new king.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit king.","vi":"Tôi luôn muốn đi Vua.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to king?","vi":"Bạn đã từng đến Vua chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Queen",
@@ -934,6 +1648,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nữ hoàng",
           example: "The queen waved.",
           illustration: "👸"
+        ,
+          examples: [
+            {"en":"The queen waved.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit queen.","vi":"Tôi luôn muốn đi Nữ hoàng.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to queen?","vi":"Bạn đã từng đến Nữ hoàng chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Culture",
@@ -941,6 +1661,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Văn hóa",
           example: "Rich culture.",
           illustration: "🎎"
+        ,
+          examples: [
+            {"en":"Rich culture.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit culture.","vi":"Tôi luôn muốn đi Văn hóa.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to culture?","vi":"Bạn đã từng đến Văn hóa chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Language",
@@ -948,6 +1674,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Ngôn ngữ",
           example: "Learn a language.",
           illustration: "🗣️"
+        ,
+          examples: [
+            {"en":"Learn a language.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit language.","vi":"Tôi luôn muốn đi Ngôn ngữ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to language?","vi":"Bạn đã từng đến Ngôn ngữ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Tradition",
@@ -955,6 +1687,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Truyền thống",
           example: "Local tradition.",
           illustration: "🎌"
+        ,
+          examples: [
+            {"en":"Local tradition.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit tradition.","vi":"Tôi luôn muốn đi Truyền thống.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to tradition?","vi":"Bạn đã từng đến Truyền thống chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Landmark",
@@ -962,6 +1700,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Địa danh",
           example: "Famous landmark.",
           illustration: "🗽"
+        ,
+          examples: [
+            {"en":"Famous landmark.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit landmark.","vi":"Tôi luôn muốn đi Địa danh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to landmark?","vi":"Bạn đã từng đến Địa danh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Tourism",
@@ -969,6 +1713,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Du lịch",
           example: "Tourism industry.",
           illustration: "✈️"
+        ,
+          examples: [
+            {"en":"Tourism industry.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit tourism.","vi":"Tôi luôn muốn đi Du lịch.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to tourism?","vi":"Bạn đã từng đến Du lịch chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Tourist",
@@ -976,6 +1726,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Du khách",
           example: "A tourist attraction.",
           illustration: "🧳"
+        ,
+          examples: [
+            {"en":"A tourist attraction.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit tourist.","vi":"Tôi luôn muốn đi Du khách.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to tourist?","vi":"Bạn đã từng đến Du khách chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Asian",
@@ -983,6 +1739,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người/thuộc châu Á",
           example: "Asian food.",
           illustration: "🌏"
+        ,
+          examples: [
+            {"en":"Asian food.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit asian.","vi":"Tôi luôn muốn đi Người/thuộc châu Á.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to asian?","vi":"Bạn đã từng đến Người/thuộc châu Á chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "European",
@@ -990,6 +1752,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người/thuộc châu Âu",
           example: "European Union.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"European Union.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit european.","vi":"Tôi luôn muốn đi Người/thuộc châu Âu.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to european?","vi":"Bạn đã từng đến Người/thuộc châu Âu chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "African",
@@ -997,6 +1765,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người/thuộc châu Phi",
           example: "African culture.",
           illustration: "🌍"
+        ,
+          examples: [
+            {"en":"African culture.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit african.","vi":"Tôi luôn muốn đi Người/thuộc châu Phi.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to african?","vi":"Bạn đã từng đến Người/thuộc châu Phi chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "American",
@@ -1004,6 +1778,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người Mỹ",
           example: "American dream.",
           illustration: "🇺🇸"
+        ,
+          examples: [
+            {"en":"American dream.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit american.","vi":"Tôi luôn muốn đi Người Mỹ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to american?","vi":"Bạn đã từng đến Người Mỹ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "British",
@@ -1011,6 +1791,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người Anh",
           example: "British accent.",
           illustration: "🇬🇧"
+        ,
+          examples: [
+            {"en":"British accent.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit british.","vi":"Tôi luôn muốn đi Người Anh.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to british?","vi":"Bạn đã từng đến Người Anh chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Indian",
@@ -1018,6 +1804,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người Ấn",
           example: "Indian curry.",
           illustration: "🇮🇳"
+        ,
+          examples: [
+            {"en":"Indian curry.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit indian.","vi":"Tôi luôn muốn đi Người Ấn.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to indian?","vi":"Bạn đã từng đến Người Ấn chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Russian",
@@ -1025,6 +1817,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người/tiếng Nga",
           example: "Russian ballet.",
           illustration: "🇷🇺"
+        ,
+          examples: [
+            {"en":"Russian ballet.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit russian.","vi":"Tôi luôn muốn đi Người/tiếng Nga.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to russian?","vi":"Bạn đã từng đến Người/tiếng Nga chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Arabic",
@@ -1032,6 +1830,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Người/tiếng Ả Rập",
           example: "Arabic script.",
           illustration: "🌙"
+        ,
+          examples: [
+            {"en":"Arabic script.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit arabic.","vi":"Tôi luôn muốn đi Người/tiếng Ả Rập.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to arabic?","vi":"Bạn đã từng đến Người/tiếng Ả Rập chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Hawaii",
@@ -1039,6 +1843,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Hawaii",
           example: "Hawaii beach.",
           illustration: "🌺"
+        ,
+          examples: [
+            {"en":"Hawaii beach.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit hawaii.","vi":"Tôi luôn muốn đi Hawaii.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to hawaii?","vi":"Bạn đã từng đến Hawaii chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Alaska",
@@ -1046,6 +1856,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Alaska",
           example: "Alaska wild.",
           illustration: "🏔️"
+        ,
+          examples: [
+            {"en":"Alaska wild.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit alaska.","vi":"Tôi luôn muốn đi Alaska.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to alaska?","vi":"Bạn đã từng đến Alaska chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Greenland",
@@ -1053,6 +1869,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Greenland",
           example: "Greenland ice.",
           illustration: "🧊"
+        ,
+          examples: [
+            {"en":"Greenland ice.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit greenland.","vi":"Tôi luôn muốn đi Greenland.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to greenland?","vi":"Bạn đã từng đến Greenland chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Fiji",
@@ -1060,6 +1882,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Fiji",
           example: "Fiji resort.",
           illustration: "🏝️"
+        ,
+          examples: [
+            {"en":"Fiji resort.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit fiji.","vi":"Tôi luôn muốn đi Fiji.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to fiji?","vi":"Bạn đã từng đến Fiji chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Mongolia",
@@ -1067,6 +1895,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Mông Cổ",
           example: "Mongolian steppe.",
           illustration: "🐎"
+        ,
+          examples: [
+            {"en":"Mongolian steppe.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit mongolia.","vi":"Tôi luôn muốn đi Mông Cổ.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to mongolia?","vi":"Bạn đã từng đến Mông Cổ chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Nepal",
@@ -1074,6 +1908,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Nepal",
           example: "Nepal Everest.",
           illustration: "🏔️"
+        ,
+          examples: [
+            {"en":"Nepal Everest.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit nepal.","vi":"Tôi luôn muốn đi Nepal.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to nepal?","vi":"Bạn đã từng đến Nepal chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Sri Lanka",
@@ -1081,6 +1921,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Sri Lanka",
           example: "Sri Lanka tea.",
           illustration: "🇱🇰"
+        ,
+          examples: [
+            {"en":"Sri Lanka tea.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit sri lanka.","vi":"Tôi luôn muốn đi Sri Lanka.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to sri lanka?","vi":"Bạn đã từng đến Sri Lanka chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Afghanistan",
@@ -1088,6 +1934,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Afghanistan",
           example: "Afghanistan mountains.",
           illustration: "🇦🇫"
+        ,
+          examples: [
+            {"en":"Afghanistan mountains.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit afghanistan.","vi":"Tôi luôn muốn đi Afghanistan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to afghanistan?","vi":"Bạn đã từng đến Afghanistan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Yemen",
@@ -1095,6 +1947,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Yemen",
           example: "Yemen coffee.",
           illustration: "🇾🇪"
+        ,
+          examples: [
+            {"en":"Yemen coffee.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit yemen.","vi":"Tôi luôn muốn đi Yemen.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to yemen?","vi":"Bạn đã từng đến Yemen chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Qatar",
@@ -1102,6 +1960,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Qatar",
           example: "Qatar Doha.",
           illustration: "🇶🇦"
+        ,
+          examples: [
+            {"en":"Qatar Doha.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit qatar.","vi":"Tôi luôn muốn đi Qatar.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to qatar?","vi":"Bạn đã từng đến Qatar chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Tajikistan",
@@ -1109,6 +1973,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Tajikistan",
           example: "Tajikistan mountains.",
           illustration: "🏔️"
+        ,
+          examples: [
+            {"en":"Tajikistan mountains.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit tajikistan.","vi":"Tôi luôn muốn đi Tajikistan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to tajikistan?","vi":"Bạn đã từng đến Tajikistan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Uzbekistan",
@@ -1116,6 +1986,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Uzbekistan",
           example: "Uzbekistan silk road.",
           illustration: "🇺🇿"
+        ,
+          examples: [
+            {"en":"Uzbekistan silk road.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit uzbekistan.","vi":"Tôi luôn muốn đi Uzbekistan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to uzbekistan?","vi":"Bạn đã từng đến Uzbekistan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Kazakhstan",
@@ -1123,6 +1999,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Kazakhstan",
           example: "Kazakhstan steppe.",
           illustration: "🇰🇿"
+        ,
+          examples: [
+            {"en":"Kazakhstan steppe.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit kazakhstan.","vi":"Tôi luôn muốn đi Kazakhstan.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to kazakhstan?","vi":"Bạn đã từng đến Kazakhstan chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Latvia",
@@ -1130,6 +2012,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Latvia",
           example: "Latvia Riga.",
           illustration: "🇱🇻"
+        ,
+          examples: [
+            {"en":"Latvia Riga.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit latvia.","vi":"Tôi luôn muốn đi Latvia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to latvia?","vi":"Bạn đã từng đến Latvia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Lithuania",
@@ -1137,6 +2025,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Lithuania",
           example: "Lithuania Vilnius.",
           illustration: "🇱🇹"
+        ,
+          examples: [
+            {"en":"Lithuania Vilnius.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit lithuania.","vi":"Tôi luôn muốn đi Lithuania.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to lithuania?","vi":"Bạn đã từng đến Lithuania chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Estonia",
@@ -1144,6 +2038,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Estonia",
           example: "Estonia Tallinn.",
           illustration: "🇪🇪"
+        ,
+          examples: [
+            {"en":"Estonia Tallinn.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit estonia.","vi":"Tôi luôn muốn đi Estonia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to estonia?","vi":"Bạn đã từng đến Estonia chưa?","context":"❓ Hỏi đáp"}
+          ]
         },
         {
           word: "Croatia",
@@ -1151,6 +2051,12 @@ export const COUNTRIES_TOPIC = {
           meaning: "Croatia",
           example: "Croatia coast.",
           illustration: "🇭🇷"
+        ,
+          examples: [
+            {"en":"Croatia coast.","vi":"","context":"✏️ Cơ bản"},
+            {"en":"I have always wanted to visit croatia.","vi":"Tôi luôn muốn đi Croatia.","context":"✈️ Du lịch"},
+            {"en":"Have you ever been to croatia?","vi":"Bạn đã từng đến Croatia chưa?","context":"❓ Hỏi đáp"}
+          ]
         }
       ]
     }

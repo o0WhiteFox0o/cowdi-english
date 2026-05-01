@@ -29,7 +29,8 @@ router.get('/progress', requireAuth, async (req, res) => {
               quizzes_completed, perfect_quizzes, words_learned,
               completed_lessons, word_status, active_days,
               achievements, daily_tasks, daily_date,
-              srs_data, checkpoint_scores, skill_xp, updated_at
+              srs_data, checkpoint_scores, skill_xp,
+              daily_journal, updated_at
        FROM user_progress WHERE user_id = ?`,
       [req.user.id]
     );
@@ -60,6 +61,7 @@ router.get('/progress', requireAuth, async (req, res) => {
       srsData:          parseJSON(row.srs_data, {}),
       checkpointScores: parseJSON(row.checkpoint_scores, {}),
       skillXP:          parseJSON(row.skill_xp, { listening: 0, speaking: 0, reading: 0, writing: 0 }),
+      dailyJournal:     parseJSON(row.daily_journal, {}),
       updatedAt:        row.updated_at,
     });
   } catch (err) {
@@ -76,7 +78,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
     'activeDays','achievements','dailyTasks','dailyDate',
-    'srsData','checkpointScores','skillXP'
+    'srsData','checkpointScores','skillXP','dailyJournal'
   ];
   for (const key of Object.keys(d)) {
     if (!allowed.includes(key)) delete d[key];
@@ -100,6 +102,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     JSON.stringify(d.srsData          ?? {}),
     JSON.stringify(d.checkpointScores ?? {}),
     JSON.stringify(d.skillXP          ?? { listening: 0, speaking: 0, reading: 0, writing: 0 }),
+    JSON.stringify(d.dailyJournal     ?? {}),
   ];
 
   try {
@@ -108,8 +111,9 @@ router.put('/progress', requireAuth, async (req, res) => {
          (user_id, total_xp, streak, last_active_date,
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
           completed_lessons, word_status, active_days, achievements,
-          daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
+          daily_journal)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          total_xp          = VALUES(total_xp),
          streak            = VALUES(streak),
@@ -126,7 +130,8 @@ router.put('/progress', requireAuth, async (req, res) => {
          daily_date        = VALUES(daily_date),
          srs_data          = VALUES(srs_data),
          checkpoint_scores = VALUES(checkpoint_scores),
-         skill_xp          = VALUES(skill_xp)`,
+         skill_xp          = VALUES(skill_xp),
+         daily_journal     = VALUES(daily_journal)`,
       params
     );
     res.json({ ok: true });
@@ -817,6 +822,91 @@ router.post('/push/test', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('POST /api/push/test error:', err);
     res.status(500).json({ error: 'Lỗi gửi push.' });
+  }
+});
+
+// ============================================================
+//  STUDY SCHEDULE — lịch học do user tự đặt
+// ============================================================
+
+const DEFAULT_SCHEDULE = {
+  enabled: false,
+  daysOfWeek: [1, 2, 3, 4, 5],
+  timeLocal: '19:00',
+  timezone: 'Asia/Ho_Chi_Minh',
+  message: '',
+};
+
+function parseDays(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try { const v = JSON.parse(raw); return Array.isArray(v) ? v : []; } catch { return []; }
+  }
+  return [];
+}
+
+function validateSchedule(body) {
+  const out = {};
+  out.enabled = !!body.enabled;
+  const days = parseDays(body.daysOfWeek).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
+  out.daysOfWeek = [...new Set(days)].sort();
+  const time = String(body.timeLocal || '').trim();
+  out.timeLocal = /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '19:00';
+  out.timezone = String(body.timezone || 'Asia/Ho_Chi_Minh').slice(0, 60);
+  out.message = String(body.message || '').slice(0, 200);
+  return out;
+}
+
+// ── GET /api/schedule – lấy lịch học của user ──────────────────────
+router.get('/schedule', requireAuth, async (req, res) => {
+  try {
+    const [[row]] = await pool.execute(
+      `SELECT enabled, days_of_week, time_local, timezone, message, last_fired_at
+       FROM study_schedules WHERE user_id = ?`,
+      [req.user.id]
+    );
+    if (!row) return res.json(DEFAULT_SCHEDULE);
+    res.json({
+      enabled:    !!row.enabled,
+      daysOfWeek: parseDays(row.days_of_week),
+      timeLocal:  row.time_local,
+      timezone:   row.timezone,
+      message:    row.message || '',
+      lastFiredAt: row.last_fired_at,
+    });
+  } catch (err) {
+    console.error('GET /api/schedule error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── PUT /api/schedule – tạo / cập nhật lịch học ────────────────────
+router.put('/schedule', requireAuth, async (req, res) => {
+  const data = validateSchedule(req.body || {});
+  try {
+    await pool.execute(
+      `INSERT INTO study_schedules
+         (user_id, enabled, days_of_week, time_local, timezone, message)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         enabled       = VALUES(enabled),
+         days_of_week  = VALUES(days_of_week),
+         time_local    = VALUES(time_local),
+         timezone      = VALUES(timezone),
+         message       = VALUES(message)`,
+      [
+        req.user.id,
+        data.enabled ? 1 : 0,
+        JSON.stringify(data.daysOfWeek),
+        data.timeLocal,
+        data.timezone,
+        data.message,
+      ]
+    );
+    res.json({ ok: true, ...data });
+  } catch (err) {
+    console.error('PUT /api/schedule error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
   }
 });
 

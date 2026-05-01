@@ -30,11 +30,48 @@ import { EXAM_STRATEGIES_LESSON } from './exam-strategies.js';
 import { COMMUNICATION_SKILLS_LESSON } from './communication-skills.js';
 import { TEST_PRACTICE_LESSON } from './test-practice.js';
 
+// === Basic / Pronunciation lessons (added 2026) ===
+import { ALPHABET_LESSON } from './alphabet.js';
+import { PRONUNCIATION_VOWELS_LESSON } from './pronunciation-vowels.js';
+import { PRONUNCIATION_CONSONANTS_LESSON } from './pronunciation-consonants.js';
+import { PRONUNCIATION_TRICKY_LESSON } from './pronunciation-tricky.js';
+import { PRONUNCIATION_STRESS_LESSON } from './pronunciation-stress.js';
+import { WH_QUESTIONS_LESSON } from './wh-questions.js';
+import { ARTICLES_LESSON } from './articles.js';
+import { PRONOUNS_LESSON } from './pronouns.js';
+import { PREPOSITIONS_PLACE_LESSON } from './prepositions-place.js';
+import { DAILY_PHRASES_LESSON } from './daily-phrases.js';
+import { TIME_AND_DATE_LESSON } from './time-and-date.js';
+import { DIRECTIONS_LESSON } from './directions.js';
+import { MONEY_PRICES_LESSON } from './money-prices.js';
+import { RESTAURANT_LESSON } from './at-restaurant.js';
+import { AIRPORT_LESSON } from './at-airport.js';
+import { NUMBERS_BASIC_LESSON } from './numbers-basic.js';
+
 export const TRACK_ID = "general";
 export const TRACK_LABEL = "Chủ đề tổng hợp";
 export const TRACK_ICON = "📚";
 
 export const LESSONS = [
+  // === Bài cơ bản (beginner) — phát âm & nền tảng ===
+  ALPHABET_LESSON,
+  PRONUNCIATION_VOWELS_LESSON,
+  PRONUNCIATION_CONSONANTS_LESSON,
+  PRONUNCIATION_TRICKY_LESSON,
+  PRONUNCIATION_STRESS_LESSON,
+  NUMBERS_BASIC_LESSON,
+  PRONOUNS_LESSON,
+  ARTICLES_LESSON,
+  PREPOSITIONS_PLACE_LESSON,
+  WH_QUESTIONS_LESSON,
+  DAILY_PHRASES_LESSON,
+  TIME_AND_DATE_LESSON,
+  DIRECTIONS_LESSON,
+  MONEY_PRICES_LESSON,
+  RESTAURANT_LESSON,
+  AIRPORT_LESSON,
+
+  // === Chủ đề từ vựng đã có ===
   GREETINGS_LESSON,
   FAMILY_LESSON,
   COLORS_LESSON,

@@ -8,6 +8,7 @@ import apiRouter from './routes/api.js';
 import adminRouter from './routes/admin.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
+import { startScheduleJob } from './jobs/schedule-reminder.js';
 import { isPushReady } from './config/push.js';
 
 const app  = express();
@@ -65,7 +66,9 @@ async function start() {
     });
     if (isPushReady()) {
       startReminderJob();
+      startScheduleJob();
       console.log('⏰ Reminder job: started (runs every 1h)');
+      console.log('⏰ Schedule job: started (runs every 1m)');
     }
   } catch (err) {
     console.error('❌ Không kết nối được database:', err.message);

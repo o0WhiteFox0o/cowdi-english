@@ -33,8 +33,35 @@ const DEFAULT_DATA = {
   srsData: {},
   checkpointScores: {},
   skillXP: { listening: 0, speaking: 0, reading: 0, writing: 0 },
+  dailyJournal: {},   // { 'YYYY-MM-DD': { lessons, quizzes, perfectQuizzes, words, reviews, xp } }
   _lastModified: null,
 };
+
+// ── Daily Journal helpers ──────────────────────────────────
+const JOURNAL_KEYS = ['lessons', 'quizzes', 'perfectQuizzes', 'words', 'reviews', 'xp'];
+const EMPTY_JOURNAL_ENTRY = { lessons: 0, quizzes: 0, perfectQuizzes: 0, words: 0, reviews: 0, xp: 0 };
+
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Trả về dailyJournal mới sau khi cộng `amount` vào key cho ngày hôm nay.
+ * Pure function — không mutate.
+ */
+function bumpJournal(prev, key, amount = 1) {
+  if (!JOURNAL_KEYS.includes(key) || !amount) return prev?.dailyJournal || {};
+  const today = todayKey();
+  const cur = prev?.dailyJournal?.[today] || { ...EMPTY_JOURNAL_ENTRY };
+  return {
+    ...(prev?.dailyJournal || {}),
+    [today]: { ...EMPTY_JOURNAL_ENTRY, ...cur, [key]: (cur[key] || 0) + amount },
+  };
+}
 
 // ── SRS SM-2 algorithm helpers ──────────────────────────────
 const SRS_DEFAULT = { interval: 1, easeFactor: 2.5, repetitions: 0, nextReview: null };
@@ -44,6 +71,7 @@ function srsGrade(card, quality) {
   // SM-2 chuẩn + Easy bonus để các nút hiển thị khác nhau và khớp
   // với ví dụ: Khó→1 → Nhớ→3 → Dễ→8 → Dễ→21.
   let { interval, easeFactor, repetitions } = card;
+  const lapses = (card.lapses || 0) + (quality < 3 ? 1 : 0);
   if (quality >= 3) {
     if (repetitions === 0) {
       interval = quality >= 5 ? 2 : 1;
@@ -63,7 +91,54 @@ function srsGrade(card, quality) {
   }
   easeFactor = Math.max(1.3, easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
   const nextReview = new Date(Date.now() + interval * 86400000).toISOString();
-  return { interval, easeFactor, repetitions, nextReview };
+  return {
+    interval,
+    easeFactor,
+    repetitions,
+    nextReview,
+    lapses,
+    lastReviewedAt: new Date().toISOString(),
+    lastQuality: quality,
+  };
+}
+
+// Điểm "khả năng quên" — càng cao càng nên ưu tiên ôn trước.
+// Dùng để chọn 20 từ thông minh thay vì lấy 20 từ đầu danh sách due.
+function forgettingScore(card, now = Date.now()) {
+  const interval = Math.max(0.5, card.interval || 1);
+  const ef = card.easeFactor || 2.5;
+  const reps = card.repetitions || 0;
+  const lapses = card.lapses || 0;
+  const last = card.lastReviewedAt ? new Date(card.lastReviewedAt).getTime() : 0;
+  const next = card.nextReview ? new Date(card.nextReview).getTime() : now;
+
+  // Tỉ lệ overdue: thời gian trôi kể từ kế hoạch ôn / khoảng cách dự kiến
+  // = 0 nếu chưa đến hạn, > 1 khi vượt quá khoảng giãn cách
+  const overdueDays = Math.max(0, (now - next) / 86400000);
+  const overdueRatio = overdueDays / interval;
+
+  // Khoảng thời gian từ lần ôn cuối (dùng cho từ chưa từng ôn → ưu tiên cao)
+  const sinceLastDays = last ? (now - last) / 86400000 : interval + 1;
+
+  let score = 0;
+  // 1) Từ mới chưa được luyện kỹ → ưu tiên cao
+  if (reps < 2) score += 60;
+  // 2) Từ khó (EF thấp) → ưu tiên
+  if (ef < 2.5) score += (2.5 - ef) * 40;
+  // 3) Đã quên nhiều lần → ưu tiên (memory leech)
+  score += Math.min(60, lapses * 15);
+  // 4) Vượt hạn càng lâu so với chu kỳ → ưu tiên
+  score += Math.min(80, overdueRatio * 50);
+  // 5) Bỏ lâu chưa ôn → ưu tiên nhẹ
+  score += Math.min(20, sinceLastDays / 7 * 4);
+  // 6) GIẢM ưu tiên với từ đã ghi nhớ tốt (interval & repetitions cao, EF cao)
+  if (reps >= 4 && interval >= 14) score -= 25;
+  if (reps >= 6 && interval >= 30) score -= 25;
+  if (ef >= 2.6 && reps >= 3) score -= 10;
+  // 7) Vừa ôn rất gần đây (< 6h) → đẩy xuống cuối để xoay vòng phiên
+  if (last && now - last < 6 * 3600 * 1000) score -= 80;
+
+  return score;
 }
 
 function loadUserData(userId) {
@@ -110,6 +185,19 @@ function sanitizeData(data) {
   // Giới hạn activeDays
   if (Array.isArray(sanitized.activeDays) && sanitized.activeDays.length > 365) {
     sanitized.activeDays = sanitized.activeDays.slice(-365);
+  }
+
+  // Giới hạn dailyJournal: chỉ giữ 180 ngày gần nhất
+  if (sanitized.dailyJournal && typeof sanitized.dailyJournal === 'object') {
+    const keys = Object.keys(sanitized.dailyJournal).sort();
+    if (keys.length > 180) {
+      const keep = keys.slice(-180);
+      const next = {};
+      for (const k of keep) next[k] = sanitized.dailyJournal[k];
+      sanitized.dailyJournal = next;
+    }
+  } else {
+    sanitized.dailyJournal = {};
   }
 
   return sanitized;
@@ -218,6 +306,21 @@ function mergeProgress(local, remote) {
   const localDays = new Set(local.activeDays || []);
   const remoteDays = new Set(remote.activeDays || []);
   merged.activeDays = [...new Set([...localDays, ...remoteDays])];
+
+  // Merge dailyJournal – mỗi ngày giữ counters CỘNG max(local, remote) per key
+  // (an toàn nhất khi conflict: dùng max để không mất số đếm)
+  const lj = local.dailyJournal || {};
+  const rj = remote.dailyJournal || {};
+  const journalKeys = new Set([...Object.keys(lj), ...Object.keys(rj)]);
+  const mergedJournal = {};
+  for (const day of journalKeys) {
+    const a = lj[day] || {};
+    const b = rj[day] || {};
+    const out = { ...EMPTY_JOURNAL_ENTRY };
+    for (const k of JOURNAL_KEYS) out[k] = Math.max(a[k] || 0, b[k] || 0);
+    mergedJournal[day] = out;
+  }
+  merged.dailyJournal = mergedJournal;
 
   // Keep streak & lastActiveDate from the more recent source
   if ((local.lastActiveDate || '') > (remote.lastActiveDate || '')) {
@@ -389,7 +492,8 @@ export function UserProvider({ children }) {
 
   const addXP = useCallback((amount) => {
     setUserData((prev) => {
-      const next = { ...prev, totalXP: prev.totalXP + amount };
+      const dailyJournal = bumpJournal(prev, 'xp', amount);
+      const next = { ...prev, totalXP: prev.totalXP + amount, dailyJournal };
       return checkAchievements(next);
     });
   }, []);
@@ -414,11 +518,27 @@ export function UserProvider({ children }) {
   const markLessonCompleted = useCallback((lessonId) => {
     setUserData((prev) => {
       if (prev.completedLessons.includes(lessonId)) return prev;
+      const dailyJournal = bumpJournal(prev, 'lessons', 1);
+
+      // 🔄 Tự động nạp toàn bộ từ vựng của bài vào kho ôn tập SRS
+      // (loại bỏ thao tác "Thêm từ vào kho" thủ công)
+      const lesson = LESSONS.find((l) => l.id === lessonId);
+      const srsData = { ...prev.srsData };
+      if (lesson?.vocabulary) {
+        for (const v of lesson.vocabulary) {
+          if (!srsData[v.word]) {
+            srsData[v.word] = { ...SRS_DEFAULT, nextReview: new Date().toISOString() };
+          }
+        }
+      }
+
       const next = {
         ...prev,
         completedLessons: [...prev.completedLessons, lessonId],
         lessonsCompleted: prev.lessonsCompleted + 1,
         dailyTasks: { ...prev.dailyTasks, lessonDone: true },
+        dailyJournal,
+        srsData,
       };
       return checkAchievements(next);
     });
@@ -426,10 +546,15 @@ export function UserProvider({ children }) {
 
   const incrementQuizzes = useCallback((isPerfect) => {
     setUserData((prev) => {
+      let dailyJournal = bumpJournal(prev, 'quizzes', 1);
+      if (isPerfect) {
+        dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'perfectQuizzes', 1);
+      }
       const next = {
         ...prev,
         quizzesCompleted: prev.quizzesCompleted + 1,
         perfectQuizzes: isPerfect ? prev.perfectQuizzes + 1 : prev.perfectQuizzes,
+        dailyJournal,
       };
       return checkAchievements(next);
     });
@@ -437,10 +562,32 @@ export function UserProvider({ children }) {
 
   const setWordStatus = useCallback((word, status) => {
     setUserData((prev) => {
+      const prevStatus = prev.wordStatus?.[word];
       const wordStatus = { ...prev.wordStatus, [word]: status };
       const wordsLearned = Object.values(wordStatus).filter((s) => s === 'learned').length;
       const dailyTasks = { ...prev.dailyTasks, vocabDone: true };
-      const next = { ...prev, wordStatus, wordsLearned, dailyTasks, _lastModified: new Date().toISOString() };
+      // Chỉ bơm journal khi từ chuyển SANG 'learned' (lần đầu)
+      const dailyJournal =
+        status === 'learned' && prevStatus !== 'learned'
+          ? bumpJournal(prev, 'words', 1)
+          : prev.dailyJournal || {};
+
+      // 🔄 Tự động thêm vào kho SRS khi từ được đánh dấu "đã thuộc"
+      // hoặc đang học → không cần nút "Thêm từ vào kho" thủ công nữa.
+      const srsData = { ...prev.srsData };
+      if ((status === 'learned' || status === 'learning') && !srsData[word]) {
+        srsData[word] = { ...SRS_DEFAULT, nextReview: new Date().toISOString() };
+      }
+
+      const next = {
+        ...prev,
+        wordStatus,
+        wordsLearned,
+        dailyTasks,
+        dailyJournal,
+        srsData,
+        _lastModified: new Date().toISOString(),
+      };
       return checkAchievements(next);
     });
   }, []);
@@ -457,7 +604,8 @@ export function UserProvider({ children }) {
       const srsData = { ...prev.srsData };
       const card = srsData[word] || { ...SRS_DEFAULT };
       srsData[word] = srsGrade(card, quality);
-      return { ...prev, srsData };
+      const dailyJournal = bumpJournal(prev, 'reviews', 1);
+      return { ...prev, srsData, dailyJournal };
     });
   }, []);
 
@@ -466,15 +614,14 @@ export function UserProvider({ children }) {
     const due = [];
     for (const [word, card] of Object.entries(userData.srsData || {})) {
       if (!card.nextReview || new Date(card.nextReview).getTime() <= now) {
-        due.push({ word, ...card });
+        due.push({ word, ...card, _score: forgettingScore(card, now) });
       }
     }
-    // Sort by overdue first (oldest nextReview)
-    due.sort((a, b) => {
-      const at = a.nextReview ? new Date(a.nextReview).getTime() : 0;
-      const bt = b.nextReview ? new Date(b.nextReview).getTime() : 0;
-      return at - bt;
-    });
+    // 🧠 Sắp xếp theo "khả năng quên" thay vì tuyến tính theo ngày.
+    // Từ user đã nhớ kỹ (ef cao, interval dài) sẽ tụt xuống cuối,
+    // nhường chỗ cho từ thực sự cần ôn. Từ vừa ôn xong (< 6h) bị
+    // đẩy xuống cuối → phiên kế tiếp sẽ là 20 từ KHÁC.
+    due.sort((a, b) => b._score - a._score);
     return due;
   }, [userData.srsData]);
 

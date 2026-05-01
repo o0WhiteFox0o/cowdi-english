@@ -5,6 +5,7 @@ import { VOCAB_TOPICS } from '../../data/vocab-topics';
 import { useUser } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
+import StudyJournalCard from './StudyJournalCard';
 
 const SESSION_SIZE = 20;
 
@@ -156,7 +157,7 @@ function checkClozeAnswer(input, expected) {
 
 export default function ReviewPage() {
   const navigate = useNavigate();
-  const { userData, reviewWord, getWordsForReview, addXP, addWordToSRS } = useUser();
+  const { userData, reviewWord, getWordsForReview, addXP } = useUser();
   const showToast = useToast();
   const { play } = useSound();
 
@@ -187,26 +188,6 @@ export default function ReviewPage() {
     return min === Infinity ? null : min;
   }, [srsEntries]);
 
-  const addableCount = useMemo(() => {
-    let n = 0;
-    const seen = new Set();
-    for (const [word, status] of Object.entries(userData.wordStatus || {})) {
-      if ((status === 'learned' || status === 'learning') && !userData.srsData?.[word]) {
-        if (!seen.has(word)) { seen.add(word); n += 1; }
-      }
-    }
-    for (const lesson of LESSONS) {
-      if (userData.completedLessons.includes(lesson.id)) {
-        for (const v of lesson.vocabulary) {
-          if (!userData.srsData?.[v.word] && !seen.has(v.word)) {
-            seen.add(v.word); n += 1;
-          }
-        }
-      }
-    }
-    return n;
-  }, [userData]);
-
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
@@ -216,28 +197,6 @@ export default function ReviewPage() {
       speechSynthesis.speak(u);
     }
   }, []);
-
-  function addAllLearnedToSRS() {
-    let added = 0;
-    for (const [word, status] of Object.entries(userData.wordStatus || {})) {
-      if ((status === 'learned' || status === 'learning') && !userData.srsData?.[word]) {
-        addWordToSRS(word); added += 1;
-      }
-    }
-    for (const lesson of LESSONS) {
-      if (userData.completedLessons.includes(lesson.id)) {
-        for (const v of lesson.vocabulary) {
-          if (!userData.srsData?.[v.word]) { addWordToSRS(v.word); added += 1; }
-        }
-      }
-    }
-    if (added > 0) {
-      showToast(`Đã thêm ${added} từ vào kho ôn tập! 📚`, 'success');
-      play('click');
-    } else {
-      showToast('Tất cả từ đã học đều đã có trong kho ôn tập', 'info');
-    }
-  }
 
   function handleGrade(quality) {
     const word = dueWords[idx]?.word;
@@ -533,7 +492,6 @@ export default function ReviewPage() {
 
   const hasDue = dueWords.length > 0;
   const hasKho = totalSRS > 0;
-  const canAdd = addableCount > 0;
   const sessionCount = Math.min(dueWords.length, SESSION_SIZE);
   const previewWords = dueWords.slice(0, 5).map((d) => wordMap[d.word]).filter(Boolean);
   const nextInDays = nextReviewAt
@@ -559,6 +517,9 @@ export default function ReviewPage() {
           </p>
         </div>
       </div>
+
+      {/* Nhật ký học tập */}
+      <StudyJournalCard />
 
       {/* Primary action */}
       {hasDue ? (
@@ -626,15 +587,9 @@ export default function ReviewPage() {
             ) : (
               <p className="text-muted mb-3">Chưa có lịch ôn tiếp — hãy học thêm bài mới để thêm từ vào kho.</p>
             )}
-            {canAdd ? (
-              <button className="btn btn-outline-cowdi" onClick={addAllLearnedToSRS}>
-                ➕ Thêm {addableCount} từ mới vào kho ôn tập
-              </button>
-            ) : (
-              <button className="btn btn-outline-cowdi" onClick={() => navigate('/lessons')}>
-                📚 Học bài mới để có thêm từ ôn
-              </button>
-            )}
+            <button className="btn btn-outline-cowdi" onClick={() => navigate('/lessons')}>
+              📚 Học bài mới để có thêm từ ôn
+            </button>
           </div>
         </div>
       ) : (
@@ -646,20 +601,12 @@ export default function ReviewPage() {
             <div style={{ fontSize: '3rem' }}>👋</div>
             <h5 className="fw-bold mt-2 mb-1">Bắt đầu kho ôn tập của bạn</h5>
             <p className="text-muted small mb-3">
-              Kho ôn tập đang trống. Hãy nạp vào những từ bạn đã học để Cowdi giúp bạn nhớ lâu dài.
+              Kho ôn tập sẽ <strong>tự động</strong> được nạp khi bạn học bài hoặc đánh dấu từ là "đã thuộc".
+              Cowdi tự lo phần xếp lịch — bạn chỉ cần học và ôn thôi! 💪
             </p>
-            {canAdd ? (
-              <button className="btn btn-cowdi-primary btn-lg w-100" onClick={addAllLearnedToSRS}>
-                ➕ Thêm {addableCount} từ đã học vào kho
-              </button>
-            ) : (
-              <>
-                <p className="small text-muted mb-2">Bạn cần học ít nhất 1 bài trước đã.</p>
-                <button className="btn btn-cowdi-primary btn-lg w-100" onClick={() => navigate('/lessons')}>
-                  📚 Vào học bài đầu tiên
-                </button>
-              </>
-            )}
+            <button className="btn btn-cowdi-primary btn-lg w-100" onClick={() => navigate('/lessons')}>
+              📚 Vào học bài đầu tiên
+            </button>
           </div>
         </div>
       )}
@@ -687,20 +634,14 @@ export default function ReviewPage() {
       {/* Hướng dẫn 3 bước */}
       <div className="card shadow-sm mb-4" style={{ borderRadius: 16 }}>
         <div className="card-body">
-          <h6 className="fw-bold mb-3">✨ Cách dùng trong 3 bước</h6>
+          <h6 className="fw-bold mb-3">✨ Cách hoạt động</h6>
           <div className="row g-3">
-            <StepCard num="1️⃣" title="Thêm từ vào kho" desc="Từ các bài đã học sẽ được nạp vào hệ thống SRS." />
-            <StepCard num="2️⃣" title="Lật thẻ & tự kiểm tra" desc="Nhìn từ, đoán nghĩa, rồi lật thẻ để so đáp án." />
-            <StepCard num="3️⃣" title="Chấm mức nhớ" desc="AI tự xếp lịch: nhớ tốt → ôn thưa, quên → ôn lại sớm." />
+            <StepCard num="1️⃣" title="Tự động nạp từ" desc="Học xong bài hoặc đánh dấu 'đã thuộc' → từ tự vào kho ôn." />
+            <StepCard num="2️⃣" title="AI chọn 20 từ ưu tiên" desc="Ưu tiên từ khó, từ hay quên — bỏ qua từ bạn đã nhớ kỹ." />
+            <StepCard num="3️⃣" title="Chấm mức nhớ" desc="Cowdi xếp lịch: nhớ tốt → ôn thưa, quên → ôn lại sớm." />
           </div>
         </div>
       </div>
-
-      {hasKho && canAdd && (
-        <button className="btn btn-outline-cowdi w-100 mb-3" onClick={addAllLearnedToSRS}>
-          ➕ Thêm {addableCount} từ đã học mới vào kho
-        </button>
-      )}
 
       <details className="card shadow-sm" style={{ borderRadius: 16 }}>
         <summary className="card-body fw-bold small" style={{ cursor: 'pointer', listStyle: 'revert' }}>

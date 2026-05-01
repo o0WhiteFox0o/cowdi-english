@@ -451,7 +451,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userData, addXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus } = useUser();
+  const { userData, addXP, addSkillXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus } = useUser();
   const { onLessonComplete, addCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();
@@ -480,6 +480,9 @@ export default function LessonDetailPage() {
   // Speak-along state
   const [speakIdx, setSpeakIdx] = useState(0);
   const [speakPlaying, setSpeakPlaying] = useState(false);
+  const [speakScores, setSpeakScores] = useState({}); // { [idx]: score 0..100 }
+  const [speakDone, setSpeakDone] = useState(false);
+  const speakAwardedRef = useRef(false);
 
   // Listen-sentence state (MCQ: nghe câu → chọn nghĩa)
   const [listenIdx, setListenIdx] = useState(0);
@@ -495,7 +498,7 @@ export default function LessonDetailPage() {
   const [recError, setRecError] = useState('');
   const recognitionRef = useRef(null);
 
-  const startRecording = useCallback((expectedText) => {
+  const startRecording = useCallback((expectedText, idx) => {
     if (!SpeechRecognitionAPI) {
       setRecError('Trình duyệt không hỗ trợ nhận diện giọng nói. Vui lòng dùng Chrome hoặc Edge.');
       return;
@@ -523,6 +526,14 @@ export default function LessonDetailPage() {
         setTranscript(finalText);
         const result = scorePronunciation(expectedText, finalText);
         setSpeakResult(result);
+        if (typeof idx === 'number') {
+          setSpeakScores(prev => {
+            const cur = prev[idx];
+            // chỉ ghi điểm tốt hơn lần trước
+            if (cur != null && cur >= result.score) return prev;
+            return { ...prev, [idx]: result.score };
+          });
+        }
         setIsRecording(false);
         if (result.score >= 70) play('correct');
         else if (result.score >= 40) play('click');
@@ -550,14 +561,23 @@ export default function LessonDetailPage() {
     setIsRecording(false);
   }, []);
 
-  const speakWord = useCallback((text, rate = 0.8) => {
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = rate;
-      speechSynthesis.speak(u);
-    }
+  const speakWord = useCallback((text, rate = 0.8, opts = {}) => {
+    if (!('speechSynthesis' in window) || !text) return Promise.resolve();
+    return new Promise((resolve) => {
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        // Auto-detect: nếu chuỗi có dấu tiếng Việt → đọc giọng VN, ngược lại → giọng Anh
+        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(text);
+        u.lang = opts.lang || (hasVietnamese ? 'vi-VN' : 'en-US');
+        u.rate = rate;
+        u.onend = () => resolve();
+        u.onerror = () => resolve();
+        speechSynthesis.speak(u);
+      } catch {
+        resolve();
+      }
+    });
   }, []);
 
   const speakSlow = useCallback((text) => speakWord(text, 0.55), [speakWord]);
@@ -663,6 +683,34 @@ export default function LessonDetailPage() {
     }
   }
 
+  function finalizeSpeak() {
+    if (speakAwardedRef.current) return;
+    const scores = Object.values(speakScores);
+    if (scores.length === 0) {
+      showToast('Hãy đọc ít nhất 1 câu để nhận điểm nhé!', 'warning');
+      return;
+    }
+    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    // XP = avg% × số câu đã đọc × 0.2 (vd: avg 80%, 5 câu → 80 XP)
+    const xp = Math.max(5, Math.round(avg * scores.length * 0.2));
+    addXP(xp);
+    addSkillXP('speaking', xp);
+    speakAwardedRef.current = true;
+    setSpeakDone(true);
+    play('celebration');
+    showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} XP, +${xp} điểm Speaking`, 'success');
+  }
+
+  function resetSpeak() {
+    setSpeakIdx(0);
+    setSpeakScores({});
+    setSpeakDone(false);
+    speakAwardedRef.current = false;
+    setTranscript('');
+    setSpeakResult(null);
+    setRecError('');
+  }
+
   /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
   useEffect(() => {
     if (tab !== 'listen' || listenQs.length === 0 || listenDone) return;
@@ -672,11 +720,24 @@ export default function LessonDetailPage() {
     return () => clearTimeout(t);
   }, [tab, listenIdx, listenQs, listenDone, speakWord]);
 
+  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới — giúp người học nghe nhiều hơn */
+  useEffect(() => {
+    if (!quizMode || finished) return;
+    const q = quiz[qIndex];
+    if (!q) return;
+    const t = setTimeout(() => speakWord(q.question, 0.85), 250);
+    return () => {
+      clearTimeout(t);
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    };
+  }, [quizMode, qIndex, finished, quiz, speakWord]);
+
   /* ── Quiz answer handler ── */
-  function handleAnswer(idx) {
+  async function handleAnswer(idx) {
     if (answered !== null) return;
     setAnswered(idx);
-    const isCorrect = idx === quiz[qIndex].correct;
+    const q = quiz[qIndex];
+    const isCorrect = idx === q.correct;
     if (isCorrect) {
       setScore((s) => s + 1);
       setCorrectAnim(true);
@@ -687,25 +748,39 @@ export default function LessonDetailPage() {
       play('wrong');
       setTimeout(() => setWrongAnim(false), 500);
     }
-    setTimeout(() => {
-      if (qIndex + 1 < quiz.length) {
-        setQIndex((i) => i + 1);
-        setAnswered(null);
-      } else {
-        setFinished(true);
-        const finalScore = isCorrect ? score + 1 : score;
-        const isPerfect = finalScore === quiz.length;
-        const xp = finalScore * 10;
-        addXP(xp);
-        markLessonCompleted(lesson.id);
-        incrementQuizzes(isPerfect);
-        onLessonComplete();
-        addCoins(10);
-        play('celebration');
-        spawnConfetti(confettiRef);
-        showToast(`+${xp} XP! +10 🪙 Bạn đã hoàn thành bài học! 🎉`, 'success');
-      }
-    }, 1200);
+
+    // 🔊 Khi trả lời ĐÚNG → đọc xác nhận đáp án (giọng tự detect EN/VN)
+    //    rồi mới sang câu kế tiếp. Trả lời sai → giữ delay 1.2s như cũ.
+    if (isCorrect) {
+      // Chờ animation correct hiện ra rồi mới phát âm để không bị cắt
+      await new Promise((r) => setTimeout(r, 350));
+      await speakWord(q.options[q.correct], 0.85);
+      // Pause ngắn cho dễ chịu
+      await new Promise((r) => setTimeout(r, 300));
+      goToNextQuestion(true);
+    } else {
+      setTimeout(() => goToNextQuestion(false), 1200);
+    }
+  }
+
+  function goToNextQuestion(wasCorrect) {
+    if (qIndex + 1 < quiz.length) {
+      setQIndex((i) => i + 1);
+      setAnswered(null);
+    } else {
+      setFinished(true);
+      const finalScore = wasCorrect ? score + 1 : score;
+      const isPerfect = finalScore === quiz.length;
+      const xp = finalScore * 10;
+      addXP(xp);
+      markLessonCompleted(lesson.id);
+      incrementQuizzes(isPerfect);
+      onLessonComplete();
+      addCoins(10);
+      play('celebration');
+      spawnConfetti(confettiRef);
+      showToast(`+${xp} XP! +10 🪙 Bạn đã hoàn thành bài học! 🎉`, 'success');
+    }
   }
 
   function restartQuiz() {
@@ -790,7 +865,17 @@ export default function LessonDetailPage() {
         </div>
         <div className={`card shadow-sm mb-4 ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
           <div className="card-body py-4">
-            <p className="fs-5 fw-bold mb-0 text-center">{q.question}</p>
+            <p className="fs-5 fw-bold mb-2 text-center">{q.question}</p>
+            <div className="text-center">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => speakWord(q.question, 0.85)}
+                title="Nghe lại câu hỏi"
+              >
+                🔊 Nghe lại
+              </button>
+            </div>
           </div>
         </div>
         <div className="row g-2" key={qIndex}>
@@ -1018,7 +1103,69 @@ export default function LessonDetailPage() {
       )}
 
       {/* ── SPEAK ALONG TAB ── */}
-      {tab === 'speak' && (
+      {tab === 'speak' && speakDone && (
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
+            <div className="card-body text-center py-4">
+              <div style={{ fontSize: '3.5rem' }}>🎉🎤</div>
+              <h4 className="fw-bold mt-2">Hoàn thành luyện nói!</h4>
+              {(() => {
+                const scores = Object.values(speakScores);
+                const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+                return (
+                  <p className="mb-0 opacity-90">
+                    Trung bình: <b>{avg}%</b> · {scores.length}/{speakSentences.length} câu đã đọc
+                  </p>
+                );
+              })()}
+            </div>
+          </div>
+
+          <div className="card shadow-sm mb-3">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3 text-cowdi-primary">📋 Kết quả từng câu</h6>
+              <div className="d-flex flex-column gap-2">
+                {speakSentences.map((s, i) => {
+                  const sc = speakScores[i];
+                  const lbl = sc != null ? getScoreLabel(sc) : null;
+                  return (
+                    <div key={i} className="d-flex align-items-center gap-2 p-2 rounded" style={{ background: '#f8f9fa' }}>
+                      <span className="badge bg-light text-muted" style={{ minWidth: 28 }}>{i + 1}</span>
+                      <div className="flex-grow-1 text-start">
+                        <div className="fw-bold small">{s.en}</div>
+                        <div className="text-muted" style={{ fontSize: '0.78rem' }}>{s.vi}</div>
+                      </div>
+                      {sc != null ? (
+                        <span className="badge rounded-pill" style={{ background: lbl.color, color: '#fff', fontSize: '0.85rem' }}>
+                          {sc}%
+                        </span>
+                      ) : (
+                        <span className="badge rounded-pill bg-secondary">—</span>
+                      )}
+                      <button
+                        className="btn btn-sm btn-outline-cowdi"
+                        title="Nghe lại"
+                        onClick={() => speakWord(s.en)}
+                      >🔊</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="d-flex gap-2 justify-content-center">
+            <button className="btn btn-cowdi-primary" onClick={resetSpeak}>
+              <i className="fas fa-redo me-1"></i>Luyện lại
+            </button>
+            <button className="btn btn-outline-secondary" onClick={() => setTab('quiz')}>
+              Sang Quiz <i className="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tab === 'speak' && !speakDone && (
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
             <div className="card-body text-center py-4">
@@ -1039,8 +1186,15 @@ export default function LessonDetailPage() {
             </div>
           )}
 
-          <div className="mb-3 text-center text-muted fw-bold">
-            {speakIdx + 1} / {speakSentences.length}
+          <div className="mb-3 text-center">
+            <div className="text-muted fw-bold">
+              {speakIdx + 1} / {speakSentences.length}
+            </div>
+            <div className="small text-muted mt-1">
+              <span className="badge bg-success-subtle text-success">
+                ✅ {Object.keys(speakScores).length} / {speakSentences.length} câu đã chấm điểm
+              </span>
+            </div>
           </div>
 
           {/* Sentence card */}
@@ -1085,7 +1239,7 @@ export default function LessonDetailPage() {
                       setTranscript('');
                       setSpeakResult(null);
                       setRecError('');
-                      startRecording(speakSentences[speakIdx].en);
+                      startRecording(speakSentences[speakIdx].en, speakIdx);
                     }}
                     disabled={!SpeechRecognitionAPI}
                     title={!SpeechRecognitionAPI ? 'Trình duyệt không hỗ trợ' : 'Nhấn để nói'}
@@ -1170,7 +1324,7 @@ export default function LessonDetailPage() {
                       setTranscript('');
                       setSpeakResult(null);
                       setRecError('');
-                      startRecording(speakSentences[speakIdx].en);
+                      startRecording(speakSentences[speakIdx].en, speakIdx);
                     }}
                   >
                     🔄 Thử lại
@@ -1181,12 +1335,20 @@ export default function LessonDetailPage() {
           </div>
 
           {/* Navigation */}
-          <div className="d-flex gap-3 justify-content-center">
+          <div className="d-flex gap-2 justify-content-center flex-wrap">
             <button className="btn btn-outline-secondary" disabled={speakIdx === 0} onClick={() => { setSpeakIdx((i) => i - 1); setTranscript(''); setSpeakResult(null); setRecError(''); }}>
               <i className="fas fa-chevron-left"></i> Trước
             </button>
             <button className="btn btn-outline-secondary" disabled={speakIdx === speakSentences.length - 1} onClick={() => { setSpeakIdx((i) => i + 1); setTranscript(''); setSpeakResult(null); setRecError(''); }}>
               Tiếp <i className="fas fa-chevron-right"></i>
+            </button>
+            <button
+              className="btn btn-cowdi-primary"
+              disabled={Object.keys(speakScores).length === 0}
+              onClick={finalizeSpeak}
+              title={Object.keys(speakScores).length === 0 ? 'Hãy đọc ít nhất 1 câu' : 'Kết thúc & nhận điểm'}
+            >
+              🏁 Hoàn thành
             </button>
           </div>
           {/* Progress */}

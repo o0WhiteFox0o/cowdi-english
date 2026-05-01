@@ -62,14 +62,18 @@ export default function VocabularyPage() {
     return { learned, total };
   }, [getSubtopicProgress]);
 
-  const speakWord = useCallback((text) => {
-    if ('speechSynthesis' in window) {
+  const speakWord = useCallback((text, rate = 0.85) => {
+    if (!text || !('speechSynthesis' in window)) return;
+    try {
+      speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'en-US';
-      u.rate = 0.8;
+      u.rate = rate;
       speechSynthesis.speak(u);
-    }
+    } catch {}
   }, []);
+
+  const speakSlow = useCallback((text) => speakWord(text, 0.55), [speakWord]);
 
   function openTopic(topic) {
     setSelectedTopic(topic);
@@ -297,17 +301,51 @@ export default function VocabularyPage() {
                 <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{currentWord.illustration}</div>
                 <h2 className="mb-2">{currentWord.word}</h2>
                 <p className="mb-2" style={{ color: 'rgba(255,255,255,0.8)' }}>{currentWord.phonetic}</p>
-                <button
-                  className="btn btn-sm btn-light mb-2"
-                  onClick={(e) => { e.stopPropagation(); speakWord(currentWord.word); }}
-                >
-                  🔊
-                </button>
+                <div className="d-flex gap-2 justify-content-center mb-2">
+                  <button
+                    className="btn btn-sm btn-light"
+                    title="Đọc bình thường"
+                    onClick={(e) => { e.stopPropagation(); speakWord(currentWord.word); }}
+                  >🔊 Nghe</button>
+                  <button
+                    className="btn btn-sm btn-outline-light"
+                    title="Đọc chậm"
+                    onClick={(e) => { e.stopPropagation(); speakSlow(currentWord.word); }}
+                  >🐌 Chậm</button>
+                </div>
                 <small style={{ color: 'rgba(255,255,255,0.6)' }}>Nhấn để lật thẻ</small>
               </div>
               <div className="flashcard-back">
                 <h2 className="text-cowdi-primary mb-2">{currentWord.meaning}</h2>
-                <p className="fst-italic text-muted">"{currentWord.example}"</p>
+                {/* Examples — multiple usage contexts */}
+                {(() => {
+                  const list = Array.isArray(currentWord.examples) && currentWord.examples.length > 0
+                    ? currentWord.examples
+                    : (currentWord.example ? [{ en: currentWord.example, vi: '' }] : []);
+                  return list.map((ex, i) => (
+                    <div key={i} className="text-start mb-2 p-2 rounded" style={{ background: 'rgba(0,0,0,0.04)' }}>
+                      {ex.context && (
+                        <div className="badge bg-info-subtle text-info mb-1" style={{ fontSize: '0.7rem' }}>{ex.context}</div>
+                      )}
+                      <div className="d-flex align-items-start gap-1">
+                        <p className="fst-italic mb-1 flex-grow-1" style={{ fontSize: '0.92rem' }}>"{ex.en}"</p>
+                        <button
+                          className="btn btn-sm btn-link p-0 text-decoration-none"
+                          title="Đọc câu"
+                          onClick={(e) => { e.stopPropagation(); speakWord(ex.en); }}
+                        >🔊</button>
+                        <button
+                          className="btn btn-sm btn-link p-0 text-decoration-none"
+                          title="Đọc chậm"
+                          onClick={(e) => { e.stopPropagation(); speakSlow(ex.en); }}
+                        >🐌</button>
+                      </div>
+                      {ex.vi && (
+                        <div className="text-muted" style={{ fontSize: '0.78rem' }}>→ {ex.vi}</div>
+                      )}
+                    </div>
+                  ));
+                })()}
                 {currentWord.memoryTip && (
                   <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', fontSize: '0.85rem' }}>
                     <strong>💡 Mẹo nhớ:</strong> {currentWord.memoryTip}
@@ -359,9 +397,25 @@ export default function VocabularyPage() {
                     <div className="flex-grow-1">
                       <span className="fw-bold text-cowdi-primary me-2">{w.word}</span>
                       <span className="text-muted font-monospace small me-2">{w.phonetic}</span>
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(w.word)}>🔊</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" title="Đọc từ" onClick={() => speakWord(w.word)}>🔊</button>
+                      <button className="btn btn-sm btn-outline-secondary" title="Đọc chậm" onClick={() => speakSlow(w.word)}>🐌</button>
                       <div className="mt-1">{w.meaning}</div>
-                      <div className="text-muted small fst-italic">{w.example}</div>
+                      {(() => {
+                        const list = Array.isArray(w.examples) && w.examples.length > 0
+                          ? w.examples
+                          : (w.example ? [{ en: w.example, vi: '' }] : []);
+                        return list.map((ex, i) => (
+                          <div key={i} className="mt-1 d-flex align-items-start gap-1 flex-wrap">
+                            <div className="text-muted small fst-italic flex-grow-1">
+                              {ex.context && <span className="badge bg-info-subtle text-info me-1" style={{ fontSize: '0.65rem' }}>{ex.context}</span>}
+                              "{ex.en}"
+                              {ex.vi && <span className="text-muted ms-1" style={{ fontStyle: 'normal' }}>— {ex.vi}</span>}
+                            </div>
+                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc câu" onClick={() => speakWord(ex.en)}>🔊</button>
+                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc chậm" onClick={() => speakSlow(ex.en)}>🐌</button>
+                          </div>
+                        ));
+                      })()}
                       {w.memoryTip && (
                         <div className="mt-1 small" style={{ color: '#b8860b' }}>💡 {w.memoryTip}</div>
                       )}

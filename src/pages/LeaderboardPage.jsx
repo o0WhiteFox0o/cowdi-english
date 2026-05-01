@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePet } from '../hooks/usePet';
 import { useAuth } from '../hooks/useAuth';
-import { PET_REGISTRY, calculatePowerScore, getSkillLevel, SKILL_META, getPetEvolution } from '../data/pets';
+import { PET_REGISTRY, calculatePowerScore, SKILL_META, getPetEvolution } from '../data/pets';
 
 const TABS = [
   { id: 'power', icon: '⚡', label: 'Sức mạnh' },
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div className="text-end">
                       {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power}</span>}
-                      {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} Lv.{getSkillLevel(entry.skill || 0)}</span>}
+                      {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} {entry.skill || 0} điểm</span>}
                       {tab === 'collection' && <span className="badge bg-success">📦 {entry.collectionCount}</span>}
                     </div>
                   </div>
