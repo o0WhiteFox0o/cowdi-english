@@ -103,7 +103,12 @@ function shuffle(arr) {
 function speakText(text, rate = 0.9) {
   if (!('speechSynthesis' in window) || !text) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const clean = String(text)
+    .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!clean) return;
+  const u = new SpeechSynthesisUtterance(clean);
   u.lang = 'en-US';
   u.rate = rate;
   speechSynthesis.speak(u);
@@ -688,7 +693,12 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
   const speakWord = useCallback((text, rate = 0.75) => {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+      const clean = String(text || '')
+        .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!clean) return;
+      const u = new SpeechSynthesisUtterance(clean);
       u.lang = 'en-US';
       u.rate = rate;
       speechSynthesis.speak(u);

@@ -18,8 +18,13 @@ export const EXAM_PATHS = [
         color: "#FFA726",
         lessons: [
           "ielts-foundation-vocab",
+          "ielts-foundation-grammar",
+          "ielts-foundation-reading",
+          "ielts-foundation-writing",
           "ielts-foundation-listening",
-          "ielts-foundation-speaking"
+          "ielts-foundation-speaking",
+          "ielts-foundation-pronunciation",
+          "ielts-foundation-numbers"
         ],
         checkpoint: {
           title: "Kiểm tra IELTS Foundation",
@@ -35,8 +40,13 @@ export const EXAM_PATHS = [
         color: "#FB8C00",
         lessons: [
           "ielts-pre-vocab",
+          "ielts-pre-grammar",
+          "ielts-pre-reading",
+          "ielts-pre-listening",
+          "ielts-pre-speaking",
           "ielts-pre-writing",
-          "ielts-pre-reading"
+          "ielts-pre-task1-bar",
+          "ielts-pre-task2-opinion"
         ],
         checkpoint: {
           title: "Kiểm tra IELTS Pre-Intermediate",

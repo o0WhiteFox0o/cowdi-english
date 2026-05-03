@@ -66,7 +66,12 @@ export default function VocabularyPage() {
     if (!text || !('speechSynthesis' in window)) return;
     try {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+      const clean = String(text)
+        .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!clean) return;
+      const u = new SpeechSynthesisUtterance(clean);
       u.lang = 'en-US';
       u.rate = rate;
       speechSynthesis.speak(u);

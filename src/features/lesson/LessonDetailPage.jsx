@@ -566,9 +566,14 @@ export default function LessonDetailPage() {
     return new Promise((resolve) => {
       try {
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
+        const clean = String(text)
+          .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!clean) { resolve(); return; }
+        const u = new SpeechSynthesisUtterance(clean);
         // Auto-detect: nếu chuỗi có dấu tiếng Việt → đọc giọng VN, ngược lại → giọng Anh
-        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(text);
+        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(clean);
         u.lang = opts.lang || (hasVietnamese ? 'vi-VN' : 'en-US');
         u.rate = rate;
         u.onend = () => resolve();

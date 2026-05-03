@@ -84,7 +84,13 @@ function speakText(text, rate = 0.9) {
   if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text));
+    // Loại bỏ phần chú thích trong ngoặc (...) [...] {...} để TTS đọc mượt hơn
+    const clean = String(text)
+      .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!clean) return;
+    const u = new SpeechSynthesisUtterance(clean);
     u.lang = 'en-US';
     u.rate = rate;
     window.speechSynthesis.speak(u);

@@ -52,6 +52,18 @@ import { IELTS_WRITING_TASK1_PROCESS_LESSON } from './ielts-writing-task1-proces
 import { IELTS_SPEAKING_PART2_LESSON } from './ielts-speaking-part2-cue.js';
 import { IELTS_SPEAKING_PART3_LESSON } from './ielts-speaking-part3-discussion.js';
 
+// ── 10 bài học bổ sung Foundation (3.0–4.0) & Pre-Intermediate (4.5–5.5) ──
+import { IELTS_FOUNDATION_GRAMMAR_LESSON }       from './ielts-foundation-grammar.js';
+import { IELTS_FOUNDATION_READING_LESSON }       from './ielts-foundation-reading.js';
+import { IELTS_FOUNDATION_WRITING_LESSON }       from './ielts-foundation-writing.js';
+import { IELTS_FOUNDATION_NUMBERS_LESSON }       from './ielts-foundation-numbers.js';
+import { IELTS_FOUNDATION_PRONUNCIATION_LESSON } from './ielts-foundation-pronunciation.js';
+import { IELTS_PRE_LISTENING_LESSON }            from './ielts-pre-listening.js';
+import { IELTS_PRE_SPEAKING_LESSON }             from './ielts-pre-speaking.js';
+import { IELTS_PRE_GRAMMAR_LESSON }              from './ielts-pre-grammar.js';
+import { IELTS_PRE_TASK1_BAR_LESSON }            from './ielts-pre-task1-bar.js';
+import { IELTS_PRE_TASK2_OPINION_LESSON }        from './ielts-pre-task2-opinion.js';
+
 export const TRACK_ID = "ielts";
 export const TRACK_LABEL = "IELTS";
 export const TRACK_ICON = "🎓";
@@ -59,12 +71,22 @@ export const TRACK_ICON = "🎓";
 export const LESSONS = [
   // Band 3.0 – 4.0 (Foundation)
   IELTS_FOUNDATION_VOCAB_LESSON,
+  IELTS_FOUNDATION_GRAMMAR_LESSON,
+  IELTS_FOUNDATION_READING_LESSON,
+  IELTS_FOUNDATION_WRITING_LESSON,
   IELTS_FOUNDATION_LISTENING_LESSON,
   IELTS_FOUNDATION_SPEAKING_LESSON,
+  IELTS_FOUNDATION_PRONUNCIATION_LESSON,
+  IELTS_FOUNDATION_NUMBERS_LESSON,
   // Band 4.5 – 5.5 (Pre-Intermediate)
   IELTS_PRE_VOCAB_LESSON,
-  IELTS_PRE_WRITING_LESSON,
+  IELTS_PRE_GRAMMAR_LESSON,
   IELTS_PRE_READING_LESSON,
+  IELTS_PRE_LISTENING_LESSON,
+  IELTS_PRE_SPEAKING_LESSON,
+  IELTS_PRE_WRITING_LESSON,
+  IELTS_PRE_TASK1_BAR_LESSON,
+  IELTS_PRE_TASK2_OPINION_LESSON,
   // Band 6.0 – 7.0 (Intermediate)
   IELTS_ACADEMIC_VOCAB_LESSON,
   IELTS_LISTENING_LESSON,
