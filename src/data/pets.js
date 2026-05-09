@@ -143,6 +143,26 @@ export const PINGU_IMAGES = {
   legendary: `${PINGU_IMG}/Pingu_legendary.webp`,
 };
 
+// ── Draco Image Paths ────────────────────────────────────────────────────────
+const DRACO_IMG = '/assets/images/pets/Draco';
+export const DRACO_IMAGES = {
+  egg: `${DRACO_IMG}/Draco_egg.webp`,
+  baby: `${DRACO_IMG}/Draco_baby.webp`,
+  junior: `${DRACO_IMG}/Draco_junior.webp`,
+  super: `${DRACO_IMG}/Draco_super.webp`,
+  legendary: `${DRACO_IMG}/Draco_legendary.webp`,
+};
+
+// ── Pumpkin Image Paths ──────────────────────────────────────────────────────
+const PUMPKIN_IMG = '/assets/images/pets/Pumpkin';
+export const PUMPKIN_IMAGES = {
+  egg: `${PUMPKIN_IMG}/Pumpkin_egg.webp`,
+  baby: `${PUMPKIN_IMG}/Pumpkin_baby.webp`,
+  junior: `${PUMPKIN_IMG}/Pumpkin_junior.webp`,
+  super: `${PUMPKIN_IMG}/Pumpkin_super.webp`,
+  legendary: `${PUMPKIN_IMG}/Pumpkin_legendary.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -529,11 +549,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 9, speaking: 9, reading: 9, writing: 9 },
     description: 'Rồng cổ đại, bậc thầy vạn vật, chỉ xuất hiện khi thu thập đủ tất cả.',
     evolutions: [
-      { stage: 0, name: 'Trứng Draco', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Draco', xp: 100, emoji: '🐲' },
-      { stage: 2, name: 'Junior Draco', xp: 500, emoji: '🐲' },
-      { stage: 3, name: 'Super Draco', xp: 1200, emoji: '🔥' },
-      { stage: 4, name: 'Legendary Draco', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Draco', xp: 0, emoji: '🥚', image: DRACO_IMAGES.egg },
+      { stage: 1, name: 'Baby Draco', xp: 100, emoji: '🐲', image: DRACO_IMAGES.baby },
+      { stage: 2, name: 'Junior Draco', xp: 500, emoji: '🐲', image: DRACO_IMAGES.junior },
+      { stage: 3, name: 'Super Draco', xp: 1200, emoji: '🔥', image: DRACO_IMAGES.super },
+      { stage: 4, name: 'Legendary Draco', xp: 2500, emoji: '👑', image: DRACO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'collection', value: 17 },
     chatMessages: {
@@ -557,11 +577,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Bí ngô phép thuật từ lễ hội Halloween, mang bonus XP đặc biệt.',
     evolutions: [
-      { stage: 0, name: 'Trứng Pumpkin', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Pumpkin', xp: 100, emoji: '🎃' },
-      { stage: 2, name: 'Junior Pumpkin', xp: 500, emoji: '🎃' },
-      { stage: 3, name: 'Super Pumpkin', xp: 1200, emoji: '👻' },
-      { stage: 4, name: 'Legendary Pumpkin', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Pumpkin', xp: 0, emoji: '🥚', image: PUMPKIN_IMAGES.egg },
+      { stage: 1, name: 'Baby Pumpkin', xp: 100, emoji: '🎃', image: PUMPKIN_IMAGES.baby },
+      { stage: 2, name: 'Junior Pumpkin', xp: 500, emoji: '🎃', image: PUMPKIN_IMAGES.junior },
+      { stage: 3, name: 'Super Pumpkin', xp: 1200, emoji: '👻', image: PUMPKIN_IMAGES.super },
+      { stage: 4, name: 'Legendary Pumpkin', xp: 2500, emoji: '👑', image: PUMPKIN_IMAGES.legendary },
     ],
     unlockCondition: { type: 'event', eventId: 'halloween' },
     chatMessages: {

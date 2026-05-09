@@ -105,6 +105,8 @@ function speakText(text, rate = 0.9) {
   speechSynthesis.cancel();
   const clean = String(text)
     .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+    .replace(/_+/g, ', ')
+    .replace(/\//g, ', ')
     .replace(/\s+/g, ' ')
     .trim();
   if (!clean) return;
@@ -695,6 +697,8 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
       speechSynthesis.cancel();
       const clean = String(text || '')
         .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+        .replace(/_+/g, ', ')
+        .replace(/\//g, ', ')
         .replace(/\s+/g, ' ')
         .trim();
       if (!clean) return;

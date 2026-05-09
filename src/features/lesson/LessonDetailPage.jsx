@@ -566,15 +566,18 @@ export default function LessonDetailPage() {
     return new Promise((resolve) => {
       try {
         speechSynthesis.cancel();
+        // Bỏ qua hoàn toàn các chuỗi tiếng Việt — Google đọc rất tệ
+        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(String(text));
+        if (hasVietnamese && !opts.lang) { resolve(); return; }
         const clean = String(text)
           .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+          .replace(/_+/g, ', ')
+          .replace(/\//g, ', ')
           .replace(/\s+/g, ' ')
           .trim();
         if (!clean) { resolve(); return; }
         const u = new SpeechSynthesisUtterance(clean);
-        // Auto-detect: nếu chuỗi có dấu tiếng Việt → đọc giọng VN, ngược lại → giọng Anh
-        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(clean);
-        u.lang = opts.lang || (hasVietnamese ? 'vi-VN' : 'en-US');
+        u.lang = opts.lang || 'en-US';
         u.rate = rate;
         u.onend = () => resolve();
         u.onerror = () => resolve();

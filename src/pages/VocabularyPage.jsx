@@ -68,6 +68,8 @@ export default function VocabularyPage() {
       speechSynthesis.cancel();
       const clean = String(text)
         .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+        .replace(/_+/g, ', ')
+        .replace(/\//g, ', ')
         .replace(/\s+/g, ' ')
         .trim();
       if (!clean) return;
