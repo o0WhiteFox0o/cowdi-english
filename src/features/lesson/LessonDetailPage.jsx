@@ -566,22 +566,59 @@ export default function LessonDetailPage() {
     return new Promise((resolve) => {
       try {
         speechSynthesis.cancel();
-        // Bỏ qua hoàn toàn các chuỗi tiếng Việt — Google đọc rất tệ
-        const hasVietnamese = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i.test(String(text));
-        if (hasVietnamese && !opts.lang) { resolve(); return; }
-        const clean = String(text)
+        // Làm sạch: bỏ chú thích trong ngoặc, đổi ___ và / thành dấu phẩy
+        const cleaned = String(text)
           .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
           .replace(/_+/g, ', ')
           .replace(/\//g, ', ')
           .replace(/\s+/g, ' ')
           .trim();
-        if (!clean) { resolve(); return; }
-        const u = new SpeechSynthesisUtterance(clean);
-        u.lang = opts.lang || 'en-US';
-        u.rate = rate;
-        u.onend = () => resolve();
-        u.onerror = () => resolve();
-        speechSynthesis.speak(u);
+        if (!cleaned) { resolve(); return; }
+
+        // Nếu caller chỉ định lang → dùng luôn (1 utterance)
+        if (opts.lang) {
+          const u = new SpeechSynthesisUtterance(cleaned);
+          u.lang = opts.lang;
+          u.rate = rate;
+          u.onend = () => resolve();
+          u.onerror = () => resolve();
+          speechSynthesis.speak(u);
+          return;
+        }
+
+        // Tự động tách đoạn theo ngôn ngữ: tiếng Anh ↔ tiếng Việt
+        const VN_RE = /[ăâđêôơưĂÂĐÊÔƠƯáàảãạÁÀẢÃẠắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/;
+        // Tách theo cụm trong ngoặc kép "..." '...' hoặc theo dấu câu, giữ lại delimiter
+        const parts = cleaned
+          .split(/(["“”][^"“”]*["“”]|['‘’][^'‘’]*['‘’]|[.!?,;:—–]+\s*)/g)
+          .filter((p) => p && p.length > 0);
+        // Gom đoạn liền cùng ngôn ngữ
+        const segs = [];
+        for (const p of parts) {
+          const lang = VN_RE.test(p) ? 'vi-VN' : 'en-US';
+          if (segs.length && segs[segs.length - 1].lang === lang) {
+            segs[segs.length - 1].text += p;
+          } else {
+            segs.push({ lang, text: p });
+          }
+        }
+        // Lọc đoạn rỗng / chỉ có dấu câu / khoảng trắng
+        const queue = segs
+          .map((s) => ({ ...s, text: s.text.trim() }))
+          .filter((s) => s.text && /[\p{L}\p{N}]/u.test(s.text));
+        if (queue.length === 0) { resolve(); return; }
+
+        const speakNext = (i) => {
+          if (i >= queue.length) { resolve(); return; }
+          const { lang, text: t } = queue[i];
+          const u = new SpeechSynthesisUtterance(t);
+          u.lang = lang;
+          u.rate = rate;
+          u.onend = () => speakNext(i + 1);
+          u.onerror = () => speakNext(i + 1);
+          speechSynthesis.speak(u);
+        };
+        speakNext(0);
       } catch {
         resolve();
       }
