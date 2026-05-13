@@ -473,6 +473,8 @@ export default function LessonDetailPage() {
   const [fcIndex, setFcIndex] = useState(0);
   const [fcFlipped, setFcFlipped] = useState(false);
   const [fcMastered, setFcMastered] = useState(new Set());
+  const [fcExampleVi, setFcExampleVi] = useState({}); // { [exampleEn]: viTranslation }
+  const [fcTranslating, setFcTranslating] = useState(false);
 
   // Generated quiz questions (randomized each attempt)
   const [quizQuestions, setQuizQuestions] = useState([]);
@@ -1056,7 +1058,21 @@ export default function LessonDetailPage() {
             <span className="fw-bold">{fcIndex + 1}</span> / {vocab.length}
             {fcMastered.size > 0 && <span className="ms-3 text-success fw-bold">✅ {fcMastered.size} đã thuộc</span>}
           </div>
-          <div className="flashcard-wrapper" onClick={() => { setFcFlipped(!fcFlipped); if (!fcFlipped) speakWord(vocab[fcIndex].word); }}>
+          <div className="flashcard-wrapper" onClick={() => {
+            const willFlip = !fcFlipped;
+            setFcFlipped(willFlip);
+            if (willFlip) {
+              speakWord(vocab[fcIndex].word);
+              const ex = vocab[fcIndex].example;
+              if (ex && !fcExampleVi[ex]) {
+                setFcTranslating(true);
+                translateEnToVi(ex).then((vi) => {
+                  if (vi) setFcExampleVi((prev) => ({ ...prev, [ex]: vi }));
+                  setFcTranslating(false);
+                });
+              }
+            }
+          }}>
             <div className={`flashcard-inner ${fcFlipped ? 'flipped' : ''}`}>
               <div className="flashcard-front text-center">
                 <span style={{ fontSize: '2.5rem' }} className="mb-2">{vocab[fcIndex].illustration || lesson.icon}</span>
@@ -1066,7 +1082,14 @@ export default function LessonDetailPage() {
               </div>
               <div className="flashcard-back text-center">
                 <h3 className="fw-bold text-cowdi-primary mb-2">{vocab[fcIndex].meaning}</h3>
-                <p className="fst-italic text-muted mb-0">"{vocab[fcIndex].example}"</p>
+                <p className="fst-italic text-muted mb-1">"{vocab[fcIndex].example}"</p>
+                {vocab[fcIndex].example && (
+                  <p className="mb-0 small" style={{ color: '#6c5ce7' }}>
+                    {fcExampleVi[vocab[fcIndex].example]
+                      ? <>→ <span className="fst-italic">{fcExampleVi[vocab[fcIndex].example]}</span></>
+                      : <span className="text-muted opacity-75">{fcTranslating ? '⏳ Đang dịch…' : '🌐 Bấm nút bên dưới để dịch'}</span>}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -1087,6 +1110,42 @@ export default function LessonDetailPage() {
           <button className="btn btn-sm btn-outline-secondary mt-3" onClick={() => speakWord(vocab[fcIndex].word)} title="Nghe phát âm">
             🔊 Nghe phát âm
           </button>
+          {vocab[fcIndex].example && (
+            <div className="d-flex gap-2 mt-2 flex-wrap justify-content-center">
+              <button
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => speakWord(vocab[fcIndex].example, 0.85, { lang: 'en-US' })}
+                title="Nghe câu ví dụ"
+              >
+                🔊 Nghe câu ví dụ
+              </button>
+              {!fcExampleVi[vocab[fcIndex].example] && (
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  disabled={fcTranslating}
+                  onClick={() => {
+                    const ex = vocab[fcIndex].example;
+                    setFcTranslating(true);
+                    translateEnToVi(ex).then((vi) => {
+                      if (vi) setFcExampleVi((prev) => ({ ...prev, [ex]: vi }));
+                      setFcTranslating(false);
+                    });
+                  }}
+                >
+                  {fcTranslating ? '⏳ Đang dịch…' : '🌐 Dịch câu ví dụ'}
+                </button>
+              )}
+              {fcExampleVi[vocab[fcIndex].example] && (
+                <button
+                  className="btn btn-sm btn-outline-success"
+                  onClick={() => speakWord(fcExampleVi[vocab[fcIndex].example], 0.85, { lang: 'vi-VN' })}
+                  title="Nghe nghĩa tiếng Việt"
+                >
+                  🔊 Nghe tiếng Việt
+                </button>
+              )}
+            </div>
+          )}
           {/* Progress dots */}
           <div className="d-flex gap-1 mt-3 flex-wrap justify-content-center">
             {vocab.map((v, i) => (

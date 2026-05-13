@@ -251,7 +251,14 @@ function getConditionText(condition) {
       const names = condition.value.map((id) => PET_REGISTRY[id]?.name || id).join(', ');
       return `Sưu tầm: ${names}`;
     }
-    case 'event': return `Sự kiện ${condition.eventId}`;
+    case 'event': {
+      const labels = {
+        halloween: '🎃 Online vào tuần lễ Halloween (25/10 – 01/11)',
+        christmas: '🎄 Online vào tuần lễ Giáng sinh (20 – 26/12)',
+        buddhist:  '🪷 Online vào ngày lễ lớn của Phật giáo (Phật Đản, Vu Lan, Vía Quan Âm, Phật Thành Đạo)',
+      };
+      return labels[condition.eventId] || `Sự kiện ${condition.eventId}`;
+    }
     default: return '???';
   }
 }

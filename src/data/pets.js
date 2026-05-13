@@ -163,6 +163,36 @@ export const PUMPKIN_IMAGES = {
   legendary: `${PUMPKIN_IMG}/Pumpkin_legendary.webp`,
 };
 
+// ── Shadow Image Paths ───────────────────────────────────────────────────────
+const SHADOW_IMG = '/assets/images/pets/Shadow';
+export const SHADOW_IMAGES = {
+  egg: `${SHADOW_IMG}/Shadow_Egg.webp`,
+  baby: `${SHADOW_IMG}/Shadow_Baby.webp`,
+  junior: `${SHADOW_IMG}/Shadow_Junior.webp`,
+  super: `${SHADOW_IMG}/Shadow_Super.webp`,
+  legendary: `${SHADOW_IMG}/Shadow_Legendary.webp`,
+};
+
+// ── Prisma Image Paths ───────────────────────────────────────────────────────
+const PRISMA_IMG = '/assets/images/pets/Prisma';
+export const PRISMA_IMAGES = {
+  egg: `${PRISMA_IMG}/Prisma_Egg.webp`,
+  baby: `${PRISMA_IMG}/Prisma_Baby.webp`,
+  junior: `${PRISMA_IMG}/Prisma_Junior.webp`,
+  super: `${PRISMA_IMG}/Prisma_Super.webp`,
+  legendary: `${PRISMA_IMG}/Prisma_Legendary.webp`,
+};
+
+// ── Monk Image Paths ─────────────────────────────────────────────────────────
+const MONK_IMG = '/assets/images/pets/Monk';
+export const MONK_IMAGES = {
+  egg: `${MONK_IMG}/Monk_Egg.webp`,
+  baby: `${MONK_IMG}/Monk_Baby.webp`,
+  junior: `${MONK_IMG}/Monk_Junior.webp`,
+  super: `${MONK_IMG}/Monk_Super.webp`,
+  legendary: `${MONK_IMG}/Monk_Legendary.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -493,11 +523,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 4, speaking: 3, reading: 8, writing: 8 },
     description: 'Sói huyền bí, trí tuệ sâu sắc, sáng tạo trong bóng tối.',
     evolutions: [
-      { stage: 0, name: 'Trứng Shadow', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Shadow', xp: 100, emoji: '🐺' },
-      { stage: 2, name: 'Junior Shadow', xp: 500, emoji: '🐺' },
-      { stage: 3, name: 'Super Shadow', xp: 1200, emoji: '🌑' },
-      { stage: 4, name: 'Legendary Shadow', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Shadow', xp: 0, emoji: '🥚', image: SHADOW_IMAGES.egg },
+      { stage: 1, name: 'Baby Shadow', xp: 100, emoji: '🐺', image: SHADOW_IMAGES.baby },
+      { stage: 2, name: 'Junior Shadow', xp: 500, emoji: '🐺', image: SHADOW_IMAGES.junior },
+      { stage: 3, name: 'Super Shadow', xp: 1200, emoji: '🌑', image: SHADOW_IMAGES.super },
+      { stage: 4, name: 'Legendary Shadow', xp: 2500, emoji: '👑', image: SHADOW_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 50 },
     chatMessages: {
@@ -521,11 +551,11 @@ export const PET_REGISTRY = {
     baseStats: { listening: 8, speaking: 8, reading: 8, writing: 8 },
     description: 'Kỳ lân huyền thoại, tỏa sáng bởi kiến thức toàn diện.',
     evolutions: [
-      { stage: 0, name: 'Trứng Prisma', xp: 0, emoji: '🥚' },
-      { stage: 1, name: 'Baby Prisma', xp: 100, emoji: '🦄' },
-      { stage: 2, name: 'Junior Prisma', xp: 500, emoji: '🦄' },
-      { stage: 3, name: 'Super Prisma', xp: 1200, emoji: '🌈' },
-      { stage: 4, name: 'Legendary Prisma', xp: 2500, emoji: '👑' },
+      { stage: 0, name: 'Trứng Prisma', xp: 0, emoji: '🥚', image: PRISMA_IMAGES.egg },
+      { stage: 1, name: 'Baby Prisma', xp: 100, emoji: '🦄', image: PRISMA_IMAGES.baby },
+      { stage: 2, name: 'Junior Prisma', xp: 500, emoji: '🦄', image: PRISMA_IMAGES.junior },
+      { stage: 3, name: 'Super Prisma', xp: 1200, emoji: '🌈', image: PRISMA_IMAGES.super },
+      { stage: 4, name: 'Legendary Prisma', xp: 2500, emoji: '👑', image: PRISMA_IMAGES.legendary },
     ],
     unlockCondition: { type: 'xp', value: 2500 },
     chatMessages: {
@@ -592,6 +622,42 @@ export const PET_REGISTRY = {
       ],
       sad: ['Pumpkin héo rồi... 😢'],
       sick: ['Pumpkin ốm... 🤒'],
+    },
+  },
+
+  monk: {
+    id: 'monk',
+    name: 'Monk',
+    species: 'Tiểu hòa thượng',
+    emoji: '🧘',
+    element: 'cosmic',
+    rarity: 'event',
+    baseStats: { listening: 7, speaking: 6, reading: 8, writing: 7 },
+    description: 'Tiểu hòa thượng thanh tịnh, chỉ xuất hiện trong các ngày lễ lớn của Phật giáo, mang đến trí tuệ an lạc và bonus học tập.',
+    evolutions: [
+      { stage: 0, name: 'Trứng Monk',      xp: 0,    emoji: '🥚', image: MONK_IMAGES.egg },
+      { stage: 1, name: 'Tiểu Monk',       xp: 100,  emoji: '🧘', image: MONK_IMAGES.baby },
+      { stage: 2, name: 'Sa Di Monk',      xp: 500,  emoji: '📿', image: MONK_IMAGES.junior },
+      { stage: 3, name: 'Đại Đức Monk',    xp: 1200, emoji: '🪷', image: MONK_IMAGES.super },
+      { stage: 4, name: 'Thiền Sư Monk',   xp: 2500, emoji: '☸️', image: MONK_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'event', eventId: 'buddhist' },
+    chatMessages: {
+      happy: [
+        'Nam mô A Di Đà Phật, chào bạn an lạc 🙏',
+        'Tâm tĩnh thì trí sáng — học bài thôi nào 🪷',
+        'Mỗi từ học được là một đóa sen nở ✨',
+        'Từ bi và kiên trì, bạn sẽ giỏi tiếng Anh 📿',
+        'Hôm nay là ngày Phật, học một bài lấy phước nha ☸️',
+      ],
+      sad: [
+        'Tâm chưa an, học hành trễ nải rồi... 🥺',
+        'Monk lặng lẽ tụng kinh chờ bạn quay lại 🪷',
+      ],
+      sick: [
+        'Thân tứ đại mỏi mệt, cần bạn chăm sóc 🤒',
+        'Hãy cho Monk chút thời gian thiền định nha 😷',
+      ],
     },
   },
 
@@ -876,10 +942,22 @@ export function checkUnlockCondition(condition, userData, petData) {
       return condition.value.every((sp) => ownedSpecies.has(sp));
     }
     case 'event': {
-      // Halloween: tháng 10, Christmas: tháng 12
-      const month = new Date().getMonth();
-      if (condition.eventId === 'halloween') return month === 9; // October
-      if (condition.eventId === 'christmas') return month === 11; // December
+      const now = new Date();
+      const month = now.getMonth(); // 0-based
+      const day = now.getDate();
+      if (condition.eventId === 'halloween') {
+        // Tuần lễ Halloween: 25/10 → 01/11 (active suốt cao điểm + đúng ngày 31/10)
+        if (month === 9 && day >= 25) return true; // 25-31/10
+        if (month === 10 && day === 1) return true; // 1/11
+        return false;
+      }
+      if (condition.eventId === 'christmas') {
+        // Tuần lễ Giáng sinh: 20/12 → 26/12
+        return month === 11 && day >= 20 && day <= 26;
+      }
+      if (condition.eventId === 'buddhist') {
+        return isBuddhistHolidayToday(now);
+      }
       return false;
     }
     default:
