@@ -916,6 +916,33 @@ export function getSkillLevel(value) {
   return 1;
 }
 
+// ── Helper: Buddhist holidays (Vietnam) ──────────────────────────────────────
+// Gregorian dates approximation for 3 major Buddhist holidays:
+//   - Phật Đản (Vesak)   – rằm tháng 4 âm lịch
+//   - Vu Lan             – rằm tháng 7 âm lịch
+//   - Thành Đạo (Bodhi)  – mùng 8 tháng 12 âm lịch
+// Each window is ±1 ngày để bù sai số múi giờ / lịch.
+const BUDDHIST_HOLIDAYS = [
+  // Phật Đản
+  '2025-05-12', '2026-05-31', '2027-05-20', '2028-05-08', '2029-05-27', '2030-05-16',
+  // Vu Lan
+  '2025-08-08', '2026-08-27', '2027-08-16', '2028-09-03', '2029-08-24', '2030-08-13',
+  // Thành Đạo
+  '2025-01-07', '2026-01-26', '2027-01-15', '2028-02-03', '2029-01-22', '2030-01-11',
+];
+
+function isBuddhistHolidayToday(now = new Date()) {
+  const pad = (n) => String(n).padStart(2, '0');
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  for (const iso of BUDDHIST_HOLIDAYS) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const hol = new Date(y, m - 1, d);
+    const diff = Math.abs(target - hol) / (1000 * 60 * 60 * 24);
+    if (diff <= 1) return true; // ±1 ngày
+  }
+  return false;
+}
+
 // ── Helper: Check unlock condition ───────────────────────────────────────────
 export function checkUnlockCondition(condition, userData, petData) {
   if (!condition) return true; // Starter
