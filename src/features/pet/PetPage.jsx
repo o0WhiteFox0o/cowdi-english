@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
+import { useToast } from '../../components/Toast';
 import {
   PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel,
   getPetMood, getPetMessage, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
@@ -9,8 +10,9 @@ import {
 } from '../../data/pets';
 
 export default function PetPage() {
-  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins } = usePet();
+  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, feedXPToPet } = usePet();
   const { userData } = useUser();
+  const showToast = useToast();
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState('');
 
@@ -169,6 +171,76 @@ export default function PetPage() {
           <div className="pet-progress-text">{activePet.totalXpEarned} / {nextEvo.xp} XP</div>
         </div>
       )}
+
+      {/* Feed XP – user tiêu XP đã kiếm được để tiến hóa Pet */}
+      <div className="pet-section-card mb-3">
+        <div className="pet-section-header">
+          <span className="pet-section-icon">✨</span>
+          <span>Cho Pet ăn XP</span>
+          <span className="pet-badge ms-auto" style={{ background: '#FFF3CD', color: '#856404' }}>
+            ⭐ Ví: {userData.availableXP || 0}
+          </span>
+        </div>
+        <div className="text-muted small mb-2">
+          XP bạn kiếm được qua học tập có thể “cho Pet ăn” để trực tiếp tăng tiến độ tiến hóa (1 XP = 1 điểm tiến hóa).
+          Tổng XP sự nghiệp (lên cấp user / bảng xếp hạng) vẫn được giữ nguyên.
+        </div>
+        <div className="d-flex flex-wrap gap-2">
+          {[50, 200, 500].map((amt) => (
+            <button
+              key={amt}
+              type="button"
+              className="btn btn-sm btn-warning fw-bold"
+              disabled={(userData.availableXP || 0) < amt}
+              onClick={() => {
+                const r = feedXPToPet(amt);
+                if (!r.ok) {
+                  showToast('Không đủ XP trong ví!', 'warning');
+                  return;
+                }
+                if (r.evolved) {
+                  showToast(`🎉 Pet đã tiến hóa lên stage ${r.newEvoStage}!`, 'success');
+                } else {
+                  showToast(`+${amt} XP cho Pet`, 'success');
+                }
+              }}
+            >
+              +{amt} XP
+            </button>
+          ))}
+          {nextEvo && (userData.availableXP || 0) >= (nextEvo.xp - (activePet.totalXpEarned || 0)) && (
+            <button
+              type="button"
+              className="btn btn-sm btn-success fw-bold"
+              onClick={() => {
+                const need = nextEvo.xp - (activePet.totalXpEarned || 0);
+                const r = feedXPToPet(need);
+                if (r.ok && r.evolved) {
+                  showToast(`🎉 Pet tiến hóa thành ${nextEvo.name}!`, 'success');
+                }
+              }}
+            >
+              🚀 Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-warning fw-bold"
+            disabled={(userData.availableXP || 0) <= 0}
+            onClick={() => {
+              const all = userData.availableXP || 0;
+              const r = feedXPToPet(all);
+              if (r.ok) {
+                showToast(r.evolved
+                  ? `🎉 +${all} XP – Pet tiến hóa lên stage ${r.newEvoStage}!`
+                  : `+${all} XP cho Pet`, 'success');
+              }
+            }}
+          >
+            Tiêu tất cả ({userData.availableXP || 0})
+          </button>
+        </div>
+      </div>
 
       {/* Needs bars */}
       <div className="pet-section-card mb-3">

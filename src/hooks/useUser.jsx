@@ -17,7 +17,8 @@ const VALID_WORDS = new Set([
 ]);
 
 const DEFAULT_DATA = {
-  totalXP: 0,
+  totalXP: 0,        // Lifetime XP (KHÔNG bao giờ giảm) – dùng cho cấp độ user & leaderboard
+  availableXP: 0,    // Ví XP có thể tiêu để nuôi/tiến hóa Pet. Giảm khi spendXP().
   streak: 0,
   lastActiveDate: null,
   lessonsCompleted: 0,
@@ -158,6 +159,18 @@ function loadUserData(userId) {
 function sanitizeData(data) {
   const sanitized = { ...data };
 
+  // ── Di trú XP wallet ─────────────────────────────────────
+  // User cũ chưa có availableXP → khởi tạo bằng totalXP để họ có thể tiêu ngay
+  // toàn bộ XP đã tích lũy. Sau lần lưu đầu tiên field sẽ tồn tại và logic sẽ
+  // hoạt động bình thường.
+  if (typeof sanitized.availableXP !== 'number' || sanitized.availableXP < 0) {
+    sanitized.availableXP = Math.max(0, sanitized.totalXP || 0);
+  }
+  // Bảo vệ: ví không được vượt quá lifetime XP (chống lỗi dữ liệu)
+  if (sanitized.availableXP > (sanitized.totalXP || 0)) {
+    sanitized.availableXP = sanitized.totalXP || 0;
+  }
+
   // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
   if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
     const clean = {};
@@ -269,8 +282,15 @@ function mergeProgress(local, remote) {
   // Giữ achievements nhiều hơn
   merged.achievements = [...new Set([...(local.achievements || []), ...(remote.achievements || [])])];
 
-  // Giữ XP cao nhất
+  // Giữ XP cao nhất (lifetime)
   merged.totalXP = Math.max(local.totalXP || 0, remote.totalXP || 0);
+  // Ví availableXP: lấy GIÁ TRỊ MỚI NHẤT theo _lastModified (vì ví có thể giảm khi tiêu).
+  // Nếu local mới hơn → ưu tiên local, ngược lại dùng remote. Mặc định remote.
+  if (localTime > remoteTime) {
+    merged.availableXP = Math.min(local.availableXP ?? local.totalXP ?? 0, merged.totalXP);
+  } else {
+    merged.availableXP = Math.min(remote.availableXP ?? remote.totalXP ?? 0, merged.totalXP);
+  }
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
   const mergedSrs = { ...(local.srsData || {}) };
@@ -491,11 +511,32 @@ export function UserProvider({ children }) {
   }, []);
 
   const addXP = useCallback((amount) => {
+    if (!amount || amount <= 0) return;
     setUserData((prev) => {
       const dailyJournal = bumpJournal(prev, 'xp', amount);
-      const next = { ...prev, totalXP: prev.totalXP + amount, dailyJournal };
+      // Cộng cả lifetime (totalXP) và ví có thể tiêu (availableXP)
+      const next = {
+        ...prev,
+        totalXP: (prev.totalXP || 0) + amount,
+        availableXP: (prev.availableXP || 0) + amount,
+        dailyJournal,
+      };
       return checkAchievements(next);
     });
+  }, []);
+
+  // Tiêu XP từ ví. Trả về true nếu thành công, false nếu không đủ.
+  // Lifetime totalXP KHÔNG bị giảm (giữ thành tích cho leaderboard).
+  const spendXP = useCallback((amount) => {
+    if (!amount || amount <= 0) return false;
+    let ok = false;
+    setUserData((prev) => {
+      const have = prev.availableXP || 0;
+      if (have < amount) return prev;
+      ok = true;
+      return { ...prev, availableXP: have - amount };
+    });
+    return ok;
   }, []);
 
   const addSkillXP = useCallback((skill, amount) => {
@@ -653,6 +694,7 @@ export function UserProvider({ children }) {
   const value = {
     userData,
     addXP,
+    spendXP,
     addSkillXP,
     markLessonCompleted,
     incrementQuizzes,

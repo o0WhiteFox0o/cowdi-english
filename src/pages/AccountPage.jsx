@@ -159,6 +159,7 @@ export default function AccountPage() {
       <div className="row g-3 mb-4">
         {[
           { icon: '⭐', value: userData.totalXP, label: 'Tổng XP', color: 'warning' },
+          { icon: '✨', value: userData.availableXP || 0, label: 'Ví XP (để nuôi Pet)', color: 'warning' },
           { icon: '🔥', value: userData.streak, label: 'Streak', color: 'danger' },
           { icon: '📚', value: userData.lessonsCompleted, label: 'Bài đã học', color: 'primary' },
           { icon: '✅', value: userData.quizzesCompleted, label: 'Quiz hoàn thành', color: 'success' },

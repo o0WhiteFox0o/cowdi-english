@@ -193,6 +193,36 @@ export const MONK_IMAGES = {
   legendary: `${MONK_IMG}/Monk_Legendary.webp`,
 };
 
+// ── Mushroom (Nấm rơm) Image Paths ───────────────────────────────────────────
+const MUSHROOM_IMG = '/assets/images/pets/NamRom';
+export const MUSHROOM_IMAGES = {
+  egg:       `${MUSHROOM_IMG}/NamRom_Egg.webp`,
+  baby:      `${MUSHROOM_IMG}/NamRom_Baby.webp`,
+  junior:    `${MUSHROOM_IMG}/NamRom_Junior.webp`,
+  super:     `${MUSHROOM_IMG}/NamRom_Super.webp`,
+  legendary: `${MUSHROOM_IMG}/NamRom_Legendary.webp`,
+};
+
+// ── Radish (Củ cải trắng) Image Paths ────────────────────────────────────────
+const RADISH_IMG = '/assets/images/pets/CuCaiTrang';
+export const RADISH_IMAGES = {
+  egg:       `${RADISH_IMG}/CuCaiTrang_Egg.webp`,
+  baby:      `${RADISH_IMG}/CuCaiTrang_Baby.webp`,
+  junior:    `${RADISH_IMG}/CuCaiTrang_Junior.webp`,
+  super:     `${RADISH_IMG}/CuCaiTrang_Super.webp`,
+  legendary: `${RADISH_IMG}/CuCaiTrang_Legendary.webp`,
+};
+
+// ── Bun (Bánh bao) Image Paths ───────────────────────────────────────────────
+const BUN_IMG = '/assets/images/pets/BanhBao';
+export const BUN_IMAGES = {
+  egg:       `${BUN_IMG}/BanhBao_Egg.webp`,
+  baby:      `${BUN_IMG}/BanhBao_Baby.webp`,
+  junior:    `${BUN_IMG}/BanhBao_Junior.webp`,
+  super:     `${BUN_IMG}/BanhBao_Super.webp`,
+  legendary: `${BUN_IMG}/BanhBao_Legendary.webp`,
+};
+
 // ── Pet Registry ─────────────────────────────────────────────────────────────
 export const PET_REGISTRY = {
   cowdi: {
@@ -255,9 +285,16 @@ export const PET_REGISTRY = {
         'Foxie thích ngữ pháp lắm! Học cùng nha! 📖',
         'Thông minh lắm! Foxie nể bạn! 🧠',
         'Giải đố cùng Foxie nhé! ✨',
+        'Ngọn lửa tri thức, bừng sáng lên! 🔥',
       ],
-      sad: ['Foxie buồn quá... Lâu rồi không ai giải đố 😢', 'Foxie nhớ bạn... 🥺'],
-      sick: ['Foxie ốm mất rồi... 🤒'],
+      sad: [
+        'Foxie buồn quá... Lâu rồi không ai giải đố 😢',
+        'Foxie nhớ bạn... 🥺',
+      ],
+      sick: [
+        'Foxie ốm mất rồi... 🤒',
+        'Khan tiếng, Foxie không sai khiến được lửa... 😷',
+      ],
     },
   },
 
@@ -283,9 +320,17 @@ export const PET_REGISTRY = {
         'Nghe này nghe này! 🎵',
         'Pingu nghe rõ lắm nè! 👂',
         'Luyện nghe cùng Pingu nhé! 🐧',
+        'Băng trôi mát lạnh, tai thính nhạy! 🧊',
+        'Mỗi âm thanh là một bài học – Pingu để ý lắm! 🎶',
       ],
-      sad: ['Pingu lạnh quá... Học bài cho ấm nha 🥶'],
-      sick: ['Pingu ốm rồi... 😷'],
+      sad: [
+        'Pingu lạnh quá... Học bài cho ấm nha 🥶',
+        'Băng tan hết rồi, ai đâu để cuộc ồ 😢',
+      ],
+      sick: [
+        'Pingu ốm rồi... 😷',
+        'Cánh rụ xuống, không trượt băng được... 🤒',
+      ],
     },
   },
 
@@ -311,9 +356,17 @@ export const PET_REGISTRY = {
         'Chậm mà chắc! Học từ mới nào! 🐢',
         'Leafy nhớ hết từ rồi đó! 🌿',
         'Từ vựng là sức mạnh! 📝',
+        'Mùa này lá xanh, từ xanh – cuộc đời xanh! 🍃',
+        'Một ngày học 5 từ, một đời vững vàng! 📖',
       ],
-      sad: ['Leafy buồn... Lâu rồi không học từ mới 🥺'],
-      sick: ['Leafy ốm rồi... 😷'],
+      sad: [
+        'Leafy buồn... Lâu rồi không học từ mới 🥺',
+        'Bì bõm mùa mưa, mài chẳng thấy từ vựng... 😢',
+      ],
+      sick: [
+        'Leafy ốm rồi... 😷',
+        'Mai rùa nặng trĩu, cần bạn tiếp sức 🤒',
+      ],
     },
   },
 
@@ -339,9 +392,17 @@ export const PET_REGISTRY = {
         'Rawr~! Viết câu cùng Sparky! 🐉',
         'Sparky đầy sáng tạo hôm nay! ✨',
         'Lửa cháy trong tim! 🔥',
+        'Mỗi câu văn là một ngọn lửa nhỏ! ✍️',
+        'Viết đi, viết nữa, viết mãi! 📝',
       ],
-      sad: ['Sparky hết lửa rồi... 😢'],
-      sick: ['Sparky ốm... không phun lửa được 🤒'],
+      sad: [
+        'Sparky hết lửa rồi... 😢',
+        'Cánh gấp lại, không muốn bay... 🥺',
+      ],
+      sick: [
+        'Sparky ốm... không phun lửa được 🤒',
+        'Vảy khô cứng, cần hơi ấm của bạn 😷',
+      ],
     },
   },
 
@@ -367,9 +428,17 @@ export const PET_REGISTRY = {
         'Meo~ Mimi thấy bạn giỏi lắm! 🐱',
         'Ngôi sao lấp lánh! ⭐',
         'Mimi tin bạn sẽ hoàn hảo! 💫',
+        'Trăng sáng đêm nay, từ vựng sáng theo! 🌙',
+        'Một cu dỗi nhẹ vào câu trả lời đúng! 🐾',
       ],
-      sad: ['Mimi buồn... Meo meo... 😿'],
-      sick: ['Mimi ốm rồi... 🤒'],
+      sad: [
+        'Mimi buồn... Meo meo... 😿',
+        'Vi tinh rơi, ánh sao cũng mờ... 🥺',
+      ],
+      sick: [
+        'Mimi ốm rồi... 🤒',
+        'Lông xù rối, cần bạn chăm sóc 😷',
+      ],
     },
   },
 
@@ -395,9 +464,17 @@ export const PET_REGISTRY = {
         'Hoo hoo! Ngữ pháp là nghệ thuật! 🦉',
         'Owlbert biết tất cả quy tắc! 📖',
         'Thông thái như Owlbert! 🎓',
+        'Cụm giới từ? Dễ thui! 📚',
+        'Đêm khuya tĩnh mịch, tri thức sáng như đèn! 💡',
       ],
-      sad: ['Hoo... Owlbert cô đơn 😢'],
-      sick: ['Owlbert ốm... 🤒'],
+      sad: [
+        'Hoo... Owlbert cô đơn 😢',
+        'Sao không ai hỏi ngữ pháp Owlbert nữa vậy? 🥺',
+      ],
+      sick: [
+        'Owlbert ốm... 🤒',
+        'Mắt mờ, không đọc được sách... 😷',
+      ],
     },
   },
 
@@ -423,9 +500,17 @@ export const PET_REGISTRY = {
         'Splash! Học từ mới nào! 🐬',
         'Flippy nói tiếng Anh giỏi lắm! 🌊',
         'Đại dương kiến thức! 💙',
+        'Lặn sâu vào câu, nổi lên với ý nghĩa! 🌬️',
+        'Cuộc trò chuyện là dòng hải lưu! 🗣️',
       ],
-      sad: ['Flippy buồn... 😢'],
-      sick: ['Flippy ốm... 🤒'],
+      sad: [
+        'Flippy buồn... 😢',
+        'Biển lặng, không có ai để nhảy sóng cùng... 🥺',
+      ],
+      sick: [
+        'Flippy ốm... 🤒',
+        'Vây mệt lắm, bơi chậm hơn thường ngày 😷',
+      ],
     },
   },
 
@@ -451,9 +536,17 @@ export const PET_REGISTRY = {
         'ROAR! Leo mạnh lắm! 🦁',
         'Vua muôn loài đây! 👑',
         'Sức mạnh đến từ kiến thức! 💪',
+        'Một tiếng gầm, ngàn câu tiếng Anh! 🔥',
+        'Dũng cảm đối diện mọi bài quiz! ⚡',
       ],
-      sad: ['Leo buồn... Gầm nhẹ thôi 😢'],
-      sick: ['Leo ốm rồi... 🤒'],
+      sad: [
+        'Leo buồn... Gầm nhẹ thôi 😢',
+        'Bộ bờm rủ xuống, không ai luyện cùng... 🥺',
+      ],
+      sick: [
+        'Leo ốm rồi... 🤒',
+        'Vương miện nặng trĩu, cần bạn tiếp sức 😷',
+      ],
     },
   },
 
@@ -479,9 +572,17 @@ export const PET_REGISTRY = {
         'Nom nom! Bamboo ăn tre và học! 🐼',
         'Bamboo nói giỏi lắm nè! 🎋',
         'Giao tiếp là sức mạnh! 💚',
+        'Nhồ tre, trồng bụi, nói tiếng Anh đúng chuẩn! 🌿',
+        'Một câu tiếng Anh ngon như một miếng tre trúc! 😄',
       ],
-      sad: ['Bamboo buồn... Đói tre 😢'],
-      sick: ['Bamboo ốm... 🤒'],
+      sad: [
+        'Bamboo buồn... Đói tre 😢',
+        'Lá tre khô hết rồi, cần nhạc mới... 🥺',
+      ],
+      sick: [
+        'Bamboo ốm... 🤒',
+        'Bụng đau, nói chẳng ra hiên... 😷',
+      ],
     },
   },
 
@@ -507,9 +608,17 @@ export const PET_REGISTRY = {
         'Bay cao cùng Storm! 🦅',
         'Bão tố không thể cản! ⚡',
         'Kiên trì là sức mạnh! 💨',
+        'Đứng trên mây – nhìn mọi từ vựng bên dưới! ☁️',
+        'Cánh rộng vươn xa, từ trầm sắc sảo! 🔊',
       ],
-      sad: ['Storm buồn... Trời yên gió lặng 😢'],
-      sick: ['Storm ốm... Không bay được 🤒'],
+      sad: [
+        'Storm buồn... Trời yên gió lặng 😢',
+        'Mấy hôm không có bão nào cả, nhớ bầu trời... 🥺',
+      ],
+      sick: [
+        'Storm ốm... Không bay được 🤒',
+        'Lông vũ ướt sũng, cần nắng ấm 😷',
+      ],
     },
   },
 
@@ -535,9 +644,17 @@ export const PET_REGISTRY = {
         'Awoo~ Shadow giỏi lắm! 🐺',
         'Bóng tối che giấu sức mạnh! 🌑',
         'Trí tuệ và sáng tạo! ✨',
+        'Ánh trăng sáng – câu văn sắc như nanh sói! 🌘',
+        'Lặng lẽ quan sát, am hiểu mọi quy tắc! 🔮',
       ],
-      sad: ['Shadow cô đơn... 😢'],
-      sick: ['Shadow ốm... 🤒'],
+      sad: [
+        'Shadow cô đơn... 😢',
+        'Đên không trăng, mình hu cùng tiếng vọng... 🥺',
+      ],
+      sick: [
+        'Shadow ốm... 🤒',
+        'Ánh mắt mờ, không nhìn rõ trang sách 😷',
+      ],
     },
   },
 
@@ -563,9 +680,17 @@ export const PET_REGISTRY = {
         'Cầu vồng kiến thức! 🌈',
         'Prisma tỏa sáng! 🦄',
         'Huyền thoại đây rồi! ✨',
+        'Bảy sắc hòa quyện, bảy kỹ năng khởi sắc! 🌬️',
+        'Phep màu học tập – bắt đầu từ bạn! 💫',
       ],
-      sad: ['Prisma mờ nhạt... 😢'],
-      sick: ['Prisma ốm... Mất sắc màu... 🤒'],
+      sad: [
+        'Prisma mờ nhạt... 😢',
+        'Cầu vồng nhạt dần, bạn là ánh sáng duy nhất 🥺',
+      ],
+      sick: [
+        'Prisma ốm... Mất sắc màu... 🤒',
+        'Sừng pha lê nứt nhẹ, cần năng lượng XP của bạn 😷',
+      ],
     },
   },
 
@@ -591,9 +716,17 @@ export const PET_REGISTRY = {
         'ROARRRR! Draco bậc thầy đây! 🐲',
         'Rồng cổ đại thức giấc! 🔥',
         'Sức mạnh tối thượng! ⚡',
+        'Ngàn năm tu luyện, một phút thiêu rụi sai sót! 🌋',
+        'Một lời rồng – vạn câu học trò! 📜',
       ],
-      sad: ['Draco buồn... Gầm nhẹ... 😢'],
-      sick: ['Draco ốm... 🤒'],
+      sad: [
+        'Draco buồn... Gầm nhẹ... 😢',
+        'Hang động vắng tanh, không ai để luyện cùng... 🥺',
+      ],
+      sick: [
+        'Draco ốm... 🤒',
+        'Vảy rồng xỉn màu, cần năng lượng XP mới 😷',
+      ],
     },
   },
 
@@ -619,9 +752,17 @@ export const PET_REGISTRY = {
         'Boo! Hù bạn đó! 🎃',
         'Trick or Treat! Học tiếng Anh nào! 👻',
         'Halloween vui vẻ! 🎃',
+        'Đêm kỳ lạ, từ mới càng kỳ diệu! 🕯️',
+        'Đùa tí nào – rồi quay lại bài quiz nhé! ✨',
       ],
-      sad: ['Pumpkin héo rồi... 😢'],
-      sick: ['Pumpkin ốm... 🤒'],
+      sad: [
+        'Pumpkin héo rồi... 😢',
+        'Lễ hội qua đi, ai còn nhớ Pumpkin... 🥺',
+      ],
+      sick: [
+        'Pumpkin ốm... 🤒',
+        'Đèn trong bí tắt, cần bạn thắp sáng 😷',
+      ],
     },
   },
 
@@ -677,16 +818,23 @@ export const PET_REGISTRY = {
       { stage: 3, name: 'Super Ginseng', xp: 1200, emoji: '🌿', image: GINSENG_IMAGES.super },
       { stage: 4, name: 'Legendary Ginseng', xp: 2500, emoji: '👑', image: GINSENG_IMAGES.legendary },
     ],
-    unlockCondition: { type: 'collection_species', value: ['leafy', 'bamboo', 'rice', 'mushroom'] },
+    unlockCondition: { type: 'collection_species', value: ['leafy', 'bamboo', 'paddy', 'mushroom'] },
     chatMessages: {
       happy: [
         'Nhân sâm nghìn năm đây! 🌱',
         'Ginseng hồi phục năng lượng cho bạn! 💚',
         'Trí tuệ cổ xưa, kiến thức vĩnh cửu! ✨',
         'Rễ sâu gốc vững, học chắc nhớ lâu! 🌿',
+        'Mỗi bài học là một giọt sương sớm! 💧',
       ],
-      sad: ['Ginseng héo rồi... Cần bạn tưới nước 🥺'],
-      sick: ['Ginseng ốm... Rễ yếu lắm... 🤒'],
+      sad: [
+        'Ginseng héo rồi... Cần bạn tưới nước 🥺',
+        'Đất khô cằn, lâu không nghe tiếng bạn 😢',
+      ],
+      sick: [
+        'Ginseng ốm... Rễ yếu lắm... 🤒',
+        'Mầm cữ già nua, cần năng lượng XP để hồi phục 😷',
+      ],
     },
   },
 
@@ -713,9 +861,16 @@ export const PET_REGISTRY = {
         'Paddy chăm chỉ như cánh đồng lúa! 🌱',
         'Từng hạt kiến thức, tích lũy mỗi ngày! ✨',
         'Gió đồng mát rượi, học thôi nào! 🍃',
+        'Cắt một bó lúa, gom một đám từ vựng! 📚',
       ],
-      sad: ['Paddy héo rồi... Cần nước tưới 🥺'],
-      sick: ['Paddy ốm... Sâu bệnh rồi... 🤒'],
+      sad: [
+        'Paddy héo rồi... Cần nước tưới 🥺',
+        'Đồng trống, chưa có ai gieo mầm... 😢',
+      ],
+      sick: [
+        'Paddy ốm... Sâu bệnh rồi... 🤒',
+        'Bông lúa lép, cần bạn quay lại chăm sóc 😷',
+      ],
     },
   },
 
@@ -742,9 +897,124 @@ export const PET_REGISTRY = {
         'Sprout cứng cáp hơn mỗi ngày! 💪',
         'Tre già măng mọc, kiến thức bất tận! 🌿',
         'Gió lớn không gãy, kiên cường học tập! 🌪️',
+        'Màu xanh măng tre là màu của hy vọng! 🌱',
       ],
-      sad: ['Sprout buồn... Thiếu ánh sáng 🥺'],
-      sick: ['Sprout ốm... Lá vàng rồi... 🤒'],
+      sad: [
+        'Sprout buồn... Thiếu ánh sáng 🥺',
+        'Luộc hết, bụi tre cùng héo theo... 😢',
+      ],
+      sick: [
+        'Sprout ốm... Lá vàng rồi... 🤒',
+        'Thân măng mềm oai, cần bạn tiếp sức 😷',
+      ],
+    },
+  },
+
+  mushroom: {
+    id: 'mushroom',
+    name: 'Nấm Rơm',
+    species: 'Nấm rơm',
+    emoji: '🍄',
+    element: 'earth',
+    rarity: 'rare',
+    baseStats: { listening: 6, speaking: 4, reading: 7, writing: 5 },
+    description: 'Nấm rơm khiêm nhường mọc trong đêm, lặng lẽ tích lũy tri thức như mùa rơm rạ sau gặt.',
+    evolutions: [
+      { stage: 0, name: 'Trứng Nấm', xp: 0,    emoji: '🥚', image: MUSHROOM_IMAGES.egg },
+      { stage: 1, name: 'Nấm Con',   xp: 100,  emoji: '🍄', image: MUSHROOM_IMAGES.baby },
+      { stage: 2, name: 'Nấm Trẻ',   xp: 500,  emoji: '🍄', image: MUSHROOM_IMAGES.junior },
+      { stage: 3, name: 'Nấm Lớn',   xp: 1200, emoji: '🍄', image: MUSHROOM_IMAGES.super },
+      { stage: 4, name: 'Nấm Tiên',  xp: 2500, emoji: '👑', image: MUSHROOM_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'words', value: 80 },
+    chatMessages: {
+      happy: [
+        'Lặng lẽ mọc trong đêm, sáng ra đã thành rừng nấm! 🍄',
+        'Nấm Rơm thích đọc sách trong rừng tre! 📖',
+        'Đất ẩm, rơm khô — môi trường hoàn hảo để học! 🌧️',
+        'Một câu chuyện hay như mùi rơm mới gặt! 🌾',
+        'Hái nấm cùng từ vựng, gom đầy giỏ kiến thức! 🧺',
+      ],
+      sad: [
+        'Nấm Rơm khô héo rồi... Cần một trận mưa từ vựng 🥺',
+        'Rừng rơm vắng tiếng bạn, Nấm co lại nhỏ xíu 😢',
+      ],
+      sick: [
+        'Nấm Rơm ốm... Mũ nấm tóp lại rồi 🤒',
+        'Bào tử yếu ớt, cần XP để hồi sinh 😷',
+      ],
+    },
+  },
+
+  radish: {
+    id: 'radish',
+    name: 'Củ Cải Trắng',
+    species: 'Củ cải trắng',
+    emoji: '🥬',
+    element: 'earth',
+    rarity: 'rare',
+    baseStats: { listening: 5, speaking: 5, reading: 6, writing: 7 },
+    description: 'Củ cải trắng cắm rễ sâu vào đất, viết từng nét chữ chắc nịch như củ trắng giòn ngọt.',
+    evolutions: [
+      { stage: 0, name: 'Hạt Củ Cải',    xp: 0,    emoji: '🥚', image: RADISH_IMAGES.egg },
+      { stage: 1, name: 'Mầm Củ Cải',    xp: 100,  emoji: '🌱', image: RADISH_IMAGES.baby },
+      { stage: 2, name: 'Củ Cải Non',    xp: 500,  emoji: '🥬', image: RADISH_IMAGES.junior },
+      { stage: 3, name: 'Củ Cải Trắng',  xp: 1200, emoji: '🥬', image: RADISH_IMAGES.super },
+      { stage: 4, name: 'Củ Cải Huyền Thoại', xp: 2500, emoji: '👑', image: RADISH_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'lessons', value: 10 },
+    chatMessages: {
+      happy: [
+        'Rễ sâu, lá xanh, chữ vững! ✍️',
+        'Củ Cải viết câu nào là chắc câu đó! 📝',
+        'Trắng tinh khôi như trang giấy mới! 📃',
+        'Một củ cải, một bài luận hoàn hảo! 💪',
+        'Giòn ngọt như niềm vui khi học xong bài! 🥗',
+      ],
+      sad: [
+        'Củ Cải buồn... Đất khô nứt nẻ rồi 🥺',
+        'Lá rũ xuống, lâu không có ai viết cùng 😢',
+      ],
+      sick: [
+        'Củ Cải ốm... Củ mềm rồi 🤒',
+        'Bị sâu cắn lá, cần bạn tiếp năng lượng XP 😷',
+      ],
+    },
+  },
+
+  bun: {
+    id: 'bun',
+    name: 'Bánh Bao',
+    species: 'Bánh bao',
+    emoji: '🥟',
+    element: 'neutral',
+    rarity: 'epic',
+    baseStats: { listening: 6, speaking: 7, reading: 5, writing: 5 },
+    description: 'Bánh Bao mũm mĩm, ấm áp và hào phóng — luôn sẵn sàng kể chuyện và mời bạn cùng học.',
+    evolutions: [
+      { stage: 0, name: 'Bột Bánh Bao',     xp: 0,    emoji: '🥚', image: BUN_IMAGES.egg },
+      { stage: 1, name: 'Bánh Bao Mini',    xp: 100,  emoji: '🥟', image: BUN_IMAGES.baby },
+      { stage: 2, name: 'Bánh Bao Nhân Thịt', xp: 500, emoji: '🥟', image: BUN_IMAGES.junior },
+      { stage: 3, name: 'Bánh Bao Đại Sư',  xp: 1200, emoji: '🥟', image: BUN_IMAGES.super },
+      { stage: 4, name: 'Bánh Bao Vương',   xp: 2500, emoji: '👑', image: BUN_IMAGES.legendary },
+    ],
+    unlockCondition: { type: 'perfectQuizzes', value: 5 },
+    chatMessages: {
+      happy: [
+        'Nóng hổi vừa thổi vừa ăn — vừa học vừa vui! 🥟',
+        'Bánh Bao có nhân — câu nói có nghĩa! ✨',
+        'Hấp lên thôi! Ý tưởng đang bốc khói! ♨️',
+        'Tròn trịa như câu văn hoàn chỉnh! 💯',
+        'Một cái bánh bao, một câu chuyện ấm bụng! 💬',
+      ],
+      sad: [
+        'Bánh Bao nguội rồi... Cần bạn hâm lại bằng XP 🥺',
+        'Nhân bánh khô khốc, lâu không có ai trò chuyện 😢',
+      ],
+      sick: [
+        'Bánh Bao ốm... Vỏ nhăn nheo rồi 🤒',
+        'Lò hấp tắt lửa, cần bạn nhóm lại 😷',
+      ],
     },
   },
 };

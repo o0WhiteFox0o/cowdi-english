@@ -25,7 +25,7 @@ router.get('/me', requireAuth, async (req, res) => {
 router.get('/progress', requireAuth, async (req, res) => {
   try {
     const [[row]] = await pool.execute(
-      `SELECT total_xp, streak, last_active_date, lessons_completed,
+      `SELECT total_xp, available_xp, streak, last_active_date, lessons_completed,
               quizzes_completed, perfect_quizzes, words_learned,
               completed_lessons, word_status, active_days,
               achievements, daily_tasks, daily_date,
@@ -46,6 +46,7 @@ router.get('/progress', requireAuth, async (req, res) => {
     // Chuyển về camelCase để khớp với frontend userData
     res.json({
       totalXP:          row.total_xp,
+      availableXP:      row.available_xp ?? row.total_xp ?? 0,
       streak:           row.streak,
       lastActiveDate:   row.last_active_date,
       lessonsCompleted: row.lessons_completed,
@@ -75,7 +76,7 @@ router.put('/progress', requireAuth, async (req, res) => {
   const d = req.body;
   // Whitelist fields – không cho phép inject tuỳ ý
   const allowed = [
-    'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
+    'totalXP','availableXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
     'activeDays','achievements','dailyTasks','dailyDate',
     'srsData','checkpointScores','skillXP','dailyJournal'
@@ -87,6 +88,7 @@ router.put('/progress', requireAuth, async (req, res) => {
   const params = [
     req.user.id,
     d.totalXP          ?? 0,
+    d.availableXP      ?? (d.totalXP ?? 0),
     d.streak           ?? 0,
     d.lastActiveDate   ?? null,
     d.lessonsCompleted ?? 0,
@@ -108,14 +110,15 @@ router.put('/progress', requireAuth, async (req, res) => {
   try {
     await pool.execute(
       `INSERT INTO user_progress
-         (user_id, total_xp, streak, last_active_date,
+         (user_id, total_xp, available_xp, streak, last_active_date,
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
           completed_lessons, word_status, active_days, achievements,
           daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
           daily_journal)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          total_xp          = VALUES(total_xp),
+         available_xp      = VALUES(available_xp),
          streak            = VALUES(streak),
          last_active_date  = VALUES(last_active_date),
          lessons_completed = VALUES(lessons_completed),

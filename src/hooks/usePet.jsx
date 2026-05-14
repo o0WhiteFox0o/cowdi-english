@@ -96,7 +96,7 @@ const PetContext = createContext(null);
 
 export function PetProvider({ children }) {
   const { user, authFetch } = useAuth();
-  const { userData } = useUser();
+  const { userData, spendXP } = useUser();
   const [petData, setPetData] = useState(() => ensureInitialPet(loadPetData(user?.id || null)));
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
@@ -282,6 +282,46 @@ export function PetProvider({ children }) {
     feedPet('knowledge', 25);
   }, [feedPet]);
 
+  // ── Cho Pet ăn XP ───────────────────────────────────────────────
+  // Tiêu `amount` XP từ ví user → cộng vào totalXpEarned của active pet (1:1).
+  // Trả về: { ok: bool, evolved: bool, newEvoStage?: number } để UI hiển thị toast.
+  const feedXPToPet = useCallback((amount) => {
+    if (!amount || amount <= 0) return { ok: false };
+    if (!petData.activePetId || !petData.collection[petData.activePetId]) {
+      return { ok: false };
+    }
+    if ((userData.availableXP || 0) < amount) {
+      return { ok: false, reason: 'insufficient' };
+    }
+    if (!spendXP(amount)) {
+      return { ok: false, reason: 'insufficient' };
+    }
+    let evolvedTo = null;
+    updateActivePet((pet) => {
+      const oldStage = pet.evolution || 0;
+      const newTotal = (pet.totalXpEarned || 0) + amount;
+      const species = PET_REGISTRY[pet.speciesId];
+      let newStage = oldStage;
+      if (species) {
+        const evo = getPetEvolution(pet.speciesId, newTotal);
+        if (evo) newStage = evo.stage;
+      }
+      if (newStage > oldStage) evolvedTo = newStage;
+      return {
+        ...pet,
+        totalXpEarned: newTotal,
+        evolution: newStage,
+        needs: {
+          ...pet.needs,
+          happiness: Math.min(100, (pet.needs?.happiness ?? 80) + Math.min(30, Math.floor(amount / 20))),
+          knowledge: Math.min(100, (pet.needs?.knowledge ?? 80) + Math.min(30, Math.floor(amount / 20))),
+        },
+        needsUpdatedAt: new Date().toISOString(),
+      };
+    });
+    return { ok: true, evolved: evolvedTo != null, newEvoStage: evolvedTo };
+  }, [petData.activePetId, petData.collection, userData.availableXP, spendXP, updateActivePet]);
+
   // ── Coins ────────────────────────────────────────────────────────────────
   const addCoins = useCallback((amount) => {
     setPetData((prev) => ({
@@ -463,6 +503,7 @@ export function PetProvider({ children }) {
     updateActivePet,
     addSkillPoints,
     addAllSkillPoints,
+    feedXPToPet,
     feedPet,
     onQuizComplete,
     onLessonComplete,

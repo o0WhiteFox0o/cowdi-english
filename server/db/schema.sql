@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS user_progress (
   id                  INT UNSIGNED    AUTO_INCREMENT PRIMARY KEY,
   user_id             INT UNSIGNED    NOT NULL UNIQUE,
-  total_xp            INT UNSIGNED    NOT NULL DEFAULT 0,
+  total_xp            INT UNSIGNED    NOT NULL DEFAULT 0,    -- Lifetime XP (không giảm) – cho user level + leaderboard
+  available_xp        INT UNSIGNED    NOT NULL DEFAULT 0,    -- Ví XP có thể tiêu để nuôi/tiến hóa Pet
   streak              INT UNSIGNED    NOT NULL DEFAULT 0,
   last_active_date    VARCHAR(64)     DEFAULT NULL,
   lessons_completed   INT UNSIGNED    NOT NULL DEFAULT 0,
