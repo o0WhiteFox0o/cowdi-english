@@ -355,6 +355,7 @@ export function PetProvider({ children }) {
   const unlockPet = useCallback((speciesId) => {
     const species = PET_REGISTRY[speciesId];
     if (!species) return false;
+    if (species.comingSoon) return false; // chưa ra mắt
     // Check if already owned
     const alreadyOwned = Object.values(petData.collection).some((p) => p.speciesId === speciesId);
     if (alreadyOwned) return false;

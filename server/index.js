@@ -6,6 +6,7 @@ import passport from './config/passport.js';
 import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
 import adminRouter from './routes/admin.js';
+import invitesRouter from './routes/invites.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
 import { startScheduleJob } from './jobs/schedule-reminder.js';
@@ -44,6 +45,7 @@ app.use(passport.session());
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/auth', authRouter);
+app.use('/api/invites', invitesRouter);
 app.use('/api',  apiRouter);
 app.use('/api/admin', adminRouter);
 

@@ -8,6 +8,8 @@ import {
   getPetMood, getPetMessage, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
+import EvolutionAnimation from './EvolutionAnimation';
+import InviteSheet from '../invite/InviteSheet';
 
 export default function PetPage() {
   const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, feedXPToPet } = usePet();
@@ -15,6 +17,49 @@ export default function PetPage() {
   const showToast = useToast();
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState('');
+
+  // Evolution animation flow:
+  //  evoEvent = { stage: 'animation' | 'result', oldEvo, newEvo, petName }
+  const [evoEvent, setEvoEvent] = useState(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [sharePrefill, setSharePrefill] = useState('');
+
+  // Helper: gọi feedXPToPet và nếu pet tiến hóa, kích hoạt animation Pokemon-style.
+  function feedWithEvoAnim(amount, opts = {}) {
+    // Snapshot stage cũ trước khi feed
+    const before = getActivePetWithDecay();
+    const beforeSpecies = before ? PET_REGISTRY[before.speciesId] : null;
+    const beforeEvo = before && beforeSpecies
+      ? getPetEvolution(before.speciesId, before.totalXpEarned)
+      : null;
+
+    const r = feedXPToPet(amount);
+    if (!r.ok) {
+      if (r.reason === 'insufficient') showToast('Không đủ XP trong ví!', 'warning');
+      return r;
+    }
+    if (r.evolved && beforeSpecies) {
+      const newEvo = beforeSpecies.evolutions.find((e) => e.stage === r.newEvoStage)
+        || getPetEvolution(before.speciesId, (before.totalXpEarned || 0) + amount);
+      setEvoEvent({
+        stage: 'animation',
+        oldEvo: beforeEvo,
+        newEvo,
+        petName: before.customName,
+      });
+    } else if (!opts.silent) {
+      showToast(`+${amount} XP cho Pet`, 'success');
+    }
+    return r;
+  }
+
+  function openShareForEvo() {
+    if (!evoEvent) return;
+    const msg = `Cowdi của mình vừa tiến hóa thành ${evoEvent.newEvo?.name || 'pet mới'}! 🎉\nHọc tiếng Anh chung cho vui nha 🐾`;
+    setSharePrefill(msg);
+    setEvoEvent(null);
+    setShareOpen(true);
+  }
 
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
@@ -192,18 +237,7 @@ export default function PetPage() {
               type="button"
               className="btn btn-sm btn-warning fw-bold"
               disabled={(userData.availableXP || 0) < amt}
-              onClick={() => {
-                const r = feedXPToPet(amt);
-                if (!r.ok) {
-                  showToast('Không đủ XP trong ví!', 'warning');
-                  return;
-                }
-                if (r.evolved) {
-                  showToast(`🎉 Pet đã tiến hóa lên stage ${r.newEvoStage}!`, 'success');
-                } else {
-                  showToast(`+${amt} XP cho Pet`, 'success');
-                }
-              }}
+              onClick={() => { feedWithEvoAnim(amt); }}
             >
               +{amt} XP
             </button>
@@ -214,13 +248,10 @@ export default function PetPage() {
               className="btn btn-sm btn-success fw-bold"
               onClick={() => {
                 const need = nextEvo.xp - (activePet.totalXpEarned || 0);
-                const r = feedXPToPet(need);
-                if (r.ok && r.evolved) {
-                  showToast(`🎉 Pet tiến hóa thành ${nextEvo.name}!`, 'success');
-                }
+                feedWithEvoAnim(need, { silent: true });
               }}
             >
-              🚀 Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
+              ⚡ Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
             </button>
           )}
           <button
@@ -229,12 +260,7 @@ export default function PetPage() {
             disabled={(userData.availableXP || 0) <= 0}
             onClick={() => {
               const all = userData.availableXP || 0;
-              const r = feedXPToPet(all);
-              if (r.ok) {
-                showToast(r.evolved
-                  ? `🎉 +${all} XP – Pet tiến hóa lên stage ${r.newEvoStage}!`
-                  : `+${all} XP cho Pet`, 'success');
-              }
+              feedWithEvoAnim(all);
             }}
           >
             Tiêu tất cả ({userData.availableXP || 0})
@@ -349,6 +375,101 @@ export default function PetPage() {
           <div className="pet-action-hint">{petData.coins}🪙</div>
         </Link>
       </div>
+
+      {/* Pokemon-style evolution animation */}
+      {evoEvent?.stage === 'animation' && (
+        <EvolutionAnimation
+          oldEvo={evoEvent.oldEvo}
+          newEvo={evoEvent.newEvo}
+          petName={evoEvent.petName}
+          onComplete={() => setEvoEvent((e) => e ? { ...e, stage: 'result' } : e)}
+          onSkip={()    => setEvoEvent((e) => e ? { ...e, stage: 'result' } : e)}
+        />
+      )}
+
+      {/* Evolution result modal with share */}
+      {evoEvent?.stage === 'result' && (
+        <div className="cowdi-evo-result-overlay" role="dialog">
+          <div className="cowdi-evo-result-card">
+            <div className="cowdi-evo-result-title">🎉 {evoEvent.petName} vừa tiến hóa!</div>
+            <div className="cowdi-evo-result-pet">
+              {evoEvent.newEvo?.image ? (
+                <img src={evoEvent.newEvo.image} alt={evoEvent.newEvo.name} />
+              ) : (
+                <span style={{ fontSize: '6rem' }}>{evoEvent.newEvo?.emoji || '✨'}</span>
+              )}
+            </div>
+            <div className="cowdi-evo-result-name">{evoEvent.newEvo?.name}</div>
+            <div className="cowdi-evo-result-actions">
+              <button type="button" className="btn btn-cowdi-primary fw-bold" onClick={openShareForEvo}>
+                🎁 Khoe & mời bạn
+              </button>
+              <button type="button" className="btn btn-outline-secondary" onClick={() => setEvoEvent(null)}>
+                Đóng
+              </button>
+            </div>
+          </div>
+          <style>{`
+            .cowdi-evo-result-overlay {
+              position: fixed; inset: 0; z-index: 1201;
+              background: rgba(10, 6, 20, 0.78);
+              display: flex; align-items: center; justify-content: center;
+              padding: 20px;
+              animation: cowdiEvoResultIn 0.3s ease-out;
+            }
+            @keyframes cowdiEvoResultIn { from { opacity: 0; } to { opacity: 1; } }
+            .cowdi-evo-result-card {
+              background: linear-gradient(180deg, #fff 0%, #fff7e3 100%);
+              border-radius: 20px;
+              padding: 28px 24px;
+              max-width: 360px; width: 100%;
+              text-align: center;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,215,100,0.4);
+              animation: cowdiEvoResultPop 0.45s cubic-bezier(.2,1.4,.4,1);
+            }
+            @keyframes cowdiEvoResultPop {
+              0%   { transform: scale(0.7) translateY(20px); opacity: 0; }
+              100% { transform: scale(1) translateY(0); opacity: 1; }
+            }
+            .cowdi-evo-result-title {
+              font-size: 1.15rem; font-weight: 700; color: #6a3d00;
+              margin-bottom: 14px;
+            }
+            .cowdi-evo-result-pet {
+              width: 180px; height: 180px; margin: 0 auto 12px;
+              display: flex; align-items: center; justify-content: center;
+              background: radial-gradient(circle, #fffbe4 0%, transparent 70%);
+            }
+            .cowdi-evo-result-pet img {
+              width: 100%; height: 100%; object-fit: contain;
+              filter: drop-shadow(0 6px 14px rgba(0,0,0,0.2));
+              animation: cowdiEvoResultBob 2s ease-in-out infinite;
+            }
+            @keyframes cowdiEvoResultBob {
+              0%, 100% { transform: translateY(0); }
+              50%      { transform: translateY(-8px); }
+            }
+            .cowdi-evo-result-name {
+              font-size: 1.4rem; font-weight: 800;
+              background: linear-gradient(90deg, #ff8c42, #ff5e62);
+              -webkit-background-clip: text; background-clip: text;
+              -webkit-text-fill-color: transparent;
+              margin-bottom: 18px;
+            }
+            .cowdi-evo-result-actions {
+              display: flex; flex-direction: column; gap: 10px;
+            }
+            .cowdi-evo-result-actions .btn { padding: 10px 18px; border-radius: 12px; }
+          `}</style>
+        </div>
+      )}
+
+      {/* Share sheet (pre-filled with evolution message) */}
+      <InviteSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        prefilledMessage={sharePrefill}
+      />
     </div>
   );
 }

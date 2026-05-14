@@ -3,6 +3,7 @@ import { usePet } from '../../hooks/usePet';
 import { SHOP_ITEMS, PET_REGISTRY } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
+import InviteSheet from '../invite/InviteSheet';
 
 const CATEGORIES = [
   { id: 'hat', icon: '🎩', label: 'Mũ' },
@@ -10,13 +11,15 @@ const CATEGORIES = [
   { id: 'room', icon: '🏠', label: 'Phòng' },
   { id: 'effect', icon: '✨', label: 'Hiệu ứng' },
   { id: 'food', icon: '🍕', label: 'Đồ ăn' },
+  { id: 'gift', icon: '🎁', label: 'Quà tặng' },
 ];
 
 export default function ShopPage() {
-  const { petData, buyItem, equipItem, useFood } = usePet();
+  const { petData, buyItem, equipItem, useFood, spendCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();
   const [category, setCategory] = useState('hat');
+  const [giftOpen, setGiftOpen] = useState(false);
 
   const items = useMemo(() =>
     SHOP_ITEMS.filter((i) => i.category === category),
@@ -26,6 +29,22 @@ export default function ShopPage() {
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
 
   function handleBuy(item) {
+    // Gift item: tiêu hao ngay, mở InviteSheet thay vì thêm vào ownedItems
+    if (item.category === 'gift') {
+      if (petData.coins < item.price) {
+        play('denied');
+        showToast('Không đủ coins! 💸', 'warning');
+        return;
+      }
+      if (!spendCoins(item.price)) {
+        showToast('Không đủ coins! 💸', 'warning');
+        return;
+      }
+      play('purchase');
+      showToast(`Đã đổi ${item.name}! Mở thiệp tặng bạn... 🎁`, 'success');
+      setGiftOpen(true);
+      return;
+    }
     const ok = buyItem(item.id, item.price);
     if (ok) {
       play('purchase');
@@ -105,7 +124,8 @@ export default function ShopPage() {
       {/* Items grid */}
       <div className="row g-3">
         {items.map((item) => {
-          const owned = petData.ownedItems.includes(item.id);
+          const isGift = item.category === 'gift';
+          const owned = !isGift && petData.ownedItems.includes(item.id);
           const isFood = item.category === 'food';
           const isEquippable = ['hat', 'outfit', 'room', 'effect'].includes(item.category);
           const isEquipped = activePet?.cosmetics?.[item.category] === item.id;
@@ -118,7 +138,15 @@ export default function ShopPage() {
                   <h6 className="fw-bold small">{item.name}</h6>
                   <p className="text-muted mb-2" style={{ fontSize: '0.72rem' }}>{item.description}</p>
 
-                  {!owned ? (
+                  {isGift ? (
+                    <button
+                      className={`btn btn-sm w-100 ${petData.coins >= item.price ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                      onClick={() => handleBuy(item)}
+                      disabled={petData.coins < item.price}
+                    >
+                      🎁 Tặng bạn — 🪙 {item.price}
+                    </button>
+                  ) : !owned ? (
                     <button
                       className={`btn btn-sm w-100 ${petData.coins >= item.price ? 'btn-warning' : 'btn-outline-secondary'}`}
                       onClick={() => handleBuy(item)}
@@ -171,6 +199,13 @@ export default function ShopPage() {
           </div>
         </div>
       </div>
+
+      {/* Gift invite sheet — opened after buying gift_egg */}
+      <InviteSheet
+        open={giftOpen}
+        onClose={() => setGiftOpen(false)}
+        prefilledMessage={'Mình tặng bạn một quả trứng Cowdi 🎁\nHọc tiếng Anh cùng mình nha!'}
+      />
     </div>
   );
 }

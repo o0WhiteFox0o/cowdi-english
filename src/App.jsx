@@ -24,8 +24,7 @@ const ReviewPage          = lazy(() => import('./pages/ReviewPage'));
 const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'));
 const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
-const AdminPage           = lazy(() => import('./pages/AdminPage'));
-
+const AdminPage           = lazy(() => import('./pages/AdminPage'));const InvitePage          = lazy(() => import('./pages/InvitePage'));
 function PageFallback() {
   return (
     <div className="text-center py-5">
@@ -80,6 +79,7 @@ export default function App() {
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />
+            <Route path="/i/:code" element={<InvitePage />} />
             <Route path="*" element={<HomePage />} />
           </Routes>
         </Suspense>

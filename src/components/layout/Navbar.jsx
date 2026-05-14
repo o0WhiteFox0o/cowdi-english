@@ -6,6 +6,7 @@ import { usePet } from '../../hooks/usePet';
 import { useSound } from '../../hooks/useSound';
 import { LEVELS } from '../../data/config/levels';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import InviteSheet from '../../features/invite/InviteSheet';
 
 /* Route groups for highlighting active nav section */
 const LEARN_PATHS    = ['/lessons', '/vocabulary', '/review'];
@@ -40,6 +41,7 @@ export default function Navbar() {
 
   /* ── Mobile popup sub-menu state ── */
   const [openTab, setOpenTab] = useState(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const popupRef = useRef(null);
 
   // Close popup when route changes
@@ -88,6 +90,7 @@ export default function Navbar() {
       { icon: '🛍️', label: 'Shop',       path: '/shop' },
     ]},
     me:       { items: [
+      { icon: '🎁', label: 'Mời bạn',         action: 'invite' },
       { icon: '📊', label: 'Tiến trình',      path: '/progress' },
       { icon: '🏆', label: 'Xếp hạng',        path: '/student-ranking' },
       { icon: '🏅', label: 'Xếp hạng Pet',    path: '/leaderboard' },
@@ -182,6 +185,8 @@ export default function Navbar() {
                 <span className="d-xl-none">Tôi</span>
               </a>
               <ul className="dropdown-menu cowdi-dropdown-menu">
+                <li><button type="button" className="dropdown-item" onClick={() => setInviteOpen(true)}>🎁 Mời bạn học cùng</button></li>
+                <li><hr className="dropdown-divider" /></li>
                 <li><NavLink className="dropdown-item" to="/progress">📊 Tiến trình</NavLink></li>
                 <li><NavLink className="dropdown-item" to="/student-ranking">🏆 Xếp hạng</NavLink></li>
                 <li><NavLink className="dropdown-item" to="/leaderboard">🏅 Xếp hạng Pet</NavLink></li>
@@ -264,9 +269,12 @@ export default function Navbar() {
           <div className="bottom-popup-menu">
             {MOBILE_MENUS[openTab].items.map((item) => (
               <button
-                key={item.path}
-                className={`bottom-popup-item ${pathname === item.path ? 'active' : ''}`}
-                onClick={() => goTo(item.path)}
+                key={item.path || item.action}
+                className={`bottom-popup-item ${item.path && pathname === item.path ? 'active' : ''}`}
+                onClick={() => {
+                  if (item.action === 'invite') { setOpenTab(null); setInviteOpen(true); }
+                  else goTo(item.path);
+                }}
               >
                 <span className="bottom-popup-icon">{item.icon}</span>
                 <span className="bottom-popup-label">{item.label}</span>
@@ -306,6 +314,41 @@ export default function Navbar() {
           <span className="bottom-tab-label">Tôi</span>
         </button>
       </nav>
+
+      {/* 🎁 Floating Invite Button (mobile only, when logged in) */}
+      {user && (
+        <button
+          type="button"
+          onClick={() => setInviteOpen(true)}
+          className="d-lg-none cowdi-invite-fab"
+          aria-label="Mời bạn học cùng"
+          title="Mời bạn học cùng"
+        >
+          🎁
+        </button>
+      )}
+
+      {/* 🎁 Invite Sheet (modal) */}
+      <InviteSheet open={inviteOpen} onClose={() => setInviteOpen(false)} />
+
+      <style>{`
+        .cowdi-invite-fab {
+          position: fixed;
+          right: 14px;
+          bottom: 84px; /* trên bottom-nav */
+          width: 52px; height: 52px;
+          border-radius: 50%;
+          border: none;
+          background: linear-gradient(135deg, #FFD86B 0%, #FF8FA3 100%);
+          color: #fff;
+          font-size: 1.6rem;
+          box-shadow: 0 6px 16px rgba(255,142,163,0.45);
+          z-index: 1050;
+          display: flex; align-items: center; justify-content: center;
+          transition: transform .15s ease;
+        }
+        .cowdi-invite-fab:active { transform: scale(0.92); }
+      `}</style>
     </>
   );
 }

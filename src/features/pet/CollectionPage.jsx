@@ -73,7 +73,8 @@ export default function CollectionPage() {
               {pets.map((sp) => {
                 const owned = ownedSpecies[sp.id];
                 const isActive = owned && petData.activePetId === owned.instanceId;
-                const canUnlock = !owned && checkUnlockCondition(sp.unlockCondition, userData, petData);
+                const comingSoon = !!sp.comingSoon;
+                const canUnlock = !owned && !comingSoon && checkUnlockCondition(sp.unlockCondition, userData, petData);
                 const evo = owned ? getPetEvolution(sp.id, owned.totalXpEarned) : null;
                 const power = owned ? calculatePowerScore(owned, sp) : 0;
 
@@ -106,10 +107,18 @@ export default function CollectionPage() {
                           </>
                         ) : (
                           <div className="mt-1">
-                            <span className="badge bg-secondary" style={{ fontSize: '0.6rem' }}>
-                              {getConditionText(sp.unlockCondition)}
-                            </span>
-                            {canUnlock && <div className="text-success fw-bold" style={{ fontSize: '0.7rem' }}>✅ Có thể mở!</div>}
+                            {comingSoon ? (
+                              <span className="badge" style={{ background: '#FFE5B4', color: '#A0522D', fontSize: '0.6rem' }}>
+                                🔜 Sắp ra mắt
+                              </span>
+                            ) : (
+                              <>
+                                <span className="badge bg-secondary" style={{ fontSize: '0.6rem' }}>
+                                  {getConditionText(sp.unlockCondition)}
+                                </span>
+                                {canUnlock && <div className="text-success fw-bold" style={{ fontSize: '0.7rem' }}>✅ Có thể mở!</div>}
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -197,15 +206,26 @@ export default function CollectionPage() {
                   </>
                 ) : (
                   <div className="text-center">
-                    <div className="mb-2 text-muted small">
-                      Điều kiện: {getConditionText(selectedSpecies.unlockCondition)}
-                    </div>
-                    {checkUnlockCondition(selectedSpecies.unlockCondition, userData, petData) ? (
-                      <button className="btn btn-success w-100" onClick={() => handleUnlock(selected)}>
-                        🔓 Mở khóa ngay!
-                      </button>
+                    {selectedSpecies.comingSoon ? (
+                      <>
+                        <div className="mb-2 text-muted small">
+                          🔜 Pet này đang được thiết kế — sắp ra mắt trong bản cập nhật tới!
+                        </div>
+                        <button className="btn btn-warning w-100" disabled>🔜 Sắp ra mắt</button>
+                      </>
                     ) : (
-                      <button className="btn btn-secondary w-100" disabled>🔒 Chưa đủ điều kiện</button>
+                      <>
+                        <div className="mb-2 text-muted small">
+                          Điều kiện: {getConditionText(selectedSpecies.unlockCondition)}
+                        </div>
+                        {checkUnlockCondition(selectedSpecies.unlockCondition, userData, petData) ? (
+                          <button className="btn btn-success w-100" onClick={() => handleUnlock(selected)}>
+                            🔓 Mở khóa ngay!
+                          </button>
+                        ) : (
+                          <button className="btn btn-secondary w-100" disabled>🔒 Chưa đủ điều kiện</button>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

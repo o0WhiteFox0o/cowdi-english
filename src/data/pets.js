@@ -917,6 +917,7 @@ export const PET_REGISTRY = {
     emoji: '🍄',
     element: 'earth',
     rarity: 'rare',
+    comingSoon: true,
     baseStats: { listening: 6, speaking: 4, reading: 7, writing: 5 },
     description: 'Nấm rơm khiêm nhường mọc trong đêm, lặng lẽ tích lũy tri thức như mùa rơm rạ sau gặt.',
     evolutions: [
@@ -953,6 +954,7 @@ export const PET_REGISTRY = {
     emoji: '🥬',
     element: 'earth',
     rarity: 'rare',
+    comingSoon: true,
     baseStats: { listening: 5, speaking: 5, reading: 6, writing: 7 },
     description: 'Củ cải trắng cắm rễ sâu vào đất, viết từng nét chữ chắc nịch như củ trắng giòn ngọt.',
     evolutions: [
@@ -989,6 +991,7 @@ export const PET_REGISTRY = {
     emoji: '🥟',
     element: 'neutral',
     rarity: 'epic',
+    comingSoon: true,
     baseStats: { listening: 6, speaking: 7, reading: 5, writing: 5 },
     description: 'Bánh Bao mũm mĩm, ấm áp và hào phóng — luôn sẵn sàng kể chuyện và mời bạn cùng học.',
     evolutions: [
@@ -1056,6 +1059,9 @@ export const SHOP_ITEMS = [
   { id: 'food_cake', name: 'Bánh sinh nhật', category: 'food', emoji: '🎂', price: 100, description: '+40 Vui vẻ!' },
   { id: 'food_apple', name: 'Táo thần', category: 'food', emoji: '🍎', price: 60, description: '+30 Sức khỏe!' },
   { id: 'food_book', name: 'Sách phép', category: 'food', emoji: '📖', price: 70, description: '+30 Kiến thức!' },
+
+  // Gifts (tặng bạn bè — tiêu hao mỗi lần dùng)
+  { id: 'gift_egg', name: 'Hộp trứng quà tặng', category: 'gift', emoji: '🎁', price: 1000, consumable: true, description: 'Tạo 1 thiệp QR để tặng trứng pet cho bạn bè!' },
 ];
 
 // ── Quest Templates ──────────────────────────────────────────────────────────
