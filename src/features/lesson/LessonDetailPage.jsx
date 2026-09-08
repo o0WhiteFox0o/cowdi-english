@@ -1,9 +1,26 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LESSONS } from '../../data/lessons';
 import { EXAM_LESSONS } from '../../data/lessons';
+import { getLessonAccess, getNextPathLesson } from '../../data/path';
+import Icon from '../../components/Icon';
 
 const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
+
+/* Lesson is learned as a fixed sequence of parts (Duolingo-style) */
+const LESSON_STEPS = [
+  { key: 'vocab',     label: 'Từ vựng',   icon: 'book' },
+  { key: 'flashcard', label: 'Flashcard', icon: 'blocks' },
+  { key: 'grammar',   label: 'Ngữ pháp',  icon: 'pencil' },
+  { key: 'reading',   label: 'Đoạn văn',  icon: 'redbook' },
+  { key: 'listen',    label: 'Nghe câu',  icon: 'ear' },
+  { key: 'speak',     label: 'Nói theo',  icon: 'speak' },
+  { key: 'quiz',      label: 'Quiz',      icon: 'target' },
+];
+const stepStorageKey = (lessonId) => `cowdi_lesson_steps:${lessonId}`;
+function loadStepDone(lessonId) {
+  try { return JSON.parse(localStorage.getItem(stepStorageKey(lessonId))) || {}; } catch { return {}; }
+}
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { useToast } from '../../components/layout/Toast';
@@ -459,8 +476,9 @@ export default function LessonDetailPage() {
 
   const confettiRef = useRef(null);
 
-  // Tabs: vocab, flashcard, grammar, speak, quiz
+  // Steps: vocab → flashcard → grammar → reading → listen → speak → quiz
   const [tab, setTab] = useState('vocab');
+  const [stepDone, setStepDone] = useState(() => loadStepDone(id));
   const [quizMode, setQuizMode] = useState(false);
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -629,19 +647,100 @@ export default function LessonDetailPage() {
 
   const speakSlow = useCallback((text) => speakWord(text, 0.55), [speakWord]);
 
+  /* ── Lesson steps: only parts that have content ── */
+  const steps = useMemo(() => {
+    if (!lesson) return [];
+    const hasListen = (lesson.grammar || []).some((g) =>
+      (g.examples || []).some((ex) => ex.en && ex.vi && ex.en.trim().split(/\s+/).length >= 2));
+    return LESSON_STEPS.filter((s) => {
+      if (s.key === 'grammar') return (lesson.grammar || []).length > 0;
+      if (s.key === 'reading') return !!lesson.reading?.passage;
+      if (s.key === 'listen') return hasListen;
+      if (s.key === 'quiz') return (lesson.quiz || []).length > 0;
+      return true;
+    });
+  }, [lesson]);
+
+  const markStep = useCallback((key) => {
+    setStepDone((prev) => {
+      if (prev[key]) return prev;
+      const next = { ...prev, [key]: true };
+      try { localStorage.setItem(stepStorageKey(id), JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, [id]);
+
+  // Resume at the first unfinished part when opening a lesson
+  useEffect(() => {
+    const done = loadStepDone(id);
+    setStepDone(done);
+    const first = steps.find((s) => !done[s.key]);
+    setTab(first ? first.key : (steps[0]?.key || 'vocab'));
+  }, [id, steps]);
+
+  useEffect(() => { if (listenDone) markStep('listen'); }, [listenDone, markStep]);
+  useEffect(() => { if (speakDone) markStep('speak'); }, [speakDone, markStep]);
+  useEffect(() => { if (finished) markStep('quiz'); }, [finished, markStep]);
+
   if (!lesson) {
     return (
       <div className="text-center py-5">
         <h2>Không tìm thấy bài học</h2>
-        <button className="btn btn-cowdi-primary mt-3" onClick={() => navigate('/lessons')}>
+        <button className="btn btn-cowdi-primary mt-3" onClick={() => navigate('/learning-path')}>
           Quay lại
         </button>
       </div>
     );
   }
 
+  /* ── Sequential path: bài chưa mở khoá thì không được học ── */
+  const access = getLessonAccess(lesson.id, userData);
+  if (access.locked) {
+    const b = access.blocker;
+    const blockerLesson = b?.type === 'lesson' ? ALL_LESSONS.find((l) => l.id === b.lessonId) : null;
+    const pathQuery = access.path?.id && access.path.id !== 'general' ? `?tab=${access.path.id}` : '';
+    return (
+      <div className="text-center py-5 fade-in" style={{ maxWidth: 520, margin: '0 auto' }}>
+        <Icon name="lock" size={84} />
+        <h2 className="mt-2">{lesson.icon} {lesson.title}</h2>
+        <p className="text-muted">Bài này chưa mở. Học lần lượt theo lộ trình để không bỏ sót kiến thức nhé!</p>
+        {b && (
+          <div className="card mb-3">
+            <div className="card-body">
+              <small className="text-muted">Bước tiếp theo của bạn</small>
+              <div className="fs-5 d-flex align-items-center justify-content-center gap-2">
+                {b.type === 'lesson'
+                  ? `${blockerLesson?.icon || ''} ${blockerLesson?.title || b.lessonId}`
+                  : <><Icon name="trophy" size={24} /> {b.unit.checkpoint.title}</>}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="d-flex gap-2 justify-content-center flex-wrap">
+          {b?.type === 'lesson' && (
+            <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${b.lessonId}`)}><Icon name="play" size={18} /> Học bài tiếp theo</button>
+          )}
+          <button className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuery}`)}><Icon name="road" size={18} /> Xem lộ trình</button>
+        </div>
+      </div>
+    );
+  }
+
   const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson.quiz || []);
   const vocab = lesson.vocabulary;
+  const pathQuerySuffix = access.path?.id && access.path.id !== 'general' ? `?tab=${access.path.id}` : '';
+  const pathNext = access.path ? getNextPathLesson(userData, access.path.id) : null;
+
+  /* ── Stepper progress ── */
+  const stepsDoneCount = steps.filter((s) => stepDone[s.key]).length;
+  const stepsPct = steps.length ? Math.round((stepsDoneCount / steps.length) * 100) : 0;
+  const firstOpenIdx = steps.findIndex((s) => !stepDone[s.key]);
+  const curStepIdx = steps.findIndex((s) => s.key === tab);
+  const nextStep = curStepIdx >= 0 ? steps[curStepIdx + 1] : null;
+  const completeStep = () => {
+    markStep(tab);
+    if (nextStep) { setTab(nextStep.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  };
 
   /* ── speakAlong sentences: combine vocab examples + grammar examples ── */
   const speakSentences = [
@@ -881,9 +980,15 @@ export default function LessonDetailPage() {
         </p>
         {pct === 100 && <div className="badge bg-warning text-dark fs-6 mb-3">💯 PERFECT SCORE!</div>}
         <div className="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-          <button className="btn btn-cowdi-primary" onClick={restartQuiz}>🔄 Làm lại</button>
+          {pathNext?.type === 'lesson' && pathNext.lessonId !== lesson.id && (
+            <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}><Icon name="play" size={18} /> Bài tiếp theo</button>
+          )}
+          {pathNext?.type === 'checkpoint' && (
+            <button className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="trophy" size={18} /> Làm bài kiểm tra Unit</button>
+          )}
+          <button className={`btn ${pathNext ? 'btn-outline-secondary' : 'btn-cowdi-primary'}`} onClick={restartQuiz}>🔄 Làm lại</button>
           <button className="btn btn-outline-secondary" onClick={() => setQuizMode(false)}>📚 Quay lại bài học</button>
-          <button className="btn btn-outline-secondary" onClick={() => navigate('/lessons')}>📋 Danh sách bài</button>
+          <button className="btn btn-outline-secondary" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>🛤️ Lộ trình</button>
         </div>
       </div>
     );
@@ -963,8 +1068,8 @@ export default function LessonDetailPage() {
       <div className="card shadow-sm mb-4">
         <div className={`card-header-level ${lesson.level}`}></div>
         <div className="card-body">
-          <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => navigate('/lessons')}>
-            <i className="fas fa-arrow-left me-1"></i>Quay lại
+          <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
+            <i className="fas fa-arrow-left me-1"></i>Lộ trình
           </button>
           <div className="d-flex align-items-center gap-3 flex-wrap">
             <span style={{ fontSize: '2.5rem' }}>{lesson.icon}</span>
@@ -980,30 +1085,35 @@ export default function LessonDetailPage() {
         </div>
       </div>
 
-      {/* Tab navigation */}
-      <div className="d-flex gap-2 mb-4 flex-wrap">
-        {[
-          { key: 'vocab', label: '📝 Từ vựng', variant: 'primary' },
-          { key: 'flashcard', label: '🃏 Flashcard', variant: 'primary' },
-          { key: 'grammar', label: '📖 Ngữ pháp', variant: 'primary' },
-          { key: 'reading', label: '📚 Đoạn văn', variant: 'primary' },
-          { key: 'listen', label: '🎵 Nghe câu', variant: 'primary' },
-          { key: 'speak', label: '🎤 Nói theo', variant: 'primary' },
-        ].map((t) => (
-          <button
-            key={t.key}
-            className={`btn btn-sm ${tab === t.key ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-            onClick={() => setTab(t.key)}
-          >
-            {t.label}
-          </button>
-        ))}
-        <button
-          className="btn btn-sm btn-warning fw-bold ms-auto"
-          onClick={() => { setQuizMode(true); restartQuiz(); }}
-        >
-          🎯 Làm Quiz
-        </button>
+      {/* Sequential stepper */}
+      <div className="lesson-steps mb-4">
+        <div className="lesson-steps-bar">
+          <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
+          <span>{stepsDoneCount}/{steps.length} phần · <b>{stepsPct}%</b></span>
+        </div>
+        <ol className="lesson-steps-list">
+          {steps.map((s, i) => {
+            const done = !!stepDone[s.key];
+            const locked = !done && firstOpenIdx !== -1 && i > firstOpenIdx;
+            const cur = tab === s.key;
+            return (
+              <li key={s.key} className="lesson-step-item">
+                <button
+                  type="button"
+                  className={`lesson-step ${done ? 'done' : ''} ${cur ? 'current' : ''} ${locked ? 'locked' : ''}`}
+                  disabled={locked}
+                  onClick={() => setTab(s.key)}
+                  title={locked ? 'Hoàn thành phần trước để mở' : s.label}
+                >
+                  <span className="lesson-step-dot">
+                    {done && !cur ? <Icon name="check" size={24} /> : locked ? <Icon name="lock" size={18} /> : <Icon name={s.icon} size={24} />}
+                  </span>
+                  <span className="lesson-step-label">{i + 1}. {s.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
       </div>
 
       {/* ── VOCAB TAB ── */}
@@ -1259,11 +1369,11 @@ export default function LessonDetailPage() {
           </div>
 
           <div className="d-flex gap-2 justify-content-center">
-            <button className="btn btn-cowdi-primary" onClick={resetSpeak}>
+            <button className="btn btn-outline-secondary" onClick={resetSpeak}>
               <i className="fas fa-redo me-1"></i>Luyện lại
             </button>
-            <button className="btn btn-outline-secondary" onClick={() => setTab('quiz')}>
-              Sang Quiz <i className="fas fa-arrow-right"></i>
+            <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={completeStep}>
+              Tiếp tục <Icon name="play" size={18} />
             </button>
           </div>
         </div>
@@ -1497,11 +1607,11 @@ export default function LessonDetailPage() {
                   +{listenQs.length * 2} XP đã được cộng vào tài khoản của bạn 🎧
                 </p>
                 <div className="d-flex gap-2 justify-content-center flex-wrap">
-                  <button className="btn btn-cowdi-primary" onClick={startLessonListen}>
+                  <button className="btn btn-outline-secondary" onClick={startLessonListen}>
                     🔁 Luyện lại
                   </button>
-                  <button className="btn btn-outline-secondary" onClick={() => setTab('vocab')}>
-                    Quay về bài học
+                  <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={completeStep}>
+                    Tiếp tục <Icon name="play" size={18} />
                   </button>
                 </div>
               </div>
@@ -1654,6 +1764,48 @@ export default function LessonDetailPage() {
               })()
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── QUIZ STEP (final) ── */}
+      {tab === 'quiz' && (
+        <div className="card text-center" style={{ maxWidth: 640, margin: '0 auto' }}>
+          <div className="card-body py-4">
+            <Icon name="target" size={80} />
+            <h3 className="mt-2 mb-1">Quiz tổng kết</h3>
+            <p className="text-muted mb-3">
+              {(lesson.quiz || []).length} câu hỏi về từ vựng &amp; ngữ pháp của bài. Hoàn thành để đánh dấu bài học xong.
+            </p>
+            {stepDone.quiz && <div className="mb-3"><span className="badge bg-success">Đã hoàn thành phần này</span></div>}
+            <button className="btn btn-warning btn-lg d-inline-flex align-items-center gap-2" onClick={() => { setQuizMode(true); restartQuiz(); }}>
+              <Icon name="play" size={22} /> {stepDone.quiz ? 'Làm lại Quiz' : 'Bắt đầu Quiz'}
+            </button>
+            {stepDone.quiz && (
+              <div className="mt-3">
+                <button className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
+                  <Icon name="road" size={18} /> Về lộ trình
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Step footer: finish this part → next ── */}
+      {['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
+        <div className="lesson-step-footer">
+          <div className="lesson-step-footer-txt">
+            <small className="text-muted">Phần {curStepIdx + 1}/{steps.length}</small>
+            <b>{steps[curStepIdx]?.label}</b>
+          </div>
+          <button type="button" className="btn btn-cowdi-primary btn-lg d-inline-flex align-items-center gap-2" onClick={completeStep}>
+            {nextStep ? <>Hoàn thành → {nextStep.label} <Icon name="play" size={20} /></> : <>Hoàn thành <Icon name="check" size={20} /></>}
+          </button>
+        </div>
+      )}
+      {tab === 'speak' && !speakDone && (
+        <div className="text-center mt-3">
+          <button type="button" className="btn btn-link text-muted" onClick={completeStep}>Không có micro? Bỏ qua phần này →</button>
         </div>
       )}
     </div>

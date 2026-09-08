@@ -3,30 +3,55 @@
    ============================================ */
 
 :root {
-  /* ── Book / Journal palette (see book.css) ── */
-  --paper:        #F7EFDC;
-  --paper-2:      #FDF8EC;
-  --paper-3:      #EFE3C8;
-  --paper-line:   #DCCBA6;
-  --ink:          #3F3226;
-  --ink-soft:     #6B5B4B;
-  --ink-muted:    #94846F;
-  --leaf:         #5C7A3F;
-  --leaf-dark:    #46602F;
-  --leaf-light:   #DDE7C9;
-  --leaf-pale:    #EEF3E3;
-  --wood:         #6B4A32;
-  --wood-dark:    #3E2A1D;
-  --wood-light:   #8C6644;
-  --terracotta:   #C97B4A;
-  --gold:         #D9A93C;
-  --sky:          #BFD9E8;
+  /* ── Notebook palette (sky → grass → leather notebook → graph paper) ── */
+  --sky-top:      #7FC9F3;
+  --sky-bottom:   #D9F0FC;
+  --grass:        #8FCB4E;
+  --grass-dark:   #6FAE36;
+  --grass-light:  #BEE48A;
+  --leather:      #5B3B25;
+  --leather-dark: #3F2716;
+  --leather-light:#7A5133;
+  --brass:        #E0B968;
+  --brass-dark:   #B78C3E;
 
-  /* Legacy brand tokens → remapped to book palette so all pages inherit */
+  --paper:        #FDFEFF;   /* graph-paper page */
+  --paper-2:      #FFFFFF;
+  --paper-3:      #EEF6FC;
+  --paper-line:   #BFDBEF;   /* light-blue grid line */
+  --grid:         rgba(96, 160, 220, 0.22);
+
+  --ink:          #3B4A5C;
+  --ink-soft:     #5F6E80;
+  --ink-muted:    #8A99AA;
+
+  /* Node / accent colours (green ★, blue ★, orange ★, red ★) */
+  --leaf:         #7DBE4B;
+  --leaf-dark:    #5E9A35;
+  --leaf-light:   #DDF1C8;
+  --leaf-pale:    #EEF8E4;
+  --blue:         #4EA8E8;
+  --blue-dark:    #2F86C6;
+  --orange:       #F4A83A;
+  --orange-dark:  #D48A1E;
+  --red:          #EA5A5A;
+  --red-dark:     #C63F3F;
+  --pink:         #F48FB1;
+  --teal:         #5ECFC0;
+  --yellow:       #F6D365;
+
+  /* Legacy tokens kept for older components */
+  --wood:         var(--leather-light);
+  --wood-dark:    var(--leather-dark);
+  --wood-light:   #8F6A4A;
+  --terracotta:   var(--orange);
+  --gold:         var(--yellow);
+  --sky:          #BFE3F7;
+
   --cowdi-primary: var(--leaf);
   --cowdi-primary-dark: var(--leaf-dark);
-  --cowdi-primary-light: #7B9A5C;
-  --cowdi-secondary: var(--terracotta);
+  --cowdi-primary-light: #A3D67A;
+  --cowdi-secondary: var(--orange);
   --cowdi-bg: var(--paper);
   --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-hand: 'Patrick Hand', 'Nunito', cursive;

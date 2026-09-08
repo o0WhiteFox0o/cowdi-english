@@ -10,6 +10,8 @@ import './styles/components.css';
 import './styles/pages.css';
 import './styles/pet.css';
 import './styles/book.css';
+import './styles/path.css';
+import './styles/dex.css';
 
 // ── Fix: Nginx có thể thêm # vào URL callback ──────────────────────────────
 // Chuyển /#/auth-callback?token=... thành /auth-callback?token=...

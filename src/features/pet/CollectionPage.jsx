@@ -1,19 +1,46 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import {
   PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel,
   checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
 } from '../../data/pets';
+import Icon, { ELEMENT_ICON, SKILL_ICON } from '../../components/Icon';
 
 const RARITY_ORDER = ['starter', 'common', 'rare', 'epic', 'legendary', 'event'];
+const RARITY_STARS = { starter: 1, common: 1, rare: 2, epic: 3, legendary: 4, event: 3 };
+const MAX_STAT = 10;
+const elName = (el) => (el?.name || '').replace(' 🌱', '');
+const Stars = ({ n }) => (
+  <span className="dex-stars">{Array.from({ length: n }, (_, i) => <Icon key={i} name="star" size={12} />)}</span>
+);
+
+/* Image with emoji fallback (some species have no artwork yet) */
+function PetArt({ src, emoji, alt, className, silhouette }) {
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [src]);
+  if (!src || broken) {
+    return <span className={`${className} dex-emoji ${silhouette ? 'silhouette' : ''}`} role="img" aria-label={alt}>{emoji}</span>;
+  }
+  return (
+    <img src={src} alt={alt} className={`${className} ${silhouette ? 'silhouette' : ''}`}
+      loading="lazy" decoding="async" onError={() => setBroken(true)} />
+  );
+}
 
 export default function CollectionPage() {
-  const { petData, switchActivePet, unlockPet, renamePet } = usePet();
+  const { petData, switchActivePet, unlockPet } = usePet();
   const { userData } = useUser();
   const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState('all'); // 'all' | element | 'owned'
 
-  const allSpecies = useMemo(() => Object.values(PET_REGISTRY), []);
+  /* Dex entries: numbered by rarity then registry order */
+  const entries = useMemo(() => {
+    const all = Object.values(PET_REGISTRY);
+    const sorted = [...all].sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
+    return sorted.map((sp, i) => ({ ...sp, no: i + 1 }));
+  }, []);
+
   const ownedSpecies = useMemo(() => {
     const map = {};
     for (const [id, pet] of Object.entries(petData.collection)) {
@@ -22,237 +49,218 @@ export default function CollectionPage() {
     return map;
   }, [petData.collection]);
 
-  const grouped = useMemo(() => {
-    const groups = {};
-    for (const sp of allSpecies) {
-      if (!groups[sp.rarity]) groups[sp.rarity] = [];
-      groups[sp.rarity].push(sp);
-    }
-    return groups;
-  }, [allSpecies]);
+  const visible = useMemo(() => {
+    if (filter === 'all') return entries;
+    if (filter === 'owned') return entries.filter((e) => ownedSpecies[e.id]);
+    return entries.filter((e) => e.element === filter);
+  }, [entries, filter, ownedSpecies]);
 
-  const collectionCount = Object.keys(petData.collection).length;
-  const totalPets = allSpecies.length;
-  const pct = Math.round((collectionCount / totalPets) * 100);
+  const ownedCount = Object.keys(ownedSpecies).length;
+  const total = entries.length;
+  const pct = Math.round((ownedCount / total) * 100);
 
-  function handleUnlock(speciesId) {
-    const ok = unlockPet(speciesId);
-    if (ok) setSelected(speciesId);
+  // Default selection: active pet
+  useEffect(() => {
+    if (selected) return;
+    const active = petData.collection[petData.activePetId];
+    if (active && window.matchMedia('(min-width: 992px)').matches) setSelected(active.speciesId);
+  }, [petData.activePetId, petData.collection, selected]);
+
+  const sel = selected ? entries.find((e) => e.id === selected) : null;
+  const selOwned = sel ? ownedSpecies[sel.id] : null;
+  const selEvo = selOwned ? getPetEvolution(sel.id, selOwned.totalXpEarned) : null;
+  const selCanUnlock = sel && !selOwned && !sel.comingSoon && checkUnlockCondition(sel.unlockCondition, userData, petData);
+  const isActive = selOwned && petData.activePetId === selOwned.instanceId;
+
+  function handleUnlock(id) {
+    if (unlockPet(id)) setSelected(id);
   }
-
-  function handleSetActive(instanceId) {
-    switchActivePet(instanceId);
-  }
-
-  // Detail modal
-  const selectedSpecies = selected ? PET_REGISTRY[selected] : null;
-  const selectedOwned = selected ? ownedSpecies[selected] : null;
 
   return (
-    <div className="fade-in">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold">📦 Bộ sưu tập Pet</h2>
-        <p className="text-muted">{collectionCount}/{totalPets} pet đã mở khóa</p>
-        <div className="progress mx-auto mb-2" style={{ maxWidth: 400, height: 10 }}>
-          <div className="progress-bar progress-bar-cowdi" style={{ width: `${pct}%` }}></div>
+    <div className="fade-in dex-page">
+      {/* ── Header ── */}
+      <div className="dex-head">
+        <div className="dex-title">
+          <span className="dex-lens"><Icon name="lens" size={40} /></span>
+          <div>
+            <h2 className="mb-0">Pokédex Pet</h2>
+            <small className="text-muted">Sổ tay ghi chép mọi loài pet trong thế giới Cowdi</small>
+          </div>
         </div>
-        {collectionCount < 17 && (
-          <small className="text-muted">Thu thập tất cả pet để mở khóa Draco! 🐲</small>
-        )}
+        <div className="dex-counter">
+          <div className="dex-counter-num">{String(ownedCount).padStart(2, '0')}<span>/{total}</span></div>
+          <div className="book-bar"><i style={{ width: `${pct}%` }} /></div>
+          <small className="text-muted">đã sở hữu · {pct}%</small>
+        </div>
       </div>
 
-      {/* Grid by rarity */}
-      {RARITY_ORDER.map((rarity) => {
-        const pets = grouped[rarity];
-        if (!pets || pets.length === 0) return null;
-        const rc = RARITY_COLORS[rarity];
-        return (
-          <div key={rarity} className="mb-4">
-            <h6 className="fw-bold mb-2" style={{ color: rc.text }}>{rc.name}</h6>
-            <div className="row g-2">
-              {pets.map((sp) => {
-                const owned = ownedSpecies[sp.id];
-                const isActive = owned && petData.activePetId === owned.instanceId;
-                const comingSoon = !!sp.comingSoon;
-                const canUnlock = !owned && !comingSoon && checkUnlockCondition(sp.unlockCondition, userData, petData);
-                const evo = owned ? getPetEvolution(sp.id, owned.totalXpEarned) : null;
-                const power = owned ? calculatePowerScore(owned, sp) : 0;
+      {/* ── Filters ── */}
+      <div className="dex-filters">
+        <button type="button" className={`dex-chip ${filter === 'all' ? 'on' : ''}`} onClick={() => setFilter('all')}>Tất cả</button>
+        <button type="button" className={`dex-chip ${filter === 'owned' ? 'on' : ''}`} onClick={() => setFilter('owned')}><Icon name="star" size={16} /> Đã có</button>
+        {Object.entries(ELEMENT_COLORS).map(([key, el]) => (
+          <button type="button" key={key} className={`dex-chip ${filter === key ? 'on' : ''}`}
+            style={{ '--c': el.text }} onClick={() => setFilter(key)}>
+            <Icon name={ELEMENT_ICON[key]} size={16} /> {elName(el)}
+          </button>
+        ))}
+      </div>
 
-                return (
-                  <div className="col-6 col-md-4 col-lg-3" key={sp.id}>
-                    <div
-                      className={`card h-100 shadow-sm card-hover ${isActive ? 'border-warning border-2' : owned ? 'border-success' : ''}`}
-                      style={{ cursor: 'pointer', opacity: owned ? 1 : 0.6 }}
-                      onClick={() => setSelected(sp.id)}
-                    >
-                      <div className="card-body text-center py-3">
-                        {owned && evo?.image ? (
-                          <div className="mb-1">
-                            <img src={evo.image} alt={sp.name} className="collection-pet-img" loading="lazy" decoding="async" />
-                          </div>
-                        ) : (
-                          <div className="fs-1 mb-1">{owned ? (evo?.emoji || sp.emoji) : '🔒'}</div>
-                        )}
-                        <div className="fw-bold small">{sp.name}</div>
-                        <div style={{ fontSize: '0.7rem' }} className="text-muted">{sp.species}</div>
-                        {owned ? (
-                          <>
-                            <div className="mt-1">
-                              {isActive && <span className="badge bg-warning text-dark" style={{ fontSize: '0.65rem' }}>⭐ Active</span>}
-                              {!isActive && <span className="badge bg-light text-muted" style={{ fontSize: '0.65rem' }}>💤 Resting</span>}
-                            </div>
-                            <div className="text-muted" style={{ fontSize: '0.65rem' }}>
-                              {evo?.name} · ⚡{power}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="mt-1">
-                            {comingSoon ? (
-                              <span className="badge" style={{ background: '#FFE5B4', color: '#A0522D', fontSize: '0.6rem' }}>
-                                🔜 Sắp ra mắt
-                              </span>
-                            ) : (
-                              <>
-                                <span className="badge bg-secondary" style={{ fontSize: '0.6rem' }}>
-                                  {getConditionText(sp.unlockCondition)}
-                                </span>
-                                {canUnlock && <div className="text-success fw-bold" style={{ fontSize: '0.7rem' }}>✅ Có thể mở!</div>}
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+      <div className="dex-layout">
+        {/* ── Grid of entries ── */}
+        <div className="dex-grid">
+          {visible.map((sp) => {
+            const owned = ownedSpecies[sp.id];
+            const evo = owned ? getPetEvolution(sp.id, owned.totalXpEarned) : null;
+            const art = owned ? evo?.image : (sp.evolutions[1]?.image || sp.evolutions[0]?.image);
+            const emoji = owned ? (evo?.emoji || sp.emoji) : sp.emoji;
+            const active = owned && petData.activePetId === owned.instanceId;
+            const canUnlock = !owned && !sp.comingSoon && checkUnlockCondition(sp.unlockCondition, userData, petData);
+            const el = ELEMENT_COLORS[sp.element];
+            return (
+              <button
+                type="button"
+                key={sp.id}
+                className={`dex-card ${owned ? 'owned' : 'unknown'} ${selected === sp.id ? 'selected' : ''} ${active ? 'active' : ''}`}
+                style={{ '--c': el?.text, '--cbg': el?.bg }}
+                onClick={() => setSelected(sp.id)}
+              >
+                <span className="dex-no">#{String(sp.no).padStart(3, '0')}</span>
+                {active && <span className="dex-flag"><Icon name="star" size={18} /></span>}
+                {canUnlock && <span className="dex-flag new">MỚI</span>}
+                {sp.comingSoon && <span className="dex-flag soon">SOON</span>}
+                <span className="dex-art">
+                  <PetArt src={art} emoji={emoji} alt={sp.name} className="dex-art-img" silhouette={!owned} />
+                </span>
+                <span className="dex-name">{owned ? sp.name : sp.comingSoon ? '???' : sp.name}</span>
+                <span className="dex-type"><Icon name={ELEMENT_ICON[sp.element]} size={14} /> {elName(el)}</span>
+              </button>
+            );
+          })}
+          {visible.length === 0 && (
+            <div className="text-muted small p-3">Chưa có pet nào trong mục này.</div>
+          )}
+        </div>
 
-      {/* Detail Modal */}
-      {selectedSpecies && (
-        <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setSelected(null)}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content">
-              <div className="modal-header" style={{ background: ELEMENT_COLORS[selectedSpecies.element]?.bg }}>
-                <h5 className="modal-title fw-bold">
-                  {selectedSpecies.emoji} {selectedSpecies.name}
-                </h5>
-                <button className="btn-close" onClick={() => setSelected(null)}></button>
-              </div>
-              <div className="modal-body">
-                <div className="text-center mb-3">
-                  {selectedOwned && getPetEvolution(selected, selectedOwned.totalXpEarned)?.image ? (
-                    <img
-                      src={getPetEvolution(selected, selectedOwned.totalXpEarned).image}
-                      alt={selectedSpecies.name}
-                      className="collection-modal-pet-img"
-                    />
-                  ) : (
-                    <div style={{ fontSize: '4rem' }}>
-                      {selectedOwned ? (getPetEvolution(selected, selectedOwned.totalXpEarned)?.emoji || selectedSpecies.emoji) : '🔒'}
-                    </div>
-                  )}
-                  <div className="d-flex justify-content-center gap-1 mt-1">
-                    <span className="badge" style={{ background: ELEMENT_COLORS[selectedSpecies.element]?.bg, color: ELEMENT_COLORS[selectedSpecies.element]?.text }}>
-                      {ELEMENT_COLORS[selectedSpecies.element]?.name}
-                    </span>
-                    <span className="badge" style={{ background: RARITY_COLORS[selectedSpecies.rarity]?.bg, color: RARITY_COLORS[selectedSpecies.rarity]?.text }}>
-                      {RARITY_COLORS[selectedSpecies.rarity]?.name}
-                    </span>
-                  </div>
+        {/* ── Detail panel ── */}
+        {sel && (
+          <div className="dex-detail-wrap" onClick={() => setSelected(null)}>
+            <aside className="dex-detail" style={{ '--c': ELEMENT_COLORS[sel.element]?.text, '--cbg': ELEMENT_COLORS[sel.element]?.bg }} onClick={(e) => e.stopPropagation()}>
+              <button type="button" className="dex-close" onClick={() => setSelected(null)} aria-label="Đóng">✕</button>
+
+              <div className="dex-screen">
+                <div className="dex-screen-top">
+                  <span className="dex-led" /><span className="dex-led r" /><span className="dex-led y" />
+                  <span className="dex-screen-no">#{String(sel.no).padStart(3, '0')}</span>
                 </div>
-                <p className="text-muted small text-center">{selectedSpecies.description}</p>
+                <div className="dex-screen-view">
+                  <PetArt
+                    src={selOwned ? selEvo?.image : (sel.evolutions[1]?.image || sel.evolutions[0]?.image)}
+                    emoji={selOwned ? (selEvo?.emoji || sel.emoji) : sel.emoji}
+                    alt={sel.name} className="dex-screen-img" silhouette={!selOwned}
+                  />
+                  {!selOwned && <span className="dex-screen-lock"><Icon name={sel.comingSoon ? 'clock' : 'lock'} size={30} /></span>}
+                </div>
+                <div className="dex-screen-bottom">
+                  <b>{sel.comingSoon && !selOwned ? '???' : (selOwned?.customName || sel.name)}</b>
+                  <span>{sel.species}</span>
+                </div>
+              </div>
 
-                {/* Base stats */}
-                <h6 className="fw-bold small">Chỉ số gốc</h6>
-                <div className="row g-1 mb-3">
+              <div className="dex-badges">
+                <span className="dex-badge" style={{ background: ELEMENT_COLORS[sel.element]?.bg, color: ELEMENT_COLORS[sel.element]?.text }}>
+                  <Icon name={ELEMENT_ICON[sel.element]} size={16} /> {elName(ELEMENT_COLORS[sel.element])}
+                </span>
+                <span className="dex-badge" style={{ background: RARITY_COLORS[sel.rarity]?.bg, color: RARITY_COLORS[sel.rarity]?.text }}>
+                  <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
+                </span>
+                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {calculatePowerScore(selOwned, sel)}</span>}
+              </div>
+
+              <p className="dex-desc">{sel.description}</p>
+
+              {/* Base stats */}
+              <div className="dex-section">
+                <div className="dex-section-title">Chỉ số gốc</div>
+                <div className="dex-stats">
                   {Object.entries(SKILL_META).map(([key, meta]) => (
-                    <div className="col-3 text-center" key={key}>
-                      <div>{meta.icon}</div>
-                      <div className="fw-bold small" style={{ color: meta.color }}>{selectedSpecies.baseStats[key]}</div>
-                      <div style={{ fontSize: '0.6rem' }} className="text-muted">{meta.name}</div>
+                    <div className="dex-stat" key={key}>
+                      <span className="dex-stat-name"><Icon name={SKILL_ICON[key]} size={16} /> {meta.name}</span>
+                      <div className="book-bar"><i style={{ width: `${(sel.baseStats[key] / MAX_STAT) * 100}%`, background: meta.color }} /></div>
+                      <span className="dex-stat-val">{sel.baseStats[key]}</span>
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {selectedOwned ? (
-                  <>
-                    {/* Current skills */}
-                    <h6 className="fw-bold small">Kỹ năng hiện tại</h6>
-                    <div className="row g-1 mb-3">
-                      {Object.entries(SKILL_META).map(([key, meta]) => (
-                        <div className="col-3 text-center" key={key}>
-                          <div>{meta.icon}</div>
-                          <div className="fw-bold small" style={{ color: meta.color }}>Lv.{getSkillLevel(selectedOwned.skills[key] || 0)}</div>
-                          <div style={{ fontSize: '0.6rem' }} className="text-muted">{selectedOwned.skills[key] || 0} pts</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-center text-muted small mb-3">
-                      ⚡ Power: {calculatePowerScore(selectedOwned, selectedSpecies)}
-                    </div>
-
-                    {/* Actions */}
-                    {petData.activePetId !== selectedOwned.instanceId ? (
-                      <button className="btn btn-cowdi-primary w-100" onClick={() => { handleSetActive(selectedOwned.instanceId); setSelected(null); }}>
-                        ⭐ Chọn làm Active Pet
-                      </button>
-                    ) : (
-                      <div className="text-center text-success fw-bold">⭐ Đang là Active Pet</div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center">
-                    {selectedSpecies.comingSoon ? (
-                      <>
-                        <div className="mb-2 text-muted small">
-                          🔜 Pet này đang được thiết kế — sắp ra mắt trong bản cập nhật tới!
-                        </div>
-                        <button className="btn btn-warning w-100" disabled>🔜 Sắp ra mắt</button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="mb-2 text-muted small">
-                          Điều kiện: {getConditionText(selectedSpecies.unlockCondition)}
-                        </div>
-                        {checkUnlockCondition(selectedSpecies.unlockCondition, userData, petData) ? (
-                          <button className="btn btn-success w-100" onClick={() => handleUnlock(selected)}>
-                            🔓 Mở khóa ngay!
-                          </button>
-                        ) : (
-                          <button className="btn btn-secondary w-100" disabled>🔒 Chưa đủ điều kiện</button>
-                        )}
-                      </>
-                    )}
+              {selOwned && (
+                <div className="dex-section">
+                  <div className="dex-section-title">Kỹ năng hiện tại</div>
+                  <div className="dex-skills">
+                    {Object.entries(SKILL_META).map(([key, meta]) => (
+                      <div className="dex-skill" key={key} style={{ '--c': meta.color }}>
+                        <span><Icon name={SKILL_ICON[key]} size={22} /></span>
+                        <b>Lv.{getSkillLevel(selOwned.skills?.[key] || 0)}</b>
+                        <small>{selOwned.skills?.[key] || 0} pts</small>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Evolution stages */}
-                <h6 className="fw-bold small mt-3">Giai đoạn tiến hóa</h6>
-                <div className="d-flex gap-1 flex-wrap">
-                  {selectedSpecies.evolutions.map((evo) => {
-                    const reached = selectedOwned && selectedOwned.totalXpEarned >= evo.xp;
+              {/* Evolution chain */}
+              <div className="dex-section">
+                <div className="dex-section-title">Tiến hoá</div>
+                <div className="dex-evo">
+                  {sel.evolutions.map((evo, i) => {
+                    const reached = selOwned && selOwned.totalXpEarned >= evo.xp;
+                    const isNow = selEvo && selEvo.stage === evo.stage;
                     return (
-                      <div key={evo.stage} className={`text-center p-1 rounded flex-fill ${reached ? 'bg-success bg-opacity-10' : 'bg-light'}`} style={{ minWidth: 55 }}>
-                        {reached && evo.image ? (
-                          <img src={evo.image} alt={evo.name} className="collection-evo-thumb" loading="lazy" decoding="async" />
-                        ) : (
-                          <div>{reached ? evo.emoji : '❓'}</div>
-                        )}
-                        <div style={{ fontSize: '0.6rem' }} className={reached ? 'fw-bold' : 'text-muted'}>{evo.name}</div>
-                        <div style={{ fontSize: '0.55rem' }} className="text-muted">{evo.xp} XP</div>
+                      <div key={evo.stage} className={`dex-evo-step ${reached ? 'reached' : ''} ${isNow ? 'now' : ''}`}>
+                        {i > 0 && <span className="dex-evo-arrow">›</span>}
+                        <div className="dex-evo-ring">
+                          <PetArt src={evo.image} emoji={reached ? evo.emoji : '❓'} alt={evo.name} className="dex-evo-img" silhouette={!reached} />
+                        </div>
+                        <small>{evo.xp} XP</small>
                       </div>
                     );
                   })}
                 </div>
+                {selOwned && selEvo && (
+                  <div className="text-center small text-muted mt-1">{selEvo.name} · {selOwned.totalXpEarned} XP</div>
+                )}
               </div>
-            </div>
+
+              {/* Action */}
+              <div className="dex-action">
+                {selOwned ? (
+                  isActive
+                    ? <div className="dex-active-note d-flex align-items-center justify-content-center gap-2"><Icon name="heart" size={20} /> Đang là pet đồng hành</div>
+                    : <button type="button" className="btn btn-cowdi-primary w-100 d-inline-flex align-items-center justify-content-center gap-2" onClick={() => switchActivePet(selOwned.instanceId)}><Icon name="heart" size={20} /> Chọn làm pet đồng hành</button>
+                ) : sel.comingSoon ? (
+                  <button type="button" className="btn btn-secondary w-100" disabled>Sắp ra mắt</button>
+                ) : (
+                  <>
+                    <div className="dex-cond d-flex align-items-center gap-2"><Icon name="target" size={18} /> Điều kiện: {getConditionText(sel.unlockCondition)}</div>
+                    {selCanUnlock
+                      ? <button type="button" className="btn btn-success w-100" onClick={() => handleUnlock(sel.id)}>Mở khoá ngay!</button>
+                      : <button type="button" className="btn btn-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2" disabled><Icon name="lock" size={18} /> Chưa đủ điều kiện</button>}
+                  </>
+                )}
+              </div>
+            </aside>
           </div>
-        </div>
-      )}
+        )}
+        {!sel && (
+          <aside className="dex-detail dex-detail-empty d-none d-lg-flex">
+            <div className="dex-screen">
+              <div className="dex-screen-top"><span className="dex-led" /><span className="dex-led r" /><span className="dex-led y" /></div>
+              <div className="dex-screen-view"><span className="dex-screen-lock"><Icon name="paw" size={40} /></span></div>
+              <div className="dex-screen-bottom"><b>Chọn một pet</b><span>để xem thông tin</span></div>
+            </div>
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

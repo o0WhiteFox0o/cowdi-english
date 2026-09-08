@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ALL_LESSONS, TRACKS, STANDARDS } from '../data/lessons';
+import { getLessonAccess } from '../data/path';
 import { useUser } from '../hooks/useUser';
 
 const LEVEL_BADGE = {
@@ -76,10 +77,11 @@ export default function LessonsPage() {
     <div className="fade-in">
       <div className="text-center mb-4">
         <h2 className="fw-bold">
-          <i className="fas fa-book text-cowdi me-2"></i>Danh sách bài học
+          <i className="fas fa-book text-cowdi me-2"></i>Thư viện bài học
         </h2>
         <p className="text-muted">
-          Lọc bài học theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP).
+          Tra cứu bài theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP). Bài có 🔒 sẽ mở khi bạn học tới trong{' '}
+          <Link to="/learning-path">lộ trình</Link>.
         </p>
       </div>
 
@@ -145,6 +147,7 @@ export default function LessonsPage() {
       <div className="row g-3">
         {filtered.map((lesson) => {
           const completed = userData.completedLessons.includes(lesson.id);
+          const locked = getLessonAccess(lesson.id, userData).locked;
           const meta = trackMap[lesson.track];
           // Các chuẩn mà bài học thuộc về (để hiển thị badge nhỏ)
           const stdBadges = Object.entries(lesson.standards || {})
@@ -158,11 +161,11 @@ export default function LessonsPage() {
           return (
             <div className="col-md-6 col-lg-4" key={lesson.id}>
               <Link to={`/lessons/${lesson.id}`} className="text-decoration-none">
-                <div className={`card h-100 shadow-sm card-hover ${completed ? 'border-success' : ''}`}>
+                <div className={`card h-100 shadow-sm card-hover ${completed ? 'border-success' : ''}`} style={locked ? { opacity: .6 } : undefined}>
                   <div className={`card-header-level ${lesson.level}`}></div>
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-start mb-2">
-                      <div className="fs-2">{lesson.icon}</div>
+                      <div className="fs-2">{locked ? '🔒' : lesson.icon}</div>
                       {meta && (
                         <span className={`badge rounded-pill ${TRACK_COLORS[lesson.track] || 'bg-secondary-subtle text-secondary'}`}>
                           {meta.icon} {meta.label}

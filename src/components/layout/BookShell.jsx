@@ -8,87 +8,71 @@ import { LEVELS } from '../../data/config/levels';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
 import { COWDI_MESSAGES } from '../../data/config/messages';
 import InviteSheet from '../../features/invite/InviteSheet';
+import Icon from '../Icon';
 
 /* ── Route groups for highlighting the active tab/section ── */
-const LEARN_PATHS    = ['/lessons', '/vocabulary', '/review'];
-const EXAM_PATHS_NAV = ['/learning-path'];
+const LEARN_PATHS    = ['/learning-path', '/lessons', '/vocabulary', '/review'];
 const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
 const ME_PATHS       = ['/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
 
-const ICONS = {
-  home:   '/assets/images/Icons/icon_home.svg',
-  learn:  '/assets/images/Icons/icon_learn.svg',
-  exam:   '/assets/images/Icons/icon_exam.svg',
-  lesson: '/assets/images/Icons/icon_lesson.svg',
-};
-
-/* Desktop bookmark tabs (grouped like chapters in a book) */
+/* Desktop nav (grouped like chapters in a notebook). icon = Icon name or 'PET' */
 const TAB_GROUPS = [
   { label: null, items: [
-    { to: '/', end: true, icon: <img src={ICONS.home} alt="" />, label: 'Trang chủ', color: '#5C7A3F' },
+    { to: '/', end: true, icon: 'home', label: 'Trang chủ', color: '#7DBE4B' },
   ]},
   { label: 'Học tập', items: [
-    { to: '/lessons',    icon: '📖', label: 'Bài học',    color: '#5C7A3F' },
-    { to: '/vocabulary', icon: '🗺️', label: 'Từ vựng',    color: '#D9A93C' },
-    { to: '/review',     icon: '🧠', label: 'Ôn tập',     color: '#6F9DB5' },
-    { to: '/practice',   icon: '🎯', label: 'Bài tập',    color: '#C97B4A' },
-    { to: '/mini-games', icon: '🎮', label: 'Mini-games', color: '#8C6644' },
-    { to: '/duel',       icon: '⚔️', label: 'Đấu trường', color: '#B5533C' },
-    { to: '/learning-path', icon: <img src={ICONS.exam} alt="" />, label: 'Khóa thi', color: '#4F6B3A' },
+    { to: '/learning-path', icon: 'road',  label: 'Lộ trình học', color: '#7DBE4B' },
+    { to: '/vocabulary',    icon: 'map',   label: 'Từ vựng',    color: '#F4A83A' },
+    { to: '/review',        icon: 'brain', label: 'Ôn tập',     color: '#4EA8E8' },
+    { to: '/lessons',       icon: 'book',  label: 'Thư viện bài', color: '#5ECFC0' },
+  ]},
+  { label: 'Luyện tập', items: [
+    { to: '/practice',   icon: 'target',  label: 'Bài tập',    color: '#EA5A5A' },
+    { to: '/mini-games', icon: 'gamepad', label: 'Mini-games', color: '#F48FB1' },
+    { to: '/duel',       icon: 'swords',  label: 'Đấu trường', color: '#9C7BE0' },
   ]},
   { label: 'Pet', items: [
-    { to: '/pet',        icon: 'PET', label: 'Pet của tôi', color: '#5C7A3F' },
-    { to: '/collection', icon: '📦', label: 'Bộ sưu tập',  color: '#D9A93C' },
-    { to: '/shop',       icon: '🛍️', label: 'Cửa hàng',    color: '#C97B4A' },
+    { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
+    { to: '/collection', icon: 'redbook', label: 'Pokédex',     color: '#EA5A5A' },
+    { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
   { label: 'Sổ tay', items: [
-    { to: '/progress',        icon: '📊', label: 'Tiến trình', color: '#6F9DB5' },
-    { to: '/student-ranking', icon: '🏆', label: 'Xếp hạng',   color: '#D9A93C' },
-    { to: '/leaderboard',     icon: '🏅', label: 'Xếp hạng Pet', color: '#C97B4A' },
-    { to: '/account',         icon: '👤', label: 'Tài khoản',  color: '#8C6644' },
+    { to: '/progress',        icon: 'chart',   label: 'Tiến trình', color: '#4EA8E8' },
+    { to: '/student-ranking', icon: 'ranking', label: 'Xếp hạng',   color: '#F6D365' },
+    { to: '/leaderboard',     icon: 'paw',     label: 'Xếp hạng Pet', color: '#F4A83A' },
+    { to: '/account',         icon: 'user',    label: 'Tài khoản',  color: '#8A99AA' },
   ]},
 ];
 
 /* Mobile popup sub-menus */
 const MOBILE_MENUS = {
   learn: [
-    { icon: '📖', label: 'Bài học',    path: '/lessons' },
-    { icon: '🗺️', label: 'Từ vựng',    path: '/vocabulary' },
-    { icon: '🧠', label: 'Ôn tập',     path: '/review' },
-    { icon: '🎯', label: 'Bài tập',    path: '/practice' },
-    { icon: '🎮', label: 'Mini-games', path: '/mini-games' },
-    { icon: '⚔️', label: 'Đấu trường', path: '/duel' },
+    { icon: 'road',  label: 'Lộ trình học', path: '/learning-path' },
+    { icon: 'map',   label: 'Từ vựng',    path: '/vocabulary' },
+    { icon: 'brain', label: 'Ôn tập',     path: '/review' },
+    { icon: 'book',  label: 'Thư viện bài', path: '/lessons' },
   ],
-  exam: [
-    { icon: '🛤️', label: 'Lộ trình',       path: '/learning-path' },
-    { icon: '🎯', label: 'IELTS',          path: '/learning-path?tab=ielts' },
-    { icon: '🌍', label: 'B1 Preliminary', path: '/learning-path?tab=b1' },
-    { icon: '📘', label: 'B2 First',       path: '/learning-path?tab=b2' },
-    { icon: '🏢', label: 'TOEIC',          path: '/learning-path?tab=toeic' },
+  practice: [
+    { icon: 'target',  label: 'Bài tập',    path: '/practice' },
+    { icon: 'gamepad', label: 'Mini-games', path: '/mini-games' },
+    { icon: 'swords',  label: 'Đấu trường', path: '/duel' },
+    { icon: 'medal',   label: 'Luyện thi IELTS', path: '/learning-path?tab=ielts' },
+    { icon: 'flag',    label: 'Luyện thi TOEIC', path: '/learning-path?tab=toeic' },
   ],
   pet: [
-    { icon: '🐮', label: 'Pet của tôi', path: '/pet' },
-    { icon: '📦', label: 'Bộ sưu tập', path: '/collection' },
-    { icon: '🛍️', label: 'Shop',       path: '/shop' },
+    { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
+    { icon: 'redbook', label: 'Pokédex',     path: '/collection' },
+    { icon: 'bag',     label: 'Shop',        path: '/shop' },
   ],
   me: [
-    { icon: '🎁', label: 'Mời bạn',      action: 'invite' },
-    { icon: '📊', label: 'Tiến trình',   path: '/progress' },
-    { icon: '🏆', label: 'Xếp hạng',     path: '/student-ranking' },
-    { icon: '🏅', label: 'Xếp hạng Pet', path: '/leaderboard' },
-    { icon: '👤', label: 'Tài khoản',    path: '/account' },
+    { icon: 'gift',    label: 'Mời bạn',      action: 'invite' },
+    { icon: 'chart',   label: 'Tiến trình',   path: '/progress' },
+    { icon: 'ranking', label: 'Xếp hạng',     path: '/student-ranking' },
+    { icon: 'paw',     label: 'Xếp hạng Pet', path: '/leaderboard' },
+    { icon: 'user',    label: 'Tài khoản',    path: '/account' },
   ],
 };
-
-const VI_DAYS = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-
-function seasonOf(month) {
-  if (month >= 2 && month <= 4) return '🌸 Mùa xuân';
-  if (month >= 5 && month <= 7) return '☀️ Mùa hè';
-  if (month >= 8 && month <= 10) return '🍂 Mùa thu';
-  return '❄️ Mùa đông';
-}
 
 export default function BookShell({ children }) {
   const { userData } = useUser();
@@ -102,6 +86,10 @@ export default function BookShell({ children }) {
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const nextEvo = species && evo ? species.evolutions[evo.stage + 1] : null;
+  const petPct = activePet && evo
+    ? (nextEvo ? Math.min(100, Math.round(((activePet.totalXpEarned - evo.xp) / (nextEvo.xp - evo.xp)) * 100)) : 100)
+    : 0;
   const petImg = evo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
   const petName = activePet?.customName || species?.name || 'Cowdi';
 
@@ -115,9 +103,6 @@ export default function BookShell({ children }) {
     const seed = new Date().getDate();
     return COWDI_MESSAGES[seed % COWDI_MESSAGES.length];
   }, []);
-
-  const now = new Date();
-  const dateLabel = `${now.getDate()} thg ${now.getMonth() + 1}, ${now.getFullYear()}`;
 
   /* ── Mobile popup sub-menu state ── */
   const [openTab, setOpenTab] = useState(null);
@@ -144,9 +129,9 @@ export default function BookShell({ children }) {
     navigate(path);
   }, [navigate]);
 
-  const renderTabIcon = (icon) => {
+  const renderTabIcon = (icon, size = 22) => {
     if (icon === 'PET') return <img src={petImg} alt="" />;
-    return icon;
+    return <Icon name={icon} size={size} />;
   };
 
   return (
@@ -158,18 +143,21 @@ export default function BookShell({ children }) {
           <span>Cowdi</span>
         </Link>
         <div className="book-mobile-stats">
-          <span className="badge bg-warning">⭐{userData.totalXP}</span>
-          <span className="badge bg-danger">🔥{userData.streak}</span>
-          <span className="badge bg-success">🪙{petData.coins}</span>
+          <span className="book-pill" title="Chuỗi ngày học"><Icon name="fire" size={20} />{userData.streak}</span>
+          <span className="book-pill" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
+          <Link to="/pet" className="book-pill" title={`${petName} · ${petPct}%`}>
+            <img src={petImg} alt="" className="book-pill-pet" />
+            <span className="book-bar"><i style={{ width: `${petPct}%` }} /></span>
+          </Link>
           <button type="button" className="book-sound" onClick={toggleMute}
-            title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'} style={{ opacity: muted ? 0.5 : 1 }}>
-            {muted ? '🔇' : '🔊'}
+            title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}>
+            <Icon name={muted ? 'mute' : 'sound'} size={18} />
           </button>
           {user ? (
             <NavLink to="/account">
               {avatarUrl
                 ? <img src={avatarUrl} className="book-mobile-avatar" alt={displayName} referrerPolicy="no-referrer" />
-                : <span className="badge bg-secondary rounded-circle p-1">👤</span>}
+                : <Icon name="user" size={26} />}
             </NavLink>
           ) : (
             <button type="button" className="book-login-btn btn-sm" onClick={loginWithGoogle} style={{ padding: '3px 10px', fontSize: '.85rem' }}>
@@ -180,13 +168,16 @@ export default function BookShell({ children }) {
       </header>
 
       <div className="book">
-        {/* ═══════════ Left cover — sidebar (≥ 992px) ═══════════ */}
+        <span className="book-corner tl" /><span className="book-corner tr" />
+        <span className="book-corner bl" /><span className="book-corner br" />
+
+        {/* ═══════════ Left page — nav (≥ 992px) ═══════════ */}
         <aside className="book-side">
           <Link to="/" className="book-plaque text-decoration-none">
             <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="" />
             <small>Welcome to</small>
             <strong>Cowdi</strong>
-            <em>English Journal</em>
+            <em>English Notebook</em>
           </Link>
 
           <nav aria-label="Điều hướng chính">
@@ -209,15 +200,15 @@ export default function BookShell({ children }) {
                   ))}
                   {group.label === 'Sổ tay' && user?.is_admin && (
                     <li>
-                      <NavLink to="/admin" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3E2A1D' }}>
-                        <span className="book-tab-icon">🛠️</span><span>Quản trị</span>
+                      <NavLink to="/admin" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
+                        <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
                       </NavLink>
                     </li>
                   )}
                   {group.label === 'Sổ tay' && (
                     <li>
-                      <button type="button" className="book-tab" style={{ '--tab-color': '#D9A93C' }} onClick={() => setInviteOpen(true)}>
-                        <span className="book-tab-icon">🎁</span><span>Mời bạn học</span>
+                      <button type="button" className="book-tab" style={{ '--tab-color': '#F6D365' }} onClick={() => setInviteOpen(true)}>
+                        <span className="book-tab-icon"><Icon name="gift" size={22} /></span><span>Mời bạn học</span>
                       </button>
                     </li>
                   )}
@@ -235,44 +226,59 @@ export default function BookShell({ children }) {
           </Link>
         </aside>
 
-        {/* ═══════════ Right page — paper ═══════════ */}
+        {/* Spiral binding */}
+        <div className="book-rings" aria-hidden="true">
+          {Array.from({ length: 7 }, (_, i) => <span key={i} className="book-ring" />)}
+        </div>
+
+        {/* ═══════════ Right page — graph paper ═══════════ */}
         <section className="book-page">
           <div className="book-page-top">
-            <div className="book-polaroid">
-              <div className="book-polaroid-lines">
-                <span>📅 {dateLabel}</span>
-                <span>{seasonOf(now.getMonth() + 1)} · {VI_DAYS[now.getDay()]}</span>
-                <span>⭐ {userData.totalXP} XP · 🔥 {userData.streak} · 🪙 {petData.coins}</span>
-                {!user ? (
-                  <button type="button" className="book-login-btn mt-1" onClick={loginWithGoogle}>
-                    <i className="fab fa-google me-1" /> Đăng nhập
-                  </button>
-                ) : (
-                  <span className="text-muted">Lv.{level.level} · {displayName}</span>
-                )}
-              </div>
-              {user ? (
-                <Link to="/account" title="Tài khoản">
-                  {avatarUrl
-                    ? <img src={avatarUrl} className="book-polaroid-avatar" alt={displayName} referrerPolicy="no-referrer" />
-                    : <span className="book-polaroid-avatar">👤</span>}
-                </Link>
+            <div className="book-hud">
+              <span className="book-pill" title="Chuỗi ngày học liên tiếp">
+                <Icon name="fire" size={24} />{userData.streak}
+              </span>
+              <Link to="/progress" className="book-pill" title={`${level.title} · ${userData.totalXP} XP`}>
+                <Icon name="medal" size={24} />Lv{level.level}
+              </Link>
+              <span className="book-pill" title="Xu">
+                <Icon name="coin" size={24} />{petData.coins}
+              </span>
+              <Link to="/pet" className="book-pill" title={`${petName} · ${evo?.name || ''} · ${petPct}% tới cấp tiếp theo`}>
+                <img src={petImg} alt="" className="book-pill-pet" />
+                <span className="book-bar"><i style={{ width: `${petPct}%` }} /></span>
+              </Link>
+              {!user ? (
+                <button type="button" className="book-login-btn" onClick={loginWithGoogle}>
+                  <i className="fab fa-google me-1" /> Đăng nhập
+                </button>
               ) : (
-                <span className="book-polaroid-avatar">👤</span>
+                <Link to="/account" className="book-pill" title={displayName}>
+                  {avatarUrl
+                    ? <img src={avatarUrl} className="book-pill-avatar" alt={displayName} referrerPolicy="no-referrer" />
+                    : <Icon name="user" size={24} />}
+                  <span className="d-none d-xl-inline">{displayName}</span>
+                </Link>
               )}
-              <button type="button" className="book-polaroid-btn ms-1" onClick={toggleMute}
-                title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'} style={{ opacity: muted ? 0.5 : 1, fontSize: '1.1rem' }}>
-                {muted ? '🔇' : '🔊'}
+              <button type="button" className="book-pill book-polaroid-btn" onClick={toggleMute}
+                title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}>
+                <Icon name={muted ? 'mute' : 'sound'} size={22} />
               </button>
             </div>
           </div>
 
           <div className="book-content">{children}</div>
           <div className="book-page-curl" />
+
+          <div className="book-ribbons" aria-hidden="true">
+            <Link to="/learning-path" className="book-ribbon teal" title="Lộ trình học" tabIndex={-1}><Icon name="star" size={20} /></Link>
+            <Link to="/pet" className="book-ribbon pink" title="Pet của tôi" tabIndex={-1}><Icon name="heart" size={20} /></Link>
+            <Link to="/collection" className="book-ribbon yellow" title="Pokédex" tabIndex={-1}><Icon name="redbook" size={20} /></Link>
+          </div>
         </section>
       </div>
 
-      {/* ═══════════ Mobile bottom bookmarks (< 992px) ═══════════ */}
+      {/* ═══════════ Mobile bottom tabs (< 992px) ═══════════ */}
       <nav className="book-bottom-nav" aria-label="Điều hướng di động" ref={popupRef}>
         {openTab && MOBILE_MENUS[openTab] && (
           <div className="bottom-popup-menu">
@@ -286,7 +292,7 @@ export default function BookShell({ children }) {
                   else goTo(item.path);
                 }}
               >
-                <span className="bottom-popup-icon">{item.icon}</span>
+                <span className="bottom-popup-icon">{renderTabIcon(item.icon, 26)}</span>
                 <span className="bottom-popup-label">{item.label}</span>
               </button>
             ))}
@@ -294,18 +300,18 @@ export default function BookShell({ children }) {
         )}
 
         <NavLink to="/" end className={({ isActive }) => `book-bottom-tab ${isActive ? 'active' : ''}`} onClick={() => setOpenTab(null)}>
-          <span className="book-bottom-tab-icon"><img src={ICONS.home} alt="" /></span>
+          <span className="book-bottom-tab-icon"><Icon name="home" size={28} /></span>
           <span>Home</span>
         </NavLink>
-        <button type="button" className={`book-bottom-tab ${isIn(LEARN_PATHS) || isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
+        <button type="button" className={`book-bottom-tab ${isIn(LEARN_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
           onClick={() => handleTabTap('learn')}>
-          <span className="book-bottom-tab-icon"><img src={ICONS.learn} alt="" /></span>
+          <span className="book-bottom-tab-icon"><Icon name="book" size={28} /></span>
           <span>Học</span>
         </button>
-        <button type="button" className={`book-bottom-tab ${isIn(EXAM_PATHS_NAV) ? 'active' : ''} ${openTab === 'exam' ? 'open' : ''}`}
-          onClick={() => handleTabTap('exam')}>
-          <span className="book-bottom-tab-icon"><img src={ICONS.exam} alt="" /></span>
-          <span>Thi</span>
+        <button type="button" className={`book-bottom-tab ${isIn(PRACTICE_PATHS) ? 'active' : ''} ${openTab === 'practice' ? 'open' : ''}`}
+          onClick={() => handleTabTap('practice')}>
+          <span className="book-bottom-tab-icon"><Icon name="dumbbell" size={28} /></span>
+          <span>Luyện</span>
         </button>
         <button type="button" className={`book-bottom-tab ${isIn(PET_PATHS) ? 'active' : ''} ${openTab === 'pet' ? 'open' : ''}`}
           onClick={() => handleTabTap('pet')}>
@@ -317,17 +323,17 @@ export default function BookShell({ children }) {
           <span className="book-bottom-tab-icon">
             {avatarUrl
               ? <img src={avatarUrl} alt="" className="rounded-circle" referrerPolicy="no-referrer" />
-              : '👤'}
+              : <Icon name="user" size={28} />}
           </span>
           <span>Tôi</span>
         </button>
       </nav>
 
-      {/* 🎁 Floating invite button (mobile, logged in) */}
+      {/* Floating invite button (mobile, logged in) */}
       {user && (
         <button type="button" onClick={() => setInviteOpen(true)} className="d-lg-none cowdi-invite-fab"
           aria-label="Mời bạn học cùng" title="Mời bạn học cùng">
-          🎁
+          <Icon name="gift" size={28} />
         </button>
       )}
 

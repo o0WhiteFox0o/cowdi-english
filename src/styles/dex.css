@@ -1,0 +1,247 @@
+/* ============================================
+   POKÉDEX — pet collection
+   ============================================ */
+.dex-page { position: relative; }
+
+.dex-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.dex-title { display: flex; align-items: center; gap: 12px; }
+.dex-title h2 { font-size: 2rem; }
+.dex-lens {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  background: #fff;
+  border: 3px solid var(--red);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 0 var(--red-dark), 0 6px 12px rgba(40,60,90,0.25);
+}
+.dex-counter { min-width: 190px; text-align: right; }
+.dex-counter-num { font-family: var(--font-hand); font-size: 2rem; line-height: 1; color: var(--red); }
+.dex-counter-num span { font-size: 1.1rem; color: var(--ink-muted); }
+.dex-counter .book-bar { height: 8px; margin: 4px 0 2px; }
+.dex-counter .book-bar > i { background: linear-gradient(90deg, var(--red), var(--orange)); }
+
+.dex-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.dex-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 2px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: var(--font-hand);
+  font-size: .95rem;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: transform .1s;
+}
+.dex-chip:hover { transform: translateY(-1px); border-color: var(--c, var(--blue)); }
+.dex-chip.on { background: var(--c, var(--blue)); border-color: var(--c, var(--blue)); color: #fff; box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+
+/* ── Layout ── */
+.dex-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+  align-items: start;
+}
+
+/* ── Entry cards ── */
+.dex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 12px;
+}
+.dex-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 8px 10px;
+  background: #fff;
+  border: 2px solid var(--paper-line);
+  border-radius: 16px;
+  box-shadow: 0 3px 0 var(--paper-line);
+  cursor: pointer;
+  text-align: center;
+  color: var(--ink);
+  transition: transform .12s, box-shadow .12s, border-color .12s;
+}
+.dex-card:hover { transform: translateY(-3px); border-color: var(--c, var(--blue)); box-shadow: 0 6px 0 var(--paper-line), 0 10px 18px rgba(40,60,90,0.12); }
+.dex-card.selected { border-color: var(--c, var(--blue)); box-shadow: 0 3px 0 var(--c, var(--blue)), 0 0 0 3px color-mix(in srgb, var(--c, var(--blue)) 25%, transparent); }
+.dex-card.owned { background: linear-gradient(180deg, var(--cbg, #fff) 0 40%, #fff 100%); }
+.dex-card.unknown { background: #F5F8FB; }
+.dex-no {
+  position: absolute; top: 6px; left: 10px;
+  font-family: var(--font-hand); font-size: .85rem; color: var(--ink-muted);
+}
+.dex-flag {
+  position: absolute; top: 4px; right: 8px;
+  font-size: .85rem;
+  font-family: var(--font-hand);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.dex-flag.new  { background: var(--leaf); color: #fff; font-size: .7rem; letter-spacing: .05em; }
+.dex-flag.soon { background: var(--orange); color: #fff; font-size: .7rem; letter-spacing: .05em; }
+.dex-art {
+  width: 84px; height: 84px; margin: 12px 0 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #fff, var(--cbg, #EEF6FC));
+  border: 3px solid var(--cbg, var(--paper-line));
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.dex-card.unknown .dex-art { background: #E6EDF3; border-color: #D3DDE6; }
+.dex-art-img { width: 78%; height: 78%; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15)); }
+.dex-emoji { font-size: 2.2rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.silhouette { filter: brightness(0) opacity(.35) !important; }
+.dex-emoji.silhouette { filter: grayscale(1) brightness(0.2) opacity(.35) !important; }
+.dex-name { font-family: var(--font-hand); font-size: 1.1rem; line-height: 1.05; }
+.dex-type { font-size: .72rem; color: var(--c, var(--ink-muted)); margin-top: 2px; display: inline-flex; align-items: center; gap: 3px; }
+.dex-flag { display: inline-flex; align-items: center; }
+.dex-stars { display: inline-flex; gap: 1px; }
+.dex-stat-name { display: inline-flex; align-items: center; gap: 4px; }
+.dex-badge { display: inline-flex; align-items: center; gap: 4px; }
+.dex-card.unknown .dex-name, .dex-card.unknown .dex-type { color: var(--ink-muted); }
+
+/* ── Detail panel (device look) ── */
+.dex-detail-wrap { display: contents; }
+.dex-detail {
+  position: sticky;
+  top: 14px;
+  background: linear-gradient(180deg, #F26B6B, var(--red) 40%, var(--red-dark));
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow: 0 8px 0 #9c2f2f, 0 16px 30px rgba(40,60,90,0.3);
+  color: var(--ink);
+  display: flex; flex-direction: column; gap: 10px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.dex-detail-empty { align-items: stretch; }
+.dex-close {
+  position: absolute; top: 8px; right: 10px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); border: none;
+  color: var(--red-dark); font-weight: 700; cursor: pointer;
+  z-index: 2;
+}
+.dex-screen {
+  background: #2E3A48;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 3px #1E2733;
+}
+.dex-screen-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.dex-led { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+.dex-led.r { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.dex-led.y { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.dex-screen-no { margin-left: auto; font-family: var(--font-hand); color: #B9C7D6; font-size: .9rem; }
+.dex-screen-view {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse at 50% 100%, var(--cbg, #DDF1C8) 0 30%, transparent 70%),
+    linear-gradient(180deg, #CFEBFF, #EAF6FF);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.dex-screen-img { width: 60%; height: 80%; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25)); animation: bookFloat 4s ease-in-out infinite; }
+.dex-screen-img.dex-emoji { font-size: 4rem; }
+.dex-screen-lock { position: absolute; right: 10px; bottom: 8px; font-size: 1.6rem; }
+.dex-screen-bottom {
+  margin-top: 8px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  font-family: var(--font-hand); color: #fff;
+}
+.dex-screen-bottom b { font-size: 1.35rem; font-weight: 400; }
+.dex-screen-bottom span { font-size: .9rem; color: #B9C7D6; }
+
+.dex-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.dex-badge {
+  font-family: var(--font-hand); font-size: .9rem;
+  padding: 3px 10px; border-radius: 999px;
+  background: #fff; color: var(--ink);
+}
+.dex-badge.power { background: #fff; color: var(--orange-dark); }
+.dex-desc {
+  margin: 0;
+  background: rgba(255,255,255,0.92);
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+.dex-section {
+  background: rgba(255,255,255,0.92);
+  border-radius: 12px;
+  padding: 8px 10px 10px;
+}
+.dex-section-title {
+  font-family: var(--font-hand); font-size: 1rem; color: var(--ink);
+  border-bottom: 2px dashed var(--paper-line); margin-bottom: 6px; padding-bottom: 2px;
+}
+.dex-stats { display: flex; flex-direction: column; gap: 5px; }
+.dex-stat { display: grid; grid-template-columns: 72px 1fr 24px; align-items: center; gap: 8px; font-size: .8rem; }
+.dex-stat .book-bar { height: 8px; }
+.dex-stat-val { text-align: right; font-family: var(--font-hand); }
+.dex-skills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.dex-skill {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--paper-3); border-radius: 10px; padding: 6px 2px;
+  border-bottom: 3px solid var(--c, var(--paper-line));
+}
+.dex-skill b { font-family: var(--font-hand); font-weight: 400; font-size: 1rem; color: var(--c, var(--ink)); }
+.dex-skill small { font-size: .65rem; color: var(--ink-muted); }
+.dex-evo { display: flex; align-items: center; justify-content: space-between; gap: 2px; }
+.dex-evo-step { display: flex; align-items: center; gap: 2px; flex-direction: row; }
+.dex-evo-step > small { display: none; }
+.dex-evo-arrow { color: var(--ink-muted); font-size: 1.2rem; line-height: 1; }
+.dex-evo-ring {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--paper-3); border: 2px dashed var(--paper-line);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  position: relative;
+}
+.dex-evo-step.reached .dex-evo-ring { border-style: solid; border-color: var(--leaf); background: var(--leaf-pale); }
+.dex-evo-step.now .dex-evo-ring { box-shadow: 0 0 0 3px color-mix(in srgb, var(--leaf) 35%, transparent); }
+.dex-evo-img { width: 80%; height: 80%; object-fit: contain; }
+.dex-evo-img.dex-emoji { font-size: 1.2rem; }
+.dex-action { margin-top: auto; }
+.dex-active-note {
+  text-align: center; background: var(--yellow); color: #5a4a1a;
+  border-radius: 12px; padding: 8px; font-family: var(--font-hand);
+}
+.dex-cond { background: rgba(255,255,255,0.92); border-radius: 10px; padding: 6px 10px; font-size: .82rem; margin-bottom: 6px; color: var(--ink-soft); }
+
+/* ── Responsive: detail becomes a bottom sheet ── */
+@media (max-width: 991.98px) {
+  .dex-layout { grid-template-columns: 1fr; }
+  .dex-detail-wrap {
+    display: block;
+    position: fixed; inset: 0;
+    background: rgba(30,40,55,0.55);
+    z-index: 1060;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0;
+  }
+  .dex-detail {
+    position: relative; top: auto;
+    width: 100%; max-width: 560px;
+    max-height: 88vh;
+    border-radius: 22px 22px 0 0;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    animation: dexUp .25s ease-out;
+  }
+  @keyframes dexUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+@media (max-width: 575.98px) {
+  .dex-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+  .dex-art { width: 68px; height: 68px; }
+  .dex-counter { min-width: 0; }
+}

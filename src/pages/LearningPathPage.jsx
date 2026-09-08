@@ -1,12 +1,20 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { LESSONS, UNITS, QUIZ_BANK } from '../data/lessons';
-import { EXAM_LESSONS, EXAM_PATHS } from '../data/exam-paths';
+import { LESSONS, QUIZ_BANK } from '../data/lessons';
+import { EXAM_LESSONS } from '../data/exam-paths';
+import { ALL_PATHS, getPathById, buildPathNodes } from '../data/path';
+import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
+import Icon from '../components/Icon';
 
 const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
+const PATH_IDS = ALL_PATHS.map((p) => p.id);
+/* Horizontal wiggle of the trail (px), cycles per node */
+const WIGGLE = [0, 44, 72, 44, 0, -44, -72, -44];
+/* Unit icon by position (data emojis are replaced by the Cowdi icon set) */
+const UNIT_ICONS = ['abc', 'blocks', 'chat', 'sprout', 'leaf', 'tree', 'clover', 'star', 'trophy', 'target'];
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -57,7 +65,7 @@ function buildCheckpointQuestions(unit, count) {
 
 export default function LearningPathPage() {
   const { userData, addXP, incrementQuizzes, saveCheckpointScore } = useUser();
-  const { addCoins } = usePet();
+  const { addCoins, getActivePetWithDecay } = usePet();
   const showToast = useToast();
 
   // Checkpoint test state
@@ -68,22 +76,24 @@ export default function LearningPathPage() {
   const [testAnswered, setTestAnswered] = useState(null);
   const [testFinished, setTestFinished] = useState(false);
 
-  // Path tab: 'general' or exam path id (ielts, b1, b2, toeic)
-  const [searchParams] = useSearchParams();
+  // Path tab: 'general' or exam path id
+  const [searchParams, setSearchParams] = useSearchParams();
   const [pathTab, setPathTab] = useState(() => {
     const tab = searchParams.get('tab');
-    return tab && ['ielts', 'b1', 'b2', 'toeic', 'advanced'].includes(tab) ? tab : 'general';
+    return tab && PATH_IDS.includes(tab) ? tab : 'general';
   });
 
-  // Sync pathTab when URL search params change
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['ielts', 'b1', 'b2', 'toeic', 'advanced'].includes(tab)) {
-      setPathTab(tab);
-    } else if (!tab) {
-      setPathTab('general');
-    }
+    if (tab && PATH_IDS.includes(tab)) setPathTab(tab);
+    else if (!tab) setPathTab('general');
   }, [searchParams]);
+
+  const changePath = (id) => {
+    setPathTab(id);
+    if (id === 'general') setSearchParams({}, { replace: true });
+    else setSearchParams({ tab: id }, { replace: true });
+  };
 
   const lessonMap = useMemo(() => {
     const m = {};
@@ -91,46 +101,25 @@ export default function LearningPathPage() {
     return m;
   }, []);
 
-  // Compute unit status
-  const unitStatuses = useMemo(() => {
-    return UNITS.map((unit, uIdx) => {
-      const completedInUnit = unit.lessons.filter((lid) => userData.completedLessons.includes(lid)).length;
-      const totalInUnit = unit.lessons.length;
-      const allLessonsDone = completedInUnit === totalInUnit;
-      const checkpoint = userData.checkpointScores?.[unit.id];
-      const passed = checkpoint?.passed || false;
+  const activePath = useMemo(() => getPathById(pathTab), [pathTab]);
+  const nodes = useMemo(() => buildPathNodes(activePath, userData), [activePath, userData.completedLessons, userData.checkpointScores]);
+  const doneCount = nodes.filter((n) => n.status === 'done').length;
+  const pct = nodes.length ? Math.round((doneCount / nodes.length) * 100) : 0;
+  const currentNode = nodes.find((n) => n.status === 'current');
 
-      // Unlocked if first unit OR all lessons in previous unit completed
-      let locked = false;
-      if (uIdx > 0) {
-        const prevUnit = UNITS[uIdx - 1];
-        const prevAllDone = prevUnit.lessons.every((lid) => userData.completedLessons.includes(lid));
-        locked = !prevAllDone;
-      }
+  // Mascot next to the current node
+  const activePet = getActivePetWithDecay();
+  const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const petEvo = activePet && petSpecies ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const petImg = petEvo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
 
-      return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
-    });
-  }, [userData.completedLessons, userData.checkpointScores]);
-
-  // Compute exam path unit statuses
-  const activeExamPath = useMemo(() => EXAM_PATHS.find((p) => p.id === pathTab), [pathTab]);
-  const examUnitStatuses = useMemo(() => {
-    if (!activeExamPath) return [];
-    return activeExamPath.units.map((unit, uIdx) => {
-      const completedInUnit = unit.lessons.filter((lid) => userData.completedLessons.includes(lid)).length;
-      const totalInUnit = unit.lessons.length;
-      const allLessonsDone = completedInUnit === totalInUnit;
-      const checkpoint = userData.checkpointScores?.[unit.id];
-      const passed = checkpoint?.passed || false;
-      let locked = false;
-      if (uIdx > 0) {
-        const prevUnit = activeExamPath.units[uIdx - 1];
-        const prevAllDone = prevUnit.lessons.every((lid) => userData.completedLessons.includes(lid));
-        locked = !prevAllDone;
-      }
-      return { ...unit, completedInUnit, totalInUnit, allLessonsDone, checkpoint, passed, locked };
-    });
-  }, [activeExamPath, userData.completedLessons, userData.checkpointScores]);
+  // Scroll the current node into view when it is far down the trail
+  const currentRef = useRef(null);
+  useEffect(() => {
+    if (!testUnit && currentRef.current && currentNode && currentNode.index > 3) {
+      currentRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }, [pathTab, testUnit]);
 
   const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
@@ -257,160 +246,137 @@ export default function LearningPathPage() {
     );
   }
 
-  /* ── Reusable roadmap renderer for any unit list ── */
-  function renderRoadmap(units, gradientColors) {
-    return (
-      <div className="learning-path" style={{ maxWidth: 700, margin: '0 auto', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 4, background: `linear-gradient(to bottom, ${gradientColors[0]}, ${gradientColors[1]})`, borderRadius: 2, transform: 'translateX(-50%)', zIndex: 0 }}></div>
+  /* ── Node click handlers ── */
+  function onLockedClick(node) {
+    const prev = nodes[node.index - 1];
+    const hint = prev
+      ? prev.type === 'lesson'
+        ? `Hoàn thành bài "${lessonMap[prev.lessonId]?.title || ''}" trước nhé!`
+        : `Vượt qua "${prev.unit.checkpoint.title}" trước nhé!`
+      : 'Bài này chưa mở.';
+    showToast(`🔒 ${hint}`, 'warning');
+  }
 
-        {units.map((unit, uIdx) => {
-          const isEven = uIdx % 2 === 0;
+  function nodeFace(node, lesson) {
+    if (node.status === 'done') return <Icon name="star" size={44} className="ic-white" />;
+    if (node.type === 'checkpoint') return <Icon name="trophy" size={node.status === 'locked' ? 40 : 48} />;
+    if (node.status === 'locked') return <Icon name="lock" size={36} />;
+    return <span className="path-node-emoji">{lesson?.icon || '📖'}</span>;
+  }
+
+  /* ── Visual Learning Path (Duolingo-style trail) ── */
+  const doneAll = nodes.length > 0 && doneCount === nodes.length;
+  return (
+    <div className="fade-in path-page">
+      {/* Header: path picker + progress */}
+      <div className="path-head">
+        <div className="path-head-main">
+          <h2 className="mb-0 d-flex align-items-center gap-2"><Icon name="road" size={34} /> Lộ trình học</h2>
+          <p className="text-muted mb-0">Học lần lượt từng bài, không bỏ sót. Mỗi unit kết thúc bằng một bài kiểm tra.</p>
+        </div>
+        <label className="path-picker">
+          <span>Lộ trình</span>
+          <select className="form-select form-select-sm" value={pathTab} onChange={(e) => changePath(e.target.value)}>
+            {ALL_PATHS.map((p) => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <div className="path-progress">
+        <div className="book-bar"><i style={{ width: `${pct}%`, background: activePath.color }} /></div>
+        <span>{doneCount}/{nodes.length} · {pct}%</span>
+      </div>
+
+      {activePath.id !== 'general' && (
+        <div className="path-exam-note" style={{ '--u': activePath.color }}>
+          <span className="path-exam-ico"><Icon name="medal" size={36} /></span>
+          <div>
+            <b>{activePath.title}</b> · {activePath.targetLevel}
+            <div className="small text-muted">{activePath.description}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Trail */}
+      <div className="path-trail">
+        {activePath.units.map((unit, uIdx) => {
+          const unitNodes = nodes.filter((n) => n.unitIndex === uIdx);
+          const unitDone = unitNodes.filter((n) => n.status === 'done').length;
+          const unitLocked = unitNodes.length > 0 && unitNodes[0].status === 'locked';
           return (
-            <div key={unit.id} className="position-relative mb-5" style={{ zIndex: 1 }}>
-              <div className="d-flex align-items-start gap-3" style={{ flexDirection: isEven ? 'row' : 'row-reverse' }}>
-                <div style={{ flex: 1 }}>
-                  <div
-                    className={`card shadow-sm ${unit.locked ? 'opacity-50' : ''} ${unit.passed ? 'border-success border-2' : ''}`}
-                    style={{ borderLeft: unit.locked ? '' : `4px solid ${unit.color}` }}
-                  >
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                          <span className="fs-3 me-2">{unit.icon}</span>
-                          <h5 className="d-inline fw-bold">{unit.title}</h5>
-                          {unit.locked && <span className="badge bg-secondary ms-2">🔒 Khoá</span>}
-                          {unit.passed && <span className="badge bg-success ms-2">✅ Đã qua</span>}
-                        </div>
-                        <span className="text-muted small">{unit.completedInUnit}/{unit.totalInUnit} bài</span>
-                      </div>
-                      <p className="text-muted small mb-3">{unit.subtitle}</p>
+            <section key={unit.id} className={`path-unit ${unitLocked ? 'locked' : ''}`} style={{ '--u': unit.color }}>
+              <header className="path-unit-head">
+                <div className="path-unit-ico"><Icon name={UNIT_ICONS[uIdx % UNIT_ICONS.length]} size={30} /></div>
+                <div className="path-unit-txt">
+                  <small>Unit {uIdx + 1} · {unitDone}/{unitNodes.length}</small>
+                  <b>{unit.title}</b>
+                  <span>{unit.subtitle}</span>
+                </div>
+                {unitLocked && <span className="path-unit-lock"><Icon name="lock" size={26} /></span>}
+              </header>
 
-                      <div className="progress mb-3" style={{ height: 8 }}>
-                        <div className="progress-bar" style={{ width: `${(unit.completedInUnit / unit.totalInUnit) * 100}%`, backgroundColor: unit.color }}></div>
-                      </div>
+              <ol className="path-nodes">
+                {unitNodes.map((node) => {
+                  const x = WIGGLE[node.index % WIGGLE.length];
+                  const isCur = node.status === 'current';
+                  const lesson = node.type === 'lesson' ? lessonMap[node.lessonId] : null;
+                  const label = node.type === 'lesson' ? (lesson?.title || node.lessonId) : unit.checkpoint.title;
+                  const cls = `path-node ${node.type} ${node.status}`;
+                  const score = node.type === 'checkpoint' ? userData.checkpointScores?.[unit.id] : null;
 
-                      <div className="d-flex flex-wrap gap-2 mb-3">
-                        {unit.lessons.map((lid) => {
-                          const lesson = lessonMap[lid];
-                          if (!lesson) return null;
-                          const done = userData.completedLessons.includes(lid);
-                          return (
-                            <Link
-                              key={lid}
-                              to={unit.locked ? '#' : `/lessons/${lid}`}
-                              className={`badge text-decoration-none ${done ? 'bg-success' : unit.locked ? 'bg-secondary' : 'bg-light text-dark border'}`}
-                              style={{ fontSize: '0.8rem', cursor: unit.locked ? 'not-allowed' : 'pointer' }}
-                              onClick={(e) => unit.locked && e.preventDefault()}
-                            >
-                              {lesson.icon} {lesson.title} {done && '✓'}
-                            </Link>
-                          );
-                        })}
-                      </div>
+                  const inner = (
+                    <>
+                      {isCur && <span className="path-node-tip">{node.type === 'lesson' ? 'BẮT ĐẦU' : 'KIỂM TRA'}</span>}
+                      <span className="path-node-btn"><span>{nodeFace(node, lesson)}</span></span>
+                      <span className="path-node-label">
+                        {label}
+                        {score && <small>{score.score}/{score.total}</small>}
+                      </span>
+                    </>
+                  );
 
-                      {!unit.locked && unit.checkpoint && (
-                        <button
-                          className={`btn btn-sm w-100 fw-bold ${unit.passed ? 'btn-outline-success' : unit.allLessonsDone ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-                          onClick={() => startCheckpoint(unit)}
-                          disabled={!unit.allLessonsDone && !unit.passed}
-                        >
-                          {unit.passed
-                            ? `✅ Đã đạt ${unit.checkpoint?.score !== undefined ? `(${userData.checkpointScores?.[unit.id]?.score}/${userData.checkpointScores?.[unit.id]?.total})` : ''} – Làm lại?`
-                            : unit.allLessonsDone
-                              ? `📝 ${unit.checkpoint.title}`
-                              : `🔒 Hoàn thành ${unit.totalInUnit} bài để mở kiểm tra`}
-                        </button>
+                  return (
+                    <li key={node.key} className="path-step" style={{ '--x': `${x}px` }} ref={isCur ? currentRef : null}>
+                      {isCur && (
+                        <img src={petImg} alt="" className={`path-mascot ${x >= 0 ? 'left' : 'right'}`} />
                       )}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                  style={{
-                    width: 48, height: 48,
-                    backgroundColor: unit.locked ? '#adb5bd' : unit.passed ? '#4CAF50' : unit.color,
-                    color: '#fff', fontSize: '1.3rem', fontWeight: 'bold',
-                    border: '4px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                    position: 'relative', zIndex: 2,
-                  }}
-                >
-                  {unit.locked ? '🔒' : unit.passed ? '✅' : uIdx + 1}
-                </div>
-
-                <div style={{ flex: 1 }}></div>
-              </div>
-            </div>
+                      {node.status === 'locked' ? (
+                        <button type="button" className={cls} onClick={() => onLockedClick(node)} aria-label={`${label} (đã khoá)`}>
+                          {inner}
+                        </button>
+                      ) : node.type === 'lesson' ? (
+                        <Link to={`/lessons/${node.lessonId}`} className={cls}>{inner}</Link>
+                      ) : (
+                        <button type="button" className={cls} onClick={() => startCheckpoint(unit)}>{inner}</button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
           );
         })}
 
-        <div className="text-center position-relative" style={{ zIndex: 1 }}>
-          <div
-            className="d-inline-flex align-items-center justify-content-center rounded-circle mx-auto"
-            style={{
-              width: 64, height: 64,
-              background: units.every((u) => u.passed) ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#e9ecef',
-              fontSize: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-            }}
-          >
-            {units.every((u) => u.passed) ? '🏆' : '🎯'}
-          </div>
-          <p className="text-muted small mt-2">
-            {units.every((u) => u.passed) ? 'Hoàn thành tất cả! Bạn thật xuất sắc! 🎉' : 'Hoàn thành tất cả unit để đạt thành tích!'}
+        <div className={`path-finish ${doneAll ? 'done' : ''}`}>
+          <div className="path-finish-ico"><Icon name={doneAll ? 'trophy' : 'flag'} size={44} /></div>
+          <p className="text-muted small mb-0">
+            {doneAll ? 'Hoàn thành toàn bộ lộ trình! Bạn thật xuất sắc! 🎉' : `Còn ${nodes.length - doneCount} bước nữa để về đích!`}
           </p>
         </div>
       </div>
-    );
-  }
 
-  /* ── Visual Learning Path / Roadmap ── */
-  return (
-    <div className="fade-in">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold"><i className="fas fa-route text-cowdi me-2"></i>Lộ trình học tập</h2>
-        <p className="text-muted">Hoàn thành từng unit để mở khoá kiến thức mới!</p>
-      </div>
-
-      {/* ── Path Tabs ── */}
-      <div className="d-flex justify-content-center mb-4 flex-wrap gap-2">
-        <button
-          className={`btn btn-sm fw-bold ${pathTab === 'general' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-          onClick={() => setPathTab('general')}
-        >
-          🌱 Lộ trình chung
-        </button>
-        {EXAM_PATHS.map((ep) => (
-          <button
-            key={ep.id}
-            className={`btn btn-sm fw-bold ${pathTab === ep.id ? '' : 'btn-outline-secondary'}`}
-            style={pathTab === ep.id ? { backgroundColor: ep.color, color: '#fff', borderColor: ep.color } : {}}
-            onClick={() => setPathTab(ep.id)}
-          >
-            {ep.icon} {ep.title}
-          </button>
-        ))}
-      </div>
-
-      {/* ── General Path ── */}
-      {pathTab === 'general' && renderRoadmap(unitStatuses, ['#4CAF50', '#F44336'])}
-
-      {/* ── Exam Path ── */}
-      {activeExamPath && (
-        <div>
-          {/* Exam path header */}
-          <div className="card shadow-sm mb-4" style={{ maxWidth: 700, margin: '0 auto', borderTop: `4px solid ${activeExamPath.color}` }}>
-            <div className="card-body text-center">
-              <span style={{ fontSize: '2.5rem' }}>{activeExamPath.icon}</span>
-              <h4 className="fw-bold mt-2" style={{ color: activeExamPath.color }}>{activeExamPath.title}</h4>
-              <p className="text-muted small mb-1">{activeExamPath.subtitle}</p>
-              <p className="mb-2">{activeExamPath.description}</p>
-              <span className="badge" style={{ backgroundColor: activeExamPath.color, color: '#fff', fontSize: '0.85rem' }}>
-                🎯 Mục tiêu: {activeExamPath.targetLevel}
-              </span>
-            </div>
-          </div>
-
-          {renderRoadmap(examUnitStatuses, [activeExamPath.color, activeExamPath.color + '88'])}
+      {currentNode && (
+        <div className="path-fab">
+          {currentNode.type === 'lesson' ? (
+            <Link to={`/lessons/${currentNode.lessonId}`} className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2">
+              <Icon name="play" size={20} /> Học tiếp: {lessonMap[currentNode.lessonId]?.title}
+            </Link>
+          ) : (
+            <button type="button" className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => startCheckpoint(currentNode.unit)}>
+              <Icon name="trophy" size={20} /> {currentNode.unit.checkpoint.title}
+            </button>
+          )}
         </div>
       )}
     </div>
