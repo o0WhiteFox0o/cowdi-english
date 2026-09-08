@@ -1,6 +1,6 @@
 ﻿import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
-import Navbar from './components/layout/Navbar';
+import BookShell from './components/layout/BookShell';
 import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
@@ -24,7 +24,9 @@ const ReviewPage          = lazy(() => import('./pages/ReviewPage'));
 const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'));
 const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
-const AdminPage           = lazy(() => import('./pages/AdminPage'));const InvitePage          = lazy(() => import('./pages/InvitePage'));
+const AdminPage           = lazy(() => import('./pages/AdminPage'));
+const InvitePage          = lazy(() => import('./pages/InvitePage'));
+
 function PageFallback() {
   return (
     <div className="text-center py-5">
@@ -57,9 +59,9 @@ export default function App() {
   return (
     <SoundProvider>
     <ToastProvider>
-      <Navbar />
-      <main className="container py-4" style={{ marginTop: '70px' }}>
-        <Suspense fallback={<PageFallback />}>
+      <BookShell>
+        <main className="book-main">
+          <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/lessons" element={<LessonsPage />} />
@@ -83,7 +85,8 @@ export default function App() {
             <Route path="*" element={<HomePage />} />
           </Routes>
         </Suspense>
-      </main>
+        </main>
+      </BookShell>
       <CowdiChat />
       <PWAInstallPrompt />
     </ToastProvider>

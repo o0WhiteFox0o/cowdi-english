@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: linear-gradient(135deg, #fff8f0 0%, #ffe0eb 100%);
+  background: linear-gradient(135deg, var(--paper-2) 0%, var(--leaf-light) 100%);
   border-radius: 20px;
   padding: 1.5rem 1.75rem;
   position: relative;
@@ -89,7 +89,7 @@
 .home-xp-level-badge {
   width: 44px; height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  background: linear-gradient(135deg, var(--leaf), var(--terracotta));
   color: white;
   font-weight: 800;
   font-size: 0.85rem;
@@ -105,7 +105,7 @@
 }
 .home-xp-bar-fill {
   height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--cowdi-primary), #A29BFE);
+  background: linear-gradient(90deg, var(--leaf), #7b9a5c);
   transition: width 0.6s ease;
 }
 .home-streak-pill {
@@ -121,7 +121,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  background: linear-gradient(135deg, var(--leaf), var(--leaf-dark));
   border-radius: 16px;
   padding: 1rem 1.25rem;
   color: white;
@@ -313,7 +313,7 @@
   gap: 2px;
   padding: 4px 14px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  background: linear-gradient(135deg, var(--leaf), var(--leaf-dark));
   color: #fff;
   box-shadow: 0 4px 14px rgba(255,107,157,0.35);
   white-space: nowrap;

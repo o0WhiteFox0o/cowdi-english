@@ -3,12 +3,33 @@
    ============================================ */
 
 :root {
-  --cowdi-primary: #FF6B9D;
-  --cowdi-primary-dark: #E0527E;
-  --cowdi-primary-light: #FF8FB8;
-  --cowdi-secondary: #4ECDC4;
-  --cowdi-bg: #FFF8F0;
+  /* ── Book / Journal palette (see book.css) ── */
+  --paper:        #F7EFDC;
+  --paper-2:      #FDF8EC;
+  --paper-3:      #EFE3C8;
+  --paper-line:   #DCCBA6;
+  --ink:          #3F3226;
+  --ink-soft:     #6B5B4B;
+  --ink-muted:    #94846F;
+  --leaf:         #5C7A3F;
+  --leaf-dark:    #46602F;
+  --leaf-light:   #DDE7C9;
+  --leaf-pale:    #EEF3E3;
+  --wood:         #6B4A32;
+  --wood-dark:    #3E2A1D;
+  --wood-light:   #8C6644;
+  --terracotta:   #C97B4A;
+  --gold:         #D9A93C;
+  --sky:          #BFD9E8;
+
+  /* Legacy brand tokens → remapped to book palette so all pages inherit */
+  --cowdi-primary: var(--leaf);
+  --cowdi-primary-dark: var(--leaf-dark);
+  --cowdi-primary-light: #7B9A5C;
+  --cowdi-secondary: var(--terracotta);
+  --cowdi-bg: var(--paper);
   --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-hand: 'Patrick Hand', 'Nunito', cursive;
 
   /* ── Typography scale ──
      Root 24px (≈150% so với Bootstrap default 16px) để toàn bộ rem-based
@@ -145,7 +166,7 @@ h6, .h6 { font-size: 1rem; }
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE);
+  background: linear-gradient(135deg, var(--leaf), var(--terracotta));
   color: white;
   font-weight: 800;
   font-size: 1.1rem;
@@ -159,7 +180,7 @@ h6, .h6 { font-size: 1rem; }
    GRADIENT CARD BG
    ============================================ */
 .bg-cowdi-gradient {
-  background: linear-gradient(135deg, var(--cowdi-primary), #A29BFE) !important;
+  background: linear-gradient(135deg, var(--leaf), var(--leaf-dark)) !important;
 }
 
 /* ============================================
