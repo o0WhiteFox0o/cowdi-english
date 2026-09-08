@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import Icon from '../components/Icon';
+import Emoji, { EmojiText } from '../components/Emoji';
 
 // ── Sparkline SVG (không cần thư viện) ─────────────────────────────
 function Sparkline({ data, color = '#E91E63', height = 60, label = '' }) {
@@ -79,7 +81,7 @@ export default function AdminPage() {
   if (error === 'forbidden') {
     return (
       <div className="text-center py-5">
-        <div className="fs-1 mb-3">🔒</div>
+        <div className="fs-1 mb-3 emoji-big"><Icon name="lock" size={44} /></div>
         <h4>Trang dành cho quản trị viên</h4>
         <p className="text-muted">Liên hệ admin để được cấp quyền.</p>
       </div>
@@ -92,7 +94,7 @@ export default function AdminPage() {
     <div className="fade-in">
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
-          <h2 className="fw-bold mb-0">📊 Quản trị cộng đồng</h2>
+          <h2 className="fw-bold mb-0"><Icon name="chart" size={28} /> Quản trị cộng đồng</h2>
           <p className="text-muted small mb-0">Theo dõi tăng trưởng, độ gắn kết và chăm sóc người dùng</p>
         </div>
         <div className="btn-group btn-group-sm">
@@ -116,7 +118,7 @@ export default function AdminPage() {
               <div className="card border-0 shadow-sm h-100" style={{ background: t.color + '10' }}>
                 <div className="card-body p-3">
                   <div className="d-flex align-items-center gap-2 mb-1">
-                    <span style={{ fontSize: '1.2rem' }}>{t.icon}</span>
+                    <span style={{ fontSize: '1.2rem' }}><Emoji e={t.icon} size={20} /></span>
                     <span className="text-muted small">{t.label}</span>
                   </div>
                   <div className="fw-bold" style={{ fontSize: '1.5rem', color: t.color }}>{display}</div>
@@ -132,7 +134,7 @@ export default function AdminPage() {
         <div className="card-body py-2 px-3">
           <div className="row g-2 align-items-center">
             <div className="col-md-4">
-              <div className="fw-bold">🎯 Retention 7 ngày</div>
+              <div className="fw-bold"><Icon name="target" size={16} /> Retention 7 ngày</div>
               <div className="text-muted small">Tỉ lệ user mới (7-14 ngày trước) vẫn quay lại 7 ngày qua</div>
             </div>
             <div className="col-md-8 d-flex align-items-center gap-3">
@@ -163,7 +165,7 @@ export default function AdminPage() {
             <div className="card border-0 shadow-sm h-100">
               <div className="card-body py-2 px-3">
                 <div className="d-flex justify-content-between align-items-center mb-1">
-                  <span className="fw-bold small">{c.label}</span>
+                  <span className="fw-bold small"><EmojiText size={14}>{c.label}</EmojiText></span>
                   <span className="text-muted small">{c.total}</span>
                 </div>
                 <Sparkline data={c.data} color={c.color} label={c.label} />
@@ -216,14 +218,14 @@ function UserTable({ title, rows, columns, emptyHint }) {
     <div className="col-lg-4 col-md-6">
       <div className="card border-0 shadow-sm h-100">
         <div className="card-body p-0">
-          <div className="px-3 pt-3 pb-2 fw-bold small">{title}</div>
+          <div className="px-3 pt-3 pb-2 fw-bold small"><EmojiText size={14}>{title}</EmojiText></div>
           {rows && rows.length > 0 ? (
             <div className="list-group list-group-flush">
               {rows.map(r => (
                 <div key={r.id} className="list-group-item d-flex align-items-center gap-2 py-2 px-3">
                   {r.avatar_url
                     ? <img src={r.avatar_url} alt="" width="28" height="28" className="rounded-circle" referrerPolicy="no-referrer" />
-                    : <span className="fs-5">👤</span>}
+                    : <span className="fs-5"><Icon name="user" size={28} /></span>}
                   <div className="flex-grow-1" style={{ minWidth: 0 }}>
                     <div className="fw-semibold small text-truncate" style={{ maxWidth: 180 }}>{r.display_name || 'Ẩn danh'}</div>
                     <div className="text-muted text-truncate" style={{ fontSize: '0.65rem', maxWidth: 180 }}>{r.email}</div>
@@ -231,7 +233,7 @@ function UserTable({ title, rows, columns, emptyHint }) {
                   <div className="text-end" style={{ fontSize: '0.7rem' }}>
                     {columns.map(c => (
                       <div key={c.key} className="text-muted">
-                        <span className="me-1">{c.label}</span>
+                        <span className="me-1"><EmojiText size={12}>{c.label}</EmojiText></span>
                         <span className="fw-bold text-dark">
                           {c.format ? c.format(r[c.key]) : (r[c.key] ?? 0).toLocaleString?.() ?? r[c.key]}
                         </span>
@@ -242,7 +244,7 @@ function UserTable({ title, rows, columns, emptyHint }) {
               ))}
             </div>
           ) : (
-            <div className="text-center text-muted small py-3 px-3">{emptyHint || 'Không có dữ liệu'}</div>
+            <div className="text-center text-muted small py-3 px-3"><EmojiText size={14}>{emptyHint || 'Không có dữ liệu'}</EmojiText></div>
           )}
         </div>
       </div>

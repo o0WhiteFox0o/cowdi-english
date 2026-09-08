@@ -9,6 +9,7 @@ import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
 import { COWDI_MESSAGES } from '../../data/config/messages';
 import InviteSheet from '../../features/invite/InviteSheet';
 import Icon from '../Icon';
+import { EmojiText } from '../Emoji';
 
 /* ── Route groups for highlighting the active tab/section ── */
 const LEARN_PATHS    = ['/learning-path', '/lessons', '/vocabulary', '/review'];
@@ -221,7 +222,7 @@ export default function BookShell({ children }) {
             <img src={petImg} alt={petName} />
             <div className="book-note">
               <b>{petName} nhắn:</b>
-              {tip}
+              <EmojiText>{tip}</EmojiText>
             </div>
           </Link>
         </aside>

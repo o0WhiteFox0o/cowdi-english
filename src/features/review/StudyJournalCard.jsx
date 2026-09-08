@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useUser } from '../../hooks/useUser';
+import Icon from '../../components/Icon';
 
 /**
  * StudyJournalCard — Nhật ký học tập theo ngày.
@@ -86,7 +87,7 @@ export default function StudyJournalCard() {
     >
       <div className="card-body">
         <div className="d-flex align-items-center mb-3">
-          <div style={{ fontSize: '1.8rem' }} className="me-2">📖</div>
+          <div style={{ fontSize: '1.8rem' }} className="me-2 emoji-big"><Icon name="book" size={32} /></div>
           <div className="flex-grow-1">
             <h5 className="fw-bold mb-0">Nhật ký học tập</h5>
             <small className="text-muted">Theo dõi mỗi ngày bạn đã làm gì</small>
@@ -102,15 +103,15 @@ export default function StudyJournalCard() {
           }}
         >
           <div className="d-flex align-items-center justify-content-between mb-2">
-            <strong style={{ color: TOKENS.primaryDark }}>🌞 Hôm nay</strong>
+            <strong style={{ color: TOKENS.primaryDark }}><Icon name="sun" size={18} /> Hôm nay</strong>
             <small className="text-muted">{new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit' })}</small>
           </div>
           <div className="row g-2 text-center">
-            <JournalStat icon="📚" value={todayEntry.lessons} label="Bài" />
-            <JournalStat icon="🃏" value={todayEntry.words} label="Từ mới" />
-            <JournalStat icon="🔁" value={todayEntry.reviews} label="Lượt ôn" />
-            <JournalStat icon="✅" value={todayEntry.quizzes} label="Quiz" />
-            <JournalStat icon="⭐" value={todayEntry.xp} label="XP" highlight />
+            <JournalStat icon="books" value={todayEntry.lessons} label="Bài" />
+            <JournalStat icon="cards" value={todayEntry.words} label="Từ mới" />
+            <JournalStat icon="repeat" value={todayEntry.reviews} label="Lượt ôn" />
+            <JournalStat icon="check" value={todayEntry.quizzes} label="Quiz" />
+            <JournalStat icon="star" value={todayEntry.xp} label="XP" highlight />
           </div>
           {!todayEntry.lessons && !todayEntry.words && !todayEntry.reviews && !todayEntry.quizzes && (
             <div className="text-center small text-muted mt-2">
@@ -122,7 +123,7 @@ export default function StudyJournalCard() {
         {/* Tuần này — bar chart */}
         <div className="mb-2">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <strong className="small">📅 7 ngày gần nhất</strong>
+            <strong className="small"><Icon name="calendar" size={14} /> 7 ngày gần nhất</strong>
             <small className="text-muted">
               Tổng: <strong>{weekTotal.xp} XP</strong> · {weekTotal.words} từ · {weekTotal.lessons} bài
             </small>
@@ -219,7 +220,7 @@ export default function StudyJournalCard() {
                         {e.quizzes || '-'}
                         {e.perfectQuizzes > 0 && (
                           <span className="text-warning ms-1" title="Quiz hoàn hảo">
-                            ⭐{e.perfectQuizzes}
+                            <Icon name="star" size={12} />{e.perfectQuizzes}
                           </span>
                         )}
                       </td>
@@ -248,7 +249,7 @@ function JournalStat({ icon, value, label, highlight }) {
           border: highlight ? `1px solid ${TOKENS.primary}` : '1px solid transparent',
         }}
       >
-        <div style={{ fontSize: '1.2rem' }}>{icon}</div>
+        <div style={{ fontSize: '1.2rem' }}><Icon name={icon} size={20} /></div>
         <div
           className="fw-bold"
           style={{ fontSize: '1.1rem', color: highlight ? TOKENS.primaryDark : '#333' }}

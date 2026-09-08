@@ -7,6 +7,8 @@ import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
+import Icon from '../../components/Icon';
+import Emoji from '../../components/Emoji';
 
 const TYPE_LABELS = {
   vocab:          { icon: '📝', title: 'Từ vựng',       desc: 'Ôn tập từ vựng đã học' },
@@ -1036,7 +1038,7 @@ export default function PracticePage() {
     return (
       <div className="fade-in text-center py-4" style={{ maxWidth: 600, margin: '0 auto' }}>
         <button className="btn btn-outline-secondary btn-sm mb-4" onClick={() => setLsTopicModal(false)}>← Quay lại</button>
-        <div style={{ fontSize: '3rem' }} className="mb-2">🎵</div>
+        <div style={{ fontSize: '3rem' }} className="mb-2 emoji-big"><Icon name="music" size={56} /></div>
         <h4 className="fw-bold mb-1">Nghe câu</h4>
         <p className="text-muted mb-4">Nghe câu tiếng Anh và chọn nghĩa đúng. Chọn chủ đề để bắt đầu!</p>
         <div className="row g-3 justify-content-center">
@@ -1051,7 +1053,7 @@ export default function PracticePage() {
                 onKeyDown={(e) => e.key === 'Enter' && startListenSentence(topic.id)}
               >
                 <div className="card-body py-4 text-center">
-                  <div style={{ fontSize: '2.5rem' }} className="mb-2">{topic.icon}</div>
+                  <div style={{ fontSize: '2.5rem' }} className="mb-2 emoji-big"><Emoji e={topic.icon} size={48} /></div>
                   <h6 className="fw-bold mb-1">{topic.nameVi}</h6>
                   <p className="text-muted small mb-2">{topic.name}</p>
                   <span className="badge bg-light text-secondary">{topic.sentences.length} câu · 20 câu/lượt</span>
@@ -1082,7 +1084,7 @@ export default function PracticePage() {
           {Object.entries(SKILL_GROUPS).map(([skillKey, group]) => (
             <div key={skillKey} className="mb-4">
               <div className="d-flex align-items-center gap-2 mb-2">
-                <span className="fs-4">{group.icon}</span>
+                <span className="fs-4"><Emoji e={group.icon} size={24} /></span>
                 <h5 className="fw-bold mb-0" style={{ color: group.color }}>{group.name}</h5>
                 <span className="text-muted small ms-1">— {group.desc}</span>
               </div>
@@ -1101,7 +1103,7 @@ export default function PracticePage() {
                         onKeyDown={(e) => e.key === 'Enter' && startQuiz(type)}
                       >
                         <div className="card-body py-3">
-                          <div className="fs-2 mb-1">{info.icon}</div>
+                          <div className="fs-2 mb-1 emoji-big"><Emoji e={info.icon} size={36} /></div>
                           <h6 className="card-title fw-bold mb-1">{info.title}</h6>
                           <p className="card-text text-muted small mb-2">{info.desc}</p>
                           <span className="badge bg-light text-secondary">
@@ -1119,7 +1121,7 @@ export default function PracticePage() {
           {/* Mixed — standalone */}
           <div className="mb-4">
             <div className="d-flex align-items-center gap-2 mb-2">
-              <span className="fs-4">🎲</span>
+              <span className="fs-4"><Icon name="dice" size={24} /></span>
               <h5 className="fw-bold mb-0 text-secondary">Tổng hợp</h5>
               <span className="text-muted small ms-1">— Mix tất cả loại câu hỏi</span>
             </div>
@@ -1134,7 +1136,7 @@ export default function PracticePage() {
                   onKeyDown={(e) => e.key === 'Enter' && startQuiz('mixed')}
                 >
                   <div className="card-body py-3">
-                    <div className="fs-2 mb-1">🎲</div>
+                    <div className="fs-2 mb-1 emoji-big"><Icon name="dice" size={36} /></div>
                     <h6 className="card-title fw-bold mb-1">Tổng hợp</h6>
                     <p className="card-text text-muted small mb-2">Mix tất cả</p>
                     <span className="badge bg-light text-secondary">Ngẫu nhiên</span>
@@ -1151,7 +1153,7 @@ export default function PracticePage() {
                   onKeyDown={(e) => e.key === 'Enter' && startQuiz('matching')}
                 >
                   <div className="card-body py-3">
-                    <div className="fs-2 mb-1">🔗</div>
+                    <div className="fs-2 mb-1 emoji-big"><Icon name="link" size={36} /></div>
                     <h6 className="card-title fw-bold mb-1">Nối cặp</h6>
                     <p className="card-text text-muted small mb-2">Nối từ Anh–Việt</p>
                     <span className="badge bg-light text-secondary">5 vòng</span>
@@ -1195,9 +1197,9 @@ export default function PracticePage() {
     const xpEarned = finalScore * 10 + (finalScore === total ? 20 : 0);
     return (
       <div className="text-center py-5 fade-in">
-        <div style={{ fontSize: '5rem' }}>{pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪'}</div>
+        <div style={{ fontSize: '5rem' }} className="emoji-big"><Icon name={pct >= 80 ? 'trophy' : pct >= 50 ? 'thumb' : 'muscle'} size={96} /></div>
         <h2 className="fw-bold mt-3">Kết quả luyện tập</h2>
-        <p className="text-muted mb-1">{TYPE_LABELS[quizType]?.icon} {TYPE_LABELS[quizType]?.title}</p>
+        <p className="text-muted mb-1"><Emoji e={TYPE_LABELS[quizType]?.icon} size={16} /> {TYPE_LABELS[quizType]?.title}</p>
         <div className="display-4 fw-bold text-cowdi-primary my-3">{finalScore}/{total}</div>
         <p className="lead text-muted">
           {pct}% — {pct >= 80 ? 'Xuất sắc!' : pct >= 50 ? 'Khá tốt!' : 'Cố gắng thêm nhé!'}
@@ -1221,7 +1223,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Từ {dictIdx + 1}/{dictQuestions.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {dictScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {dictScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((dictIdx + 1) / dictQuestions.length) * 100}%` }}></div>
@@ -1231,7 +1233,7 @@ export default function PracticePage() {
           <div className="card-body py-4">
             <p className="text-muted mb-2">Nghe và viết lại từ tiếng Anh:</p>
             <button className="btn btn-cowdi-primary btn-lg mb-3" onClick={() => speakWord(q.word)}>
-              🔊 Nghe phát âm
+              <Icon name="sound" size={18} /> Nghe phát âm
             </button>
             <p className="text-muted small mb-0">Gợi ý: {q.meaning}</p>
           </div>
@@ -1252,7 +1254,7 @@ export default function PracticePage() {
 
         {dictChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-5 fade-in ${dictChecked ? 'text-success' : 'text-danger'}`}>
-            {dictChecked ? '✅ Chính xác!' : `❌ Đáp án đúng: ${q.word}`}
+            {dictChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.word}</>}
           </div>
         )}
 
@@ -1280,7 +1282,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Vòng {matchRound + 1}/{matchTotal}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {matchScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {matchScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((matchRound) / matchTotal) * 100}%` }}></div>
@@ -1291,7 +1293,7 @@ export default function PracticePage() {
         <div className="row g-3">
           {/* English column */}
           <div className="col-6">
-            <h6 className="text-center fw-bold mb-2">🇬🇧 English</h6>
+            <h6 className="text-center fw-bold mb-2"><Emoji e="🇬🇧" size={16} /> English</h6>
             <div className="d-flex flex-column gap-2">
               {matchData.english.map((item) => {
                 const isPaired = matchPaired.includes(item.id);
@@ -1304,7 +1306,7 @@ export default function PracticePage() {
                     onClick={() => { if (!isPaired) { speakWord(item.word); handleMatchSelect('en', item.id); } }}
                     disabled={isPaired}
                   >
-                    {isPaired ? '✅ ' : ''}{item.word}
+                    {isPaired ? <><Icon name="check" size={14} />{' '}</> : ''}{item.word}
                   </button>
                 );
               })}
@@ -1312,7 +1314,7 @@ export default function PracticePage() {
           </div>
           {/* Vietnamese column */}
           <div className="col-6">
-            <h6 className="text-center fw-bold mb-2">🇻🇳 Tiếng Việt</h6>
+            <h6 className="text-center fw-bold mb-2"><Emoji e="🇻🇳" size={16} /> Tiếng Việt</h6>
             <div className="d-flex flex-column gap-2">
               {matchData.vietnamese.map((item) => {
                 const isPaired = matchPaired.includes(item.id);
@@ -1325,7 +1327,7 @@ export default function PracticePage() {
                     onClick={() => !isPaired && handleMatchSelect('vi', item.id)}
                     disabled={isPaired}
                   >
-                    {isPaired ? '✅ ' : ''}{item.meaning}
+                    {isPaired ? <><Icon name="check" size={14} />{' '}</> : ''}{item.meaning}
                   </button>
                 );
               })}
@@ -1346,7 +1348,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Câu {fillIdx + 1}/{fillQuestions.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {fillScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {fillScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((fillIdx + 1) / fillQuestions.length) * 100}%` }}></div>
@@ -1356,7 +1358,7 @@ export default function PracticePage() {
           <div className="card-body py-4 text-center">
             <p className="text-muted mb-2">Điền từ còn thiếu vào câu:</p>
             <p className="fs-5 fw-bold mb-2">{q.sentence}</p>
-            <p className="text-muted small mb-0">💡 Nghĩa: {q.meaning}</p>
+            <p className="text-muted small mb-0"><Icon name="bulb" size={13} /> Nghĩa: {q.meaning}</p>
           </div>
         </div>
 
@@ -1375,7 +1377,7 @@ export default function PracticePage() {
 
         {fillChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-5 fade-in ${fillChecked ? 'text-success' : 'text-danger'}`}>
-            {fillChecked ? '✅ Chính xác!' : `❌ Đáp án: ${q.answer}`}
+            {fillChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {q.answer}</>}
             {!fillChecked && <p className="text-muted small mt-1">{q.original}</p>}
           </div>
         )}
@@ -1403,7 +1405,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Câu {reorderIdx + 1}/{reorderQuestions.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {reorderScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {reorderScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((reorderIdx + 1) / reorderQuestions.length) * 100}%` }}></div>
@@ -1412,7 +1414,7 @@ export default function PracticePage() {
         <div className="card shadow-sm mb-4">
           <div className="card-body text-center">
             <p className="text-muted mb-1">Sắp xếp các từ thành câu đúng:</p>
-            <p className="text-muted small mb-0">💡 Nghĩa: {q.meaning}</p>
+            <p className="text-muted small mb-0"><Icon name="bulb" size={13} /> Nghĩa: {q.meaning}</p>
           </div>
         </div>
 
@@ -1449,7 +1451,7 @@ export default function PracticePage() {
 
         {reorderChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-6 fade-in ${reorderChecked ? 'text-success' : 'text-danger'}`}>
-            {reorderChecked ? '✅ Chính xác!' : `❌ Đáp án: ${q.correctOrder.join(' ')}`}
+            {reorderChecked ? <><Icon name="check" size={16} /> Chính xác!</> : <><Icon name="x" size={16} /> Đáp án: {q.correctOrder.join(' ')}</>}
           </div>
         )}
 
@@ -1478,9 +1480,9 @@ export default function PracticePage() {
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Câu {dynIdx + 1}/{dynQs.length}</span>
           {quizType === 'speedRound' && (
-            <span className={`badge fs-6 ${dynTimer <= 3 ? 'bg-danger' : 'bg-secondary'}`}>⏱ {dynTimer}s</span>
+            <span className={`badge fs-6 ${dynTimer <= 3 ? 'bg-danger' : 'bg-secondary'}`}><Icon name="timer" size={14} /> {dynTimer}s</span>
           )}
-          <span className="badge bg-warning text-dark fs-6">⭐ {dynScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {dynScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((dynIdx + 1) / dynQs.length) * 100}%` }}></div>
@@ -1492,16 +1494,16 @@ export default function PracticePage() {
             {quizType === 'listenPick' && (
               <>
                 <p className="text-muted mb-2">Nghe phát âm và chọn từ đúng:</p>
-                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.word)}>🔊 Nghe từ</button>
-                <p className="text-muted small mb-0">💡 Nghĩa: {dq.meaning}</p>
+                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.word)}><Icon name="sound" size={18} /> Nghe từ</button>
+                <p className="text-muted small mb-0"><Icon name="bulb" size={13} /> Nghĩa: {dq.meaning}</p>
               </>
             )}
             {/* listenSentence: hear a sentence, pick Vietnamese meaning */}
             {quizType === 'listenSentence' && (
               <>
                 <p className="text-muted mb-3">Nghe câu và chọn nghĩa đúng:</p>
-                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.sentence)}>🔊 Nghe lại</button>
-                <p className="text-muted small mt-2 mb-0">💡 Câu sẽ tự động phát khi chuyển câu mới</p>
+                <button className="btn btn-cowdi-primary btn-lg mb-2" onClick={() => speakWord(dq.sentence)}><Icon name="sound" size={18} /> Nghe lại</button>
+                <p className="text-muted small mt-2 mb-0"><Icon name="bulb" size={13} /> Câu sẽ tự động phát khi chuyển câu mới</p>
               </>
             )}
             {/* speedRound: Vietnamese meaning shown, pick English word */}
@@ -1552,7 +1554,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Từ {wgIdx + 1}/{wgQs.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {wgScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {wgScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((wgIdx + 1) / wgQs.length) * 100}%` }}></div>
@@ -1562,8 +1564,8 @@ export default function PracticePage() {
           <div className="card-body py-4">
             <p className="text-muted mb-2">Đoán từ tiếng Anh từ gợi ý:</p>
             <p className="fs-4 fw-bold text-cowdi-primary mb-2" style={{ letterSpacing: '4px' }}>{wq.partial}</p>
-            <p className="mb-1">💡 Nghĩa: <strong>{wq.meaning}</strong></p>
-            {wq.phonetic && <p className="text-muted small mb-0">🔤 {wq.phonetic}</p>}
+            <p className="mb-1"><Icon name="bulb" size={14} /> Nghĩa: <strong>{wq.meaning}</strong></p>
+            {wq.phonetic && <p className="text-muted small mb-0"><Icon name="abc" size={13} /> {wq.phonetic}</p>}
           </div>
         </div>
 
@@ -1582,7 +1584,7 @@ export default function PracticePage() {
 
         {wgChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wgChecked ? 'text-success' : 'text-danger'}`}>
-            {wgChecked ? '✅ Chính xác!' : `❌ Đáp án: ${wq.word}`}
+            {wgChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {wq.word}</>}
           </div>
         )}
 
@@ -1610,7 +1612,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Câu {tfIdx + 1}/{tfQs.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {tfScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {tfScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((tfIdx + 1) / tfQs.length) * 100}%` }}></div>
@@ -1629,17 +1631,17 @@ export default function PracticePage() {
             className={`btn btn-lg fw-bold px-5 ${tfPicked !== null ? (tq.isTrue ? 'btn-success' : 'btn-outline-success') : 'btn-outline-success'}`}
             onClick={() => handleTrueFalse(true)}
             disabled={tfPicked !== null}
-          >✅ Đúng</button>
+          ><Icon name="check" size={20} /> Đúng</button>
           <button
             className={`btn btn-lg fw-bold px-5 ${tfPicked !== null ? (!tq.isTrue ? 'btn-danger' : 'btn-outline-danger') : 'btn-outline-danger'}`}
             onClick={() => handleTrueFalse(false)}
             disabled={tfPicked !== null}
-          >❌ Sai</button>
+          ><Icon name="x" size={20} /> Sai</button>
         </div>
 
         {tfPicked !== null && (
           <div className={`text-center fw-bold fs-5 fade-in ${isCorrectPick ? 'text-success' : 'text-danger'}`}>
-            {isCorrectPick ? '✅ Đúng rồi!' : `❌ Sai! Nghĩa đúng: ${tq.correctMeaning}`}
+            {isCorrectPick ? <><Icon name="check" size={18} /> Đúng rồi!</> : <><Icon name="x" size={18} /> Sai! Nghĩa đúng: {tq.correctMeaning}</>}
           </div>
         )}
       </div>
@@ -1656,7 +1658,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Từ {wbIdx + 1}/{wbQs.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {wbScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {wbScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((wbIdx + 1) / wbQs.length) * 100}%` }}></div>
@@ -1665,7 +1667,7 @@ export default function PracticePage() {
         <div className="card shadow-sm mb-4 text-center">
           <div className="card-body py-3">
             <p className="text-muted mb-1">Ghép các chữ cái thành từ đúng:</p>
-            <p className="fs-5 fw-bold mb-0">💡 Nghĩa: {bq.meaning}</p>
+            <p className="fs-5 fw-bold mb-0"><Icon name="bulb" size={18} /> Nghĩa: {bq.meaning}</p>
           </div>
         </div>
 
@@ -1700,7 +1702,7 @@ export default function PracticePage() {
 
         {wbChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wbChecked ? 'text-success' : 'text-danger'}`}>
-            {wbChecked ? '✅ Chính xác!' : `❌ Đáp án: ${bq.word}`}
+            {wbChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {bq.word}</>}
           </div>
         )}
 
@@ -1727,7 +1729,7 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setQuizType(null)}>✕ Thoát</button>
           <span className="text-muted fw-bold">Câu {twIdx + 1}/{twQs.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {twScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {twScore}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar progress-bar-cowdi" style={{ width: `${((twIdx + 1) / twQs.length) * 100}%` }}></div>
@@ -1736,7 +1738,7 @@ export default function PracticePage() {
         <div className="card shadow-sm mb-4 text-center">
           <div className="card-body py-4">
             <p className="text-muted mb-2">Viết câu tiếng Anh cho nghĩa sau:</p>
-            <p className="fs-5 fw-bold mb-1">💡 {tq.meaning}</p>
+            <p className="fs-5 fw-bold mb-1"><Icon name="bulb" size={18} /> {tq.meaning}</p>
             <p className="text-muted small mb-0">Từ khóa: <strong>{tq.word}</strong></p>
           </div>
         </div>
@@ -1756,7 +1758,7 @@ export default function PracticePage() {
 
         {twChecked !== null && (
           <div className={`text-center mb-3 fw-bold fs-5 fade-in ${twChecked ? 'text-success' : 'text-danger'}`}>
-            {twChecked ? '✅ Chính xác!' : `❌ Đáp án: ${tq.original}`}
+            {twChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {tq.original}</>}
           </div>
         )}
 
@@ -1786,12 +1788,12 @@ export default function PracticePage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => { speechRec.stop(); clearTimeout(spkTimerRef.current); setQuizType(null); }}>✕ Thoát</button>
           <span className="text-muted fw-bold">
-            {TYPE_LABELS[quizType]?.icon} {TYPE_LABELS[quizType]?.title} — Câu {spkIdx + 1}/{spkQs.length}
+            <Emoji e={TYPE_LABELS[quizType]?.icon} size={16} /> {TYPE_LABELS[quizType]?.title} — Câu {spkIdx + 1}/{spkQs.length}
           </span>
           {quizType === 'speakFast' && speechRec.listening && (
-            <span className={`badge fs-6 ${spkTimer <= 2 ? 'bg-danger' : 'bg-secondary'}`}>⏱ {spkTimer}s</span>
+            <span className={`badge fs-6 ${spkTimer <= 2 ? 'bg-danger' : 'bg-secondary'}`}><Icon name="timer" size={14} /> {spkTimer}s</span>
           )}
-          <span className="badge bg-warning text-dark fs-6">⭐ {spkScore}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {spkScore}</span>
         </div>
 
         {/* Progress bar */}
@@ -1801,7 +1803,7 @@ export default function PracticePage() {
 
         {!speechRec.supported && (
           <div className="alert alert-warning text-center fw-bold">
-            ⚠️ Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.<br />
+            <Icon name="warning" size={18} /> Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.<br />
             Hãy dùng <strong>Chrome</strong> hoặc <strong>Edge</strong> để luyện nói.
           </div>
         )}
@@ -1810,10 +1812,10 @@ export default function PracticePage() {
         <div className="card shadow mb-4">
           <div className="card-body text-center py-4">
             <p className="text-muted mb-2 small fw-bold text-uppercase" style={{ letterSpacing: 1 }}>
-              {quizType === 'speakWord' && '🇻🇳 Nhìn nghĩa → 🎤 Nói từ tiếng Anh'}
-              {quizType === 'speakSentence' && '🇻🇳 Nhìn câu → 🎤 Nói câu tiếng Anh'}
-              {quizType === 'readAloud' && '🇬🇧 Nhìn chữ → 🎤 Đọc to tiếng Anh'}
-              {quizType === 'speakFast' && '🇻🇳 Nhìn nghĩa → ⚡ Nói nhanh tiếng Anh'}
+              {quizType === 'speakWord' && <><Emoji e="🇻🇳" size={14} /> Nhìn nghĩa → <Icon name="mic" size={14} /> Nói từ tiếng Anh</>}
+              {quizType === 'speakSentence' && <><Emoji e="🇻🇳" size={14} /> Nhìn câu → <Icon name="mic" size={14} /> Nói câu tiếng Anh</>}
+              {quizType === 'readAloud' && <><Emoji e="🇬🇧" size={14} /> Nhìn chữ → <Icon name="mic" size={14} /> Đọc to tiếng Anh</>}
+              {quizType === 'speakFast' && <><Emoji e="🇻🇳" size={14} /> Nhìn nghĩa → <Icon name="bolt" size={14} /> Nói nhanh tiếng Anh</>}
             </p>
             <div className={`fw-bold mb-2 ${quizType === 'speakSentence' ? 'fs-5' : 'fs-2'}`} style={{ color: quizType === 'readAloud' ? '#1565C0' : '#388E3C' }}>
               {q.prompt}
@@ -1826,7 +1828,7 @@ export default function PracticePage() {
             )}
             {quizType === 'readAloud' && (
               <button className="btn btn-outline-info btn-sm mt-1" onClick={() => speakWord(q.expected)}>
-                🔊 Nghe mẫu
+                <Icon name="sound" size={14} /> Nghe mẫu
               </button>
             )}
           </div>
@@ -1837,13 +1839,13 @@ export default function PracticePage() {
           <div className="text-center mb-3">
             {speechRec.listening ? (
               <div>
-                <div className="mb-2" style={{ fontSize: '3rem', animation: 'pulse 1s infinite' }}>🎤</div>
+                <div className="mb-2 emoji-big" style={{ fontSize: '3rem', animation: 'pulse 1s infinite' }}><Icon name="mic" size={56} /></div>
                 <p className="text-danger fw-bold mb-2">Đang nghe... hãy nói rõ ràng!</p>
                 <button className="btn btn-outline-secondary btn-sm" onClick={() => speechRec.stop()}>Dừng</button>
               </div>
             ) : (
               <button className="btn btn-cowdi-primary btn-lg px-5" onClick={handleSpeak}>
-                🎤 Bắt đầu nói
+                <Icon name="mic" size={18} /> Bắt đầu nói
               </button>
             )}
           </div>
@@ -1853,8 +1855,8 @@ export default function PracticePage() {
         {spkResult && (
           <div className={`card shadow-sm mb-3 border-3 ${spkResult.correct ? 'border-success' : 'border-danger'}`}>
             <div className="card-body text-center py-3">
-              <div className="fs-1 mb-1">{spkResult.correct ? '✅' : '❌'}</div>
-              <p className="fw-bold mb-1 fs-5">{spkResult.correct ? 'Chính xác! 🎉' : 'Chưa đúng!'}</p>
+              <div className="fs-1 mb-1 emoji-big"><Icon name={spkResult.correct ? 'check' : 'x'} size={44} /></div>
+              <p className="fw-bold mb-1 fs-5">{spkResult.correct ? <>Chính xác! <Icon name="party" size={18} /></> : 'Chưa đúng!'}</p>
               <p className="text-muted small mb-1">
                 Bạn đã nói: &ldquo;<em>{spkResult.transcript || '(không nhận được giọng)'}</em>&rdquo;
               </p>
@@ -1862,7 +1864,7 @@ export default function PracticePage() {
                 <p className="fw-bold text-success mb-1">Đáp án đúng: <span style={{ color: '#1565C0' }}>{q.expected}</span></p>
               )}
               <button className="btn btn-outline-info btn-sm mt-1" onClick={() => speakWord(q.expected)}>
-                🔊 Nghe phát âm chuẩn
+                <Icon name="sound" size={14} /> Nghe phát âm chuẩn
               </button>
             </div>
           </div>
@@ -1871,7 +1873,7 @@ export default function PracticePage() {
         {spkResult && (
           <div className="text-center">
             <button className="btn btn-cowdi-primary btn-lg px-5" onClick={handleSpkNext}>
-              {isLast ? 'Xem kết quả 🎉' : 'Tiếp theo →'}
+              {isLast ? <>Xem kết quả <Icon name="party" size={18} /></> : 'Tiếp theo →'}
             </button>
           </div>
         )}
@@ -1891,7 +1893,7 @@ export default function PracticePage() {
         </button>
         <span className="text-muted">Câu {qIndex + 1}/{questions.length}</span>
         <span className={`badge fs-6 ${timeLeft <= 10 ? 'bg-danger' : 'bg-secondary'}`}>
-          ⏱ {timeLeft}s
+          <Icon name="timer" size={14} /> {timeLeft}s
         </span>
         <span className="badge bg-warning text-dark fs-6">Điểm: {score}</span>
       </div>
@@ -1907,7 +1909,7 @@ export default function PracticePage() {
       {q.speak && (
         <div className="text-center mb-3">
           <button className="btn btn-cowdi-primary" onClick={() => speakWord(q.speak)}>
-            🔊 Nghe phát âm
+            <Icon name="sound" size={16} /> Nghe phát âm
           </button>
         </div>
       )}

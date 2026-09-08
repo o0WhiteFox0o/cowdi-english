@@ -6,6 +6,8 @@ import { generateDuelQuiz } from '../../data/quiz/duel-quiz-pool';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
+import Icon from '../../components/Icon';
+import Emoji, { EmojiText } from '../../components/Emoji';
 
 // ── League definitions ──────────────────────────────────────
 const LEAGUES = {
@@ -571,7 +573,7 @@ export default function DuelPage() {
   if (!user) {
     return (
       <div className="text-center py-5 fade-in">
-        <div className="fs-1 mb-3">⚔️</div>
+        <div className="fs-1 mb-3 emoji-big"><Icon name="swords" size={44} /></div>
         <h2 className="fw-bold">Đấu trường Pet</h2>
         <p className="text-muted">Đăng nhập để thách đấu với người chơi khác!</p>
       </div>
@@ -589,13 +591,13 @@ export default function DuelPage() {
           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { play('click'); setMode('lobby'); }}>
             ← Quay lại
           </button>
-          <h5 className="fw-bold mb-0">⚔️ Tạo thách đấu</h5>
+          <h5 className="fw-bold mb-0"><Icon name="swords" size={20} /> Tạo thách đấu</h5>
         </div>
 
         {/* Số câu hỏi */}
         <div className="card shadow-sm mb-3">
           <div className="card-body py-3">
-            <div className="fw-bold small mb-2">📝 Số câu hỏi</div>
+            <div className="fw-bold small mb-2"><Icon name="note" size={16} /> Số câu hỏi</div>
             <div className="d-flex gap-2">
               {QUESTION_COUNT_OPTIONS.map(n => (
                 <button
@@ -614,7 +616,7 @@ export default function DuelPage() {
         {/* Chủ đề */}
         <div className="card shadow-sm mb-3">
           <div className="card-body py-3">
-            <div className="fw-bold small mb-2">🎯 Chủ đề</div>
+            <div className="fw-bold small mb-2"><Icon name="target" size={16} /> Chủ đề</div>
             <div className="d-flex flex-wrap gap-2">
               {CATEGORY_KEYS.map(key => {
                 const info = CATEGORY_INFO[key];
@@ -626,7 +628,7 @@ export default function DuelPage() {
                     className={`btn btn-sm ${active ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
                     onClick={() => { play('click'); setSetupCategory(key); }}
                   >
-                    {info.icon} {info.label}
+                    <Emoji e={info.icon} size={16} /> {info.label}
                   </button>
                 );
               })}
@@ -638,7 +640,7 @@ export default function DuelPage() {
         <div className="card shadow-sm mb-3">
           <div className="card-body py-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <span className="fw-bold small">💬 Lời nhắn thách đấu (tuỳ chọn)</span>
+              <span className="fw-bold small"><Icon name="chat" size={16} /> Lời nhắn thách đấu (tuỳ chọn)</span>
               <span className={`small ${msgLen > MESSAGE_MAX ? 'text-danger' : 'text-muted'}`}>
                 {msgLen}/{MESSAGE_MAX}
               </span>
@@ -659,7 +661,7 @@ export default function DuelPage() {
           onClick={startCreate}
           disabled={msgLen > MESSAGE_MAX}
         >
-          🚀 Bắt đầu thách đấu
+          <Icon name="rocket" size={18} /> Bắt đầu thách đấu
         </button>
       </div>
     );
@@ -682,24 +684,24 @@ export default function DuelPage() {
         {/* Battle Header */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="fw-bold small">
-            {mode === 'creating' ? '⚔️ Tạo thách đấu' : '🎯 Chấp nhận thách đấu'}
+            {mode === 'creating' ? <><Icon name="swords" size={16} /> Tạo thách đấu</> : <><Icon name="target" size={16} /> Chấp nhận thách đấu</>}
             {' '}
             <span className="badge bg-light text-dark ms-1" style={{ fontSize: '0.6rem' }}>
-              {(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).icon} {(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).label}
+              <Emoji e={(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).icon} size={12} /> {(CATEGORY_INFO[duelCategory] || CATEGORY_INFO.all).label}
             </span>
           </span>
           <div className="d-flex align-items-center gap-2">
             {comboCount >= 3 && (
-              <span className="badge bg-warning text-dark combo-badge">🔥 x{comboCount}</span>
+              <span className="badge bg-warning text-dark combo-badge"><Icon name="fire" size={12} /> x{comboCount}</span>
             )}
-            <span className="badge bg-dark">⏱️ {elapsed}s</span>
+            <span className="badge bg-dark"><Icon name="timer" size={12} /> {elapsed}s</span>
           </div>
         </div>
 
         {/* Challenger message banner (only when playing) */}
         {mode === 'playing' && duelMessage && currentQ === 0 && selectedOption === null && (
           <div className="alert alert-warning py-2 px-3 small mb-2 fst-italic" style={{ borderLeft: '3px solid #ffc107' }}>
-            💬 <strong>{challengerNick || opponentPet?.name || 'Đối thủ'}:</strong> "{duelMessage}"
+            <Icon name="chat" size={16} /> <strong>{challengerNick || opponentPet?.name || 'Đối thủ'}:</strong> "<EmojiText>{duelMessage}</EmojiText>"
           </div>
         )}
 
@@ -707,7 +709,7 @@ export default function DuelPage() {
         {mode === 'playing' && (currentQ === 0 && selectedOption === null) && (
           <div className="card border-0 bg-light mb-2">
             <div className="card-body py-2 px-3 d-flex align-items-center gap-2">
-              <div style={{ fontSize: '1.6rem' }}>{opponentPet?.emoji || '🐾'}</div>
+              <div style={{ fontSize: '1.6rem' }}><Emoji e={opponentPet?.emoji || '🐾'} size={30} /></div>
               <div className="flex-grow-1">
                 <div className="small fw-bold">
                   {challengerNick || 'Người thách đấu'}
@@ -715,7 +717,7 @@ export default function DuelPage() {
                 </div>
                 <div className="text-muted" style={{ fontSize: '0.7rem' }}>
                   Đã trả lời đúng {challengerResults.filter(r => r?.correct).length}/{challengerResults.length} câu
-                  {typeof challengerTotalTime === 'number' && ` · ⏱️ ${challengerTotalTime}s`}
+                  {typeof challengerTotalTime === 'number' && <> · <Icon name="timer" size={12} /> {challengerTotalTime}s</>}
                 </div>
               </div>
             </div>
@@ -759,7 +761,7 @@ export default function DuelPage() {
             </div>
             <div className="text-end mt-1">
               <span className="badge" style={{ backgroundColor: elementTheme.color, fontSize: '0.6rem', color: '#fff' }}>
-                {elementTheme.label}
+                <EmojiText size={12}>{elementTheme.label}</EmojiText>
               </span>
             </div>
           </div>
@@ -773,7 +775,7 @@ export default function DuelPage() {
             {myPetImage ? (
               <img src={myPetImage} alt={myPetInfo.name} />
             ) : (
-              <div className="pet-emoji-lg">{myPetInfo.emoji}</div>
+              <div className="pet-emoji-lg emoji-big"><Emoji e={myPetInfo.emoji} size={96} /></div>
             )}
           </div>
 
@@ -786,14 +788,14 @@ export default function DuelPage() {
             {opponentPet?.image ? (
               <img src={opponentPet.image} alt={opponentPet.name} />
             ) : (
-              <div className="pet-emoji-lg">{opponentPet?.emoji || '🐾'}</div>
+              <div className="pet-emoji-lg emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={96} /></div>
             )}
           </div>
 
           {/* Damage Popup */}
           {damagePopup && (
             <div className={`damage-number ${damagePopup.target === 'opponent' ? 'damage-number-opponent' : 'damage-number-mine'}`}>
-              {damagePopup.isCritical ? '💥 ' : ''}-{damagePopup.amount}
+              {damagePopup.isCritical ? <><Icon name="boom" size={24} />{' '}</> : ''}-{damagePopup.amount}
             </div>
           )}
         </div>
@@ -813,7 +815,7 @@ export default function DuelPage() {
                   className="btn btn-sm btn-outline-primary fw-bold"
                   onClick={() => speakText(q.speak, 0.9)}
                 >
-                  🔊 Nghe lại
+                  <Icon name="sound" size={16} /> Nghe lại
                 </button>
                 <button
                   type="button"
@@ -821,7 +823,7 @@ export default function DuelPage() {
                   onClick={() => speakText(q.speak, 0.55)}
                   title="Nghe chậm"
                 >
-                  🐢 Chậm
+                  <Icon name="turtle" size={16} /> Chậm
                 </button>
               </div>
             )}
@@ -876,7 +878,7 @@ export default function DuelPage() {
     if (result.mode === 'created') {
       return (
         <div className="text-center fade-in py-4">
-          <div className="fs-1 mb-2">⚔️</div>
+          <div className="fs-1 mb-2 emoji-big"><Icon name="swords" size={44} /></div>
           <h3 className="fw-bold">Thách đấu đã tạo!</h3>
           <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
             <div className="card-body">
@@ -885,7 +887,7 @@ export default function DuelPage() {
                 {myPetImage ? (
                   <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 80, maxHeight: 80, objectFit: 'contain' }} />
                 ) : (
-                  <div className="fs-1">{myPetInfo.emoji}</div>
+                  <div className="fs-1 emoji-big"><Emoji e={myPetInfo.emoji} size={44} /></div>
                 )}
               </div>
               <h4 className="fw-bold">{result.score}/{result.total}</h4>
@@ -901,11 +903,11 @@ export default function DuelPage() {
                   <span className="small fw-bold">{myHp}%</span>
                 </div>
               </div>
-              <p className="text-muted mb-1">⏱️ {result.time}s</p>
+              <p className="text-muted mb-1"><Icon name="timer" size={16} /> {result.time}s</p>
               <p className="text-muted small">Đang chờ đối thủ chấp nhận...</p>
               <div className="d-flex justify-content-center gap-2 mt-2">
                 <span className="badge bg-warning text-dark">+{result.score * 5} XP</span>
-                <span className="badge bg-success">+10 🪙</span>
+                <span className="badge bg-success">+10 <Icon name="coin" size={12} /></span>
                 <span className="badge bg-info text-dark">+5 LP</span>
               </div>
             </div>
@@ -920,8 +922,8 @@ export default function DuelPage() {
     // Played result — VS battle result
     return (
       <div className="text-center fade-in py-4">
-        <div className="fs-1 mb-2">
-          {result.isWin ? '🎉' : result.isDraw ? '🤝' : '😢'}
+        <div className="fs-1 mb-2 emoji-big">
+          {result.isWin ? <Icon name="party" size={44} /> : result.isDraw ? <Icon name="handshake" size={44} /> : <Icon name="sad" size={44} />}
         </div>
         <h3 className="fw-bold" style={{ color: result.isWin ? '#2ECC71' : result.isDraw ? '#F39C12' : '#E74C3C' }}>
           {result.isWin ? 'CHIẾN THẮNG!' : result.isDraw ? 'HÒA!' : 'THẤT BẠI!'}
@@ -935,7 +937,7 @@ export default function DuelPage() {
               {myPetImage ? (
                 <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
               ) : (
-                <div className="fs-2">{myPetInfo.emoji}</div>
+                <div className="fs-2 emoji-big"><Emoji e={myPetInfo.emoji} size={36} /></div>
               )}
             </div>
             <div className="fw-bold small">{myPetInfo.name}</div>
@@ -946,7 +948,7 @@ export default function DuelPage() {
               }}></div>
             </div>
             <h3 className={`fw-bold mb-0 ${result.isWin ? 'text-success' : ''}`}>{result.myScore}/{result.total}</h3>
-            <small className="text-muted">⏱️ {result.myTime}s</small>
+            <small className="text-muted"><Icon name="timer" size={14} /> {result.myTime}s</small>
           </div>
 
           <div className="fs-3 text-muted fw-bold">VS</div>
@@ -957,7 +959,7 @@ export default function DuelPage() {
               {opponentPet?.image ? (
                 <img src={opponentPet.image} alt={opponentPet.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
               ) : (
-                <div className="fs-2">{opponentPet?.emoji || '🐾'}</div>
+                <div className="fs-2 emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={36} /></div>
               )}
             </div>
             <div className="fw-bold small">{opponentPet?.name || 'Đối thủ'}</div>
@@ -968,17 +970,17 @@ export default function DuelPage() {
               }}></div>
             </div>
             <h3 className={`fw-bold mb-0 ${!result.isWin && !result.isDraw ? 'text-success' : ''}`}>{result.theirScore}/{result.total}</h3>
-            <small className="text-muted">⏱️ {result.theirTime}s</small>
+            <small className="text-muted"><Icon name="timer" size={14} /> {result.theirTime}s</small>
           </div>
         </div>
 
         {/* Rewards */}
         <div className="card shadow-sm mx-auto" style={{ maxWidth: 340 }}>
           <div className="card-body">
-            <h6 className="fw-bold mb-2">🎁 Phần thưởng</h6>
+            <h6 className="fw-bold mb-2"><Icon name="gift" size={18} /> Phần thưởng</h6>
             <div className="d-flex justify-content-center gap-2 flex-wrap">
               <span className="badge bg-warning text-dark">+{result.myScore * 5} XP</span>
-              <span className="badge bg-success">+{result.isWin ? 50 : result.isDraw ? 25 : 10} 🪙</span>
+              <span className="badge bg-success">+{result.isWin ? 50 : result.isDraw ? 25 : 10} <Icon name="coin" size={12} /></span>
               <span className="badge bg-info text-dark">
                 +{result.isWin ? 30 : result.isDraw ? 15 : 5} LP
               </span>
@@ -990,9 +992,9 @@ export default function DuelPage() {
         {Array.isArray(result.breakdown) && result.breakdown.length > 0 && (
           <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
             <div className="card-body">
-              <h6 className="fw-bold mb-2">🔍 Diễn biến từng câu</h6>
+              <h6 className="fw-bold mb-2"><Icon name="search" size={18} /> Diễn biến từng câu</h6>
               <div className="d-flex justify-content-around mb-2 small">
-                <span>🏆 Điểm thắng câu:</span>
+                <span><Icon name="trophy" size={14} /> Điểm thắng câu:</span>
                 <span><span className="fw-bold text-success">{result.myPoints}</span> - <span className="fw-bold text-danger">{result.theirPoints}</span></span>
               </div>
               <div style={{ maxHeight: 220, overflowY: 'auto' }}>
@@ -1011,11 +1013,11 @@ export default function DuelPage() {
                     <div key={i} className="d-flex justify-content-between align-items-center py-1 border-bottom small">
                       <span className="text-muted" style={{ minWidth: 30 }}>#{i + 1}</span>
                       <span style={{ minWidth: 70 }} className="text-start">
-                        {mineOk ? '✅' : '❌'} {mineT ? `${mineT}s` : '-'}
+                        <Icon name={mineOk ? 'check' : 'x'} size={14} /> {mineT ? `${mineT}s` : '-'}
                       </span>
                       <span className={`badge ${tagCls}`} style={{ fontSize: '0.65rem' }}>{tag}</span>
                       <span style={{ minWidth: 70 }} className="text-end">
-                        {theirT ? `${theirT}s` : '-'} {theirOk ? '✅' : '❌'}
+                        {theirT ? `${theirT}s` : '-'} <Icon name={theirOk ? 'check' : 'x'} size={14} />
                       </span>
                     </div>
                   );
@@ -1048,7 +1050,7 @@ export default function DuelPage() {
     <div className="fade-in">
       {/* Header */}
       <div className="text-center mb-4">
-        <h2 className="fw-bold"><span className="me-2">⚔️</span>Đấu trường Pet</h2>
+        <h2 className="fw-bold"><span className="me-2"><Icon name="swords" size={32} /></span>Đấu trường Pet</h2>
         <p className="text-muted small">Thách đấu quiz với người chơi khác!</p>
       </div>
 
@@ -1057,13 +1059,13 @@ export default function DuelPage() {
         <div className="card-body">
           <div className="d-flex align-items-center gap-3">
             <div className="text-center">
-              <div className="fs-1">{league.icon}</div>
+              <div className="fs-1 emoji-big"><Emoji e={league.icon} size={44} /></div>
               <div className="fw-bold small" style={{ color: league.color }}>{league.name}</div>
             </div>
             <div className="flex-grow-1">
               <div className="d-flex justify-content-between small mb-1">
                 <span className="fw-bold">{myStats.leaguePoints} LP</span>
-                {nextLeague && <span className="text-muted">{nextLeague.icon} {nextLeague.min} LP</span>}
+                {nextLeague && <span className="text-muted"><Emoji e={nextLeague.icon} size={14} /> {nextLeague.min} LP</span>}
               </div>
               <div className="progress" style={{ height: 8 }}>
                 <div className="progress-bar" style={{ width: `${progressToNext}%`, backgroundColor: league.color }}></div>
@@ -1071,22 +1073,22 @@ export default function DuelPage() {
               <div className="d-flex gap-3 mt-2">
                 <span className="small"><span className="text-success fw-bold">{myStats.duelWins}W</span></span>
                 <span className="small"><span className="text-danger fw-bold">{myStats.duelLosses}L</span></span>
-                {myStats.duelStreak > 0 && <span className="small">🔥 {myStats.duelStreak}</span>}
+                {myStats.duelStreak > 0 && <span className="small"><Icon name="fire" size={14} /> {myStats.duelStreak}</span>}
               </div>
             </div>
-            <div>{myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 48, height: 48, objectFit: 'contain' }} /> : <span className="fs-2">{myPetEmoji}</span>}</div>
+            <div>{myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 48, height: 48, objectFit: 'contain' }} /> : <span className="fs-2 emoji-big"><Emoji e={myPetEmoji} size={36} /></span>}</div>
           </div>
         </div>
       </div>
 
       {/* Create button */}
       <button className="btn btn-cowdi-primary w-100 py-3 mb-4 fw-bold fs-5" onClick={openSetup}>
-        ⚔️ Tạo thách đấu mới
+        <Icon name="swords" size={20} /> Tạo thách đấu mới
       </button>
 
       {/* Open duels */}
       <h6 className="fw-bold mb-2">
-        🎯 Thách đấu đang chờ
+        <Icon name="target" size={18} /> Thách đấu đang chờ
         <span className="badge bg-danger ms-2">{openDuels.length}</span>
       </h6>
       {loading ? (
@@ -1105,13 +1107,13 @@ export default function DuelPage() {
                     {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned) ? (
                       <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
                     ) : (
-                      <span className="fs-3">{petEmoji(duel.challengerPet)}</span>
+                      <span className="fs-3"><Emoji e={petEmoji(duel.challengerPet)} size={28} /></span>
                     )}
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{duel.challengerNick}</div>
                       <div className="text-muted" style={{ fontSize: '0.7rem' }}>
                         <span className="badge bg-light text-dark me-1" style={{ fontSize: '0.65rem' }}>
-                          {catInfo.icon} {catInfo.label}
+                          <Emoji e={catInfo.icon} size={12} /> {catInfo.label}
                         </span>
                         {duel.questionCount} câu · {timeAgo(duel.createdAt)}
                       </div>
@@ -1120,7 +1122,7 @@ export default function DuelPage() {
                   </div>
                   {msgPreview && (
                     <div className="mt-2 px-2 py-1 rounded small fst-italic" style={{ background: '#fff8e1', borderLeft: '3px solid #ffc107', color: '#6c5300' }}>
-                      💬 "{msgPreview}"
+                      <Icon name="chat" size={14} /> "<EmojiText>{msgPreview}</EmojiText>"
                     </div>
                   )}
                 </div>
@@ -1130,19 +1132,19 @@ export default function DuelPage() {
         </div>
       ) : (
         <div className="text-center text-muted small py-3 mb-4">
-          Chưa có thách đấu nào. Hãy tạo một cái! 🎯
+          Chưa có thách đấu nào. Hãy tạo một cái! <Icon name="target" size={14} />
         </div>
       )}
 
       {/* My pending duels */}
       {pendingDuels.length > 0 && (
         <>
-          <h6 className="fw-bold mb-2">⏳ Đang chờ đối thủ</h6>
+          <h6 className="fw-bold mb-2"><Icon name="hourglass" size={18} /> Đang chờ đối thủ</h6>
           <div className="d-grid gap-2 mb-4">
             {pendingDuels.map(duel => (
               <div key={duel.id} className="card shadow-sm">
                 <div className="card-body d-flex align-items-center gap-2 py-2">
-                  {myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 36, height: 36, objectFit: 'contain' }} /> : <span className="fs-3">{myPetEmoji}</span>}
+                  {myPetImage ? <img src={myPetImage} alt={myPetInfo.name} style={{ width: 36, height: 36, objectFit: 'contain' }} /> : <span className="fs-3"><Emoji e={myPetEmoji} size={28} /></span>}
                   <div className="flex-grow-1">
                     <div className="fw-bold small">Thách đấu #{duel.id}</div>
                     <div className="text-muted" style={{ fontSize: '0.7rem' }}>
@@ -1160,7 +1162,7 @@ export default function DuelPage() {
       {/* Completed duels */}
       {completedDuels.length > 0 && (
         <>
-          <h6 className="fw-bold mb-2">📜 Lịch sử đấu</h6>
+          <h6 className="fw-bold mb-2"><Icon name="scroll" size={18} /> Lịch sử đấu</h6>
           <div className="d-grid gap-2 mb-4">
             {completedDuels.slice(0, 10).map(duel => {
               const isChallenger = duel.challengerId === user.id;
@@ -1175,12 +1177,12 @@ export default function DuelPage() {
                 <div key={duel.id} className={`card shadow-sm ${isWin ? 'border-success' : isDraw ? 'border-warning' : 'border-danger'}`}>
                   <div className="card-body d-flex align-items-center gap-2 py-2">
                     <span className={`fw-bold ${isWin ? 'text-success' : isDraw ? 'text-warning' : 'text-danger'}`}>
-                      {isWin ? '✅' : isDraw ? '🤝' : '❌'}
+                      <Icon name={isWin ? 'check' : isDraw ? 'handshake' : 'x'} size={18} />
                     </span>
                     {resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned) ? (
                       <img src={resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned)} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
                     ) : (
-                      <span className="fs-4">{petEmoji(opponentPetData)}</span>
+                      <span className="fs-4"><Emoji e={petEmoji(opponentPetData)} size={24} /></span>
                     )}
                     <div className="flex-grow-1">
                       <div className="fw-bold small">vs {opponentNick}</div>

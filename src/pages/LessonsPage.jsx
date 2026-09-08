@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ALL_LESSONS, TRACKS, STANDARDS } from '../data/lessons';
 import { getLessonAccess } from '../data/path';
 import { useUser } from '../hooks/useUser';
+import Icon from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 const LEVEL_BADGE = {
   beginner:     'badge-level-beginner',
@@ -11,9 +13,9 @@ const LEVEL_BADGE = {
 };
 
 const LEVEL_LABEL = {
-  beginner:     '🌱 Cơ bản',
-  intermediate: '🌿 Trung cấp',
-  advanced:     '🌳 Nâng cao',
+  beginner:     { icon: 'sprout', label: 'Cơ bản' },
+  intermediate: { icon: 'leaf', label: 'Trung cấp' },
+  advanced:     { icon: 'tree', label: 'Nâng cao' },
 };
 
 const TRACK_COLORS = {
@@ -80,7 +82,7 @@ export default function LessonsPage() {
           <i className="fas fa-book text-cowdi me-2"></i>Thư viện bài học
         </h2>
         <p className="text-muted">
-          Tra cứu bài theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP). Bài có 🔒 sẽ mở khi bạn học tới trong{' '}
+          Tra cứu bài theo chuẩn trình độ (CEFR, IELTS, TOEIC, VSTEP). Bài có <Icon name="lock" size={18} /> sẽ mở khi bạn học tới trong{' '}
           <Link to="/learning-path">lộ trình</Link>.
         </p>
       </div>
@@ -92,7 +94,7 @@ export default function LessonsPage() {
           className={`btn btn-sm rounded-pill ${standardId === 'all' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
           onClick={() => onStandardChange('all')}
         >
-          ✨ Không lọc
+          <Icon name="sparkles" size={16} /> Không lọc
         </button>
         {STANDARDS.map((s) => (
           <button
@@ -101,7 +103,7 @@ export default function LessonsPage() {
             onClick={() => onStandardChange(s.id)}
             title={s.description}
           >
-            {s.icon} {s.label}
+            <Emoji e={s.icon} size={16} /> {s.label}
           </button>
         ))}
       </div>
@@ -165,10 +167,10 @@ export default function LessonsPage() {
                   <div className={`card-header-level ${lesson.level}`}></div>
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-start mb-2">
-                      <div className="fs-2">{locked ? '🔒' : lesson.icon}</div>
+                      <div className="fs-2 emoji-big">{locked ? <Icon name="lock" size={36} /> : <Emoji e={lesson.icon} size={36} />}</div>
                       {meta && (
                         <span className={`badge rounded-pill ${TRACK_COLORS[lesson.track] || 'bg-secondary-subtle text-secondary'}`}>
-                          {meta.icon} {meta.label}
+                          <Emoji e={meta.icon} size={14} /> {meta.label}
                         </span>
                       )}
                     </div>
@@ -184,7 +186,7 @@ export default function LessonsPage() {
                             style={{ background: b.color + '22', color: b.color, border: `1px solid ${b.color}55` }}
                             title={std?.label}
                           >
-                            {std?.icon} {b.id}
+                            <Emoji e={std?.icon} size={12} /> {b.id}
                           </span>
                         ))}
                       </div>
@@ -192,14 +194,16 @@ export default function LessonsPage() {
 
                     <div className="d-flex justify-content-between align-items-center mt-2">
                       <span className={`badge ${LEVEL_BADGE[lesson.level] || ''}`}>
-                        {LEVEL_LABEL[lesson.level] || lesson.level}
+                        {LEVEL_LABEL[lesson.level]
+                          ? <><Icon name={LEVEL_LABEL[lesson.level].icon} size={14} /> {LEVEL_LABEL[lesson.level].label}</>
+                          : lesson.level}
                       </span>
                       <span className="text-muted small">{lesson.vocabulary?.length || 0} từ</span>
                     </div>
                   </div>
                   {completed && (
                     <div className="card-footer bg-success bg-opacity-10 text-success small fw-bold">
-                      ✅ Đã hoàn thành
+                      <Icon name="check" size={16} /> Đã hoàn thành
                     </div>
                   )}
                 </div>

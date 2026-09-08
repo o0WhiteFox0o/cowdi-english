@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Icon from './Icon';
 
 /**
  * PWAInstallPrompt — nút "Cài đặt ứng dụng" nổi góc dưới màn hình.
@@ -65,11 +66,11 @@ export default function PWAInstallPrompt() {
   if (isIOS) {
     return (
       <div style={styles.banner}>
-        <span style={styles.icon}>📲</span>
+        <span style={styles.icon}><Icon name="phone" size={28} /></span>
         <div style={styles.text}>
           <strong>Cài Cowdi lên màn hình</strong>
           <span style={styles.sub}>
-            Nhấn <strong>⬆️ Share</strong> → <strong>Add to Home Screen</strong>
+            Nhấn <strong><Icon name="up" size={14} /> Share</strong> → <strong>Add to Home Screen</strong>
           </span>
         </div>
         <button style={styles.close} onClick={handleDismiss} aria-label="Đóng">✕</button>
@@ -79,7 +80,7 @@ export default function PWAInstallPrompt() {
 
   return (
     <div style={styles.banner}>
-      <span style={styles.icon}>🐮</span>
+      <span style={styles.icon}><Icon name="cow" size={28} /></span>
       <div style={styles.text}>
         <strong>Cài Cowdi như app</strong>
         <span style={styles.sub}>Dùng offline, nhanh hơn, không cần browser</span>

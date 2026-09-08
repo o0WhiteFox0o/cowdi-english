@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import Icon from '../../components/Icon';
+import Emoji from '../../components/Emoji';
 
 /**
  * EvolutionAnimation — hoạt ảnh tiến hóa kiểu Pokemon.
@@ -37,7 +39,7 @@ export default function EvolutionAnimation({ oldEvo, newEvo, petName, onComplete
             left: `${(i * 73) % 100}%`,
             top:  `${(i * 41) % 100}%`,
             animationDelay: `${(i * 137) % 1800}ms`,
-          }}>✨</span>
+          }}><Icon name="sparkles" size={22} /></span>
         ))}
       </div>
 
@@ -47,7 +49,7 @@ export default function EvolutionAnimation({ oldEvo, newEvo, petName, onComplete
           {evo?.image ? (
             <img src={evo.image} alt={evo.name} className="cowdi-evo-pet-img" draggable={false} />
           ) : (
-            <span className="cowdi-evo-pet-emoji">{evo?.emoji || '🥚'}</span>
+            <span className="cowdi-evo-pet-emoji emoji-big"><Emoji e={evo?.emoji || '🥚'} size={144} /></span>
           )}
           <div className="cowdi-evo-flash" />
         </div>
@@ -56,7 +58,7 @@ export default function EvolutionAnimation({ oldEvo, newEvo, petName, onComplete
           {phase === 'intro'    && <span>{petName || oldEvo?.name} đang tiến hóa…</span>}
           {phase === 'flashing' && <span>Một luồng sáng bao trùm…</span>}
           {(phase === 'reveal' || phase === 'done') && (
-            <span className="cowdi-evo-newname">🎉 {newEvo?.name}!</span>
+            <span className="cowdi-evo-newname"><Icon name="party" size={28} /> {newEvo?.name}!</span>
           )}
         </div>
       </div>

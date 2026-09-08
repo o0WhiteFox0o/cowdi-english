@@ -9,6 +9,7 @@ import { PET_REGISTRY, getPetEvolution, getPetMood, SKILL_META, DAILY_QUESTS } f
 import ForestBanner from '../components/ForestBanner';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const NEED_META = {
@@ -130,7 +131,7 @@ export default function HomePage() {
               <img src={petImg} alt={petName} width="180" height="180" fetchpriority="high" decoding="async" />
             </div>
             <div className="journal-pet-cap">
-              <span>{petName} {evo?.emoji}</span>
+              <span>{petName} <Emoji e={evo?.emoji || species?.emoji || '🐮'} size={18} /></span>
               <small>{evo?.name || 'Starter'} · {MOOD_LABEL[mood] || mood}</small>
             </div>
           </Link>
@@ -260,7 +261,7 @@ export default function HomePage() {
               return (
                 <Link key={id} to="/collection" className={`journal-pet-av ${id === petData.activePetId ? 'active' : ''}`}>
                   <div className="journal-pet-av-ring">
-                    {ev?.image ? <img src={ev.image} alt="" /> : (sp?.emoji || '🐾')}
+                    {ev?.image ? <img src={ev.image} alt="" /> : <Emoji e={sp?.emoji || '🐾'} size={28} />}
                   </div>
                   <span>{pet.customName || sp?.name}</span>
                 </Link>
@@ -281,7 +282,7 @@ export default function HomePage() {
         <div className="journal-notes">
           <Link to={nextHref} className="journal-note">
             <b>Tiếp tục học</b>
-            {nextIsCheckpoint ? nextLabel : `${nextLesson.icon} ${nextLesson.title}`}
+            {nextIsCheckpoint ? nextLabel : <><Emoji e={nextLesson.icon} size={16} /> {nextLesson.title}</>}
             <div className="small mt-1" style={{ fontFamily: 'var(--font)', fontSize: '.75rem', opacity: .8 }}>
               Cấp độ: {nextLesson.level}
             </div>
@@ -299,7 +300,7 @@ export default function HomePage() {
           <Link to="/duel" className="journal-note rose">
             <b>Thử thách</b>
             Thách đấu bạn bè trong Đấu trường để {petName} thêm mạnh mẽ!
-            <span className="n-ico">⚔️</span>
+            <span className="n-ico"><Icon name="swords" size={28} /></span>
           </Link>
         </div>
       </section>

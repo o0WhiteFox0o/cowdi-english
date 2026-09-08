@@ -3,6 +3,8 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { ACHIEVEMENTS, LEVELS, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel, SKILL_META, PET_ACHIEVEMENTS } from '../data/pets';
+import Icon, { SKILL_ICON } from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 export default function ProgressPage() {
   const { userData } = useUser();
@@ -58,7 +60,7 @@ export default function ProgressPage() {
       {/* Level */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h5 className="fw-bold mb-3">🏆 Cấp độ</h5>
+          <h5 className="fw-bold mb-3"><Icon name="trophy" size={20} /> Cấp độ</h5>
           <div className="d-flex align-items-center gap-3">
             <div className="level-badge-lg">Lv.{level.level}</div>
             <div className="flex-grow-1">
@@ -85,8 +87,8 @@ export default function ProgressPage() {
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex align-items-center justify-content-between mb-3">
-            <h5 className="fw-bold mb-0">📅 Lịch hoạt động</h5>
-            <span className="badge bg-danger" style={{ fontSize: '0.85rem' }}>🔥 {userData.streak} ngày streak</span>
+            <h5 className="fw-bold mb-0"><Icon name="calendar" size={20} /> Lịch hoạt động</h5>
+            <span className="badge bg-danger" style={{ fontSize: '0.85rem' }}><Icon name="fire" size={14} /> {userData.streak} ngày streak</span>
           </div>
           <div className="streak-calendar">
             {calendarDays.map((d, i) => (
@@ -113,7 +115,7 @@ export default function ProgressPage() {
           <div className="col-6 col-md-3" key={i}>
             <div className="card text-center shadow-sm h-100">
               <div className="card-body py-3">
-                <div className="fs-3 mb-1">{s.icon}</div>
+                <div className="fs-3 mb-1"><Emoji e={s.icon} size={28} /></div>
                 <div className="fs-2 fw-bold text-cowdi-primary">{s.value}</div>
                 <div className="text-muted small">{s.label}</div>
               </div>
@@ -125,7 +127,7 @@ export default function ProgressPage() {
       {/* 4-Skill Progress (User) */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h5 className="fw-bold mb-3">🎯 Kỹ năng ngôn ngữ</h5>
+          <h5 className="fw-bold mb-3"><Icon name="target" size={20} /> Kỹ năng ngôn ngữ</h5>
           {(() => {
             const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
             const maxXP = Math.max(1, ...Object.values(sk));
@@ -137,7 +139,7 @@ export default function ProgressPage() {
                   return (
                     <div className="col-6" key={key}>
                       <div className="d-flex align-items-center gap-2 mb-1">
-                        <span className="fs-5">{meta.icon}</span>
+                        <span className="fs-5"><Icon name={SKILL_ICON[key]} size={20} /></span>
                         <span className="fw-bold small" style={{ color: meta.color }}>{meta.name}</span>
                         <span className="text-muted small ms-auto">{xp} XP</span>
                       </div>
@@ -159,31 +161,31 @@ export default function ProgressPage() {
       {/* Vocabulary stats */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
-          <h5 className="fw-bold mb-3">🃏 Từ vựng ({wordStats.total} từ)</h5>
+          <h5 className="fw-bold mb-3"><Icon name="cards" size={20} /> Từ vựng ({wordStats.total} từ)</h5>
           <div className="vocab-stat-bar">
             <div
               className="vocab-bar-fill learned"
               style={{ width: `${(wordStats.learned / wordStats.total) * 100}%` }}
             >
-              {wordStats.learned > 0 && `✅ ${wordStats.learned}`}
+              {wordStats.learned > 0 && <><Icon name="check" size={14} /> {wordStats.learned}</>}
             </div>
             <div
               className="vocab-bar-fill learning"
               style={{ width: `${(wordStats.learning / wordStats.total) * 100}%` }}
             >
-              {wordStats.learning > 0 && `📝 ${wordStats.learning}`}
+              {wordStats.learning > 0 && <><Icon name="note" size={14} /> {wordStats.learning}</>}
             </div>
             <div
               className="vocab-bar-fill new"
               style={{ width: `${(wordStats.new / wordStats.total) * 100}%` }}
             >
-              {wordStats.new > 0 && `🆕 ${wordStats.new}`}
+              {wordStats.new > 0 && <><Icon name="new" size={14} /> {wordStats.new}</>}
             </div>
           </div>
           <div className="d-flex gap-4 flex-wrap small text-muted">
-            <span>✅ Đã thuộc: {wordStats.learned}</span>
-            <span>📝 Đang học: {wordStats.learning}</span>
-            <span>🆕 Chưa học: {wordStats.new}</span>
+            <span><Icon name="check" size={14} /> Đã thuộc: {wordStats.learned}</span>
+            <span><Icon name="note" size={14} /> Đang học: {wordStats.learning}</span>
+            <span><Icon name="new" size={14} /> Chưa học: {wordStats.new}</span>
           </div>
         </div>
       </div>
@@ -192,7 +194,7 @@ export default function ProgressPage() {
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="fw-bold mb-3">
-            🏅 Thành tích ({userData.achievements.length}/{ACHIEVEMENTS.length})
+            <Icon name="medal" size={20} /> Thành tích ({userData.achievements.length}/{ACHIEVEMENTS.length})
           </h5>
           <div className="row g-2">
             {ACHIEVEMENTS.map((ach) => {
@@ -200,7 +202,7 @@ export default function ProgressPage() {
               return (
                 <div className="col-12 col-md-6" key={ach.id}>
                   <div className={`d-flex align-items-center gap-3 rounded p-3 ${unlocked ? 'bg-warning bg-opacity-10 border border-warning' : 'bg-light opacity-50'}`}>
-                    <div className="fs-3">{unlocked ? ach.icon : '🔒'}</div>
+                    <div className="fs-3">{unlocked ? <Emoji e={ach.icon} size={28} /> : <Icon name="lock" size={28} />}</div>
                     <div>
                       <div className="fw-bold small">{ach.title}</div>
                       <div className="text-muted" style={{ fontSize: '0.78rem' }}>{ach.desc}</div>
@@ -217,13 +219,13 @@ export default function ProgressPage() {
       {activePet && species && (
         <div className="card shadow-sm mb-4">
           <div className="card-body">
-            <h5 className="fw-bold mb-3">🐾 Pet đang hoạt động</h5>
+            <h5 className="fw-bold mb-3"><Icon name="paw" size={20} /> Pet đang hoạt động</h5>
             <div className="d-flex align-items-center gap-3 mb-3">
               <div>
                 {evo?.image ? (
                   <img src={evo.image} alt={activePet.customName} style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 ) : (
-                  <div style={{ fontSize: '3rem' }}>{evo?.emoji || species.emoji}</div>
+                  <div style={{ fontSize: '3rem' }} className="emoji-big"><Emoji e={evo?.emoji || species.emoji} size={56} /></div>
                 )}
               </div>
               <div>
@@ -235,7 +237,7 @@ export default function ProgressPage() {
               {Object.entries(SKILL_META).map(([key, meta]) => (
                 <div className="col-6 col-md-3" key={key}>
                   <div className="text-center p-2 rounded bg-light">
-                    <div>{meta.icon}</div>
+                    <div><Icon name={SKILL_ICON[key]} size={18} /></div>
                     <div className="fw-bold small" style={{ color: meta.color }}>Lv.{getSkillLevel(activePet.skills[key] || 0)}</div>
                     <div className="text-muted" style={{ fontSize: '0.7rem' }}>{meta.name}</div>
                   </div>
@@ -250,7 +252,7 @@ export default function ProgressPage() {
       <div className="card shadow-sm">
         <div className="card-body">
           <h5 className="fw-bold mb-3">
-            🌟 Pet Achievements ({petData.petAchievements.length}/{PET_ACHIEVEMENTS.length})
+            <Icon name="star" size={20} /> Pet Achievements ({petData.petAchievements.length}/{PET_ACHIEVEMENTS.length})
           </h5>
           <div className="row g-2">
             {PET_ACHIEVEMENTS.map((ach) => {
@@ -258,7 +260,7 @@ export default function ProgressPage() {
               return (
                 <div className="col-12 col-md-6" key={ach.id}>
                   <div className={`d-flex align-items-center gap-3 rounded p-3 ${unlocked ? 'bg-success bg-opacity-10 border border-success' : 'bg-light opacity-50'}`}>
-                    <div className="fs-3">{unlocked ? ach.icon : '🔒'}</div>
+                    <div className="fs-3">{unlocked ? <Emoji e={ach.icon} size={28} /> : <Icon name="lock" size={28} />}</div>
                     <div>
                       <div className="fw-bold small">{ach.title}</div>
                       <div className="text-muted" style={{ fontSize: '0.78rem' }}>{ach.desc}</div>

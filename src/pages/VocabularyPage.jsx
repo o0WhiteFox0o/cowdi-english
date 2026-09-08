@@ -5,6 +5,8 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
 import { useSound } from '../hooks/useSound';
+import Icon from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
 export default function VocabularyPage() {
@@ -171,7 +173,7 @@ export default function VocabularyPage() {
                   style={{ '--node-color': topic.color }}
                   onClick={() => openTopic(topic)}
                 >
-                  <div className="mindmap-node-icon">{topic.icon}</div>
+                  <div className="mindmap-node-icon"><Emoji e={topic.icon} size={36} /></div>
                   <div className="mindmap-node-label">{topic.name}</div>
                   <div className="mindmap-node-sub">{topic.nameVi}</div>
                   <div className="mindmap-node-count">{progress.total} từ</div>
@@ -187,7 +189,7 @@ export default function VocabularyPage() {
         {/* Lesson vocab quick access */}
         <div className="card shadow-sm">
           <div className="card-body text-center">
-            <h5 className="fw-bold mb-2">📚 Từ vựng bài học</h5>
+            <h5 className="fw-bold mb-2"><Icon name="books" size={20} /> Từ vựng bài học</h5>
             <p className="text-muted small mb-0">{lessonWords.length} từ từ {LESSONS.length} bài học</p>
           </div>
         </div>
@@ -201,11 +203,11 @@ export default function VocabularyPage() {
     return (
       <div className="fade-in">
         <button className="btn btn-sm btn-outline-secondary mb-3" onClick={goBack}>
-          ⬅️ Quay lại
+          <Icon name="arrowLeft" size={14} /> Quay lại
         </button>
 
         <div className="text-center mb-4">
-          <div style={{ fontSize: '3rem' }}>{selectedTopic.icon}</div>
+          <div style={{ fontSize: '3rem' }} className="emoji-big"><Emoji e={selectedTopic.icon} size={56} /></div>
           <h2 className="fw-bold" style={{ color: selectedTopic.color }}>
             {selectedTopic.name}
           </h2>
@@ -236,7 +238,7 @@ export default function VocabularyPage() {
                   onClick={() => openSubtopic(sub)}
                 >
                   <div className="card-body text-center py-3">
-                    <div style={{ fontSize: '2rem' }}>{sub.icon}</div>
+                    <div style={{ fontSize: '2rem' }} className="emoji-big"><Emoji e={sub.icon} size={36} /></div>
                     <h6 className="fw-bold mb-1">{sub.name}</h6>
                     <small className="text-muted d-block">{sub.nameVi}</small>
                     <span className="badge bg-light text-dark mt-2">{prog.total} từ</span>
@@ -261,11 +263,11 @@ export default function VocabularyPage() {
   return (
     <div className="fade-in">
       <button className="btn btn-sm btn-outline-secondary mb-3" onClick={goBack}>
-        ⬅️ Quay lại
+        <Icon name="arrowLeft" size={14} /> Quay lại
       </button>
 
       <div className="text-center mb-3">
-        <div style={{ fontSize: '2rem' }}>{selectedSub?.icon}</div>
+        <div style={{ fontSize: '2rem' }} className="emoji-big"><Emoji e={selectedSub?.icon} size={36} /></div>
         <h3 className="fw-bold">{selectedSub?.name}</h3>
         <p className="text-muted small">{selectedSub?.nameVi} — {filteredWords.length} từ</p>
       </div>
@@ -277,13 +279,13 @@ export default function VocabularyPage() {
             className={`btn btn-sm ${mode === 'flashcard' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
             onClick={() => setMode('flashcard')}
           >
-            🃏 Flashcard
+            <Icon name="cards" size={14} /> Flashcard
           </button>
           <button
             className={`btn btn-sm ${mode === 'list' ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
             onClick={() => setMode('list')}
           >
-            📋 Danh sách
+            <Icon name="clipboard" size={14} /> Danh sách
           </button>
         </div>
         <input
@@ -305,7 +307,7 @@ export default function VocabularyPage() {
           >
             <div className={`flashcard-inner ${flipped ? 'flipped' : ''}`}>
               <div className="flashcard-front">
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{currentWord.illustration}</div>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }} className="emoji-big"><Emoji e={currentWord.illustration} size={48} /></div>
                 <h2 className="mb-2">{currentWord.word}</h2>
                 <p className="mb-2" style={{ color: 'rgba(255,255,255,0.8)' }}>{currentWord.phonetic}</p>
                 <div className="d-flex gap-2 justify-content-center mb-2">
@@ -313,12 +315,12 @@ export default function VocabularyPage() {
                     className="btn btn-sm btn-light"
                     title="Đọc bình thường"
                     onClick={(e) => { e.stopPropagation(); speakWord(currentWord.word); }}
-                  >🔊 Nghe</button>
+                  ><Icon name="sound" size={14} /> Nghe</button>
                   <button
                     className="btn btn-sm btn-outline-light"
                     title="Đọc chậm"
                     onClick={(e) => { e.stopPropagation(); speakSlow(currentWord.word); }}
-                  >🐌 Chậm</button>
+                  ><Icon name="snail" size={14} /> Chậm</button>
                 </div>
                 <small style={{ color: 'rgba(255,255,255,0.6)' }}>Nhấn để lật thẻ</small>
               </div>
@@ -340,12 +342,12 @@ export default function VocabularyPage() {
                           className="btn btn-sm btn-link p-0 text-decoration-none"
                           title="Đọc câu"
                           onClick={(e) => { e.stopPropagation(); speakWord(ex.en); }}
-                        >🔊</button>
+                        ><Icon name="sound" size={14} /></button>
                         <button
                           className="btn btn-sm btn-link p-0 text-decoration-none"
                           title="Đọc chậm"
                           onClick={(e) => { e.stopPropagation(); speakSlow(ex.en); }}
-                        >🐌</button>
+                        ><Icon name="snail" size={14} /></button>
                       </div>
                       {ex.vi && (
                         <div className="text-muted" style={{ fontSize: '0.78rem' }}>→ {ex.vi}</div>
@@ -355,7 +357,7 @@ export default function VocabularyPage() {
                 })()}
                 {currentWord.memoryTip && (
                   <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', fontSize: '0.85rem' }}>
-                    <strong>💡 Mẹo nhớ:</strong> {currentWord.memoryTip}
+                    <strong><Icon name="bulb" size={14} /> Mẹo nhớ:</strong> {currentWord.memoryTip}
                   </div>
                 )}
                 {currentWord.context && (
@@ -365,7 +367,7 @@ export default function VocabularyPage() {
                 )}
                 {currentWord.related && (
                   <div className="mt-2 text-start" style={{ fontSize: '0.8rem', color: '#0d6efd' }}>
-                    🔗 {currentWord.related}
+                    <Icon name="link" size={13} /> {currentWord.related}
                   </div>
                 )}
                 <small className="text-muted d-block mt-2">Nhấn để lật lại</small>
@@ -376,16 +378,16 @@ export default function VocabularyPage() {
           <p className="text-muted mb-3">{cardIndex + 1} / {filteredWords.length}</p>
 
           <div className="d-flex justify-content-center gap-3 mb-3">
-            <button className="btn btn-outline-secondary" onClick={prevCard}>⬅️ Trước</button>
-            <button className="btn btn-outline-secondary" onClick={nextCard}>Sau ➡️</button>
+            <button className="btn btn-outline-secondary" onClick={prevCard}><Icon name="arrowLeft" size={16} /> Trước</button>
+            <button className="btn btn-outline-secondary" onClick={nextCard}>Sau <Icon name="arrowRight" size={16} /></button>
           </div>
 
           <div className="d-flex justify-content-center gap-3">
             <button className="btn btn-success fw-bold" onClick={() => markWord(currentWord.word, 'learned')}>
-              ✅ Đã thuộc
+              <Icon name="check" size={16} /> Đã thuộc
             </button>
             <button className="btn btn-warning fw-bold" onClick={() => markWord(currentWord.word, 'learning')}>
-              📝 Đang học
+              <Icon name="note" size={16} /> Đang học
             </button>
           </div>
         </div>
@@ -400,12 +402,12 @@ export default function VocabularyPage() {
               <div className="col-12" key={w.word}>
                 <div className={`card shadow-sm ${status === 'learned' ? 'border-success' : status === 'learning' ? 'border-warning' : ''}`}>
                   <div className="card-body d-flex align-items-start gap-3 flex-wrap py-2">
-                    <div className="me-2" style={{ fontSize: '1.5rem' }}>{w.illustration}</div>
+                    <div className="me-2" style={{ fontSize: '1.5rem' }}><Emoji e={w.illustration} size={28} /></div>
                     <div className="flex-grow-1">
                       <span className="fw-bold text-cowdi-primary me-2">{w.word}</span>
                       <span className="text-muted font-monospace small me-2">{w.phonetic}</span>
-                      <button className="btn btn-sm btn-outline-secondary me-1" title="Đọc từ" onClick={() => speakWord(w.word)}>🔊</button>
-                      <button className="btn btn-sm btn-outline-secondary" title="Đọc chậm" onClick={() => speakSlow(w.word)}>🐌</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" title="Đọc từ" onClick={() => speakWord(w.word)}><Icon name="sound" size={14} /></button>
+                      <button className="btn btn-sm btn-outline-secondary" title="Đọc chậm" onClick={() => speakSlow(w.word)}><Icon name="snail" size={14} /></button>
                       <div className="mt-1">{w.meaning}</div>
                       {(() => {
                         const list = Array.isArray(w.examples) && w.examples.length > 0
@@ -418,16 +420,16 @@ export default function VocabularyPage() {
                               "{ex.en}"
                               {ex.vi && <span className="text-muted ms-1" style={{ fontStyle: 'normal' }}>— {ex.vi}</span>}
                             </div>
-                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc câu" onClick={() => speakWord(ex.en)}>🔊</button>
-                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc chậm" onClick={() => speakSlow(ex.en)}>🐌</button>
+                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc câu" onClick={() => speakWord(ex.en)}><Icon name="sound" size={14} /></button>
+                            <button className="btn btn-sm btn-link p-0 text-decoration-none" title="Đọc chậm" onClick={() => speakSlow(ex.en)}><Icon name="snail" size={14} /></button>
                           </div>
                         ));
                       })()}
                       {w.memoryTip && (
-                        <div className="mt-1 small" style={{ color: '#b8860b' }}>💡 {w.memoryTip}</div>
+                        <div className="mt-1 small" style={{ color: '#b8860b' }}><Icon name="bulb" size={13} /> {w.memoryTip}</div>
                       )}
                       {w.related && (
-                        <div className="mt-1 small" style={{ color: '#0d6efd' }}>🔗 {w.related}</div>
+                        <div className="mt-1 small" style={{ color: '#0d6efd' }}><Icon name="link" size={13} /> {w.related}</div>
                       )}
                     </div>
                     <div className="d-flex gap-2 align-self-center">
@@ -435,12 +437,12 @@ export default function VocabularyPage() {
                         className={`btn btn-sm ${status === 'learned' ? 'btn-success' : 'btn-outline-success'}`}
                         onClick={() => markWord(w.word, 'learned')}
                         title="Đã thuộc"
-                      >✅</button>
+                      ><Icon name="check" size={14} /></button>
                       <button
                         className={`btn btn-sm ${status === 'learning' ? 'btn-warning' : 'btn-outline-warning'}`}
                         onClick={() => markWord(w.word, 'learning')}
                         title="Đang học"
-                      >📝</button>
+                      ><Icon name="note" size={14} /></button>
                     </div>
                   </div>
                 </div>

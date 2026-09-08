@@ -10,6 +10,8 @@ import {
 } from '../../data/pets';
 import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
+import Icon, { SKILL_ICON } from '../../components/Icon';
+import Emoji, { EmojiText } from '../../components/Emoji';
 
 export default function PetPage() {
   const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, feedXPToPet } = usePet();
@@ -88,7 +90,7 @@ export default function PetPage() {
   if (!activePet || !species) {
     return (
       <div className="text-center py-5 fade-in">
-        <div style={{ fontSize: '5rem' }}>🥚</div>
+        <div style={{ fontSize: '5rem' }} className="emoji-big"><Icon name="egg" size={96} /></div>
         <h2 className="fw-bold mt-3">Đang tải pet...</h2>
       </div>
     );
@@ -106,7 +108,7 @@ export default function PetPage() {
       {/* Header */}
       <div className="text-center mb-4">
         <h2 className="fw-bold">
-          <span className="me-2">🐾</span>Pet của bạn
+          <span className="me-2"><Icon name="paw" size={32} /></span>Pet của bạn
         </h2>
       </div>
 
@@ -117,13 +119,13 @@ export default function PetPage() {
           {/* Floating decorations */}
           <div className="pet-floating-decor">
             {activePet.cosmetics?.effect && (
-              <span className="pet-effect-icon">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''}</span>
+              <span className="pet-effect-icon"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} /></span>
             )}
           </div>
 
           {/* Hat */}
           {activePet.cosmetics?.hat && (
-            <div className="pet-hat-img">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji || ''}</div>
+            <div className="pet-hat-img"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji || ''} size={42} /></div>
           )}
 
           {/* Pet Image or Emoji */}
@@ -136,18 +138,18 @@ export default function PetPage() {
                 draggable={false}
               />
             ) : (
-              <div className="pet-emoji-fallback">{evolution?.emoji || species.emoji}</div>
+              <div className="pet-emoji-fallback emoji-big"><Emoji e={evolution?.emoji || species.emoji} size={110} /></div>
             )}
           </div>
 
           {/* Outfit */}
           {activePet.cosmetics?.outfit && (
-            <div className="pet-outfit-badge">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji || ''}</div>
+            <div className="pet-outfit-badge"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji || ''} size={28} /></div>
           )}
 
           {/* Mood indicator */}
           <div className="pet-mood-indicator">
-            {mood === 'happy' ? '😊' : mood === 'sad' ? '😢' : '🤒'}
+            <Icon name={mood === 'happy' ? 'smile' : mood === 'sad' ? 'sad' : 'sick'} size={26} />
           </div>
         </div>
 
@@ -167,7 +169,7 @@ export default function PetPage() {
             ) : (
               <h3 className="pet-name">
                 {activePet.customName}
-                <button className="btn btn-sm btn-link text-muted ms-1" onClick={() => { setRenaming(true); setNameInput(activePet.customName); }} title="Đổi tên">✏️</button>
+                <button className="btn btn-sm btn-link text-muted ms-1" onClick={() => { setRenaming(true); setNameInput(activePet.customName); }} title="Đổi tên"><Icon name="pencil" size={16} /></button>
               </h3>
             )}
           </div>
@@ -180,7 +182,7 @@ export default function PetPage() {
             <span className="pet-badge" style={{ background: RARITY_COLORS[species.rarity]?.bg, color: RARITY_COLORS[species.rarity]?.text }}>
               {RARITY_COLORS[species.rarity]?.name}
             </span>
-            <span className="pet-badge pet-badge-power">⚡ {power}</span>
+            <span className="pet-badge pet-badge-power"><Icon name="bolt" size={14} /> {power}</span>
           </div>
 
           <div className="pet-evolution-label">{evolution?.name || 'Trứng'}</div>
@@ -188,7 +190,7 @@ export default function PetPage() {
           {/* Chat bubble */}
           <div className="pet-speech-bubble">
             <div className="pet-speech-arrow"></div>
-            <p className="mb-0">{message}</p>
+            <p className="mb-0"><EmojiText>{message}</EmojiText></p>
           </div>
         </div>
       </div>
@@ -197,14 +199,14 @@ export default function PetPage() {
       {nextEvo && (
         <div className="pet-section-card mb-3">
           <div className="pet-section-header">
-            <span className="pet-section-icon">⚡</span>
+            <span className="pet-section-icon"><Icon name="bolt" size={22} /></span>
             <span>Tiến hóa tiếp theo</span>
           </div>
           <div className="pet-evo-preview">
             {nextEvo.image ? (
               <img src={nextEvo.image} alt={nextEvo.name} className="pet-evo-next-img" />
             ) : (
-              <span className="pet-evo-next-emoji">{nextEvo.emoji}</span>
+              <span className="pet-evo-next-emoji"><Emoji e={nextEvo.emoji} size={36} /></span>
             )}
             <span className="pet-evo-next-name">{nextEvo.name}</span>
           </div>
@@ -220,10 +222,10 @@ export default function PetPage() {
       {/* Feed XP – user tiêu XP đã kiếm được để tiến hóa Pet */}
       <div className="pet-section-card mb-3">
         <div className="pet-section-header">
-          <span className="pet-section-icon">✨</span>
+          <span className="pet-section-icon"><Icon name="sparkles" size={22} /></span>
           <span>Cho Pet ăn XP</span>
           <span className="pet-badge ms-auto" style={{ background: '#FFF3CD', color: '#856404' }}>
-            ⭐ Ví: {userData.availableXP || 0}
+            <Icon name="star" size={14} /> Ví: {userData.availableXP || 0}
           </span>
         </div>
         <div className="text-muted small mb-2">
@@ -251,7 +253,7 @@ export default function PetPage() {
                 feedWithEvoAnim(need, { silent: true });
               }}
             >
-              ⚡ Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
+              <Icon name="bolt" size={14} /> Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
             </button>
           )}
           <button
@@ -271,7 +273,7 @@ export default function PetPage() {
       {/* Needs bars */}
       <div className="pet-section-card mb-3">
         <div className="pet-section-header">
-          <span className="pet-section-icon">💗</span>
+          <span className="pet-section-icon"><Icon name="heart" size={22} /></span>
           <span>Trạng thái</span>
         </div>
         <div className="pet-needs-grid">
@@ -282,7 +284,7 @@ export default function PetPage() {
             { key: 'knowledge', icon: '📚', label: 'Kiến thức', color: '#AB47BC', gradient: 'linear-gradient(90deg, #CE93D8, #AB47BC)' },
           ].map((need) => (
             <div key={need.key} className="pet-need-item">
-              <div className="pet-need-icon">{need.icon}</div>
+              <div className="pet-need-icon"><Emoji e={need.icon} size={26} /></div>
               <div className="pet-need-info">
                 <div className="pet-need-label">
                   <span>{need.label}</span>
@@ -305,7 +307,7 @@ export default function PetPage() {
       {/* Skills */}
       <div className="pet-section-card mb-3">
         <div className="pet-section-header">
-          <span className="pet-section-icon">📊</span>
+          <span className="pet-section-icon"><Icon name="chart" size={22} /></span>
           <span>Kỹ năng</span>
         </div>
         <div className="pet-skills-grid">
@@ -314,7 +316,7 @@ export default function PetPage() {
             const lvl = getSkillLevel(val);
             return (
               <div className="pet-skill-card" key={key} style={{ '--skill-color': meta.color }}>
-                <div className="pet-skill-icon">{meta.icon}</div>
+                <div className="pet-skill-icon">{SKILL_ICON[key] ? <Icon name={SKILL_ICON[key]} size={30} /> : <Emoji e={meta.icon} size={30} />}</div>
                 <div className="pet-skill-level">Lv.{lvl}</div>
                 <div className="pet-skill-name">{meta.name}</div>
                 <div className="pet-skill-bar">
@@ -330,23 +332,23 @@ export default function PetPage() {
       {/* Daily Quests */}
       <div className="pet-section-card mb-3">
         <div className="pet-section-header">
-          <span className="pet-section-icon">📋</span>
+          <span className="pet-section-icon"><Icon name="clipboard" size={22} /></span>
           <span>Nhiệm vụ hàng ngày</span>
           {allDailyDone && <span className="pet-badge-done">Hoàn thành!</span>}
         </div>
         {dailyStatus.map((q) => (
           <div key={q.id} className={`pet-quest-item ${q.done ? 'done' : ''}`}>
-            <span className="pet-quest-check">{q.done ? '✅' : '⬜'}</span>
+            <span className="pet-quest-check"><Icon name={q.done ? 'check' : 'square'} size={20} /></span>
             <div className="pet-quest-info">
               <div className="pet-quest-title">{q.title}</div>
               <div className="pet-quest-desc">{q.desc}</div>
             </div>
             {q.canClaim ? (
               <button className="pet-quest-claim" onClick={() => completeDailyQuest(q.id)}>
-                +{q.reward}🪙
+                +{q.reward}<Icon name="coin" size={14} />
               </button>
             ) : (
-              <span className="pet-quest-reward">{q.reward}🪙</span>
+              <span className="pet-quest-reward">{q.reward}<Icon name="coin" size={14} /></span>
             )}
           </div>
         ))}
@@ -355,24 +357,24 @@ export default function PetPage() {
       {/* Quick Actions */}
       <div className="pet-quick-actions">
         <Link to="/lessons" className="pet-action-card">
-          <div className="pet-action-icon">🎓</div>
+          <div className="pet-action-icon"><Icon name="grad" size={36} /></div>
           <div className="pet-action-label">Học bài</div>
-          <div className="pet-action-hint">+🍎 +Skills</div>
+          <div className="pet-action-hint">+<Icon name="apple" size={12} /> +Skills</div>
         </Link>
         <Link to="/practice" className="pet-action-card">
-          <div className="pet-action-icon">🎮</div>
+          <div className="pet-action-icon"><Icon name="gamepad" size={36} /></div>
           <div className="pet-action-label">Luyện tập</div>
-          <div className="pet-action-hint">+😊 +Skills</div>
+          <div className="pet-action-hint">+<Icon name="smile" size={12} /> +Skills</div>
         </Link>
         <Link to="/collection" className="pet-action-card">
-          <div className="pet-action-icon">📦</div>
+          <div className="pet-action-icon"><Icon name="box" size={36} /></div>
           <div className="pet-action-label">Bộ sưu tập</div>
           <div className="pet-action-hint">{Object.keys(petData.collection).length}/{Object.keys(PET_REGISTRY).length} pet</div>
         </Link>
         <Link to="/shop" className="pet-action-card">
-          <div className="pet-action-icon">🛍️</div>
+          <div className="pet-action-icon"><Icon name="bag" size={36} /></div>
           <div className="pet-action-label">Cửa hàng</div>
-          <div className="pet-action-hint">{petData.coins}🪙</div>
+          <div className="pet-action-hint">{petData.coins}<Icon name="coin" size={12} /></div>
         </Link>
       </div>
 
@@ -391,18 +393,18 @@ export default function PetPage() {
       {evoEvent?.stage === 'result' && (
         <div className="cowdi-evo-result-overlay" role="dialog">
           <div className="cowdi-evo-result-card">
-            <div className="cowdi-evo-result-title">🎉 {evoEvent.petName} vừa tiến hóa!</div>
+            <div className="cowdi-evo-result-title"><Icon name="party" size={24} /> {evoEvent.petName} vừa tiến hóa!</div>
             <div className="cowdi-evo-result-pet">
               {evoEvent.newEvo?.image ? (
                 <img src={evoEvent.newEvo.image} alt={evoEvent.newEvo.name} />
               ) : (
-                <span style={{ fontSize: '6rem' }}>{evoEvent.newEvo?.emoji || '✨'}</span>
+                <span style={{ fontSize: '6rem' }} className="emoji-big"><Emoji e={evoEvent.newEvo?.emoji || '✨'} size={96} /></span>
               )}
             </div>
             <div className="cowdi-evo-result-name">{evoEvent.newEvo?.name}</div>
             <div className="cowdi-evo-result-actions">
               <button type="button" className="btn btn-cowdi-primary fw-bold" onClick={openShareForEvo}>
-                🎁 Khoe & mời bạn
+                <Icon name="gift" size={18} /> Khoe & mời bạn
               </button>
               <button type="button" className="btn btn-outline-secondary" onClick={() => setEvoEvent(null)}>
                 Đóng

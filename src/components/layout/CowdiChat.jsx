@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
 import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution } from '../../data/pets';
+import Emoji, { EmojiText } from '../Emoji';
 
 // ── Snap positions (% of viewport, stored as {x,y} in px) ──
 const SNAP_MARGIN = 16; // px from edge
@@ -192,7 +193,7 @@ export default function CowdiChat() {
             onClick={() => setOpen(false)}
             aria-label="Đóng"
           >×</button>
-          <p className="mb-0 text-dark small">{msg}</p>
+          <p className="mb-0 text-dark small"><EmojiText>{msg}</EmojiText></p>
         </div>
       )}
       <button
@@ -208,7 +209,7 @@ export default function CowdiChat() {
         {petImage ? (
           <img src={petImage} alt={species?.name || 'Cowdi'} className="cowdi-chat-img" />
         ) : (
-          petEmoji
+          <Emoji e={petEmoji} size={34} />
         )}
       </button>
     </>

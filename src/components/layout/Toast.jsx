@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { useSound } from '../../hooks/useSound';
+import { EmojiText } from '../Emoji';
 
 const ToastContext = createContext(null);
 
@@ -42,7 +43,7 @@ export function ToastProvider({ children }) {
             aria-live="assertive"
           >
             <div className="d-flex">
-              <div className="toast-body fw-bold">{t.message}</div>
+              <div className="toast-body fw-bold">{typeof t.message === 'string' ? <EmojiText>{t.message}</EmojiText> : t.message}</div>
             </div>
           </div>
         ))}

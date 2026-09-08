@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import Icon from '../../components/Icon';
 
 /**
  * InviteSheet — bottom sheet "🎁 Tặng bạn một quả trứng pet"
@@ -123,7 +124,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
     return (
       <Overlay onClose={onClose}>
         <Sheet>
-          <h5 className="mb-3">🎁 Mời bạn học cùng</h5>
+          <h5 className="mb-3"><Icon name="gift" size={20} /> Mời bạn học cùng</h5>
           <p className="text-muted small">Bạn cần đăng nhập để tạo thiệp mời cá nhân.</p>
           <button className="btn btn-cowdi-primary w-100" onClick={onClose}>OK</button>
         </Sheet>
@@ -139,7 +140,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
         ) : (
           <>
             <div className="d-flex align-items-center justify-content-between mb-2">
-              <h5 className="m-0">🎁 Tặng bạn quả trứng pet</h5>
+              <h5 className="m-0"><Icon name="gift" size={20} /> Tặng bạn quả trứng pet</h5>
               <button className="btn btn-sm btn-light" onClick={onClose} aria-label="Đóng">✕</button>
             </div>
             <p className="text-muted small mb-3">
@@ -164,7 +165,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
                     onClick={() => { triedRef.current = true; createInvite(''); }}
                     disabled={loading}
                   >
-                    🔄 Thử lại
+                    <Icon name="refresh" size={14} /> Thử lại
                   </button>
                 </div>
               )}
@@ -189,7 +190,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
 
             {/* Optional message */}
             <div className="mb-3">
-              <label className="form-label small mb-1">💬 Lời nhắn (tuỳ chọn)</label>
+              <label className="form-label small mb-1"><Icon name="chat" size={14} /> Lời nhắn (tuỳ chọn)</label>
               <input
                 type="text"
                 className="form-control form-control-sm"
@@ -208,29 +209,29 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
                 onClick={handleShare}
                 disabled={!invite}
               >
-                🚀 Gửi qua chat
+                <Icon name="rocket" size={18} /> Gởi qua chat
               </button>
               <div className="row g-2">
                 <div className="col-4">
                   <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleCopy} disabled={!invite}>
-                    {copied ? '✓ Đã copy' : '📋 Copy link'}
+                    {copied ? '✓ Đã copy' : <><Icon name="clipboard" size={14} /> Copy link</>}
                   </button>
                 </div>
                 <div className="col-4">
                   <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleDownload} disabled={!invite}>
-                    💾 Tải thiệp
+                    <Icon name="save" size={14} /> Tải thiệp
                   </button>
                 </div>
                 <div className="col-4">
                   <button className="btn btn-outline-secondary w-100 btn-sm" onClick={() => setQrFull(true)} disabled={!invite}>
-                    🔍 QR to
+                    <Icon name="search" size={14} /> QR to
                   </button>
                 </div>
               </div>
             </div>
 
             <p className="text-muted small text-center mt-3 mb-0">
-              ⏰ Thiệp hết hạn sau 7 ngày
+              <Icon name="clock" size={14} /> Thiệp hết hạn sau 7 ngày
             </p>
 
             <canvas ref={canvasRef} style={{ display: 'none' }} />
@@ -285,7 +286,7 @@ function QrFullscreen({ url, qrSrc, onClose }) {
   return (
     <div className="text-center">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="m-0">📱 Quét mã để nhận trứng</h5>
+        <h5 className="m-0"><Icon name="phone" size={20} /> Quét mã để nhận trứng</h5>
         <button className="btn btn-sm btn-light" onClick={onClose}>✕</button>
       </div>
       <img src={qrSrc} alt="QR code"

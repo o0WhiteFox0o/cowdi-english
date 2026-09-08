@@ -6,6 +6,8 @@ import { useUser } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import StudyJournalCard from './StudyJournalCard';
+import Icon from '../../components/Icon';
+import Emoji, { EmojiText } from '../../components/Emoji';
 
 const SESSION_SIZE = 20;
 
@@ -234,14 +236,14 @@ export default function ReviewPage() {
     const total = sessionScore.easy + sessionScore.good + sessionScore.hard + sessionScore.again;
     return (
       <div className="fade-in text-center py-5">
-        <div style={{ fontSize: '4.5rem' }}>🧠✅</div>
+        <div style={{ fontSize: '4.5rem' }} className="emoji-big"><Icon name="brain" size={72} /><Icon name="check" size={72} /></div>
         <h2 className="fw-bold mt-3">Ôn tập xong!</h2>
         <p className="lead text-muted">Bạn đã ôn {total} từ hôm nay</p>
         <div className="d-flex gap-2 justify-content-center flex-wrap my-4">
-          <span className="badge bg-success fs-6 px-3 py-2">😎 Dễ: {sessionScore.easy}</span>
-          <span className="badge bg-primary fs-6 px-3 py-2">👍 Tốt: {sessionScore.good}</span>
-          <span className="badge bg-warning text-dark fs-6 px-3 py-2">😤 Khó: {sessionScore.hard}</span>
-          <span className="badge bg-danger fs-6 px-3 py-2">🔄 Lại: {sessionScore.again}</span>
+          <span className="badge bg-success fs-6 px-3 py-2"><Icon name="cool" size={16} /> Dễ: {sessionScore.easy}</span>
+          <span className="badge bg-primary fs-6 px-3 py-2"><Icon name="thumb" size={16} /> Tốt: {sessionScore.good}</span>
+          <span className="badge bg-warning text-dark fs-6 px-3 py-2"><Icon name="angry" size={16} /> Khó: {sessionScore.hard}</span>
+          <span className="badge bg-danger fs-6 px-3 py-2"><Icon name="refresh" size={16} /> Lại: {sessionScore.again}</span>
         </div>
         <div className="d-flex gap-3 justify-content-center flex-wrap">
           <button className="btn btn-cowdi-primary" onClick={() => navigate(0)}>Ôn tiếp</button>
@@ -304,8 +306,8 @@ export default function ReviewPage() {
             boxShadow: '0 6px 20px rgba(255, 107, 157, 0.25)',
           }}
         >
-          <span style={{ fontSize: '2.4rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))' }}>
-            {info?.illustration || '📚'}
+          <span style={{ fontSize: '2.4rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.18))' }} className="emoji-big">
+            <Emoji e={info?.illustration || '📚'} size={44} />
           </span>
           <h2 className="fw-bold mt-2 mb-1" style={{ fontSize: '2.2rem', letterSpacing: '.5px' }}>
             {card.word}
@@ -325,7 +327,7 @@ export default function ReviewPage() {
               cursor: 'pointer',
             }}
           >
-            🔊 Nghe phát âm
+            <Icon name="sound" size={14} /> Nghe phát âm
           </button>
         </div>
 
@@ -344,7 +346,7 @@ export default function ReviewPage() {
                     onClick={handleRememberInstant}
                     title="Tự chấm Dễ và sang từ tiếp theo"
                   >
-                    <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>✅</span>
+                    <span style={{ fontSize: '1.6rem', lineHeight: 1 }}><Icon name="check" size={28} /></span>
                     <span className="fw-bold mt-1">Tôi nhớ rồi</span>
                     <small className="opacity-75" style={{ fontSize: '.72rem' }}>
                       sang từ kế tiếp →
@@ -358,7 +360,7 @@ export default function ReviewPage() {
                     onClick={() => setStep('hints')}
                     title="Xem nghĩa, ví dụ và mẹo nhớ"
                   >
-                    <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>🤔</span>
+                    <span style={{ fontSize: '1.6rem', lineHeight: 1 }}><Icon name="think" size={28} /></span>
                     <span className="fw-bold mt-1">Chưa nhớ rõ</span>
                     <small className="opacity-75" style={{ fontSize: '.72rem' }}>
                       xem gợi ý →
@@ -378,7 +380,7 @@ export default function ReviewPage() {
                 <>
                   <div className="text-center mb-3">
                     <small className="text-muted text-uppercase fw-bold" style={{ fontSize: '.7rem', letterSpacing: '.5px' }}>
-                      📖 Nghĩa
+                      <Icon name="book" size={12} /> Nghĩa
                     </small>
                     <h4 className="fw-bold text-cowdi-primary mb-0 mt-1">{info.meaning}</h4>
                   </div>
@@ -393,7 +395,7 @@ export default function ReviewPage() {
                         fontSize: '.9rem',
                       }}
                     >
-                      <strong>💡 Mẹo nhớ:</strong> {info.memoryTip}
+                      <strong><Icon name="bulb" size={14} /> Mẹo nhớ:</strong> {info.memoryTip}
                     </div>
                   )}
 
@@ -412,7 +414,7 @@ export default function ReviewPage() {
 
                   {info.related && (
                     <div className="mb-3">
-                      <small className="fw-bold text-muted d-block mb-1">🔗 Từ / cụm liên quan:</small>
+                      <small className="fw-bold text-muted d-block mb-1"><Icon name="link" size={13} /> Từ / cụm liên quan:</small>
                       <div className="d-flex flex-wrap gap-1">
                         {info.related.split(/[,;]/).map((r, i) => {
                           const t = r.trim();
@@ -441,7 +443,7 @@ export default function ReviewPage() {
 
                   {(info.sourceIcon || info.sourceTitle) && (
                     <small className="text-muted d-block mb-3" style={{ fontSize: '.78rem' }}>
-                      Nguồn: {info.sourceIcon} {info.sourceTitle}
+                      Nguồn: <Emoji e={info.sourceIcon} size={13} /> {info.sourceTitle}
                     </small>
                   )}
                 </>
@@ -455,7 +457,7 @@ export default function ReviewPage() {
                 className="btn btn-cowdi-primary w-100"
                 onClick={() => setStep('grade')}
               >
-                ✅ Đã hiểu — Tự đánh giá mức nhớ
+                <Icon name="check" size={16} /> Đã hiểu — Tự đánh giá mức nhớ
               </button>
             </div>
           </div>
@@ -469,10 +471,10 @@ export default function ReviewPage() {
                 <strong>Bạn nhớ từ này thế nào?</strong> — chọn mức đúng nhất để AI xếp lịch ôn
               </p>
               <div className="row g-2">
-                <GradeButton color="danger"  emoji="🔄" label="Quên" days={iv.again} onClick={() => handleGrade(1)} title="Hoàn toàn không nhớ — lặp lại sớm" />
-                <GradeButton color="warning" emoji="😤" label="Khó" days={iv.hard}  onClick={() => handleGrade(3)} title="Nhớ mơ hồ, phải cố gắng" />
-                <GradeButton color="primary" emoji="👍" label="Nhớ" days={iv.good}  onClick={() => handleGrade(4)} title="Nhớ được nhưng không chắc lắm" />
-                <GradeButton color="success" emoji="😎" label="Dễ"  days={iv.easy}  onClick={() => handleGrade(5)} title="Nhớ rõ, không cần suy nghĩ" />
+                <GradeButton color="danger"  emoji="refresh" label="Quên" days={iv.again} onClick={() => handleGrade(1)} title="Hoàn toàn không nhớ — lặp lại sớm" />
+                <GradeButton color="warning" emoji="angry" label="Khó" days={iv.hard}  onClick={() => handleGrade(3)} title="Nhớ mơ hồ, phải cố gắng" />
+                <GradeButton color="primary" emoji="thumb" label="Nhớ" days={iv.good}  onClick={() => handleGrade(4)} title="Nhớ được nhưng không chắc lắm" />
+                <GradeButton color="success" emoji="cool" label="Dễ"  days={iv.easy}  onClick={() => handleGrade(5)} title="Nhớ rõ, không cần suy nghĩ" />
               </div>
               <button
                 type="button"
@@ -517,7 +519,7 @@ export default function ReviewPage() {
         }}
       >
         <div className="card-body text-center py-4">
-          <div style={{ fontSize: '3.4rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }}>🧠</div>
+          <div style={{ fontSize: '3.4rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }} className="emoji-big"><Icon name="brain" size={56} /></div>
           <h2 className="fw-bold mt-2 mb-1">Ôn tập thông minh</h2>
           <p className="mb-0 opacity-90">
             Lật thẻ → chấm điểm nhớ → AI xếp lịch ôn đúng lúc bạn sắp quên
@@ -540,7 +542,7 @@ export default function ReviewPage() {
         >
           <div className="card-body p-4">
             <div className="d-flex align-items-center mb-3">
-              <div style={{ fontSize: '2.6rem' }} className="me-3">🔥</div>
+              <div style={{ fontSize: '2.6rem' }} className="me-3 emoji-big"><Icon name="fire" size={48} /></div>
               <div>
                 <h5 className="fw-bold mb-1">Có {dueWords.length} từ đang chờ bạn ôn</h5>
                 <p className="text-muted small mb-0">
@@ -564,7 +566,7 @@ export default function ReviewPage() {
                         fontWeight: 500,
                       }}
                     >
-                      {w.illustration || '📚'} {w.word}
+                      <Emoji e={w.illustration || '📚'} size={14} /> {w.word}
                     </span>
                   ))}
                   {dueWords.length > previewWords.length && (
@@ -577,14 +579,14 @@ export default function ReviewPage() {
             )}
 
             <button className="btn btn-cowdi-primary btn-lg w-100" onClick={startSession}>
-              🚀 Bắt đầu ôn ngay ({sessionCount} từ)
+              <Icon name="rocket" size={18} /> Bắt đầu ôn ngay ({sessionCount} từ)
             </button>
           </div>
         </div>
       ) : hasKho ? (
         <div className="card shadow-sm mb-4" style={{ borderRadius: 16 }}>
           <div className="card-body text-center py-4">
-            <div style={{ fontSize: '3rem' }}>🎉</div>
+            <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="party" size={56} /></div>
             <h5 className="fw-bold mt-2 mb-1">Hôm nay bạn đã ôn xong hết!</h5>
             {nextInDays !== null ? (
               <p className="text-muted mb-3">
@@ -595,7 +597,7 @@ export default function ReviewPage() {
               <p className="text-muted mb-3">Chưa có lịch ôn tiếp — hãy học thêm bài mới để thêm từ vào kho.</p>
             )}
             <button className="btn btn-outline-cowdi" onClick={() => navigate('/lessons')}>
-              📚 Học bài mới để có thêm từ ôn
+              <Icon name="books" size={16} /> Học bài mới để có thêm từ ôn
             </button>
           </div>
         </div>
@@ -605,14 +607,14 @@ export default function ReviewPage() {
           style={{ borderRadius: 16, border: '2px solid #ffc107' }}
         >
           <div className="card-body p-4 text-center">
-            <div style={{ fontSize: '3rem' }}>👋</div>
+            <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="wave" size={56} /></div>
             <h5 className="fw-bold mt-2 mb-1">Bắt đầu kho ôn tập của bạn</h5>
             <p className="text-muted small mb-3">
               Kho ôn tập sẽ <strong>tự động</strong> được nạp khi bạn học bài hoặc đánh dấu từ là "đã thuộc".
-              Cowdi tự lo phần xếp lịch — bạn chỉ cần học và ôn thôi! 💪
+              Cowdi tự lo phần xếp lịch — bạn chỉ cần học và ôn thôi! <Icon name="muscle" size={14} />
             </p>
             <button className="btn btn-cowdi-primary btn-lg w-100" onClick={() => navigate('/lessons')}>
-              📚 Vào học bài đầu tiên
+              <Icon name="books" size={18} /> Vào học bài đầu tiên
             </button>
           </div>
         </div>
@@ -641,7 +643,7 @@ export default function ReviewPage() {
       {/* Hướng dẫn 3 bước */}
       <div className="card shadow-sm mb-4" style={{ borderRadius: 16 }}>
         <div className="card-body">
-          <h6 className="fw-bold mb-3">✨ Cách hoạt động</h6>
+          <h6 className="fw-bold mb-3"><Icon name="sparkles" size={16} /> Cách hoạt động</h6>
           <div className="row g-3">
             <StepCard num="1️⃣" title="Tự động nạp từ" desc="Học xong bài hoặc đánh dấu 'đã thuộc' → từ tự vào kho ôn." />
             <StepCard num="2️⃣" title="AI chọn 20 từ ưu tiên" desc="Ưu tiên từ khó, từ hay quên — bỏ qua từ bạn đã nhớ kỹ." />
@@ -652,7 +654,7 @@ export default function ReviewPage() {
 
       <details className="card shadow-sm" style={{ borderRadius: 16 }}>
         <summary className="card-body fw-bold small" style={{ cursor: 'pointer', listStyle: 'revert' }}>
-          📊 Chi tiết thuật toán SM-2
+          <Icon name="chart" size={14} /> Chi tiết thuật toán SM-2
         </summary>
         <div className="card-body pt-0">
           <ul className="text-muted small mb-0">
@@ -681,7 +683,7 @@ function GradeButton({ color, emoji, label, days, disabled, onClick, title }) {
         title={title}
         style={{ borderRadius: 12, minHeight: 64 }}
       >
-        <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{emoji} {label}</span>
+        <span style={{ fontSize: '0.95rem', fontWeight: 600 }}><Icon name={emoji} size={16} /> {label}</span>
         <small className="opacity-75">ôn lại sau {formatDays(days)}</small>
       </button>
     </div>
@@ -722,7 +724,7 @@ function CowdiGuide({ message, step }) {
           boxShadow: '0 2px 6px rgba(0,0,0,.06)',
         }}
       >
-        🐮
+        <Icon name="cow" size={28} />
       </div>
       <div className="flex-grow-1">
         <div
@@ -732,7 +734,7 @@ function CowdiGuide({ message, step }) {
           COWDI GỢI Ý
         </div>
         <div style={{ fontSize: '.85rem', color: '#374151', lineHeight: 1.45 }}>
-          {message}
+          <EmojiText>{message}</EmojiText>
         </div>
       </div>
     </div>
@@ -765,7 +767,7 @@ function StepCard({ num, title, desc }) {
   return (
     <div className="col-md-4">
       <div className="text-center p-2">
-        <div style={{ fontSize: '2rem' }}>{num}</div>
+        <div style={{ fontSize: '2rem' }} className="emoji-big"><Emoji e={num} size={36} /></div>
         <div className="fw-bold small mt-1">{title}</div>
         <p className="text-muted small mb-0">{desc}</p>
       </div>
@@ -841,7 +843,7 @@ function VocabBankList({ srsEntries, wordMap, onSpeak, onStartSession, hasDue })
         className="card-body fw-bold d-flex align-items-center justify-content-between"
         style={{ cursor: 'pointer', listStyle: 'revert' }}
       >
-        <span>📒 Danh sách từ trong kho ôn tập</span>
+        <span><Icon name="notebook" size={18} /> Danh sách từ trong kho ôn tập</span>
         <span
           className="badge"
           style={{ background: TOKENS.primary, color: '#fff', fontSize: '.8rem' }}
@@ -874,7 +876,7 @@ function VocabBankList({ srsEntries, wordMap, onSpeak, onStartSession, hasDue })
                   transition: 'all .15s',
                 }}
               >
-                <span>{t.icon}</span>
+                <span><Emoji e={t.icon} size={14} /></span>
                 <span>{t.label}</span>
                 <span
                   style={{
@@ -913,21 +915,21 @@ function VocabBankList({ srsEntries, wordMap, onSpeak, onStartSession, hasDue })
               pointerEvents: 'none',
             }}
           >
-            🔍
+            <Icon name="search" size={16} />
           </span>
         </div>
 
         {/* Quick action */}
         {tab === 'due' && hasDue && classified.due.length > 0 && (
           <button className="btn btn-cowdi-primary btn-sm w-100 mb-2" onClick={onStartSession}>
-            🚀 Ôn ngay {Math.min(classified.due.length, SESSION_SIZE)} từ cần ôn
+            <Icon name="rocket" size={14} /> Ôn ngay {Math.min(classified.due.length, SESSION_SIZE)} từ cần ôn
           </button>
         )}
 
         {/* List */}
         {filtered.length === 0 ? (
           <div className="text-center py-4">
-            <div style={{ fontSize: '2.5rem', opacity: 0.3 }}>🔎</div>
+            <div style={{ fontSize: '2.5rem', opacity: 0.3 }} className="emoji-big"><Icon name="search" size={48} /></div>
             <p className="text-muted small mb-0">
               {query.trim()
                 ? 'Không tìm thấy từ nào khớp.'
@@ -999,7 +1001,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
             flexShrink: 0,
           }}
         >
-          {info?.illustration || '📚'}
+          <Emoji e={info?.illustration || '📚'} size={28} />
         </div>
         <div className="flex-grow-1 min-w-0">
           <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -1014,7 +1016,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
               onClick={(e) => { e.preventDefault(); onSpeak(word); }}
               style={{ fontSize: '0.95rem', textDecoration: 'none' }}
             >
-              🔊
+              <Icon name="sound" size={16} />
             </button>
             {hasHint && (
               <button
@@ -1032,7 +1034,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
                   cursor: 'pointer',
                 }}
               >
-                {isOpen ? '▲ Ẩn gợi ý' : '💬 Gợi ý ghép câu'}
+                {isOpen ? '▲ Ẩn gợi ý' : <><Icon name="chat" size={12} /> Gợi ý ghép câu</>}
               </button>
             )}
           </div>
@@ -1057,13 +1059,13 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
               fontWeight: 600,
             }}
           >
-            {status.emoji} {status.label}
+            <Emoji e={status.emoji} size={12} /> {status.label}
           </div>
           <div className="small text-muted mt-1" style={{ fontSize: '.7rem' }}>
-            🗓️ {fmtNext(card)}
+            <Icon name="calendar" size={12} /> {fmtNext(card)}
           </div>
           <div className="small mt-1" style={{ fontSize: '.7rem', color: '#6b7280' }}>
-            🔁 {card.repetitions || 0} lần
+            <Icon name="repeat" size={12} /> {card.repetitions || 0} lần
           </div>
         </div>
       </div>
@@ -1084,7 +1086,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
                   fontSize: '.88rem',
                 }}
               >
-                <strong>💡 Mẹo nhớ:</strong> {info.memoryTip}
+                <strong><Icon name="bulb" size={14} /> Mẹo nhớ:</strong> {info.memoryTip}
               </div>
             )}
 
@@ -1098,7 +1100,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
 
             {hasRelated && (
               <div className="mt-3">
-                <small className="fw-bold text-muted d-block mb-1">🔗 Từ liên quan / cụm thường gặp:</small>
+                <small className="fw-bold text-muted d-block mb-1"><Icon name="link" size={13} /> Từ liên quan / cụm thường gặp:</small>
                 <div className="d-flex flex-wrap gap-1">
                   {info.related.split(/[,;]/).map((r, i) => {
                     const t = r.trim();
@@ -1127,7 +1129,7 @@ function VocabRow({ word, card, info, isOpen, onToggle, onSpeak, fmtNext, status
 
             {(info.sourceIcon || info.sourceTitle) && (
               <small className="text-muted d-block mt-3" style={{ fontSize: '.75rem' }}>
-                Nguồn: {info.sourceIcon} {info.sourceTitle}
+                Nguồn: <Emoji e={info.sourceIcon} size={13} /> {info.sourceTitle}
               </small>
             )}
           </div>
@@ -1199,7 +1201,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
   return (
     <div>
       <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-        <small className="fw-bold text-muted">📝 Câu ví dụ:</small>
+        <small className="fw-bold text-muted"><Icon name="note" size={13} /> Câu ví dụ:</small>
         <div className="d-flex gap-1 flex-wrap">
           <button
             type="button"
@@ -1215,7 +1217,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
               cursor: 'pointer',
             }}
           >
-            👁️ Xem câu
+            <Icon name="eye" size={12} /> Xem câu
           </button>
           <button
             type="button"
@@ -1234,7 +1236,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
               opacity: cantCloze ? 0.5 : 1,
             }}
           >
-            ✏️ Điền chỗ trống
+            <Icon name="pencil" size={12} /> Điền chỗ trống
           </button>
           <button
             type="button"
@@ -1250,7 +1252,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
               cursor: 'pointer',
             }}
           >
-            🔊 Nghe câu
+            <Icon name="sound" size={12} /> Nghe câu
           </button>
         </div>
       </div>
@@ -1313,7 +1315,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
               className="d-flex align-items-center gap-2 px-3 py-2 rounded-3 mb-2"
               style={{ background: '#ecfdf5', color: '#047857', fontSize: '.85rem' }}
             >
-              ✅ <strong>Chính xác!</strong>
+              <Icon name="check" size={16} /> <strong>Chính xác!</strong>
               {revealed && <span className="text-muted">(đã hiện đáp án)</span>}
             </div>
           )}
@@ -1322,7 +1324,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
               className="d-flex align-items-center gap-2 px-3 py-2 rounded-3 mb-2"
               style={{ background: '#fef2f2', color: '#b91c1c', fontSize: '.85rem' }}
             >
-              ❌ <strong>Chưa đúng.</strong> Thử lại hoặc bấm "Hiện đáp án".
+              <Icon name="x" size={16} /> <strong>Chưa đúng.</strong> Thử lại hoặc bấm "Hiện đáp án".
             </div>
           )}
 
@@ -1358,7 +1360,7 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
                 cursor: 'pointer',
               }}
             >
-              👁️ Hiện đáp án
+              <Icon name="eye" size={14} /> Hiện đáp án
             </button>
             {(result || value) && (
               <button
@@ -1374,12 +1376,12 @@ function ClozePractice({ sentence, word, onSpeakSentence }) {
                   cursor: 'pointer',
                 }}
               >
-                🔄 Thử lại
+                <Icon name="refresh" size={14} /> Thử lại
               </button>
             )}
           </div>
           <small className="text-muted d-block mt-2" style={{ fontSize: '.72rem' }}>
-            💡 Mẹo: nhấn <kbd>Enter</kbd> để kiểm tra nhanh. Chấp nhận biến thể đơn giản (s/es/ed/ing).
+            <Icon name="bulb" size={12} /> Mẹo: nhấn <kbd>Enter</kbd> để kiểm tra nhanh. Chấp nhận biến thể đơn giản (s/es/ed/ing).
           </small>
         </div>
       )}

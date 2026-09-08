@@ -6,6 +6,7 @@ import {
   checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
 } from '../../data/pets';
 import Icon, { ELEMENT_ICON, SKILL_ICON } from '../../components/Icon';
+import Emoji, { EmojiText } from '../../components/Emoji';
 
 const RARITY_ORDER = ['starter', 'common', 'rare', 'epic', 'legendary', 'event'];
 const RARITY_STARS = { starter: 1, common: 1, rare: 2, epic: 3, legendary: 4, event: 3 };
@@ -20,7 +21,7 @@ function PetArt({ src, emoji, alt, className, silhouette }) {
   const [broken, setBroken] = useState(false);
   useEffect(() => setBroken(false), [src]);
   if (!src || broken) {
-    return <span className={`${className} dex-emoji ${silhouette ? 'silhouette' : ''}`} role="img" aria-label={alt}>{emoji}</span>;
+    return <span className={`${className} dex-emoji ${silhouette ? 'silhouette' : ''}`} role="img" aria-label={alt}><Emoji e={emoji} size="1em" /></span>;
   }
   return (
     <img src={src} alt={alt} className={`${className} ${silhouette ? 'silhouette' : ''}`}
@@ -241,7 +242,7 @@ export default function CollectionPage() {
                   <button type="button" className="btn btn-secondary w-100" disabled>Sắp ra mắt</button>
                 ) : (
                   <>
-                    <div className="dex-cond d-flex align-items-center gap-2"><Icon name="target" size={18} /> Điều kiện: {getConditionText(sel.unlockCondition)}</div>
+                    <div className="dex-cond d-flex align-items-center gap-2"><Icon name="target" size={18} /> Điều kiện: <EmojiText>{getConditionText(sel.unlockCondition)}</EmojiText></div>
                     {selCanUnlock
                       ? <button type="button" className="btn btn-success w-100" onClick={() => handleUnlock(sel.id)}>Mở khoá ngay!</button>
                       : <button type="button" className="btn btn-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2" disabled><Icon name="lock" size={18} /> Chưa đủ điều kiện</button>}

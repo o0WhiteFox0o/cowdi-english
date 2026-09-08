@@ -4,6 +4,8 @@ import { SHOP_ITEMS, PET_REGISTRY } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import InviteSheet from '../invite/InviteSheet';
+import Icon from '../../components/Icon';
+import Emoji from '../../components/Emoji';
 
 const CATEGORIES = [
   { id: 'hat', icon: '🎩', label: 'Mũ' },
@@ -83,9 +85,9 @@ export default function ShopPage() {
   return (
     <div className="fade-in">
       <div className="text-center mb-4">
-        <h2 className="fw-bold">🛍️ Cửa hàng</h2>
+        <h2 className="fw-bold"><Icon name="bag" size={32} /> Cửa hàng</h2>
         <div className="d-flex justify-content-center align-items-center gap-2">
-          <span className="badge bg-warning text-dark fs-6">🪙 {petData.coins} Coins</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="coin" size={16} /> {petData.coins} Coins</span>
         </div>
       </div>
 
@@ -95,14 +97,14 @@ export default function ShopPage() {
           <div className="card-body py-3">
             <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap">
               {activePet.cosmetics?.hat && (
-                <span className="fs-4">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji}</span>
+                <span className="fs-4"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji} size={24} /></span>
               )}
-              <span className="fs-1">{species.emoji}</span>
+              <span className="fs-1 emoji-big"><Emoji e={species.emoji} size={44} /></span>
               {activePet.cosmetics?.outfit && (
-                <span className="fs-4">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji}</span>
+                <span className="fs-4"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji} size={24} /></span>
               )}
               {activePet.cosmetics?.effect && (
-                <span className="fs-4">{SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji}</span>
+                <span className="fs-4"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji} size={24} /></span>
               )}
             </div>
             <div className="small text-muted mt-1">{activePet.customName} — Xem trước trang bị</div>
@@ -116,7 +118,7 @@ export default function ShopPage() {
           <button key={c.id}
             className={`btn btn-sm rounded-pill ${category === c.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
             onClick={() => setCategory(c.id)}>
-            {c.icon} {c.label}
+            <Emoji e={c.icon} size={16} /> {c.label}
           </button>
         ))}
       </div>
@@ -134,7 +136,7 @@ export default function ShopPage() {
             <div className="col-6 col-md-4 col-lg-3" key={item.id}>
               <div className={`card h-100 shadow-sm ${isEquipped ? 'border-warning border-2' : owned ? 'border-success' : ''}`}>
                 <div className="card-body text-center py-3">
-                  <div className="fs-1 mb-2">{item.emoji}</div>
+                  <div className="fs-1 mb-2 emoji-big"><Emoji e={item.emoji} size={44} /></div>
                   <h6 className="fw-bold small">{item.name}</h6>
                   <p className="text-muted mb-2" style={{ fontSize: '0.72rem' }}>{item.description}</p>
 
@@ -144,7 +146,7 @@ export default function ShopPage() {
                       onClick={() => handleBuy(item)}
                       disabled={petData.coins < item.price}
                     >
-                      🎁 Tặng bạn — 🪙 {item.price}
+                      <Icon name="gift" size={16} /> Tặng bạn — <Icon name="coin" size={16} /> {item.price}
                     </button>
                   ) : !owned ? (
                     <button
@@ -152,18 +154,18 @@ export default function ShopPage() {
                       onClick={() => handleBuy(item)}
                       disabled={petData.coins < item.price}
                     >
-                      🪙 {item.price}
+                      <Icon name="coin" size={16} /> {item.price}
                     </button>
                   ) : isFood ? (
                     <button className="btn btn-sm btn-success w-100" onClick={() => handleUseFood(item)}>
-                      🍽️ Sử dụng
+                      <Icon name="plate" size={16} /> Sử dụng
                     </button>
                   ) : isEquippable ? (
                     <button
                       className={`btn btn-sm w-100 ${isEquipped ? 'btn-outline-warning' : 'btn-cowdi-primary'}`}
                       onClick={() => handleEquip(item)}
                     >
-                      {isEquipped ? '❌ Tháo' : '✅ Trang bị'}
+                      {isEquipped ? <><Icon name="x" size={16} /> Tháo</> : <><Icon name="check" size={16} /> Trang bị</>}
                     </button>
                   ) : (
                     <span className="badge bg-success">Đã sở hữu</span>
@@ -178,7 +180,7 @@ export default function ShopPage() {
       {/* How to earn coins */}
       <div className="card shadow-sm mt-4">
         <div className="card-body">
-          <h6 className="fw-bold mb-2">💡 Cách kiếm Coins</h6>
+          <h6 className="fw-bold mb-2"><Icon name="bulb" size={18} /> Cách kiếm Coins</h6>
           <div className="row g-2 small">
             {[
               { icon: '📋', text: 'Nhiệm vụ hàng ngày', coins: '+10/nhiệm vụ' },
@@ -190,7 +192,7 @@ export default function ShopPage() {
             ].map((tip, i) => (
               <div className="col-6 col-md-4" key={i}>
                 <div className="d-flex align-items-center gap-1">
-                  <span>{tip.icon}</span>
+                  <span><Emoji e={tip.icon} size={16} /></span>
                   <span className="text-muted">{tip.text}</span>
                   <span className="fw-bold text-success ms-auto">{tip.coins}</span>
                 </div>

@@ -7,6 +7,8 @@ import { LEVELS, ACHIEVEMENTS, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { useMemo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 export default function AccountPage() {
   const { user, loginWithGoogle, logout } = useAuth();
@@ -80,7 +82,7 @@ export default function AccountPage() {
     return (
       <div className="fade-in">
         <div className="text-center py-5">
-          <div style={{ fontSize: '5rem' }} className="mb-3">🔒</div>
+          <div style={{ fontSize: '5rem' }} className="mb-3 emoji-big"><Icon name="lock" size={96} /></div>
           <h2 className="fw-bold mb-3">Đăng nhập để quản lý tài khoản</h2>
           <p className="text-secondary mb-4">
             Đăng nhập bằng Google để lưu tiến trình học tập, đồng bộ trên nhiều thiết bị và truy cập tất cả tính năng.
@@ -97,7 +99,7 @@ export default function AccountPage() {
               <div className="col-12 col-sm-4" key={i}>
                 <div className="card shadow-sm h-100 text-center">
                   <div className="card-body">
-                    <div className="fs-1 mb-2">{f.icon}</div>
+                    <div className="fs-1 mb-2 emoji-big"><Emoji e={f.icon} size={44} /></div>
                     <div className="fw-bold">{f.title}</div>
                     <small className="text-muted">{f.desc}</small>
                   </div>
@@ -171,7 +173,7 @@ export default function AccountPage() {
           <div className="col-6 col-md-3" key={i}>
             <div className="card shadow-sm h-100 text-center card-hover">
               <div className="card-body py-3">
-                <div className="fs-3">{s.icon}</div>
+                <div className="fs-3"><Emoji e={s.icon} size={28} /></div>
                 <div className={`fs-4 fw-bold text-${s.color}`}>{s.value}</div>
                 <small className="text-muted">{s.label}</small>
               </div>
@@ -214,7 +216,7 @@ export default function AccountPage() {
             <div className="d-flex align-items-center gap-3">
               {evo.image
                 ? <img src={evo.image} alt={evo.name} width="64" height="64" style={{ objectFit: 'contain' }} />
-                : <div style={{ fontSize: '3rem' }}>{evo.emoji}</div>}
+                : <div style={{ fontSize: '3rem' }} className="emoji-big"><Emoji e={evo.emoji} size={56} /></div>}
               <div>
                 <div className="fw-bold fs-5">{activePet.customName || species.name}</div>
                 <small className="text-muted">{evo.name} • {species.name}</small>
@@ -224,7 +226,7 @@ export default function AccountPage() {
                     const colors = { energy: 'warning', happiness: 'info', health: 'danger', knowledge: 'primary' };
                     return (
                       <span key={key} className={`badge bg-${colors[key]} bg-opacity-25 text-${colors[key]}`}>
-                        {icons[key]} {val}
+                        <Emoji e={icons[key]} size={12} /> {val}
                       </span>
                     );
                   })}
@@ -246,7 +248,7 @@ export default function AccountPage() {
             <div className="d-flex flex-wrap gap-2">
               {unlockedAchievements.map((a) => (
                 <span key={a.id} className="badge bg-light text-dark border px-3 py-2" title={a.description}>
-                  {a.icon} {a.title}
+                  <Emoji e={a.icon} size={14} /> {a.title}
                 </span>
               ))}
             </div>
@@ -291,10 +293,10 @@ export default function AccountPage() {
           </h5>
           <div className="d-flex gap-3 flex-wrap">
             <div className={`d-flex align-items-center gap-2 px-3 py-2 rounded-pill ${userData.dailyTasks?.lessonDone ? 'bg-success bg-opacity-10 text-success' : 'bg-light text-muted'}`}>
-              {userData.dailyTasks?.lessonDone ? '✅' : '⬜'} Hoàn thành 1 bài học
+              {userData.dailyTasks?.lessonDone ? <Icon name="check" size={16} /> : <Icon name="square" size={16} />} Hoàn thành 1 bài học
             </div>
             <div className={`d-flex align-items-center gap-2 px-3 py-2 rounded-pill ${userData.dailyTasks?.vocabDone ? 'bg-success bg-opacity-10 text-success' : 'bg-light text-muted'}`}>
-              {userData.dailyTasks?.vocabDone ? '✅' : '⬜'} Ôn tập từ vựng
+              {userData.dailyTasks?.vocabDone ? <Icon name="check" size={16} /> : <Icon name="square" size={16} />} Ôn tập từ vựng
             </div>
           </div>
         </div>
@@ -439,7 +441,7 @@ function PushSettingsCard({ petName, petIcon }) {
             <div className="d-flex align-items-center justify-content-between p-3 rounded-3" style={{ background: 'var(--bs-light, #f8f9fa)' }}>
               <div>
                 <div className="fw-semibold">
-                  {isSubscribed ? '🔔 Đang bật' : '🔕 Đang tắt'}
+                  {isSubscribed ? <><Icon name="bell" size={16} /> Đang bật</> : <><Icon name="bellOff" size={16} /> Đang tắt</>}
                 </div>
                 <small className="text-muted">
                   {isSubscribed
@@ -558,7 +560,7 @@ function ScheduleSettingsCard({ petName }) {
                  style={{ background: 'var(--bs-light, #f8f9fa)' }}>
               <div>
                 <div className="fw-semibold">
-                  {draft.enabled ? '⏰ Đang bật lịch nhắc' : '💤 Đang tắt'}
+                  {draft.enabled ? <><Icon name="clock" size={16} /> Đang bật lịch nhắc</> : <><Icon name="sleep" size={16} /> Đang tắt</>}
                 </div>
                 <small className="text-muted">
                   {draft.enabled
@@ -579,7 +581,7 @@ function ScheduleSettingsCard({ petName }) {
 
             {/* Giờ */}
             <div className="mb-3">
-              <label className="form-label fw-semibold small mb-1">⏱ Giờ nhắc</label>
+              <label className="form-label fw-semibold small mb-1"><Icon name="timer" size={14} /> Giờ nhắc</label>
               <input
                 type="time"
                 className="form-control"
@@ -591,7 +593,7 @@ function ScheduleSettingsCard({ petName }) {
 
             {/* Ngày trong tuần */}
             <div className="mb-3">
-              <label className="form-label fw-semibold small mb-1">📅 Các ngày trong tuần</label>
+              <label className="form-label fw-semibold small mb-1"><Icon name="calendar" size={14} /> Các ngày trong tuần</label>
               <div className="d-flex flex-wrap gap-2 mb-2">
                 {DAY_LABELS.map((label, i) => {
                   const active = draft.daysOfWeek?.includes(i);
@@ -623,7 +625,7 @@ function ScheduleSettingsCard({ petName }) {
 
             {/* Lời nhắc tuỳ chỉnh */}
             <div className="mb-3">
-              <label className="form-label fw-semibold small mb-1">💬 Lời nhắc (tuỳ chọn)</label>
+              <label className="form-label fw-semibold small mb-1"><Icon name="chat" size={14} /> Lời nhắc (tuỳ chọn)</label>
               <input
                 type="text"
                 className="form-control"

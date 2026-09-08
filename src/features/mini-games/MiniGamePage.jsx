@@ -7,6 +7,8 @@ import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
 import TyperSharkGame from './TyperShark/TyperSharkGame';
+import Icon from '../../components/Icon';
+import Emoji from '../../components/Emoji';
 
 const COWDI_JUNIOR_IMG = '/assets/images/pets/Cowdi/Cowdi_junior.webp';
 
@@ -59,7 +61,7 @@ function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg
         {myPetImg ? (
           <img src={myPetImg} alt="My pet" />
         ) : (
-          <div className="pet-emoji-lg">{myPetEmoji || '🐮'}</div>
+          <div className="pet-emoji-lg emoji-big"><Emoji e={myPetEmoji || '🐮'} size={96} /></div>
         )}
       </div>
 
@@ -75,7 +77,7 @@ function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg
       {/* Damage popup */}
       {damagePopup && (
         <div className={`damage-number ${damagePopup.target === 'opponent' ? 'damage-number-opponent' : 'damage-number-mine'}`}>
-          {damagePopup.isCritical ? '💥 ' : ''}-{damagePopup.amount}
+          {damagePopup.isCritical ? <><Icon name="boom" size={24} />{' '}</> : ''}-{damagePopup.amount}
         </div>
       )}
     </div>
@@ -116,7 +118,7 @@ function speakText(text, rate = 0.9) {
   speechSynthesis.speak(u);
 }
 
-function SpeakBtn({ text, rate = 0.9, size = 'sm', label = '🔊' }) {
+function SpeakBtn({ text, rate = 0.9, size = 'sm', label = <Icon name="sound" size={16} /> }) {
   return (
     <button
       className={`btn btn-${size} btn-outline-info`}
@@ -205,7 +207,7 @@ export default function MiniGamePage() {
     return (
       <div className="fade-in">
         <div className="text-center mb-4">
-          <h2 className="fw-bold">🎮 Mini Games</h2>
+          <h2 className="fw-bold"><Icon name="gamepad" size={32} /> Mini Games</h2>
           <p className="text-muted">Chơi game vui mà vẫn học tiếng Anh!</p>
         </div>
         <div className="row g-3 justify-content-center" style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -214,7 +216,7 @@ export default function MiniGamePage() {
               <div className="card text-center card-hover shadow-sm h-100" style={{ cursor: 'pointer', borderTop: `3px solid ${g.color}` }}
                 onClick={() => startGame(g.id)} role="button">
                 <div className="card-body py-4">
-                  <div className="fs-1 mb-2">{g.icon}</div>
+                  <div className="fs-1 mb-2 emoji-big"><Emoji e={g.icon} size={44} /></div>
                   <h6 className="card-title fw-bold">{g.title}</h6>
                   <p className="card-text text-muted small mb-0">{g.desc}</p>
                 </div>
@@ -330,7 +332,7 @@ function WordCatchGame({ onCorrect, onWrong }) {
   if (finished) {
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{score >= 8 ? '🏆' : score >= 5 ? '👍' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 8 ? 'trophy' : score >= 5 ? 'thumb' : 'muscle'} size={72} /></div>
         <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
         <div className="badge bg-warning text-dark fs-5 my-2">+{score * 5} XP</div>
         <div>
@@ -349,7 +351,7 @@ function WordCatchGame({ onCorrect, onWrong }) {
       <div className="d-flex justify-content-between mb-3">
         <span className="text-muted small">Câu {round + 1}/{total}</span>
         <span className="badge bg-warning text-dark">Điểm: {score}</span>
-        <span className={`badge ${timeLeft <= 3 ? 'bg-danger' : 'bg-secondary'}`}>⏱ {timeLeft}s</span>
+        <span className={`badge ${timeLeft <= 3 ? 'bg-danger' : 'bg-secondary'}`}><Icon name="timer" size={12} /> {timeLeft}s</span>
       </div>
 
       <div className="progress mb-3" style={{ height: 6 }}>
@@ -452,7 +454,7 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
   if (finished) {
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{score >= 6 ? '🏆' : score >= 4 ? '👍' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 6 ? 'trophy' : score >= 4 ? 'thumb' : 'muscle'} size={72} /></div>
         <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
         <div className="badge bg-warning text-dark fs-5 my-2">+{score * 8} XP</div>
         <div>
@@ -487,7 +489,7 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
           {result !== null && (
             <div className="d-flex align-items-center justify-content-center gap-2 mt-2">
               <span className="text-muted small fst-italic">{current.en}</span>
-              <SpeakBtn text={current.en} label="🔊 Nghe câu" size="sm" />
+              <SpeakBtn text={current.en} label={<><Icon name="sound" size={16} /> Nghe câu</>} size="sm" />
             </div>
           )}
         </div>
@@ -521,7 +523,7 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
 
       {result !== null && (
         <div className={`text-center fw-bold mb-3 ${result ? 'text-success' : 'text-danger'}`}>
-          {result ? '✅ Chính xác!' : `❌ Đáp án: ${current.en}`}
+          {result ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {current.en}</>}
         </div>
       )}
 
@@ -612,7 +614,7 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
     const stars = moves <= pairCount * 2 ? 3 : moves <= pairCount * 3 ? 2 : 1;
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{stars === 3 ? '🌟' : stars === 2 ? '⭐' : '👍'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={stars === 3 ? 'star' : stars === 2 ? 'star' : 'thumb'} size={72} /></div>
         <h3 className="fw-bold mt-2">Hoàn thành!</h3>
         <p className="text-muted">{moves} lượt lật · {stars} sao</p>
         <div className="badge bg-warning text-dark fs-5 my-2">+{stars * 15} XP</div>
@@ -645,12 +647,12 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
                       {card.type === 'en' && (
                         <button className="btn btn-link p-0" style={{ fontSize: '0.75rem', lineHeight: 1 }}
                           onClick={(e) => { e.stopPropagation(); speakText(card.text); }} title="Nghe">
-                          🔊
+                          <Icon name="sound" size={14} />
                         </button>
                       )}
                     </div>
                   ) : (
-                    <span className="fs-4">❓</span>
+                    <span className="fs-4"><Icon name="question" size={24} /></span>
                   )}
                 </div>
               </div>
@@ -746,7 +748,7 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
     const finalScore = score;
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{finalScore >= 8 ? '🏆' : finalScore >= 5 ? '🐝' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={finalScore >= 8 ? 'trophy' : finalScore >= 5 ? 'bee' : 'muscle'} size={72} /></div>
         <h3 className="fw-bold mt-2">Kết quả: {finalScore}/{total}</h3>
         <div className="badge bg-warning text-dark fs-5 my-2">+{finalScore * 8} XP</div>
         <div><button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>Chơi lại</button></div>
@@ -768,18 +770,18 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
 
       <div className="card shadow-sm mb-3">
         <div className="card-body text-center py-4">
-          <div className="fs-1 mb-2">🐝</div>
+          <div className="fs-1 mb-2 emoji-big"><Icon name="bee" size={44} /></div>
           <p className="text-muted mb-2">Nghĩa: <strong>{current.meaning}</strong></p>
           {current.phonetic && <p className="text-muted small mb-2">{current.phonetic}</p>}
           <div className="d-flex gap-2 justify-content-center mb-3">
             <button className="btn btn-cowdi-primary" onClick={() => speakWord(current.word)}>
-              🔊 Nghe
+              <Icon name="sound" size={18} /> Nghe
             </button>
             <button className="btn btn-outline-cowdi" onClick={() => speakWord(current.word, 0.45)}>
-              🐌 Chậm
+              <Icon name="snail" size={18} /> Chậm
             </button>
             <button className="btn btn-outline-secondary" onClick={() => setShowHint(true)} disabled={showHint}>
-              💡 Gợi ý
+              <Icon name="bulb" size={18} /> Gợi ý
             </button>
           </div>
           {showHint && (
@@ -914,11 +916,11 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
   if (phase === 'ready') {
     return (
       <div className="text-center py-5" style={{ maxWidth: 420, margin: '0 auto' }}>
-        <div className="fs-1 mb-3">⚡</div>
+        <div className="fs-1 mb-3 emoji-big"><Icon name="bolt" size={44} /></div>
         <h4 className="fw-bold">Tốc độ ánh sáng</h4>
         <p className="text-muted mb-1">Từ tiếng Anh hiện lên — chọn <strong>nghĩa đúng</strong> trong 4 đáp án.</p>
         <p className="text-muted">Mỗi câu có <strong>5 giây</strong>. Tổng thời gian <strong>60 giây</strong>!</p>
-        <button className="btn btn-cowdi-primary btn-lg" onClick={startGame}>🚀 Bắt đầu!</button>
+        <button className="btn btn-cowdi-primary btn-lg" onClick={startGame}><Icon name="rocket" size={20} /> Bắt đầu!</button>
       </div>
     );
   }
@@ -927,7 +929,7 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
     const acc = total > 0 ? Math.round((score / total) * 100) : 0;
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{score >= 20 ? '🏆' : score >= 12 ? '⚡' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 20 ? 'trophy' : score >= 12 ? 'bolt' : 'muscle'} size={72} /></div>
         <h3 className="fw-bold mt-2">{score} câu đúng / {total} câu</h3>
         <div className="text-muted mb-2">Độ chính xác: {acc}%</div>
         <div className="badge bg-warning text-dark fs-5 my-2">+{score * 4} XP</div>
@@ -943,9 +945,9 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
       {/* Header bar */}
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <span className={`badge ${timeLeft <= 10 ? 'bg-danger' : 'bg-secondary'} fs-6`}>⏱ {timeLeft}s</span>
-        <span className="badge bg-warning text-dark fs-6">✅ {score}</span>
-        {streak >= 3 && <span className="badge bg-danger fs-6">🔥 {streak}</span>}
+        <span className={`badge ${timeLeft <= 10 ? 'bg-danger' : 'bg-secondary'} fs-6`}><Icon name="timer" size={14} /> {timeLeft}s</span>
+        <span className="badge bg-warning text-dark fs-6"><Icon name="check" size={14} /> {score}</span>
+        {streak >= 3 && <span className="badge bg-danger fs-6"><Icon name="fire" size={14} /> {streak}</span>}
       </div>
 
       {/* Per-question timer bar */}
@@ -967,12 +969,12 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
               <h2 className="fw-bold text-cowdi-primary mb-0">{current.word}</h2>
               <SpeakBtn text={current.word} />
             </div>
-            {flash === 'correct' && <div className="text-success fw-bold mt-2">✅ Chính xác!</div>}
+            {flash === 'correct' && <div className="text-success fw-bold mt-2"><Icon name="check" size={16} /> Chính xác!</div>}
             {flash === 'wrong' && selected !== null && (
-              <div className="text-danger small mt-2">❌ Đáp án đúng: <strong>{current.meaning}</strong></div>
+              <div className="text-danger small mt-2"><Icon name="x" size={14} /> Đáp án đúng: <strong>{current.meaning}</strong></div>
             )}
             {flash === 'wrong' && selected === null && (
-              <div className="text-danger small mt-2">⏰ Hết giờ! Đáp án: <strong>{current.meaning}</strong></div>
+              <div className="text-danger small mt-2"><Icon name="clock" size={14} /> Hết giờ! Đáp án: <strong>{current.meaning}</strong></div>
             )}
           </div>
         </div>
@@ -1075,7 +1077,7 @@ function WordScrambleGame({ onCorrect, onWrong }) {
   if (finished) {
     return (
       <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }}>{score >= 8 ? '🏆' : score >= 5 ? '🔤' : '💪'}</div>
+        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 8 ? 'trophy' : score >= 5 ? 'abc' : 'muscle'} size={72} /></div>
         <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
         <div className="badge bg-warning text-dark fs-5 my-2">+{score * 6} XP</div>
         <div><button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>Chơi lại</button></div>
@@ -1104,8 +1106,8 @@ function WordScrambleGame({ onCorrect, onWrong }) {
           {result !== null && (
             <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
               <span className="text-muted small fst-italic">{current.word}</span>
-              <SpeakBtn text={current.word} label="🔊" />
-              <SpeakBtn text={current.word} rate={0.5} label="🐌" />
+              <SpeakBtn text={current.word} label={<Icon name="sound" size={16} />} />
+              <SpeakBtn text={current.word} rate={0.5} label={<Icon name="snail" size={16} />} />
             </div>
           )}
 

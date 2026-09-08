@@ -8,6 +8,7 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
 import Icon from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 const PATH_IDS = ALL_PATHS.map((p) => p.id);
@@ -184,9 +185,9 @@ export default function LearningPathPage() {
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <button className="btn btn-outline-secondary btn-sm" onClick={() => setTestUnit(null)}>✕ Thoát</button>
           <span className="fw-bold" style={{ color: testUnit.color }}>
-            {testUnit.icon} {testUnit.checkpoint.title}
+            <Emoji e={testUnit.icon} size={18} /> {testUnit.checkpoint.title}
           </span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {testScore}/{testQuestions.length}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={16} /> {testScore}/{testQuestions.length}</span>
         </div>
         <div className="progress mb-4" style={{ height: '6px' }}>
           <div className="progress-bar" style={{ width: `${((testIdx + 1) / testQuestions.length) * 100}%`, backgroundColor: testUnit.color }}></div>
@@ -194,7 +195,7 @@ export default function LearningPathPage() {
 
         {q.speak && (
           <div className="text-center mb-3">
-            <button className="btn btn-cowdi-primary" onClick={() => speakWord(q.speak)}>🔊 Nghe phát âm</button>
+            <button className="btn btn-cowdi-primary" onClick={() => speakWord(q.speak)}><Icon name="sound" size={18} /> Nghe phát âm</button>
           </div>
         )}
 
@@ -231,11 +232,11 @@ export default function LearningPathPage() {
     const passed = testScore / total >= testUnit.checkpoint.passRate;
     return (
       <div className="text-center py-5 fade-in">
-        <div style={{ fontSize: '5rem' }}>{passed ? '🏆' : '💪'}</div>
+        <div style={{ fontSize: '5rem' }} className="emoji-big"><Icon name={passed ? 'trophy' : 'muscle'} size={96} /></div>
         <h2 className="fw-bold mt-3">{testUnit.checkpoint.title}</h2>
-        <p className="text-muted">{testUnit.icon} {testUnit.title} – {testUnit.subtitle}</p>
+        <p className="text-muted"><Emoji e={testUnit.icon} size={16} /> {testUnit.title} – {testUnit.subtitle}</p>
         <div className="display-4 fw-bold my-3" style={{ color: passed ? '#4CAF50' : '#F44336' }}>{testScore}/{total}</div>
-        <p className="lead text-muted">{pct}% — {passed ? 'Đạt! Unit tiếp theo đã mở! 🎉' : 'Chưa đạt (cần ≥70%). Ôn lại bài nhé!'}</p>
+        <p className="lead text-muted">{pct}% — {passed ? <>Đạt! Unit tiếp theo đã mở! <Icon name="party" size={20} /></> : 'Chưa đạt (cần ≥70%). Ôn lại bài nhé!'}</p>
         <div className="d-flex gap-3 justify-content-center flex-wrap mt-4">
           {!passed && (
             <button className="btn btn-cowdi-primary" onClick={() => startCheckpoint(testUnit)}>Làm lại</button>
@@ -261,7 +262,7 @@ export default function LearningPathPage() {
     if (node.status === 'done') return <Icon name="star" size={44} className="ic-white" />;
     if (node.type === 'checkpoint') return <Icon name="trophy" size={node.status === 'locked' ? 40 : 48} />;
     if (node.status === 'locked') return <Icon name="lock" size={36} />;
-    return <span className="path-node-emoji">{lesson?.icon || '📖'}</span>;
+    return <span className="path-node-emoji"><Emoji e={lesson?.icon || '📖'} size={36} /></span>;
   }
 
   /* ── Visual Learning Path (Duolingo-style trail) ── */
@@ -360,8 +361,8 @@ export default function LearningPathPage() {
 
         <div className={`path-finish ${doneAll ? 'done' : ''}`}>
           <div className="path-finish-ico"><Icon name={doneAll ? 'trophy' : 'flag'} size={44} /></div>
-          <p className="text-muted small mb-0">
-            {doneAll ? 'Hoàn thành toàn bộ lộ trình! Bạn thật xuất sắc! 🎉' : `Còn ${nodes.length - doneCount} bước nữa để về đích!`}
+          <p className="text-muted">
+            {doneAll ? <>Hoàn thành toàn bộ lộ trình! Bạn thật xuất sắc! <Icon name="party" size={16} /></> : `Còn ${nodes.length - doneCount} bước nữa để về đích!`}
           </p>
         </div>
       </div>

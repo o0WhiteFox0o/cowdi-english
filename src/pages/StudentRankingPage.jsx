@@ -4,6 +4,8 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { PET_REGISTRY, getPetEvolution } from '../data/pets';
 import { LEVELS, ACHIEVEMENTS } from '../data/lessons';
+import Icon from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 const SORT_TABS = [
   { id: 'score',        icon: '🏆', label: 'Tổng điểm', info: true },
@@ -131,7 +133,7 @@ export default function StudentRankingPage() {
     <div className="fade-in">
       {/* Header */}
       <div className="text-center mb-4">
-        <h2 className="fw-bold"><span className="me-2">📊</span>Xếp hạng học tập</h2>
+        <h2 className="fw-bold"><span className="me-2"><Icon name="chart" size={28} /></span>Xếp hạng học tập</h2>
         <p className="text-muted small">Xếp hạng dựa trên thành tích học tập</p>
       </div>
 
@@ -143,7 +145,7 @@ export default function StudentRankingPage() {
               <div style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {myStats.image
                   ? <img src={myStats.image} alt="pet" width="48" height="48" style={{ objectFit: 'contain' }} />
-                  : <span className="fs-1">{myStats.emoji}</span>}
+                  : <span className="fs-1"><Emoji e={myStats.emoji} size={44} /></span>}
               </div>
               <div className="flex-grow-1">
                 <div className="fw-bold">{petData.nickname || user.display_name || 'Bạn'}</div>
@@ -154,7 +156,7 @@ export default function StudentRankingPage() {
               </div>
               <div className="text-end">
                 <div className="fw-bold" style={{ fontSize: '1.4rem', color: '#E91E63' }}>
-                  🏆 {myStats.rankScore.toLocaleString()}
+                  <Icon name="trophy" size={20} /> {myStats.rankScore.toLocaleString()}
                 </div>
                 <div className="text-muted" style={{ fontSize: '0.65rem' }}>tổng điểm</div>
               </div>
@@ -172,7 +174,7 @@ export default function StudentRankingPage() {
               ].map((s, i) => (
                 <div className="col-3" key={i}>
                   <div className="text-center p-2 rounded" style={{ background: s.color + '12' }}>
-                    <div>{s.icon}</div>
+                    <div><Emoji e={s.icon} size={18} /></div>
                     <div className="fw-bold small" style={{ color: s.color }}>{s.value}</div>
                     <div className="text-muted" style={{ fontSize: '0.6rem' }}>{s.label}</div>
                   </div>
@@ -191,7 +193,7 @@ export default function StudentRankingPage() {
               className={`btn btn-sm rounded-pill ${sort === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
               onClick={() => setSort(t.id)}
             >
-              {t.icon} {t.label}
+              <Emoji e={t.icon} size={16} /> {t.label}
             </button>
             {t.info && (
               <button
@@ -200,7 +202,7 @@ export default function StudentRankingPage() {
                 title="Xem cách tính điểm"
                 onClick={() => setShowFormula(v => !v)}
                 aria-label="Cách tính điểm"
-              >ℹ️</button>
+              ><Icon name="info" size={14} /></button>
             )}
           </div>
         ))}
@@ -211,7 +213,7 @@ export default function StudentRankingPage() {
         <div className="card border mb-3">
           <div className="card-body py-2 px-3" style={{ fontSize: '0.72rem' }}>
             <div className="d-flex justify-content-between align-items-start mb-2">
-              <span className="fw-bold">🏆 Cách tính tổng điểm</span>
+              <span className="fw-bold"><Icon name="trophy" size={16} /> Cách tính tổng điểm</span>
               <button className="btn btn-sm p-0 border-0 bg-transparent text-muted" style={{ fontSize: '1rem', lineHeight: 1 }} onClick={() => setShowFormula(false)}>✕</button>
             </div>
             <div className="row g-1">
@@ -227,7 +229,7 @@ export default function StudentRankingPage() {
               ].map((row, idx) => (
                 <div className="col-6" key={idx}>
                   <div className="d-flex align-items-center gap-1 py-1 border-bottom" style={{ borderColor: '#eee' }}>
-                    <span>{row.icon}</span>
+                    <span><Emoji e={row.icon} size={14} /></span>
                     <span className="flex-grow-1 text-muted">{row.label}</span>
                     <span className="fw-bold" style={{ color: '#E91E63' }}>{row.weight}</span>
                   </div>
@@ -260,27 +262,27 @@ export default function StudentRankingPage() {
                     className={`list-group-item d-flex align-items-center gap-2 ${isTop3 ? 'bg-warning bg-opacity-10' : ''}`}
                   >
                     <span className="fw-bold" style={{ minWidth: 36, fontSize: isTop3 ? '1.2rem' : '0.9rem' }}>
-                      {rankMedal(i)}
+                      {i < 3 ? <Emoji e={rankMedal(i)} size={22} /> : rankMedal(i)}
                     </span>
                     <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {avatar.image
                         ? <img src={avatar.image} alt="pet" width="36" height="36" style={{ objectFit: 'contain' }} />
-                        : <span className="fs-4">{avatar.emoji}</span>}
+                        : <span className="fs-4"><Emoji e={avatar.emoji} size={24} /></span>}
                     </div>
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{entry.nickname}</div>
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">
-                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · 🔥 {entry.streak}
+                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · <Icon name="fire" size={12} /> {entry.streak}
                       </div>
                     </div>
                     <div className="text-end">
                       <div className="fw-bold" style={{ color: isTop3 ? '#E91E63' : '#333' }}>
-                        {stat.icon} {stat.value.toLocaleString?.() ?? stat.value}
+                        <Emoji e={stat.icon} size={16} /> {stat.value.toLocaleString?.() ?? stat.value}
                       </div>
                       <div className="text-muted" style={{ fontSize: '0.65rem' }}>{stat.unit}</div>
                       {sort !== 'score' && (
                         <div className="text-muted" style={{ fontSize: '0.6rem', marginTop: 2 }}>
-                          🏆 {(entry.rankScore ?? computeRankScore(entry)).toLocaleString()}
+                          <Icon name="trophy" size={12} /> {(entry.rankScore ?? computeRankScore(entry)).toLocaleString()}
                         </div>
                       )}
                     </div>
@@ -290,7 +292,7 @@ export default function StudentRankingPage() {
             </div>
           ) : (
             <div className="text-center py-4">
-              <div className="fs-2 mb-2">📊</div>
+              <div className="fs-2 mb-2 emoji-big"><Icon name="chart" size={36} /></div>
               <p className="text-muted small">
                 {user ? 'Chưa có dữ liệu. Hãy học bài để lên bảng xếp hạng!' : 'Đăng nhập để xem bảng xếp hạng!'}
               </p>

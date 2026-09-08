@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { COWDI_IMAGES } from '../data/pets';
+import Icon from '../components/Icon';
 
 /**
  * /i/:code — Landing nhận thiệp mời "trứng pet"
@@ -84,7 +85,7 @@ export default function InvitePage() {
   if (error || !invite) {
     return (
       <div className="text-center py-5">
-        <div style={{ fontSize: 64 }}>📭</div>
+        <div style={{ fontSize: 64 }} className="emoji-big"><Icon name="mail" size={64} /></div>
         <h4 className="mt-3">Thiệp không khả dụng</h4>
         <p className="text-muted">{error || 'Có thể thiệp đã hết hạn hoặc đã được nhận.'}</p>
         <button className="btn btn-cowdi-primary mt-2" onClick={() => navigate('/')}>Về trang chủ</button>
@@ -95,7 +96,7 @@ export default function InvitePage() {
   if (invite.expired) {
     return (
       <div className="text-center py-5">
-        <div style={{ fontSize: 64 }}>⏰</div>
+        <div style={{ fontSize: 64 }} className="emoji-big"><Icon name="clock" size={64} /></div>
         <h4 className="mt-3">Thiệp đã hết hạn</h4>
         <p className="text-muted">Nhờ bạn của bạn gửi lại một thiệp mới nha!</p>
         <button className="btn btn-cowdi-primary mt-2" onClick={() => navigate('/')}>Về trang chủ</button>
@@ -130,7 +131,7 @@ export default function InvitePage() {
           </span>
         </div>
         <p className="text-white mb-3" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
-          tặng bạn một quả trứng pet 🎁
+          tặng bạn một quả trứng pet <Icon name="gift" size={18} />
         </p>
 
         {/* Egg */}
@@ -149,20 +150,20 @@ export default function InvitePage() {
               position: 'absolute', inset: 0, display: 'flex',
               alignItems: 'center', justifyContent: 'center',
               fontSize: 80, animation: 'cowdiPop 1.4s ease-out forwards', opacity: 0,
-            }}>
-              ✨
+            }} className="emoji-big">
+              <Icon name="sparkles" size={80} />
             </div>
           )}
         </div>
 
         {/* Pet name */}
-        <h3 className="text-white mt-2" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>Cowdi 🐮</h3>
+        <h3 className="text-white mt-2" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>Cowdi <Icon name="cow" size={28} /></h3>
 
         {/* Message */}
         {invite.message && (
           <div className="mx-auto mt-3 px-3 py-2 bg-white rounded-pill d-inline-block"
             style={{ maxWidth: '90%', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <span className="text-muted">💬 </span>
+            <span className="text-muted"><Icon name="chat" size={16} /> </span>
             <span className="text-dark">"{invite.message}"</span>
           </div>
         )}
@@ -175,8 +176,8 @@ export default function InvitePage() {
                 className="btn btn-light btn-lg fw-bold px-4"
                 onClick={loginWithGoogle}
                 style={{ boxShadow: '0 6px 16px rgba(0,0,0,0.15)' }}
-              >
-                👉 Nhận trứng (đăng nhập Google)
+              ><Icon name="pointRight" size={18} />
+                <Icon name="pointRight" size={18} /> Nhận trứng (đăng nhập Google)
               </button>
               <p className="text-white small mt-2 mb-0" style={{ opacity: 0.9 }}>
                 Đăng nhập để pet thuộc về bạn vĩnh viễn
@@ -188,17 +189,17 @@ export default function InvitePage() {
               onClick={handleAccept}
               style={{ boxShadow: '0 6px 16px rgba(0,0,0,0.15)' }}
             >
-              🥚 Mở trứng & vào nuôi pet
+              <Icon name="egg" size={18} /> Mở trứng & vào nuôi pet
             </button>
           ) : cracking ? (
-            <div className="text-white fw-bold">Đang mở... ✨</div>
+            <div className="text-white fw-bold">Đang mở... <Icon name="sparkles" size={16} /></div>
           ) : (
             <div className="text-white small">Đang nhận thiệp...</div>
           )}
         </div>
 
         <p className="text-white small mt-4 mb-0" style={{ opacity: 0.85 }}>
-          ⏰ Thiệp hết hạn vào: {new Date(invite.expires_at).toLocaleDateString('vi-VN')}
+          <Icon name="clock" size={14} /> Thiệp hết hạn vào: {new Date(invite.expires_at).toLocaleDateString('vi-VN')}
         </p>
       </div>
 

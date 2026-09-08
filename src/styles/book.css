@@ -81,6 +81,23 @@ h5, .h5 { font-size: 1.25rem; }
 .ic { display: inline-block; vertical-align: -0.2em; flex-shrink: 0; }
 .btn .ic, .badge .ic { vertical-align: -0.25em; }
 
+/* Emoji rendered as kawaii "stickers": Twemoji SVG + thick ink outline */
+.emoji-sticker { object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.emoji-sticker.is-sticker {
+  filter:
+    drop-shadow(1px 0 0 #3A3040) drop-shadow(-1px 0 0 #3A3040)
+    drop-shadow(0 1px 0 #3A3040) drop-shadow(0 -1px 0 #3A3040);
+}
+.emoji-native { display: inline-block; vertical-align: -0.15em; }
+.emoji-big .emoji-sticker.is-sticker {
+  filter:
+    drop-shadow(2px 0 0 #3A3040) drop-shadow(-2px 0 0 #3A3040)
+    drop-shadow(0 2px 0 #3A3040) drop-shadow(0 -2px 0 #3A3040)
+    drop-shadow(0 4px 0 rgba(58,48,64,.18));
+}
+.emoji-big .ic { filter: drop-shadow(0 4px 0 rgba(58,48,64,.18)); }
+.emoji-row { display: inline-flex; align-items: center; gap: .35em; }
+
 /* ============================================
    SHELL — sky → notebook → pages
    ============================================ */

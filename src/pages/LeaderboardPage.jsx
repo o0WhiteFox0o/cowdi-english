@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { usePet } from '../hooks/usePet';
 import { useAuth } from '../hooks/useAuth';
 import { PET_REGISTRY, calculatePowerScore, SKILL_META, getPetEvolution } from '../data/pets';
+import Icon, { SKILL_ICON } from '../components/Icon';
+import Emoji from '../components/Emoji';
 
 const TABS = [
   { id: 'power', icon: '⚡', label: 'Sức mạnh' },
@@ -31,7 +33,7 @@ function resolvePetAvatar(speciesId, totalXpEarned) {
 function PetAvatarInline({ speciesId, totalXpEarned, size = 32 }) {
   const { emoji, image } = resolvePetAvatar(speciesId, totalXpEarned);
   if (image) return <img src={image} alt="pet" loading="lazy" decoding="async" style={{ width: size, height: size, objectFit: 'contain' }} />;
-  return <span style={{ fontSize: size * 0.8 }}>{emoji}</span>;
+  return <Emoji e={emoji} size={Math.round(size * 0.8)} />;
 }
 
 export default function LeaderboardPage() {
@@ -86,12 +88,12 @@ export default function LeaderboardPage() {
     };
   }, [petData]);
 
-  const rankMedal = (i) => ['🥇', '🥈', '🥉'][i] || `${i + 1}.`;
+  const rankMedal = (i) => ['🥇', '🥈', '🥉'][i] ? <Emoji e={['🥇', '🥈', '🥉'][i]} size={22} /> : `${i + 1}.`;
 
   return (
     <div className="fade-in">
       <div className="text-center mb-4">
-        <h2 className="fw-bold">🏆 Bảng xếp hạng</h2>
+        <h2 className="fw-bold"><Icon name="trophy" size={28} /> Bảng xếp hạng</h2>
         <p className="text-muted small">So sánh pet & leo hạng giải đấu</p>
       </div>
 
@@ -110,7 +112,7 @@ export default function LeaderboardPage() {
           <button key={t.id}
             className={`btn btn-sm rounded-pill ${tab === t.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
             onClick={() => setTab(t.id)}>
-            {t.icon} {t.label}
+            <Emoji e={t.icon} size={16} /> {t.label}
           </button>
         ))}
       </div>
@@ -122,7 +124,7 @@ export default function LeaderboardPage() {
             <button key={s.id}
               className={`btn btn-sm ${skillTab === s.id ? 'btn-dark' : 'btn-outline-secondary'}`}
               onClick={() => setSkillTab(s.id)}>
-              {s.icon} {s.name}
+              <Icon name={SKILL_ICON[s.id]} size={16} /> {s.name}
             </button>
           ))}
         </div>
@@ -149,12 +151,12 @@ export default function LeaderboardPage() {
                         <div className="fw-bold small">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>
                         <div style={{ fontSize: '0.7rem' }} className="text-muted">
                           <span className="text-success">{entry.duelWins}W</span> / <span className="text-danger">{entry.duelLosses}L</span>
-                          {entry.duelStreak > 0 && <span className="ms-1">🔥{entry.duelStreak}</span>}
+                          {entry.duelStreak > 0 && <span className="ms-1"><Icon name="fire" size={12} />{entry.duelStreak}</span>}
                         </div>
                       </div>
                       <div className="text-end">
                         <span className="badge" style={{ backgroundColor: lg.color, color: '#fff', fontSize: '0.7rem' }}>
-                          {lg.icon} {lg.name}
+                          <Emoji e={lg.icon} size={12} /> {lg.name}
                         </span>
                         <div className="fw-bold small mt-1">{entry.leaguePoints} LP</div>
                       </div>
@@ -164,7 +166,7 @@ export default function LeaderboardPage() {
               </div>
             ) : (
               <div className="text-center py-4">
-                <div className="fs-2 mb-2">🏅</div>
+                <div className="fs-2 mb-2 emoji-big"><Icon name="medal" size={36} /></div>
                 <p className="text-muted small">Chưa có dữ liệu. Hãy đấu trường để leo hạng!</p>
               </div>
             )}
@@ -192,16 +194,16 @@ export default function LeaderboardPage() {
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>
                     </div>
                     <div className="text-end">
-                      {tab === 'power' && <span className="badge bg-dark">⚡ {entry.power}</span>}
-                      {tab === 'skill' && <span className="badge bg-primary">{SKILL_META[skillTab]?.icon} {entry.skill || 0} điểm</span>}
-                      {tab === 'collection' && <span className="badge bg-success">📦 {entry.collectionCount}</span>}
+                      {tab === 'power' && <span className="badge bg-dark"><Icon name="bolt" size={12} /> {entry.power}</span>}
+                      {tab === 'skill' && <span className="badge bg-primary"><Icon name={SKILL_ICON[skillTab]} size={12} /> {entry.skill || 0} điểm</span>}
+                      {tab === 'collection' && <span className="badge bg-success"><Icon name="box" size={12} /> {entry.collectionCount}</span>}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-4">
-                <div className="fs-2 mb-2">🏆</div>
+                <div className="fs-2 mb-2 emoji-big"><Icon name="trophy" size={36} /></div>
                 <p className="text-muted small">
                   {user ? 'Chưa có dữ liệu. Hãy học bài để leo hạng!' : 'Đăng nhập để xem bảng xếp hạng!'}
                 </p>
@@ -215,25 +217,25 @@ export default function LeaderboardPage() {
       {myPet && (
         <div className="card shadow-sm border-cowdi">
           <div className="card-body">
-            <h6 className="fw-bold small mb-2">📊 Pet của bạn</h6>
+            <h6 className="fw-bold small mb-2"><Icon name="chart" size={16} /> Pet của bạn</h6>
             <div className="d-flex align-items-center gap-2">
               {myPet.image
                 ? <img src={myPet.image} alt={myPet.name} style={{ width: 40, height: 40, objectFit: 'contain' }} />
-                : <span className="fs-3">{myPet.emoji}</span>}
+                : <Emoji e={myPet.emoji} size={28} />}
               <div className="flex-grow-1">
                 <div className="fw-bold">{myPet.name}</div>
                 <div className="text-muted small">{myPet.species} · {myPet.evoName}</div>
               </div>
               <div className="text-end">
-                <div className="badge bg-dark mb-1">⚡ {myPet.power}</div>
+                <div className="badge bg-dark mb-1"><Icon name="bolt" size={12} /> {myPet.power}</div>
                 <div className="d-flex gap-1 justify-content-end">
                   {Object.entries(SKILL_META).map(([key, meta]) => (
                     <span key={key} className="badge bg-light text-dark" style={{ fontSize: '0.6rem' }}>
-                      {meta.icon}{myPet.skills[key] || 0}
+                      <Icon name={SKILL_ICON[key]} size={12} />{myPet.skills[key] || 0}
                     </span>
                   ))}
                 </div>
-                <div className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}>📦 {myPet.collectionCount} pet</div>
+                <div className="badge bg-success mt-1" style={{ fontSize: '0.65rem' }}><Icon name="box" size={12} /> {myPet.collectionCount} pet</div>
               </div>
             </div>
           </div>

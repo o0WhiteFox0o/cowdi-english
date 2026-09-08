@@ -4,6 +4,7 @@ import { LESSONS } from '../../data/lessons';
 import { EXAM_LESSONS } from '../../data/lessons';
 import { getLessonAccess, getNextPathLesson } from '../../data/path';
 import Icon from '../../components/Icon';
+import Emoji, { EmojiText } from '../../components/Emoji';
 
 const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 
@@ -257,7 +258,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
   if (!reading || !reading.passage) {
     return (
       <div className="alert alert-light text-center">
-        <div style={{ fontSize: '2rem' }}>📭</div>
+        <div style={{ fontSize: '2rem' }} className="emoji-big"><Icon name="mail" size={36} /></div>
         <div className="fw-bold mt-2">Bài học này chưa có đoạn văn luyện tập.</div>
       </div>
     );
@@ -315,7 +316,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
       <div className="card shadow-sm mb-3 bg-cowdi-gradient text-white">
         <div className="card-body py-3">
           <div className="d-flex align-items-center gap-3 flex-wrap">
-            <div style={{ fontSize: '2.2rem' }}>📚</div>
+            <div style={{ fontSize: '2.2rem' }} className="emoji-big"><Icon name="books" size={40} /></div>
             <div className="flex-grow-1">
               <h5 className="fw-bold mb-1">{reading.title}</h5>
               <small className="opacity-75">
@@ -330,17 +331,17 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
       {/* Toolbar */}
       <div className="d-flex gap-2 mb-3 flex-wrap">
         <button className="btn btn-sm btn-cowdi-primary" onClick={() => onSpeak(reading.passage)}>
-          🔊 Nghe toàn bộ
+          <Icon name="sound" size={14} /> Nghe toàn bộ
         </button>
         <button className="btn btn-sm btn-outline-cowdi" onClick={() => onSpeakSlow(reading.passage)}>
-          🐌 Nghe chậm
+          <Icon name="snail" size={14} /> Nghe chậm
         </button>
         {reading.translation && (
           <button
             className={`btn btn-sm ${showTranslation ? 'btn-warning' : 'btn-outline-secondary'}`}
             onClick={() => setShowTranslation((v) => !v)}
           >
-            {showTranslation ? '🙈 Ẩn dịch' : '🇻🇳 Xem dịch'}
+            {showTranslation ? <><Icon name="monkey" size={14} /> Ẩn dịch</> : <><Emoji e="🇻🇳" size={14} /> Xem dịch</>}
           </button>
         )}
       </div>
@@ -377,7 +378,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
       {activeWord && (
         <div className="card shadow-sm border-warning mb-3">
           <div className="card-body d-flex align-items-center gap-3 flex-wrap">
-            <div style={{ fontSize: '2rem' }}>{activeWord.illustration || '📖'}</div>
+            <div style={{ fontSize: '2rem' }} className="emoji-big"><Emoji e={activeWord.illustration || '📖'} size={36} /></div>
             <div className="flex-grow-1">
               <div className="fw-bold fs-5">
                 {activeWord.word}{' '}
@@ -389,7 +390,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
               )}
             </div>
             <button className="btn btn-sm btn-outline-secondary" onClick={() => onSpeak(activeWord.word)}>
-              🔊
+              <Icon name="sound" size={14} />
             </button>
             <button className="btn btn-sm btn-outline-danger" onClick={() => setActiveWord(null)}>
               ✕
@@ -401,7 +402,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
       {/* Translation */}
       {showTranslation && reading.translation && (
         <div className="alert alert-light border">
-          <div className="fw-bold text-muted small mb-1">🇻🇳 Dịch nghĩa</div>
+          <div className="fw-bold text-muted small mb-1"><Emoji e="🇻🇳" size={13} /> Dịch nghĩa</div>
           <div>{reading.translation}</div>
         </div>
       )}
@@ -411,7 +412,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
         <div className="card shadow-sm mt-3">
           <div className="card-body">
             <h6 className="fw-bold text-cowdi-primary mb-3">
-              ❓ Câu hỏi hiểu bài ({reading.questions.length})
+              <Icon name="question" size={16} /> Câu hỏi hiểu bài ({reading.questions.length})
             </h6>
             {reading.questions.map((q, qi) => (
               <div key={qi} className="mb-3">
@@ -450,11 +451,11 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
                   disabled={Object.keys(answers).length < reading.questions.length}
                   onClick={submitQuiz}
                 >
-                  ✅ Nộp bài
+                  <Icon name="check" size={16} /> Nộp bài
                 </button>
               ) : (
                 <button className="btn btn-outline-cowdi" onClick={resetQuiz}>
-                  🔄 Làm lại
+                  <Icon name="refresh" size={16} /> Làm lại
                 </button>
               )}
             </div>
@@ -702,7 +703,7 @@ export default function LessonDetailPage() {
     return (
       <div className="text-center py-5 fade-in" style={{ maxWidth: 520, margin: '0 auto' }}>
         <Icon name="lock" size={84} />
-        <h2 className="mt-2">{lesson.icon} {lesson.title}</h2>
+        <h2 className="mt-2"><Emoji e={lesson.icon} size={28} /> {lesson.title}</h2>
         <p className="text-muted">Bài này chưa mở. Học lần lượt theo lộ trình để không bỏ sót kiến thức nhé!</p>
         {b && (
           <div className="card mb-3">
@@ -710,7 +711,7 @@ export default function LessonDetailPage() {
               <small className="text-muted">Bước tiếp theo của bạn</small>
               <div className="fs-5 d-flex align-items-center justify-content-center gap-2">
                 {b.type === 'lesson'
-                  ? `${blockerLesson?.icon || ''} ${blockerLesson?.title || b.lessonId}`
+                  ? <><Emoji e={blockerLesson?.icon} size={24} /> {blockerLesson?.title || b.lessonId}</>
                   : <><Icon name="trophy" size={24} /> {b.unit.checkpoint.title}</>}
               </div>
             </div>
@@ -970,15 +971,15 @@ export default function LessonDetailPage() {
     const pct = Math.round((score / quiz.length) * 100);
     return (
       <div className="text-center py-5 fade-in position-relative" ref={confettiRef}>
-        <div className={`quiz-result-icon ${pct >= 80 ? 'bounce-in' : ''}`} style={{ fontSize: '5rem' }}>
-          {pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪'}
+        <div className={`quiz-result-icon emoji-big ${pct >= 80 ? 'bounce-in' : ''}`} style={{ fontSize: '5rem' }}>
+          <Icon name={pct >= 80 ? 'trophy' : pct >= 50 ? 'thumb' : 'muscle'} size={96} />
         </div>
         <h2 className="fw-bold mt-3">Kết quả</h2>
         <div className="display-4 fw-bold text-cowdi-primary my-3">{score}/{quiz.length}</div>
         <p className="lead text-muted">
-          {pct}% — {pct >= 80 ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : pct >= 50 ? 'Khá tốt! Cố thêm nhé! 🐮' : 'Cố gắng thêm nhé! Cowdi tin bạn! 🐮💪'}
+          {pct}% — <EmojiText>{pct >= 80 ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : pct >= 50 ? 'Khá tốt! Cố thêm nhé! 🐮' : 'Cố gắng thêm nhé! Cowdi tin bạn! 🐮💪'}</EmojiText>
         </p>
-        {pct === 100 && <div className="badge bg-warning text-dark fs-6 mb-3">💯 PERFECT SCORE!</div>}
+        {pct === 100 && <div className="badge bg-warning text-dark fs-6 mb-3"><Icon name="hundred" size={16} /> PERFECT SCORE!</div>}
         <div className="d-flex gap-3 justify-content-center mt-4 flex-wrap">
           {pathNext?.type === 'lesson' && pathNext.lessonId !== lesson.id && (
             <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}><Icon name="play" size={18} /> Bài tiếp theo</button>
@@ -986,9 +987,9 @@ export default function LessonDetailPage() {
           {pathNext?.type === 'checkpoint' && (
             <button className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="trophy" size={18} /> Làm bài kiểm tra Unit</button>
           )}
-          <button className={`btn ${pathNext ? 'btn-outline-secondary' : 'btn-cowdi-primary'}`} onClick={restartQuiz}>🔄 Làm lại</button>
-          <button className="btn btn-outline-secondary" onClick={() => setQuizMode(false)}>📚 Quay lại bài học</button>
-          <button className="btn btn-outline-secondary" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>🛤️ Lộ trình</button>
+          <button className={`btn ${pathNext ? 'btn-outline-secondary' : 'btn-cowdi-primary'}`} onClick={restartQuiz}><Icon name="refresh" size={16} /> Làm lại</button>
+          <button className="btn btn-outline-secondary" onClick={() => setQuizMode(false)}><Icon name="books" size={16} /> Quay lại bài học</button>
+          <button className="btn btn-outline-secondary" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="road" size={16} /> Lộ trình</button>
         </div>
       </div>
     );
@@ -1006,7 +1007,7 @@ export default function LessonDetailPage() {
             <i className="fas fa-arrow-left me-1"></i>Thoát
           </button>
           <span className="text-muted fw-bold">Câu {qIndex + 1}/{quiz.length}</span>
-          <span className="badge bg-warning text-dark fs-6">⭐ {score}</span>
+          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {score}</span>
         </div>
         <div className="progress mb-4" style={{ height: '8px' }}>
           <div
@@ -1025,7 +1026,7 @@ export default function LessonDetailPage() {
                 onClick={() => speakWord(q.question, 0.85)}
                 title="Nghe lại câu hỏi"
               >
-                🔊 Nghe lại
+                <Icon name="sound" size={14} /> Nghe lại
               </button>
             </div>
           </div>
@@ -1052,7 +1053,7 @@ export default function LessonDetailPage() {
         </div>
         {answered !== null && (
           <div className={`text-center mt-3 fw-bold fs-5 fade-in ${answered === q.correct ? 'text-success' : 'text-danger'}`}>
-            {answered === q.correct ? '✅ Chính xác! Giỏi lắm!' : `❌ Đáp án đúng: ${q.options[q.correct]}`}
+            {answered === q.correct ? <><Icon name="check" size={18} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.options[q.correct]}</>}
           </div>
         )}
       </div>
@@ -1072,13 +1073,13 @@ export default function LessonDetailPage() {
             <i className="fas fa-arrow-left me-1"></i>Lộ trình
           </button>
           <div className="d-flex align-items-center gap-3 flex-wrap">
-            <span style={{ fontSize: '2.5rem' }}>{lesson.icon}</span>
+            <span style={{ fontSize: '2.5rem' }} className="emoji-big"><Emoji e={lesson.icon} size={48} /></span>
             <div>
               <h2 className="fw-bold mb-1">{lesson.title}</h2>
               <p className="text-muted mb-1">{lesson.description}</p>
-              <span className={`badge badge-level-${lesson.level}`}>{lesson.level === 'beginner' ? '🟢 Cơ bản' : lesson.level === 'intermediate' ? '🟡 Trung cấp' : '🔴 Nâng cao'}</span>
+              <span className={`badge badge-level-${lesson.level}`}>{lesson.level === 'beginner' ? <><Icon name="dotGreen" size={12} /> Cơ bản</> : lesson.level === 'intermediate' ? <><Icon name="dotYellow" size={12} /> Trung cấp</> : <><Icon name="dotRed" size={12} /> Nâng cao</>}</span>
               {userData.completedLessons.includes(lesson.id) && (
-                <span className="badge bg-success ms-2">✅ Đã hoàn thành</span>
+                <span className="badge bg-success ms-2"><Icon name="check" size={12} /> Đã hoàn thành</span>
               )}
             </div>
           </div>
@@ -1127,7 +1128,7 @@ export default function LessonDetailPage() {
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <div className="d-flex align-items-center gap-2">
-                        <span style={{ fontSize: '1.5rem' }}>{v.illustration || lesson.icon}</span>
+                        <span style={{ fontSize: '1.5rem' }}><Emoji e={v.illustration || lesson.icon} size={28} /></span>
                         <div>
                           <h5 className="fw-bold text-cowdi-primary mb-0">{v.word}</h5>
                           <small className="text-muted font-monospace">{v.phonetic}</small>
@@ -1135,14 +1136,14 @@ export default function LessonDetailPage() {
                       </div>
                       <div className="d-flex gap-1">
                         <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.word)} title="Nghe phát âm">
-                          🔊
+                          <Icon name="sound" size={14} />
                         </button>
                         <button
                           className={`btn btn-sm ${status === 'learned' ? 'btn-success' : status === 'learning' ? 'btn-outline-warning' : 'btn-outline-secondary'}`}
                           onClick={() => setWordStatus(v.word, status === 'learned' ? 'new' : status === 'learning' ? 'learned' : 'learning')}
                           title={status === 'learned' ? 'Đã thuộc' : status === 'learning' ? 'Đang học' : 'Đánh dấu học'}
                         >
-                          {status === 'learned' ? '✅' : status === 'learning' ? '📖' : '➕'}
+                          {status === 'learned' ? <Icon name="check" size={14} /> : status === 'learning' ? <Icon name="book" size={14} /> : <Icon name="plus" size={14} />}
                         </button>
                       </div>
                     </div>
@@ -1150,7 +1151,7 @@ export default function LessonDetailPage() {
                     <div className="bg-light rounded p-2 d-flex align-items-center gap-2">
                       <small className="fst-italic text-muted flex-grow-1">"{v.example}"</small>
                       <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.example)} title="Nghe ví dụ" style={{ flexShrink: 0 }}>
-                        🔊
+                        <Icon name="sound" size={14} />
                       </button>
                     </div>
                   </div>
@@ -1166,7 +1167,7 @@ export default function LessonDetailPage() {
         <div className="d-flex flex-column align-items-center">
           <div className="mb-3 text-muted">
             <span className="fw-bold">{fcIndex + 1}</span> / {vocab.length}
-            {fcMastered.size > 0 && <span className="ms-3 text-success fw-bold">✅ {fcMastered.size} đã thuộc</span>}
+            {fcMastered.size > 0 && <span className="ms-3 text-success fw-bold"><Icon name="check" size={16} /> {fcMastered.size} đã thuộc</span>}
           </div>
           <div className="flashcard-wrapper" onClick={() => {
             const willFlip = !fcFlipped;
@@ -1185,10 +1186,10 @@ export default function LessonDetailPage() {
           }}>
             <div className={`flashcard-inner ${fcFlipped ? 'flipped' : ''}`}>
               <div className="flashcard-front text-center">
-                <span style={{ fontSize: '2.5rem' }} className="mb-2">{vocab[fcIndex].illustration || lesson.icon}</span>
+                <span style={{ fontSize: '2.5rem' }} className="mb-2 emoji-big"><Emoji e={vocab[fcIndex].illustration || lesson.icon} size={48} /></span>
                 <h2 className="fw-bold mb-1">{vocab[fcIndex].word}</h2>
                 <p className="mb-0 opacity-75">{vocab[fcIndex].phonetic}</p>
-                <small className="mt-2 opacity-50">👆 Nhấn để lật</small>
+                <small className="mt-2 opacity-50"><Icon name="point" size={14} /> Nhấn để lật</small>
               </div>
               <div className="flashcard-back text-center">
                 <h3 className="fw-bold text-cowdi-primary mb-2">{vocab[fcIndex].meaning}</h3>
@@ -1197,7 +1198,7 @@ export default function LessonDetailPage() {
                   <p className="mb-0 small" style={{ color: '#6c5ce7' }}>
                     {fcExampleVi[vocab[fcIndex].example]
                       ? <>→ <span className="fst-italic">{fcExampleVi[vocab[fcIndex].example]}</span></>
-                      : <span className="text-muted opacity-75">{fcTranslating ? '⏳ Đang dịch…' : '🌐 Bấm nút bên dưới để dịch'}</span>}
+                      : <span className="text-muted opacity-75">{fcTranslating ? <><Icon name="hourglass" size={13} /> Đang dịch…</> : <><Icon name="globe" size={13} /> Bấm nút bên dưới để dịch</>}</span>}
                   </p>
                 )}
               </div>
@@ -1211,14 +1212,14 @@ export default function LessonDetailPage() {
               className={`btn ${fcMastered.has(vocab[fcIndex].word) ? 'btn-success' : 'btn-outline-success'}`}
               onClick={() => fcToggleMastered(vocab[fcIndex].word)}
             >
-              {fcMastered.has(vocab[fcIndex].word) ? '✅ Đã thuộc' : '✅ Thuộc rồi!'}
+              {fcMastered.has(vocab[fcIndex].word) ? <><Icon name="check" size={16} /> Đã thuộc</> : <><Icon name="check" size={16} /> Thuộc rồi!</>}
             </button>
             <button className="btn btn-outline-secondary" disabled={fcIndex === vocab.length - 1} onClick={fcNext}>
               Tiếp <i className="fas fa-chevron-right"></i>
             </button>
           </div>
           <button className="btn btn-sm btn-outline-secondary mt-3" onClick={() => speakWord(vocab[fcIndex].word)} title="Nghe phát âm">
-            🔊 Nghe phát âm
+            <Icon name="sound" size={14} /> Nghe phát âm
           </button>
           {vocab[fcIndex].example && (
             <div className="d-flex gap-2 mt-2 flex-wrap justify-content-center">
@@ -1227,7 +1228,7 @@ export default function LessonDetailPage() {
                 onClick={() => speakWord(vocab[fcIndex].example, 0.85, { lang: 'en-US' })}
                 title="Nghe câu ví dụ"
               >
-                🔊 Nghe câu ví dụ
+                <Icon name="sound" size={14} /> Nghe câu ví dụ
               </button>
               {!fcExampleVi[vocab[fcIndex].example] && (
                 <button
@@ -1242,7 +1243,7 @@ export default function LessonDetailPage() {
                     });
                   }}
                 >
-                  {fcTranslating ? '⏳ Đang dịch…' : '🌐 Dịch câu ví dụ'}
+                  {fcTranslating ? <><Icon name="hourglass" size={13} /> Đang dịch…</> : <><Icon name="globe" size={13} /> Dịch câu ví dụ</>}
                 </button>
               )}
               {fcExampleVi[vocab[fcIndex].example] && (
@@ -1251,7 +1252,7 @@ export default function LessonDetailPage() {
                   onClick={() => speakWord(fcExampleVi[vocab[fcIndex].example], 0.85, { lang: 'vi-VN' })}
                   title="Nghe nghĩa tiếng Việt"
                 >
-                  🔊 Nghe tiếng Việt
+                  <Icon name="sound" size={14} /> Nghe tiếng Việt
                 </button>
               )}
             </div>
@@ -1282,7 +1283,7 @@ export default function LessonDetailPage() {
             <div className="col-12" key={i}>
               <div className="card shadow-sm">
                 <div className="card-body">
-                  <h5 className="card-title fw-bold text-cowdi-primary">📖 {g.title}</h5>
+                  <h5 className="card-title fw-bold text-cowdi-primary"><Icon name="book" size={20} /> {g.title}</h5>
                   <p className="text-muted">{g.explanation}</p>
                   <div className="d-flex flex-column gap-2">
                     {g.examples.map((ex, j) => (
@@ -1290,7 +1291,7 @@ export default function LessonDetailPage() {
                         <div className="fw-bold d-flex align-items-center gap-2 flex-wrap">
                           {ex.en}
                           <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(ex.en)}>
-                            🔊
+                            <Icon name="sound" size={14} />
                           </button>
                         </div>
                         <div className="text-muted fst-italic small mt-1">→ {ex.vi}</div>
@@ -1321,7 +1322,7 @@ export default function LessonDetailPage() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
             <div className="card-body text-center py-4">
-              <div style={{ fontSize: '3.5rem' }}>🎉🎤</div>
+              <div style={{ fontSize: '3.5rem' }} className="emoji-big"><Icon name="party" size={60} /><Icon name="mic" size={60} /></div>
               <h4 className="fw-bold mt-2">Hoàn thành luyện nói!</h4>
               {(() => {
                 const scores = Object.values(speakScores);
@@ -1337,7 +1338,7 @@ export default function LessonDetailPage() {
 
           <div className="card shadow-sm mb-3">
             <div className="card-body">
-              <h6 className="fw-bold mb-3 text-cowdi-primary">📋 Kết quả từng câu</h6>
+              <h6 className="fw-bold mb-3 text-cowdi-primary"><Icon name="clipboard" size={16} /> Kết quả từng câu</h6>
               <div className="d-flex flex-column gap-2">
                 {speakSentences.map((s, i) => {
                   const sc = speakScores[i];
@@ -1360,7 +1361,7 @@ export default function LessonDetailPage() {
                         className="btn btn-sm btn-outline-cowdi"
                         title="Nghe lại"
                         onClick={() => speakWord(s.en)}
-                      >🔊</button>
+                      ><Icon name="sound" size={14} /></button>
                     </div>
                   );
                 })}
@@ -1383,7 +1384,7 @@ export default function LessonDetailPage() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
             <div className="card-body text-center py-4">
-              <div style={{ fontSize: '3rem' }}>🐮🎤</div>
+              <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="cow" size={56} /><Icon name="mic" size={56} /></div>
               <h4 className="fw-bold mt-2">Nói theo Cowdi!</h4>
               <p className="mb-0 opacity-75">Nghe → Nhấn mic → Nói → Xem điểm!</p>
             </div>
@@ -1406,7 +1407,7 @@ export default function LessonDetailPage() {
             </div>
             <div className="small text-muted mt-1">
               <span className="badge bg-success-subtle text-success">
-                ✅ {Object.keys(speakScores).length} / {speakSentences.length} câu đã chấm điểm
+                <Icon name="check" size={12} /> {Object.keys(speakScores).length} / {speakSentences.length} câu đã chấm điểm
               </span>
             </div>
           </div>
@@ -1425,14 +1426,14 @@ export default function LessonDetailPage() {
                   onClick={() => { speakWord(speakSentences[speakIdx].en); setSpeakPlaying(true); setTimeout(() => setSpeakPlaying(false), 2000); }}
                   disabled={isRecording}
                 >
-                  {speakPlaying ? '🔊 Đang phát...' : '🔊 Nghe'}
+                  {speakPlaying ? <><Icon name="sound" size={18} /> Đang phát...</> : <><Icon name="sound" size={18} /> Nghe</>}
                 </button>
                 <button
                   className="btn btn-outline-cowdi btn-lg"
                   onClick={() => speakSlow(speakSentences[speakIdx].en)}
                   disabled={isRecording}
                 >
-                  🐌 Chậm
+                  <Icon name="snail" size={18} /> Chậm
                 </button>
               </div>
 
@@ -1466,7 +1467,7 @@ export default function LessonDetailPage() {
               {/* Recording indicator */}
               {isRecording && (
                 <div className="text-danger fw-bold mb-2" style={{ animation: 'pulse 1s infinite' }}>
-                  🎙️ Đang nghe... Hãy đọc to câu trên!
+                  <Icon name="mic" size={16} /> Đang nghe... Hãy đọc to câu trên!
                 </div>
               )}
 
@@ -1501,7 +1502,7 @@ export default function LessonDetailPage() {
                       {speakResult.score}%
                     </div>
                     <div className="fw-bold mt-1" style={{ color: getScoreLabel(speakResult.score).color }}>
-                      {getScoreLabel(speakResult.score).text}
+                      <EmojiText>{getScoreLabel(speakResult.score).text}</EmojiText>
                     </div>
                   </div>
 
@@ -1541,7 +1542,7 @@ export default function LessonDetailPage() {
                       startRecording(speakSentences[speakIdx].en, speakIdx);
                     }}
                   >
-                    🔄 Thử lại
+                    <Icon name="refresh" size={14} /> Thử lại
                   </button>
                 </div>
               )}
@@ -1562,7 +1563,7 @@ export default function LessonDetailPage() {
               onClick={finalizeSpeak}
               title={Object.keys(speakScores).length === 0 ? 'Hãy đọc ít nhất 1 câu' : 'Kết thúc & nhận điểm'}
             >
-              🏁 Hoàn thành
+              <Icon name="checkered" size={16} /> Hoàn thành
             </button>
           </div>
           {/* Progress */}
@@ -1578,13 +1579,13 @@ export default function LessonDetailPage() {
           <div className="card-body p-4">
             {listenPool.length === 0 ? (
               <div className="text-center py-4">
-                <div style={{ fontSize: '3rem' }}>🎧</div>
+                <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="headphones" size={56} /></div>
                 <p className="text-muted mb-0">Bài học này chưa có câu ví dụ để luyện nghe.</p>
               </div>
             ) : listenQs.length === 0 ? (
               /* Intro / start */
               <div className="text-center py-3">
-                <div style={{ fontSize: '3rem' }}>🎧</div>
+                <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="headphones" size={56} /></div>
                 <h4 className="fw-bold mt-2">Nghe câu — luyện tai theo bài</h4>
                 <p className="text-muted small mb-3">
                   Nghe câu bằng tiếng Anh từ bài <strong>{lesson.title}</strong> rồi chọn bản dịch đúng.
@@ -1592,23 +1593,23 @@ export default function LessonDetailPage() {
                   <strong>{Math.min(10, listenPool.length)}</strong> câu.
                 </p>
                 <button className="btn btn-cowdi-primary btn-lg" onClick={startLessonListen}>
-                  🚀 Bắt đầu luyện nghe
+                  <Icon name="rocket" size={18} /> Bắt đầu luyện nghe
                 </button>
               </div>
             ) : listenDone ? (
               /* Done */
               <div className="text-center py-4">
-                <div style={{ fontSize: '4rem' }}>🎉</div>
+                <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name="party" size={72} /></div>
                 <h4 className="fw-bold mt-2">Hoàn thành!</h4>
                 <p className="lead mb-1">
                   Bạn nghe đúng <strong>{listenScore}</strong> / {listenQs.length} câu
                 </p>
                 <p className="text-muted small mb-3">
-                  +{listenQs.length * 2} XP đã được cộng vào tài khoản của bạn 🎧
+                  +{listenQs.length * 2} XP đã được cộng vào tài khoản của bạn <Icon name="headphones" size={14} />
                 </p>
                 <div className="d-flex gap-2 justify-content-center flex-wrap">
                   <button className="btn btn-outline-secondary" onClick={startLessonListen}>
-                    🔁 Luyện lại
+                    <Icon name="repeat" size={16} /> Luyện lại
                   </button>
                   <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={completeStep}>
                     Tiếp tục <Icon name="play" size={18} />
@@ -1641,8 +1642,8 @@ export default function LessonDetailPage() {
                         boxShadow: '0 6px 20px rgba(255,107,157,.25)',
                       }}
                     >
-                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }}>
-                        🔊
+                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }} className="emoji-big">
+                        <Icon name="sound" size={56} />
                       </div>
                       <p className="mb-2 opacity-90 small">Nghe câu sau và chọn nghĩa đúng</p>
                       <div className="d-flex gap-2 justify-content-center flex-wrap">
@@ -1659,7 +1660,7 @@ export default function LessonDetailPage() {
                             cursor: 'pointer',
                           }}
                         >
-                          🔊 Nghe lại
+                          <Icon name="sound" size={16} /> Nghe lại
                         </button>
                         <button
                           type="button"
@@ -1674,7 +1675,7 @@ export default function LessonDetailPage() {
                             cursor: 'pointer',
                           }}
                         >
-                          🐢 Chậm
+                          <Icon name="turtle" size={16} /> Chậm
                         </button>
                         {listenPicked !== null && (
                           <button
@@ -1690,7 +1691,7 @@ export default function LessonDetailPage() {
                               cursor: 'default',
                             }}
                           >
-                            📝 {q.sentence}
+                            <Icon name="note" size={16} /> {q.sentence}
                           </button>
                         )}
                       </div>
@@ -1721,8 +1722,8 @@ export default function LessonDetailPage() {
                             >
                               <strong className="me-2">{String.fromCharCode(65 + i)}.</strong>
                               {opt}
-                              {showResult && isCorrect && <span className="float-end">✅</span>}
-                              {showResult && picked && !isCorrect && <span className="float-end">❌</span>}
+                              {showResult && isCorrect && <span className="float-end"><Icon name="check" size={16} /></span>}
+                              {showResult && picked && !isCorrect && <span className="float-end"><Icon name="x" size={16} /></span>}
                             </button>
                           </div>
                         );
@@ -1737,19 +1738,19 @@ export default function LessonDetailPage() {
                             className="alert mb-2 py-2"
                             style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: 12 }}
                           >
-                            ✅ <strong>Chính xác!</strong> Câu nghe: <em>"{q.sentence}"</em>
+                            <Icon name="check" size={16} /> <strong>Chính xác!</strong> Câu nghe: <em>"{q.sentence}"</em>
                           </div>
                         ) : (
                           <div
                             className="alert mb-2 py-2"
                             style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: 12 }}
                           >
-                            ❌ <strong>Chưa đúng.</strong> Đáp án: <em>"{q.options[q.correct]}"</em>
+                            <Icon name="x" size={16} /> <strong>Chưa đúng.</strong> Đáp án: <em>"{q.options[q.correct]}"</em>
                             <div className="small mt-1 text-muted">Câu nghe: "{q.sentence}"</div>
                           </div>
                         )}
                         <button className="btn btn-cowdi-primary w-100" onClick={handleListenNext}>
-                          {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : '🏁 Hoàn thành'}
+                          {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : <><Icon name="checkered" size={16} /> Hoàn thành</>}
                         </button>
                       </div>
                     )}

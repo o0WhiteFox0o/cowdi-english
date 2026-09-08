@@ -7,6 +7,8 @@ import {
   OWLBERT_IMAGES, MIMI_IMAGES, PADDY_IMAGES, STORM_IMAGES,
   SPROUT_IMAGES, PINGU_IMAGES, DRACO_IMAGES, PUMPKIN_IMAGES,
 } from '../../../data/pets';
+import Icon from '../../../components/Icon';
+import Emoji from '../../../components/Emoji';
 
 // ── TTS: phát âm tiếng Anh khi bắt được pet ──────────────────────────
 function speakWord(text) {
@@ -516,13 +518,13 @@ export default function TyperSharkGame({ onExit }) {
         </div>
         {gameState === 'playing' || gameState === 'paused' ? (
           <div style={{ display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <span>⭐ <b style={{ color: '#ffd700' }}>{score}</b></span>
-            <span style={{ color: cfg.color, fontWeight: 700 }}>{cfg.emoji} {cfg.name}</span>
+            <span><Icon name="star" size={14} /> <b style={{ color: '#ffd700' }}>{score}</b></span>
+            <span style={{ color: cfg.color, fontWeight: 700 }}><Emoji e={cfg.emoji} size={14} /> {cfg.name}</span>
             <span title="Thời gian còn lại" style={{
               color: timeLeft <= 30 ? '#ff5466' : timeLeft <= 60 ? '#ffd28f' : '#fff',
               fontWeight: 800, fontVariantNumeric: 'tabular-nums',
               animation: timeLeft <= 10 ? 'ts-pulse 0.6s ease-in-out infinite' : 'none',
-            }}>⏳ {Math.floor(timeLeft / 60)}:{String(Math.floor(timeLeft % 60)).padStart(2, '0')}</span>
+            }}><Icon name="hourglass" size={14} /> {Math.floor(timeLeft / 60)}:{String(Math.floor(timeLeft % 60)).padStart(2, '0')}</span>
           </div>
         ) : <div style={{ width: 100 }} />}
       </div>
@@ -540,7 +542,7 @@ export default function TyperSharkGame({ onExit }) {
           <p style={{ color: '#bdb0d0', maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
             Các bé Cowdi tinh nghịch đang chạy từ <b style={{ color: '#ffd28f' }}>phải sang trái</b> để trốn mất —
             gõ đúng từ tiếng Anh trên thẻ để "bắt" bé lại.
-            <br />Bạn có <b style={{ color: '#ffd28f' }}>3 phút</b> để bắt càng nhiều bé càng tốt 🐮
+            <br />Bạn có <b style={{ color: '#ffd28f' }}>3 phút</b> để bắt càng nhiều bé càng tốt <Icon name="cow" size={18} />
           </p>
 
           <div style={{
@@ -562,7 +564,7 @@ export default function TyperSharkGame({ onExit }) {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 700, color: d.color }}>
-                    <span style={{ fontSize: 22 }}>{d.emoji}</span>{d.name}
+                    <span style={{ fontSize: 22 }}><Emoji e={d.emoji} size={22} /></span>{d.name}
                   </div>
                   <div style={{ fontSize: 12, color: '#8ea8c8', marginTop: 4 }}>{d.desc}</div>
                   <div style={{ fontSize: 11, color: '#667', marginTop: 2 }}>
@@ -587,7 +589,7 @@ export default function TyperSharkGame({ onExit }) {
               boxShadow: `0 4px 26px ${cfg.color}66`, marginTop: 4,
             }}
           >
-            🎮 Bắt đầu · {cfg.name}
+            <Icon name="gamepad" size={20} /> Bắt đầu · {cfg.name}
           </button>
         </div>
       )}
@@ -599,12 +601,12 @@ export default function TyperSharkGame({ onExit }) {
             padding: '6px 18px', background: 'rgba(0,0,0,0.35)', fontSize: 12,
             color: '#8ea8c8', gap: 8,
           }}>
-            <span>🎯 Bắt được <b style={{ color: '#ffd28f' }}>{wordsKilled}</b></span>
-            <span>⚡ Combo <b style={{ color: combo >= 5 ? '#ff5ac8' : combo >= 3 ? '#ffd700' : '#fff' }}>×{combo}</b></span>
-            <span>⌨️ WPM <b style={{ color: '#8fe3ff' }}>{wpm}</b></span>
-            <span>🎯 Chính xác <b style={{ color: accuracy >= 95 ? '#28ff8a' : '#fff' }}>{accuracy}%</b></span>
-            <span>💨 Thoát <b style={{ color: misses > 0 ? '#ff7a8c' : '#fff' }}>{misses}</b></span>
-            <span>⏱️ {elapsed.toFixed(0)}s · Ramp ×{rampMult.toFixed(2)}</span>
+            <span><Icon name="target" size={12} /> Bắt được <b style={{ color: '#ffd28f' }}>{wordsKilled}</b></span>
+            <span><Icon name="bolt" size={12} /> Combo <b style={{ color: combo >= 5 ? '#ff5ac8' : combo >= 3 ? '#ffd700' : '#fff' }}>×{combo}</b></span>
+            <span><Icon name="keyboard" size={12} /> WPM <b style={{ color: '#8fe3ff' }}>{wpm}</b></span>
+            <span><Icon name="target" size={12} /> Chính xác <b style={{ color: accuracy >= 95 ? '#28ff8a' : '#fff' }}>{accuracy}%</b></span>
+            <span><Icon name="wind" size={12} /> Thoát <b style={{ color: misses > 0 ? '#ff7a8c' : '#fff' }}>{misses}</b></span>
+            <span><Icon name="timer" size={12} /> {elapsed.toFixed(0)}s · Ramp ×{rampMult.toFixed(2)}</span>
           </div>
 
           <div
@@ -633,7 +635,7 @@ export default function TyperSharkGame({ onExit }) {
               <div style={{
                 position: 'absolute', left: 6, top: '50%', transform: 'translateY(-50%) rotate(-90deg)',
                 transformOrigin: 'left', fontSize: 11, letterSpacing: 4, color: 'rgba(255,80,100,0.55)',
-              }}>⚠ HÀNG RÀO · DANGER</div>
+              }}><Icon name="warning" size={12} /> HÀNG RÀO · DANGER</div>
             </div>
 
             <div className="ts-bubbles" aria-hidden />
@@ -724,12 +726,12 @@ export default function TyperSharkGame({ onExit }) {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14,
                 backdropFilter: 'blur(4px)',
               }}>
-                <div style={{ fontSize: 52 }}>⏸</div>
+                <div style={{ fontSize: 52 }} className="emoji-big"><Icon name="pause" size={52} /></div>
                 <div style={{ fontSize: 24, fontWeight: 700 }}>Tạm dừng</div>
                 <div style={{ fontSize: 13, color: '#8ea8c8' }}>Esc hoặc nút bên dưới để tiếp tục</div>
                 <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
-                  <button onClick={togglePause} style={btnPrimary(cfg.color)}>▶ Tiếp tục</button>
-                  <button onClick={onExit} style={btnGhost}>🏠 Thoát</button>
+                  <button onClick={togglePause} style={btnPrimary(cfg.color)}><Icon name="play" size={16} /> Tiếp tục</button>
+                  <button onClick={onExit} style={btnGhost}><Icon name="home" size={16} /> Thoát</button>
                 </div>
               </div>
             )}
@@ -761,7 +763,7 @@ export default function TyperSharkGame({ onExit }) {
               background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)',
               color: '#fff', borderRadius: 10, cursor: 'pointer',
             }} title="Esc">
-              {gameState === 'playing' ? '⏸' : '▶'}
+              {gameState === 'playing' ? <Icon name="pause" size={18} /> : <Icon name="play" size={18} />}
             </button>
           </div>
         </>
@@ -877,7 +879,7 @@ function GameOverPanel({
       justifyContent: 'flex-start', minHeight: '80vh', gap: 16, textAlign: 'center',
       padding: '24px 16px 40px', position: 'relative', zIndex: 2,
     }}>
-      <div style={{ fontSize: 56 }}>🏁</div>
+      <div style={{ fontSize: 56 }} className="emoji-big"><Icon name="checkered" size={56} /></div>
       <h2 style={{ fontSize: 30, fontWeight: 800, color: '#ffd28f', margin: 0 }}>
         Hết giờ! Tổng kết 3 phút
       </h2>
@@ -898,7 +900,7 @@ function GameOverPanel({
             padding: 12, borderRadius: 12,
             background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
           }}>
-            <div style={{ fontSize: 22 }}>{s.icon}</div>
+            <div style={{ fontSize: 22 }}><Emoji e={s.icon} size={22} /></div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#fff' }}>{s.value}</div>
             <div style={{ fontSize: 11, color: '#aab' }}>{s.label}</div>
           </div>
@@ -921,7 +923,7 @@ function GameOverPanel({
           marginBottom: 10, flexWrap: 'wrap', gap: 8,
         }}>
           <h3 style={{ fontSize: 18, fontWeight: 800, color: '#ffd28f', margin: 0 }}>
-            🏆 Bảng xếp hạng
+            <Icon name="trophy" size={18} /> Bảng xếp hạng
           </h3>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {[
@@ -962,7 +964,7 @@ function GameOverPanel({
             {filtered.slice(0, 10).map((e, i) => {
               const isMe = e.name === playerName
                 && e.score === score && e.difficultyKey === cfg.key;
-              const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+              const medal = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : null;
               return (
                 <div key={`${e.date}-${i}`} style={{
                   display: 'grid', gridTemplateColumns: '40px 1fr 70px 70px 70px',
@@ -972,7 +974,7 @@ function GameOverPanel({
                   fontSize: 13,
                 }}>
                   <span style={{ fontWeight: 800, color: i < 3 ? '#ffd28f' : '#fff' }}>
-                    {medal || `${i + 1}`}
+                    {medal ? <Icon name={medal} size={16} /> : `${i + 1}`}
                   </span>
                   <span style={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     <b style={{ color: isMe ? '#ffd28f' : '#fff' }}>{e.name}</b>
@@ -989,9 +991,9 @@ function GameOverPanel({
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={onReplay} style={btnPrimary(cfg.color)}>🔄 Chơi lại · {cfg.name}</button>
-        <button onClick={onChangeDiff} style={btnGhost}>🎚️ Đổi độ khó</button>
-        <button onClick={onExit} style={btnGhost}>🏠 Menu</button>
+        <button onClick={onReplay} style={btnPrimary(cfg.color)}><Icon name="refresh" size={16} /> Chơi lại · {cfg.name}</button>
+        <button onClick={onChangeDiff} style={btnGhost}><Icon name="slider" size={16} /> Đổi độ khó</button>
+        <button onClick={onExit} style={btnGhost}><Icon name="home" size={16} /> Menu</button>
       </div>
 
       <div style={{ fontSize: 11, color: '#667', marginTop: 4 }}>
