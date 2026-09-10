@@ -117,8 +117,11 @@ router.put('/progress', requireAuth, async (req, res) => {
           daily_journal)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
-         total_xp          = VALUES(total_xp),
-         available_xp      = VALUES(available_xp),
+         -- XP lifetime chỉ tăng; XP đã tiêu (total - available) chỉ tăng → client cũ/stale không thể "hồi" ví
+         available_xp      = GREATEST(0, CAST(GREATEST(total_xp, VALUES(total_xp)) AS SIGNED)
+                               - GREATEST(CAST(total_xp AS SIGNED) - CAST(available_xp AS SIGNED),
+                                          CAST(VALUES(total_xp) AS SIGNED) - CAST(VALUES(available_xp) AS SIGNED))),
+         total_xp          = GREATEST(total_xp, VALUES(total_xp)),
          streak            = VALUES(streak),
          last_active_date  = VALUES(last_active_date),
          lessons_completed = VALUES(lessons_completed),
@@ -134,7 +137,8 @@ router.put('/progress', requireAuth, async (req, res) => {
          srs_data          = VALUES(srs_data),
          checkpoint_scores = VALUES(checkpoint_scores),
          skill_xp          = VALUES(skill_xp),
-         daily_journal     = VALUES(daily_journal)`,
+         daily_journal     = VALUES(daily_journal),
+         updated_at        = CURRENT_TIMESTAMP`,
       params
     );
     res.json({ ok: true });
@@ -674,12 +678,12 @@ router.get('/rankings', async (req, res) => {
 //   - Mỗi từ vựng đã thuộc             : 8
 //   - Mỗi quiz hoàn thành              : 12
 //   - Mỗi quiz đạt điểm tối đa         : 30  (chất lượng)
-//   - Streak (cap 365 ngày)            : 25 / ngày  (kiên trì)
+//   - Streak dài nhất (cap 365 ngày)  : 25 / ngày  (kiên trì — lấy kỷ lục, không lấy chuỗi hiện tại)
 //   - Mỗi ngày học khác nhau           : 8
 //   - Mỗi thành tựu                    : 120
 function computeRankScore(e) {
   const xpCapped = Math.min(e.totalXP || 0, 50000);
-  const streakCapped = Math.min(e.streak || 0, 365);
+  const streakCapped = Math.min(e.bestStreak || 0, 365);
   return Math.round(
     xpCapped * 0.4 +
     (e.lessonsCompleted || 0) * 50 +
@@ -690,6 +694,23 @@ function computeRankScore(e) {
     (e.activeDaysCount || 0) * 8 +
     (e.achievementCount || 0) * 120
   );
+}
+
+// active_days lưu chuỗi Date.toDateString() ("Wed Sep 10 2026").
+// Trả về { current, best }: chuỗi liên tiếp kết thúc hôm nay/hôm qua & chuỗi dài nhất từng đạt.
+function computeStreaks(activeDays) {
+  const days = [...new Set((activeDays || [])
+    .map((s) => Math.floor(new Date(s).getTime() / 86400000))
+    .filter((n) => Number.isFinite(n)))].sort((a, b) => a - b);
+  let best = 0, run = 0;
+  for (let i = 0; i < days.length; i++) {
+    run = i > 0 && days[i] - days[i - 1] === 1 ? run + 1 : 1;
+    if (run > best) best = run;
+  }
+  const today = Math.floor(Date.now() / 86400000);
+  const last = days[days.length - 1];
+  const current = last != null && today - last <= 1 ? run : 0;
+  return { current, best };
 }
 
 router.get('/student-rankings', async (req, res) => {
@@ -708,10 +729,12 @@ router.get('/student-rankings', async (req, res) => {
       const achList = typeof row.achievements === 'string' ? JSON.parse(row.achievements || '[]') : (row.achievements || []);
       const activeDays = typeof row.active_days === 'string' ? JSON.parse(row.active_days || '[]') : (row.active_days || []);
       const pet = parsePetSummary(row.pet_data);
+      const streaks = computeStreaks(Array.isArray(activeDays) ? activeDays : []);
       const e = {
         nickname: row.nickname || pd?.nickname || row.display_name || 'Ẩn danh',
         totalXP: row.total_xp || 0,
-        streak: row.streak || 0,
+        streak: streaks.current,
+        bestStreak: Math.max(streaks.best, streaks.current),
         lessonsCompleted: row.lessons_completed || 0,
         quizzesCompleted: row.quizzes_completed || 0,
         perfectQuizzes: row.perfect_quizzes || 0,
@@ -727,7 +750,7 @@ router.get('/student-rankings', async (req, res) => {
     const sortMap = {
       score: (a, b) => b.rankScore - a.rankScore,
       xp: (a, b) => b.totalXP - a.totalXP,
-      streak: (a, b) => b.streak - a.streak,
+      streak: (a, b) => (b.bestStreak - a.bestStreak) || (b.streak - a.streak),
       lessons: (a, b) => b.lessonsCompleted - a.lessonsCompleted,
       words: (a, b) => b.wordsLearned - a.wordsLearned,
       quizzes: (a, b) => b.quizzesCompleted - a.quizzesCompleted,

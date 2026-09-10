@@ -824,9 +824,14 @@ export default function LessonDetailPage() {
       setListenPicked(null);
     } else {
       setListenDone(true);
-      addXP(listenQs.length * 2);
+      // XP theo số câu đúng (không phải số câu), lần ôn lại nhận 1/3
+      const isRepeat = userData.completedLessons.includes(lesson.id);
+      const raw = listenScore * 3 + (listenScore === listenQs.length ? 10 : 0);
+      const xp = Math.max(2, Math.round(isRepeat ? raw / 3 : raw));
+      addXP(xp);
+      addSkillXP('listening', xp);
       play('celebration');
-      showToast(`Hoàn thành nghe câu! +${listenQs.length * 2} XP 🎧`, 'success');
+      showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} XP 🎧`, 'success');
     }
   }
 
@@ -838,8 +843,9 @@ export default function LessonDetailPage() {
       return;
     }
     const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    // XP = avg% × số câu đã đọc × 0.2 (vd: avg 80%, 5 câu → 80 XP)
-    const xp = Math.max(5, Math.round(avg * scores.length * 0.2));
+    // XP = avg% × số câu đã đọc × 0.2 (vd: avg 80%, 5 câu → 80 XP); ôn lại bài đã xong nhận 1/3
+    const isRepeat = userData.completedLessons.includes(lesson.id);
+    const xp = Math.max(5, Math.round(avg * scores.length * 0.2 * (isRepeat ? 1 / 3 : 1)));
     addXP(xp);
     addSkillXP('speaking', xp);
     speakAwardedRef.current = true;
@@ -918,15 +924,25 @@ export default function LessonDetailPage() {
       setFinished(true);
       const finalScore = wasCorrect ? score + 1 : score;
       const isPerfect = finalScore === quiz.length;
-      const xp = finalScore * 10;
+      const isFirst = !userData.completedLessons.includes(lesson.id);
+      // Lần đầu hoàn thành: 10 XP/câu + thưởng 60 XP (+30 nếu trọn điểm), 25 coin.
+      // Làm lại: 1/3 XP để ôn tập vẫn có ý nghĩa nhưng không farm được.
+      const base = finalScore * 10 + (isPerfect ? 30 : 0);
+      const xp = isFirst ? base + 60 : Math.max(5, Math.round(base / 3));
+      const coins = isFirst ? 25 : 5;
       addXP(xp);
       markLessonCompleted(lesson.id);
       incrementQuizzes(isPerfect);
       onLessonComplete();
-      addCoins(10);
+      addCoins(coins);
       play('celebration');
       spawnConfetti(confettiRef);
-      showToast(`+${xp} XP! +10 🪙 Bạn đã hoàn thành bài học! 🎉`, 'success');
+      showToast(
+        isFirst
+          ? `+${xp} XP! +${coins} 🪙 Bạn đã hoàn thành bài học! 🎉`
+          : `Ôn lại tốt! +${xp} XP, +${coins} 🪙 ${isPerfect ? '· Trọn điểm 💯' : ''}`,
+        'success'
+      );
     }
   }
 

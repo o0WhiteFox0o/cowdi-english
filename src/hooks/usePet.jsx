@@ -70,6 +70,43 @@ function savePetData(data, userId) {
   localStorage.setItem(getPetStorageKey(userId), JSON.stringify(data));
 }
 
+// Merge local vs remote: các giá trị chỉ tăng (XP pet, coins đã kiếm/đã tiêu, bộ sưu tập,
+// item, thành tựu) lấy max/union → không thể "hồi" coin hay mất XP pet sau F5.
+function mergePetData(local, remote) {
+  const l = { ...DEFAULT_PET_DATA, ...(local || {}) };
+  const r = { ...DEFAULT_PET_DATA, ...(remote || {}) };
+  const collection = {};
+  const ids = new Set([...Object.keys(l.collection || {}), ...Object.keys(r.collection || {})]);
+  for (const id of ids) {
+    const a = l.collection?.[id];
+    const b = r.collection?.[id];
+    if (!a || !b) { collection[id] = a || b; continue; }
+    const newer = (a.needsUpdatedAt || '') >= (b.needsUpdatedAt || '') ? a : b;
+    const skills = { listening: 0, speaking: 0, reading: 0, writing: 0 };
+    for (const k of Object.keys(skills)) skills[k] = Math.max(a.skills?.[k] || 0, b.skills?.[k] || 0);
+    collection[id] = {
+      ...newer,
+      skills,
+      totalXpEarned: Math.max(a.totalXpEarned || 0, b.totalXpEarned || 0),
+      evolution: Math.max(a.evolution || 0, b.evolution || 0),
+    };
+  }
+  const totalCoinsEarned = Math.max(l.totalCoinsEarned || 0, r.totalCoinsEarned || 0);
+  const spentOf = (d) => Math.max(0, (d.totalCoinsEarned || 0) - (d.coins || 0));
+  const coins = Math.max(0, totalCoinsEarned - Math.max(spentOf(l), spentOf(r)));
+  const latestTouch = (d) => Object.values(d.collection || {}).reduce((m, p) => (p.needsUpdatedAt || '') > m ? p.needsUpdatedAt : m, '');
+  const newerRoot = latestTouch(l) >= latestTouch(r) ? l : r;
+  return {
+    ...newerRoot,
+    collection,
+    coins,
+    totalCoinsEarned,
+    ownedItems: [...new Set([...(l.ownedItems || []), ...(r.ownedItems || [])])],
+    petAchievements: [...new Set([...(l.petAchievements || []), ...(r.petAchievements || [])])],
+    activePetId: collection[newerRoot.activePetId] ? newerRoot.activePetId : (Object.keys(collection)[0] || null),
+  };
+}
+
 // ── Đảm bảo luôn có pet khởi tạo (Cowdi) ──────────────────────────────────
 function ensureInitialPet(data) {
   if (Object.keys(data.collection).length > 0) return data;
@@ -102,6 +139,16 @@ export function PetProvider({ children }) {
   const currentUserIdRef = useRef(null);
   // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại
   const readyRef = useRef(!user);
+  const petDataRef = useRef(petData);
+  petDataRef.current = petData;
+  const pendingSyncRef = useRef(false);
+
+  const pushPetData = useCallback((data, { keepalive = false } = {}) => {
+    if (!user) return Promise.resolve();
+    return authFetch('/api/pet-data', { method: 'PUT', body: JSON.stringify(data), keepalive })
+      .then((r) => { if (r.ok) pendingSyncRef.current = false; })
+      .catch(() => {});
+  }, [user, authFetch]);
 
   // ── Load pet data on user change ─────────────────────────────────────────
   useEffect(() => {
@@ -120,9 +167,8 @@ export function PetProvider({ children }) {
       .then((remote) => {
         const local = loadPetData(uid);
         let merged;
-        if (remote && Object.keys(remote.collection || {}).length >= Object.keys(local.collection || {}).length) {
-          merged = { ...DEFAULT_PET_DATA, ...remote };
-          merged.collection = migratePetCollection(merged.collection);
+        if (remote && typeof remote === 'object') {
+          merged = mergePetData(local, { ...remote, collection: migratePetCollection(remote.collection) });
         } else {
           merged = local;
         }
@@ -140,15 +186,28 @@ export function PetProvider({ children }) {
     if (!readyRef.current) return; // Chưa load xong – không ghi đè
     savePetData(petData, user?.id || null);
     if (user) {
+      pendingSyncRef.current = true;
       clearTimeout(syncTimerRef.current);
-      syncTimerRef.current = setTimeout(() => {
-        authFetch('/api/pet-data', {
-          method: 'PUT',
-          body: JSON.stringify(petData),
-        }).catch(() => {});
-      }, 3000);
+      syncTimerRef.current = setTimeout(() => pushPetData(petData), 3000);
     }
   }, [petData]);
+
+  // Flush khi rời trang / ẩn tab để không mất thay đổi trong 3s debounce
+  useEffect(() => {
+    if (!user) return;
+    const flush = () => {
+      if (!pendingSyncRef.current || !readyRef.current) return;
+      clearTimeout(syncTimerRef.current);
+      pushPetData(petDataRef.current, { keepalive: true });
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [user, pushPetData]);
 
   // ── Reset daily/weekly quests ────────────────────────────────────────────
   useEffect(() => {

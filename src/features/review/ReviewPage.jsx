@@ -224,10 +224,14 @@ export default function ReviewPage() {
       setStep('ask');
     } else {
       const totalReviewed = idx + 1;
-      addXP(totalReviewed * 3);
+      // Ôn SRS là hoạt động học cốt lõi (tự giới hạn theo số từ đến hạn) → thưởng cao:
+      // 6 XP/từ + 2 XP mỗi từ nhớ được (không "again"), + 20 nếu nhớ hết.
+      const remembered = sessionScore.easy + sessionScore.good + sessionScore.hard + (quality >= 3 ? 1 : 0);
+      const xp = totalReviewed * 6 + remembered * 2 + (remembered === totalReviewed ? 20 : 0);
+      addXP(xp);
       setSessionDone(true);
       play('celebration');
-      showToast(`Ôn tập xong ${totalReviewed} từ! +${totalReviewed * 3} XP 🎉`, 'success');
+      showToast(`Ôn tập xong ${totalReviewed} từ! +${xp} XP 🎉`, 'success');
     }
   }
 

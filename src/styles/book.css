@@ -69,6 +69,12 @@ h1, h2, h3, h4, h5, h6,
   letter-spacing: 0.01em;
   color: var(--ink);
 }
+/* Big titles get a bolder marker face; accents get a brush face */
+h1, .h1, h2, .h2, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.005em;
+}
+.font-brush { font-family: var(--font-brush); }
 h1, .h1 { font-size: 2.4rem; }
 h2, .h2 { font-size: 2rem; }
 h3, .h3 { font-size: 1.65rem; }
@@ -297,7 +303,8 @@ h5, .h5 { font-size: 1.25rem; }
   text-align: center;
   color: #4a3410;
   position: relative;
-  transform: rotate(-1deg);
+  transform: rotate(-7deg);
+  margin: 8px 10px 4px;
 }
 .book-plaque small {
   display: block;
@@ -308,7 +315,7 @@ h5, .h5 { font-size: 1.25rem; }
 }
 .book-plaque strong {
   display: block;
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: 1.7rem;
   line-height: 1.05;
   font-weight: 400;
@@ -316,7 +323,7 @@ h5, .h5 { font-size: 1.25rem; }
 }
 .book-plaque em {
   display: block;
-  font-family: var(--font-hand);
+  font-family: var(--font-brush);
   font-style: normal;
   font-size: 0.9rem;
   opacity: .9;
@@ -439,10 +446,10 @@ h5, .h5 { font-size: 1.25rem; }
   font-family: var(--font-hand);
   font-size: .98rem;
   line-height: 1.3;
-  transform: rotate(-2deg);
+  transform: rotate(-10deg);
   box-shadow: 0 6px 12px rgba(0,0,0,0.18);
   position: relative;
-  margin-top: -6px;
+  margin: 10px 16px 14px;
   text-align: left;
 }
 .book-note::before {
@@ -454,7 +461,7 @@ h5, .h5 { font-size: 1.25rem; }
   background: rgba(255,255,255,0.55);
   border: 1px solid rgba(0,0,0,0.06);
 }
-.book-note b { display: block; font-size: 1.05rem; margin-bottom: 2px; }
+.book-note b { display: block; font-family: var(--font-brush); font-size: 1.05rem; margin-bottom: 2px; }
 
 /* ============================================
    PAGE TOP — HUD pills (streak / level / pet)
@@ -750,7 +757,7 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
   color: #5a4a1a;
   font-family: var(--font-hand);
   font-size: 1.05rem;
-  transform: rotate(-1deg);
+  transform: rotate(-12deg);
 }
 
 /* Toasts */
@@ -1027,7 +1034,7 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
   margin-bottom: 18px;
 }
 .journal-title {
-  font-family: var(--font-hand);
+  font-family: var(--font-display);
   font-size: 2.9rem;
   line-height: 1;
   color: var(--ink);
@@ -1040,7 +1047,7 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23F6D365' stroke='%233A3040' stroke-width='2.2' stroke-linejoin='round' d='M16 3l3.9 8 8.6 1.2-6.3 6.1 1.6 8.7L16 22.8 8.2 27l1.6-8.7L3.5 12.2l8.6-1.2z'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 .journal-sub {
-  font-family: var(--font-hand);
+  font-family: var(--font-brush);
   font-size: 1.15rem;
   color: var(--ink-soft);
   margin: 0 0 12px;
@@ -1050,7 +1057,8 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
   overflow: hidden;
   border: 2px solid #fff;
   box-shadow: 0 6px 14px rgba(40,26,14,0.22);
-  transform: rotate(.6deg);
+  transform: rotate(8deg);
+  margin: 18px 22px 10px;
   aspect-ratio: 16 / 7;
   background: var(--sky);
 }
@@ -1114,7 +1122,8 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
   border: 1px solid var(--paper-line);
   padding: 10px 10px 8px;
   box-shadow: 0 6px 14px rgba(40,60,90,0.18);
-  transform: rotate(-1.2deg);
+  transform: rotate(-9deg);
+  margin: 14px 12px 18px;
   text-decoration: none;
   color: var(--ink);
   display: block;
@@ -1220,8 +1229,9 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
 .journal-pet-av.locked .journal-pet-av-ring { opacity: .5; filter: grayscale(1); border-style: dashed; }
 .journal-pet-av span { display: block; font-family: var(--font-hand); font-size: .85rem; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Sticky notes row */
-.journal-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+/* Sticky notes row — strongly tilted (12–15°); extra gap/padding so rotated
+   bounding boxes don't overlap neighbours or clip the card edge */
+.journal-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; padding: 22px 12px 26px; }
 .journal-note {
   background: #fff7c2;
   color: #5a4a1a;
@@ -1237,12 +1247,19 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
 }
 .journal-note.mint { background: #e6f2d8; color: #3b5227; }
 .journal-note.rose { background: #f8e3d6; color: #5c3a25; }
-.journal-note:nth-child(1) { transform: rotate(-.8deg); }
-.journal-note:nth-child(2) { transform: rotate(.6deg); }
-.journal-note:nth-child(3) { transform: rotate(-.4deg); }
-.journal-note b { display: block; font-size: 1.15rem; margin-bottom: 2px; }
+.journal-note:nth-child(1) { transform: rotate(-13deg); }
+.journal-note:nth-child(2) { transform: rotate(12deg); }
+.journal-note:nth-child(3) { transform: rotate(-15deg); }
+.journal-note b { display: block; font-family: var(--font-brush); font-size: 1.15rem; margin-bottom: 2px; }
 .journal-note ul { margin: 0; padding-left: 1.1em; }
 .journal-note .n-ico { position: absolute; right: 10px; bottom: 8px; display: flex; opacity: .9; }
+/* Small screens: stack notes, alternate left/right like scattered post-its */
+@media (max-width: 767.98px) {
+  .journal-notes { grid-template-columns: 1fr; gap: 30px; padding: 26px 18px 28px; }
+  .journal-note { width: 78%; }
+  .journal-note:nth-child(odd) { justify-self: start; }
+  .journal-note:nth-child(even) { justify-self: end; }
+}
 
 .journal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -1258,14 +1275,13 @@ hr { border-top: 1.5px dashed var(--paper-line); opacity: 1; }
 @media (max-width: 991.98px) {
   .journal-header { grid-template-columns: 1fr; gap: 12px; }
   .journal-title { font-size: 2.3rem; }
-  .journal-banner { aspect-ratio: 16 / 6; transform: none; }
+  .journal-banner { aspect-ratio: 16 / 6; transform: rotate(3deg); margin: 10px 14px 6px; }
 }
 @media (max-width: 575.98px) {
   .journal-grid { grid-template-columns: 1fr; gap: 12px; }
   .journal-grid > .span-2 { grid-column: auto; }
   .journal-pet-card { grid-column: auto; display: block; }
   .journal-pet-card .journal-needs { margin-top: 10px; }
-  .journal-notes { grid-template-columns: 1fr; }
   .journal-overview { grid-template-columns: 1fr; }
   .journal-kv { grid-template-columns: 1fr; }
   .journal-title { font-size: 2rem; }

@@ -53,8 +53,16 @@
   --cowdi-primary-light: #A3D67A;
   --cowdi-secondary: var(--orange);
   --cowdi-bg: var(--paper);
-  --font: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-hand: 'Patrick Hand', 'Nunito', cursive;
+  /* ── Handwriting font set (all support Vietnamese) ──
+     --font          body copy (Mali — legible handwriting, 4 weights)
+     --font-hand     UI labels, small headings (Patrick Hand)
+     --font-display  big titles h1/h2, brand (Itim — bubbly marker)
+     --font-brush    accents & sticky-note headings (Sriracha — brush) */
+  --font: 'Mali', 'Patrick Hand', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-hand: 'Patrick Hand', 'Mali', cursive;
+  --font-display: 'Itim', 'Patrick Hand', 'Mali', cursive;
+  --font-brush: 'Sriracha', 'Itim', 'Patrick Hand', cursive;
+  --bs-body-font-family: var(--font);
 
   /* ── Typography scale ──
      Root 24px (≈150% so với Bootstrap default 16px) để toàn bộ rem-based
@@ -73,6 +81,7 @@ html {
 
 body {
   font-family: var(--font) !important;
+  font-weight: 500; /* Mali 400 is thin at body size */
   background-color: var(--cowdi-bg);
   font-size: 1rem;
   line-height: var(--cowdi-line-height);

@@ -36,14 +36,16 @@ registerRoute(
 );
 
 // ── 3. Runtime caching ──────────────────────────────────────────────────────
-// API GET (progress, pet-data, stats) — stale-while-revalidate
+// API GET (progress, pet-data, stats) — network first: dữ liệu tiền/XP phải mới,
+// chỉ dùng cache khi offline (stale-while-revalidate từng làm ví XP "hồi" sau F5)
 registerRoute(
   ({ url, request }) =>
     request.method === 'GET' &&
     url.origin === self.location.origin &&
     /^\/api\/(progress|pet-data|my-stats|user)/.test(url.pathname),
-  new StaleWhileRevalidate({
+  new NetworkFirst({
     cacheName: 'cowdi-api-cache',
+    networkTimeoutSeconds: 6,
     plugins: [
       new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 60 * 60 }),
     ],

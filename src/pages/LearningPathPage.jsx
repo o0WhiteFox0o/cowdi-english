@@ -166,11 +166,14 @@ export default function LearningPathPage() {
         const total = testQuestions.length;
         const pct = finalScore / total;
         const passed = pct >= testUnit.checkpoint.passRate;
+        // Thưởng "vượt mốc" chỉ nhận 1 lần; làm lại checkpoint đã đạt → 1/3 XP, không coin thưởng
+        const alreadyPassed = !!userData.checkpointScores?.[testUnit.id]?.passed;
         saveCheckpointScore(testUnit.id, finalScore, total);
-        const xp = finalScore * 10 + (passed ? 50 : 0);
+        const base = finalScore * 10 + (passed && !alreadyPassed ? 80 : 0) + (pct >= 1 ? 20 : 0);
+        const xp = alreadyPassed ? Math.max(5, Math.round(base / 3)) : base;
         addXP(xp);
         incrementQuizzes(pct >= 1);
-        addCoins(passed ? 30 : 5);
+        addCoins(passed && !alreadyPassed ? 40 : passed ? 10 : 5);
         setTestFinished(true);
         showToast(passed ? `Vượt qua! +${xp} XP 🎉` : `Chưa đạt – cần ≥70%. Cố gắng thêm! 💪`, passed ? 'success' : 'warning');
       }

@@ -39,8 +39,13 @@ const DEFAULT_DATA = {
 };
 
 // ── Daily Journal helpers ──────────────────────────────────
-const JOURNAL_KEYS = ['lessons', 'quizzes', 'perfectQuizzes', 'words', 'reviews', 'xp'];
-const EMPTY_JOURNAL_ENTRY = { lessons: 0, quizzes: 0, perfectQuizzes: 0, words: 0, reviews: 0, xp: 0 };
+const JOURNAL_KEYS = ['lessons', 'quizzes', 'perfectQuizzes', 'words', 'reviews', 'xp', 'gameXp'];
+const EMPTY_JOURNAL_ENTRY = { lessons: 0, quizzes: 0, perfectQuizzes: 0, words: 0, reviews: 0, xp: 0, gameXp: 0 };
+
+// XP từ mini-game bị giới hạn mỗi ngày để học (lesson/practice/review) luôn
+// "có giá" hơn chơi. Vượt trần → chỉ nhận 20% (vẫn có phản hồi, không farm được).
+export const GAME_XP_DAILY_CAP = 120;
+const GAME_XP_OVERFLOW_RATE = 0.2;
 
 function todayKey() {
   const d = new Date();
@@ -249,10 +254,12 @@ function mergeProgress(local, remote) {
   const localTime = local._lastModified ? new Date(local._lastModified).getTime() : 0;
   const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
 
-  // Nếu remote cũ hơn local → giữ local
-  if (localTime > remoteTime) return local;
+  // Luôn merge (mọi field đều dùng max/union) — không "return local" sớm để
+  // không mất dữ liệu từ thiết bị khác. Bên mới hơn chỉ quyết định các field
+  // không thể merge (dailyTasks, streak...).
+  const base = localTime > remoteTime ? local : remote;
 
-  // Nếu remote mới hơn → dùng remote nhưng merge wordStatus (giữ "learned" > "learning" > "new")
+  // Merge wordStatus (giữ "learned" > "learning" > "new")
   const mergedWordStatus = { ...(local.wordStatus || {}) };
   const remoteWordStatus = remote.wordStatus || {};
   const statusPriority = { learned: 3, learning: 2, new: 1 };
@@ -264,13 +271,16 @@ function mergeProgress(local, remote) {
     }
   }
 
-  // Dùng remote làm base nhưng với merged wordStatus
+  // Dùng bên mới hơn làm base nhưng với merged wordStatus
   const cleaned = Object.fromEntries(
-    Object.entries(remote).filter(([, v]) => v != null)
+    Object.entries(base).filter(([, v]) => v != null)
   );
   const merged = { ...DEFAULT_DATA, ...cleaned };
   merged.wordStatus = mergedWordStatus;
   merged.wordsLearned = Object.values(mergedWordStatus).filter((s) => s === 'learned').length;
+  // Các bộ đếm chỉ tăng → lấy max
+  merged.quizzesCompleted = Math.max(local.quizzesCompleted || 0, remote.quizzesCompleted || 0);
+  merged.perfectQuizzes = Math.max(local.perfectQuizzes || 0, remote.perfectQuizzes || 0);
 
   // Giữ completedLessons nhiều hơn
   const localLessons = new Set(local.completedLessons || []);
@@ -284,13 +294,10 @@ function mergeProgress(local, remote) {
 
   // Giữ XP cao nhất (lifetime)
   merged.totalXP = Math.max(local.totalXP || 0, remote.totalXP || 0);
-  // Ví availableXP: lấy GIÁ TRỊ MỚI NHẤT theo _lastModified (vì ví có thể giảm khi tiêu).
-  // Nếu local mới hơn → ưu tiên local, ngược lại dùng remote. Mặc định remote.
-  if (localTime > remoteTime) {
-    merged.availableXP = Math.min(local.availableXP ?? local.totalXP ?? 0, merged.totalXP);
-  } else {
-    merged.availableXP = Math.min(remote.availableXP ?? remote.totalXP ?? 0, merged.totalXP);
-  }
+  // Ví availableXP: số XP ĐÃ TIÊU (totalXP - availableXP) chỉ tăng, không bao giờ giảm,
+  // nên lấy max(spent) của 2 bên là an toàn bất kể timestamp/cache cũ.
+  const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
+  merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
   const mergedSrs = { ...(local.srsData || {}) };
@@ -364,7 +371,8 @@ function isSyncDirty(userId) {
 
 function saveUserData(data, userId) {
   try {
-    const compacted = compactData(data);
+    // Giữ _lastModified trong localStorage để mergeProgress so được local vs remote
+    const compacted = { ...compactData(data), _lastModified: data._lastModified || new Date().toISOString() };
     localStorage.setItem(getStorageKey(userId), JSON.stringify(compacted));
   } catch (e) {
     if (e?.name === 'QuotaExceededError' || e?.code === 22) {
@@ -394,6 +402,32 @@ export function UserProvider({ children }) {
   const currentUserIdRef = useRef(null);
   // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại
   const readyRef = useRef(!user);
+  // Bản sao state mới nhất cho các hàm cần đọc đồng bộ (spendXP) & flush khi rời trang
+  const userDataRef = useRef(userData);
+  userDataRef.current = userData;
+  const pendingSyncRef = useRef(false);
+
+  const pushProgress = useCallback((data, { keepalive = false } = {}) => {
+    if (!user) return Promise.resolve();
+    const payload = compactData(data);
+    return authFetch('/api/progress', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+      keepalive,
+    })
+      .then((r) => {
+        if (r.ok) { clearSyncDirty(user.id); pendingSyncRef.current = false; return; }
+        // 413 = payload quá lớn → gửi chỉ wordStatus (nhẹ, <50KB)
+        if (r.status === 413) {
+          return authFetch('/api/word-status', {
+            method: 'PUT',
+            keepalive,
+            body: JSON.stringify({ wordStatus: data.wordStatus, wordsLearned: data.wordsLearned }),
+          }).then((r2) => { if (r2.ok) clearSyncDirty(user.id); });
+        }
+      })
+      .catch(() => {/* silent fail – localStorage là fallback */});
+  }, [user, authFetch]);
 
   // ── Khi user thay đổi (login/logout) – load đúng dữ liệu ───────────────────
   useEffect(() => {
@@ -460,30 +494,28 @@ export function UserProvider({ children }) {
     // Debounce sync lên backend 3 giây sau lần thay đổi cuối
     if (user) {
       markSyncDirty(user.id); // Đánh dấu có thay đổi chưa sync
+      pendingSyncRef.current = true;
       clearTimeout(syncTimerRef.current);
-      syncTimerRef.current = setTimeout(() => {
-        const payload = compactData(userData);
-        authFetch('/api/progress', {
-          method: 'PUT',
-          body: JSON.stringify(payload),
-        })
-          .then((r) => {
-            if (r.ok) { clearSyncDirty(user.id); return; }
-            // 413 = payload quá lớn → gửi chỉ wordStatus (nhẹ, <50KB)
-            if (r.status === 413) {
-              return authFetch('/api/word-status', {
-                method: 'PUT',
-                body: JSON.stringify({
-                  wordStatus: userData.wordStatus,
-                  wordsLearned: userData.wordsLearned,
-                }),
-              }).then((r2) => { if (r2.ok) clearSyncDirty(user.id); });
-            }
-          })
-          .catch(() => {/* silent fail – localStorage là fallback */});
-      }, 3000);
+      syncTimerRef.current = setTimeout(() => pushProgress(userData), 3000);
     }
   }, [userData]);
+
+  // ── Flush ngay khi rời trang / ẩn tab để không mất thay đổi trong 3s debounce ──
+  useEffect(() => {
+    if (!user) return;
+    const flush = () => {
+      if (!pendingSyncRef.current || !readyRef.current) return;
+      clearTimeout(syncTimerRef.current);
+      pushProgress(userDataRef.current, { keepalive: true });
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [user, pushProgress]);
 
   // ── Update streak on mount ───────────────────────────────────────────────
   useEffect(() => {
@@ -510,33 +542,54 @@ export function UserProvider({ children }) {
     });
   }, []);
 
-  const addXP = useCallback((amount) => {
-    if (!amount || amount <= 0) return;
+  /**
+   * Cộng XP. `source`:
+   *  - 'learn' (mặc định): lesson / practice / review / checkpoint / duel — không giới hạn
+   *  - 'game': mini-game — bị trần GAME_XP_DAILY_CAP mỗi ngày, vượt trần chỉ nhận 20%
+   * Trả về số XP thực nhận để UI hiển thị.
+   */
+  const addXP = useCallback((amount, source = 'learn') => {
+    if (!amount || amount <= 0) return 0;
+    let granted = Math.round(amount);
+    if (source === 'game') {
+      const usedToday = userDataRef.current?.dailyJournal?.[todayKey()]?.gameXp || 0;
+      const room = Math.max(0, GAME_XP_DAILY_CAP - usedToday);
+      const full = Math.min(granted, room);
+      const overflow = Math.round((granted - full) * GAME_XP_OVERFLOW_RATE);
+      granted = full + overflow;
+    }
+    if (granted <= 0) return 0;
     setUserData((prev) => {
-      const dailyJournal = bumpJournal(prev, 'xp', amount);
+      let dailyJournal = bumpJournal(prev, 'xp', granted);
+      if (source === 'game') dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'gameXp', granted);
       // Cộng cả lifetime (totalXP) và ví có thể tiêu (availableXP)
       const next = {
         ...prev,
-        totalXP: (prev.totalXP || 0) + amount,
-        availableXP: (prev.availableXP || 0) + amount,
+        totalXP: (prev.totalXP || 0) + granted,
+        availableXP: (prev.availableXP || 0) + granted,
         dailyJournal,
       };
       return checkAchievements(next);
     });
+    return granted;
   }, []);
+
+  // XP mini-game còn có thể nhận đủ 100% hôm nay (để UI hiển thị)
+  const gameXpRemainingToday = Math.max(0, GAME_XP_DAILY_CAP - (userData.dailyJournal?.[todayKey()]?.gameXp || 0));
 
   // Tiêu XP từ ví. Trả về true nếu thành công, false nếu không đủ.
   // Lifetime totalXP KHÔNG bị giảm (giữ thành tích cho leaderboard).
+  // Kiểm tra qua ref (đồng bộ) thay vì dựa vào side-effect trong updater của React.
   const spendXP = useCallback((amount) => {
     if (!amount || amount <= 0) return false;
-    let ok = false;
+    if ((userDataRef.current?.availableXP || 0) < amount) return false;
+    userDataRef.current = { ...userDataRef.current, availableXP: (userDataRef.current.availableXP || 0) - amount };
     setUserData((prev) => {
       const have = prev.availableXP || 0;
       if (have < amount) return prev;
-      ok = true;
       return { ...prev, availableXP: have - amount };
     });
-    return ok;
+    return true;
   }, []);
 
   const addSkillXP = useCallback((skill, amount) => {
@@ -695,6 +748,7 @@ export function UserProvider({ children }) {
     userData,
     addXP,
     spendXP,
+    gameXpRemainingToday,
     addSkillXP,
     markLessonCompleted,
     incrementQuizzes,

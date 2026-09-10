@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LESSONS } from '../../data/lessons';
 import { EXAM_LESSONS } from '../../data/lessons';
 import { usePet } from '../../hooks/usePet';
-import { useUser } from '../../hooks/useUser';
+import { useUser, GAME_XP_DAILY_CAP } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
@@ -11,6 +11,13 @@ import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
 
 const COWDI_JUNIOR_IMG = '/assets/images/pets/Cowdi/Cowdi_junior.webp';
+
+// XP mini-game đi qua trần ngày (useUser.addXP source='game'); trả về chuỗi toast phù hợp
+function gameXpMsg(granted, raw, tail = '') {
+  if (granted <= 0) return `Hôm nay đã đạt trần XP mini-game — vào Bài tập/Ôn tập để nhận thêm nhé! ${tail}`;
+  if (granted < raw) return `+${granted} XP (đã gần trần XP game hôm nay) ${tail}`;
+  return `+${granted} XP! ${tail}`;
+}
 
 function resolvePetImg(speciesId, xp) {
   if (!speciesId) return null;
@@ -145,6 +152,7 @@ const GAMES = [
 export default function MiniGamePage() {
   const [game, setGame] = useState(null);
   const { petData } = usePet();
+  const { gameXpRemainingToday } = useUser();
 
   // Battle state
   const [playerHp, setPlayerHp] = useState(100);
@@ -209,6 +217,12 @@ export default function MiniGamePage() {
         <div className="text-center mb-4">
           <h2 className="fw-bold"><Icon name="gamepad" size={32} /> Mini Games</h2>
           <p className="text-muted">Chơi game vui mà vẫn học tiếng Anh!</p>
+          <div className="d-inline-flex align-items-center gap-2 book-slip" style={{ fontSize: '.9rem' }}>
+            <Icon name="star" size={18} />
+            <span>XP game hôm nay: <b>{GAME_XP_DAILY_CAP - gameXpRemainingToday}/{GAME_XP_DAILY_CAP}</b></span>
+            <div className="book-bar" style={{ width: 90 }}><i style={{ width: `${Math.round(((GAME_XP_DAILY_CAP - gameXpRemainingToday) / GAME_XP_DAILY_CAP) * 100)}%` }} /></div>
+            {gameXpRemainingToday === 0 && <small className="text-muted">— hết trần, học để nhận thêm!</small>}
+          </div>
         </div>
         <div className="row g-3 justify-content-center" style={{ maxWidth: 700, margin: '0 auto' }}>
           {GAMES.map((g) => (
@@ -317,12 +331,12 @@ function WordCatchGame({ onCorrect, onWrong }) {
   function nextRound() {
     if (round + 1 >= total) {
       setFinished(true);
-      const xp = score * 5;
-      addXP(xp);
+      const raw = score * 3;
+      const xp = addXP(raw, 'game');
       onQuizComplete('vocab', score, total);
       if (score >= 8) addCoins(15);
       score >= 8 ? play('perfect') : play('celebration');
-      showToast(`+${xp} XP! ${score >= 8 ? '+15🪙' : ''} 🎮`, 'success');
+      showToast(gameXpMsg(xp, raw, `${score >= 8 ? '+15🪙' : ''} 🎮`), 'success');
     } else {
       setRound((r) => r + 1);
       generateRound();
@@ -438,12 +452,13 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
     setTimeout(() => {
       if (round + 1 >= total) {
         setFinished(true);
-        const xp = score * 8;
-        addXP(xp);
-        onQuizComplete('sentences', correct ? score + 1 : score, total);
-        if (score >= 6) addCoins(15);
-        score >= 6 ? play('perfect') : play('celebration');
-        showToast(`+${xp} XP! 🧩`, 'success');
+        const finalScore = correct ? score + 1 : score;
+        const raw = finalScore * 5;
+        const xp = addXP(raw, 'game');
+        onQuizComplete('sentences', finalScore, total);
+        if (finalScore >= 6) addCoins(15);
+        finalScore >= 6 ? play('perfect') : play('celebration');
+        showToast(gameXpMsg(xp, raw, '🧩'), 'success');
       } else {
         setRound((r) => r + 1);
         generateRound();
@@ -594,12 +609,12 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
           setTimeout(() => {
             setFinished(true);
             const stars = moves <= pairCount * 2 ? 3 : moves <= pairCount * 3 ? 2 : 1;
-            const xp = stars * 15;
-            addXP(xp);
+            const raw = stars * 10;
+            const xp = addXP(raw, 'game');
             onQuizComplete('vocab', pairCount, pairCount);
             if (stars >= 2) addCoins(10);
             play('celebration');
-            showToast(`+${xp} XP! ${stars >= 2 ? '+10🪙' : ''} 🃏`, 'success');
+            showToast(gameXpMsg(xp, raw, `${stars >= 2 ? '+10🪙' : ''} 🃏`), 'success');
           }, 400);
         }
       } else {
@@ -731,12 +746,12 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
       if (round + 1 >= total) {
         setFinished(true);
         const finalScore = isCorrect ? score + 1 : score;
-        const xp = finalScore * 8;
-        addXP(xp);
+        const raw = finalScore * 5;
+        const xp = addXP(raw, 'game');
         onQuizComplete('vocab', finalScore, total);
         if (finalScore >= 7) addCoins(15);
         finalScore >= 7 ? play('perfect') : play('celebration');
-        showToast(`+${xp} XP! ${finalScore >= 7 ? '+15🪙' : ''} 🐝`, 'success');
+        showToast(gameXpMsg(xp, raw, `${finalScore >= 7 ? '+15🪙' : ''} 🐝`), 'success');
       } else {
         setRound((r) => r + 1);
         generateRound();
@@ -864,13 +879,13 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
     if (phase !== 'playing') return;
     if (timeLeft <= 0) {
       setPhase('finished');
-      const xp = score * 4;
-      addXP(xp);
+      const raw = score * 2;
+      const xp = addXP(raw, 'game');
       onQuizComplete('vocab', score, Math.max(total, score));
       if (score >= 15) addCoins(20);
       else if (score >= 8) addCoins(10);
       play('celebration');
-      showToast(`+${xp} XP! ⚡`, 'success');
+      showToast(gameXpMsg(xp, raw, '⚡'), 'success');
       return;
     }
     globalRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
@@ -1059,12 +1074,12 @@ function WordScrambleGame({ onCorrect, onWrong }) {
           if (round + 1 >= total) {
             setFinished(true);
             const finalScore = correct ? score + 1 : score;
-            const xp = finalScore * 6;
-            addXP(xp);
+            const raw = finalScore * 4;
+            const xp = addXP(raw, 'game');
             onQuizComplete('vocab', finalScore, total);
             if (finalScore >= 7) addCoins(12);
             finalScore >= 7 ? play('perfect') : play('celebration');
-            showToast(`+${xp} XP! ${finalScore >= 7 ? '+12🪙' : ''} 🔤`, 'success');
+            showToast(gameXpMsg(xp, raw, `${finalScore >= 7 ? '+12🪙' : ''} 🔤`), 'success');
           } else {
             setRound((r) => r + 1);
             generateRound();

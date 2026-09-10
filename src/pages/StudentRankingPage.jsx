@@ -10,7 +10,7 @@ import Emoji from '../components/Emoji';
 const SORT_TABS = [
   { id: 'score',        icon: '🏆', label: 'Tổng điểm', info: true },
   { id: 'xp',           icon: '⭐', label: 'Tổng XP' },
-  { id: 'streak',       icon: '🔥', label: 'Streak' },
+  { id: 'streak',       icon: '🔥', label: 'Streak kỷ lục' },
   { id: 'lessons',      icon: '📚', label: 'Bài học' },
   { id: 'words',        icon: '🎴', label: 'Từ vựng' },
   { id: 'quizzes',      icon: '🎯', label: 'Quiz' },
@@ -30,7 +30,7 @@ const SCORE_WEIGHTS = {
 };
 function computeRankScore(e) {
   const xpCapped = Math.min(e.totalXP || 0, 50000);
-  const streakCapped = Math.min(e.streak || 0, 365);
+  const streakCapped = Math.min(e.bestStreak ?? e.streak ?? 0, 365);
   return Math.round(
     xpCapped * SCORE_WEIGHTS.xp +
     (e.lessonsCompleted || 0) * SCORE_WEIGHTS.lessons +
@@ -41,6 +41,18 @@ function computeRankScore(e) {
     (e.activeDaysCount || 0) * SCORE_WEIGHTS.activeDays +
     (e.achievementCount || 0) * SCORE_WEIGHTS.achievements
   );
+}
+
+// Chuỗi ngày học dài nhất từng đạt (activeDays lưu Date.toDateString())
+function bestStreakOf(activeDays) {
+  const days = [...new Set((activeDays || []).map((s) => Math.floor(new Date(s).getTime() / 86400000)))]
+    .filter(Number.isFinite).sort((a, b) => a - b);
+  let best = 0, run = 0;
+  for (let i = 0; i < days.length; i++) {
+    run = i > 0 && days[i] - days[i - 1] === 1 ? run + 1 : 1;
+    if (run > best) best = run;
+  }
+  return best;
 }
 
 function resolvePetAvatar(pet) {
@@ -67,7 +79,7 @@ function getStatValue(entry, sort) {
   switch (sort) {
     case 'score':        return { value: entry.rankScore ?? computeRankScore(entry), unit: 'điểm', icon: '🏆' };
     case 'xp':           return { value: entry.totalXP, unit: 'XP', icon: '⭐' };
-    case 'streak':       return { value: entry.streak, unit: 'ngày', icon: '🔥' };
+    case 'streak':       return { value: entry.bestStreak ?? entry.streak, unit: 'ngày kỷ lục', icon: '🔥' };
     case 'lessons':      return { value: entry.lessonsCompleted, unit: 'bài', icon: '📚' };
     case 'words':        return { value: entry.wordsLearned, unit: 'từ', icon: '🎴' };
     case 'quizzes':      return { value: entry.quizzesCompleted, unit: 'quiz', icon: '🎯' };
@@ -103,6 +115,7 @@ export default function StudentRankingPage() {
     const base = {
       totalXP: userData.totalXP,
       streak: userData.streak,
+      bestStreak: Math.max(userData.streak || 0, bestStreakOf(userData.activeDays)),
       lessonsCompleted: userData.lessonsCompleted,
       quizzesCompleted: userData.quizzesCompleted,
       perfectQuizzes: userData.perfectQuizzes,
@@ -164,7 +177,7 @@ export default function StudentRankingPage() {
             <div className="row g-2">
               {[
                 { icon: '⭐', label: 'XP', value: myStats.totalXP, color: '#FFC107' },
-                { icon: '🔥', label: 'Streak', value: `${myStats.streak} ngày`, color: '#F44336' },
+                { icon: '🔥', label: 'Streak', value: `${myStats.streak} ngày · kỷ lục ${myStats.bestStreak}`, color: '#F44336' },
                 { icon: '📚', label: 'Bài học', value: myStats.lessonsCompleted, color: '#2196F3' },
                 { icon: '🃏', label: 'Từ vựng', value: myStats.wordsLearned, color: '#9C27B0' },
                 { icon: '🎯', label: 'Quiz', value: myStats.quizzesCompleted, color: '#4CAF50' },
@@ -223,7 +236,7 @@ export default function StudentRankingPage() {
                 { label: 'Từ vựng',      weight: '× 8',   icon: '🎴', note: 'vốn từ' },
                 { label: 'Quiz',         weight: '× 12',  icon: '🎯', note: 'luyện tập' },
                 { label: 'Quiz tối đa',  weight: '× 30',  icon: '💯', note: 'chất lượng' },
-                { label: 'Streak (cap 365)', weight: '× 25', icon: '🔥', note: 'kiên trì' },
+                { label: 'Streak kỷ lục (cap 365)', weight: '× 25', icon: '🔥', note: 'kiên trì' },
                 { label: 'Ngày học',     weight: '× 8',   icon: '📅', note: 'đều đặn' },
                 { label: 'Thành tích',   weight: '× 120', icon: '🏅', note: 'cột mốc lớn' },
               ].map((row, idx) => (
@@ -272,7 +285,7 @@ export default function StudentRankingPage() {
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{entry.nickname}</div>
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">
-                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · <Icon name="fire" size={12} /> {entry.streak}
+                        Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · <Icon name="fire" size={12} /> {entry.bestStreak ?? entry.streak}
                       </div>
                     </div>
                     <div className="text-end">
