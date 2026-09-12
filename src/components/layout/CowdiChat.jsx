@@ -22,6 +22,7 @@ const PAGE_TIPS = {
   '/leaderboard':   ['🏆 Bảng xếp hạng! Xem bạn đang đứng ở đâu so với mọi người.', '📈 Học đều mỗi ngày để leo hạng nhanh hơn!'],
   '/duel':          ['⚔️ Đấu trường! Tạo thách đấu hoặc chấp nhận thách đấu từ người khác.', '🎯 Trả lời đúng để pet tấn công — trả lời sai thì bị tấn công!', '🔥 Combo 3 câu đúng liên tiếp để gây sát thương cực mạnh!'],
   '/mini-games':    ['🎮 Mini games vui mà vẫn học được! Thử hết 6 game xem bạn thích cái nào.', '🐝 Spelling Bee khó nhất đó — nghe và đánh vần chính xác!'],
+  '/typing':        ['⌨️ Pet Word Run! Gõ từ thật nhanh để ngăn các bé Cowdi trốn thoát!', '🚀 Luyện đánh máy tiếng Anh cực vui — tốc độ càng nhanh thì bắt được càng nhiều!'],
   '/student-ranking': ['👥 Xếp hạng học sinh! Xem bạn bè cùng lớp đang học như thế nào.', '💪 Thi đua với bạn bè để cùng tiến bộ!'],
   '/account':       ['👤 Trang tài khoản — cập nhật thông tin và cài đặt của bạn.'],
 };

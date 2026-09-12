@@ -1,4 +1,4 @@
-﻿import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
 import BookShell from './components/layout/BookShell';
 import CowdiChat from './components/layout/CowdiChat';
@@ -26,6 +26,7 @@ const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
+const TypingPage          = lazy(() => import('./pages/TypingPage'));
 
 function PageFallback() {
   return (
@@ -79,6 +80,7 @@ export default function App() {
             <Route path="/student-ranking" element={<StudentRankingPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/mini-games" element={<MiniGamePage />} />
+            <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />
             <Route path="/i/:code" element={<InvitePage />} />

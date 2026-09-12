@@ -6,9 +6,9 @@ import { useUser, GAME_XP_DAILY_CAP } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
-import TyperSharkGame from './TyperShark/TyperSharkGame';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
+
 
 const COWDI_JUNIOR_IMG = '/assets/images/pets/Cowdi/Cowdi_junior.webp';
 
@@ -146,7 +146,6 @@ const GAMES = [
   { id: 'spelling-bee',    icon: '🐝', title: 'Spelling Bee',      desc: 'Nghe từ và đánh vần chính xác!',       color: '#E17055' },
   { id: 'speed-match',     icon: '⚡', title: 'Tốc độ ánh sáng',  desc: 'Ghép từ nhanh nhất trong 60s!',        color: '#0984E3' },
   { id: 'word-scramble',   icon: '🔤', title: 'Xáo chữ',          desc: 'Sắp xếp lại chữ cái thành từ đúng!',  color: '#A29BFE' },
-  { id: 'typershark',      icon: '🐮', title: 'Pet Word Run',     desc: 'Gõ từ để bắt các bé Cowdi đang chạy trốn!', color: '#ff8fb1' },
 ];
 
 export default function MiniGamePage() {
@@ -242,10 +241,7 @@ export default function MiniGamePage() {
     );
   }
 
-  // TyperShark — full-screen, bypass battle arena
-  if (game === 'typershark') {
-    return <TyperSharkGame onExit={() => setGame(null)} />;
-  }
+  // (Pet Word Run / TyperShark đã có trang riêng tại /typing)
 
   return (
     <div className="fade-in">

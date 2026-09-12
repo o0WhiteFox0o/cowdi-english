@@ -79,7 +79,7 @@ export function usePush() {
         });
       }
 
-      // 4. Gửi lên server
+      // 4. Gửi lên server — server mong { endpoint, keys: { p256dh, auth } }
       const json = sub.toJSON();
       const res = await fetch(`${API}/api/push/subscribe`, {
         method: 'POST',
@@ -89,9 +89,10 @@ export function usePush() {
         },
         body: JSON.stringify({
           endpoint: sub.endpoint,
-          p256dh: json.keys?.p256dh,
-          auth: json.keys?.auth,
-          userAgent: navigator.userAgent,
+          keys: {
+            p256dh: json.keys?.p256dh,
+            auth:   json.keys?.auth,
+          },
         }),
       });
       if (!res.ok) throw new Error('Không lưu được subscription');

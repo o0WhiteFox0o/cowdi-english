@@ -13,7 +13,7 @@ import { EmojiText } from '../Emoji';
 
 /* ── Route groups for highlighting the active tab/section ── */
 const LEARN_PATHS    = ['/learning-path', '/lessons', '/vocabulary', '/review'];
-const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel'];
+const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel', '/typing'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
 const ME_PATHS       = ['/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
 
@@ -31,11 +31,12 @@ const TAB_GROUPS = [
   { label: 'Luyện tập', items: [
     { to: '/practice',   icon: 'target',  label: 'Bài tập',    color: '#EA5A5A' },
     { to: '/mini-games', icon: 'gamepad', label: 'Mini-games', color: '#F48FB1' },
+    { to: '/typing',     icon: 'PET',     label: 'Đánh máy',    color: '#c44f8a' },
     { to: '/duel',       icon: 'swords',  label: 'Đấu trường', color: '#9C7BE0' },
   ]},
   { label: 'Pet', items: [
     { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
-    { to: '/collection', icon: 'redbook', label: 'Pokédex',     color: '#EA5A5A' },
+    { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
     { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
   { label: 'Sổ tay', items: [
@@ -57,13 +58,14 @@ const MOBILE_MENUS = {
   practice: [
     { icon: 'target',  label: 'Bài tập',    path: '/practice' },
     { icon: 'gamepad', label: 'Mini-games', path: '/mini-games' },
+    { icon: 'PET',     label: 'Đánh máy',    path: '/typing' },
     { icon: 'swords',  label: 'Đấu trường', path: '/duel' },
     { icon: 'medal',   label: 'Luyện thi IELTS', path: '/learning-path?tab=ielts' },
     { icon: 'flag',    label: 'Luyện thi TOEIC', path: '/learning-path?tab=toeic' },
   ],
   pet: [
     { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
-    { icon: 'redbook', label: 'Pokédex',     path: '/collection' },
+    { icon: 'redbook', label: 'Cowdi Dex',   path: '/collection' },
     { icon: 'bag',     label: 'Shop',        path: '/shop' },
   ],
   me: [
@@ -274,7 +276,7 @@ export default function BookShell({ children }) {
           <div className="book-ribbons" aria-hidden="true">
             <Link to="/learning-path" className="book-ribbon teal" title="Lộ trình học" tabIndex={-1}><Icon name="star" size={20} /></Link>
             <Link to="/pet" className="book-ribbon pink" title="Pet của tôi" tabIndex={-1}><Icon name="heart" size={20} /></Link>
-            <Link to="/collection" className="book-ribbon yellow" title="Pokédex" tabIndex={-1}><Icon name="redbook" size={20} /></Link>
+            <Link to="/collection" className="book-ribbon yellow" title="Cowdi Dex" tabIndex={-1}><Icon name="redbook" size={20} /></Link>
           </div>
         </section>
       </div>

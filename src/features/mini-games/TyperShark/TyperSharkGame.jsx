@@ -498,8 +498,11 @@ export default function TyperSharkGame({ onExit }) {
   return (
     <div style={{
       background: 'radial-gradient(ellipse at top,#0d2d4a 0%,#071a2f 45%,#02060d 100%)',
-      minHeight: '100vh', fontFamily: "'Segoe UI',sans-serif", color: '#e0e8ff',
-      position: 'relative', overflow: 'hidden',
+      position: 'fixed', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      fontFamily: "'Segoe UI',sans-serif", color: '#e0e8ff',
+      overflow: 'hidden',
+      zIndex: 1200,
     }}>
       <div className="ts-caustics" />
 
@@ -532,7 +535,7 @@ export default function TyperSharkGame({ onExit }) {
       {gameState === 'idle' && (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', minHeight: '80vh', gap: 22, textAlign: 'center',
+          justifyContent: 'center', flex: 1, gap: 22, textAlign: 'center',
           padding: '28px 20px', position: 'relative', zIndex: 2,
         }}>
           <img src={COWDI_IMAGES.super} alt="Cowdi" style={{ width: 110, height: 110, objectFit: 'contain', filter: 'drop-shadow(0 6px 24px rgba(255,180,120,0.55))' }} />
@@ -614,7 +617,7 @@ export default function TyperSharkGame({ onExit }) {
             className={shakeScreen ? 'ts-shake' : ''}
             style={{
               position: 'relative',
-              height: 'calc(100vh - 180px)',
+              flex: 1,
               overflow: 'hidden',
             }}
           >
@@ -748,7 +751,8 @@ export default function TyperSharkGame({ onExit }) {
               onChange={handleInput}
               disabled={gameState !== 'playing'}
               placeholder={lockedId ? '…tiếp tục gõ…' : 'Gõ từ tiếng Anh ở đây…'}
-              autoComplete="off" spellCheck="false" autoCapitalize="off"
+              autoComplete="off" spellCheck={false} autoCapitalize="none"
+              inputMode="text"
               style={{
                 flex: 1, padding: '12px 16px', fontSize: 18, fontWeight: 600,
                 background: 'rgba(0,30,70,0.8)',

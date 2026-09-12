@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { ACHIEVEMENTS, LEVELS, LESSONS } from '../data/lessons';
 import { PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel, SKILL_META, PET_ACHIEVEMENTS } from '../data/pets';
 import Icon, { SKILL_ICON } from '../components/Icon';
 import Emoji from '../components/Emoji';
+import RadarChart from '../components/charts/RadarChart';
 
 export default function ProgressPage() {
+  const navigate = useNavigate();
   const { userData } = useUser();
   const { petData, getActivePetWithDecay } = usePet();
   const activePet = getActivePetWithDecay();
@@ -49,6 +52,27 @@ export default function ProgressPage() {
     return { total: allWords.length, learned, learning, new: allWords.length - learned - learning };
   }, [allWords, userData.wordStatus]);
 
+  // ── Radar Chart data ─────────────────────────────────────────────────
+  const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
+  const cefr = level.level <= 5 ? 'A1' : level.level <= 10 ? 'A2' : level.level <= 15 ? 'B1' : level.level <= 20 ? 'B2' : level.level <= 25 ? 'C1' : 'C2';
+  const cefrLabel = level.level <= 5 ? 'Sơ cấp' : level.level <= 10 ? 'Tiền trung cấp' : level.level <= 15 ? 'Trung cấp' : level.level <= 20 ? 'Trung cao cấp' : level.level <= 25 ? 'Cao cấp' : 'Thành thạo';
+  const maxRef = Math.max(200, ...Object.values(sk)) * 1.2;
+  const getPct = (val) => Math.min(100, Math.round((val / maxRef) * 100));
+  const speakPct  = getPct(sk.speaking);
+  const listenPct = getPct(sk.listening);
+  const readPct   = getPct(sk.reading);
+  const writePct  = getPct(sk.writing);
+  const vocabPct  = Math.round((wordStats.learned / Math.max(1, wordStats.total)) * 100);
+  const radarData   = [speakPct, Math.round((listenPct + speakPct) / 2), listenPct, Math.round((readPct + writePct) / 2), vocabPct];
+  const radarLabels = [
+    { name: 'Phát âm',  value: `${radarData[0]}%` },
+    { name: 'Lưu loát', value: `${radarData[1]}%` },
+    { name: 'Ngữ điệu', value: `${radarData[2]}%` },
+    { name: 'Ngữ pháp', value: `${radarData[3]}%` },
+    { name: 'Từ vựng',  value: `${radarData[4]}%` },
+  ];
+  const overall = Math.round(radarData.reduce((a, b) => a + b, 0) / 5);
+
   return (
     <div className="fade-in">
       <div className="text-center mb-4">
@@ -57,7 +81,64 @@ export default function ProgressPage() {
         </h2>
       </div>
 
-      {/* Level */}
+      {/* ── Radar Chart Card (đầu trang) ── */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-body p-3 p-sm-4">
+          {/* Header row */}
+          <div className="d-flex align-items-start justify-content-between mb-3">
+            <div>
+              <h5 className="fw-bold mb-1">
+                <Icon name="target" size={18} /> Trình độ của bạn
+              </h5>
+              <small className="text-muted">CEFR: {cefrLabel}</small>
+            </div>
+            <span className="badge"
+              style={{
+                background: 'var(--leaf-pale)',
+                color: 'var(--leaf-dark)',
+                border: '2px dashed var(--leaf)',
+                fontSize: '1.1rem',
+                fontFamily: 'var(--font-hand)',
+                padding: '4px 12px',
+                borderRadius: '10px',
+              }}
+            >
+              {cefr}
+            </span>
+          </div>
+
+          {/* Radar chart — responsive width */}
+          <div className="d-flex justify-content-center">
+            <RadarChart
+              data={radarData}
+              labels={radarLabels}
+              centerText={`${overall}%`}
+            />
+          </div>
+
+          <p className="text-muted small text-center mt-2 mb-3">
+            Tiếp tục luyện tập để cải thiện khả năng tiếng Anh của bạn.
+          </p>
+
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-secondary"
+              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)' }}
+            >
+              <i className="fas fa-share me-1" /> Chia sẻ
+            </button>
+            <button
+              className="btn btn-cowdi-primary"
+              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)' }}
+              onClick={() => navigate('/learning-path')}
+            >
+              Đi đến Bài học
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Level ── */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="fw-bold mb-3"><Icon name="trophy" size={20} /> Cấp độ</h5>
@@ -83,12 +164,14 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Streak Calendar */}
+      {/* ── Streak Calendar ── */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h5 className="fw-bold mb-0"><Icon name="calendar" size={20} /> Lịch hoạt động</h5>
-            <span className="badge bg-danger" style={{ fontSize: '0.85rem' }}><Icon name="fire" size={14} /> {userData.streak} ngày streak</span>
+            <span className="badge bg-danger" style={{ fontSize: '0.85rem' }}>
+              <Icon name="fire" size={14} /> {userData.streak} ngày streak
+            </span>
           </div>
           <div className="streak-calendar">
             {calendarDays.map((d, i) => (
@@ -104,13 +187,13 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Stats grid */}
+      {/* ── Stats grid ── */}
       <div className="row g-3 mb-4">
         {[
-          { icon: '⭐', value: userData.totalXP,          label: 'Tổng XP' },
-          { icon: '📚', value: userData.lessonsCompleted,  label: 'Bài đã hoàn thành' },
-          { icon: '🎯', value: userData.quizzesCompleted,  label: 'Quiz đã làm' },
-          { icon: '💯', value: userData.perfectQuizzes,    label: 'Quiz hoàn hảo' },
+          { icon: '⭐', value: userData.totalXP,         label: 'Tổng XP' },
+          { icon: '📚', value: userData.lessonsCompleted, label: 'Bài đã hoàn thành' },
+          { icon: '🎯', value: userData.quizzesCompleted, label: 'Quiz đã làm' },
+          { icon: '💯', value: userData.perfectQuizzes,   label: 'Quiz hoàn hảo' },
         ].map((s, i) => (
           <div className="col-6 col-md-3" key={i}>
             <div className="card text-center shadow-sm h-100">
@@ -124,41 +207,7 @@ export default function ProgressPage() {
         ))}
       </div>
 
-      {/* 4-Skill Progress (User) */}
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="fw-bold mb-3"><Icon name="target" size={20} /> Kỹ năng ngôn ngữ</h5>
-          {(() => {
-            const sk = userData.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
-            const maxXP = Math.max(1, ...Object.values(sk));
-            return (
-              <div className="row g-3">
-                {Object.entries(SKILL_META).map(([key, meta]) => {
-                  const xp = sk[key] || 0;
-                  const pct = Math.round((xp / maxXP) * 100);
-                  return (
-                    <div className="col-6" key={key}>
-                      <div className="d-flex align-items-center gap-2 mb-1">
-                        <span className="fs-5"><Icon name={SKILL_ICON[key]} size={20} /></span>
-                        <span className="fw-bold small" style={{ color: meta.color }}>{meta.name}</span>
-                        <span className="text-muted small ms-auto">{xp} XP</span>
-                      </div>
-                      <div className="progress" style={{ height: '8px' }}>
-                        <div
-                          className="progress-bar"
-                          style={{ width: `${pct}%`, backgroundColor: meta.color }}
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-        </div>
-      </div>
-
-      {/* Vocabulary stats */}
+      {/* ── Vocabulary stats ── */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="fw-bold mb-3"><Icon name="cards" size={20} /> Từ vựng ({wordStats.total} từ)</h5>
@@ -190,7 +239,7 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Achievements */}
+      {/* ── Achievements ── */}
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="fw-bold mb-3">
@@ -215,7 +264,7 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Active Pet */}
+      {/* ── Active Pet ── */}
       {activePet && species && (
         <div className="card shadow-sm mb-4">
           <div className="card-body">
@@ -248,7 +297,7 @@ export default function ProgressPage() {
         </div>
       )}
 
-      {/* Pet Achievements */}
+      {/* ── Pet Achievements ── */}
       <div className="card shadow-sm">
         <div className="card-body">
           <h5 className="fw-bold mb-3">

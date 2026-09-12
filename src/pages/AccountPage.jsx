@@ -131,7 +131,7 @@ export default function AccountPage() {
                 width="90"
                 height="90"
                 className="rounded-circle border border-3 border-cowdi shadow"
-                alt={user.display_name}
+                alt={petData.nickname || user.display_name}
                 referrerPolicy="no-referrer"
               />
             ) : (
@@ -139,7 +139,7 @@ export default function AccountPage() {
                 className="rounded-circle bg-cowdi-primary d-flex align-items-center justify-content-center text-white fw-bold"
                 style={{ width: 90, height: 90, fontSize: '2rem' }}
               >
-                {user.display_name?.charAt(0)?.toUpperCase() || '?'}
+                {(petData.nickname || user.display_name)?.charAt(0)?.toUpperCase() || '?'}
               </div>
             )}
             <span
@@ -149,7 +149,13 @@ export default function AccountPage() {
               Lv.{level.level}
             </span>
           </div>
-          <h4 className="fw-bold mb-1">{user.display_name}</h4>
+          {/* Tên hiển thị: ưu tiên nickname đã đặt, fallback về tên Google */}
+          <h4 className="fw-bold mb-1">{petData.nickname || user.display_name}</h4>
+          {petData.nickname && petData.nickname !== user.display_name && (
+            <small className="text-muted d-block mb-1" style={{ fontSize: '.78rem' }}>
+              <i className="fab fa-google me-1" />Tên Google: {user.display_name}
+            </small>
+          )}
           <p className="text-muted small mb-2">
             <i className="fas fa-envelope me-1"></i>{user.email}
           </p>

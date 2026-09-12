@@ -84,7 +84,7 @@ export default function CollectionPage() {
         <div className="dex-title">
           <span className="dex-lens"><Icon name="lens" size={40} /></span>
           <div>
-            <h2 className="mb-0">Pokédex Pet</h2>
+            <h2 className="mb-0">Cowdi Dex</h2>
             <small className="text-muted">Sổ tay ghi chép mọi loài pet trong thế giới Cowdi</small>
           </div>
         </div>
@@ -284,7 +284,7 @@ function getConditionText(condition) {
       const labels = {
         halloween: '🎃 Online vào tuần lễ Halloween (25/10 – 01/11)',
         christmas: '🎄 Online vào tuần lễ Giáng sinh (20 – 26/12)',
-        buddhist:  '🪷 Online vào ngày lễ lớn của Phật giáo (Phật Đản, Vu Lan, Vía Quan Âm, Phật Thành Đạo)',
+        buddhist: '🪷 Online vào ngày lễ lớn của Phật giáo (Phật Đản, Vu Lan, Vía Quan Âm, Phật Thành Đạo)',
       };
       return labels[condition.eventId] || `Sự kiện ${condition.eventId}`;
     }
