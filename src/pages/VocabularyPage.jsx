@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { LESSONS } from '../data/lessons';
 import { VOCAB_TOPICS, getTopicWordCount } from '../data/vocab-topics';
 import { useUser } from '../hooks/useUser';
@@ -7,6 +7,7 @@ import { useToast } from '../components/layout/Toast';
 import { useSound } from '../hooks/useSound';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
+import { SpeechRecognitionAPI, scorePronunciation, getScoreLabel } from '../utils/speech';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
 export default function VocabularyPage() {
@@ -25,6 +26,13 @@ export default function VocabularyPage() {
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [search, setSearch] = useState('');
+
+  // Speech Recognition State
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [speakResult, setSpeakResult] = useState(null);
+  const [recError, setRecError] = useState('');
+  const recognitionRef = useRef(null);
 
   // Lesson-based words (original)
   const lessonWords = useMemo(() => LESSONS.flatMap((l) => l.vocabulary), []);
@@ -84,6 +92,58 @@ export default function VocabularyPage() {
 
   const speakSlow = useCallback((text) => speakWord(text, 0.55), [speakWord]);
 
+  const startRecording = useCallback((expectedText) => {
+    if (!SpeechRecognitionAPI) {
+      setRecError('Trình duyệt không hỗ trợ nhận diện giọng nói. Vui lòng dùng Chrome hoặc Edge.');
+      return;
+    }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+
+    setTranscript('');
+    setSpeakResult(null);
+    setRecError('');
+    setIsRecording(true);
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event) => {
+      const last = event.results[event.results.length - 1];
+      setTranscript(last[0].transcript);
+      if (last.isFinal) {
+        const finalText = last[0].transcript;
+        setTranscript(finalText);
+        const result = scorePronunciation(expectedText, finalText);
+        setSpeakResult(result);
+        setIsRecording(false);
+        if (result.score >= 70) play('correct');
+        else if (result.score >= 40) play('click');
+        else play('wrong');
+      }
+    };
+    recognition.onerror = (event) => {
+      setIsRecording(false);
+      if (event.error === 'no-speech') {
+        setRecError('Không nghe thấy giọng nói. Hãy nói to hơn nhé!');
+      } else if (event.error === 'not-allowed') {
+        setRecError('Trình duyệt chưa cấp quyền microphone.');
+      } else {
+        setRecError('Lỗi nhận diện giọng nói.');
+      }
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.start();
+  }, [play]);
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) recognitionRef.current.stop();
+    setIsRecording(false);
+  }, []);
+
   function openTopic(topic) {
     setSelectedTopic(topic);
     setSelectedSub(null);
@@ -110,12 +170,18 @@ export default function VocabularyPage() {
 
   function nextCard() {
     setFlipped(false);
+    setSpeakResult(null);
+    setTranscript('');
+    setRecError('');
     play('flip');
     setCardIndex((i) => (i + 1) % filteredWords.length);
   }
 
   function prevCard() {
     setFlipped(false);
+    setSpeakResult(null);
+    setTranscript('');
+    setRecError('');
     play('flip');
     setCardIndex((i) => (i - 1 + filteredWords.length) % filteredWords.length);
   }
@@ -321,7 +387,31 @@ export default function VocabularyPage() {
                     title="Đọc chậm"
                     onClick={(e) => { e.stopPropagation(); speakSlow(currentWord.word); }}
                   ><Icon name="snail" size={14} /> Chậm</button>
+                  <button
+                    className={`btn btn-sm ${isRecording ? 'btn-danger' : 'btn-outline-light'}`}
+                    title="Phát âm"
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if (isRecording) stopRecording(); 
+                      else startRecording(currentWord.word); 
+                    }}
+                  ><Icon name="mic" size={14} /> {isRecording ? 'Dừng' : 'Nói'}</button>
                 </div>
+                
+                {/* Speech Result */}
+                {(transcript || speakResult || recError) && (
+                  <div className="mt-3 p-2 rounded" style={{ background: 'rgba(255,255,255,0.1)', fontSize: '0.9rem' }}>
+                    {recError && <div className="text-warning small mb-1">{recError}</div>}
+                    {isRecording && <div className="text-info small mb-1">Đang nghe...</div>}
+                    {transcript && <div className="mb-1">Bạn nói: <i>"{transcript}"</i></div>}
+                    {speakResult && (
+                      <div style={{ color: getScoreLabel(speakResult.score).color, fontWeight: 'bold' }}>
+                        {getScoreLabel(speakResult.score).text} - {speakResult.score}%
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <small style={{ color: 'rgba(255,255,255,0.6)' }}>Nhấn để lật thẻ</small>
               </div>
               <div className="flashcard-back">
@@ -407,7 +497,12 @@ export default function VocabularyPage() {
                       <span className="fw-bold text-cowdi-primary me-2">{w.word}</span>
                       <span className="text-muted font-monospace small me-2">{w.phonetic}</span>
                       <button className="btn btn-sm btn-outline-secondary me-1" title="Đọc từ" onClick={() => speakWord(w.word)}><Icon name="sound" size={14} /></button>
-                      <button className="btn btn-sm btn-outline-secondary" title="Đọc chậm" onClick={() => speakSlow(w.word)}><Icon name="snail" size={14} /></button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" title="Đọc chậm" onClick={() => speakSlow(w.word)}><Icon name="snail" size={14} /></button>
+                      <button 
+                        className={`btn btn-sm ${isRecording && transcript === '' ? 'btn-danger' : 'btn-outline-secondary'}`} 
+                        title="Phát âm" 
+                        onClick={() => { if (isRecording) stopRecording(); else startRecording(w.word); }}
+                      ><Icon name="mic" size={14} /></button>
                       <div className="mt-1">{w.meaning}</div>
                       {(() => {
                         const list = Array.isArray(w.examples) && w.examples.length > 0

@@ -535,11 +535,12 @@ export default function TyperSharkGame({ onExit }) {
       {gameState === 'idle' && (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', flex: 1, gap: 22, textAlign: 'center',
-          padding: '28px 20px', position: 'relative', zIndex: 2,
+          flex: 1, gap: 16, textAlign: 'center',
+          padding: '20px 16px 40px', position: 'relative', zIndex: 2,
+          overflowY: 'auto', WebkitOverflowScrolling: 'touch',
         }}>
-          <img src={COWDI_IMAGES.super} alt="Cowdi" style={{ width: 110, height: 110, objectFit: 'contain', filter: 'drop-shadow(0 6px 24px rgba(255,180,120,0.55))' }} />
-          <h1 style={{ fontSize: 34, fontWeight: 800, color: '#ffd28f', margin: 0, letterSpacing: 1 }}>
+          <img src={COWDI_IMAGES.super} alt="Cowdi" style={{ width: 80, height: 80, objectFit: 'contain', filter: 'drop-shadow(0 6px 24px rgba(255,180,120,0.55))', flexShrink: 0 }} />
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: '#ffd28f', margin: 0, letterSpacing: 1, flexShrink: 0 }}>
             Pet Word Run
           </h1>
           <p style={{ color: '#bdb0d0', maxWidth: 480, lineHeight: 1.6, margin: 0 }}>
@@ -549,8 +550,8 @@ export default function TyperSharkGame({ onExit }) {
           </p>
 
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))',
-            gap: 12, maxWidth: 720, width: '100%',
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
+            gap: 10, maxWidth: 720, width: '100%', flexShrink: 0,
           }}>
             {DIFFICULTIES.map((d, i) => {
               const selected = i === diffIdx;

@@ -133,7 +133,7 @@ export default function BookShell({ children }) {
   }, [navigate]);
 
   const renderTabIcon = (icon, size = 22) => {
-    if (icon === 'PET') return <img src={petImg} alt="" />;
+    if (icon === 'PET') return <img src={petImg} alt="" style={{ width: size, height: size, objectFit: 'contain', borderRadius: '50%' }} />;
     return <Icon name={icon} size={size} />;
   };
 
