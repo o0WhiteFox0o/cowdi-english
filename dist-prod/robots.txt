@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Các trang không cần crawl
+Disallow: /admin
+Disallow: /auth-callback
+Disallow: /account
+
+# Sitemap
+Sitemap: https://cowdi.net/sitemap.xml
