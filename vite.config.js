@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/cowdi/',
+  base: '/', // Đổi từ '/cowdi/' thành '/'
   build: {
     outDir: 'dist',
     sourcemap: false,

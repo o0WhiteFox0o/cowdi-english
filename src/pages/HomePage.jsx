@@ -8,17 +8,17 @@ import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
 import { PET_REGISTRY, getPetEvolution, getPetMood, SKILL_META, DAILY_QUESTS } from '../data/pets';
-import ForestBanner from '../components/ForestBanner';
+import CowdiBetaBanner from '../components/CowdiBetaBanner';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../components/Icon';
 import Emoji from '../components/Emoji';
 
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const NEED_META = {
-  energy:    { icon: 'bolt',  name: 'Năng lượng', tone: 'gold' },
-  happiness: { icon: 'smile', name: 'Vui vẻ',     tone: 'clay' },
-  health:    { icon: 'heart', name: 'Sức khỏe',   tone: '' },
-  knowledge: { icon: 'book',  name: 'Tri thức',   tone: 'sky' },
+  energy: { icon: 'bolt', name: 'Năng lượng', tone: 'gold' },
+  happiness: { icon: 'smile', name: 'Vui vẻ', tone: 'clay' },
+  health: { icon: 'heart', name: 'Sức khỏe', tone: '' },
+  knowledge: { icon: 'book', name: 'Tri thức', tone: 'sky' },
 };
 const MOOD_LABEL = { happy: 'đang vui', normal: 'bình thường', sad: 'hơi buồn', sick: 'đang ốm' };
 
@@ -64,10 +64,10 @@ export default function HomePage() {
 
   // Goal rows (long-term)
   const goals = [
-    { icon: 'book',    name: 'Hoàn thành bài học', cur: completed.length, max: LESSONS.length },
-    { icon: 'road',    name: 'Vượt qua các Unit', cur: UNITS.filter((u) => u.lessons.every((id) => completed.includes(id))).length, max: UNITS.length },
-    { icon: 'fire',    name: 'Streak 7 ngày', cur: Math.min(7, userData.streak), max: 7, tone: 'clay' },
-    { icon: 'paw',     name: 'Sưu tập Pet', cur: owned.length, max: Object.keys(PET_REGISTRY).length },
+    { icon: 'book', name: 'Hoàn thành bài học', cur: completed.length, max: LESSONS.length },
+    { icon: 'road', name: 'Vượt qua các Unit', cur: UNITS.filter((u) => u.lessons.every((id) => completed.includes(id))).length, max: UNITS.length },
+    { icon: 'fire', name: 'Streak 7 ngày', cur: Math.min(7, userData.streak), max: 7, tone: 'clay' },
+    { icon: 'paw', name: 'Sưu tập Pet', cur: owned.length, max: Object.keys(PET_REGISTRY).length },
   ];
 
   return (
@@ -87,7 +87,7 @@ export default function HomePage() {
             )}
           </div>
         </div>
-        <div className="journal-banner"><ForestBanner /></div>
+        <div className="journal-banner"><CowdiBetaBanner /></div>
       </div>
 
       {/* ═══════════ Row 1: Tổng quan (rộng) + Pet ═══════════ */}
