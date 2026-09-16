@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { Link } from 'react-router-dom';
 import { ALL_LESSONS, TRACKS, STANDARDS } from '../data/lessons';
 import { getLessonAccess } from '../data/path';
@@ -27,6 +29,7 @@ const TRACK_COLORS = {
 };
 
 export default function LessonsPage() {
+  useSEO(SEO_CONFIGS['/lessons']);
   const { userData } = useUser();
   const [standardId, setStandardId] = useState('all'); // 'all' | 'cefr' | 'ielts' | 'toeic' | 'vstep'
   const [band, setBand] = useState('all');

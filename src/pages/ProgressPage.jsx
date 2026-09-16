@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
@@ -9,6 +11,7 @@ import Emoji from '../components/Emoji';
 import RadarChart from '../components/charts/RadarChart';
 
 export default function ProgressPage() {
+  useSEO(SEO_CONFIGS['/progress']);
   const navigate = useNavigate();
   const { userData } = useUser();
   const { petData, getActivePetWithDecay } = usePet();

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { LESSONS } from '../data/lessons';
 import { VOCAB_TOPICS, getTopicWordCount } from '../data/vocab-topics';
 import { useUser } from '../hooks/useUser';
@@ -11,6 +13,7 @@ import { SpeechRecognitionAPI, scorePronunciation, getScoreLabel } from '../util
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
 export default function VocabularyPage() {
+  useSEO(SEO_CONFIGS['/vocabulary']);
   const { userData, setWordStatus, getWordStatus } = useUser();
   const { onVocabReview } = usePet();
   const showToast = useToast();

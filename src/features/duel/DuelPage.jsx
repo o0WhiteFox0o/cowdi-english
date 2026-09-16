@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { useAuth } from '../../hooks/useAuth';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
@@ -107,6 +109,7 @@ function speakText(text, rate = 0.9) {
 // generateDuelQuiz is now imported from ../data/duel-quiz-pool
 
 export default function DuelPage() {
+  useSEO(SEO_CONFIGS['/duel']);
   const { user, authFetch } = useAuth();
   const { petData, addCoins } = usePet();
   const { addXP } = useUser();

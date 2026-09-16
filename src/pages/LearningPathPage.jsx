@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { Link, useSearchParams } from 'react-router-dom';
 import { LESSONS, QUIZ_BANK } from '../data/lessons';
 import { EXAM_LESSONS } from '../data/exam-paths';
@@ -65,6 +67,7 @@ function buildCheckpointQuestions(unit, count) {
 }
 
 export default function LearningPathPage() {
+  useSEO(SEO_CONFIGS['/learning-path']);
   const { userData, addXP, incrementQuizzes, saveCheckpointScore } = useUser();
   const { addCoins, getActivePetWithDecay } = usePet();
   const showToast = useToast();

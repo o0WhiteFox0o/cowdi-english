@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
@@ -21,6 +23,7 @@ const NEED_META = {
 const MOOD_LABEL = { happy: 'đang vui', normal: 'bình thường', sad: 'hơi buồn', sick: 'đang ốm' };
 
 export default function HomePage() {
+  useSEO(SEO_CONFIGS['/']);
   const { userData } = useUser();
   const { user, loginWithGoogle } = useAuth();
   const { petData, getActivePetWithDecay } = usePet();

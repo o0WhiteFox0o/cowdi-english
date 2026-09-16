@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { useAuth } from '../hooks/useAuth';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
@@ -89,6 +91,7 @@ function getStatValue(entry, sort) {
 }
 
 export default function StudentRankingPage() {
+  useSEO(SEO_CONFIGS['/student-ranking']);
   const { authFetch, user } = useAuth();
   const { userData } = useUser();
   const { petData } = usePet();

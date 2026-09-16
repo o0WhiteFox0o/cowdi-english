@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { useAuth } from '../hooks/useAuth';
 import Icon from '../components/Icon';
 import Emoji, { EmojiText } from '../components/Emoji';
@@ -47,6 +49,7 @@ const KPI_TILES = [
 ];
 
 export default function AdminPage() {
+  useSEO(SEO_CONFIGS['/admin']);
   const { user, authFetch } = useAuth();
   const [data, setData]     = useState(null);
   const [loading, setLoad]  = useState(true);

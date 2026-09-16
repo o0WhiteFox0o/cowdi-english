@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { QUIZ_BANK, LESSONS } from '../../data/lessons';
 import { getAllTopicWords } from '../../data/vocab-topics';
 import { LISTEN_SENTENCE_TOPICS, getListenTopic } from '../../data/quiz/sentences-quiz';
@@ -308,6 +310,7 @@ function useSpeechRec() {
 }
 
 export default function PracticePage() {
+  useSEO(SEO_CONFIGS['/practice']);
   const { addXP, addSkillXP, incrementQuizzes } = useUser();
   const { onQuizComplete, addCoins } = usePet();
   const showToast = useToast();

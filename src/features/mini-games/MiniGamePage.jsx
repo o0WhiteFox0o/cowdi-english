@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { LESSONS } from '../../data/lessons';
 import { EXAM_LESSONS } from '../../data/lessons';
 import { usePet } from '../../hooks/usePet';
@@ -149,6 +151,7 @@ const GAMES = [
 ];
 
 export default function MiniGamePage() {
+  useSEO(SEO_CONFIGS['/mini-games']);
   const [game, setGame] = useState(null);
   const { petData } = usePet();
   const { gameXpRemainingToday } = useUser();

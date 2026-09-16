@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import {
@@ -30,6 +32,7 @@ function PetArt({ src, emoji, alt, className, silhouette }) {
 }
 
 export default function CollectionPage() {
+  useSEO(SEO_CONFIGS['/collection']);
   const { petData, switchActivePet, unlockPet } = usePet();
   const { userData } = useUser();
   const [selected, setSelected] = useState(null);

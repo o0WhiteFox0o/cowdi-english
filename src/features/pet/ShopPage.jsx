@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { usePet } from '../../hooks/usePet';
 import { SHOP_ITEMS, PET_REGISTRY } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
@@ -17,6 +19,7 @@ const CATEGORIES = [
 ];
 
 export default function ShopPage() {
+  useSEO(SEO_CONFIGS['/shop']);
   const { petData, buyItem, equipItem, useFood, spendCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();

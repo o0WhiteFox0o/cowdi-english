@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 
 /**
  * Trang trung gian nhận JWT sau khi Google OAuth hoàn tất.
  * Backend redirect tới: /auth-callback?token=JWT
  */
 export default function AuthCallbackPage() {
+  useSEO(SEO_CONFIGS['/auth-callback']);
   const [params]    = useSearchParams();
   const { saveToken, user } = useAuth();
   const navigate    = useNavigate();

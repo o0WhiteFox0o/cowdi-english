@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { usePet } from '../hooks/usePet';
 import { useAuth } from '../hooks/useAuth';
 import { PET_REGISTRY, calculatePowerScore, SKILL_META, getPetEvolution } from '../data/pets';
@@ -37,6 +39,7 @@ function PetAvatarInline({ speciesId, totalXpEarned, size = 32 }) {
 }
 
 export default function LeaderboardPage() {
+  useSEO(SEO_CONFIGS['/leaderboard']);
   const { petData } = usePet();
   const { authFetch, user } = useAuth();
   const [tab, setTab] = useState('power');

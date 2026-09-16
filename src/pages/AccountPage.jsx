@@ -1,4 +1,6 @@
 import { useAuth } from '../hooks/useAuth';
+import { useSEO } from '../hooks/useSEO';
+import { SEO_CONFIGS } from '../data/seo-config';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { usePush } from '../hooks/usePush';
@@ -11,6 +13,7 @@ import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
 export default function AccountPage() {
+  useSEO(SEO_CONFIGS['/account']);
   const { user, loginWithGoogle, logout } = useAuth();
   const { userData } = useUser();
   const { petData, getActivePetWithDecay, setNickname } = usePet();

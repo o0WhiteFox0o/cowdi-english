@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { Link } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
@@ -14,6 +16,7 @@ import Icon, { SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 
 export default function PetPage() {
+  useSEO(SEO_CONFIGS['/pet']);
   const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, feedXPToPet } = usePet();
   const { userData } = useUser();
   const showToast = useToast();

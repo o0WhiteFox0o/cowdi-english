@@ -1,4 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useSEO } from '../../hooks/useSEO';
+import { SEO_CONFIGS } from '../../data/seo-config';
 import { useNavigate } from 'react-router-dom';
 import { LESSONS } from '../../data/lessons';
 import { VOCAB_TOPICS } from '../../data/vocab-topics';
@@ -158,6 +160,7 @@ function checkClozeAnswer(input, expected) {
    ────────────────────────────────────────────────────────────────── */
 
 export default function ReviewPage() {
+  useSEO(SEO_CONFIGS['/review']);
   const navigate = useNavigate();
   const { userData, reviewWord, getWordsForReview, addXP } = useUser();
   const showToast = useToast();
