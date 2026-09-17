@@ -19,7 +19,7 @@ export const SEO_CONFIGS = {
     description:
       'Học tiếng Anh mỗi ngày 5 phút qua game nuôi pet. Luyện IELTS/TOEIC, Duel bạn bè, leo bảng xếp hạng. Vào nhận trứng miễn phí!',
     keywords:
-      'học tiếng anh, nuôi pet, cowdi, ielts, toeic, từ vựng tiếng anh, game học tiếng anh, cowdi english',
+      'học tiếng anh, nuôi pet, cowdi, ielts, toeic, từ vựng tiếng anh, game học tiếng anh, cowdi english, web học tiếng anh miễn phí, web luyện từ vựng tiếng anh hàng ngày, game học từ vựng ielts, vừa chơi vừa học tiếng anh',
     ogType: 'website',
   },
 
@@ -28,7 +28,7 @@ export const SEO_CONFIGS = {
     description:
       'Hơn 100 bài học tiếng Anh theo chuẩn IELTS, TOEIC, CEFR (A1-C1), VSTEP. Lộ trình từ cơ bản đến nâng cao, bài học ngắn gọn 5–10 phút.',
     keywords:
-      'bài học tiếng anh, ielts, toeic, cefr, vstep, từ vựng, ngữ pháp, kỹ năng tiếng anh',
+      'bài học tiếng anh, ielts, toeic, cefr, vstep, từ vựng, ngữ pháp, kỹ năng tiếng anh, web học tiếng anh miễn phí',
     ogType: 'website',
   },
 
@@ -37,7 +37,7 @@ export const SEO_CONFIGS = {
     description:
       'Học từ vựng qua flashcard theo chủ đề: gia đình, công việc, du lịch, IELTS, TOEIC... Luyện phát âm, tự đánh giá ngay trên app.',
     keywords:
-      'từ vựng tiếng anh, flashcard, học từ mới, luyện phát âm, chủ đề từ vựng, ielts vocabulary',
+      'từ vựng tiếng anh, flashcard, học từ mới, luyện phát âm, chủ đề từ vựng, ielts vocabulary, web luyện từ vựng tiếng anh hàng ngày, game học từ vựng ielts',
     ogType: 'website',
   },
 
@@ -46,7 +46,7 @@ export const SEO_CONFIGS = {
     description:
       'Luyện từ vựng với quiz thông minh, hệ thống ôn tập dựa theo ghi nhớ cách khoảng (spaced repetition). Học hiệu quả, không quên từ.',
     keywords:
-      'luyện tập tiếng anh, quiz tiếng anh, spaced repetition, ôn tập từ vựng, kiểm tra tiếng anh',
+      'luyện tập tiếng anh, quiz tiếng anh, spaced repetition, ôn tập từ vựng, kiểm tra tiếng anh, web luyện từ vựng tiếng anh hàng ngày, vừa chơi vừa học tiếng anh',
     ogType: 'website',
   },
 
@@ -114,7 +114,7 @@ export const SEO_CONFIGS = {
     description:
       'Thách đấu từ vựng với bạn bè real-time. Ai trả lời nhanh và chính xác hơn sẽ thắng! Chơi ngay — hoàn toàn miễn phí.',
     keywords:
-      'duel tiếng anh, thách đấu từ vựng, pvp tiếng anh, cowdi duel, battle tiếng anh',
+      'duel tiếng anh, thách đấu từ vựng, pvp tiếng anh, cowdi duel, battle tiếng anh, vừa chơi vừa học tiếng anh, game học từ vựng ielts',
     ogType: 'website',
   },
 
@@ -122,7 +122,8 @@ export const SEO_CONFIGS = {
     title: 'Mini Games — Cowdi',
     description:
       'Luyện tiếng Anh qua các mini game vui nhộn: đoán từ, nối từ, điền từ... Học mà vui, không chán!',
-    keywords: 'mini game tiếng anh, game từ vựng, học qua game, cowdi game',
+    keywords:
+      'mini game tiếng anh, game từ vựng, học qua game, cowdi game, vừa chơi vừa học tiếng anh, game học từ vựng ielts',
     ogType: 'website',
   },
 

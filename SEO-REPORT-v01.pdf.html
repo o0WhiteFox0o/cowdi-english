@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+  <html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <title>Báo cáo Chiến lược SEO v01 - Cowdi English</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    line-height: 1.65;
+    font-size: 13.5px;
+    background: #ffffff;
+    margin: 0;
+    padding: 20px 25px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    border-bottom: 2.5px solid #5C7A3F;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e441b;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    border-left: 4px solid #5C7A3F;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+  }
+
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .styled-table th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+  }
+
+  .styled-table td {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+
+  .styled-table tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .code-block {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 12px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    page-break-inside: avoid;
+  }
+
+  .inline-code {
+    background: #f1f5f9;
+    color: #b91c1c;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #e2e8f0;
+  }
+
+  blockquote {
+    border-left: 3px solid #cbd5e1;
+    margin: 10px 0;
+    padding-left: 12px;
+    color: #475569;
+    font-style: italic;
+  }
+
+  ul {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #a7f3d0;
+    margin-bottom: 8px;
+  }
+</style>
+  </head>
+  <body>
+    <h1>BÁO CÁO CHIẾN LƯỢC & HIỆN TRẠNG TỐI ƯU SEO (v01)</h1>
+<strong>Dự án:</strong> Cowdi English Platform (<code class="inline-code">cowdi.net</code>)  
+<strong>Ngày lập:</strong> Tháng 09/2026  
+<strong>Phiên bản:</strong> v01  
+<strong>Tác giả:</strong> Đội ngũ Phát triển & Tăng trưởng Cowdi
+
+<hr />
+
+<h2>I. TỔNG QUAN & MỤC TIÊU CHIẾN LƯỢC SEO</h2>
+
+<p>Cowdi English định vị là nền tảng học tiếng Anh theo mô hình <strong>Gamification (Trò chơi hóa)</strong> kết hợp nuôi pet ảo, luyện thi chứng chỉ (IELTS/TOEIC/VSTEP/CEFR) và đấu trí PvP (Duel bạn bè).</p>
+
+<h3>Mục tiêu SEO:</h3>
+1. <strong>Chiếm lĩnh từ khóa Brand & Định vị:</strong> Chiếm vị trí Top 1 cho các từ khóa gắn liền với thương hiệu và mô hình học tiếng Anh kết hợp game nuôi pet (<code class="inline-code">cowdi</code>, <code class="inline-code">cowdi english</code>, <code class="inline-code">nuôi pet học tiếng anh</code>).
+2. <strong>Khai thác từ khóa tìm kiếm dài (Long-tail Keywords):</strong> Hướng đến tệp người dùng học sinh, sinh viên và người đi làm đang tìm kiếm giải pháp học tập miễn phí, linh hoạt (<code class="inline-code">web học tiếng anh miễn phí</code>, <code class="inline-code">web luyện từ vựng tiếng anh hàng ngày</code>, <code class="inline-code">game học từ vựng ielts</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code>).
+3. <strong>Tối ưu SEO Kỹ thuật (Technical SEO) cho nền tảng SPA:</strong> Đảm bảo Googlebot có thể render, index đầy đủ metadata, schema và cấu trúc sitemap của toàn bộ các trang nội dung công khai.
+
+<hr />
+
+<h2>II. KIẾN TRÚC SEO KỸ THUẬT (TECHNICAL SEO) CỦA COWDI</h2>
+
+<pre class="code-block"><code class="language-">+-------------------------------------------------------------------------------+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>KIẾN TRÚC SEO COWDI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+    </tr>
+    <tr>
+      <td>[Googlebot / Crawlers]</td>
+    </tr>
+    <tr>
+      <td>│</td>
+    </tr>
+    <tr>
+      <td>├──&gt; robots.txt (Chỉ mục trang công khai, loại trừ /admin, /account)</td>
+    </tr>
+    <tr>
+      <td>├──&gt; sitemap.xml (14 URLs chính có phân cấp priority &amp; changefreq)</td>
+    </tr>
+    <tr>
+      <td>│</td>
+    </tr>
+    <tr>
+      <td>└──&gt; HTML / Headless Render</td>
+    </tr>
+    <tr>
+      <td>│</td>
+    </tr>
+    <tr>
+      <td>├── Core Metadata tĩnh (index.html)</td>
+    </tr>
+    <tr>
+      <td>├── Schema.org JSON-LD (WebSite, Org, WebApp)</td>
+    </tr>
+    <tr>
+      <td>└── useSEO Hook (Dynamic meta &amp; canonical theo route)</td>
+    </tr>
+  </tbody>
+</table>
++-------------------------------------------------------------------------------+
+</code></pre>
+
+<h3>1. Quản lý Meta Tags động (Dynamic Meta Management)</h3>
+<em> Sử dụng custom hook <code class="inline-code">useSEO</code> và file cấu hình tập trung <code class="inline-code">src/data/seo-config.js</code>.
+</em> Tự động cập nhật các thẻ quan trọng theo từng thay đổi URL trong Single-Page Application (SPA):
+<ul><li><code class="inline-code"><title></code> kèm hậu tố thương hiệu chuẩn mực (<code class="inline-code">— Cowdi English</code>).</li>
+<li><code class="inline-code"><meta name="description"></code> (chuẩn độ dài 120 - 160 ký tự, có Call-To-Action).</li>
+<li><code class="inline-code"><meta name="keywords"></code> (đã cập nhật các từ khóa tìm kiếm dài).</li>
+<li><code class="inline-code"><link rel="canonical"></code> (chống trùng lặp nội dung duplicate content giữa các URL).</li>
+<li>Toàn bộ thẻ mạng xã hội Open Graph (<code class="inline-code">og:title</code>, <code class="inline-code">og:description</code>, <code class="inline-code">og:image</code>, <code class="inline-code">og:url</code>) và Twitter Card (<code class="inline-code">summary_large_image</code>).</li>
+
+<h3>2. Dữ liệu có cấu trúc (Structured Data / JSON-LD)</h3>
+Được nhúng trực tiếp trong <code class="inline-code">index.html</code> theo chuẩn Schema.org:
+<em> <strong>@type: WebSite:</strong> Khai báo tên website, URL gốc và tính năng <code class="inline-code">SearchAction</code> (<code class="inline-code">https://cowdi.net/vocabulary?q={search_term_string}</code>).
+</em> <strong>@type: EducationalOrganization:</strong> Định danh tổ chức giáo dục Cowdi English, logo, và lĩnh vực đào tạo (<code class="inline-code">knowsAbout</code>: IELTS, TOEIC, CEFR, VSTEP, Từ vựng tiếng Anh).
+<em> <strong>@type: WebApplication:</strong> Khai báo phân loại ứng dụng giáo dục (<code class="inline-code">EducationalApplication</code>), hỗ trợ Web/iOS/Android, miễn phí bản quyền (<code class="inline-code">price: 0 VND</code>).
+
+<h3>3. File điều hướng bọ tìm kiếm (Robots.txt & Sitemap.xml)</h3>
+</em> <strong>Robots.txt (<code class="inline-code">public/robots.txt</code>):</strong>
+<li>Cho phép cào toàn bộ các trang nội dung công khai (<code class="inline-code">Allow: /</code>).</li>
+<li>Chặn các trang nhạy cảm hoặc nội bộ người dùng (<code class="inline-code">Disallow: /admin</code>, <code class="inline-code">/auth-callback</code>, <code class="inline-code">/account</code>).</li>
+<li>Khai báo đường dẫn Sitemap chính thức.</li>
+<em> <strong>Sitemap.xml (<code class="inline-code">public/sitemap.xml</code>):</strong>
+<li>Khai báo 14 URLs công khai với mức độ ưu tiên từ cao đến thấp (Trang chủ: <code class="inline-code">1.0</code>, Lộ trình & Bài học: <code class="inline-code">0.9</code>, Từ vựng & Luyện tập: <code class="inline-code">0.8</code>, Mini Games & Pet: <code class="inline-code">0.7</code>).</li></ul>
+
+<hr />
+
+<h2>III. MA TRẬN TỪ KHÓA SEO ĐÃ TRIỂN KHAI</h2>
+
+<h3>1. Phân loại từ khóa theo nhóm nhu cầu</h3>
+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Nhóm từ khóa</th>
+      <th>Danh sách từ khóa trọng tâm</th>
+      <th>Mục đích chuyển đổi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Thương hiệu & Định vị</strong></td>
+      <td><code class="inline-code">cowdi</code>, <code class="inline-code">cowdi english</code>, <code class="inline-code">cowdi duel</code>, <code class="inline-code">cowdi pet</code>, <code class="inline-code">cowdi game</code></td>
+      <td>Tăng nhận diện thương hiệu, khách hàng quay lại</td>
+    </tr>
+    <tr>
+      <td><strong>Học thuật & Chứng chỉ</strong></td>
+      <td><code class="inline-code">ielts</code>, <code class="inline-code">toeic</code>, <code class="inline-code">cefr</code>, <code class="inline-code">vstep</code>, <code class="inline-code">ielts vocabulary</code>, <code class="inline-code">lộ trình học tiếng anh</code></td>
+      <td>Thu hút người học có mục tiêu thi cử cụ thể</td>
+    </tr>
+    <tr>
+      <td><strong>Gamification & Trải nghiệm</strong></td>
+      <td><code class="inline-code">nuôi pet</code>, <code class="inline-code">pet ảo</code>, <code class="inline-code">tamagotchi</code>, <code class="inline-code">duel tiếng anh</code>, <code class="inline-code">thách đấu từ vựng</code>, <code class="inline-code">mini game tiếng anh</code></td>
+      <td>Thu hút đối tượng học sinh - sinh viên thích vừa chơi vừa học</td>
+    </tr>
+    <tr>
+      <td><strong>Từ khóa tìm kiếm dài (Long-tail)</strong></td>
+      <td><code class="inline-code">web học tiếng anh miễn phí</code>, <code class="inline-code">web luyện từ vựng tiếng anh hàng ngày</code>, <code class="inline-code">game học từ vựng ielts</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code></td>
+      <td>Tỷ lệ chuyển đổi cao, độ cạnh tranh vừa phải, tiếp cận đúng "pain point"</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2. Phân bổ từ khóa chi tiết theo từng Route</h3>
+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Tuyến đường (Route)</th>
+      <th>Tiêu đề SEO (Title)</th>
+      <th>Từ khóa trọng tâm (Keywords)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Trang chủ (<code class="inline-code">/</code>)</strong></td>
+      <td>Cowdi — Nuôi pet, học tiếng Anh, đấu bạn bè 🐮</td>
+      <td><code class="inline-code">học tiếng anh</code>, <code class="inline-code">nuôi pet</code>, <code class="inline-code">cowdi</code>, <code class="inline-code">ielts</code>, <code class="inline-code">toeic</code>, <code class="inline-code">từ vựng tiếng anh</code>, <code class="inline-code">game học tiếng anh</code>, <code class="inline-code">cowdi english</code>, <code class="inline-code">web học tiếng anh miễn phí</code>, <code class="inline-code">web luyện từ vựng tiếng anh hàng ngày</code>, <code class="inline-code">game học từ vựng ielts</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code></td>
+    </tr>
+    <tr>
+      <td><strong>Bài học (<code class="inline-code">/lessons</code>)</strong></td>
+      <td>Thư viện bài học tiếng Anh — Cowdi</td>
+      <td><code class="inline-code">bài học tiếng anh</code>, <code class="inline-code">ielts</code>, <code class="inline-code">toeic</code>, <code class="inline-code">cefr</code>, <code class="inline-code">vstep</code>, <code class="inline-code">từ vựng</code>, <code class="inline-code">ngữ pháp</code>, <code class="inline-code">kỹ năng tiếng anh</code>, <code class="inline-code">web học tiếng anh miễn phí</code></td>
+    </tr>
+    <tr>
+      <td><strong>Từ vựng (<code class="inline-code">/vocabulary</code>)</strong></td>
+      <td>Từ vựng tiếng Anh — Cowdi</td>
+      <td><code class="inline-code">từ vựng tiếng anh</code>, <code class="inline-code">flashcard</code>, <code class="inline-code">học từ mới</code>, <code class="inline-code">luyện phát âm</code>, <code class="inline-code">chủ đề từ vựng</code>, <code class="inline-code">ielts vocabulary</code>, <code class="inline-code">web luyện từ vựng tiếng anh hàng ngày</code>, <code class="inline-code">game học từ vựng ielts</code></td>
+    </tr>
+    <tr>
+      <td><strong>Luyện tập (<code class="inline-code">/practice</code>)</strong></td>
+      <td>Luyện tập tiếng Anh — Cowdi</td>
+      <td><code class="inline-code">luyện tập tiếng anh</code>, <code class="inline-code">quiz tiếng anh</code>, <code class="inline-code">spaced repetition</code>, <code class="inline-code">ôn tập từ vựng</code>, <code class="inline-code">kiểm tra tiếng anh</code>, <code class="inline-code">web luyện từ vựng tiếng anh hàng ngày</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code></td>
+    </tr>
+    <tr>
+      <td><strong>Duel bạn bè (<code class="inline-code">/duel</code>)</strong></td>
+      <td>Duel bạn bè — Cowdi</td>
+      <td><code class="inline-code">duel tiếng anh</code>, <code class="inline-code">thách đấu từ vựng</code>, <code class="inline-code">pvp tiếng anh</code>, <code class="inline-code">cowdi duel</code>, <code class="inline-code">battle tiếng anh</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code>, <code class="inline-code">game học từ vựng ielts</code></td>
+    </tr>
+    <tr>
+      <td><strong>Mini Games (<code class="inline-code">/mini-games</code>)</strong></td>
+      <td>Mini Games — Cowdi</td>
+      <td><code class="inline-code">mini game tiếng anh</code>, <code class="inline-code">game từ vựng</code>, <code class="inline-code">học qua game</code>, <code class="inline-code">cowdi game</code>, <code class="inline-code">vừa chơi vừa học tiếng anh</code>, <code class="inline-code">game học từ vựng ielts</code></td>
+    </tr>
+    <tr>
+      <td><strong>Lộ trình (<code class="inline-code">/learning-path</code>)</strong></td>
+      <td>Lộ trình học tiếng Anh — Cowdi</td>
+      <td><code class="inline-code">lộ trình học tiếng anh</code>, <code class="inline-code">học tiếng anh theo cấp độ</code>, <code class="inline-code">ielts roadmap</code>, <code class="inline-code">toeic roadmap</code>, <code class="inline-code">cefr</code></td>
+    </tr>
+    <tr>
+      <td><strong>Pet (<code class="inline-code">/pet</code>)</strong></td>
+      <td>Pet của tôi — Cowdi</td>
+      <td><code class="inline-code">pet ảo</code>, <code class="inline-code">nuôi pet</code>, <code class="inline-code">thú cưng</code>, <code class="inline-code">tiến hóa</code>, <code class="inline-code">cowdi pet</code>, <code class="inline-code">tamagotchi</code></td>
+    </tr>
+    <tr>
+      <td><strong>Bảng xếp hạng (<code class="inline-code">/leaderboard</code>)</strong></td>
+      <td>Bảng xếp hạng — Cowdi</td>
+      <td><code class="inline-code">bảng xếp hạng</code>, <code class="inline-code">leaderboard tiếng anh</code>, <code class="inline-code">top học viên</code>, <code class="inline-code">cowdi ranking</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>IV. ĐÁNH GIÁ CHỈ SỐ ON-PAGE & ĐỘ PHỦ TÌM KIẾM</h2>
+
+<p></em> <strong>Điểm mạnh:</strong><br/>  1. Thẻ Meta Title và Description được viết thủ công rất tỉ mỉ, có yếu tố kích thích hành động (CTA: <em>"Vào nhận trứng miễn phí"</em>, <em>"Học 5 phút mỗi ngày"</em>).<br/>  2. Hình ảnh Open Graph chuẩn tỷ lệ, có sẵn phiên bản <code class="inline-code">pwa-512x512.png</code> hiển thị đẹp khi chia sẻ link lên Facebook, Zalo, Telegram.<br/>  3. Hệ thống PWA giúp giữ chân người dùng (Retention) và cải thiện tín hiệu trải nghiệm người dùng (UX signals) - một trong những yếu tố xếp hạng quan trọng của thuật toán Google.<br/><em> <strong>Hạn chế cần cải thiện:</strong><br/>  1. Ứng dụng là Client-Side Rendering (CSR), cần duy trì thời gian phản hồi máy chủ (TTFB) cực nhanh để Googlebot không bị timeout khi cào dữ liệu.<br/>  2. Chưa có chuyên mục Blog / Bài viết tin tức chuẩn SEO để kéo lượng organic traffic tự nhiên khổng lồ.</p>
+
+<hr />
+
+<h2>V. ĐỀ XUẤT NÂNG CẤP CHIẾN LƯỢC SEO TIẾP THEO</h2>
+
+<h3>1. Xây dựng phân hệ Blog / Kiến thức tiếng Anh (Content Hub)</h3>
+</em> Tạo thư mục <code class="inline-code">/blog</code> với các bài viết chia sẻ: <em>"Top 500 từ vựng IELTS thường gặp nhất"</em>, <em>"Cách nhớ từ vựng tiếng Anh theo phương pháp Spaced Repetition"</em>.
+<em> Đây là "mỏ vàng" để thu hút hàng chục ngàn lượt truy cập miễn phí từ Google Tìm kiếm mỗi tháng và chuyển đổi thành người dùng ứng dụng Cowdi.
+
+<h3>2. Bổ sung Schema BreadcrumbList & FAQPage</h3>
+</em> <strong>BreadcrumbList:</strong> Giúp đường link trên kết quả Google hiển thị dạng cây phân cấp trực quan: <code class="inline-code">cowdi.net > Bài học > IELTS Cơ bản</code>.
+<em> <strong>FAQPage Schema:</strong> Nhúng ở các trang Lộ trình và Trang chủ để hiển thị các câu hỏi thường gặp ngay dưới snippet Google, tăng gấp đôi diện tích hiển thị trên trang 1 tìm kiếm.
+
+<h3>3. Tối ưu Pre-rendering cho các trang tĩnh quan trọng</h3>
+</em> Cân nhắc sử dụng Vite SSG hoặc giải pháp Pre-render (kết xuất tĩnh HTML trước khi deploy) cho các trang <code class="inline-code">/lessons</code>, <code class="inline-code">/vocabulary</code>, <code class="inline-code">/learning-path</code> để Googlebot và các mạng xã hội luôn đọc được HTML đầy đủ mà không cần chờ Javascript thực thi.
+
+<hr />
+
+<h2>VI. KẾT LUẬN</h2>
+
+<p>Nền tảng SEO kỹ thuật của <strong>Cowdi English</strong> đã được thiết lập rất đồng bộ và khoa học từ cấp độ root HTML, JSON-LD cho đến từng Route trong React Router. Việc bổ sung bộ <strong>từ khóa tìm kiếm dài</strong> gần đây giúp ứng dụng mở rộng phễu tiếp cận khách hàng tiềm năng một cách nhanh chóng và chính xác.</p>
+  </body>
+  </html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+  <html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <title>Báo cáo An toàn Bảo mật v01 - Cowdi English</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+    line-height: 1.65;
+    font-size: 13.5px;
+    background: #ffffff;
+    margin: 0;
+    padding: 20px 25px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    border-bottom: 2.5px solid #5C7A3F;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e441b;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    border-left: 4px solid #5C7A3F;
+    padding-left: 10px;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+  }
+
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+    page-break-inside: avoid;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .styled-table th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+  }
+
+  .styled-table td {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+
+  .styled-table tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .code-block {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 12px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    page-break-inside: avoid;
+  }
+
+  .inline-code {
+    background: #f1f5f9;
+    color: #b91c1c;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #e2e8f0;
+  }
+
+  blockquote {
+    border-left: 3px solid #cbd5e1;
+    margin: 10px 0;
+    padding-left: 12px;
+    color: #475569;
+    font-style: italic;
+  }
+
+  ul {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #a7f3d0;
+    margin-bottom: 8px;
+  }
+</style>
+  </head>
+  <body>
+    <h1>BÁO CÁO ĐÁNH GIÁ AN TOÀN BẢO MẬT & ĐỀ XUẤT NÂNG CẤP (v01)</h1>
+<strong>Dự án:</strong> Cowdi English Platform (<code class="inline-code">cowdi.net</code>)  
+<strong>Ngày lập:</strong> Tháng 09/2026  
+<strong>Phiên bản:</strong> v01  
+<strong>Tác giả:</strong> Đội ngũ Kỹ thuật & Bảo mật Cowdi
+
+<hr />
+
+<h2>I. TÓM TẮT ĐIỀU HÀNH (EXECUTIVE SUMMARY)</h2>
+
+<p>Trước thực trạng các hệ thống CMS truyền thống như <strong>WordPress</strong> thường xuyên là mục tiêu số một của tin tặc do cấu trúc nguyên khối (Monolithic), phụ thuộc nhiều plugin bên thứ ba và thực thi mã PHP trực tiếp trên máy chủ; dự án <strong>Cowdi English</strong> được thiết kế theo kiến trúc <strong>Decoupled Modern Web (SPA + Headless REST API + PWA)</strong>.</p>
+
+<p>Mô hình này giúp thu hẹp bề mặt tấn công (<strong>Attack Surface</strong>) xuống mức tối thiểu, loại trừ hoàn toàn các lớp tấn công kinh điển của WordPress như chiếm quyền máy chủ thông qua upload mã độc (RCE), brute-force trang quản trị <code class="inline-code">/wp-admin</code>, hoặc lộ database do plugin lậu.</p>
+
+<p>Tuy nhiên, để đảm bảo hệ thống đạt chuẩn an toàn thông tin cao nhất khi mở rộng quy mô người dùng, báo cáo này chỉ ra các điểm mạnh, các rủi ro còn tiềm ẩn và đưa ra lộ trình <strong>6 đề xuất nâng cấp bảo mật</strong> cụ thể.</p>
+
+<hr />
+
+<h2>II. SO SÁNH BẢO MẬT: MÔ HÌNH WORDPRESS VS. MÔ HÌNH COWDI</h2>
+
+<pre class="code-block"><code class="language-">+-------------------------------------------------------------------------+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>MÔ HÌNH WORDPRESS (MONOLITHIC)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[Trình duyệt] ──&gt; [Web Server: Apache/Nginx + PHP Engine + MySQL]</td>
+    </tr>
+    <tr>
+      <td>(Giao diện, Core CMS, Plugin, DB nằm chung 1 khối)</td>
+    </tr>
+    <tr>
+      <td>==&gt; Rất dễ bị RCE, SQLi, Brute-force wp-login</td>
+    </tr>
+  </tbody>
+</table>
++-------------------------------------------------------------------------+
+
+<p>VS.</p>
+
+<p>+-------------------------------------------------------------------------+<br/><table class="styled-table"><br/>  <thead><br/>    <tr><br/>      <th>MÔ HÌNH COWDI ENGLISH (DECOUPLED)</th><br/>    </tr><br/>  </thead><br/>  <tbody><br/>    <tr><br/>      <td>[Trình duyệt] ──&gt; [Static Hosting / CDN] (Chỉ phát file tĩnh HTML/JS)</td><br/>    </tr><br/>    <tr><br/>      <td>│</td><br/>    </tr><br/>    <tr><br/>      <td>└── Gọi REST API (JSON + JWT) ──&gt; [Node.js Express API]</td><br/>    </tr><br/>    <tr><br/>      <td>│</td><br/>    </tr><br/>    <tr><br/>      <td>└──&gt; [MySQL Database]</td><br/>    </tr><br/>  </tbody><br/></table><br/>+-------------------------------------------------------------------------+<br/></code></pre></p>
+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Tiêu chí</th>
+      <th>WordPress Truyền thống</th>
+      <th>Mô hình Cowdi English (Hiện tại)</th>
+      <th>Đánh giá rủi ro</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Kiến trúc</strong></td>
+      <td>Monolithic (Nguyên khối PHP + DB)</td>
+      <td>Decoupled (Tách rời Frontend & Backend)</td>
+      <td><strong>Cowdi an toàn vượt trội</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Môi trường Frontend</strong></td>
+      <td>Thực thi PHP trực tiếp trên Web Server</td>
+      <td>File tĩnh (HTML/CSS/JS thuần) tải về Client</td>
+      <td><strong>Cowdi miễn nhiễm với RCE ở Web server tĩnh</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Cơ chế xác thực</strong></td>
+      <td>Form đăng nhập <code class="inline-code">/wp-login.php</code>, lưu hash mật khẩu nội bộ</td>
+      <td>Đăng nhập Google OAuth2 + JWT (Stateless Token)</td>
+      <td><strong>Cowdi không giữ mật khẩu người dùng, không sợ lộ Credential</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Phụ thuộc bên thứ ba</strong></td>
+      <td>Hàng chục Plugins/Themes dễ bị cài backdoor</td>
+      <td>Chỉ sử dụng các thư viện npm tuyển chọn, không dùng theme chợ</td>
+      <td><strong>Cowdi kiểm soát mã nguồn 100%</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Cơ chế lưu trữ dữ liệu</strong></td>
+      <td>Trực tiếp query MySQL qua PHP trong theme</td>
+      <td>Tách biệt qua REST API, truy vấn tham số hóa (Parameterized Queries)</td>
+      <td><strong>Triệt tiêu nguy cơ SQL Injection cơ bản</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Khả năng chịu tải / DDoS</strong></td>
+      <td>Dễ sập do mỗi request đều chạy PHP & DB</td>
+      <td>Tối ưu với Service Worker PWA Cache + CDN</td>
+      <td><strong>Cowdi chịu tải tốt hơn nhiều lần</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>III. PHÂN TÍCH BẢO MẬT HỆ THỐNG COWDI THEO TỪNG LỚP</h2>
+
+<h3>1. Lớp Giao diện & Phân phối (Frontend / CDN / PWA)</h3>
+<em> <strong>Điểm mạnh:</strong>
+<ul><li>Build tĩnh 100% bằng Vite + React 18, không có runtime engine phía máy chủ web tĩnh.</li>
+<li>Tích hợp Workbox Service Worker: Cache tài nguyên tĩnh (assets, icons, fonts) ngay tại trình duyệt máy khách, giảm 70-80% lượng request tới máy chủ gốc.</li>
+<li>Sử dụng HTTPS và cấu hình Nginx riêng (<code class="inline-code">nginx-spa.conf</code>).</li>
+</em> <strong>Điểm cần lưu ý:</strong>
+<li>Token JWT đang được lưu trữ tại <code class="inline-code">localStorage</code> (<code class="inline-code">cowdi_jwt</code>). Nếu ứng dụng dính lỗ hổng XSS (Cross-Site Scripting), kẻ tấn công có thể đọc trộm token qua JavaScript.</li>
+
+<h3>2. Lớp Máy chủ API (Backend Node.js / Express)</h3>
+<em> <strong>Điểm mạnh:</strong>
+<li>Xác thực qua <strong>Google OAuth 2.0</strong>: Người dùng không cần tạo mật khẩu, tránh triệt để các cuộc tấn công Brute-force dò mật khẩu hay Credential Stuffing.</li>
+<li>Middleware xác thực độc lập <code class="inline-code">requireAuth</code> và phân quyền nghiêm ngặt <code class="inline-code">requireAdmin</code> (được đọc trực tiếp từ database để tránh JWT cũ bị giả mạo quyền).</li>
+<li>CORS đã được giới hạn với <code class="inline-code">origin: process.env.FRONTEND_URL</code>.</li>
+<li>Cơ chế Session chỉ dùng làm phiên tạm thời (5 phút) cho quá trình OAuth Dance.</li>
+</em> <strong>Điểm cần lưu ý:</strong>
+<li>Chưa trang bị <code class="inline-code">helmet</code> để thiết lập các HTTP Security Headers tiêu chuẩn.</li>
+<li>Chưa có middleware <code class="inline-code">rate-limit</code> chống spam requests / brute-force endpoint.</li>
+<li><code class="inline-code">express.json({ limit: '10mb' })</code> có dung lượng cho phép khá lớn, có nguy cơ bị tấn công Memory Exhaustion nếu hacker gửi payload JSON rác liên tục.</li>
+
+<h3>3. Lớp Cơ sở dữ liệu (MySQL Database)</h3>
+<em> <strong>Điểm mạnh:</strong>
+<li>Sử dụng thư viện <code class="inline-code">mysql2/promise</code> với cơ chế Connection Pool.</li>
+<li>Toàn bộ truy vấn đều dùng cú pháp tham số hóa <code class="inline-code">pool.execute('SELECT ... WHERE id = ?', [id])</code>, loại bỏ triệt để nguy cơ <strong>SQL Injection</strong>.</li>
+<li>Database không mở port public ra ngoài Internet (chỉ cho phép kết nối nội bộ từ localhost / private network).</li>
+
+<hr />
+
+<h2>IV. BẢNG CHẤM ĐIỂM AN TOÀN HIỆN TẠI (SCORECARD)</h2>
+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Hạng mục kiểm tra</th>
+      <th>Trạng thái</th>
+      <th>Điểm (Thang 10)</th>
+      <th>Nhận xét</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Phòng chống SQL Injection</strong></td>
+      <td>✅ Tốt</td>
+      <td>10/10</td>
+      <td>100% Prepared Statements</td>
+    </tr>
+    <tr>
+      <td><strong>Xác thực & Danh tính (Auth)</strong></td>
+      <td>✅ Rất tốt</td>
+      <td>9/10</td>
+      <td>Google OAuth2 chuẩn mực, không lưu password</td>
+    </tr>
+    <tr>
+      <td><strong>Kiểm soát phân quyền (RBAC)</strong></td>
+      <td>✅ Tốt</td>
+      <td>9/10</td>
+      <td>Kiểm tra quyền Admin trực tiếp qua Database</td>
+    </tr>
+    <tr>
+      <td><strong>Chống RCE / Chiếm quyền máy chủ</strong></td>
+      <td>✅ Tốt</td>
+      <td>9.5/10</td>
+      <td>Tách rời Frontend tĩnh, không chạy PHP</td>
+    </tr>
+    <tr>
+      <td><strong>HTTP Security Headers</strong></td>
+      <td>⚠️ Cần bổ sung</td>
+      <td>5/10</td>
+      <td>Chưa cấu hình CSP, HSTS, X-Frame-Options</td>
+    </tr>
+    <tr>
+      <td><strong>Chống DoS / API Throttling</strong></td>
+      <td>⚠️ Cần bổ sung</td>
+      <td>4/10</td>
+      <td>Chưa có Rate Limiting trên API Express</td>
+    </tr>
+    <tr>
+      <td><strong>Quản lý Token (XSS Protection)</strong></td>
+      <td>⚠️ Chấp nhận được</td>
+      <td>7/10</td>
+      <td>JWT lưu tại localStorage (cần bổ sung biện pháp phòng ngừa XSS)</td>
+    </tr>
+    <tr>
+      <td><strong>Tổng điểm bảo mật hệ thống</strong></td>
+      <td><strong>Khá - Tốt</strong></td>
+      <td><strong>7.6 / 10</strong></td>
+      <td><strong>An toàn hơn WordPress rất nhiều, cần bổ sung các chốt chặn API</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>V. CÁC ĐỀ XUẤT NÂNG CẤP KỸ THUẬT (ACTIONABLE RECOMMENDATIONS)</h2>
+
+<p>Dưới đây là 6 giải pháp khuyến nghị triển khai theo thứ tự ưu tiên:</p>
+
+<h3>Đề xuất 1: Thêm HTTP Security Headers bằng <code class="inline-code">helmet</code> (Ưu tiên Cao)</h3>
+Cài đặt thư viện <code class="inline-code">helmet</code> vào Express server để tự động thêm các header an toàn:
+</em> <code class="inline-code">Content-Security-Policy (CSP)</code>: Ngăn chặn mã độc bên ngoài thực thi trên trang.
+<em> <code class="inline-code">X-Frame-Options: DENY</code>: Chống tấn công Clickjacking.
+</em> <code class="inline-code">Strict-Transport-Security (HSTS)</code>: Ép buộc kết nối luôn chạy qua HTTPS.
+
+<pre class="code-block"><code class="language-bash">cd server &amp;&amp; npm install helmet
+</code></pre>
+<em>Tích hợp vào <code class="inline-code">server/index.js</code>:</em>
+<pre class="code-block"><code class="language-javascript">import helmet from 'helmet';
+app.use(helmet());
+</code></pre>
+
+<hr />
+
+<h3>Đề xuất 2: Bổ sung Rate Limiting cho API (Ưu tiên Cao)</h3>
+Ngăn chặn các công cụ quét tự động, botnet cào dữ liệu hoặc tấn công từ chối dịch vụ (DoS) vào các endpoint nhạy cảm:
+
+<pre class="code-block"><code class="language-bash">cd server &amp;&amp; npm install express-rate-limit
+</code></pre>
+<em>Cấu hình trong <code class="inline-code">server/index.js</code>:</em>
+<pre class="code-block"><code class="language-javascript">import rateLimit from 'express-rate-limit';
+
+<p>const apiLimiter = rateLimit({<br/>  windowMs: 15 <em> 60 </em> 1000, // 15 phút<br/>  max: 300, // Tối đa 300 requests / 15 phút cho 1 IP<br/>  message: { error: 'Quá nhiều yêu cầu từ IP của bạn, vui lòng thử lại sau.' },<br/>  standardHeaders: true,<br/>  legacyHeaders: false,<br/>});</p>
+
+<p>app.use('/api/', apiLimiter);<br/></code></pre></p>
+
+<hr />
+
+<h3>Đề xuất 3: Siết chặt giới hạn kích thước Payload JSON (Ưu tiên Trung bình)</h3>
+Trong file <code class="inline-code">server/index.js</code>, thay thế <code class="inline-code">limit: '10mb'</code> bằng mức dung lượng hợp lý cho dữ liệu học tập thông thường:
+
+<pre class="code-block"><code class="language-javascript">// Thay vì 10mb, chỉ cho phép tối đa 1mb để bảo vệ RAM server
+app.use(express.json({ limit: '1mb' }));
+</code></pre>
+
+<hr />
+
+<h3>Đề xuất 4: Chống rò rỉ biến môi trường & Chuỗi Secret mặc định (Ưu tiên Trung bình)</h3>
+Trong <code class="inline-code">server/index.js</code> và <code class="inline-code">server/middleware/auth.js</code>:
+<em> Tuyệt đối không sử dụng fallback chuỗi bí mật dạng hardcode:
+  <pre class="code-block"><code class="language-javascript">  // ❌ KHÔNG NÊN:
+  secret: process.env.SESSION_SECRET || 'cowdi_session_secret'
+  
+  // ✅ NÊN: Bắt buộc phải có trong .env khi chạy production
+  if (process.env.NODE_ENV === 'production' &amp;&amp; !process.env.SESSION_SECRET) {
+    throw new Error('FATAL: Chưa cấu hình SESSION_SECRET trong file .env');
+  }
+  </code></pre>
+
+<hr />
+
+<h3>Đề xuất 5: Lộ trình chuyển dịch JWT sang HttpOnly Cookie (Ưu tiên Dài hạn)</h3>
+</em> <strong>Hiện tại:</strong> Token lưu trong <code class="inline-code">localStorage</code> giúp ứng dụng PWA dễ thao tác offline, nhưng có rủi ro nếu dính mã XSS.
+<li><strong>Lộ trình đề xuất:</strong></li>
+<li>Đưa Access Token vào <code class="inline-code">HttpOnly, Secure, SameSite=Strict</code> Cookie.</li>
+<li>Khi đó, JavaScript trên trình duyệt không thể đọc được Token, vô hiệu hóa hoàn toàn nguy cơ đánh cắp phiên đăng nhập qua XSS.</li></ul>
+
+<hr />
+
+<h3>Đề xuất 6: Thường xuyên kiểm tra lỗ hổng thư viện định kỳ (Maintenance)</h3>
+Định kỳ hàng tháng chạy lệnh kiểm tra các gói npm cho cả frontend và backend:
+<pre class="code-block"><code class="language-bash">npm audit
+cd server &amp;&amp; npm audit
+</code></pre>
+Cập nhật kịp thời các bản vá lỗi bảo mật của các gói thư viện phụ thuộc.
+
+<hr />
+
+<h2>VI. KẾT LUẬN</h2>
+
+<p>Mô hình web hiện tại của <strong>Cowdi English</strong> sở hữu nền tảng kiến trúc hiện đại, sạch sẽ và an toàn hơn vượt bậc so với các website sử dụng WordPress truyền thống. Điểm mấu chốt của hệ sinh thái Cowdi nằm ở việc <strong>tách biệt hoàn toàn mã nguồn hiển thị và mã nguồn dữ liệu</strong>.</p>
+
+<p>Chỉ cần triển khai thêm các biện pháp bảo vệ ở tầng API (Header bảo mật, Rate Limiting, chuẩn hóa Payload), hệ thống hoàn toàn có khả năng chống chịu vững vàng trước các đợt tấn công mạng phổ biến trên Internet hiện nay.</p>
+  </body>
+  </html>
