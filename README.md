@@ -177,6 +177,7 @@ Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc t
 | Báo cáo chuyên đề | Bản Markdown | Bản PDF In ấn | Mô tả trọng tâm |
 |---|:---:|:---:|---|
 | **Tiêu chuẩn Công nghệ v01** | [STANDARDS-REPORT-v01.md](STANDARDS-REPORT-v01.md) | [STANDARDS-REPORT-v01.pdf](STANDARDS-REPORT-v01.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
+| **Tiêu chuẩn IEEE & So sánh NestJS** | [IEEE-AND-NESTJS-REPORT-v01.md](IEEE-AND-NESTJS-REPORT-v01.md) | [IEEE-AND-NESTJS-REPORT-v01.pdf](IEEE-AND-NESTJS-REPORT-v01.pdf) | Tổng hợp các chuẩn IEEE (754, 42010, 12207, POSIX) & so sánh đa chiều với NestJS |
 | **An toàn Bảo mật v01** | [SECURITY-REPORT-v01.md](SECURITY-REPORT-v01.md) | [SECURITY-REPORT-v01.pdf](SECURITY-REPORT-v01.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
 | **Chiến lược & Hiện trạng SEO v01** | [SEO-REPORT-v01.md](SEO-REPORT-v01.md) | [SEO-REPORT-v01.pdf](SEO-REPORT-v01.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
 
