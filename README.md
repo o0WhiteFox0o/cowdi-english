@@ -170,6 +170,45 @@ src/features/mini-games/
 
 ---
 
+## 📑 Báo cáo Kỹ thuật & Tiêu chuẩn Hệ thống
+
+Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc tả kỹ thuật quốc tế và đã được đánh giá qua các báo cáo chuyên đề:
+
+| Báo cáo chuyên đề | Bản Markdown | Bản PDF In ấn | Mô tả trọng tâm |
+|---|:---:|:---:|---|
+| **Tiêu chuẩn Công nghệ v01** | [STANDARDS-REPORT-v01.md](STANDARDS-REPORT-v01.md) | [STANDARDS-REPORT-v01.pdf](STANDARDS-REPORT-v01.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
+| **An toàn Bảo mật v01** | [SECURITY-REPORT-v01.md](SECURITY-REPORT-v01.md) | [SECURITY-REPORT-v01.pdf](SECURITY-REPORT-v01.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
+| **Chiến lược & Hiện trạng SEO v01** | [SEO-REPORT-v01.md](SEO-REPORT-v01.md) | [SEO-REPORT-v01.pdf](SEO-REPORT-v01.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
+
+---
+
+## 📜 Tiêu chuẩn Sử dụng, Đạo đức & Trách nhiệm Nhóm Phát triển
+
+Đội ngũ phát triển **Cowdi English** cam kết xây dựng một môi trường giáo dục công nghệ số minh bạch, nhân văn và an toàn tối đa cho người học với các nguyên tắc đạo đức cốt lõi sau:
+
+### 1. Tôn chỉ Sản phẩm & Bình đẳng Tiếp cận (Mission & Fairness)
+* **Giáo dục miễn phí & Công bằng:** Chúng tôi cam kết duy trì nền tảng học tiếng Anh miễn phí, chất lượng cao dành cho mọi đối tượng học sinh, sinh viên và người đi làm tại Việt Nam.
+* **Nói không với Pay-to-Win:** Mọi tính năng, trang phục pet và vật phẩm trong cửa hàng đều được quy đổi bằng nỗ lực học tập (XP, Điểm thưởng kiếm được qua bài học và Quiz). Không áp dụng các cơ chế thương mại hóa gây mất cân bằng trải nghiệm.
+
+### 2. Đạo đức Dữ liệu & Quyền Riêng tư (Data Ethics & Privacy by Design)
+* **Thu thập dữ liệu tối thiểu (Data Minimization):** Hệ thống chỉ lưu trữ các thông tin định danh cơ bản do Google OAuth cung cấp (Email, Tên hiển thị, Avatar) để phục vụ việc lưu trữ tiến độ học tập và hiển thị bảng xếp hạng. Tuyệt đối không yêu cầu các quyền truy cập nhạy cảm.
+* **Xử lý âm thanh trên máy khách (Local Processing):** Tính năng nhận diện giọng nói luyện phát âm (`Web Speech Recognition`) và đọc mẫu (`Speech Synthesis`) được xử lý trực tiếp trên trình duyệt thiết bị người dùng. Chúng tôi **không ghi âm lén**, không lưu trữ tệp âm thanh giọng nói của người học lên máy chủ.
+* **Cam kết không thương mại hóa dữ liệu:** Tuyệt đối không bán, chia sẻ hoặc cung cấp thông tin cá nhân của người học cho bất kỳ bên thứ ba hay mạng lưới quảng cáo nào.
+
+### 3. Trách nhiệm Thiết kế Trò chơi hóa Lành mạnh (Ethical Gamification)
+* **Khuyến khích thói quen tích cực:** Tính năng nuôi pet ảo, duy trì chuỗi học (Streak) và thi đấu bạn bè (Duel 1v1) được thiết kế xoay quanh mục tiêu duy trì động lực học 5–15 phút mỗi ngày, không tạo các cơ chế bẫy tâm lý gây nghiện tiêu cực hoặc ảnh hưởng đến thời gian sinh hoạt của người học.
+* **Môi trường cạnh tranh văn minh:** Các trận thách đấu kiến thức (Duel) được điều phối ngẫu nhiên theo League trình độ, tôn trọng tinh thần học hỏi lẫn nhau, nghiêm cấm các hành vi gian lận (cheat bot, can thiệp mã nguồn điểm số).
+
+### 4. Tính Chuẩn xác & Liêm chính Học thuật (Academic Integrity)
+* **Chuẩn hóa nội dung:** Nội dung từ vựng, ngữ pháp và bài thi được biên soạn bám sát khung năng lực chuẩn quốc tế (CEFR A1–C1, IELTS, TOEIC) và khung năng lực ngoại ngữ 6 bậc Việt Nam (VSTEP).
+* **Nội dung văn minh, không định kiến:** Ngân hàng bài tập và câu chuyện minh họa được kiểm duyệt kỹ lưỡng, đảm bảo tính trong sáng của ngôn ngữ, tôn trọng sự đa dạng văn hóa, không chứa nội dung phân biệt giới tính, tôn giáo hay sắc tộc.
+
+### 5. Trách nhiệm Bảo mật & Vận hành Kỹ thuật (Security & Operational Duty)
+* **Bảo vệ hệ thống liên tục:** Nhóm phát triển chịu trách nhiệm giám sát mã nguồn, tuân thủ các hướng dẫn phòng chống lỗ hổng của OWASP Top 10, cập nhật bản vá bảo mật định kỳ cho cả Frontend và Backend.
+* **Tiếp nhận phản hồi có đạo đức (Responsible Vulnerability Disclosure):** Chúng tôi luôn lắng nghe và sẵn sàng phối hợp xử lý các báo cáo về lỗi hệ thống hoặc lỗ hổng bảo mật do cộng đồng đóng góp trong vòng 24–48 giờ làm việc.
+
+---
+
 ## Tài liệu thêm
 
 | File | Nội dung |
@@ -183,4 +222,4 @@ src/features/mini-games/
 
 ---
 
-> Được tạo với ❤️ bởi **Hong Son Studio Team**
+> Được xây dựng với tinh thần trách nhiệm và ❤️ bởi **Hong Son Studio Team**

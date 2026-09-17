@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
@@ -295,9 +295,11 @@ function exportFile(mdFilename, pdfFilename, title) {
   // Chạy headless browser print-to-pdf
   const cmd = `"${browserPath}" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf="${pdfPath}" "${tmpHtmlPath}"`;
   execSync(cmd, { stdio: 'inherit' });
+  try { unlinkSync(tmpHtmlPath); } catch (e) {}
   console.log(`✅ Đã xuất thành công: ${pdfFilename}`);
 }
 
 exportFile('SECURITY-REPORT-v01.md', 'SECURITY-REPORT-v01.pdf', 'Báo cáo An toàn Bảo mật v01 - Cowdi English');
 exportFile('SEO-REPORT-v01.md', 'SEO-REPORT-v01.pdf', 'Báo cáo Chiến lược SEO v01 - Cowdi English');
-console.log('\n🎉 Hoàn thành xuất 2 file PDF!');
+exportFile('STANDARDS-REPORT-v01.md', 'STANDARDS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn Công nghệ v01 - Cowdi English');
+console.log('\n🎉 Hoàn thành xuất toàn bộ các file PDF!');
