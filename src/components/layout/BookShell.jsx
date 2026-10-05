@@ -12,68 +12,62 @@ import Icon from '../Icon';
 import { EmojiText } from '../Emoji';
 
 /* ── Route groups for highlighting the active tab/section ── */
-const LEARN_PATHS    = ['/learning-path', '/lessons', '/vocabulary', '/review'];
-const PRACTICE_PATHS = ['/practice', '/mini-games', '/duel', '/typing'];
+const LEARN_PATHS    = ['/', '/learning-path', '/lessons', '/vocabulary'];
+const PRACTICE_PATHS = ['/practice', '/review', '/mini-games', '/duel', '/typing'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
-const ME_PATHS       = ['/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
+const ME_PATHS       = ['/overview', '/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
 
 /* Desktop nav (grouped like chapters in a notebook). icon = Icon name or 'PET' */
 const TAB_GROUPS = [
   { label: null, items: [
-    { to: '/', end: true, icon: 'home', label: 'Trang chủ', color: '#7DBE4B' },
+    { to: '/', end: true, icon: 'road', label: 'Lộ trình học', color: '#7DBE4B' },
   ]},
-  { label: 'Học tập', items: [
-    { to: '/learning-path', icon: 'road',  label: 'Lộ trình học', color: '#7DBE4B' },
-    { to: '/vocabulary',    icon: 'map',   label: 'Từ vựng',    color: '#F4A83A' },
-    { to: '/review',        icon: 'brain', label: 'Ôn tập',     color: '#4EA8E8' },
-    { to: '/lessons',       icon: 'book',  label: 'Thư viện bài', color: '#5ECFC0' },
+  { label: 'Học tập & Ôn luyện', items: [
+    { to: '/practice',      icon: 'target',  label: 'Ôn tập & Bài tập', color: '#EA5A5A' },
+    { to: '/vocabulary',    icon: 'map',     label: 'Từ vựng',         color: '#F4A83A' },
+    { to: '/lessons',       icon: 'book',    label: 'Thư viện bài',    color: '#5ECFC0' },
+    { to: '/mini-games',    icon: 'gamepad', label: 'Đấu trường game', color: '#F48FB1' },
   ]},
-  { label: 'Luyện tập', items: [
-    { to: '/practice',   icon: 'target',  label: 'Bài tập',    color: '#EA5A5A' },
-    { to: '/mini-games', icon: 'gamepad', label: 'Mini-games', color: '#F48FB1' },
-    { to: '/typing',     icon: 'PET',     label: 'Đánh máy',    color: '#c44f8a' },
-    { to: '/duel',       icon: 'swords',  label: 'Đấu trường', color: '#9C7BE0' },
-  ]},
-  { label: 'Pet', items: [
+  { label: 'Hệ thống Pet', items: [
     { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
     { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
     { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
-  { label: 'Sổ tay', items: [
-    { to: '/progress',        icon: 'chart',   label: 'Tiến trình', color: '#4EA8E8' },
-    { to: '/student-ranking', icon: 'ranking', label: 'Xếp hạng',   color: '#F6D365' },
-    { to: '/leaderboard',     icon: 'paw',     label: 'Xếp hạng Pet', color: '#F4A83A' },
-    { to: '/account',         icon: 'user',    label: 'Tài khoản',  color: '#8A99AA' },
+  { label: 'Sổ tay tổng quát', items: [
+    { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
+    { to: '/progress',        icon: 'chart',   label: 'Tiến trình',     color: '#5ECFC0' },
+    { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng', color: '#F6D365' },
+    { to: '/account',         icon: 'user',    label: 'Tài khoản',      color: '#8A99AA' },
   ]},
 ];
 
 /* Mobile popup sub-menus */
 const MOBILE_MENUS = {
   learn: [
-    { icon: 'road',  label: 'Lộ trình học', path: '/learning-path' },
-    { icon: 'map',   label: 'Từ vựng',    path: '/vocabulary' },
-    { icon: 'brain', label: 'Ôn tập',     path: '/review' },
-    { icon: 'book',  label: 'Thư viện bài', path: '/lessons' },
+    { icon: 'road',    label: 'Lộ trình học',    path: '/' },
+    { icon: 'target',  label: 'Ôn tập & Bài tập', path: '/practice' },
+    { icon: 'map',     label: 'Từ vựng',         path: '/vocabulary' },
+    { icon: 'book',    label: 'Thư viện bài',    path: '/lessons' },
+    { icon: 'medal',   label: 'Luyện thi IELTS', path: '/?tab=ielts' },
+    { icon: 'flag',    label: 'Luyện thi TOEIC', path: '/?tab=toeic' },
   ],
   practice: [
-    { icon: 'target',  label: 'Bài tập',    path: '/practice' },
-    { icon: 'gamepad', label: 'Mini-games', path: '/mini-games' },
-    { icon: 'PET',     label: 'Đánh máy',    path: '/typing' },
-    { icon: 'swords',  label: 'Đấu trường', path: '/duel' },
-    { icon: 'medal',   label: 'Luyện thi IELTS', path: '/learning-path?tab=ielts' },
-    { icon: 'flag',    label: 'Luyện thi TOEIC', path: '/learning-path?tab=toeic' },
+    { icon: 'gamepad', label: 'Đấu trường game', path: '/mini-games' },
+    { icon: 'PET',     label: 'Đánh máy',        path: '/typing' },
+    { icon: 'swords',  label: 'Đấu bạn bè',      path: '/duel' },
+    { icon: 'brain',   label: 'Ôn nhanh',        path: '/review' },
   ],
   pet: [
     { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
     { icon: 'redbook', label: 'Cowdi Dex',   path: '/collection' },
-    { icon: 'bag',     label: 'Shop',        path: '/shop' },
+    { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
   ],
   me: [
-    { icon: 'gift',    label: 'Mời bạn',      action: 'invite' },
-    { icon: 'chart',   label: 'Tiến trình',   path: '/progress' },
-    { icon: 'ranking', label: 'Xếp hạng',     path: '/student-ranking' },
-    { icon: 'paw',     label: 'Xếp hạng Pet', path: '/leaderboard' },
-    { icon: 'user',    label: 'Tài khoản',    path: '/account' },
+    { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
+    { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
+    { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },
+    { icon: 'gift',    label: 'Mời bạn học',    action: 'invite' },
+    { icon: 'user',    label: 'Tài khoản',      path: '/account' },
   ],
 };
 
@@ -303,8 +297,8 @@ export default function BookShell({ children }) {
         )}
 
         <NavLink to="/" end className={({ isActive }) => `book-bottom-tab ${isActive ? 'active' : ''}`} onClick={() => setOpenTab(null)}>
-          <span className="book-bottom-tab-icon"><Icon name="home" size={28} /></span>
-          <span>Home</span>
+          <span className="book-bottom-tab-icon"><Icon name="road" size={28} /></span>
+          <span>Lộ trình</span>
         </NavLink>
         <button type="button" className={`book-bottom-tab ${isIn(LEARN_PATHS) ? 'active' : ''} ${openTab === 'learn' ? 'open' : ''}`}
           onClick={() => handleTabTap('learn')}>

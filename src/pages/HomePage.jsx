@@ -75,11 +75,11 @@ export default function HomePage() {
       {/* ═══════════ Header: title + banner ═══════════ */}
       <div className="journal-header">
         <div>
-          <h1 className="journal-title">Chào mừng trở lại!</h1>
-          <p className="journal-sub">Đây là sổ tay học tập của bạn cùng {petName}</p>
+          <h1 className="journal-title">Sổ tay tổng quát</h1>
+          <p className="journal-sub">Tổng hợp tiến trình, kỹ năng và hành trình cùng {petName}</p>
           <div className="journal-actions">
-            <Link to={nextHref} className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2"><Icon name={nextIcon} size={20} /> {nextLabel}</Link>
-            <Link to="/practice" className="btn btn-outline-cowdi d-inline-flex align-items-center gap-2"><Icon name="pencil" size={20} /> Luyện tập</Link>
+            <Link to="/" className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2"><Icon name="road" size={20} /> Về lộ trình học</Link>
+            <Link to="/practice" className="btn btn-outline-cowdi d-inline-flex align-items-center gap-2"><Icon name="pencil" size={20} /> Ôn tập</Link>
             {!user && (
               <button type="button" className="btn btn-outline-cowdi" onClick={loginWithGoogle}>
                 <i className="fab fa-google me-1" /> Đăng nhập để lưu tiến trình

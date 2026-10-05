@@ -5,9 +5,10 @@ import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { SoundProvider } from './hooks/useSound';
-import HomePage from './pages/HomePage';
+import LearningPathPage from './pages/LearningPathPage';
 
-// Lazy-load route pages so initial bundle stays small (HomePage is eager).
+// Lazy-load route pages so initial bundle stays small (LearningPathPage is eager).
+const HomePage            = lazy(() => import('./pages/HomePage'));
 const LessonsPage         = lazy(() => import('./pages/LessonsPage'));
 const LessonDetailPage    = lazy(() => import('./pages/LessonDetailPage'));
 const VocabularyPage      = lazy(() => import('./pages/VocabularyPage'));
@@ -21,7 +22,6 @@ const LeaderboardPage     = lazy(() => import('./pages/LeaderboardPage'));
 const MiniGamePage        = lazy(() => import('./pages/MiniGamePage'));
 const AccountPage         = lazy(() => import('./pages/AccountPage'));
 const ReviewPage          = lazy(() => import('./pages/ReviewPage'));
-const LearningPathPage    = lazy(() => import('./pages/LearningPathPage'));
 const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
@@ -64,13 +64,14 @@ export default function App() {
         <main className="book-main">
           <Suspense fallback={<PageFallback />}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<LearningPathPage />} />
+            <Route path="/learning-path" element={<LearningPathPage />} />
+            <Route path="/overview" element={<HomePage />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/practice" element={<PracticePage />} />
             <Route path="/review" element={<ReviewPage />} />
-            <Route path="/learning-path" element={<LearningPathPage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/pet" element={<PetPage />} />
             <Route path="/collection" element={<CollectionPage />} />
@@ -84,7 +85,7 @@ export default function App() {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />
             <Route path="/i/:code" element={<InvitePage />} />
-            <Route path="*" element={<HomePage />} />
+            <Route path="*" element={<LearningPathPage />} />
           </Routes>
         </Suspense>
         </main>
