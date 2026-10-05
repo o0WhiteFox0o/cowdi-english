@@ -299,8 +299,8 @@ function exportFile(mdFilename, pdfFilename, title) {
   console.log(`✅ Đã xuất thành công: ${pdfFilename}`);
 }
 
-exportFile('SECURITY-REPORT-v01.md', 'SECURITY-REPORT-v01.pdf', 'Báo cáo An toàn Bảo mật v01 - Cowdi English');
-exportFile('SEO-REPORT-v01.md', 'SEO-REPORT-v01.pdf', 'Báo cáo Chiến lược SEO v01 - Cowdi English');
-exportFile('STANDARDS-REPORT-v01.md', 'STANDARDS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn Công nghệ v01 - Cowdi English');
-exportFile('IEEE-AND-NESTJS-REPORT-v01.md', 'IEEE-AND-NESTJS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn IEEE & So sánh NestJS - Cowdi English');
+exportFile('docs/standards/SECURITY-REPORT-v01.md', 'docs/standards/SECURITY-REPORT-v01.pdf', 'Báo cáo An toàn Bảo mật v01 - Cowdi English');
+exportFile('docs/standards/SEO-REPORT-v01.md', 'docs/standards/SEO-REPORT-v01.pdf', 'Báo cáo Chiến lược SEO v01 - Cowdi English');
+exportFile('docs/standards/STANDARDS-REPORT-v01.md', 'docs/standards/STANDARDS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn Công nghệ v01 - Cowdi English');
+exportFile('docs/standards/IEEE-AND-NESTJS-REPORT-v01.md', 'docs/standards/IEEE-AND-NESTJS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn IEEE & So sánh NestJS - Cowdi English');
 console.log('\n🎉 Hoàn thành xuất toàn bộ các file PDF!');

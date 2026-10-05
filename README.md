@@ -116,7 +116,7 @@ node index.js        # localhost:3001
 
 - Node.js >= 18
 - MySQL 8+
-- Google OAuth Client ID/Secret (xem [SETUP.md](SETUP.md))
+- Google OAuth Client ID/Secret (xem [docs/setup/SETUP.md](docs/setup/SETUP.md))
 
 ---
 
@@ -176,10 +176,10 @@ Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc t
 
 | Báo cáo chuyên đề | Bản Markdown | Bản PDF In ấn | Mô tả trọng tâm |
 |---|:---:|:---:|---|
-| **Tiêu chuẩn Công nghệ v01** | [STANDARDS-REPORT-v01.md](STANDARDS-REPORT-v01.md) | [STANDARDS-REPORT-v01.pdf](STANDARDS-REPORT-v01.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
-| **Tiêu chuẩn IEEE & So sánh NestJS** | [IEEE-AND-NESTJS-REPORT-v01.md](IEEE-AND-NESTJS-REPORT-v01.md) | [IEEE-AND-NESTJS-REPORT-v01.pdf](IEEE-AND-NESTJS-REPORT-v01.pdf) | Tổng hợp các chuẩn IEEE (754, 42010, 12207, POSIX) & so sánh đa chiều với NestJS |
-| **An toàn Bảo mật v01** | [SECURITY-REPORT-v01.md](SECURITY-REPORT-v01.md) | [SECURITY-REPORT-v01.pdf](SECURITY-REPORT-v01.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
-| **Chiến lược & Hiện trạng SEO v01** | [SEO-REPORT-v01.md](SEO-REPORT-v01.md) | [SEO-REPORT-v01.pdf](SEO-REPORT-v01.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
+| **Tiêu chuẩn Công nghệ v01** | [STANDARDS-REPORT-v01.md](docs/standards/STANDARDS-REPORT-v01.md) | [STANDARDS-REPORT-v01.pdf](docs/standards/STANDARDS-REPORT-v01.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
+| **Tiêu chuẩn IEEE & So sánh NestJS** | [IEEE-AND-NESTJS-REPORT-v01.md](docs/standards/IEEE-AND-NESTJS-REPORT-v01.md) | [IEEE-AND-NESTJS-REPORT-v01.pdf](docs/standards/IEEE-AND-NESTJS-REPORT-v01.pdf) | Tổng hợp các chuẩn IEEE (754, 42010, 12207, POSIX) & so sánh đa chiều với NestJS |
+| **An toàn Bảo mật v01** | [SECURITY-REPORT-v01.md](docs/standards/SECURITY-REPORT-v01.md) | [SECURITY-REPORT-v01.pdf](docs/standards/SECURITY-REPORT-v01.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
+| **Chiến lược & Hiện trạng SEO v01** | [SEO-REPORT-v01.md](docs/standards/SEO-REPORT-v01.md) | [SEO-REPORT-v01.pdf](docs/standards/SEO-REPORT-v01.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
 
 ---
 
@@ -210,16 +210,16 @@ Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc t
 
 ---
 
-## Tài liệu thêm
+## 📂 Hệ thống Tài liệu Dự án
+Toàn bộ tài liệu kỹ thuật, thiết kế game, chiến lược và báo cáo đánh giá đã được phân loại khoa học trong thư mục **[`docs/`](docs/README.md)**:
 
-| File | Nội dung |
-|---|---|
-| [SETUP.md](SETUP.md) | Hướng dẫn cài đặt chi tiết |
-| [GAME-DESIGN.md](GAME-DESIGN.md) | Thiết kế hệ thống game, XP, pet |
-| [DUEL-BATTLE-DESIGN.md](DUEL-BATTLE-DESIGN.md) | Thiết kế hệ thống đấu |
-| [VOCABULARY.md](VOCABULARY.md) | Danh sách từ vựng |
-| [PET-IMAGE-GUIDE.md](PET-IMAGE-GUIDE.md) | Hướng dẫn thêm ảnh pet |
-| [REPORT.md](REPORT.md) | Báo cáo tiến độ phát triển |
+- 🚀 [**Thiết lập & Vận hành (docs/setup/)**](docs/setup/SETUP.md): Hướng dẫn cài đặt, quy trình build, deploy và PWA.
+- 🏛️ [**Tiêu chuẩn Quốc tế & Bảo mật (docs/standards/)**](docs/standards/STANDARDS-REPORT-v01.md): Báo cáo chuẩn IEEE, ISO, W3C, SEO và Security.
+- 🎮 [**Thiết kế Trò chơi & Ngôn ngữ (docs/game-design/)**](docs/game-design/GAME-DESIGN.md): Game design, Đấu trường Duel, Pet Dex, kinh tế 2 ví XP và cơ chế ghi nhớ SRS.
+- 📈 [**Chiến lược Tăng trưởng & Mời bạn (docs/growth/)**](docs/growth/GROWTH-STRATEGY-2026-05.md): Chiến lược lan tỏa, thiệp mời và tính năng chia sẻ.
+- 📊 [**Đánh giá & Checklist Tối ưu (docs/evaluation/)**](docs/evaluation/OPTIMIZATION-CHECKLIST-2026-10.md): Báo cáo đánh giá dự án và checklist tối ưu hóa tháng 10/2026.
+
+👉 **Tra cứu chi tiết toàn bộ tài liệu tại:** [**docs/README.md**](docs/README.md)
 
 ---
 
