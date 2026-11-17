@@ -416,3 +416,108 @@
   .vocab-hero-badge { width: 140px; height: 140px; }
   .vocab-hero-img   { width: 118px; height: 118px; }
 }
+
+/* ── Account Page UI Optimization ── */
+.account-notification-group .card:first-child {
+  margin-bottom: 0 !important;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-width: 0;
+}
+.account-notification-group .card:last-child {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.account-notification-group .card-body {
+  padding: 24px;
+}
+.account-notification-group .alert-warning {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-width: 0;
+}
+
+@media (max-width: 767px) {
+  .account-notification-group .card-body {
+    padding: 16px;
+  }
+  .account-notification-group .btn,
+  .account-notification-group input[type="text"],
+  .account-notification-group input[type="time"] {
+    min-height: 44px;
+  }
+}
+
+/* ── Progress Page UI Optimization ── */
+.progress-stat-card {
+  padding: 16px;
+}
+
+.vocab-stat-bar {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 767px) {
+  .vocab-stat-bar {
+    height: 24px;
+  }
+}
+
+/* ── Practice Page UI Optimization ── */
+.skill-card .card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.skill-card .card-text {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.skill-card .badge {
+  font-size: 0.75rem;
+}
+
+.quiz-option-btn,
+.card-body .btn.w-100 {
+  min-height: 44px;
+}
+
+@media (max-width: 480px) {
+  .skill-card .card-body {
+    padding: 14px 10px;
+  }
+  .skill-card .card-title {
+    font-size: 0.95rem;
+  }
+  .skill-card .card-text {
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+}
+
+/* ── Lessons Page UI Optimization ── */
+.card-text.text-muted.small {
+  line-height: 1.45;
+}
+
+.btn.rounded-pill {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 575px) {
+  .btn.rounded-pill {
+    min-height: 44px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+
+
+

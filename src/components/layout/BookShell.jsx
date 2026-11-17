@@ -35,7 +35,7 @@ const TAB_GROUPS = [
   ]},
   { label: 'Sổ tay tổng quát', items: [
     { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
-    { to: '/progress',        icon: 'chart',   label: 'Tiến trình',     color: '#5ECFC0' },
+    // { to: '/progress',        icon: 'chart',   label: 'Tiến trình',     color: '#5ECFC0' },
     { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng', color: '#F6D365' },
     { to: '/account',         icon: 'user',    label: 'Tài khoản',      color: '#8A99AA' },
   ]},
@@ -195,14 +195,14 @@ export default function BookShell({ children }) {
                       </NavLink>
                     </li>
                   ))}
-                  {group.label === 'Sổ tay' && user?.is_admin && (
+                  {group.label?.includes('Sổ tay') && user?.is_admin && (
                     <li>
                       <NavLink to="/admin" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
                         <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
                       </NavLink>
                     </li>
                   )}
-                  {group.label === 'Sổ tay' && (
+                  {group.label?.includes('Sổ tay') && (
                     <li>
                       <button type="button" className="book-tab" style={{ '--tab-color': '#F6D365' }} onClick={() => setInviteOpen(true)}>
                         <span className="book-tab-icon"><Icon name="gift" size={22} /></span><span>Mời bạn học</span>

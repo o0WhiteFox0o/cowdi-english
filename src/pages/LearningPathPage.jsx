@@ -17,7 +17,7 @@ const PATH_IDS = ALL_PATHS.map((p) => p.id);
 /* Horizontal wiggle of the trail (px), cycles per node */
 const WIGGLE = [0, 44, 72, 44, 0, -44, -72, -44];
 /* Unit icon by position (data emojis are replaced by the Cowdi icon set) */
-const UNIT_ICONS = ['abc', 'blocks', 'chat', 'sprout', 'leaf', 'tree', 'clover', 'star', 'trophy', 'target'];
+const UNIT_ICONS = ['blocks', 'chat', 'sprout', 'leaf', 'tree', 'clover', 'star', 'trophy', 'target'];
 
 function shuffleArray(arr) {
   const a = [...arr];

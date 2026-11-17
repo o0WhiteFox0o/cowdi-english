@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { Link } from 'react-router-dom';
@@ -7,20 +7,33 @@ import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
-import { PET_REGISTRY, getPetEvolution, getPetMood, SKILL_META, DAILY_QUESTS } from '../data/pets';
-import CowdiBetaBanner from '../components/CowdiBetaBanner';
+import { PET_REGISTRY, getPetEvolution, getPetMood } from '../data/pets';
 import InviteSheet from '../features/invite/InviteSheet';
-import Icon, { SKILL_ICON } from '../components/Icon';
+import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const NEED_META = {
-  energy: { icon: 'bolt', name: 'Năng lượng', tone: 'gold' },
-  happiness: { icon: 'smile', name: 'Vui vẻ', tone: 'clay' },
-  health: { icon: 'heart', name: 'Sức khỏe', tone: '' },
-  knowledge: { icon: 'book', name: 'Tri thức', tone: 'sky' },
+  energy: { icon: 'bolt', name: 'Năng lượng' },
+  happiness: { icon: 'smile', name: 'Vui vẻ' },
+  health: { icon: 'heart', name: 'Sức khỏe' },
+  knowledge: { icon: 'book', name: 'Tri thức' },
 };
-const MOOD_LABEL = { happy: 'đang vui', normal: 'bình thường', sad: 'hơi buồn', sick: 'đang ốm' };
+const MOOD_LABEL = {
+  happy: 'Hào hứng ✨',
+  normal: 'Sẵn sàng 🎒',
+  sad: 'Cần động lực 💪',
+  sick: 'Cần chăm sóc 💊',
+};
+
+function getUserLevel(xp) {
+  let current = LEVELS[0];
+  for (const lvl of LEVELS) {
+    if (xp >= lvl.xpRequired) current = lvl;
+    else break;
+  }
+  return current;
+}
 
 export default function HomePage() {
   useSEO(SEO_CONFIGS['/']);
@@ -31,10 +44,6 @@ export default function HomePage() {
 
   const level = getUserLevel(userData.totalXP);
   const nextLevel = LEVELS.find((l) => l.xpRequired > userData.totalXP);
-  const xpProgress = nextLevel
-    ? Math.min(100, ((userData.totalXP - level.xpRequired) / (nextLevel.xpRequired - level.xpRequired)) * 100)
-    : 100;
-  const stars = Math.max(1, Math.min(5, Math.ceil(level.level / LEVELS.length * 5)));
 
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
@@ -50,312 +59,344 @@ export default function HomePage() {
     || LESSONS.find((l) => !completed.includes(l.id)) || LESSONS[0];
   const nextIsCheckpoint = currentNode?.type === 'checkpoint';
   const nextHref = nextIsCheckpoint ? '/learning-path' : `/lessons/${nextLesson.id}`;
-  const nextLabel = nextIsCheckpoint ? currentNode.unit.checkpoint.title : `Học tiếp: ${nextLesson.title}`;
+  const nextLabel = nextIsCheckpoint ? currentNode.unit.checkpoint.title : nextLesson.title;
   const nextIcon = nextIsCheckpoint ? 'trophy' : 'play';
-  const allDailyDone = userData.dailyTasks.lessonDone && userData.dailyTasks.vocabDone;
 
-  // Today's journal entry
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const today = userData.dailyJournal?.[todayKey] || {};
+  // Greeting by time of day
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return {
+        title: 'Chào buổi sáng',
+        subtitle: 'Bắt đầu ngày mới thật hứng khởi cùng Cowdi!',
+      };
+    }
+    if (hour < 18) {
+      return {
+        title: 'Chào buổi chiều',
+        subtitle: 'Dành chút thời gian ôn tập để nhớ từ vựng lâu hơn nhé!',
+      };
+    }
+    return {
+      title: 'Chào buổi tối',
+      subtitle: 'Hoàn thành nốt mục tiêu hôm nay để giữ chuỗi Streak nhé!',
+    };
+  }, []);
 
-  // Pet collection avatars (fill to 8 slots)
-  const owned = Object.entries(petData.collection || {});
-  const slots = Array.from({ length: Math.max(8, Math.ceil(owned.length / 4) * 4) }, (_, i) => owned[i] || null);
+  // Weekly activity (7 days: Monday to Sunday of current week)
+  const currentWeekDays = useMemo(() => {
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - dayOfWeek);
 
-  // Goal rows (long-term)
-  const goals = [
-    { icon: 'book', name: 'Hoàn thành bài học', cur: completed.length, max: LESSONS.length },
-    { icon: 'road', name: 'Vượt qua các Unit', cur: UNITS.filter((u) => u.lessons.every((id) => completed.includes(id))).length, max: UNITS.length },
-    { icon: 'fire', name: 'Streak 7 ngày', cur: Math.min(7, userData.streak), max: 7, tone: 'clay' },
-    { icon: 'paw', name: 'Sưu tập Pet', cur: owned.length, max: Object.keys(PET_REGISTRY).length },
-  ];
+    const activeSet = new Set(userData.activeDays || []);
+    const days = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const key = d.toDateString();
+      const isToday = key === now.toDateString();
+      const isActive = activeSet.has(key);
+
+      days.push({
+        label: DOW[i],
+        date: d.getDate(),
+        isActive,
+        isToday,
+      });
+    }
+    return days;
+  }, [userData.activeDays]);
+
+  const weekActiveCount = currentWeekDays.filter((d) => d.isActive).length;
+
+  // Curated 4 daily goals
+  const dailyTasks = useMemo(() => {
+    return [
+      {
+        id: 'lesson',
+        title: 'Hoàn thành 1 bài học',
+        reward: '+15 XP',
+        done: !!userData.dailyTasks?.lessonDone,
+        icon: 'book',
+      },
+      {
+        id: 'vocab',
+        title: 'Ôn tập từ vựng',
+        reward: '+10 Xu',
+        done: !!userData.dailyTasks?.vocabDone,
+        icon: 'cards',
+      },
+      {
+        id: 'quiz',
+        title: 'Thực hiện bài Quiz',
+        reward: '+10 XP',
+        done: (userData.quizzesCompleted || 0) > 0,
+        icon: 'target',
+      },
+      {
+        id: 'streak',
+        title: 'Giữ vững chuỗi Streak',
+        reward: '+5 Xu',
+        done: (userData.streak || 0) > 0,
+        icon: 'fire',
+      },
+    ];
+  }, [userData.dailyTasks, userData.quizzesCompleted, userData.streak]);
+
+  const completedGoalsCount = dailyTasks.filter((t) => t.done).length;
+
+  const displayName = user?.display_name || petData.nickname || 'Bạn học Cowdi';
 
   return (
-    <div className="fade-in">
-      {/* ═══════════ Header: title + banner ═══════════ */}
-      <div className="journal-header">
-        <div>
-          <h1 className="journal-title">Sổ tay tổng quát</h1>
-          <p className="journal-sub">Tổng hợp tiến trình, kỹ năng và hành trình cùng {petName}</p>
-          <div className="journal-actions">
-            <Link to="/" className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2"><Icon name="road" size={20} /> Về lộ trình học</Link>
-            <Link to="/practice" className="btn btn-outline-cowdi d-inline-flex align-items-center gap-2"><Icon name="pencil" size={20} /> Ôn tập</Link>
+    <div className="dash-v2 fade-in">
+      {/* ═══════════ A. Header: User Quick Info Strip ═══════════ */}
+      <section className="dash-user-strip" aria-label="Thông tin người học">
+        <div className="dash-user-profile">
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt={displayName} className="dash-user-avatar" referrerPolicy="no-referrer" />
+          ) : (
+            <div className="dash-user-avatar-placeholder">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            <div className="dash-user-name">{displayName}</div>
+            <small className="text-muted" style={{ fontSize: '0.8rem' }}>
+              {level.title} · Lv.{level.level}
+            </small>
+          </div>
+        </div>
+
+        <div className="dash-user-stats">
+          <span className="dash-stat-pill" title="Chuỗi ngày học liên tiếp">
+            <Icon name="fire" size={18} /> {userData.streak || 0} ngày
+          </span>
+          <span className="dash-stat-pill leaf" title="Điểm kinh nghiệm">
+            <Icon name="star" size={18} /> {userData.totalXP || 0} XP
+          </span>
+          <span className="dash-stat-pill" title="Ví Coins">
+            <Icon name="coin" size={18} /> {petData.coins || 0} xu
+          </span>
+          <button
+            type="button"
+            className="btn btn-outline-cowdi btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3"
+            onClick={() => setInviteOpen(true)}
+            title="Mời bạn cùng học nhận quà"
+          >
+            <Icon name="gift" size={16} /> Mời bạn
+          </button>
+        </div>
+      </section>
+
+      {/* ═══════════ B. Hero: Welcome & Motivation ═══════════ */}
+      <section className="dash-hero" aria-label="Chào mừng">
+        <div className="dash-hero-text">
+          <h2>{greeting.title}, {displayName}! ✨</h2>
+          <p className="dash-hero-quote">{greeting.subtitle}</p>
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            <Link to="/learning-path" className="btn btn-cowdi-primary btn-sm d-inline-flex align-items-center gap-2">
+              <Icon name="road" size={18} /> Lộ trình học
+            </Link>
+            <Link to="/practice" className="btn btn-outline-cowdi btn-sm d-inline-flex align-items-center gap-2">
+              <Icon name="pencil" size={18} /> Phòng luyện tập
+            </Link>
             {!user && (
-              <button type="button" className="btn btn-outline-cowdi" onClick={loginWithGoogle}>
+              <button type="button" className="btn btn-link text-decoration-none btn-sm p-0 text-muted ms-1" onClick={loginWithGoogle}>
                 <i className="fab fa-google me-1" /> Đăng nhập để lưu tiến trình
               </button>
             )}
           </div>
         </div>
-        <div className="journal-banner"><CowdiBetaBanner /></div>
-      </div>
 
-      {/* ═══════════ Row 1: Tổng quan (rộng) + Pet ═══════════ */}
-      <div className="journal-grid mb-3">
-        {/* Tổng quan */}
-        <section className="book-card span-2">
-          <div className="book-card-head">
-            <div className="book-card-title">Tổng quan</div>
-            <Link to="/progress" className="book-card-link">Xem tất cả →</Link>
-          </div>
-          <div className="journal-overview">
-            <div className="journal-kv">
-              <div className="book-slip">
-                <small>Cấp độ</small>
-                <div className="journal-stars">
-                  {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < stars ? '' : 'dim'}>★</span>)}
-                  <span className="ms-1" style={{ color: 'var(--ink-soft)', fontSize: '.85rem' }}>Lv.{level.level}</span>
-                </div>
-                <div className="journal-level-title">{level.title}</div>
-                <div className="book-bar mt-1"><i style={{ width: `${xpProgress}%` }} /></div>
-                <small>{userData.totalXP} / {nextLevel ? nextLevel.xpRequired : level.xpRequired} XP</small>
-              </div>
-              <div className="book-slip">
-                <small>Chuỗi ngày học</small>
-                <div className="journal-level-title d-flex align-items-center gap-1"><Icon name="fire" size={22} /> {userData.streak} ngày liên tiếp</div>
-              </div>
-              <div className="book-slip">
-                <small>Kho báu</small>
-                <div className="journal-level-title d-flex align-items-center gap-1 flex-wrap"><Icon name="coin" size={22} /> {petData.coins} coins · <Icon name="star" size={22} /> {userData.availableXP ?? 0} XP dư</div>
-              </div>
-            </div>
-            <MiniCalendar activeDays={userData.activeDays} />
-          </div>
-        </section>
-
-        {/* Pet polaroid */}
-        <section className="book-card journal-pet-card">
-          <div className="book-card-head">
-            <div className="book-card-title">Pet của tôi</div>
-            <Link to="/pet" className="book-card-link">Chăm sóc →</Link>
-          </div>
-          <Link to="/pet" className="journal-pet">
-            <div className="journal-pet-frame">
-              <img src={petImg} alt={petName} width="180" height="180" fetchpriority="high" decoding="async" />
-            </div>
-            <div className="journal-pet-cap">
-              <span>{petName} <Emoji e={evo?.emoji || species?.emoji || '🐮'} size={18} /></span>
-              <small>{evo?.name || 'Starter'} · {MOOD_LABEL[mood] || mood}</small>
-            </div>
-          </Link>
-          {activePet && (
-            <div className="journal-needs">
-              {Object.entries(NEED_META).map(([k, m]) => (
-                <div key={k} className="journal-need">
-                  <span><span className="d-inline-flex align-items-center gap-1"><Icon name={m.icon} size={14} /> {m.name}</span><span>{Math.round(activePet.needs?.[k] ?? 0)}%</span></span>
-                  <div className={`book-bar ${m.tone}`}><i style={{ width: `${activePet.needs?.[k] ?? 0}%` }} /></div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-
-      {/* ═══════════ Row 2: Nhiệm vụ + Kỹ năng + Lộ trình ═══════════ */}
-      <div className="journal-grid mb-3">
-        {/* Nhiệm vụ */}
-        <section className="book-card">
-          <div className="book-card-head">
-            <div className="book-card-title">Nhiệm vụ</div>
-            <Link to="/pet" className="book-card-link">Xem tất cả →</Link>
-          </div>
-          {DAILY_QUESTS.map((q) => {
-            const done = !!q.check(userData);
-            return (
-              <div key={q.id} className={`journal-task ${done ? 'done' : ''}`}>
-                <div className="journal-task-ico">{done ? <Icon name="check" size={24} /> : q.title.slice(0, 2)}</div>
-                <div className="journal-task-name">{q.title.slice(2).trim()}<br /><small className="text-muted" style={{ fontFamily: 'var(--font)', fontSize: '.72rem' }}>{q.desc}</small></div>
-                <div className="journal-task-num d-flex align-items-center gap-1">+{q.reward} <Icon name="coin" size={16} /></div>
-              </div>
-            );
-          })}
-          {goals.map((g) => (
-            <div key={g.name} className={`journal-task ${g.cur >= g.max ? 'done' : ''}`}>
-              <div className="journal-task-ico"><Icon name={g.icon} size={24} /></div>
-              <div className="journal-task-name">{g.name}</div>
-              <div className="journal-task-num">{g.cur} / {g.max}</div>
-              <div className={`book-bar ${g.tone || ''}`}><i style={{ width: `${Math.min(100, (g.cur / g.max) * 100)}%` }} /></div>
-            </div>
-          ))}
-          {!allDailyDone && (
-            <Link to={nextHref} className="btn btn-cowdi-primary btn-sm w-100 mt-2">Làm nhiệm vụ ngay →</Link>
-          )}
-        </section>
-
-        {/* Kỹ năng */}
-        <section className="book-card">
-          <div className="book-card-head">
-            <div className="book-card-title">Kỹ năng</div>
-            <Link to="/progress" className="book-card-link">Chi tiết →</Link>
-          </div>
-          <div className="journal-skills">
-            {Object.entries(SKILL_META).map(([key, meta]) => {
-              const xp = userData.skillXP?.[key] || 0;
-              const max = Math.max(1, ...Object.values(userData.skillXP || { a: 1 }));
-              return (
-                <div key={key} className="journal-skill">
-                  <div className="journal-skill-ico"><Icon name={SKILL_ICON[key]} size={28} /></div>
-                  <div className="journal-skill-name">{meta.name}</div>
-                  <div className="journal-skill-val">{xp} XP</div>
-                  <div className="book-bar"><i style={{ width: `${Math.round((xp / max) * 100)}%`, background: meta.color }} /></div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="book-slip mt-3 d-flex align-items-center gap-2">
-            <Icon name="target" size={30} />
-            <div className="flex-grow-1">
-              <div className="journal-level-title">Đã làm {userData.quizzesCompleted || 0} quiz · {userData.perfectQuizzes || 0} perfect</div>
-              <small className="text-muted">Thuộc {userData.wordsLearned || 0} từ vựng</small>
-            </div>
-          </div>
-        </section>
-
-        {/* Lộ trình — chỉ hiện unit đang học để tránh rối mắt */}
-        <section className="book-card">
-          <div className="book-card-head">
-            <div className="book-card-title">Lộ trình</div>
-            <Link to="/learning-path" className="book-card-link">Xem bản đồ →</Link>
-          </div>
-          {(() => {
-            const u = pathInfo.currentUnit;
-            const uIdx = UNITS.findIndex((x) => x.id === u.id);
-            const uNodes = pathInfo.nodes.filter((n) => n.unit.id === u.id);
-            const uDone = uNodes.filter((n) => n.status === 'done').length;
-            return (
-              <Link to="/learning-path" className="journal-unit-now text-decoration-none" style={{ '--unit-color': u.color }}>
-                <div className="journal-unit-now-ico"><Icon name="road" size={30} /></div>
-                <div className="flex-grow-1">
-                  <small className="text-muted">Unit {uIdx + 1} · {uDone}/{uNodes.length} bước</small>
-                  <div className="journal-level-title">{u.title}</div>
-                  <small className="text-muted">{u.subtitle}</small>
-                  <div className="book-bar mt-1"><i style={{ width: `${uNodes.length ? (uDone / uNodes.length) * 100 : 0}%`, background: u.color }} /></div>
-                </div>
-              </Link>
-            );
-          })()}
-          <div className="book-slip mt-2 d-flex justify-content-between align-items-center">
-            <span className="journal-level-title">Toàn lộ trình</span>
-            <span className="journal-task-num">{pathInfo.done} / {pathInfo.total} · {pathInfo.pct}%</span>
-          </div>
-          <Link to={nextHref} className="btn btn-cowdi-primary btn-sm w-100 mt-2 d-inline-flex align-items-center justify-content-center gap-2"><Icon name={nextIcon} size={18} /> {nextLabel}</Link>
-        </section>
-      </div>
-
-      <div className="journal-grid mb-3">
-        <section className="book-card span-3">
-          <div className="book-card-head">
-            <div className="book-card-title">Bộ sưu tập</div>
-            <Link to="/collection" className="book-card-link">Xem tất cả →</Link>
-          </div>
-          <div className="journal-pets">
-            {slots.map((entry, i) => {
-              if (!entry) {
-                return (
-                  <Link key={`empty-${i}`} to="/collection" className="journal-pet-av locked">
-                    <div className="journal-pet-av-ring"><Icon name="egg" size={30} /></div>
-                    <span>Chưa mở</span>
-                  </Link>
-                );
-              }
-              const [id, pet] = entry;
-              const sp = PET_REGISTRY[pet.speciesId];
-              const ev = sp ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
-              return (
-                <Link key={id} to="/collection" className={`journal-pet-av ${id === petData.activePetId ? 'active' : ''}`}>
-                  <div className="journal-pet-av-ring">
-                    {ev?.image ? <img src={ev.image} alt="" /> : <Emoji e={sp?.emoji || '🐾'} size={28} />}
-                  </div>
-                  <span>{pet.customName || sp?.name}</span>
-                </Link>
-              );
-            })}
-          </div>
-          <button type="button" className="btn btn-cowdi-primary btn-sm mt-3 d-inline-flex align-items-center gap-2" onClick={() => setInviteOpen(true)}>
-            Mời bạn học cùng <Icon name="gift" size={18} />
-          </button>
-        </section>
-      </div>
-
-      {/* ═══════════ Row 3: Ghi chú ═══════════ */}
-      <section className="book-card">
-        <div className="book-card-head">
-          <div className="book-card-title">Ghi chú</div>
+        <div className="dash-hero-mascot-box">
+          <img src={petImg} alt={petName} className="dash-hero-mascot-img" />
+          <span className="dash-hero-mood-tag">
+            <Emoji e={evo?.emoji || species?.emoji || '🐮'} size={14} /> {petName} {MOOD_LABEL[mood] || 'đang vui'}
+          </span>
         </div>
-        <div className="journal-notes">
-          <Link to={nextHref} className="journal-note">
-            <b>Tiếp tục học</b>
-            {nextIsCheckpoint ? nextLabel : <><Emoji e={nextLesson.icon} size={16} /> {nextLesson.title}</>}
-            <div className="small mt-1" style={{ fontFamily: 'var(--font)', fontSize: '.75rem', opacity: .8 }}>
-              Cấp độ: {nextLesson.level}
-            </div>
-            <span className="n-ico"><Icon name="book" size={28} /></span>
-          </Link>
-          <div className="journal-note mint">
-            <b>Hôm nay</b>
-            <ul>
-              <li>{today.lessons || 0} bài học · {today.quizzes || 0} quiz</li>
-              <li>{today.words || 0} từ mới · {today.reviews || 0} lượt ôn</li>
-              <li>+{today.xp || userData.dailyXP || 0} XP</li>
-            </ul>
-            <span className="n-ico"><Icon name="pencil" size={28} /></span>
+      </section>
+
+      {/* ═══════════ C. Continue Learning (Primary CTA) ═══════════ */}
+      <section className="dash-continue-card" aria-label="Bài học tiếp theo">
+        <div>
+          <span className="dash-continue-badge">
+            <Icon name="sparkles" size={14} /> Bài học tiếp theo
+          </span>
+          <h3 className="dash-continue-title">{nextLabel}</h3>
+          <div className="dash-continue-meta">
+            <span className="dash-continue-meta-item">
+              <Icon name="road" size={16} />
+              {pathInfo.currentUnit ? `Unit: ${pathInfo.currentUnit.title}` : 'Khởi động'}
+            </span>
+            <span className="dash-continue-meta-item">
+              <Icon name="book" size={16} />
+              {nextLesson.vocabulary?.length || 0} từ vựng mới
+            </span>
+            <span className="dash-continue-meta-item">
+              <Icon name="trophy" size={16} />
+              {nextLesson.level || 'Cơ bản'}
+            </span>
           </div>
-          <Link to="/duel" className="journal-note rose">
-            <b>Thử thách</b>
-            Thách đấu bạn bè trong Đấu trường để {petName} thêm mạnh mẽ!
-            <span className="n-ico"><Icon name="swords" size={28} /></span>
+        </div>
+
+        <div className="dash-continue-action">
+          <Link
+            to={nextHref}
+            className="btn btn-cowdi-primary btn-lg d-inline-flex align-items-center gap-2 px-4 shadow-sm"
+          >
+            <Icon name={nextIcon} size={20} />
+            Tiếp tục học ngay →
+          </Link>
+          <Link to="/learning-path" className="dash-card-link text-decoration-none">
+            Xem toàn bộ bản đồ lộ trình
           </Link>
         </div>
       </section>
 
+      {/* ═══════════ D + E + F: Main Content 2-Column Grid ═══════════ */}
+      <div className="dash-main-grid">
+        {/* Left Column: Daily Goals & Weekly Progress */}
+        <div className="dash-column">
+          {/* D. Daily Goals */}
+          <section className="dash-card" aria-label="Mục tiêu hôm nay">
+            <div className="dash-card-header">
+              <h4 className="dash-card-title">
+                <Icon name="target" size={20} /> Mục tiêu hôm nay
+              </h4>
+              <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                Đạt {completedGoalsCount}/{dailyTasks.length} mục tiêu
+              </span>
+            </div>
+
+            {/* Task list */}
+            <div className="dash-task-list">
+              {dailyTasks.map((t) => (
+                <div key={t.id} className={`dash-task-item ${t.done ? 'done' : ''}`}>
+                  <div className="dash-task-left">
+                    <div className="dash-task-check">
+                      {t.done ? <Icon name="check" size={14} /> : <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--paper-line)' }} />}
+                    </div>
+                    <span className="dash-task-name">{t.title}</span>
+                  </div>
+                  <span className="dash-task-reward">{t.reward}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* E. Weekly Progress */}
+          <section className="dash-card" aria-label="Tiến độ tuần">
+            <div className="dash-card-header">
+              <h4 className="dash-card-title">
+                <Icon name="calendar" size={20} /> Tiến độ học tuần này
+              </h4>
+              <Link to="/progress" className="dash-card-link">
+                Xem chi tiết →
+              </Link>
+            </div>
+
+            <div className="dash-week-grid">
+              {currentWeekDays.map((d, i) => (
+                <div key={i} className={`dash-week-day ${d.isActive ? 'active' : ''} ${d.isToday ? 'today' : ''}`}>
+                  <span className="day-label">{d.label}</span>
+                  <span className="day-num">{d.date}</span>
+                  <span className="day-dot" />
+                </div>
+              ))}
+            </div>
+
+            <div className="dash-week-footer">
+              <span>
+                Đã học <strong>{weekActiveCount}/7 ngày</strong> tuần này
+              </span>
+              <span>
+                Streak: <strong>{userData.streak || 0} ngày liên tục</strong> 🔥
+              </span>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Cowdi Pet Companion */}
+        <div className="dash-column">
+          <section className="dash-card dash-pet-card" aria-label="Bạn đồng hành Cowdi">
+            <div className="dash-pet-avatar-wrap">
+              <img src={petImg} alt={petName} />
+            </div>
+            <h4 className="dash-pet-name">{petName}</h4>
+            <div className="dash-pet-stage">
+              {evo?.name || 'Bò con'} · {species?.name || 'Cowdi Starter'}
+            </div>
+
+            {/* Pet Needs bars */}
+            {activePet && (
+              <div className="dash-pet-needs-grid">
+                {Object.entries(NEED_META).map(([k, m]) => {
+                  const val = Math.round(activePet.needs?.[k] ?? 85);
+                  return (
+                    <div key={k} className="dash-pet-need-item">
+                      <div className="dash-pet-need-header">
+                        <span><Icon name={m.icon} size={13} /> {m.name}</span>
+                        <span>{val}%</span>
+                      </div>
+                      <div className="dash-pet-need-bar">
+                        <i style={{ width: `${val}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <Link to="/pet" className="btn btn-outline-cowdi btn-sm w-100">
+              Chăm sóc & Luyện thú cưng →
+            </Link>
+          </section>
+        </div>
+      </div>
+
+      {/* ═══════════ G. Recommended Learning ═══════════ */}
+      <section aria-label="Gợi ý học tập">
+        <h4 className="dash-card-title mb-3">
+          <Icon name="sparkles" size={20} /> Gợi ý học tập cho bạn
+        </h4>
+        <div className="dash-recs-grid">
+          <Link to="/practice" className="dash-rec-item">
+            <div className="dash-rec-icon" style={{ background: 'var(--leaf-pale)', color: 'var(--leaf-dark)' }}>
+              <Icon name="pencil" size={22} />
+            </div>
+            <div>
+              <div className="dash-rec-title">Phòng Luyện tập</div>
+              <div className="dash-rec-desc">Ôn từ vựng, ngữ pháp và nghe chép chính tả</div>
+            </div>
+          </Link>
+
+          <Link to="/vocabulary" className="dash-rec-item">
+            <div className="dash-rec-icon" style={{ background: '#FFF8E6', color: '#D48A1E' }}>
+              <Icon name="map" size={22} />
+            </div>
+            <div>
+              <div className="dash-rec-title">Bản đồ Từ vựng</div>
+              <div className="dash-rec-desc">Khám phá từ vựng theo chủ đề kèm phát âm bản xứ</div>
+            </div>
+          </Link>
+
+          <Link to="/duel" className="dash-rec-item">
+            <div className="dash-rec-icon" style={{ background: '#FDECEE', color: '#EA5A5A' }}>
+              <Icon name="swords" size={22} />
+            </div>
+            <div>
+              <div className="dash-rec-title">Đấu trường Thách đấu</div>
+              <div className="dash-rec-desc">Đấu trí 1v1 cùng bạn bè, rèn phản xạ tiếng Anh</div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Invite Modal Sheet */}
       <InviteSheet open={inviteOpen} onClose={() => setInviteOpen(false)} />
     </div>
   );
-}
-
-/* ── Mini month calendar with active-day marks ── */
-function MiniCalendar({ activeDays = [] }) {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const first = new Date(y, m, 1);
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const offset = (first.getDay() + 6) % 7; // Monday-first
-  const active = new Set(activeDays);
-  const monthCount = activeDays.filter((s) => {
-    const d = new Date(s);
-    return d.getMonth() === m && d.getFullYear() === y;
-  }).length;
-  const cells = [];
-  for (let i = 0; i < offset; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-
-  return (
-    <div className="book-slip journal-cal">
-      <div className="journal-cal-head">
-        <span>Tháng {m + 1}, {y}</span>
-        <span className="text-muted" style={{ fontSize: '.8rem' }}>{monthCount} ngày học</span>
-      </div>
-      <div className="journal-cal-grid">
-        {DOW.map((d) => <div key={d} className="dow">{d}</div>)}
-        {cells.map((d, i) => {
-          if (!d) return <div key={`e${i}`} />;
-          const key = new Date(y, m, d).toDateString();
-          const isToday = d === now.getDate();
-          return (
-            <div key={d} className={`day ${active.has(key) ? 'on' : ''} ${isToday ? 'today' : ''}`}>{d}</div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function getUserLevel(xp) {
-  let current = LEVELS[0];
-  for (const lvl of LEVELS) {
-    if (xp >= lvl.xpRequired) current = lvl;
-    else break;
-  }
-  return current;
 }

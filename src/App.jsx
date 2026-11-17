@@ -68,6 +68,7 @@ export default function App() {
             <Route path="/learning-path" element={<LearningPathPage />} />
             <Route path="/overview" element={<HomePage />} />
             <Route path="/lessons" element={<LessonsPage />} />
+            <Route path="/lessons/category/:categoryId" element={<LessonsPage />} />
             <Route path="/lessons/:id" element={<LessonDetailPage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/practice" element={<PracticePage />} />

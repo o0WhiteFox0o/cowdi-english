@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { ACHIEVEMENTS, LEVELS, LESSONS } from '../data/lessons';
@@ -126,13 +126,13 @@ export default function ProgressPage() {
           <div className="d-flex gap-2">
             <button
               className="btn btn-outline-secondary"
-              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)' }}
+              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)', minHeight: '44px' }}
             >
               <i className="fas fa-share me-1" /> Chia sẻ
             </button>
             <button
               className="btn btn-cowdi-primary"
-              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)' }}
+              style={{ flex: 1, borderRadius: '12px', fontFamily: 'var(--font-hand)', minHeight: '44px' }}
               onClick={() => navigate('/learning-path')}
             >
               Đi đến Bài học
@@ -291,7 +291,7 @@ export default function ProgressPage() {
                   <div className="text-center p-2 rounded bg-light">
                     <div><Icon name={SKILL_ICON[key]} size={18} /></div>
                     <div className="fw-bold small" style={{ color: meta.color }}>Lv.{getSkillLevel(activePet.skills[key] || 0)}</div>
-                    <div className="text-muted" style={{ fontSize: '0.7rem' }}>{meta.name}</div>
+                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>{meta.name}</div>
                   </div>
                 </div>
               ))}
@@ -303,9 +303,14 @@ export default function ProgressPage() {
       {/* ── Pet Achievements ── */}
       <div className="card shadow-sm">
         <div className="card-body">
-          <h5 className="fw-bold mb-3">
-            <Icon name="star" size={20} /> Pet Achievements ({petData.petAchievements.length}/{PET_ACHIEVEMENTS.length})
-          </h5>
+          <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h5 className="fw-bold mb-0">
+              <Icon name="star" size={20} /> Thành tựu thú cưng ({petData.petAchievements.length}/{PET_ACHIEVEMENTS.length})
+            </h5>
+            <Link to="/account" className="small text-decoration-none text-success fw-semibold">
+              Xem chi tiết trên trang Tài khoản →
+            </Link>
+          </div>
           <div className="row g-2">
             {PET_ACHIEVEMENTS.map((ach) => {
               const unlocked = petData.petAchievements.includes(ach.id);
