@@ -142,12 +142,78 @@ function SpeakBtn({ text, rate = 0.9, size = 'sm', label = <Icon name="sound" si
 }
 
 const GAMES = [
-  { id: 'word-catch',      icon: '🎯', title: 'Cowdi Bắt Từ',    desc: 'Chọn nghĩa đúng cho từ rơi xuống!',   color: '#6C5CE7' },
-  { id: 'sentence-puzzle', icon: '🧩', title: 'Ghép câu',         desc: 'Sắp xếp từ thành câu đúng!',          color: '#00B894' },
-  { id: 'memory-match',    icon: '🃏', title: 'Lật thẻ nhớ',      desc: 'Ghép cặp từ Anh-Việt bằng trí nhớ!',  color: '#FDCB6E' },
-  { id: 'spelling-bee',    icon: '🐝', title: 'Spelling Bee',      desc: 'Nghe từ và đánh vần chính xác!',       color: '#E17055' },
-  { id: 'speed-match',     icon: '⚡', title: 'Tốc độ ánh sáng',  desc: 'Ghép từ nhanh nhất trong 60s!',        color: '#0984E3' },
-  { id: 'word-scramble',   icon: '🔤', title: 'Xáo chữ',          desc: 'Sắp xếp lại chữ cái thành từ đúng!',  color: '#A29BFE' },
+  {
+    id: 'word-catch',
+    icon: '🎯',
+    title: 'Cowdi Bắt Từ',
+    enTitle: 'Word Catch',
+    desc: 'Bắt từ rơi',
+    badge: 'Luyện từ',
+    bg: '#DDD6FE',
+    border: '#5B4BD8',
+    banner: '#4338CA',
+    art: '/image/minigames/minigame_cowdi_bat_tu.webp'
+  },
+  {
+    id: 'sentence-puzzle',
+    icon: '🧩',
+    title: 'Ghép câu',
+    enTitle: 'Sentence',
+    desc: 'Ghép thành câu',
+    badge: 'Luyện câu',
+    bg: '#A7F3D0',
+    border: '#059669',
+    banner: '#047857',
+    art: '/image/minigames/minigame_ghep_cau.webp'
+  },
+  {
+    id: 'memory-match',
+    icon: '🃏',
+    title: 'Lật thẻ nhớ',
+    enTitle: 'Memory Match',
+    desc: 'Ghép cặp từ nhớ',
+    badge: 'Ghi nhớ',
+    bg: '#FED7AA',
+    border: '#EA580C',
+    banner: '#C2410C',
+    art: '/image/minigames/minigame_lat_the_nho.webp'
+  },
+  {
+    id: 'spelling-bee',
+    icon: '🐝',
+    title: 'Spelling Bee',
+    enTitle: 'Spelling Bee',
+    desc: 'Đánh vần từ',
+    badge: 'Chính tả',
+    bg: '#FEF08A',
+    border: '#CA8A04',
+    banner: '#92400E',
+    art: '/image/minigames/minigame_spelling_bee.webp'
+  },
+  {
+    id: 'speed-match',
+    icon: '⚡',
+    title: 'Tốc độ ánh sáng',
+    enTitle: 'Speed Match',
+    desc: 'Ghép từ 60s',
+    badge: 'Phản xạ',
+    bg: '#BAE6FD',
+    border: '#0284C7',
+    banner: '#0369A1',
+    art: '/image/minigames/minigame_toc_do_anh_sang.webp'
+  },
+  {
+    id: 'word-scramble',
+    icon: '🔤',
+    title: 'Xáo chữ',
+    enTitle: 'Scramble',
+    desc: 'Xếp lại chữ cái',
+    badge: 'Xếp chữ',
+    bg: '#E9D5FF',
+    border: '#7C3AED',
+    banner: '#6D28D9',
+    art: '/image/minigames/minigame_xao_chu.webp'
+  },
 ];
 
 export default function MiniGamePage() {
@@ -226,15 +292,48 @@ export default function MiniGamePage() {
             {gameXpRemainingToday === 0 && <small className="text-muted">— hết trần, học để nhận thêm!</small>}
           </div>
         </div>
-        <div className="row g-3 justify-content-center" style={{ maxWidth: 700, margin: '0 auto' }}>
+        <div className="topic-cards-grid" style={{ maxWidth: 780, margin: '0 auto' }}>
           {GAMES.map((g) => (
-            <div className="col-6 col-md-4" key={g.id}>
-              <div className="card text-center card-hover shadow-sm h-100" style={{ cursor: 'pointer', borderTop: `3px solid ${g.color}` }}
-                onClick={() => startGame(g.id)} role="button">
-                <div className="card-body py-4">
-                  <div className="fs-1 mb-2 emoji-big"><Emoji e={g.icon} size={44} /></div>
-                  <h6 className="card-title fw-bold">{g.title}</h6>
-                  <p className="card-text text-muted small mb-0">{g.desc}</p>
+            <div
+              key={g.id}
+              className="topic-card-item"
+              style={{
+                '--card-bg': g.bg,
+                '--card-border': g.border,
+                '--card-banner': g.banner,
+              }}
+              onClick={() => startGame(g.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startGame(g.id); }}
+            >
+              {/* Inner Illustration Frame with Glass Reflection */}
+              <div className="topic-card-frame">
+                <img
+                  src={g.art}
+                  alt={g.title}
+                  className="topic-card-art"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Middle Pill Banner */}
+              <div className="topic-card-banner">
+                <span className="topic-card-banner-decor">◆</span>
+                <span className="topic-card-banner-title">{g.enTitle || g.title}</span>
+                <span className="topic-card-banner-decor">◆</span>
+              </div>
+
+              {/* Bottom Footer matching Image 1 */}
+              <div className="topic-card-footer">
+                <div className="topic-card-footer-left">
+                  <span className="topic-card-vi">{g.title}</span>
+                  <span className="topic-card-lessons">
+                    <i className="fas fa-gamepad me-1"></i>{g.badge}
+                  </span>
+                </div>
+                <div className="topic-card-footer-right">
+                  <span className="topic-card-count">+XP</span>
                 </div>
               </div>
             </div>

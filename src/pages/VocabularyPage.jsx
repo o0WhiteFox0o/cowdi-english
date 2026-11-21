@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { LESSONS } from '../data/lessons';
@@ -10,8 +11,323 @@ import { useSound } from '../hooks/useSound';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 import { SpeechRecognitionAPI, scorePronunciation, getScoreLabel } from '../utils/speech';
+import { resolveImage, resolveTitle } from '../utils/imageOverrides';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
+
+
+
+const TOPIC_HEADER_ICONS = {
+  human: '/image/subtopics/human/icon.webp',
+  eating: '/image/icons/eating-icon.webp',
+  drinking: '/image/icons/drinking-icon.webp',
+  house: '/image/icons/house-icon.webp',
+  transportation: '/image/icons/transportation-icon.webp',
+  love: '/image/icons/love-icon.webp',
+  numbers: '/image/icons/numbers-icon.webp',
+  sports: '/image/icons/sports-icon.webp',
+  holidays: '/image/icons/holidays-icon.webp',
+  animals: '/image/icons/animals-icon.webp',
+  nature: '/image/icons/nature-icon.webp',
+  'public-places': '/image/icons/public-places-icon.webp',
+  countries: '/image/icons/countries-icon.webp'
+};
+
+const TOPIC_DISPLAY_NAMES = {
+  transportation: 'Transport',
+  'public-places': 'Places',
+};
+
+const TOPIC_ART_IMAGES = {
+  human: '/image/topics/human.webp',
+  eating: '/image/topics/eating.webp',
+  drinking: '/image/topics/drinking.webp',
+  house: '/image/topics/house.webp',
+  transportation: '/image/topics/transportation.webp',
+  love: '/image/topics/love.webp',
+  numbers: '/image/topics/numbers.webp',
+  sports: '/image/topics/sports.webp',
+  holidays: '/image/topics/holidays.webp',
+  animals: '/image/topics/animals.webp',
+  nature: '/image/topics/nature.webp',
+  'public-places': '/image/topics/public-places.webp',
+  countries: '/image/topics/countries.webp',
+};
+
+const TOPIC_PALETTES = {
+  human: { bg: '#A6C8E8', border: '#336B9B', banner: '#1A4D78' },
+  eating: { bg: '#FFEAA7', border: '#D48A14', banner: '#B86F00' },
+  drinking: { bg: '#E4D3C5', border: '#7A5240', banner: '#553424' },
+  house: { bg: '#F5BDBD', border: '#C0393B', banner: '#8F1E20' },
+  transportation: { bg: '#D3D8DE', border: '#5C646E', banner: '#373D45' },
+  love: { bg: '#FBC4D6', border: '#D81B60', banner: '#9C0D3E' },
+  numbers: { bg: '#DCD4EE', border: '#673AB7', banner: '#452187' },
+  sports: { bg: '#C8E6C9', border: '#2E7D32', banner: '#1B5E20' },
+  holidays: { bg: '#FFE0B2', border: '#EF6C00', banner: '#B84500' },
+  animals: { bg: '#DCEDC8', border: '#689F38', banner: '#466D1E' },
+  nature: { bg: '#B2DFDB', border: '#00897B', banner: '#005B52' },
+  'public-places': { bg: '#CFD8DC', border: '#455A64', banner: '#263238' },
+  countries: { bg: '#B3E5FC', border: '#0288D1', banner: '#01579B' },
+};
+
+const SUBTOPIC_ART_IMAGES = {
+  // Human Topic
+  'human-body': '/image/subtopics/human/body.webp',
+  'human-appearance': '/image/subtopics/human/appearance.webp',
+  'human-personality': '/image/subtopics/human/personality.webp',
+  'human-emotions': '/image/subtopics/human/emotions.webp',
+  'human-family': '/image/subtopics/human/family.webp',
+  'human-lifecycle': '/image/subtopics/human/lifecycle.webp',
+  'human-more': '/image/subtopics/human/more.webp',
+
+  // Eating Topic
+  'eating-fruits': '/image/subtopics/eating/fruits.webp',
+  'eating-vegetables': '/image/subtopics/eating/vegetables.webp',
+  'eating-meat-seafood': '/image/subtopics/eating/meat_seafood.webp',
+  'eating-cooking': '/image/subtopics/eating/cooking.webp',
+  'eating-meals': '/image/subtopics/eating/meals.webp',
+  'eating-taste': '/image/subtopics/eating/taste.webp',
+  'eating-more': '/image/subtopics/eating/more.webp',
+
+  // Drinking Topic
+  'drinking-hot': '/image/subtopics/drinking/hot.webp',
+  'drinking-cold': '/image/subtopics/drinking/cold.webp',
+  'drinking-dairy': '/image/subtopics/drinking/dairy.webp',
+  'drinking-actions': '/image/subtopics/drinking/actions.webp',
+  'drinking-more': '/image/subtopics/drinking/more.webp',
+
+  // House Topic
+  'house-rooms': '/image/subtopics/house/rooms.webp',
+  'house-furniture': '/image/subtopics/house/furniture.webp',
+  'house-appliances': '/image/subtopics/house/appliances.webp',
+  'house-chores': '/image/subtopics/house/chores.webp',
+  'house-more': '/image/subtopics/house/more.webp',
+
+  // Transportation Topic
+  'transport-vehicles': '/image/subtopics/transportation/vehicles.webp',
+  'transport-road': '/image/subtopics/transportation/road.webp',
+  'transport-actions': '/image/subtopics/transportation/actions.webp',
+  'transportation-more': '/image/subtopics/transportation/more.webp',
+
+  // Love Topic
+  'love-feelings': '/image/subtopics/love/feelings.webp',
+  'love-relationships': '/image/subtopics/love/relationships.webp',
+  'love-dating': '/image/subtopics/love/dating.webp',
+  'love-more': '/image/subtopics/love/more.webp',
+
+  // Numbers Topic
+  'numbers-basic': '/image/subtopics/numbers/basic.webp',
+  'numbers-ordinal': '/image/subtopics/numbers/ordinal.webp',
+  'numbers-math': '/image/subtopics/numbers/math.webp',
+  'numbers-more': '/image/subtopics/numbers/more.webp',
+
+  // Sports Topic
+  'sports-types': '/image/subtopics/sports/types.webp',
+  'sports-actions': '/image/subtopics/sports/actions.webp',
+  'sports-more': '/image/subtopics/sports/more.webp',
+
+  // Holidays Topic
+  'holidays-types': '/image/subtopics/holidays/types.webp',
+  'holidays-activities': '/image/subtopics/holidays/activities.webp',
+  'holidays-more': '/image/subtopics/holidays/more.webp',
+
+  // Animals Topic
+  'animals-pets': '/image/subtopics/animals/pets.webp',
+  'animals-wild': '/image/subtopics/animals/wild.webp',
+  'animals-sea': '/image/subtopics/animals/sea.webp',
+  'animals-more': '/image/subtopics/animals/more.webp',
+
+  // Nature Topic
+  'nature-weather': '/image/subtopics/nature/weather.webp',
+  'nature-landscape': '/image/subtopics/nature/landscape.webp',
+  'nature-plants': '/image/subtopics/nature/plants.webp',
+  'nature-more': '/image/subtopics/nature/more.webp',
+
+  // Public Places Topic
+  'places-services': '/image/subtopics/public-places/services.webp',
+  'places-shopping': '/image/subtopics/public-places/shopping.webp',
+  'places-entertainment': '/image/subtopics/public-places/entertainment.webp',
+  'public-places-more': '/image/subtopics/public-places/more.webp',
+
+  // Countries Topic
+  'countries-asia': '/image/subtopics/countries/asia.webp',
+  'countries-world': '/image/subtopics/countries/world.webp',
+  'countries-language': '/image/subtopics/countries/languages.webp',
+  'countries-more': '/image/subtopics/countries/more.webp',
+};
+
+const SUBTOPIC_PALETTES = {
+  // Human Topic
+  'human-body': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'human-appearance': { bg: '#FCE7F3', border: '#DB2777', banner: '#BE185D' },
+  'human-personality': { bg: '#DDD6FE', border: '#7C3AED', banner: '#6D28D9' },
+  'human-emotions': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+  'human-family': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'human-lifecycle': { bg: '#A7F3D0', border: '#059669', banner: '#047857' },
+  'human-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Eating Topic
+  'eating-fruits': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'eating-vegetables': { bg: '#BBF7D0', border: '#16A34A', banner: '#15803D' },
+  'eating-meat-seafood': { bg: '#FED7AA', border: '#E11D48', banner: '#BE123C' },
+  'eating-cooking': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+  'eating-meals': { bg: '#FED7AA', border: '#D97706', banner: '#B45309' },
+  'eating-taste': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+  'eating-more': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+
+  // Drinking Topic
+  'drinking-hot': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'drinking-cold': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+  'drinking-dairy': { bg: '#E0E7FF', border: '#4F46E5', banner: '#4338CA' },
+  'drinking-actions': { bg: '#CFFAFE', border: '#0891B2', banner: '#0E7490' },
+  'drinking-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // House Topic
+  'house-rooms': { bg: '#FFEDD5', border: '#EA580C', banner: '#C2410C' },
+  'house-furniture': { bg: '#DCFCE7', border: '#16A34A', banner: '#15803D' },
+  'house-appliances': { bg: '#CFFAFE', border: '#0891B2', banner: '#0E7490' },
+  'house-chores': { bg: '#F3E8FF', border: '#9333EA', banner: '#7E22CE' },
+  'house-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Transportation Topic
+  'transport-vehicles': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'transport-road': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+  'transport-actions': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+  'transportation-more': { bg: '#E2E8F0', border: '#475569', banner: '#334155' },
+
+  // Love Topic
+  'love-feelings': { bg: '#FCE7F3', border: '#DB2777', banner: '#BE185D' },
+  'love-relationships': { bg: '#FFE4E6', border: '#E11D48', banner: '#BE123C' },
+  'love-dating': { bg: '#F3E8FF', border: '#9333EA', banner: '#7E22CE' },
+  'love-more': { bg: '#FDF2F8', border: '#EC4899', banner: '#DB2777' },
+
+  // Numbers Topic
+  'numbers-basic': { bg: '#E0E7FF', border: '#4F46E5', banner: '#4338CA' },
+  'numbers-ordinal': { bg: '#DCFCE7', border: '#16A34A', banner: '#15803D' },
+  'numbers-math': { bg: '#F5F3FF', border: '#7C3AED', banner: '#6D28D9' },
+  'numbers-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Sports Topic
+  'sports-types': { bg: '#DCFCE7', border: '#16A34A', banner: '#15803D' },
+  'sports-actions': { bg: '#ECFCCB', border: '#65A30D', banner: '#4D7C0F' },
+  'sports-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Holidays Topic
+  'holidays-types': { bg: '#FFE0B2', border: '#EF6C00', banner: '#B84500' },
+  'holidays-activities': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'holidays-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Animals Topic
+  'animals-pets': { bg: '#DCEDC8', border: '#689F38', banner: '#466D1E' },
+  'animals-wild': { bg: '#FED7AA', border: '#D97706', banner: '#B45309' },
+  'animals-sea': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+  'animals-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Nature Topic
+  'nature-weather': { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1' },
+  'nature-landscape': { bg: '#A7F3D0', border: '#059669', banner: '#047857' },
+  'nature-plants': { bg: '#DCFCE7', border: '#16A34A', banner: '#15803D' },
+  'nature-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Public Places Topic
+  'places-services': { bg: '#CFD8DC', border: '#455A64', banner: '#263238' },
+  'places-shopping': { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C' },
+  'places-entertainment': { bg: '#DDD6FE', border: '#7C3AED', banner: '#6D28D9' },
+  'public-places-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+
+  // Countries Topic
+  'countries-asia': { bg: '#FEE2E2', border: '#DC2626', banner: '#B91C1C' },
+  'countries-world': { bg: '#B3E5FC', border: '#0288D1', banner: '#01579B' },
+  'countries-language': { bg: '#E0E7FF', border: '#4F46E5', banner: '#4338CA' },
+  'countries-more': { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207' },
+};
+
+const SUBTOPIC_DISPLAY_NAMES = {
+  // Human Topic
+  'human-body': { en: 'Body Parts', vi: 'Bộ phận cơ thể' },
+  'human-appearance': { en: 'Appearance', vi: 'Ngoại hình' },
+  'human-personality': { en: 'Personality', vi: 'Tính cách' },
+  'human-emotions': { en: 'Emotions', vi: 'Cảm xúc' },
+  'human-family': { en: 'Family', vi: 'Gia đình' },
+  'human-lifecycle': { en: 'Life Stages', vi: 'Giai đoạn sống' },
+  'human-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Eating Topic
+  'eating-fruits': { en: 'Fruits', vi: 'Trái cây' },
+  'eating-vegetables': { en: 'Vegetables', vi: 'Rau củ' },
+  'eating-meat-seafood': { en: 'Meat & Seafood', vi: 'Thịt & Hải sản' },
+  'eating-cooking': { en: 'Cooking', vi: 'Nấu ăn & Gia vị' },
+  'eating-meals': { en: 'Meals', vi: 'Bữa ăn & Món ăn' },
+  'eating-taste': { en: 'Taste', vi: 'Vị & Kết cấu' },
+  'eating-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Drinking Topic
+  'drinking-hot': { en: 'Hot Drinks', vi: 'Đồ uống nóng' },
+  'drinking-cold': { en: 'Cold Drinks', vi: 'Đồ uống lạnh' },
+  'drinking-dairy': { en: 'Dairy & Milk', vi: 'Sữa & Chế phẩm' },
+  'drinking-actions': { en: 'Drinking', vi: 'Hành động uống' },
+  'drinking-more': { en: 'More', vi: 'Mở rộng' },
+
+  // House Topic
+  'house-rooms': { en: 'Rooms', vi: 'Các phòng' },
+  'house-furniture': { en: 'Furniture', vi: 'Nội thất' },
+  'house-appliances': { en: 'Appliances', vi: 'Thiết bị gia dụng' },
+  'house-chores': { en: 'Housework', vi: 'Việc nhà' },
+  'house-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Transportation Topic
+  'transport-vehicles': { en: 'Vehicles', vi: 'Phương tiện' },
+  'transport-road': { en: 'Road Traffic', vi: 'Đường & Giao thông' },
+  'transport-actions': { en: 'Travel', vi: 'Hành động đi lại' },
+  'transportation-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Love Topic
+  'love-feelings': { en: 'Feelings', vi: 'Cảm xúc yêu' },
+  'love-relationships': { en: 'Relationships', vi: 'Mối quan hệ' },
+  'love-dating': { en: 'Dating', vi: 'Hẹn hò & Kết hôn' },
+  'love-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Numbers Topic
+  'numbers-basic': { en: 'Cardinal', vi: 'Số đếm cơ bản' },
+  'numbers-ordinal': { en: 'Ordinal', vi: 'Số thứ tự' },
+  'numbers-math': { en: 'Math', vi: 'Toán & Đo lường' },
+  'numbers-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Sports Topic
+  'sports-types': { en: 'Sports', vi: 'Các môn thể thao' },
+  'sports-actions': { en: 'Fitness', vi: 'Tập luyện & Dụng cụ' },
+  'sports-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Holidays Topic
+  'holidays-types': { en: 'Holidays', vi: 'Các ngày lễ' },
+  'holidays-activities': { en: 'Celebrations', vi: 'Hoạt động lễ hội' },
+  'holidays-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Animals Topic
+  'animals-pets': { en: 'Pets & Farm', vi: 'Thú cưng & Gia súc' },
+  'animals-wild': { en: 'Wild Animals', vi: 'Động vật hoang dã' },
+  'animals-sea': { en: 'Sea Life', vi: 'Sinh vật biển' },
+  'animals-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Nature Topic
+  'nature-weather': { en: 'Weather', vi: 'Thời tiết' },
+  'nature-landscape': { en: 'Landscape', vi: 'Địa hình' },
+  'nature-plants': { en: 'Plants', vi: 'Cây cối & Hoa' },
+  'nature-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Public Places Topic
+  'places-services': { en: 'Services', vi: 'Dịch vụ & Tòa nhà' },
+  'places-shopping': { en: 'Shopping', vi: 'Mua sắm & Ăn uống' },
+  'places-entertainment': { en: 'Leisure', vi: 'Giải trí' },
+  'public-places-more': { en: 'More', vi: 'Mở rộng' },
+
+  // Countries Topic
+  'countries-asia': { en: 'Asia', vi: 'Châu Á' },
+  'countries-world': { en: 'Americas & Europe', vi: 'Châu Mỹ & Châu Âu' },
+  'countries-language': { en: 'Languages', vi: 'Ngôn ngữ & Quốc tịch' },
+  'countries-more': { en: 'More', vi: 'Mở rộng' },
+};
+
 export default function VocabularyPage() {
   useSEO(SEO_CONFIGS['/vocabulary']);
   const { userData, setWordStatus, getWordStatus } = useUser();
@@ -19,10 +335,34 @@ export default function VocabularyPage() {
   const showToast = useToast();
   const { play } = useSound();
 
-  // Navigation state
-  const [view, setView] = useState('topics');       // topics | subtopics | words
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [selectedSub, setSelectedSub] = useState(null);
+  // Listen to Admin Image Manager real-time overrides
+  const [, setOverrideTick] = useState(0);
+  useEffect(() => {
+    const handler = () => setOverrideTick((t) => t + 1);
+    window.addEventListener('cowdi-image-override-changed', handler);
+    return () => window.removeEventListener('cowdi-image-override-changed', handler);
+  }, []);
+
+  // Navigation state qua URL search params (hỗ trợ nút Back trình duyệt quay lại từng cấp)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const topicParam = searchParams.get('topic');
+  const subParam = searchParams.get('sub');
+
+  const selectedTopic = useMemo(() => {
+    if (!topicParam) return null;
+    return VOCAB_TOPICS.find((t) => t.id === topicParam) || null;
+  }, [topicParam]);
+
+  const selectedSub = useMemo(() => {
+    if (!selectedTopic || !subParam) return null;
+    return selectedTopic.subtopics.find((s) => s.id === subParam) || null;
+  }, [selectedTopic, subParam]);
+
+  const view = useMemo(() => {
+    if (selectedSub) return 'words';
+    if (selectedTopic) return 'subtopics';
+    return 'topics';
+  }, [selectedTopic, selectedSub]);
 
   // Word view state
   const [mode, setMode] = useState('flashcard');
@@ -148,26 +488,23 @@ export default function VocabularyPage() {
   }, []);
 
   function openTopic(topic) {
-    setSelectedTopic(topic);
-    setSelectedSub(null);
-    setView('subtopics');
+    setSearchParams({ topic: topic.id });
   }
 
   function openSubtopic(sub) {
-    setSelectedSub(sub);
+    if (selectedTopic) {
+      setSearchParams({ topic: selectedTopic.id, sub: sub.id });
+    }
     setCardIndex(0);
     setFlipped(false);
     setSearch('');
-    setView('words');
   }
 
   function goBack() {
-    if (view === 'words') {
-      setSelectedSub(null);
-      setView('subtopics');
-    } else if (view === 'subtopics') {
-      setSelectedTopic(null);
-      setView('topics');
+    if (view === 'words' && selectedTopic) {
+      setSearchParams({ topic: selectedTopic.id });
+    } else {
+      setSearchParams({});
     }
   }
 
@@ -229,26 +566,77 @@ export default function VocabularyPage() {
           </div>
         </div>
 
-        {/* Mind map visual */}
-        <div className="vocab-mindmap mb-4">
-          <div className="mindmap-branches">
+        {/* Topic Trading Cards Grid */}
+        <div className="vocab-topics-container mb-4">
+          <div className="topic-cards-grid">
             {VOCAB_TOPICS.map((topic) => {
               const progress = getTopicProgress(topic);
               const pct = progress.total > 0 ? Math.round((progress.learned / progress.total) * 100) : 0;
+              const palette = TOPIC_PALETTES[topic.id] || {
+                bg: topic.color ? `${topic.color}25` : '#EEF2F6',
+                border: topic.color || '#3B82F6',
+                banner: topic.color || '#1D4ED8',
+              };
+              const rawArtUrl = TOPIC_ART_IMAGES[topic.id] || `/image/art/${topic.id}.webp`;
+              const artUrl = resolveImage(topic.id, rawArtUrl);
+              const lessonCount = topic.subtopics ? topic.subtopics.length : 0;
+              const topicDisplayName = TOPIC_DISPLAY_NAMES[topic.id] || topic.name;
+              const displayEn = resolveTitle(topic.id, 'en', topicDisplayName);
+              const displayVi = resolveTitle(topic.id, 'vi', topic.nameVi);
+
               return (
                 <div
                   key={topic.id}
-                  className="mindmap-node"
-                  style={{ '--node-color': topic.color }}
+                  className="topic-card-item"
+                  style={{
+                    '--card-bg': palette.bg,
+                    '--card-border': palette.border,
+                    '--card-banner': palette.banner,
+                  }}
                   onClick={() => openTopic(topic)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openTopic(topic); }}
                 >
-                  <div className="mindmap-node-icon"><Emoji e={topic.icon} size={36} /></div>
-                  <div className="mindmap-node-label">{topic.name}</div>
-                  <div className="mindmap-node-sub">{topic.nameVi}</div>
-                  <div className="mindmap-node-count">{progress.total} từ</div>
-                  <div className="mindmap-progress">
-                    <div className="mindmap-progress-bar" style={{ width: `${pct}%` }}></div>
+                  {/* Inner Illustration Frame with Glass Reflection */}
+                  <div className="topic-card-frame">
+                    <img
+                      src={artUrl}
+                      alt={topic.name}
+                      className="topic-card-art"
+                      loading="lazy"
+                    />
                   </div>
+
+                  {/* Middle Pill Banner */}
+                  <div className="topic-card-banner">
+                    <span className="topic-card-banner-decor">◆</span>
+                    <span className="topic-card-banner-title">{displayEn}</span>
+                    <span className="topic-card-banner-decor">◆</span>
+                  </div>
+
+                  {/* Bottom Footer */}
+                  <div className="topic-card-footer">
+                    <div className="topic-card-footer-left">
+                      <div className="topic-card-vi">{displayVi}</div>
+                      <div className="topic-card-lessons">
+                        <i className="fas fa-book-open me-1"></i>{lessonCount} bài học
+                      </div>
+                    </div>
+                    <div className="topic-card-footer-right">
+                      <span className="topic-card-count">{progress.total} TỪ</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar at Bottom */}
+                  {pct > 0 && (
+                    <div className="topic-card-progress">
+                      <div
+                        className="topic-card-progress-bar"
+                        style={{ width: `${pct}%`, backgroundColor: palette.banner }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -256,7 +644,7 @@ export default function VocabularyPage() {
         </div>
 
         {/* Lesson vocab quick access */}
-        <div className="card shadow-sm">
+        <div className="card shadow-sm" style={{ maxWidth: 780, margin: '0 auto' }}>
           <div className="card-body text-center">
             <h5 className="fw-bold mb-2"><Icon name="books" size={20} /> Từ vựng bài học</h5>
             <p className="text-muted small mb-0">{lessonWords.length} từ từ {LESSONS.length} bài học</p>
@@ -276,7 +664,31 @@ export default function VocabularyPage() {
         </button>
 
         <div className="text-center mb-4">
-          <div style={{ fontSize: '3rem' }} className="emoji-big"><Emoji e={selectedTopic.icon} size={56} /></div>
+          <div className="mb-2 text-center">
+            {(() => {
+              const headerIconUrl = resolveImage(selectedTopic.id + '-icon', TOPIC_HEADER_ICONS[selectedTopic.id]);
+              if (headerIconUrl) {
+                return (
+                  <img
+                    src={headerIconUrl}
+                    alt={selectedTopic.name}
+                    style={{
+                      width: 200,
+                      height: 200,
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.15))',
+                      display: 'inline-block',
+                    }}
+                  />
+                );
+              }
+              return (
+                <div style={{ fontSize: '3rem' }} className="emoji-big">
+                  <Emoji e={selectedTopic.icon} size={56} />
+                </div>
+              );
+            })()}
+          </div>
           <h2 className="fw-bold" style={{ color: selectedTopic.color }}>
             {selectedTopic.name}
           </h2>
@@ -295,34 +707,85 @@ export default function VocabularyPage() {
           </div>
         </div>
 
-        <div className="row g-3">
-          {selectedTopic.subtopics.map((sub) => {
+        <div className="vocab-topics-container mb-4">
+          <div className="topic-cards-grid">
+            {selectedTopic.subtopics.map((sub) => {
             const prog = getSubtopicProgress(sub);
             const pct = prog.total > 0 ? Math.round((prog.learned / prog.total) * 100) : 0;
+            const rawArtUrl = SUBTOPIC_ART_IMAGES[sub.id];
+            const artUrl = resolveImage(sub.id, rawArtUrl);
+            const palette = SUBTOPIC_PALETTES[sub.id] || {
+              bg: selectedTopic.color ? `${selectedTopic.color}25` : '#EEF2F6',
+              border: selectedTopic.color || '#3B82F6',
+              banner: selectedTopic.color || '#1D4ED8',
+            };
+            const displayInfo = SUBTOPIC_DISPLAY_NAMES[sub.id] || { en: sub.name, vi: sub.nameVi };
+            const enTitle = resolveTitle(sub.id, 'en', displayInfo.en);
+            const viTitle = resolveTitle(sub.id, 'vi', displayInfo.vi);
+
             return (
-              <div className="col-6 col-md-4" key={sub.id}>
-                <div
-                  className="card shadow-sm h-100 subtopic-card"
-                  style={{ cursor: 'pointer', borderLeft: `4px solid ${selectedTopic.color}` }}
-                  onClick={() => openSubtopic(sub)}
-                >
-                  <div className="card-body text-center py-3">
-                    <div style={{ fontSize: '2rem' }} className="emoji-big"><Emoji e={sub.icon} size={36} /></div>
-                    <h6 className="fw-bold mb-1">{sub.name}</h6>
-                    <small className="text-muted d-block">{sub.nameVi}</small>
-                    <span className="badge bg-light text-dark mt-2">{prog.total} từ</span>
-                    <div className="progress mt-2" style={{ height: 5 }}>
-                      <div
-                        className="progress-bar"
-                        style={{ width: `${pct}%`, backgroundColor: selectedTopic.color }}
-                      ></div>
+              <div
+                key={sub.id}
+                className="topic-card-item"
+                style={{
+                  '--card-bg': palette.bg,
+                  '--card-border': palette.border,
+                  '--card-banner': palette.banner,
+                }}
+                onClick={() => openSubtopic(sub)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openSubtopic(sub); }}
+              >
+                {/* Inner Illustration Frame with Glass Reflection */}
+                <div className="topic-card-frame">
+                  {artUrl ? (
+                    <img
+                      src={artUrl}
+                      alt={sub.name}
+                      className="topic-card-art"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="d-flex align-items-center justify-content-center h-100 fs-1">
+                      <Emoji e={sub.icon} size={48} />
                     </div>
-                    {pct > 0 && <small className="text-muted">{pct}%</small>}
+                  )}
+                </div>
+
+                {/* Middle Pill Banner */}
+                <div className="topic-card-banner">
+                  <span className="topic-card-banner-decor">◆</span>
+                  <span className="topic-card-banner-title">{enTitle}</span>
+                  <span className="topic-card-banner-decor">◆</span>
+                </div>
+
+                {/* Bottom Footer matching Image 1 */}
+                <div className="topic-card-footer">
+                  <div className="topic-card-footer-left">
+                    <span className="topic-card-vi">{viTitle}</span>
+                    <span className="topic-card-lessons">
+                      <i className="fas fa-layer-group me-1"></i>{prog.total} từ
+                    </span>
+                  </div>
+                  <div className="topic-card-footer-right">
+                    <span className="topic-card-count">{prog.learned > 0 ? `${prog.learned}/${prog.total}` : '+XP'}</span>
                   </div>
                 </div>
+
+                {/* Progress Bar at Bottom */}
+                {pct > 0 && (
+                  <div className="topic-card-progress">
+                    <div
+                      className="topic-card-progress-bar"
+                      style={{ width: `${pct}%`, backgroundColor: palette.banner }}
+                    ></div>
+                  </div>
+                )}
               </div>
             );
           })}
+          </div>
         </div>
       </div>
     );

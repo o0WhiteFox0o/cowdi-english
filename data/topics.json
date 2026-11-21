@@ -1,0 +1,106 @@
+[
+  {
+    "id": "human",
+    "en": "Human",
+    "vi": "Con người",
+    "icon": "🧑",
+    "color": "#E91E63",
+    "count": 169
+  },
+  {
+    "id": "eating",
+    "en": "Eating",
+    "vi": "Ăn uống",
+    "icon": "🍽️",
+    "color": "#FF9800",
+    "count": 154
+  },
+  {
+    "id": "drinking",
+    "en": "Drinking",
+    "vi": "Đồ uống",
+    "icon": "🥤",
+    "color": "#2196F3",
+    "count": 158
+  },
+  {
+    "id": "house",
+    "en": "House",
+    "vi": "Nhà cửa",
+    "icon": "🏠",
+    "color": "#795548",
+    "count": 150
+  },
+  {
+    "id": "transportation",
+    "en": "Transportation",
+    "vi": "Giao thông",
+    "icon": "🚗",
+    "color": "#1565C0",
+    "count": 150
+  },
+  {
+    "id": "love",
+    "en": "Love",
+    "vi": "Tình yêu",
+    "icon": "❤️",
+    "color": "#E91E63",
+    "count": 152
+  },
+  {
+    "id": "numbers",
+    "en": "Numbers",
+    "vi": "Số đếm",
+    "icon": "🔢",
+    "color": "#6A1B9A",
+    "count": 154
+  },
+  {
+    "id": "sports",
+    "en": "Sports",
+    "vi": "Thể thao",
+    "icon": "⚽",
+    "color": "#2E7D32",
+    "count": 155
+  },
+  {
+    "id": "holidays",
+    "en": "Holidays",
+    "vi": "Ngày lễ",
+    "icon": "🎉",
+    "color": "#FF6F00",
+    "count": 155
+  },
+  {
+    "id": "animals",
+    "en": "Animals",
+    "vi": "Động vật",
+    "icon": "🐾",
+    "color": "#4CAF50",
+    "count": 154
+  },
+  {
+    "id": "nature",
+    "en": "Nature",
+    "vi": "Thiên nhiên",
+    "icon": "🌿",
+    "color": "#1B5E20",
+    "count": 155
+  },
+  {
+    "id": "public-places",
+    "en": "Public Places",
+    "vi": "Nơi công cộng",
+    "icon": "🏛️",
+    "color": "#455A64",
+    "count": 153
+  },
+  {
+    "id": "countries",
+    "en": "Countries",
+    "vi": "Quốc gia",
+    "icon": "🌍",
+    "color": "#0277BD",
+    "count": 151
+  }
+]

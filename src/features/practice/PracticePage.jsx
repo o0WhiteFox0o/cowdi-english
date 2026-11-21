@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { QUIZ_BANK, LESSONS } from '../../data/lessons';
@@ -11,6 +12,64 @@ import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
+
+const PRACTICE_ART_MAP = {
+  vocab:          '/image/practice/tu_dien.webp',
+  grammar:        '/image/practice/ngu_phap.webp',
+  listening:      '/image/practice/practice_nghe_hieu.webp',
+  sentences:      '/image/practice/hoan_thanh_cau.webp',
+  dictation:      '/image/practice/nghe_cau.webp',
+  matching:       '/image/practice/noi_cap.webp',
+  fillin:         '/image/practice/ghep_chu.webp',
+  reorder:        '/image/practice/xap_xep_cau.webp',
+  listenPick:     '/image/practice/practice_nghe_hieu.webp',
+  listenSentence: '/image/practice/noi_cau.webp',
+  speedRound:     '/image/practice/phan_xa_noi.webp',
+  wordGuess:      '/image/practice/doan_nghia.webp',
+  trueFalse:      '/image/practice/dung_sai.webp',
+  contextClue:    '/image/practice/doan_nghia.webp',
+  wordBuild:      '/image/practice/ghep_chu.webp',
+  translateWrite: '/image/practice/viet_cau.webp',
+  mixed:          '/image/practice/tong_hop.webp',
+  speakWord:      '/image/practice/doc_to.webp',
+  speakSentence:  '/image/practice/noi_cau.webp',
+  readAloud:      '/image/practice/doc_to.webp',
+  speakFast:      '/image/practice/phan_xa_noi.webp',
+};
+
+
+const PRACTICE_THEMES = {
+  // Listening Group (Purple / Indigo / Violet)
+  listening:      { bg: '#DDD6FE', border: '#7C3AED', banner: '#6D28D9', enTitle: 'Listening',      badgeIcon: 'fa-headphones' },
+  dictation:      { bg: '#E0E7FF', border: '#4F46E5', banner: '#4338CA', enTitle: 'Dictation',      badgeIcon: 'fa-microphone' },
+  listenPick:     { bg: '#EDE9FE', border: '#8B5CF6', banner: '#7C3AED', enTitle: 'Listen Pick',    badgeIcon: 'fa-volume-high' },
+  listenSentence: { bg: '#FAE8FF', border: '#A21CAF', banner: '#86198F', enTitle: 'Audio Sentence', badgeIcon: 'fa-music' },
+
+  // Speaking Group (Emerald / Mint / Green)
+  speakWord:      { bg: '#A7F3D0', border: '#059669', banner: '#047857', enTitle: 'Speak Word',     badgeIcon: 'fa-comment' },
+  speakSentence:  { bg: '#BBF7D0', border: '#16A34A', banner: '#15803D', enTitle: 'Speak Sentence', badgeIcon: 'fa-comments' },
+  readAloud:      { bg: '#D1FAE5', border: '#0D9488', banner: '#0F766E', enTitle: 'Read Aloud',     badgeIcon: 'fa-bullhorn' },
+  speakFast:      { bg: '#DCFCE7', border: '#15803D', banner: '#166534', enTitle: 'Fast Reflex',    badgeIcon: 'fa-bolt' },
+
+  // Reading Group (Sky / Blue / Cyan)
+  grammar:        { bg: '#BAE6FD', border: '#0284C7', banner: '#0369A1', enTitle: 'Grammar',        badgeIcon: 'fa-book-open' },
+  fillin:         { bg: '#E0F2FE', border: '#0369A1', banner: '#075985', enTitle: 'Fill Blanks',    badgeIcon: 'fa-spell-check' },
+  trueFalse:      { bg: '#CFFAFE', border: '#0891B2', banner: '#0e7490', enTitle: 'True False',     badgeIcon: 'fa-circle-check' },
+  contextClue:    { bg: '#C7D2FE', border: '#3B82F6', banner: '#2563EB', enTitle: 'Context Clue',   badgeIcon: 'fa-magnifying-glass' },
+
+  // Writing Group (Orange / Amber / Peach)
+  sentences:      { bg: '#FED7AA', border: '#EA580C', banner: '#C2410C', enTitle: 'Sentences',       badgeIcon: 'fa-pen-fancy' },
+  reorder:        { bg: '#FFEDD5', border: '#D97706', banner: '#B45309', enTitle: 'Sentence Order', badgeIcon: 'fa-puzzle-piece' },
+  wordBuild:      { bg: '#FEF08A', border: '#CA8A04', banner: '#A16207', enTitle: 'Word Builder',   badgeIcon: 'fa-cubes' },
+  translateWrite: { bg: '#FFE4E6', border: '#E11D48', banner: '#BE123C', enTitle: 'Translate',      badgeIcon: 'fa-language' },
+
+  // Standalone / Special
+  mixed:          { bg: '#FCE7F3', border: '#DB2777', banner: '#BE185D', enTitle: 'Mixed Master',   badgeIcon: 'fa-dice' },
+  matching:       { bg: '#BAE6FD', border: '#2563EB', banner: '#1D4ED8', enTitle: 'Word Match',     badgeIcon: 'fa-link' },
+  speedRound:     { bg: '#FEF08A', border: '#D97706', banner: '#B45309', enTitle: 'Speed Reflex',   badgeIcon: 'fa-bolt' },
+  vocab:          { bg: '#E0E7FF', border: '#4F46E5', banner: '#3730A3', enTitle: 'Vocabulary',     badgeIcon: 'fa-file-lines' },
+  wordGuess:      { bg: '#DDD6FE', border: '#7C3AED', banner: '#6D28D9', enTitle: 'Word Guess',     badgeIcon: 'fa-question' },
+};
 
 const TYPE_LABELS = {
   vocab:          { icon: '📝', title: 'Từ vựng',       desc: 'Ôn tập từ vựng đã học' },
@@ -317,6 +376,14 @@ export default function PracticePage() {
   const { play } = useSound();
 
   const [quizType, setQuizType] = useState(null);
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const qType = searchParams.get('type');
+    if (qType && TYPE_LABELS[qType]) {
+      startQuiz(qType);
+    }
+  }, [searchParams]);
+
   // Standard MCQ state
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex] = useState(0);
@@ -1083,7 +1150,7 @@ export default function PracticePage() {
         </div>
 
         {/* 4-Skill Groups */}
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <div style={{ maxWidth: 780, margin: '0 auto' }}>
           {Object.entries(SKILL_GROUPS).map(([skillKey, group]) => (
             <div key={skillKey} className="mb-4">
               <div className="d-flex align-items-center gap-2 mb-2">
@@ -1091,27 +1158,67 @@ export default function PracticePage() {
                 <h5 className="fw-bold mb-0" style={{ color: group.color }}>{group.name}</h5>
                 <span className="text-muted small ms-1">— {group.desc}</span>
               </div>
-              <div className="row g-3">
+              <div className="topic-cards-grid mb-4">
                 {group.types.map((type) => {
                   const info = TYPE_LABELS[type];
                   if (!info) return null;
+                  const artImg = PRACTICE_ART_MAP[type];
+                  const qCount = type === 'dictation' ? '15 từ' : type === 'matching' ? '5 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '20 câu' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : type === 'speakWord' ? '15 từ' : type === 'speakSentence' ? '10 câu' : type === 'readAloud' ? '12 mục' : type === 'speakFast' ? '15 từ' : `${QUIZ_BANK[type]?.length ?? 0} câu`;
+                  const theme = PRACTICE_THEMES[type] || {
+                    bg: '#BAE6FD',
+                    border: group.color || '#3b82f6',
+                    banner: group.color || '#2563eb',
+                    enTitle: info.title,
+                    badgeIcon: 'fa-book-open',
+                  };
+
                   return (
-                    <div className="col-6 col-md-4 col-lg-3" key={type}>
-                      <div
-                        className="card text-center card-hover shadow-sm h-100 skill-card"
-                        style={{ cursor: 'pointer', borderLeft: `4px solid ${group.color}` }}
-                        onClick={() => { play('click'); startQuiz(type); }}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && startQuiz(type)}
-                      >
-                        <div className="card-body py-3">
-                          <div className="fs-2 mb-1 emoji-big"><Emoji e={info.icon} size={36} /></div>
-                          <h6 className="card-title fw-bold mb-1">{info.title}</h6>
-                          <p className="card-text text-muted small mb-2">{info.desc}</p>
-                          <span className="badge bg-light text-secondary">
-                            {type === 'dictation' ? '15 từ' : type === 'matching' ? '5 vòng' : type === 'fillin' ? '20 câu' : type === 'reorder' ? '12 câu' : type === 'listenPick' ? '12 từ' : type === 'listenSentence' ? '20 câu/chủ đề' : type === 'speedRound' ? '15 câu' : type === 'contextClue' ? '12 câu' : type === 'wordGuess' ? '12 từ' : type === 'trueFalse' ? '15 câu' : type === 'wordBuild' ? '12 từ' : type === 'translateWrite' ? '8 câu' : type === 'speakWord' ? '15 từ' : type === 'speakSentence' ? '10 câu' : type === 'readAloud' ? '12 mục' : type === 'speakFast' ? '15 từ' : `${QUIZ_BANK[type]?.length ?? 0} câu`}
+                    <div
+                      key={type}
+                      className="topic-card-item"
+                      style={{
+                        '--card-bg': theme.bg,
+                        '--card-border': theme.border,
+                        '--card-banner': theme.banner,
+                      }}
+                      onClick={() => { play('click'); startQuiz(type); }}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startQuiz(type); }}
+                    >
+                      {/* Inner Illustration Frame with Glass Reflection */}
+                      <div className="topic-card-frame">
+                        {artImg ? (
+                          <img
+                            src={artImg}
+                            alt={info.title}
+                            className="topic-card-art"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="d-flex align-items-center justify-content-center h-100 fs-1">
+                            <Emoji e={info.icon} size={48} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Middle Pill Banner */}
+                      <div className="topic-card-banner">
+                        <span className="topic-card-banner-decor">◆</span>
+                        <span className="topic-card-banner-title">{theme.enTitle || info.title}</span>
+                        <span className="topic-card-banner-decor">◆</span>
+                      </div>
+
+                      {/* Bottom Footer matching Image 1 */}
+                      <div className="topic-card-footer">
+                        <div className="topic-card-footer-left">
+                          <span className="topic-card-vi">{info.title}</span>
+                          <span className="topic-card-lessons">
+                            <i className={`fas ${theme.badgeIcon} me-1`}></i>{qCount}
                           </span>
+                        </div>
+                        <div className="topic-card-footer-right">
+                          <span className="topic-card-count">+XP</span>
                         </div>
                       </div>
                     </div>
@@ -1121,45 +1228,127 @@ export default function PracticePage() {
             </div>
           ))}
 
-          {/* Mixed — standalone */}
+          {/* Mixed & Challenges — standalone */}
           <div className="mb-4">
             <div className="d-flex align-items-center gap-2 mb-2">
               <span className="fs-4"><Icon name="dice" size={24} /></span>
-              <h5 className="fw-bold mb-0 text-secondary">Tổng hợp</h5>
-              <span className="text-muted small ms-1">— Mix tất cả loại câu hỏi</span>
+              <h5 className="fw-bold mb-0 text-secondary">Thử thách & Đấu trí</h5>
+              <span className="text-muted small ms-1">— Mix kỹ năng và phản xạ đa dạng</span>
             </div>
-            <div className="row g-3">
-              <div className="col-6 col-md-4 col-lg-3">
-                <div
-                  className="card text-center card-hover shadow-sm h-100"
-                  style={{ cursor: 'pointer', borderLeft: '4px solid #888' }}
-                  onClick={() => startQuiz('mixed')}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && startQuiz('mixed')}
-                >
-                  <div className="card-body py-3">
-                    <div className="fs-2 mb-1 emoji-big"><Icon name="dice" size={36} /></div>
-                    <h6 className="card-title fw-bold mb-1">Tổng hợp</h6>
-                    <p className="card-text text-muted small mb-2">Mix tất cả</p>
-                    <span className="badge bg-light text-secondary">Ngẫu nhiên</span>
+            <div className="topic-cards-grid">
+              {/* Mixed */}
+              <div
+                className="topic-card-item"
+                style={{
+                  '--card-bg': PRACTICE_THEMES.mixed.bg,
+                  '--card-border': PRACTICE_THEMES.mixed.border,
+                  '--card-banner': PRACTICE_THEMES.mixed.banner,
+                }}
+                onClick={() => startQuiz('mixed')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && startQuiz('mixed')}
+              >
+                <div className="topic-card-frame">
+                  <img
+                    src="/image/practice/tong_hop.webp"
+                    alt="Tổng hợp"
+                    className="topic-card-art"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="topic-card-banner">
+                  <span className="topic-card-banner-decor">◆</span>
+                  <span className="topic-card-banner-title">{PRACTICE_THEMES.mixed.enTitle}</span>
+                  <span className="topic-card-banner-decor">◆</span>
+                </div>
+                <div className="topic-card-footer">
+                  <div className="topic-card-footer-left">
+                    <span className="topic-card-vi">Tổng hợp câu hỏi</span>
+                    <span className="topic-card-lessons">
+                      <i className={`fas ${PRACTICE_THEMES.mixed.badgeIcon} me-1`}></i>Ngẫu nhiên
+                    </span>
+                  </div>
+                  <div className="topic-card-footer-right">
+                    <span className="topic-card-count">+XP</span>
                   </div>
                 </div>
               </div>
-              <div className="col-6 col-md-4 col-lg-3">
-                <div
-                  className="card text-center card-hover shadow-sm h-100"
-                  style={{ cursor: 'pointer', borderLeft: '4px solid #888' }}
-                  onClick={() => { play('click'); startQuiz('matching'); }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && startQuiz('matching')}
-                >
-                  <div className="card-body py-3">
-                    <div className="fs-2 mb-1 emoji-big"><Icon name="link" size={36} /></div>
-                    <h6 className="card-title fw-bold mb-1">Nối cặp</h6>
-                    <p className="card-text text-muted small mb-2">Nối từ Anh–Việt</p>
-                    <span className="badge bg-light text-secondary">5 vòng</span>
+
+              {/* Matching */}
+              <div
+                className="topic-card-item"
+                style={{
+                  '--card-bg': PRACTICE_THEMES.matching.bg,
+                  '--card-border': PRACTICE_THEMES.matching.border,
+                  '--card-banner': PRACTICE_THEMES.matching.banner,
+                }}
+                onClick={() => { play('click'); startQuiz('matching'); }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && startQuiz('matching')}
+              >
+                <div className="topic-card-frame">
+                  <img
+                    src="/image/practice/noi_cap.webp"
+                    alt="Nối cặp"
+                    className="topic-card-art"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="topic-card-banner">
+                  <span className="topic-card-banner-decor">◆</span>
+                  <span className="topic-card-banner-title">{PRACTICE_THEMES.matching.enTitle}</span>
+                  <span className="topic-card-banner-decor">◆</span>
+                </div>
+                <div className="topic-card-footer">
+                  <div className="topic-card-footer-left">
+                    <span className="topic-card-vi">Nối cặp từ</span>
+                    <span className="topic-card-lessons">
+                      <i className={`fas ${PRACTICE_THEMES.matching.badgeIcon} me-1`}></i>5 vòng
+                    </span>
+                  </div>
+                  <div className="topic-card-footer-right">
+                    <span className="topic-card-count">+XP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Speed round */}
+              <div
+                className="topic-card-item"
+                style={{
+                  '--card-bg': PRACTICE_THEMES.speedRound.bg,
+                  '--card-border': PRACTICE_THEMES.speedRound.border,
+                  '--card-banner': PRACTICE_THEMES.speedRound.banner,
+                }}
+                onClick={() => { play('click'); startQuiz('speedRound'); }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && startQuiz('speedRound')}
+              >
+                <div className="topic-card-frame">
+                  <img
+                    src="/image/practice/phan_xa_noi.webp"
+                    alt="Nhanh trí"
+                    className="topic-card-art"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="topic-card-banner">
+                  <span className="topic-card-banner-decor">◆</span>
+                  <span className="topic-card-banner-title">{PRACTICE_THEMES.speedRound.enTitle}</span>
+                  <span className="topic-card-banner-decor">◆</span>
+                </div>
+                <div className="topic-card-footer">
+                  <div className="topic-card-footer-left">
+                    <span className="topic-card-vi">Nhanh trí phản xạ</span>
+                    <span className="topic-card-lessons">
+                      <i className={`fas ${PRACTICE_THEMES.speedRound.badgeIcon} me-1`}></i>15 câu
+                    </span>
+                  </div>
+                  <div className="topic-card-footer-right">
+                    <span className="topic-card-count">+XP</span>
                   </div>
                 </div>
               </div>
@@ -1171,6 +1360,7 @@ export default function PracticePage() {
   }
 
   /* ══════════════════════════════════════════
+     FINISHED (shared for all types)
      FINISHED (shared for all types)
      ══════════════════════════════════════════ */
   if (finished) {

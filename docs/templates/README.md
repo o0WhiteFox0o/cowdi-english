@@ -1,0 +1,10 @@
+# Templates (Mẫu tài liệu IEEE)
+
+| Mẫu | Chuẩn |
+|---|---|
+| [SPMP](SPMP-TEMPLATE.md) | IEEE 16326 |
+| [SRS](SRS-TEMPLATE.md) | ISO/IEC/IEEE 29148 |
+| [SAD](SAD-TEMPLATE.md) / [ADR](ADR-TEMPLATE.md) | ISO/IEC/IEEE 42010 |
+| [SDD](SDD-TEMPLATE.md) / [Feature](FEATURE-DESIGN-TEMPLATE.md) | IEEE 1016 |
+| [STP](STP-TEMPLATE.md) / [Test Report](TEST-REPORT-TEMPLATE.md) | ISO/IEC/IEEE 29119-3 |
+| [Release Notes](RELEASE-NOTES-TEMPLATE.md) | ISO/IEC/IEEE 12207 |

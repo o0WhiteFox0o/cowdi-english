@@ -514,8 +514,84 @@ export default function ReviewPage() {
     ? Math.max(0, Math.ceil((nextReviewAt - Date.now()) / 86400000))
     : null;
 
+  
+  const reviewCards = [
+    {
+      id: 'srs',
+      title: 'Ôn thông minh',
+      enTitle: 'SRS Flashcard',
+      badge: hasDue ? `${dueWords.length} từ đến hạn` : (hasKho ? `${totalSRS} từ trong kho` : '20 từ ưu tiên'),
+      badgeIcon: 'fa-brain',
+      bg: '#DDD6FE',      // Pastel lavender
+      border: '#7C3AED',  // Saturated purple
+      banner: '#6D28D9',
+      art: '/image/practice/tu_dien.webp',
+      action: () => startSession(),
+    },
+    {
+      id: 'cloze',
+      title: 'Hoàn thành câu',
+      enTitle: 'Sentence Fill',
+      badge: '20 câu ngữ cảnh',
+      badgeIcon: 'fa-pen-fancy',
+      bg: '#BAE6FD',      // Pastel sky blue
+      border: '#0284C7',  // Deep sky blue
+      banner: '#0369A1',
+      art: '/image/practice/hoan_thanh_cau.webp',
+      action: () => navigate('/practice?type=fillin'),
+    },
+    {
+      id: 'voice',
+      title: 'Đọc to & Phát âm',
+      enTitle: 'Read Aloud',
+      badge: '12 mục đọc',
+      badgeIcon: 'fa-bullhorn',
+      bg: '#A7F3D0',      // Pastel mint green
+      border: '#059669',  // Deep green
+      banner: '#047857',
+      art: '/image/practice/doc_to.webp',
+      action: () => navigate('/practice?type=readAloud'),
+    },
+    {
+      id: 'matching',
+      title: 'Nối cặp từ',
+      enTitle: 'Word Match',
+      badge: '5 vòng phản xạ',
+      badgeIcon: 'fa-link',
+      bg: '#FED7AA',      // Pastel peach orange
+      border: '#EA580C',  // Deep orange
+      banner: '#C2410C',
+      art: '/image/practice/noi_cap.webp',
+      action: () => navigate('/practice?type=matching'),
+    },
+    {
+      id: 'speed',
+      title: 'Phản xạ nói',
+      enTitle: 'Fast Reflex',
+      badge: '15 từ phản xạ',
+      badgeIcon: 'fa-bolt',
+      bg: '#FEF08A',      // Pastel soft yellow
+      border: '#CA8A04',  // Deep amber
+      banner: '#A16207',
+      art: '/image/practice/phan_xa_noi.webp',
+      action: () => navigate('/practice?type=speakFast'),
+    },
+    {
+      id: 'mixed',
+      title: 'Thử thách tổng hợp',
+      enTitle: 'Mixed Review',
+      badge: 'Mix toàn diện',
+      badgeIcon: 'fa-dice',
+      bg: '#FCE7F3',      // Pastel pink
+      border: '#DB2777',  // Deep pink
+      banner: '#BE185D',
+      art: '/image/practice/tong_hop.webp',
+      action: () => navigate('/practice?type=mixed'),
+    },
+  ];
+
   return (
-    <div className="fade-in" style={{ maxWidth: 760, margin: '0 auto' }}>
+    <div className="fade-in" style={{ maxWidth: 960, margin: '0 auto' }}>
       {/* Hero */}
       <div
         className="card shadow-sm mb-4 text-white border-0"
@@ -536,6 +612,72 @@ export default function ReviewPage() {
 
       {/* Nhật ký học tập */}
       <StudyJournalCard />
+
+      
+      {/* Trading Cards Grid matching Image 1 */}
+      <div className="mb-4" style={{ maxWidth: 780, margin: '0 auto' }}>
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h4 className="fw-bold mb-0 text-ink" style={{ fontSize: '1.25rem' }}>
+              <i className="fas fa-layer-group text-cowdi me-2"></i>Chế độ ôn tập
+            </h4>
+            <small className="text-muted">Chọn phương thức ôn tập để ghi nhớ lâu bền</small>
+          </div>
+          {hasDue && (
+            <span className="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2" style={{ borderRadius: 999 }}>
+              <i className="fas fa-fire me-1"></i>{dueWords.length} từ đến hạn
+            </span>
+          )}
+        </div>
+
+        <div className="topic-cards-grid mb-4">
+          {reviewCards.map((m) => (
+            <div
+              key={m.id}
+              className="topic-card-item"
+              style={{
+                '--card-bg': m.bg,
+                '--card-border': m.border,
+                '--card-banner': m.banner,
+              }}
+              onClick={() => { play('click'); m.action(); }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { play('click'); m.action(); } }}
+            >
+              {/* Inner Illustration Frame with Glass Reflection */}
+              <div className="topic-card-frame">
+                <img
+                  src={m.art}
+                  alt={m.title}
+                  className="topic-card-art"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Middle Pill Banner */}
+              <div className="topic-card-banner">
+                <span className="topic-card-banner-decor">◆</span>
+                <span className="topic-card-banner-title">{m.enTitle}</span>
+                <span className="topic-card-banner-decor">◆</span>
+              </div>
+
+              {/* Bottom Footer matching Image 1 */}
+              <div className="topic-card-footer">
+                <div className="topic-card-footer-left">
+                  <span className="topic-card-vi">{m.title}</span>
+                  <span className="topic-card-lessons">
+                    <i className={`fas ${m.badgeIcon} me-1`}></i>{m.badge}
+                  </span>
+                </div>
+                <div className="topic-card-footer-right">
+                  <span className="topic-card-count">+XP</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Primary action */}
       {hasDue ? (

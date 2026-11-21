@@ -1,0 +1,5 @@
+# 02 — Yêu cầu
+
+Chuẩn: ISO/IEC/IEEE 29148:2018. Mẫu: [SRS](../templates/SRS-TEMPLATE.md).
+
+Xem [TRACEABILITY-MATRIX.md](TRACEABILITY-MATRIX.md).

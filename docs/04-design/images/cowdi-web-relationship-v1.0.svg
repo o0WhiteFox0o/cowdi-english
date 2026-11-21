@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600" viewBox="0 0 2400 1600">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8FBFF"/>
+      <stop offset="100%" stop-color="#EEF5FA"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#DCE8F2" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2E7D32"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7B1FA2"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1D4ED8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2400" height="1600" fill="url(#bgGrad)"/>
+  <rect width="2400" height="1600" fill="url(#grid)"/>
+
+  <!-- Title Banner -->
+  <rect x="40" y="28" width="2320" height="88" rx="20" fill="#1E293B"/>
+  <text x="76" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="800" fill="#FFFFFF">COWDI ENGLISH — SƠ ĐỒ QUAN HỆ WEB &amp; KIẾN TRÚC PHÂN HỆ (v1.0)</text>
+  <text x="76" y="101" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#CBD5E1">Tổng quan điều hướng người dùng, liên kết giữa 4 nhóm trang Frontend (React/Vite PWA), State/Context, Backend API (Express.js) và CSDL MySQL</text>
+
+  <!-- Legend -->
+  <rect x="1720" y="45" width="610" height="54" rx="12" fill="#334155"/>
+  <rect x="1742" y="61" width="16" height="16" rx="4" fill="#7DBE4B"/>
+  <text x="1766" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Học tập</text>
+  <rect x="1840" y="61" width="16" height="16" rx="4" fill="#EA5A5A"/>
+  <text x="1864" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Luyện &amp; Duel</text>
+  <rect x="1975" y="61" width="16" height="16" rx="4" fill="#9C27B0"/>
+  <text x="1999" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Pet &amp; Kinh tế</text>
+  <rect x="2112" y="61" width="16" height="16" rx="4" fill="#2563EB"/>
+  <text x="2136" y="75" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#F8FAFC">Cá nhân &amp; Admin</text>
+  <rect x="2264" y="61" width="50" height="20" rx="10" fill="#F59E0B"/>
+  <text x="2289" y="75" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF">v1.0</text>
+
+  <!-- Top Bar: App Shell & Global Modals -->
+  <rect x="40" y="138" width="2320" height="114" rx="18" fill="#FFFBEB" stroke="#F59E0B" stroke-width="3"/>
+  <text x="68" y="170" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" fill="#B45309">KHUNG ĐIỀU HƯỚNG TOÀN CỤC (BookShell — Sidebar Desktop / Bottom Nav Mobile / HUD: Streak · Sữa · Gem · Pet)</text>
+  <rect x="72" y="189" width="340" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="184" width="340" height="52" rx="14" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2.5"/>
+<text x="84" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Thanh HUD Tài nguyên</text>
+<text x="84" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Streak · Sữa · Gem (+ Nạp) · Pet</text>
+  <rect x="436" y="189" width="340" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="432" y="184" width="340" height="52" rx="14" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2.5"/>
+<rect x="708" y="192" width="54" height="22" rx="11" fill="#F59E0B"/>
+<text x="735" y="207" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="448" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Điểm danh 7 ngày</text>
+<text x="448" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Modal (Ngày 1-6 Sữa, Ngày 7 Gem)</text>
+  <rect x="800" y="189" width="330" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="796" y="184" width="330" height="52" rx="14" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2.5"/>
+<text x="812" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Trợ lý CowdiChat</text>
+<text x="812" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Nút nổi góc màn hình mọi trang</text>
+  <rect x="1154" y="189" width="330" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1150" y="184" width="330" height="52" rx="14" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2.5"/>
+<text x="1166" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Mời bạn (InviteSheet)</text>
+<text x="1166" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Tạo mã QR / link /i/:code</text>
+  <rect x="1508" y="189" width="390" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1504" y="184" width="390" height="52" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<text x="1520" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">React Contexts (State)</text>
+<text x="1520" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">useAuth · useUser · usePet · useSound · usePush</text>
+  <rect x="1922" y="189" width="414" height="52" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1918" y="184" width="414" height="52" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<text x="1934" y="206" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">PWA &amp; Offline Storage</text>
+<text x="1934" y="229" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Service Worker (sw.js) · localStorage · Web Push</text>
+
+  <!-- 4 Main Feature Columns (y=282 to y=1030) -->
+  <!-- Column 1: Học tập & Lộ trình -->
+  
+    <rect x="40" y="282" width="540" height="710" rx="20" fill="#F0FDF4" stroke="#4CAF50" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="40" y="282" width="540" height="46" rx="18" fill="#2E7D32"/>
+    <rect x="40" y="310" width="540" height="18" fill="#2E7D32"/>
+    <text x="62" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">1. HỌC TẬP &amp; LỘ TRÌNH (Learning Core)</text>
+  
+  <rect x="72" y="355" width="484" height="92" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="350" width="484" height="92" rx="14" fill="#FFFFFF" stroke="#4CAF50" stroke-width="2.5"/>
+<rect x="488" y="358" width="54" height="22" rx="11" fill="#2E7D32"/>
+<text x="515" y="373" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">HOME</text>
+<text x="84" y="392" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Lộ trình học  (/, /learning-path)</text>
+<text x="84" y="415" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">6 lộ trình: General, IELTS, B1, B2, TOEIC, C1-C2 (44 Units)</text>
+  <rect x="72" y="477" width="484" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="472" width="484" height="86" rx="14" fill="#DCFCE7" stroke="#16A34A" stroke-width="2.5"/>
+<rect x="488" y="480" width="54" height="22" rx="11" fill="#F59E0B"/>
+<text x="515" y="495" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="84" y="511" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Kiểm tra mốc Unit (Checkpoint)</text>
+<text x="84" y="534" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Đạt ≥70% mở Unit kế tiếp → +Sữa &amp; +1 Rương Đá Nguyên Tố</text>
+  <rect x="72" y="593" width="484" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="588" width="484" height="86" rx="14" fill="#FFFFFF" stroke="#4CAF50" stroke-width="2.5"/>
+<text x="84" y="627" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Thư viện bài học  (/lessons)</text>
+<text x="84" y="650" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Lọc theo chủ đề / cấp độ (/lessons/category/:id)</text>
+  <rect x="72" y="709" width="484" height="92" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="704" width="484" height="92" rx="14" fill="#FFFFFF" stroke="#4CAF50" stroke-width="2.5"/>
+<text x="84" y="746" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Chi tiết bài học  (/lessons/:id)</text>
+<text x="84" y="769" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Từ vựng, ngữ pháp, luyện tập → Tự nạp từ vào kho SRS + Sữa</text>
+  <rect x="72" y="831" width="484" height="92" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="826" width="484" height="92" rx="14" fill="#FFFFFF" stroke="#4CAF50" stroke-width="2.5"/>
+<text x="84" y="868" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Từ vựng Flashcard  (/vocabulary)</text>
+<text x="84" y="891" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">13 chủ đề từ vựng + phát âm TTS → Cập nhật wordStatus &amp; SRS</text>
+
+  <!-- Column 2: Ôn luyện & Thi đấu -->
+  
+    <rect x="610" y="282" width="540" height="710" rx="20" fill="#FEF2F2" stroke="#EA5A5A" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="610" y="282" width="540" height="46" rx="18" fill="#C62828"/>
+    <rect x="610" y="310" width="540" height="18" fill="#C62828"/>
+    <text x="632" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">2. ÔN LUYỆN &amp; THI ĐẤU (Practice &amp; Arena)</text>
+  
+  <rect x="642" y="355" width="484" height="92" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="638" y="350" width="484" height="92" rx="14" fill="#FFFFFF" stroke="#EA5A5A" stroke-width="2.5"/>
+<text x="654" y="392" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Phòng luyện tập  (/practice)</text>
+<text x="654" y="415" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Quiz 4 kỹ năng: Nghe, Nói, Đọc, Viết → +skillXP &amp; +Sữa</text>
+  <rect x="642" y="477" width="484" height="92" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="638" y="472" width="484" height="92" rx="14" fill="#FFFFFF" stroke="#EA5A5A" stroke-width="2.5"/>
+<text x="654" y="514" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Ôn nhanh SRS  (/review)</text>
+<text x="654" y="537" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Thuật toán SM-2 ưu tiên từ sắp quên + Nhật ký học hàng ngày</text>
+  <rect x="642" y="599" width="484" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="638" y="594" width="484" height="86" rx="14" fill="#FFFFFF" stroke="#EA5A5A" stroke-width="2.5"/>
+<text x="654" y="633" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Đấu trường Mini-Game  (/mini-games)</text>
+<text x="654" y="656" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Word Catch, Sentence Puzzle, TyperShark (Trần thưởng/ngày)</text>
+  <rect x="642" y="715" width="484" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="638" y="710" width="484" height="82" rx="14" fill="#FFFFFF" stroke="#EA5A5A" stroke-width="2.5"/>
+<text x="654" y="747" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Luyện đánh máy  (/typing)</text>
+<text x="654" y="770" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Gõ từ vựng &amp; câu tiếng Anh tăng phản xạ → +Sữa</text>
+  <rect x="642" y="827" width="484" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="638" y="822" width="484" height="112" rx="14" fill="#FEE2E2" stroke="#DC2626" stroke-width="2.5"/>
+<rect x="1058" y="830" width="54" height="22" rx="11" fill="#7B1FA2"/>
+<text x="1085" y="845" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">GEM</text>
+<text x="654" y="874" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Đấu trường Pet 1v1  (/duel)</text>
+<text x="654" y="897" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">PvP bất đồng bộ (ATK/HP Pet) · Thắng chuỗi &amp; Thăng hạng → Gem</text>
+
+  <!-- Column 3: Hệ thống Pet & Kinh tế -->
+  
+    <rect x="1180" y="282" width="590" height="710" rx="20" fill="#FAF5FF" stroke="#9C27B0" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="1180" y="282" width="590" height="46" rx="18" fill="#7B1FA2"/>
+    <rect x="1180" y="310" width="590" height="18" fill="#7B1FA2"/>
+    <text x="1202" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">3. HỆ THỐNG PET &amp; KINH TẾ (Pet &amp; Economy)</text>
+  
+  <rect x="1212" y="355" width="534" height="102" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1208" y="350" width="534" height="102" rx="14" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2.5"/>
+<text x="1224" y="397" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Pet của tôi  (/pet)</text>
+<text x="1224" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">ATK/HP · Tiến hóa 5 cấp (Sữa+Gem+Đá cùng hệ) · Rương Đá · Quest</text>
+  <rect x="1212" y="481" width="534" height="96" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1208" y="476" width="534" height="96" rx="14" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2.5"/>
+<text x="1224" y="520" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Cowdi Dex  (/collection)</text>
+<text x="1224" y="543" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">22 loài Pet · Chỉ số gốc (ATK/HP) · Nguyên liệu tiến hóa · Đổi Pet</text>
+  <rect x="1212" y="601" width="534" height="96" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1208" y="596" width="534" height="96" rx="14" fill="#FFFFFF" stroke="#9C27B0" stroke-width="2.5"/>
+<text x="1224" y="640" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Cửa hàng  (/shop)</text>
+<text x="1224" y="663" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">4 tab: Nạp Gem · Vé Gacha · Đổi 1 Gem = 3 Sữa · Trang trí/Quà</text>
+  <rect x="1212" y="721" width="534" height="96" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1208" y="716" width="534" height="96" rx="14" fill="#F3E8FF" stroke="#7E22CE" stroke-width="2.5"/>
+<rect x="1678" y="724" width="54" height="22" rx="11" fill="#F59E0B"/>
+<text x="1705" y="739" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="1224" y="760" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Vòng quay Gacha  (/gacha)</text>
+<text x="1224" y="783" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Mua vé bằng Sữa · Quay x1/x10 (Pity 50) · Trùng Pet hoàn Sữa</text>
+  <rect x="1212" y="841" width="534" height="106" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1208" y="836" width="534" height="106" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="1653" y="844" width="79" height="22" rx="11" fill="#D97706"/>
+<text x="1692.5" y="859" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">ƯU TIÊN</text>
+<text x="1224" y="885" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Nạp tiền nhận Gem  (/topup)</text>
+<text x="1224" y="908" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">VietQR · Polling 3s · Webhook SePay/Casso · Sandbox Demo · Sổ cái</text>
+
+  <!-- Column 4: Cá nhân, Xã hội & Quản trị -->
+  
+    <rect x="1800" y="282" width="560" height="710" rx="20" fill="#EFF6FF" stroke="#2563EB" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="1800" y="282" width="560" height="46" rx="18" fill="#1D4ED8"/>
+    <rect x="1800" y="310" width="560" height="18" fill="#1D4ED8"/>
+    <text x="1822" y="312" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">4. CÁ NHÂN, XÃ HỘI &amp; QUẢN TRỊ</text>
+  
+  <rect x="1832" y="355" width="504" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="350" width="504" height="86" rx="14" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+<text x="1844" y="389" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Sổ tay cá nhân  (/overview)</text>
+<text x="1844" y="412" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Dashboard tổng quan, mục tiêu ngày, lịch tuần, Pet đồng hành</text>
+  <rect x="1832" y="465" width="504" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="460" width="504" height="86" rx="14" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+<text x="1844" y="499" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Tiến trình học tập  (/progress)</text>
+<text x="1844" y="522" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">RadarChart 4 kỹ năng CEFR, lịch streak 28 ngày, thành tựu</text>
+  <rect x="1832" y="575" width="504" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="570" width="504" height="86" rx="14" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+<text x="1844" y="609" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Bảng xếp hạng  (/student-ranking, /leaderboard)</text>
+<text x="1844" y="632" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">BXH Học viên (điểm tổng hợp) &amp; BXH Pet Power / Giải đấu Duel</text>
+  <rect x="1832" y="685" width="504" height="86" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="680" width="504" height="86" rx="14" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+<text x="1844" y="719" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Tài khoản &amp; OAuth  (/account, /auth-callback)</text>
+<text x="1844" y="742" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Đăng nhập Google, Nickname, Lịch nhắc học, Web Push, Thành tựu</text>
+  <rect x="1832" y="795" width="504" height="74" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="790" width="504" height="74" rx="14" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+<text x="1844" y="823" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Nhận trứng mời bạn  (/i/:code)</text>
+<text x="1844" y="846" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Trang công khai nhận thiệp QR &amp; mở trứng Cowdi</text>
+  <rect x="1832" y="893" width="504" height="84" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1828" y="888" width="504" height="84" rx="14" fill="#DBEAFE" stroke="#1E40AF" stroke-width="2.5"/>
+<rect x="2261" y="896" width="61" height="22" rx="11" fill="#1E3A8A"/>
+<text x="2291.5" y="911" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">ADMIN</text>
+<text x="1844" y="926" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Quản trị hệ thống  (/admin, /admin/images)</text>
+<text x="1844" y="949" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">KPI DAU/WAU/MAU · Duyệt đơn Nạp Gem · Quản lý ảnh Pet</text>
+
+  <!-- Internal & Cross-module Arrows -->
+  <!-- Learning path -> checkpoint -> lessons -->
+  <line x1="310" y1="442" x2="310" y2="472" stroke="#2E7D32" stroke-width="3"  marker-end="url(#arrowGreen)"/>
+  <line x1="310" y1="674" x2="310" y2="704" stroke="#2E7D32" stroke-width="3"  marker-end="url(#arrowGreen)"/>
+  <!-- Lessons/Vocab -> Review SRS -->
+  <polyline points="552,750 595,750 595,518 638,518" fill="none" stroke="#2E7D32" stroke-width="3" stroke-linejoin="round"  marker-end="url(#arrowGreen)"/><rect x="545" y="619" width="100" height="24" rx="8" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1.5"/><text x="595" y="635" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#2E7D32">Tự nạp SRS</text>
+  <!-- Checkpoint -> Pet Stones -->
+  <polyline points="552,515 585,515 585,266 1475,266 1475,350" fill="none" stroke="#7B1FA2" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 6" marker-end="url(#arrowPurple)"/><rect x="947.2" y="251" width="165.6" height="24" rx="8" fill="#FFFFFF" stroke="#7B1FA2" stroke-width="1.5"/><text x="1030" y="267" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#7B1FA2">Rương Đá Nguyên Tố</text>
+  <!-- Duel -> Pet / Topup / Leaderboard -->
+  <polyline points="1122,878 1160,878 1160,400 1208,400" fill="none" stroke="#7B1FA2" stroke-width="3" stroke-linejoin="round"  marker-end="url(#arrowPurple)"/><rect x="1114.1" y="675" width="91.8" height="24" rx="8" fill="#FFFFFF" stroke="#7B1FA2" stroke-width="1.5"/><text x="1160" y="691" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#7B1FA2">Gem &amp; Sữa</text>
+  <!-- Pet <-> Shop <-> Gacha <-> TopUp -->
+  <line x1="1475" y1="692" x2="1475" y2="716" stroke="#7B1FA2" stroke-width="3"  marker-end="url(#arrowPurple)"/>
+  <polyline points="1742,400 1786,400 1786,888 1742,888" fill="none" stroke="#D97706" stroke-width="3" stroke-linejoin="round"  marker-end="url(#arrowOrange)"/><rect x="1740.1" y="629" width="91.8" height="24" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5"/><text x="1786" y="645" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#D97706">Thiếu Gem</text>
+  <!-- Admin -> TopUp approve -->
+  <polyline points="1828,930 1792,930 1792,912 1742,912" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 6" marker-end="url(#arrowBlue)"/>
+
+  <!-- Layer 2: Backend API (Express.js) -->
+  
+    <rect x="40" y="1038" width="2320" height="205" rx="20" fill="#F8FAFC" stroke="#475569" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="40" y="1038" width="2320" height="46" rx="18" fill="#334155"/>
+    <rect x="40" y="1066" width="2320" height="18" fill="#334155"/>
+    <text x="62" y="1068" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">LỚP BACKEND API &amp; CRON JOBS (Node.js / Express.js — Port 3001)</text>
+  
+  <rect x="72" y="1111" width="340" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="1106" width="340" height="112" rx="14" fill="#FFFFFF" stroke="#475569" stroke-width="2.5"/>
+<text x="84" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Auth Router  (/auth/*)</text>
+<text x="84" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Google OAuth 2.0 · Passport · JWT Token</text>
+  <rect x="436" y="1111" width="430" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="432" y="1106" width="430" height="112" rx="14" fill="#FFFFFF" stroke="#475569" stroke-width="2.5"/>
+<text x="448" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Core API  (/api/*)</text>
+<text x="448" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Progress · Pet · Check-in · Gacha · Duel · BXH · Push</text>
+  <rect x="890" y="1111" width="430" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="886" y="1106" width="430" height="112" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="1252" y="1114" width="54" height="22" rx="11" fill="#D97706"/>
+<text x="1279" y="1129" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="902" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Top-Up API  (/api/topup/*)</text>
+<text x="902" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Tạo đơn VietQR · Polling · SePay/Casso · Sandbox</text>
+  <rect x="1344" y="1111" width="310" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1340" y="1106" width="310" height="112" rx="14" fill="#FFFFFF" stroke="#475569" stroke-width="2.5"/>
+<text x="1356" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Invites API  (/api/invites/*)</text>
+<text x="1356" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Sinh mã thiệp · Nhận trứng · Rate-limit</text>
+  <rect x="1678" y="1111" width="320" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1674" y="1106" width="320" height="112" rx="14" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="2.5"/>
+<text x="1690" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Admin API  (/api/admin/*)</text>
+<text x="1690" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">KPI DAU/MAU · Duyệt đơn Gem · Cấp Gem</text>
+  <rect x="2022" y="1111" width="314" height="112" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="2018" y="1106" width="314" height="112" rx="14" fill="#FFFFFF" stroke="#475569" stroke-width="2.5"/>
+<text x="2034" y="1158" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Cron Jobs (Web Push)</text>
+<text x="2034" y="1181" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">reminder.js (1h) · schedule-reminder.js (1m)</text>
+
+  <!-- Arrows Frontend -> Backend -->
+  <line x1="310" y1="992" x2="647" y2="1038" stroke="#475569" stroke-width="3"  marker-end="url(#arrow)"/><rect x="381.3" y="1003" width="157.39999999999998" height="24" rx="8" fill="#FFFFFF" stroke="#475569" stroke-width="1.5"/><text x="460" y="1019" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#475569">REST / JSON (JWT)</text>
+  <line x1="880" y1="992" x2="690" y2="1038" stroke="#475569" stroke-width="3"  marker-end="url(#arrow)"/>
+  <line x1="1475" y1="992" x2="1100" y2="1038" stroke="#D97706" stroke-width="3"  marker-end="url(#arrowOrange)"/><rect x="1186.7" y="1003" width="206.6" height="24" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5"/><text x="1290" y="1019" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#D97706">Top-Up / Gacha / Evolve</text>
+  <line x1="2080" y1="992" x2="1834" y2="1038" stroke="#1D4ED8" stroke-width="3"  marker-end="url(#arrowBlue)"/><rect x="1856.7" y="1003" width="206.6" height="24" rx="8" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.5"/><text x="1960" y="1019" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#1D4ED8">Admin / OAuth / Invites</text>
+
+  <!-- Layer 3: Database & External Services -->
+  
+    <rect x="40" y="1290" width="1580" height="270" rx="20" fill="#ECFDF5" stroke="#059669" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="40" y="1290" width="1580" height="46" rx="18" fill="#047857"/>
+    <rect x="40" y="1318" width="1580" height="18" fill="#047857"/>
+    <text x="62" y="1320" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">LỚP CƠ SỞ DỮ LIỆU QUAN HỆ (MySQL — cowdi_english — 9 Bảng)</text>
+  
+  <rect x="72" y="1361" width="286" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="1356" width="286" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="84" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">users</text>
+<text x="84" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Tài khoản Google OAuth &amp; is_admin</text>
+  <rect x="378" y="1361" width="336" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="374" y="1356" width="336" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="390" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">user_progress (1-1)</text>
+<text x="390" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">XP/Sữa/Gem/Đá · Pet JSON · SRS · Duel</text>
+  <rect x="734" y="1361" width="266" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="730" y="1356" width="266" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="746" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">challenges</text>
+<text x="746" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Trận thách đấu Duel 1v1</text>
+  <rect x="1020" y="1361" width="266" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1016" y="1356" width="266" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="1032" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">invites</text>
+<text x="1032" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Thiệp QR tặng trứng bạn bè</text>
+  <rect x="1306" y="1361" width="292" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1302" y="1356" width="292" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="1318" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">daily_traffic</text>
+<text x="1318" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">DAU / WAU / MAU analytics</text>
+
+  <rect x="72" y="1463" width="356" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="68" y="1458" width="356" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="84" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">push_subscriptions</text>
+<text x="84" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Thiết bị đăng ký Web Push VAPID</text>
+  <rect x="448" y="1463" width="356" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="444" y="1458" width="356" height="82" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<text x="460" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">study_schedules (1-1)</text>
+<text x="460" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Lịch nhắc học theo múi giờ user</text>
+  <rect x="824" y="1463" width="376" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="820" y="1458" width="376" height="82" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="1132" y="1466" width="54" height="22" rx="11" fill="#D97706"/>
+<text x="1159" y="1481" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="836" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">gem_orders</text>
+<text x="836" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Đơn nạp VietQR / Webhook / Admin</text>
+  <rect x="1220" y="1463" width="378" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1216" y="1458" width="378" height="82" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="1530" y="1466" width="54" height="22" rx="11" fill="#D97706"/>
+<text x="1557" y="1481" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="1232" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">gem_transactions</text>
+<text x="1232" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Sổ cái đối soát mọi biến động Gem</text>
+
+  <!-- External Services Box -->
+  
+    <rect x="1650" y="1290" width="710" height="270" rx="20" fill="#FFF7ED" stroke="#EA580C" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="1650" y="1290" width="710" height="46" rx="18" fill="#C2410C"/>
+    <rect x="1650" y="1318" width="710" height="18" fill="#C2410C"/>
+    <text x="1672" y="1320" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="800" fill="#FFFFFF">DỊCH VỤ BÊN NGOÀI (External Integrations)</text>
+  
+  <rect x="1682" y="1361" width="318" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1678" y="1356" width="318" height="82" rx="14" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.5"/>
+<text x="1694" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Google OAuth 2.0</text>
+<text x="1694" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Xác thực &amp; cấp thông tin tài khoản</text>
+  <rect x="2020" y="1361" width="318" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="2016" y="1356" width="318" height="82" rx="14" fill="#FFFFFF" stroke="#EA580C" stroke-width="2.5"/>
+<text x="2032" y="1393" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">Web Push (VAPID)</text>
+<text x="2032" y="1416" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Gửi thông báo nhắc học &amp; kết quả</text>
+  <rect x="1682" y="1463" width="318" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="1678" y="1458" width="318" height="82" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="1932" y="1466" width="54" height="22" rx="11" fill="#D97706"/>
+<text x="1959" y="1481" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="1694" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">VietQR (img.vietqr.io)</text>
+<text x="1694" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Sinh ảnh QR chuyển khoản tự động</text>
+  <rect x="2020" y="1463" width="318" height="82" rx="14" fill="#1E293B" opacity="0.10"/>
+<rect x="2016" y="1458" width="318" height="82" rx="14" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+<rect x="2270" y="1466" width="54" height="22" rx="11" fill="#D97706"/>
+<text x="2297" y="1481" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">v1.0</text>
+<text x="2032" y="1495" font-family="Segoe UI, Arial, sans-serif" font-size="19" font-weight="700" fill="#2C3540">SePay / Casso Webhook</text>
+<text x="2032" y="1518" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5A6878">Xác nhận biến động số dư tự động</text>
+
+  <!-- Arrows Backend -> DB & External -->
+  <line x1="650" y1="1243" x2="650" y2="1290" stroke="#047857" stroke-width="3"  marker-end="url(#arrowGreen)"/><rect x="681.6" y="1253" width="296.79999999999995" height="24" rx="8" fill="#FFFFFF" stroke="#047857" stroke-width="1.5"/><text x="830" y="1269" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#047857">mysql2/promise Pool + Transactions</text>
+  <line x1="1100" y1="1243" x2="1100" y2="1290" stroke="#D97706" stroke-width="3"  marker-end="url(#arrowOrange)"/>
+  <line x1="2000" y1="1243" x2="2000" y2="1290" stroke="#C2410C" stroke-width="3"  marker-end="url(#arrowOrange)"/><rect x="2046.7" y="1253" width="206.6" height="24" rx="8" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.5"/><text x="2150" y="1269" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#C2410C">HTTPS / Webhook / VAPID</text>
+</svg>

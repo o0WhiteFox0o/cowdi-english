@@ -29,9 +29,9 @@ const TAB_GROUPS = [
     { to: '/mini-games',    icon: 'gamepad', label: 'Đấu trường game', color: '#F48FB1' },
   ]},
   { label: 'Hệ thống Pet', items: [
-    { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
+    // { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
     { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
-    { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
+    // { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
   { label: 'Sổ tay tổng quát', items: [
     { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },

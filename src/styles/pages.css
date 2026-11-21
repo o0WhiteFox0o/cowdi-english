@@ -417,6 +417,228 @@
   .vocab-hero-img   { width: 118px; height: 118px; }
 }
 
+/* ============================================
+   TOPIC TRADING CARDS (Custom Card Design with Inner Art)
+   ============================================ */
+.vocab-topics-container {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.topic-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  justify-content: center;
+  width: 100%;
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.topic-card-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 260 / 420;
+  border-radius: 18px;
+  background: var(--card-bg, #ffffff);
+  border: 4px solid var(--card-border, #3b82f6);
+  padding: 10px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  user-select: none;
+  outline: none;
+  overflow: hidden;
+}
+
+.topic-card-item:hover,
+.topic-card-item:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* Inner Illustration Frame with Glass Reflection */
+.topic-card-frame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Glass shine overlay */
+.topic-card-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 36%, transparent 36.5%);
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+.topic-card-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.topic-card-item:hover .topic-card-art {
+  transform: scale(1.05);
+}
+
+/* Middle Pill Banner */
+.topic-card-banner {
+  margin-top: 8px;
+  height: 36px;
+  background: var(--card-banner, #1d4ed8);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.topic-card-banner-decor {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.topic-card-banner-title {
+  font-weight: 800;
+  font-size: clamp(0.76rem, 1.8vw, 0.94rem);
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+/* Bottom Footer */
+.topic-card-footer {
+  margin-top: 6px;
+  padding: 0 2px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.topic-card-footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.topic-card-vi {
+  font-weight: 800;
+  font-size: clamp(0.78rem, 1.7vw, 0.88rem);
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.topic-card-lessons {
+  font-size: clamp(0.64rem, 1.3vw, 0.72rem);
+  font-weight: 700;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.topic-card-footer-right {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.topic-card-count {
+  font-size: clamp(0.7rem, 1.4vw, 0.78rem);
+  font-weight: 800;
+  color: #111827;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Progress Bar at Bottom */
+.topic-card-progress {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.topic-card-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .topic-cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .topic-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .topic-card-item {
+    padding: 8px 8px 6px;
+    border-radius: 14px;
+    border-width: 3px;
+  }
+  .topic-card-banner {
+    height: 30px;
+    margin-top: 6px;
+  }
+  .topic-card-banner-title {
+    font-size: 0.76rem;
+  }
+  .topic-card-vi {
+    font-size: 0.72rem;
+  }
+  .topic-card-lessons {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+  }
+  .topic-card-count {
+    font-size: 0.64rem;
+  }
+}
+
 /* ── Account Page UI Optimization ── */
 .account-notification-group .card:first-child {
   margin-bottom: 0 !important;

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { useAuth } from '../hooks/useAuth';
 import Icon from '../components/Icon';
 import Emoji, { EmojiText } from '../components/Emoji';
+import AdminImageManager from '../features/admin/AdminImageManager';
 
 // ── Sparkline SVG (không cần thư viện) ─────────────────────────────
 function Sparkline({ data, color = '#E91E63', height = 60, label = '' }) {
@@ -50,6 +52,9 @@ const KPI_TILES = [
 
 export default function AdminPage() {
   useSEO(SEO_CONFIGS['/admin']);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'stats';
+
   const { user, authFetch } = useAuth();
   const [data, setData]     = useState(null);
   const [loading, setLoad]  = useState(true);
@@ -57,6 +62,7 @@ export default function AdminPage() {
   const [days, setDays]     = useState(30);
 
   useEffect(() => {
+    if (activeTab !== 'stats') return;
     if (!user) { setLoad(false); return; }
     setLoad(true);
     setError(null);
@@ -69,33 +75,58 @@ export default function AdminPage() {
       .then(json => { if (json) setData(json); })
       .catch(() => setError('Không kết nối được server.'))
       .finally(() => setLoad(false));
-  }, [days, user, authFetch]);
+  }, [days, user, authFetch, activeTab]);
 
   const seriesSignups = useMemo(() => data?.series?.map(s => s.signups) || [], [data]);
   const seriesActive  = useMemo(() => data?.series?.map(s => s.active)  || [], [data]);
   const seriesHits    = useMemo(() => data?.series?.map(s => s.hits)    || [], [data]);
 
-  if (!user) {
-    return <div className="alert alert-warning">Vui lòng đăng nhập.</div>;
-  }
-  if (loading) {
-    return <div className="text-center py-5"><div className="spinner-border text-cowdi-primary" /></div>;
-  }
-  if (error === 'forbidden') {
-    return (
-      <div className="text-center py-5">
-        <div className="fs-1 mb-3 emoji-big"><Icon name="lock" size={44} /></div>
-        <h4>Trang dành cho quản trị viên</h4>
-        <p className="text-muted">Liên hệ admin để được cấp quyền.</p>
-      </div>
-    );
-  }
-  if (error) return <div className="alert alert-danger">{error}</div>;
-  if (!data) return null;
-
   return (
     <div className="fade-in">
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      {/* Top Admin Navigation Tabs */}
+      <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+        <ul className="nav nav-pills gap-2">
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-bold px-3 py-2 ${activeTab === 'stats' ? 'active shadow-sm' : 'text-dark'}`}
+              onClick={() => setSearchParams({ tab: 'stats' })}
+            >
+              <i className="fas fa-chart-line me-2"></i>Thống kê tăng trưởng
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-bold px-3 py-2 ${activeTab === 'images' ? 'active shadow-sm' : 'text-dark'}`}
+              onClick={() => setSearchParams({ tab: 'images' })}
+            >
+              <i className="fas fa-images me-2"></i>Quản lý & Đổi file ảnh
+            </button>
+          </li>
+        </ul>
+        <span className="badge bg-secondary-subtle text-secondary px-2 py-1 rounded-pill small">
+          Admin Portal
+        </span>
+      </div>
+
+      {activeTab === 'images' ? (
+        <AdminImageManager />
+      ) : (
+        <>
+          {!user ? (
+            <div className="alert alert-warning">Vui lòng đăng nhập để xem thống kê quản trị.</div>
+          ) : loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-cowdi-primary" /></div>
+          ) : error === 'forbidden' ? (
+            <div className="text-center py-5">
+              <div className="fs-1 mb-3 emoji-big"><Icon name="lock" size={44} /></div>
+              <h4>Trang dành cho quản trị viên</h4>
+              <p className="text-muted">Liên hệ admin để được cấp quyền.</p>
+            </div>
+          ) : error ? (
+            <div className="alert alert-danger">{error}</div>
+          ) : !data ? null : (
+            <div>
+              <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
           <h2 className="fw-bold mb-0"><Icon name="chart" size={28} /> Quản trị cộng đồng</h2>
           <p className="text-muted small mb-0">Theo dõi tăng trưởng, độ gắn kết và chăm sóc người dùng</p>
@@ -212,6 +243,10 @@ export default function AdminPage() {
           emptyHint="Không có ai 'cần chăm sóc' lúc này 🎉"
         />
       </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

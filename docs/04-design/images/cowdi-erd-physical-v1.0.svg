@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1800" viewBox="0 0 2600 1800">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#EEF2F7"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="2600" height="1800" fill="url(#bgGrad)"/>
+  <rect width="2600" height="1800" fill="url(#grid)"/>
+
+  <!-- Title Banner -->
+  <rect x="50" y="28" width="2500" height="88" rx="20" fill="#0F172A"/>
+  <text x="86" y="72" font-family="Segoe UI, Arial, sans-serif" font-size="31" font-weight="800" fill="#FFFFFF">COWDI ENGLISH — SƠ ĐỒ ERD MỨC VẬT LÝ (PHYSICAL ERD — MySQL v1.0)</text>
+  <text x="86" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#CBD5E1">Database: cowdi_english · Engine: InnoDB · Charset: utf8mb4_unicode_ci · 9 bảng (7 bảng hiện hành + 2 bảng Nạp Gem &amp; Sổ cái v1.0)</text>
+
+  <!-- Tables -->
+  <rect x="934" y="155" width="720" height="276" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="930" y="150" width="720" height="276" rx="14" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.5"/>
+<rect x="930" y="150" width="720" height="52" rx="12" fill="#1E3A8A"/>
+<rect x="930" y="190" width="720" height="12" fill="#1E3A8A"/>
+<text x="946" y="176" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">users</text>
+<text x="946" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Tài khoản người dùng (Google OAuth 2.0)</text>
+<rect x="1584" y="160" width="54" height="22" rx="11" fill="#2563EB"/>
+<text x="1611" y="175" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF">CORE</text>
+
+    <rect x="942" y="212" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="957" y="225" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="1014" y="225" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="1636" y="225" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="932" y="234" width="716" height="26" fill="#F8FAFC"/>
+
+    <rect x="942" y="238" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="957" y="251" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="1014" y="251" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">google_sub</text>
+<text x="1636" y="251" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(128) NOT NULL</text>
+
+    <rect x="942" y="264" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="957" y="277" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="1014" y="277" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">email</text>
+<text x="1636" y="277" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(191) NOT NULL</text>
+<rect x="932" y="286" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="303" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">display_name</text>
+<text x="1636" y="303" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(255) NOT NULL</text>
+<text x="1014" y="329" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">avatar_url</text>
+<text x="1636" y="329" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TEXT</text>
+<rect x="932" y="338" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="355" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">is_admin</text>
+<text x="1636" y="355" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TINYINT(1) DEFAULT 0</text>
+<text x="1014" y="381" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">created_at</text>
+<text x="1636" y="381" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TIMESTAMP</text>
+<rect x="932" y="390" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="407" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">last_seen_at</text>
+<text x="1636" y="407" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATETIME</text>
+  <rect x="934" y="500" width="720" height="406" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="930" y="495" width="720" height="406" rx="14" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5"/>
+<rect x="930" y="495" width="720" height="52" rx="12" fill="#B91C1C"/>
+<rect x="930" y="535" width="720" height="12" fill="#B91C1C"/>
+<text x="946" y="521" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">challenges</text>
+<text x="946" y="539" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Đấu trường Pet Duel 1v1 bất đồng bộ (v2)</text>
+<rect x="1584" y="505" width="54" height="22" rx="11" fill="#EF4444"/>
+<text x="1611" y="520" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF">DUEL</text>
+
+    <rect x="942" y="557" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="957" y="570" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="1014" y="570" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="1636" y="570" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="932" y="579" width="716" height="26" fill="#F8FAFC"/>
+
+    <rect x="942" y="583" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="957" y="596" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="1014" y="596" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">challenger_id</text>
+<text x="1636" y="596" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+
+    <rect x="942" y="609" width="30" height="18" rx="5" fill="#64748B"/>
+    <text x="957" y="622" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">IX</text>
+  
+<text x="1014" y="622" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">opponent_id</text>
+<text x="1636" y="622" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (logic FK)</text>
+<rect x="932" y="631" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="648" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">winner_id</text>
+<text x="1636" y="648" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (logic FK)</text>
+
+    <rect x="942" y="661" width="30" height="18" rx="5" fill="#64748B"/>
+    <text x="957" y="674" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">IX</text>
+  
+<text x="1014" y="674" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">status</text>
+<text x="1636" y="674" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">ENUM('pending','completed','expired')</text>
+<rect x="932" y="683" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="700" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">category</text>
+<text x="1636" y="700" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(30) DEFAULT all</text>
+<text x="1014" y="726" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">message</text>
+<text x="1636" y="726" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(280)</text>
+<rect x="932" y="735" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="752" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">quiz_data</text>
+<text x="1636" y="752" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT (JSON)</text>
+<text x="1014" y="778" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">challenger_answers / score / time</text>
+<text x="1636" y="778" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT / INT / INT</text>
+<rect x="932" y="787" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="804" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">challenger_question_times</text>
+<text x="1636" y="804" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT (JSON)</text>
+<text x="1014" y="830" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">opponent_answers / score / time</text>
+<text x="1636" y="830" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT / INT / INT</text>
+<rect x="932" y="839" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="856" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">opponent_question_times</text>
+<text x="1636" y="856" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT (JSON)</text>
+<text x="1014" y="882" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">created_at / expires_at</text>
+<text x="1636" y="882" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TIMESTAMP / DATETIME</text>
+  <rect x="934" y="945" width="720" height="354" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="930" y="940" width="720" height="354" rx="14" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+<rect x="930" y="940" width="720" height="52" rx="12" fill="#B45309"/>
+<rect x="930" y="980" width="720" height="12" fill="#B45309"/>
+<text x="946" y="966" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">gem_orders</text>
+<text x="946" y="984" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Đơn nạp tiền nhận Gem (VietQR / SePay / Casso / Admin / Sandbox)</text>
+<rect x="1584" y="950" width="54" height="22" rx="11" fill="#F59E0B"/>
+<text x="1611" y="965" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF">v1.0</text>
+
+    <rect x="942" y="1002" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="957" y="1015" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="1014" y="1015" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="1636" y="1015" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="932" y="1024" width="716" height="26" fill="#F8FAFC"/>
+
+    <rect x="942" y="1028" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="957" y="1041" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="1014" y="1041" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">order_code</text>
+<text x="1636" y="1041" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(32) COWDIXXXXXX</text>
+
+    <rect x="942" y="1054" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="957" y="1067" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="1014" y="1067" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_id</text>
+<text x="1636" y="1067" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+<rect x="932" y="1076" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="1093" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">package_id</text>
+<text x="1636" y="1093" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(32) NOT NULL</text>
+<text x="1014" y="1119" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">amount_vnd</text>
+<text x="1636" y="1119" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED NOT NULL</text>
+<rect x="932" y="1128" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="1145" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">gems_base / gems_bonus / gems_total</text>
+<text x="1636" y="1145" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED</text>
+<text x="1014" y="1171" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">payment_method</text>
+<text x="1636" y="1171" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">ENUM('vietqr','sandbox')</text>
+<rect x="932" y="1180" width="716" height="26" fill="#F8FAFC"/>
+
+    <rect x="942" y="1184" width="30" height="18" rx="5" fill="#64748B"/>
+    <text x="957" y="1197" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">IX</text>
+  
+<text x="1014" y="1197" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">status</text>
+<text x="1636" y="1197" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">ENUM('pending','paid','expired','cancelled')</text>
+
+    <rect x="942" y="1210" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="957" y="1223" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="1014" y="1223" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">provider_tx_id</text>
+<text x="1636" y="1223" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(128) (Idempotency)</text>
+<rect x="932" y="1232" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="1249" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">paid_by / paid_at</text>
+<text x="1636" y="1249" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(64) / DATETIME</text>
+<text x="1014" y="1275" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">expires_at / created_at</text>
+<text x="1636" y="1275" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATETIME / TIMESTAMP</text>
+  <rect x="934" y="1355" width="720" height="250" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="930" y="1350" width="720" height="250" rx="14" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+<rect x="930" y="1350" width="720" height="52" rx="12" fill="#B45309"/>
+<rect x="930" y="1390" width="720" height="12" fill="#B45309"/>
+<text x="946" y="1376" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">gem_transactions</text>
+<text x="946" y="1394" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Sổ cái đối soát mọi biến động Gem (Audit Trail)</text>
+<rect x="1584" y="1360" width="54" height="22" rx="11" fill="#F59E0B"/>
+<text x="1611" y="1375" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF">v1.0</text>
+
+    <rect x="942" y="1412" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="957" y="1425" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="1014" y="1425" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="1636" y="1425" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="932" y="1434" width="716" height="26" fill="#F8FAFC"/>
+
+    <rect x="942" y="1438" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="957" y="1451" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="1014" y="1451" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_id</text>
+<text x="1636" y="1451" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+<text x="1014" y="1477" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">delta</text>
+<text x="1636" y="1477" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT (+cộng / -trừ)</text>
+<rect x="932" y="1486" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="1503" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">balance_after</text>
+<text x="1636" y="1503" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED NOT NULL</text>
+<text x="1014" y="1529" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">source</text>
+<text x="1636" y="1529" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(32) topup|checkin|duel|evolve</text>
+<rect x="932" y="1538" width="716" height="26" fill="#F8FAFC"/>
+<text x="1014" y="1555" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">ref_id</text>
+<text x="1636" y="1555" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(64) order_code / petId</text>
+<text x="1014" y="1581" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">note / created_at</text>
+<text x="1636" y="1581" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(255) / TIMESTAMP</text>
+  <rect x="54" y="155" width="710" height="250" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="50" y="150" width="710" height="250" rx="14" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.5"/>
+<rect x="50" y="150" width="710" height="52" rx="12" fill="#0F766E"/>
+<rect x="50" y="190" width="710" height="12" fill="#0F766E"/>
+<text x="66" y="176" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">study_schedules</text>
+<text x="66" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Lịch nhắc học cá nhân theo múi giờ (1-1 với users)</text>
+
+    <rect x="62" y="212" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="77" y="225" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="134" y="225" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="746" y="225" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="52" y="234" width="706" height="26" fill="#F8FAFC"/>
+
+    <rect x="62" y="238" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="77" y="251" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+
+    <rect x="96" y="238" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="111" y="251" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="134" y="251" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_id</text>
+<text x="746" y="251" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+<text x="134" y="277" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">enabled</text>
+<text x="746" y="277" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TINYINT(1) DEFAULT 1</text>
+<rect x="52" y="286" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="303" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">days_of_week</text>
+<text x="746" y="303" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(64) JSON [0..6]</text>
+
+    <rect x="62" y="316" width="30" height="18" rx="5" fill="#64748B"/>
+    <text x="77" y="329" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">IX</text>
+  
+<text x="134" y="329" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">time_local / timezone</text>
+<text x="746" y="329" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">CHAR(5) / VARCHAR(64)</text>
+<rect x="52" y="338" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="355" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">message</text>
+<text x="746" y="355" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(200)</text>
+<text x="134" y="381" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">last_fired_at / updated_at</text>
+<text x="746" y="381" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATETIME / DATETIME</text>
+  <rect x="54" y="460" width="710" height="224" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="50" y="455" width="710" height="224" rx="14" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.5"/>
+<rect x="50" y="455" width="710" height="52" rx="12" fill="#0F766E"/>
+<rect x="50" y="495" width="710" height="12" fill="#0F766E"/>
+<text x="66" y="481" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">push_subscriptions</text>
+<text x="66" y="499" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Đăng ký Web Push đa thiết bị (VAPID)</text>
+
+    <rect x="62" y="517" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="77" y="530" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="134" y="530" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="746" y="530" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="52" y="539" width="706" height="26" fill="#F8FAFC"/>
+
+    <rect x="62" y="543" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="77" y="556" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="134" y="556" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_id</text>
+<text x="746" y="556" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+
+    <rect x="62" y="569" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="77" y="582" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="134" y="582" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">endpoint</text>
+<text x="746" y="582" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(500) UK(191)</text>
+<rect x="52" y="591" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="608" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">p256dh / auth_key</text>
+<text x="746" y="608" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(255) NOT NULL</text>
+<text x="134" y="634" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_agent</text>
+<text x="746" y="634" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(255)</text>
+<rect x="52" y="643" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="660" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">created_at / last_used</text>
+<text x="746" y="660" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TIMESTAMP / TIMESTAMP</text>
+  <rect x="54" y="740" width="710" height="172" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="50" y="735" width="710" height="172" rx="14" fill="#FFFFFF" stroke="#475569" stroke-width="2.5"/>
+<rect x="50" y="735" width="710" height="52" rx="12" fill="#334155"/>
+<rect x="50" y="775" width="710" height="12" fill="#334155"/>
+<text x="66" y="761" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">daily_traffic</text>
+<text x="66" y="779" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Lưu lượng truy cập theo ngày (DAU / WAU / MAU)</text>
+
+    <rect x="62" y="797" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="77" y="810" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+
+    <rect x="96" y="797" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="111" y="810" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="134" y="810" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">user_id</text>
+<text x="746" y="810" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+<rect x="52" y="819" width="706" height="26" fill="#F8FAFC"/>
+
+    <rect x="62" y="823" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="77" y="836" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="134" y="836" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">date</text>
+<text x="746" y="836" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATE (Composite PK)</text>
+<text x="134" y="862" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">hits</text>
+<text x="746" y="862" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED DEFAULT 1</text>
+<rect x="52" y="871" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="888" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">last_hit_at</text>
+<text x="746" y="888" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TIMESTAMP</text>
+  <rect x="54" y="970" width="710" height="250" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="50" y="965" width="710" height="250" rx="14" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.5"/>
+<rect x="50" y="965" width="710" height="52" rx="12" fill="#7E22CE"/>
+<rect x="50" y="1005" width="710" height="12" fill="#7E22CE"/>
+<text x="66" y="991" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">invites</text>
+<text x="66" y="1009" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Thiệp mời &amp; Tặng trứng bạn bè (Friend Egg Gift)</text>
+
+    <rect x="62" y="1027" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="77" y="1040" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="134" y="1040" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">code</text>
+<text x="746" y="1040" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(12) 8-char code</text>
+<rect x="52" y="1049" width="706" height="26" fill="#F8FAFC"/>
+
+    <rect x="62" y="1053" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="77" y="1066" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="134" y="1066" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">sender_id</text>
+<text x="746" y="1066" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+
+    <rect x="62" y="1079" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="77" y="1092" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+<text x="134" y="1092" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">claimed_by</text>
+<text x="746" y="1092" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (SET NULL)</text>
+<rect x="52" y="1101" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="1118" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">sender_name / sender_avatar</text>
+<text x="746" y="1118" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(255) / TEXT</text>
+<text x="134" y="1144" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">pet_species / message</text>
+<text x="746" y="1144" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(32) / VARCHAR(280)</text>
+<rect x="52" y="1153" width="706" height="26" fill="#F8FAFC"/>
+<text x="134" y="1170" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">claimed_at / rewarded_sender</text>
+<text x="746" y="1170" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATETIME / TINYINT(1)</text>
+<text x="134" y="1196" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">rewarded_at / created_at / expires_at</text>
+<text x="746" y="1196" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">DATETIME / TIMESTAMP</text>
+  <rect x="1844" y="155" width="710" height="814" rx="14" fill="#0F172A" opacity="0.10"/>
+<rect x="1840" y="150" width="710" height="814" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2.5"/>
+<rect x="1840" y="150" width="710" height="52" rx="12" fill="#047857"/>
+<rect x="1840" y="190" width="710" height="12" fill="#047857"/>
+<text x="1856" y="176" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">user_progress</text>
+<text x="1856" y="194" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" fill="#E2E8F0">Tiến trình học, Pet JSON, Đấu trường &amp; Ví Kinh tế (1-1 với users)</text>
+<rect x="2428.5" y="160" width="109.5" height="22" rx="11" fill="#10B981"/>
+<text x="2483.25" y="175" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#FFFFFF">CORE + v1.0</text>
+<rect x="1842" y="208" width="706" height="24" fill="#F1F5F9"/>
+<line x1="1842" y1="208" x2="2548" y2="208" stroke="#CBD5E1" stroke-width="1"/>
+<text x="1854" y="224" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#475569">ĐỊNH DANH</text>
+
+    <rect x="1852" y="236" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="1867" y="249" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+<text x="1924" y="249" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="800" fill="#0F172A">id</text>
+<text x="2536" y="249" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED AI</text>
+<rect x="1842" y="258" width="706" height="26" fill="#F8FAFC"/>
+
+    <rect x="1852" y="262" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="1867" y="275" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+
+    <rect x="1886" y="262" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="1901" y="275" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+<text x="1924" y="275" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">user_id</text>
+<text x="2536" y="275" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (CASCADE)</text>
+<text x="1924" y="301" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">nickname</text>
+<text x="2536" y="301" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">VARCHAR(20)</text>
+<rect x="1842" y="310" width="706" height="24" fill="#F1F5F9"/>
+<line x1="1842" y1="310" x2="2548" y2="310" stroke="#CBD5E1" stroke-width="1"/>
+<text x="1854" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#475569">KINH TẾ &amp; TIỀN TỆ (v1.0)</text>
+<text x="1924" y="351" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">milk / total_milk_earned</text>
+<text x="2536" y="351" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (Ví Sữa)</text>
+<rect x="1842" y="360" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="377" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">gems / total_gems_earned</text>
+<text x="2536" y="377" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (Ví Gem)</text>
+<text x="1924" y="403" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">gacha_tickets / gacha_pity</text>
+<text x="2536" y="403" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (0..49)</text>
+<rect x="1842" y="412" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="429" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">elemental_stones</text>
+<text x="2536" y="429" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (6 hệ + rương)</text>
+<text x="1924" y="455" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">checkin_data</text>
+<text x="2536" y="455" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (7 ngày)</text>
+<rect x="1842" y="464" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="481" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">duel_rewards_claimed</text>
+<text x="2536" y="481" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (mốc Gem)</text>
+<rect x="1842" y="490" width="706" height="24" fill="#F1F5F9"/>
+<line x1="1842" y1="490" x2="2548" y2="490" stroke="#CBD5E1" stroke-width="1"/>
+<text x="1854" y="506" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#475569">TIẾN ĐỘ HỌC TẬP &amp; CẤP ĐỘ</text>
+<text x="1924" y="531" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">total_xp / available_xp</text>
+<text x="2536" y="531" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED (Level/BXH)</text>
+<rect x="1842" y="540" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="557" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">streak / last_active_date</text>
+<text x="2536" y="557" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED / VARCHAR(64)</text>
+<text x="1924" y="583" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">lessons_completed / quizzes_completed</text>
+<text x="2536" y="583" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED</text>
+<rect x="1842" y="592" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="609" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">perfect_quizzes / words_learned</text>
+<text x="2536" y="609" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED</text>
+<text x="1924" y="635" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">completed_lessons / word_status</text>
+<text x="2536" y="635" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON</text>
+<rect x="1842" y="644" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="661" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">active_days / achievements</text>
+<text x="2536" y="661" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON</text>
+<text x="1924" y="687" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">daily_tasks / daily_date</text>
+<text x="2536" y="687" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT / VARCHAR(64)</text>
+<rect x="1842" y="696" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="713" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">srs_data</text>
+<text x="2536" y="713" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (SM-2)</text>
+<text x="1924" y="739" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">checkpoint_scores</text>
+<text x="2536" y="739" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (44 units)</text>
+<rect x="1842" y="748" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="765" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">skill_xp</text>
+<text x="2536" y="765" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (4 kỹ năng)</text>
+<text x="1924" y="791" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">daily_journal</text>
+<text x="2536" y="791" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (180 ngày)</text>
+<rect x="1842" y="800" width="706" height="24" fill="#F1F5F9"/>
+<line x1="1842" y1="800" x2="2548" y2="800" stroke="#CBD5E1" stroke-width="1"/>
+<text x="1854" y="816" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="800" fill="#475569">HỆ THỐNG PET, ĐẤU TRƯỜNG &amp; WEB PUSH</text>
+<text x="1924" y="841" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">pet_data</text>
+<text x="2536" y="841" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">LONGTEXT JSON (ATK/HP, Evo)</text>
+<rect x="1842" y="850" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="867" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">league_points / duel_streak</text>
+<text x="2536" y="867" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED</text>
+<text x="1924" y="893" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">duel_wins / duel_losses</text>
+<text x="2536" y="893" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">INT UNSIGNED</text>
+<rect x="1842" y="902" width="706" height="26" fill="#F8FAFC"/>
+<text x="1924" y="919" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">push_enabled / last_reminder_at</text>
+<text x="2536" y="919" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TINYINT(1) / DATETIME</text>
+<text x="1924" y="945" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#1E293B">updated_at</text>
+<text x="2536" y="945" text-anchor="end" font-family="Consolas, Segoe UI, Arial, sans-serif" font-size="12.5" fill="#64748B">TIMESTAMP</text>
+
+  <!-- Legend Card (Bottom Left) -->
+  <rect x="50" y="1350" width="710" height="295" rx="16" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5"/>
+  <rect x="50" y="1350" width="710" height="40" rx="14" fill="#334155"/>
+  <rect x="50" y="1378" width="710" height="12" fill="#334155"/>
+  <text x="70" y="1376" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="800" fill="#FFFFFF">CHÚ GIẢI KÝ HIỆU (CROW'S FOOT NOTATION &amp; KHÓA)</text>
+
+  <!-- Keys legend -->
+  
+    <rect x="76" y="1412" width="30" height="18" rx="5" fill="#F59E0B"/>
+    <text x="91" y="1425" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">PK</text>
+  
+  <text x="116" y="1425" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Khóa chính (Primary Key)</text>
+  
+    <rect x="340" y="1412" width="30" height="18" rx="5" fill="#3B82F6"/>
+    <text x="355" y="1425" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">FK</text>
+  
+  <text x="380" y="1425" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Khóa ngoại vật lý (Foreign Key)</text>
+
+  
+    <rect x="76" y="1447" width="30" height="18" rx="5" fill="#10B981"/>
+    <text x="91" y="1460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">UK</text>
+  
+  <text x="116" y="1460" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Duy nhất (Unique Key)</text>
+  
+    <rect x="340" y="1447" width="30" height="18" rx="5" fill="#64748B"/>
+    <text x="355" y="1460" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10.5" font-weight="800" fill="#FFFFFF">IX</text>
+  
+  <text x="380" y="1460" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Chỉ mục / Tham chiếu logic (Index)</text>
+
+  <line x1="74" y1="1484" x2="736" y2="1484" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <!-- Cardinality examples -->
+  <polyline points="76,1515 166,1515" fill="none" stroke="#047857" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="84" y1="1506" x2="84" y2="1524" stroke="#047857" stroke-width="2.4"/>
+<line x1="90" y1="1506" x2="90" y2="1524" stroke="#047857" stroke-width="2.4"/>
+<line x1="158" y1="1506" x2="158" y2="1524" stroke="#047857" stroke-width="2.4"/>
+<line x1="152" y1="1506" x2="152" y2="1524" stroke="#047857" stroke-width="2.4"/>
+  <text x="182" y="1520" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Quan hệ 1 – 1 (bắt buộc)</text>
+
+  <polyline points="410,1515 500,1515" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="418" y1="1506" x2="418" y2="1524" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="424" y1="1506" x2="424" y2="1524" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="492" y1="1506" x2="492" y2="1524" stroke="#0F766E" stroke-width="2.4"/>
+<circle cx="482" cy="1515" r="5.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.4"/>
+  <text x="516" y="1520" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Quan hệ 1 – 0..1 (tùy chọn)</text>
+
+  <polyline points="76,1555 166,1555" fill="none" stroke="#1D4ED8" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="84" y1="1546" x2="84" y2="1564" stroke="#1D4ED8" stroke-width="2.4"/>
+<line x1="90" y1="1546" x2="90" y2="1564" stroke="#1D4ED8" stroke-width="2.4"/>
+<line x1="152" y1="1555" x2="166" y2="1546" stroke="#1D4ED8" stroke-width="2.4"/>
+<line x1="152" y1="1555" x2="166" y2="1564" stroke="#1D4ED8" stroke-width="2.4"/>
+<circle cx="146" cy="1555" r="5.5" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.4"/>
+  <text x="182" y="1560" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Quan hệ 1 – 0..N (FK vật lý)</text>
+
+  <polyline points="410,1555 500,1555" fill="none" stroke="#B45309" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<line x1="418" y1="1546" x2="418" y2="1564" stroke="#B45309" stroke-width="2.4"/>
+<circle cx="428" cy="1555" r="5.5" fill="#FFFFFF" stroke="#B45309" stroke-width="2.4"/>
+<line x1="486" y1="1555" x2="500" y2="1546" stroke="#B45309" stroke-width="2.4"/>
+<line x1="486" y1="1555" x2="500" y2="1564" stroke="#B45309" stroke-width="2.4"/>
+<circle cx="480" cy="1555" r="5.5" fill="#FFFFFF" stroke="#B45309" stroke-width="2.4"/>
+  <text x="516" y="1560" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#1E293B">Tham chiếu logic / 0..1 – N</text>
+
+  <line x1="74" y1="1584" x2="736" y2="1584" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="76" y="1608" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#475569">• Hầu hết khóa ngoại dùng <tspan font-weight="700">ON DELETE CASCADE</tspan> (riêng <tspan font-family="Consolas">invites.claimed_by</tspan> dùng <tspan font-weight="700">SET NULL</tspan>).</text>
+  <text x="76" y="1630" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#475569">• Các bảng viền cam (<tspan font-weight="700" fill="#B45309">v1.0</tspan>) thuộc Kế hoạch Kinh tế &amp; Nạp Gem (<tspan font-family="Consolas">migrate-economy-v2.sql</tspan>).</text>
+
+  <!-- ═══ RELATIONSHIP LINES (Clean Orthogonal Routing) ═══ -->
+
+  <!-- 1. users to user_progress -->
+  <polyline points="1650,222 1840,222" fill="none" stroke="#047857" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="1658" y1="213" x2="1658" y2="231" stroke="#047857" stroke-width="2.4"/>
+<line x1="1664" y1="213" x2="1664" y2="231" stroke="#047857" stroke-width="2.4"/>
+<line x1="1832" y1="213" x2="1832" y2="231" stroke="#047857" stroke-width="2.4"/>
+<line x1="1826" y1="213" x2="1826" y2="231" stroke="#047857" stroke-width="2.4"/>
+<rect x="1683" y="191" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#047857" stroke-width="1.4"/>
+<text x="1745" y="206" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#047857">1 : 1 (user_id)</text>
+
+  <!-- 2. users to study_schedules -->
+  <polyline points="930,222 760,222" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="922" y1="213" x2="922" y2="231" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="916" y1="213" x2="916" y2="231" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="768" y1="213" x2="768" y2="231" stroke="#0F766E" stroke-width="2.4"/>
+<circle cx="778" cy="222" r="5.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.4"/>
+<rect x="772.2" y="191" width="145.6" height="22" rx="7" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/>
+<text x="845" y="206" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#0F766E">1 : 0..1 (user_id)</text>
+
+  <!-- 3. users to push_subscriptions -->
+  <polyline points="930,265 885,265 885,535 760,535" fill="none" stroke="#0F766E" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="922" y1="256" x2="922" y2="274" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="916" y1="256" x2="916" y2="274" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="774" y1="535" x2="760" y2="526" stroke="#0F766E" stroke-width="2.4"/>
+<line x1="774" y1="535" x2="760" y2="544" stroke="#0F766E" stroke-width="2.4"/>
+<circle cx="780" cy="535" r="5.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="2.4"/>
+<rect x="783" y="482" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/>
+<text x="845" y="497" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#0F766E">1 : N (user_id)</text>
+
+  <!-- 4. users to daily_traffic -->
+  <polyline points="930,300 860,300 860,815 760,815" fill="none" stroke="#475569" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="922" y1="291" x2="922" y2="309" stroke="#475569" stroke-width="2.4"/>
+<line x1="916" y1="291" x2="916" y2="309" stroke="#475569" stroke-width="2.4"/>
+<line x1="774" y1="815" x2="760" y2="806" stroke="#475569" stroke-width="2.4"/>
+<line x1="774" y1="815" x2="760" y2="824" stroke="#475569" stroke-width="2.4"/>
+<circle cx="780" cy="815" r="5.5" fill="#FFFFFF" stroke="#475569" stroke-width="2.4"/>
+<rect x="768" y="762" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#475569" stroke-width="1.4"/>
+<text x="830" y="777" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#475569">1 : N (user_id)</text>
+
+  <!-- 5. users to invites (sender_id) -->
+  <polyline points="930,335 835,335 835,1045 760,1045" fill="none" stroke="#7E22CE" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="922" y1="326" x2="922" y2="344" stroke="#7E22CE" stroke-width="2.4"/>
+<line x1="916" y1="326" x2="916" y2="344" stroke="#7E22CE" stroke-width="2.4"/>
+<line x1="774" y1="1045" x2="760" y2="1036" stroke="#7E22CE" stroke-width="2.4"/>
+<line x1="774" y1="1045" x2="760" y2="1054" stroke="#7E22CE" stroke-width="2.4"/>
+<circle cx="780" cy="1045" r="5.5" fill="#FFFFFF" stroke="#7E22CE" stroke-width="2.4"/>
+<rect x="773" y="992" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#7E22CE" stroke-width="1.4"/>
+<text x="835" y="1007" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#7E22CE">sender_id (1:N)</text>
+
+  <!-- 6. users to invites (claimed_by SET NULL) -->
+  <polyline points="930,365 810,365 810,1105 760,1105" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<line x1="922" y1="356" x2="922" y2="374" stroke="#9333EA" stroke-width="2.4"/>
+<circle cx="912" cy="365" r="5.5" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.4"/>
+<line x1="774" y1="1105" x2="760" y2="1096" stroke="#9333EA" stroke-width="2.4"/>
+<line x1="774" y1="1105" x2="760" y2="1114" stroke="#9333EA" stroke-width="2.4"/>
+<circle cx="780" cy="1105" r="5.5" fill="#FFFFFF" stroke="#9333EA" stroke-width="2.4"/>
+<rect x="751.4" y="1119" width="167.20000000000002" height="22" rx="7" fill="#FFFFFF" stroke="#9333EA" stroke-width="1.4"/>
+<text x="835" y="1134" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#9333EA">claimed_by (SET NULL)</text>
+
+  <!-- 7. users to challenges (challenger_id) -->
+  <polyline points="1230,426 1230,495" fill="none" stroke="#B91C1C" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="1221" y1="434" x2="1239" y2="434" stroke="#B91C1C" stroke-width="2.4"/>
+<line x1="1221" y1="440" x2="1239" y2="440" stroke="#B91C1C" stroke-width="2.4"/>
+<line x1="1230" y1="481" x2="1221" y2="495" stroke="#B91C1C" stroke-width="2.4"/>
+<line x1="1230" y1="481" x2="1239" y2="495" stroke="#B91C1C" stroke-width="2.4"/>
+<circle cx="1230" cy="475" r="5.5" fill="#FFFFFF" stroke="#B91C1C" stroke-width="2.4"/>
+<rect x="1058.6" y="449" width="152.8" height="22" rx="7" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.4"/>
+<text x="1135" y="464" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#B91C1C">challenger_id (1:N)</text>
+
+  <!-- 8. users to challenges (opponent_id / winner_id logic FK) -->
+  <polyline points="1380,426 1380,495" fill="none" stroke="#DC2626" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<line x1="1371" y1="434" x2="1389" y2="434" stroke="#DC2626" stroke-width="2.4"/>
+<circle cx="1380" cy="444" r="5.5" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.4"/>
+<line x1="1380" y1="481" x2="1371" y2="495" stroke="#DC2626" stroke-width="2.4"/>
+<line x1="1380" y1="481" x2="1389" y2="495" stroke="#DC2626" stroke-width="2.4"/>
+<circle cx="1380" cy="475" r="5.5" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.4"/>
+<rect x="1397" y="449" width="196" height="22" rx="7" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.4"/>
+<text x="1495" y="464" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#DC2626">opponent / winner (logic)</text>
+
+  <!-- 9. users to gem_orders (routed cleanly down right gutter x=1715) -->
+  <polyline points="1650,300 1715,300 1715,1030 1650,1030" fill="none" stroke="#B45309" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="1658" y1="291" x2="1658" y2="309" stroke="#B45309" stroke-width="2.4"/>
+<line x1="1664" y1="291" x2="1664" y2="309" stroke="#B45309" stroke-width="2.4"/>
+<line x1="1664" y1="1030" x2="1650" y2="1021" stroke="#B45309" stroke-width="2.4"/>
+<line x1="1664" y1="1030" x2="1650" y2="1039" stroke="#B45309" stroke-width="2.4"/>
+<circle cx="1670" cy="1030" r="5.5" fill="#FFFFFF" stroke="#B45309" stroke-width="2.4"/>
+<rect x="1683" y="647" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#B45309" stroke-width="1.4"/>
+<text x="1745" y="662" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#B45309">1 : N (user_id)</text>
+
+  <!-- 10. users to gem_transactions (routed cleanly down right gutter x=1770) -->
+  <polyline points="1650,355 1770,355 1770,1445 1650,1445" fill="none" stroke="#D97706" stroke-width="2.4" stroke-linejoin="round" />
+<line x1="1658" y1="346" x2="1658" y2="364" stroke="#D97706" stroke-width="2.4"/>
+<line x1="1664" y1="346" x2="1664" y2="364" stroke="#D97706" stroke-width="2.4"/>
+<line x1="1664" y1="1445" x2="1650" y2="1436" stroke="#D97706" stroke-width="2.4"/>
+<line x1="1664" y1="1445" x2="1650" y2="1454" stroke="#D97706" stroke-width="2.4"/>
+<circle cx="1670" cy="1445" r="5.5" fill="#FFFFFF" stroke="#D97706" stroke-width="2.4"/>
+<rect x="1683" y="1197" width="124" height="22" rx="7" fill="#FFFFFF" stroke="#D97706" stroke-width="1.4"/>
+<text x="1745" y="1212" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#D97706">1 : N (user_id)</text>
+
+  <!-- 11. gem_orders to gem_transactions (ref_id = order_code) -->
+  <polyline points="1290,1294 1290,1350" fill="none" stroke="#B45309" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<line x1="1281" y1="1302" x2="1299" y2="1302" stroke="#B45309" stroke-width="2.4"/>
+<circle cx="1290" cy="1312" r="5.5" fill="#FFFFFF" stroke="#B45309" stroke-width="2.4"/>
+<line x1="1281" y1="1342" x2="1299" y2="1342" stroke="#B45309" stroke-width="2.4"/>
+<circle cx="1290" cy="1332" r="5.5" fill="#FFFFFF" stroke="#B45309" stroke-width="2.4"/>
+<rect x="1309.8" y="1309" width="210.4" height="22" rx="7" fill="#FFFFFF" stroke="#B45309" stroke-width="1.4"/>
+<text x="1415" y="1324" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#B45309">ref_id = order_code (topup)</text>
+</svg>

@@ -25,6 +25,7 @@ const ReviewPage          = lazy(() => import('./pages/ReviewPage'));
 const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
+const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
 
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="/duel" element={<DuelPage />} />
             <Route path="/student-ranking" element={<StudentRankingPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/images" element={<AdminImageManagerPage />} />
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />
