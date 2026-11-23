@@ -80,17 +80,17 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 ## GĐ1 — Nền tảng v2
 - [x] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt — 2026-11-23 · e15401f
 - [x] File cấu hình hằng số dùng chung (server + mô phỏng) — 2026-11-23 · e15401f
-- [x] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet` — 2026-11-23
-- [x] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4 — 2026-11-23
-- [x] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng — 2026-11-23
-- [x] Tiến hoá thủ công qua API (transaction) — 2026-11-23
-- [x] Gem/Đá theo bài mới trên server — 2026-11-23
-- [x] Gem theo unit (D2) — 2026-11-23
-- [x] Đổi Gem lấy đá 1/tuần (D3) — 2026-11-23
-- [x] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại — 2026-11-23
-- [x] Migration dữ liệu cũ (chạy lại an toàn) — 2026-11-23
-- [x] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm) — 2026-11-23
-- [x] Cập nhật SRS, thiết kế, test case, traceability — 2026-11-23
+- [x] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet` — 2026-11-23 · 327d136
+- [x] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4 — 2026-11-23 · 327d136
+- [x] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng — 2026-11-23 · 327d136
+- [x] Tiến hoá thủ công qua API (transaction) — 2026-11-23 · 327d136
+- [x] Gem/Đá theo bài mới trên server — 2026-11-23 · 327d136
+- [x] Gem theo unit (D2) — 2026-11-23 · 327d136
+- [x] Đổi Gem lấy đá 1/tuần (D3) — 2026-11-23 · 327d136
+- [x] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại — 2026-11-23 · 327d136
+- [x] Migration dữ liệu cũ (chạy lại an toàn) — 2026-11-23 · 327d136
+- [x] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm) — 2026-11-23 · 327d136
+- [x] Cập nhật SRS, thiết kế, test case, traceability — 2026-11-23 · 327d136
 
 **Tiêu chí xong**
 - [x] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
@@ -181,7 +181,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | pending | 45 test pass, build pass |
+| 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | 327d136 | 45 test pass, build pass |
 | 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | e15401f | 45 test pass |
 | 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | e15401f | Nhánh feat/economy-battle-v2 |
 | 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | afc4f52 | Đã cập nhật sổ đăng ký |
