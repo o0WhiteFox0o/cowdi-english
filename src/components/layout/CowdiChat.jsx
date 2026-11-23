@@ -18,7 +18,7 @@ const PAGE_TIPS = {
   '/progress':      ['📊 Xem toàn bộ tiến độ học tập và thành tích của bạn!', '🏆 Bạn đã đi được bao xa rồi? Tiếp tục cố gắng nhé!'],
   '/pet':           ['🐾 Đây là pet của bạn! Chăm sóc và cho ăn để pet khỏe mạnh.', '💝 Pet hạnh phúc sẽ cho bạn thêm điểm thưởng khi học!'],
   '/collection':    ['🌟 Bộ sưu tập pet của bạn! Mở khóa pet mới bằng cách học giỏi.', '🥚 Một số pet đặc biệt cần điều kiện đặc biệt để mở khóa!'],
-  '/shop':          ['🛒 Cửa hàng! Dùng coin để mua đồ cho pet và tăng sức mạnh.', '🪙 Kiếm coin bằng cách hoàn thành bài học và quiz!'],
+  '/shop':          ['🛒 Cửa hàng! Dùng Sữa và Gem để trang bị cho pet và chuẩn bị tiến hoá.', '🥛 Kiếm Sữa và Gem bằng cách hoàn thành bài học và quiz!'],
   '/leaderboard':   ['🏆 Bảng xếp hạng! Xem bạn đang đứng ở đâu so với mọi người.', '📈 Học đều mỗi ngày để leo hạng nhanh hơn!'],
   '/duel':          ['⚔️ Đấu trường! Tạo thách đấu hoặc chấp nhận thách đấu từ người khác.', '🎯 Trả lời đúng để pet tấn công — trả lời sai thì bị tấn công!', '🔥 Combo 3 câu đúng liên tiếp để gây sát thương cực mạnh!'],
   '/mini-games':    ['🎮 Mini games vui mà vẫn học được! Thử hết 6 game xem bạn thích cái nào.', '🐝 Spelling Bee khó nhất đó — nghe và đánh vần chính xác!'],

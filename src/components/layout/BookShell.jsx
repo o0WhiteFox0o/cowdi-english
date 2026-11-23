@@ -71,6 +71,15 @@ const MOBILE_MENUS = {
   ],
 };
 
+function formatCompact(num) {
+  const val = Number(num || 0);
+  if (val >= 1000) {
+    const k = (val / 1000).toFixed(1).replace('.', ',');
+    return k.endsWith(',0') ? k.slice(0, -2) + 'k' : k + 'k';
+  }
+  return String(val);
+}
+
 export default function BookShell({ children }) {
   const { userData } = useUser();
   const { user, loginWithGoogle } = useAuth();
@@ -78,6 +87,30 @@ export default function BookShell({ children }) {
   const { muted, toggleMute } = useSound();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+  const prevMilkRef = useRef(wallet.milk);
+  const prevGemRef = useRef(wallet.gem);
+  const [milkDelta, setMilkDelta] = useState(null);
+  const [gemDelta, setGemDelta] = useState(null);
+
+  useEffect(() => {
+    if (prevMilkRef.current !== undefined && wallet.milk > prevMilkRef.current) {
+      setMilkDelta(wallet.milk - prevMilkRef.current);
+      const t = setTimeout(() => setMilkDelta(null), 1800);
+      return () => clearTimeout(t);
+    }
+    prevMilkRef.current = wallet.milk;
+  }, [wallet.milk]);
+
+  useEffect(() => {
+    if (prevGemRef.current !== undefined && wallet.gem > prevGemRef.current) {
+      setGemDelta(wallet.gem - prevGemRef.current);
+      const t = setTimeout(() => setGemDelta(null), 1800);
+      return () => clearTimeout(t);
+    }
+    prevGemRef.current = wallet.gem;
+  }, [wallet.gem]);
 
   const level = getUserLevel(userData.totalXP);
   const activePet = getActivePetWithDecay();
@@ -145,6 +178,14 @@ export default function BookShell({ children }) {
         <div className="book-mobile-stats">
           <span className="book-pill" title="Chuỗi ngày học"><Icon name="fire" size={20} />{userData.streak}</span>
           <span className="book-pill" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
+          <Link to="/account#wallet" className={`book-pill position-relative ${milkDelta ? 'pulse-pop' : ''}`} title={`Sữa: ${wallet.milk}`}>
+            <span>🥛</span>{formatCompact(wallet.milk)}
+            {milkDelta && <span className="resource-float-delta text-primary">+{milkDelta}</span>}
+          </Link>
+          <Link to="/account#wallet" className={`book-pill position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem}`}>
+            <span>💎</span>{formatCompact(wallet.gem)}
+            {gemDelta && <span className="resource-float-delta text-info">+{gemDelta}</span>}
+          </Link>
           <Link to="/pet" className="book-pill" title={`${petName} · ${petPct}%`}>
             <img src={petImg} alt="" className="book-pill-pet" />
             <span className="book-bar"><i style={{ width: `${petPct}%` }} /></span>
@@ -243,9 +284,26 @@ export default function BookShell({ children }) {
               <Link to="/progress" className="book-pill" title={`${level.title} · ${userData.totalXP} XP`}>
                 <Icon name="medal" size={24} />Lv{level.level}
               </Link>
-              <span className="book-pill" title="Xu">
-                <Icon name="coin" size={24} />{petData.coins}
-              </span>
+              <Link
+                to="/account#wallet"
+                className={`book-pill book-hud-resource position-relative ${milkDelta ? 'pulse-pop' : ''}`}
+                title={`Sữa: ${wallet.milk.toLocaleString('vi-VN')} · Bấm để xem Ví tài nguyên`}
+              >
+                <span>🥛</span><span>{formatCompact(wallet.milk)}</span>
+                {milkDelta && (
+                  <span className="resource-float-delta text-primary">+{milkDelta}</span>
+                )}
+              </Link>
+              <Link
+                to="/account#wallet"
+                className={`book-pill book-hud-resource position-relative ${gemDelta ? 'pulse-pop' : ''}`}
+                title={`Gem: ${wallet.gem.toLocaleString('vi-VN')} · Bấm để xem Ví tài nguyên`}
+              >
+                <span>💎</span><span>{formatCompact(wallet.gem)}</span>
+                {gemDelta && (
+                  <span className="resource-float-delta text-info">+{gemDelta}</span>
+                )}
+              </Link>
               <Link to="/pet" className="book-pill" title={`${petName} · ${evo?.name || ''} · ${petPct}% tới cấp tiếp theo`}>
                 <img src={petImg} alt="" className="book-pill-pet" />
                 <span className="book-bar"><i style={{ width: `${petPct}%` }} /></span>

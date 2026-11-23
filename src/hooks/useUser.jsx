@@ -177,6 +177,15 @@ function sanitizeData(data) {
     sanitized.availableXP = sanitized.totalXP || 0;
   }
 
+  // ── Khởi tạo ví Kinh tế v2 ──────────────────────────────
+  const w = sanitized.wallet || {};
+  sanitized.wallet = {
+    milk: typeof w.milk === 'number' && w.milk > 0 ? w.milk : (sanitized.availableXP || 0),
+    gem: typeof w.gem === 'number' ? w.gem : 0,
+    stone: typeof w.stone === 'number' ? w.stone : 0,
+    stone_shard: typeof w.stone_shard === 'number' ? w.stone_shard : 0,
+  };
+
   // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
   if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
     const clean = {};
@@ -420,8 +429,22 @@ export function UserProvider({ children }) {
       body: JSON.stringify(payload),
       keepalive,
     })
-      .then((r) => {
-        if (r.ok) { clearSyncDirty(user.id); pendingSyncRef.current = false; return; }
+      .then(async (r) => {
+        if (r.ok) {
+          clearSyncDirty(user.id);
+          pendingSyncRef.current = false;
+          try {
+            const res = await r.json();
+            if (res.wallet) {
+              setUserData((prev) => ({
+                ...prev,
+                wallet: res.wallet,
+                availableXP: res.wallet.milk,
+              }));
+            }
+          } catch {}
+          return;
+        }
         // 413 = payload quá lớn → gửi chỉ wordStatus (nhẹ, <50KB)
         if (r.status === 413) {
           return authFetch('/api/word-status', {

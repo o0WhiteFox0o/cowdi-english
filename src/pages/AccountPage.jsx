@@ -112,7 +112,7 @@ function ExpandableAchievementCard({ ach, isExpanded, onToggle }) {
           {/* Footer: Reward & Status */}
           <div className="acc-achieve-footer-row">
             <span className="acc-achieve-reward-tag" title="Phần thưởng khi hoàn thành">
-              <Emoji e={ach.rewardIcon || '🪙'} size={12} /> +{ach.reward} {ach.rewardUnit || 'Coins'}
+              <Emoji e={ach.rewardIcon || '🥛'} size={12} /> +{ach.reward} {ach.rewardUnit || 'Sữa'}
             </span>
             <span className="small text-muted" style={{ fontSize: '0.72rem' }}>
               {ach.isUnlocked ? 'Đã nhận thưởng' : 'Chưa mở khóa'}
@@ -142,6 +142,15 @@ export default function AccountPage() {
   const [walletActionLoading, setWalletActionLoading] = useState(false);
 
   const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+
+  useEffect(() => {
+    if (window.location.hash === '#wallet') {
+      setTimeout(() => {
+        const el = document.getElementById('wallet');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+    }
+  }, []);
 
   async function handleExchangeStone() {
     setWalletActionLoading(true);
@@ -222,7 +231,6 @@ export default function AccountPage() {
     const sp = PET_REGISTRY[pet.speciesId];
     return Math.max(max, sp ? calculatePowerScore(pet, sp) : 0);
   }, 0);
-  const totalCoinsEarned = petData.totalCoinsEarned || petData.coins || 0;
 
   // ── 1. Detailed Pet Achievements (Thành tựu thú cưng) ─────────────────────
   const petAchievementsDetailed = useMemo(() => {
@@ -277,10 +285,11 @@ export default function AccountPage() {
           progressText = `${currentVal} / 100 pts`;
           break;
         case 'pet_coins_500':
-          condition = 'Tích lũy tổng cộng 500 Coins từ học tập và nhiệm vụ';
-          currentVal = Math.min(500, totalCoinsEarned);
-          targetVal = 500;
-          progressText = `${currentVal} / 500 Coins`;
+        case 'pet_milk_1500':
+          condition = 'Tích lũy tổng cộng 1 500 Sữa từ học tập và nhiệm vụ';
+          currentVal = Math.min(1500, userData.totalXP || 0);
+          targetVal = 1500;
+          progressText = `${currentVal} / 1 500 Sữa`;
           break;
         default:
           condition = ach.desc;
@@ -301,13 +310,13 @@ export default function AccountPage() {
         targetVal,
         progressText,
         progressPct,
-        reward: 30, // 30 Coins per achievement
-        rewardUnit: 'Coins',
-        rewardIcon: '🪙',
+        reward: 90, // 90 Sữa per achievement (D12)
+        rewardUnit: 'Sữa',
+        rewardIcon: '🥛',
         isUnlocked,
       };
     });
-  }, [petData.collection, petData.petAchievements, totalCoinsEarned, ownedCount, maxEvo, highestPower, totalSpecies]);
+  }, [petData.collection, petData.petAchievements, userData.totalXP, ownedCount, maxEvo, highestPower, totalSpecies]);
 
   const unlockedPetCount = petAchievementsDetailed.filter((a) => a.isUnlocked).length;
   const totalPetAchievements = petAchievementsDetailed.length;
@@ -371,54 +380,54 @@ export default function AccountPage() {
           targetVal = 10;
           currentVal = Math.min(targetVal, userData.wordsLearned || 0);
           progressText = `${currentVal} / 10 từ`;
-          reward = 30;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 90;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         case 'word_master_50':
           condition = 'Học thuộc 50 từ vựng';
           targetVal = 50;
           currentVal = Math.min(targetVal, userData.wordsLearned || 0);
           progressText = `${currentVal} / 50 từ`;
-          reward = 80;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 240;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         case 'streak_3':
           condition = 'Duy trì chuỗi học 3 ngày liên tiếp';
           targetVal = 3;
           currentVal = Math.min(targetVal, userData.streak || 0);
           progressText = `${currentVal} / 3 ngày`;
-          reward = 30;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 90;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         case 'streak_7':
           condition = 'Duy trì chuỗi học 7 ngày liên tiếp';
           targetVal = 7;
           currentVal = Math.min(targetVal, userData.streak || 0);
           progressText = `${currentVal} / 7 ngày`;
-          reward = 70;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 210;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         case 'xp_100':
           condition = 'Đạt 100 XP trong hành trình học tập';
           targetVal = 100;
           currentVal = Math.min(targetVal, userData.totalXP || 0);
           progressText = `${currentVal} / 100 XP`;
-          reward = 20;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 60;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         case 'xp_500':
           condition = 'Đạt 500 XP trong hành trình học tập';
           targetVal = 500;
           currentVal = Math.min(targetVal, userData.totalXP || 0);
           progressText = `${currentVal} / 500 XP`;
-          reward = 50;
-          rewardUnit = 'Coins';
-          rewardIcon = '🪙';
+          reward = 150;
+          rewardUnit = 'Sữa';
+          rewardIcon = '🥛';
           break;
         default:
           condition = a.desc || '';
@@ -645,9 +654,9 @@ export default function AccountPage() {
             <span className="acc-stat-label">Tổng XP</span>
           </div>
           <div className="acc-stat-pill">
-            <span className="acc-stat-icon"><Emoji e="🪙" size={20} /></span>
-            <span className="acc-stat-num">{petData.coins || 0}</span>
-            <span className="acc-stat-label">Coins</span>
+            <span className="acc-stat-icon"><Emoji e="💎" size={20} /></span>
+            <span className="acc-stat-num">{wallet.gem || 0}</span>
+            <span className="acc-stat-label">GEM</span>
           </div>
           <div className="acc-stat-pill">
             <span className="acc-stat-icon"><Emoji e="🐾" size={20} /></span>
@@ -662,7 +671,7 @@ export default function AccountPage() {
         </div>
 
         {/* Ví tài nguyên Kinh tế v2 (Sữa, Gem, Đá, Mảnh đá) */}
-        <div className="card shadow-sm border-0 rounded-4 p-3 mt-3 bg-white">
+        <div id="wallet" className="card shadow-sm border-0 rounded-4 p-3 mt-3 bg-white">
           <div className="d-flex align-items-center justify-content-between mb-3">
             <div className="d-flex align-items-center gap-2">
               <span className="fs-5"><Emoji e="🎒" size={24} /></span>
@@ -721,6 +730,9 @@ export default function AccountPage() {
             >
               ✨ Ghép mảnh (10 mảnh → 1 🪨)
             </button>
+          </div>
+          <div className="small text-muted mt-2 text-center" style={{ fontSize: '0.8rem' }}>
+            🥛 Sữa dùng để tiến hoá · 💎 Gem dùng để tiến hoá, đổi đá, quay gacha (sắp có)
           </div>
         </div>
       </div>

@@ -108,14 +108,14 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] (Thủ công) Cập nhật bảng cân bằng trên claude.ai — 2026-11-23 · 55841d7
 
 ## GĐ3 — Cửa hàng Giữ nhịp
-- [ ] Bỏ Coins, đổi coins sang Sữa
+- [x] Bỏ Coins, đổi coins sang Sữa — 2026-11-23 · ac3b700
 - [ ] Streak tính trên server theo múi giờ người dùng
 - [ ] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần)
 - [ ] Vé quay lại
 - [ ] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger)
 - [ ] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`)
 - [ ] Trang cửa hàng mới (tab Giữ nhịp)
-- [ ] Xử lý coins và đồ cũ theo quyết định đã chốt
+- [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
 
 **Tiêu chí xong**
 - [ ] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
@@ -183,6 +183,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 3 | Bỏ hẳn Coins, thay bằng Sữa (x3) & Gem, migration DB, HUD 2 chip (Sữa/Gem), cập nhật Lộ trình, Cửa hàng & Bài học | ac3b700 | 53 test pass, build pass |
 | 2026-11-23 | 2 | Hoàn thành GĐ2: Mô phỏng 6 kịch bản cân bằng, xuất 6 CSV & BALANCE-REPORT-v2.md, cập nhật tài liệu tương khắc & 3 test hồi quy | 55841d7 | 48 test pass, build pass |
 | 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | 327d136 | 45 test pass, build pass |
 | 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | e15401f | 45 test pass |

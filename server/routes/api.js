@@ -323,8 +323,8 @@ router.get('/pet-data', requireAuth, async (req, res) => {
 // ── PUT /api/pet-data – lưu dữ liệu pet ─────────────────────────────────────
 router.put('/pet-data', requireAuth, async (req, res) => {
   const d = req.body;
-  // Whitelist top-level fields
-  const allowed = ['activePetId', 'nickname', 'coins', 'totalCoinsEarned', 'collection', 'ownedItems', 'dailyQuests', 'weeklyQuests', 'petAchievements'];
+  // Whitelist top-level fields (D12: bỏ coins và totalCoinsEarned)
+  const allowed = ['activePetId', 'nickname', 'collection', 'ownedItems', 'dailyQuests', 'weeklyQuests', 'petAchievements'];
   const clean = {};
   for (const key of allowed) {
     if (d[key] !== undefined) clean[key] = d[key];
@@ -896,7 +896,7 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       const body = isDraw
         ? `${opponentName} vừa hoà với bạn ${challengerScore}-${opponentScore}.`
         : isWin
-          ? `${opponentName} đã thua ${opponentScore}-${challengerScore}. Vào nhận coin nào!`
+          ? `${opponentName} đã thua ${opponentScore}-${challengerScore}. Vào nhận Sữa và vinh quang nào!`
           : `${opponentName} đã thắng ${opponentScore}-${challengerScore}. Phục thù ngay!`;
 
       sendPushToUser(challenge.challenger_id, {

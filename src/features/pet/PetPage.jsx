@@ -371,10 +371,10 @@ export default function PetPage() {
             </div>
             {q.canClaim ? (
               <button className="pet-quest-claim" onClick={() => completeDailyQuest(q.id)}>
-                +{q.reward}<Icon name="coin" size={14} />
+                +{q.reward} 🥛 Sữa
               </button>
             ) : (
-              <span className="pet-quest-reward">{q.reward}<Icon name="coin" size={14} /></span>
+              <span className="pet-quest-reward">+{q.reward} 🥛</span>
             )}
           </div>
         ))}
@@ -400,7 +400,7 @@ export default function PetPage() {
         <Link to="/shop" className="pet-action-card">
           <div className="pet-action-icon"><Icon name="bag" size={36} /></div>
           <div className="pet-action-label">Cửa hàng</div>
-          <div className="pet-action-hint">{petData.coins}<Icon name="coin" size={12} /></div>
+          <div className="pet-action-hint">🥛 {(userData.wallet?.milk || userData.availableXP || 0).toLocaleString('vi-VN')}</div>
         </Link>
       </div>
 

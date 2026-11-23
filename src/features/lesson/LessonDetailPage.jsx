@@ -469,8 +469,8 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userData, addXP, addSkillXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus } = useUser();
-  const { onLessonComplete, addCoins } = usePet();
+  const { userData, addXP, addSkillXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus, refreshWallet } = useUser();
+  const { onLessonComplete } = usePet();
   const showToast = useToast();
   const { play } = useSound();
   const lesson = ALL_LESSONS.find((l) => l.id === id);
@@ -485,6 +485,7 @@ export default function LessonDetailPage() {
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [finished, setFinished] = useState(false);
+  const [completedRewards, setCompletedRewards] = useState(null);
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
 
@@ -925,22 +926,40 @@ export default function LessonDetailPage() {
       const finalScore = wasCorrect ? score + 1 : score;
       const isPerfect = finalScore === quiz.length;
       const isFirst = !userData.completedLessons.includes(lesson.id);
-      // Lần đầu hoàn thành: 10 XP/câu + thưởng 60 XP (+30 nếu trọn điểm), 25 coin.
+      // Lần đầu hoàn thành: 10 XP/câu + thưởng 60 XP (+30 nếu trọn điểm).
       // Làm lại: 1/3 XP để ôn tập vẫn có ý nghĩa nhưng không farm được.
       const base = finalScore * 10 + (isPerfect ? 30 : 0);
       const xp = isFirst ? base + 60 : Math.max(5, Math.round(base / 3));
-      const coins = isFirst ? 25 : 5;
+      const prevW = userData.wallet || {};
+
       addXP(xp);
       markLessonCompleted(lesson.id);
       incrementQuizzes(isPerfect);
       onLessonComplete();
-      addCoins(coins);
       play('celebration');
       spawnConfetti(confettiRef);
+
+      // Cập nhật số dư thực nhận từ server
+      if (typeof refreshWallet === 'function') {
+        refreshWallet().then((newW) => {
+          if (newW) {
+            setCompletedRewards({
+              milk: xp,
+              gem: Math.max(0, (newW.gem || 0) - (prevW.gem || 0)),
+              stone: Math.max(0, (newW.stone || 0) - (prevW.stone || 0)),
+            });
+          } else {
+            setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
+          }
+        });
+      } else {
+        setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
+      }
+
       showToast(
         isFirst
-          ? `+${xp} XP! +${coins} 🪙 Bạn đã hoàn thành bài học! 🎉`
-          : `Ôn lại tốt! +${xp} XP, +${coins} 🪙 ${isPerfect ? '· Trọn điểm 💯' : ''}`,
+          ? `+${xp} 🥛 Sữa! Bạn đã hoàn thành bài học! 🎉`
+          : `Ôn lại tốt! +${xp} 🥛 Sữa ${isPerfect ? '· Trọn điểm 💯' : ''}`,
         'success'
       );
     }
@@ -996,6 +1015,17 @@ export default function LessonDetailPage() {
           {pct}% — <EmojiText>{pct >= 80 ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : pct >= 50 ? 'Khá tốt! Cố thêm nhé! 🐮' : 'Cố gắng thêm nhé! Cowdi tin bạn! 🐮💪'}</EmojiText>
         </p>
         {pct === 100 && <div className="badge bg-warning text-dark fs-6 mb-3"><Icon name="hundred" size={16} /> PERFECT SCORE!</div>}
+
+        {/* Phần thưởng thực nhận từ server */}
+        <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap my-3">
+          <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{completedRewards?.milk ?? score * 10} Sữa</span>
+          {completedRewards?.gem > 0 && (
+            <span className="badge bg-info text-dark fs-6 px-3 py-2">💎 +{completedRewards.gem} Gem</span>
+          )}
+          {completedRewards?.stone > 0 && (
+            <span className="badge bg-success fs-6 px-3 py-2">💠 +{completedRewards.stone} Đá nguyên tố</span>
+          )}
+        </div>
         <div className="d-flex gap-3 justify-content-center mt-4 flex-wrap">
           {pathNext?.type === 'lesson' && pathNext.lessonId !== lesson.id && (
             <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}><Icon name="play" size={18} /> Bài tiếp theo</button>

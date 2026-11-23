@@ -117,7 +117,7 @@ function speakText(text, rate = 0.9) {
 export default function DuelPage() {
   useSEO(SEO_CONFIGS['/duel']);
   const { user, authFetch } = useAuth();
-  const { petData, addCoins } = usePet();
+  const { petData } = usePet();
   const { addXP } = useUser();
 
   // Mode: lobby | setup | creating | playing | result
@@ -462,7 +462,6 @@ export default function DuelPage() {
           setResult({ mode: 'created', score, total: questions.length, time, challengeId: data.challengeId });
           setMode('result');
           addXP(score * 5);
-          addCoins(10);
           play('celebration');
         } else {
           showToast(data.error || 'Lỗi tạo thách đấu.', 'danger');
@@ -505,7 +504,6 @@ export default function DuelPage() {
           });
           setMode('result');
           addXP(data.opponentScore * 5);
-          addCoins(isWin ? 50 : isDraw ? 25 : 10);
           play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
         } else {
           showToast(data.error || 'Lỗi nộp bài.', 'danger');
@@ -922,8 +920,7 @@ export default function DuelPage() {
               <p className="text-muted mb-1"><Icon name="timer" size={16} /> {result.time}s</p>
               <p className="text-muted small">Đang chờ đối thủ chấp nhận...</p>
               <div className="d-flex justify-content-center gap-2 mt-2">
-                <span className="badge bg-warning text-dark">+{result.score * 5} XP</span>
-                <span className="badge bg-success">+10 <Icon name="coin" size={12} /></span>
+                <span className="badge bg-primary">+{result.score * 5} Sữa 🥛</span>
                 <span className="badge bg-info text-dark">+5 LP</span>
               </div>
             </div>
@@ -995,8 +992,7 @@ export default function DuelPage() {
           <div className="card-body">
             <h6 className="fw-bold mb-2"><Icon name="gift" size={18} /> Phần thưởng</h6>
             <div className="d-flex justify-content-center gap-2 flex-wrap">
-              <span className="badge bg-warning text-dark">+{result.myScore * 5} XP</span>
-              <span className="badge bg-success">+{result.isWin ? 50 : result.isDraw ? 25 : 10} <Icon name="coin" size={12} /></span>
+              <span className="badge bg-primary">+{result.myScore * 5} Sữa 🥛</span>
               <span className="badge bg-info text-dark">
                 +{result.isWin ? 30 : result.isDraw ? 15 : 5} LP
               </span>
