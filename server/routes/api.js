@@ -3,6 +3,8 @@ import pool from '../config/database.js';
 import { requireAuth } from '../middleware/auth.js';
 import { sendPushToUser, getPublicKey, isPushReady } from '../config/push.js';
 import { pickPetIcon } from '../utils/pet-icon.js';
+import { PET_BATTLE_DATA } from '../../shared/game-config.js';
+import { computePowerScore } from '../../shared/battle-engine.js';
 
 const router = express.Router();
 
@@ -229,26 +231,35 @@ router.get('/leaderboard', async (req, res) => {
       let bestSkill = 0;
       let activePetSpecies = null;
       let activePetXp = 0;
+      let activePetEvolution = 0;
       let activePetName = 'Pet';
       if (data.activePetId && collection[data.activePetId]) {
         const ap = collection[data.activePetId];
         activePetSpecies = ap.speciesId;
         activePetXp = ap.totalXpEarned || 0;
+        activePetEvolution = ap.evolution || 0;
         activePetName = ap.customName || 'Pet';
       }
       for (const pet of Object.values(collection)) {
-        const evoMul = [0.5, 0.8, 1.0, 1.3, 1.5][pet.evolution || 0] || 1.0;
-        const rarityBonus = { starter: 1.0, common: 1.0, rare: 1.1, epic: 1.2, legendary: 1.3, event: 1.1 }[pet.rarity] || 1.0;
         const sk = pet.skills || {};
-        const base = (sk.listening || sk.perception || 0) + (sk.speaking || sk.speech || 0) + (sk.reading || sk.intelligence || 0) + (sk.writing || sk.creativity || 0);
-        const power = Math.floor(base * evoMul * rarityBonus);
+        // Skill tên cũ (perception/speech/intelligence/creativity) vẫn có thể còn trong dữ liệu chưa migrate.
+        const skills = {
+          listening: sk.listening || sk.perception || 0,
+          speaking: sk.speaking || sk.speech || 0,
+          reading: sk.reading || sk.intelligence || 0,
+          writing: sk.writing || sk.creativity || 0,
+        };
+        // Power score v2 (mục 4.3) — độ hiếm lấy theo loài từ shared config.
+        const power = PET_BATTLE_DATA[pet.speciesId]
+          ? computePowerScore({ speciesId: pet.speciesId, evolution: pet.evolution || 0, skills, rarity: PET_BATTLE_DATA[pet.speciesId].rarity })
+          : 0;
         if (power > bestPower) bestPower = power;
-        const skillVal = sk[skill] || 0;
+        const skillVal = skills[skill] || 0;
         if (skillVal > bestSkill) bestSkill = skillVal;
       }
       entries.push({
         nickname: nick, power: bestPower, collectionCount, skill: bestSkill,
-        speciesId: activePetSpecies, totalXpEarned: activePetXp, petName: activePetName,
+        speciesId: activePetSpecies, evolution: activePetEvolution, totalXpEarned: activePetXp, petName: activePetName,
         leaguePoints: row.league_points || 0,
         duelWins: row.duel_wins || 0,
         duelLosses: row.duel_losses || 0,
@@ -283,7 +294,8 @@ function parsePetSummary(rawPetData) {
   if (!pd?.collection || !pd?.activePetId) return null;
   const pet = pd.collection[pd.activePetId];
   if (!pet) return null;
-  return { speciesId: pet.speciesId, totalXpEarned: pet.totalXpEarned || 0, customName: pet.customName };
+  // `totalXpEarned` giữ lại cho client cũ đang cache; v2 hiển thị theo `evolution`.
+  return { speciesId: pet.speciesId, evolution: pet.evolution || 0, totalXpEarned: pet.totalXpEarned || 0, customName: pet.customName };
 }
 
 function safeParse(val, fallback) {

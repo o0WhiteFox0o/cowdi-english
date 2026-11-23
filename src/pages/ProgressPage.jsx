@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { ACHIEVEMENTS, LEVELS, LESSONS } from '../data/lessons';
-import { PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel, SKILL_META, PET_ACHIEVEMENTS } from '../data/pets';
+import { PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel, SKILL_META, PET_ACHIEVEMENTS } from '../data/pets';
 import Icon, { SKILL_ICON } from '../components/Icon';
 import Emoji from '../components/Emoji';
 import RadarChart from '../components/charts/RadarChart';
@@ -17,7 +17,7 @@ export default function ProgressPage() {
   const { petData, getActivePetWithDecay } = usePet();
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const evo = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
 
   const level = useMemo(() => {
     let cur = LEVELS[0];

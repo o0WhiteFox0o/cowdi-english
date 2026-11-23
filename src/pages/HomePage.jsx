@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
-import { PET_REGISTRY, getPetEvolution, getPetMood } from '../data/pets';
+import { PET_REGISTRY, getEvolutionInfo, getPetMood } from '../data/pets';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
@@ -47,7 +47,7 @@ export default function HomePage() {
 
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const evo = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const petName = activePet?.customName || species?.name || 'Cowdi';
   const petImg = evo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
   const mood = activePet ? getPetMood(activePet.needs) : 'happy';

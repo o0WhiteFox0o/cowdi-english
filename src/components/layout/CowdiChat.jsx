@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
-import { PET_REGISTRY, getPetMood, getPetMessage, getPetEvolution } from '../../data/pets';
+import { PET_REGISTRY, getPetMood, getPetMessage, getEvolutionInfo } from '../../data/pets';
 import Emoji, { EmojiText } from '../Emoji';
 
 // ── Snap positions (% of viewport, stored as {x,y} in px) ──
@@ -157,7 +157,7 @@ export default function CowdiChat() {
 
   const pet     = getActivePetWithDecay();
   const species = pet ? PET_REGISTRY[pet.speciesId] : null;
-  const evo     = pet && species ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
+  const evo     = pet && species ? getEvolutionInfo(pet.speciesId, pet.evolution) : null;
   const petEmoji = evo?.emoji || '🐮';
   const petImage = evo?.image || null;
 

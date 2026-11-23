@@ -116,7 +116,7 @@ node index.js        # localhost:3001
 
 - Node.js >= 18
 - MySQL 8+
-- Google OAuth Client ID/Secret (xem [SETUP.md](../05-implementation/SETUP.md))
+- Google OAuth Client ID/Secret (xem [GDE-SETUP-v1.0.md](../05-implementation/GDE-SETUP-v1.0.md))
 
 ---
 
@@ -176,10 +176,10 @@ Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc t
 
 | Báo cáo chuyên đề | Bản Markdown | Bản PDF In ấn | Mô tả trọng tâm |
 |---|:---:|:---:|---|
-| **Tiêu chuẩn Công nghệ v01** | [STANDARDS-REPORT-v01.md](STANDARDS-REPORT-v01.md) | [STANDARDS-REPORT-v01.pdf](STANDARDS-REPORT-v01.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
-| **Tiêu chuẩn IEEE & So sánh NestJS** | [IEEE-AND-NESTJS-REPORT-v01.md](../03-architecture/IEEE-AND-NESTJS-REPORT-v01.md) | [IEEE-AND-NESTJS-REPORT-v01.pdf](../03-architecture/IEEE-AND-NESTJS-REPORT-v01.pdf) | Tổng hợp các chuẩn IEEE (754, 42010, 12207, POSIX) & so sánh đa chiều với NestJS |
-| **An toàn Bảo mật v01** | [SECURITY-REPORT-v01.md](../03-architecture/SECURITY-REPORT-v01.md) | [SECURITY-REPORT-v01.pdf](../03-architecture/SECURITY-REPORT-v01.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
-| **Chiến lược & Hiện trạng SEO v01** | [SEO-REPORT-v01.md](../08-reports/SEO-REPORT-v01.md) | [SEO-REPORT-v01.pdf](../08-reports/SEO-REPORT-v01.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
+| **Tiêu chuẩn Công nghệ v01** | [RPT-TECH-STANDARDS-2026-09.md](RPT-TECH-STANDARDS-2026-09.md) | [RPT-TECH-STANDARDS-2026-09.pdf](RPT-TECH-STANDARDS-2026-09.pdf) | Danh mục 16+ chuẩn quốc tế (W3C, PWA, RFC OAuth2/JWT, Schema.org, CEFR, SRS) |
+| **Tiêu chuẩn IEEE & So sánh NestJS** | [RPT-IEEE-NESTJS-2026-09.md](../03-architecture/RPT-IEEE-NESTJS-2026-09.md) | [RPT-IEEE-NESTJS-2026-09.pdf](../03-architecture/RPT-IEEE-NESTJS-2026-09.pdf) | Tổng hợp các chuẩn IEEE (754, 42010, 12207, POSIX) & so sánh đa chiều với NestJS |
+| **An toàn Bảo mật v01** | [RPT-SECURITY-2026-09.md](../03-architecture/RPT-SECURITY-2026-09.md) | [RPT-SECURITY-2026-09.pdf](../03-architecture/RPT-SECURITY-2026-09.pdf) | So sánh kiến trúc Decoupled vs. WordPress, ma trận bảo vệ 3 lớp, 6 đề xuất kỹ thuật |
+| **Chiến lược & Hiện trạng SEO v01** | [RPT-SEO-2026-09.md](../08-reports/RPT-SEO-2026-09.md) | [RPT-SEO-2026-09.pdf](../08-reports/RPT-SEO-2026-09.pdf) | Ma trận từ khóa cốt lõi, từ khóa tìm kiếm dài (Long-tail), PWA SEO, Sitemap & Robots |
 
 ---
 
@@ -214,12 +214,12 @@ Hệ thống Cowdi English được chuẩn hóa toàn diện theo các đặc t
 
 | File | Nội dung |
 |---|---|
-| [SETUP.md](../05-implementation/SETUP.md) | Hướng dẫn cài đặt chi tiết |
-| [GAME-DESIGN.md](../04-design/GAME-DESIGN.md) | Thiết kế hệ thống game, XP, pet |
-| [DUEL-BATTLE-DESIGN.md](../04-design/DUEL-BATTLE-DESIGN.md) | Thiết kế hệ thống đấu |
-| [VOCABULARY.md](../05-implementation/VOCABULARY.md) | Danh sách từ vựng |
-| [PET-IMAGE-GUIDE.md](../05-implementation/PET-IMAGE-GUIDE.md) | Hướng dẫn thêm ảnh pet |
-| [REPORT.md](../08-reports/REPORT.md) | Báo cáo tiến độ phát triển |
+| [GDE-SETUP-v1.0.md](../05-implementation/GDE-SETUP-v1.0.md) | Hướng dẫn cài đặt chi tiết |
+| [SDD-GAME-PET-v1.0.md](../04-design/SDD-GAME-PET-v1.0.md) | Thiết kế hệ thống game, XP, pet |
+| [SDD-DUEL-BATTLE-v1.0.md](../04-design/SDD-DUEL-BATTLE-v1.0.md) | Thiết kế hệ thống đấu |
+| [GDE-VOCABULARY-v1.0.md](../05-implementation/GDE-VOCABULARY-v1.0.md) | Danh sách từ vựng |
+| [GDE-PET-IMAGES-v1.0.md](../05-implementation/GDE-PET-IMAGES-v1.0.md) | Hướng dẫn thêm ảnh pet |
+| [RPT-ROADMAP-2026-03-17.md](../08-reports/RPT-ROADMAP-2026-03-17.md) | Báo cáo tiến độ phát triển |
 
 ---
 

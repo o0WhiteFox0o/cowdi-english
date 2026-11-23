@@ -1255,5 +1255,8 @@ export default function Icon({ name, size = 24, className = '', title, style }) 
 export const ICON_NAMES = Object.keys(ICONS);
 
 /* Element / skill → icon name maps (shared by pet screens) */
-export const ELEMENT_ICON = { neutral: 'neutral', fire: 'fire', water: 'water', nature: 'leaf', earth: 'rock', cosmic: 'sparkle' };
+export const ELEMENT_ICON = {
+  metal: 'magnet', wood: 'leaf', water: 'water', fire: 'fire', earth: 'rock',
+  dark: 'moon', light: 'sun', neutral: 'neutral', wind: 'wind', thunder: 'bolt',
+};
 export const SKILL_ICON = { listening: 'ear', speaking: 'speak', reading: 'book', writing: 'pencil' };

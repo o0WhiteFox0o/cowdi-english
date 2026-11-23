@@ -4,7 +4,7 @@ import { SEO_CONFIGS } from '../data/seo-config';
 import { useAuth } from '../hooks/useAuth';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
-import { PET_REGISTRY, getPetEvolution } from '../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../data/pets';
 import { LEVELS, ACHIEVEMENTS } from '../data/lessons';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
@@ -61,7 +61,7 @@ function resolvePetAvatar(pet) {
   if (!pet?.speciesId) return { emoji: '🐾', image: null };
   const species = PET_REGISTRY[pet.speciesId];
   if (!species) return { emoji: '🐾', image: null };
-  const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned || 0);
+  const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
   return {
     emoji: evo?.emoji || species.emoji,
     image: evo?.image || null,
@@ -113,7 +113,7 @@ export default function StudentRankingPage() {
   const myStats = useMemo(() => {
     const pet = petData.collection[petData.activePetId];
     const species = pet ? PET_REGISTRY[pet.speciesId] : null;
-    const evo = pet && species ? getPetEvolution(pet.speciesId, pet.totalXpEarned) : null;
+    const evo = pet && species ? getEvolutionInfo(pet.speciesId, pet.evolution) : null;
     const level = getUserLevel(userData.totalXP);
     const base = {
       totalXP: userData.totalXP,

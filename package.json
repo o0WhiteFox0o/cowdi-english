@@ -9,7 +9,8 @@
     "build": "vite build",
     "build:prod": "vite build --config vite.config.prod.js --mode production",
     "preview": "vite preview",
-    "pwa:icons": "node scripts/generate-pwa-icons.mjs"
+    "pwa:icons": "node scripts/generate-pwa-icons.mjs",
+    "test": "node --test shared/"
   },
   "dependencies": {
     "react": "^18.3.0",

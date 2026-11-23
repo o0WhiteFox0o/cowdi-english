@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { LESSONS, QUIZ_BANK } from '../data/lessons';
 import { EXAM_LESSONS } from '../data/exam-paths';
 import { ALL_PATHS, getPathById, buildPathNodes } from '../data/path';
-import { PET_REGISTRY, getPetEvolution } from '../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../data/pets';
 import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
@@ -114,7 +114,7 @@ export default function LearningPathPage() {
   // Mascot next to the current node
   const activePet = getActivePetWithDecay();
   const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const petEvo = activePet && petSpecies ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const petImg = petEvo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
 
   // Scroll the current node into view when it is far down the trail

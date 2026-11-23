@@ -2,7 +2,7 @@
 
 > Ngày: 2026-05-14
 > Mục tiêu: tăng share organic mà KHÔNG xin xỏ, KHÔNG khó chịu
-> Phụ thuộc: tính năng [InviteSheet](src/features/invite/InviteSheet.jsx) đã hoàn thành
+> Phụ thuộc: tính năng [InviteSheet](../../src/features/invite/InviteSheet.jsx) đã hoàn thành
 
 ---
 

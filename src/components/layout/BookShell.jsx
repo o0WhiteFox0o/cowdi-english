@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePet } from '../../hooks/usePet';
 import { useSound } from '../../hooks/useSound';
 import { LEVELS } from '../../data/config/levels';
-import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
 import { COWDI_MESSAGES } from '../../data/config/messages';
 import InviteSheet from '../../features/invite/InviteSheet';
 import Icon from '../Icon';
@@ -82,10 +82,13 @@ export default function BookShell({ children }) {
   const level = getUserLevel(userData.totalXP);
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const evo = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
+  const evo = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const nextEvo = species && evo ? species.evolutions[evo.stage + 1] : null;
+  // v2: thanh này thể hiện cấp C1→C5 (không còn tiến độ theo XP). Phase 4 có thể đổi
+  // sang tiến độ điều kiện tiến hoá (canEvolve).
+  const lastStage = species ? species.evolutions.length - 1 : 0;
   const petPct = activePet && evo
-    ? (nextEvo ? Math.min(100, Math.round(((activePet.totalXpEarned - evo.xp) / (nextEvo.xp - evo.xp)) * 100)) : 100)
+    ? (nextEvo && lastStage > 0 ? Math.round((evo.stage / lastStage) * 100) : 100)
     : 0;
   const petImg = evo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
   const petName = activePet?.customName || species?.name || 'Cowdi';

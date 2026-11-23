@@ -4,8 +4,8 @@ import { SEO_CONFIGS } from '../../data/seo-config';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import {
-  PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel,
-  checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
+  PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
+  checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS, getGroupInfo,
 } from '../../data/pets';
 import Icon, { ELEMENT_ICON, SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
@@ -72,7 +72,7 @@ export default function CollectionPage() {
 
   const sel = selected ? entries.find((e) => e.id === selected) : null;
   const selOwned = sel ? ownedSpecies[sel.id] : null;
-  const selEvo = selOwned ? getPetEvolution(sel.id, selOwned.totalXpEarned) : null;
+  const selEvo = selOwned ? getEvolutionInfo(sel.id, selOwned.evolution) : null;
   const selCanUnlock = sel && !selOwned && !sel.comingSoon && checkUnlockCondition(sel.unlockCondition, userData, petData);
   const isActive = selOwned && petData.activePetId === selOwned.instanceId;
 
@@ -115,7 +115,7 @@ export default function CollectionPage() {
         <div className="dex-grid">
           {visible.map((sp) => {
             const owned = ownedSpecies[sp.id];
-            const evo = owned ? getPetEvolution(sp.id, owned.totalXpEarned) : null;
+            const evo = owned ? getEvolutionInfo(sp.id, owned.evolution) : null;
             const art = owned ? evo?.image : (sp.evolutions[1]?.image || sp.evolutions[0]?.image);
             const emoji = owned ? (evo?.emoji || sp.emoji) : sp.emoji;
             const active = owned && petData.activePetId === owned.instanceId;
@@ -183,6 +183,21 @@ export default function CollectionPage() {
 
               <p className="dex-desc">{sel.description}</p>
 
+              {/* Hệ & nhóm (v2) — chữ lấy từ shared/game-config.js */}
+              <div className="dex-section">
+                <div className="dex-section-title">Hệ & nhóm</div>
+                <p className="dex-desc mb-1">
+                  <b><Icon name={ELEMENT_ICON[sel.element]} size={14} /> {elName(ELEMENT_COLORS[sel.element])}:</b>{' '}
+                  {ELEMENT_COLORS[sel.element]?.desc}
+                </p>
+                {getGroupInfo(sel.group) && (
+                  <p className="dex-desc mb-0">
+                    <b>{getGroupInfo(sel.group).name} · {getGroupInfo(sel.group).skillName}:</b>{' '}
+                    {getGroupInfo(sel.group).skillDesc}
+                  </p>
+                )}
+              </div>
+
               {/* Base stats */}
               <div className="dex-section">
                 <div className="dex-section-title">Chỉ số gốc</div>
@@ -217,7 +232,7 @@ export default function CollectionPage() {
                 <div className="dex-section-title">Tiến hoá</div>
                 <div className="dex-evo">
                   {sel.evolutions.map((evo, i) => {
-                    const reached = selOwned && selOwned.totalXpEarned >= evo.xp;
+                    const reached = selOwned && (selOwned.evolution || 0) >= evo.stage;
                     const isNow = selEvo && selEvo.stage === evo.stage;
                     return (
                       <div key={evo.stage} className={`dex-evo-step ${reached ? 'reached' : ''} ${isNow ? 'now' : ''}`}>
@@ -225,7 +240,7 @@ export default function CollectionPage() {
                         <div className="dex-evo-ring">
                           <PetArt src={evo.image} emoji={reached ? evo.emoji : '❓'} alt={evo.name} className="dex-evo-img" silhouette={!reached} />
                         </div>
-                        <small>{evo.xp} XP</small>
+                        <small>C{evo.stage + 1}</small>
                       </div>
                     );
                   })}

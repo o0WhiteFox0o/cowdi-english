@@ -3,7 +3,7 @@
 > **Mã tài liệu:** WRD-COWDI-v1.0  
 > **Chuẩn tham chiếu:** IEEE 1016-2009 (Software Design Description — Interface, Navigation & Component View)  
 > **Phạm vi:** Toàn bộ các trang (Routes), Khung điều hướng (`BookShell`), Context/State, Backend API (Express.js), CSDL MySQL và Tích hợp ngoài (bao gồm Kinh tế v1.0: Nạp Gem, Sữa, Đá nguyên tố, Gacha, Điểm danh)  
-> **Tài liệu liên quan:** [ERD-COWDI-v1.0.md](ERD-COWDI-v1.0.md) · [IMPLEMENT-COWDI-PLAN-V1.0.md](../01-project-management/IMPLEMENT-COWDI-PLAN-V1.0.md)
+> **Tài liệu liên quan:** [ERD-COWDI-v1.0.md](ERD-COWDI-v1.0.md) · [SPMP-ECONOMY-PET-v1.0.md](../01-project-management/SPMP-ECONOMY-PET-v1.0.md)
 
 ---
 

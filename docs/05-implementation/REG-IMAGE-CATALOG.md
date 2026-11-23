@@ -249,7 +249,7 @@ public/image/
 
 ### Cách 2: Thêm file trực tiếp vào mã nguồn
 1. Đặt file ảnh mới với tỷ lệ 3:4 vào thư mục tương ứng trong `public/image/subtopics/<tên-chủ-đề>/`.
-2. Mở file [src/pages/VocabularyPage.jsx](file:///e:/cowdi-english/src/pages/VocabularyPage.jsx).
+2. Mở file [src/pages/VocabularyPage.jsx](../../src/pages/VocabularyPage.jsx).
 3. Trong biến `SUBTOPIC_ART_IMAGES`, trỏ ID của thẻ con tới file vừa thêm:
    ```javascript
    'transport-actions': '/image/subtopics/transportation/actions.png',

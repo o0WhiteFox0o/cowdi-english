@@ -3,7 +3,7 @@
 > **Mã tài liệu:** ERD-COWDI-v1.0  
 > **Chuẩn tham chiếu:** IEEE 1016-2009 (Software Design Description — Data Design View)  
 > **Hệ quản trị CSDL:** MySQL 5.5+ / MariaDB (`InnoDB`, `utf8mb4_unicode_ci`)  
-> **Nguồn đối chiếu:** Toàn bộ `server/db/*.sql`, `server/routes/*.js`, `src/data/*`, `docs/01-project-management/IMPLEMENT-COWDI-PLAN-V1.0.md`, `docs/04-design/PET-INTERACTION-REDESIGN.md`
+> **Nguồn đối chiếu:** Toàn bộ `server/db/*.sql`, `server/routes/*.js`, `src/data/*`, `docs/01-project-management/SPMP-ECONOMY-PET-v1.0.md`, `docs/04-design/SDD-PET-INTERACTION-v1.0.md`
 
 ---
 
@@ -14,10 +14,10 @@ Cơ sở dữ liệu `cowdi_english` áp dụng mô hình **Quan hệ kết hợ
 | Nhóm thực thể | Trạng thái | Các bảng / thực thể |
 |---|---|---|
 | **Cốt lõi hiện hành (Core v1.0)** | Đã triển khai (`server/db/*.sql`) | `users`, `user_progress`, `challenges`, `invites`, `push_subscriptions`, `study_schedules`, `daily_traffic` (7 bảng) |
-| **Kinh tế & Nạp Gem (Economy v1.0)** | Theo `IMPLEMENT-COWDI-PLAN-V1.0.md` | `gem_orders`, `gem_transactions` + 9 cột mở rộng trên `user_progress` (2 bảng mới) |
+| **Kinh tế & Nạp Gem (Economy v1.0)** | Theo `SPMP-ECONOMY-PET-v1.0.md` | `gem_orders`, `gem_transactions` + 9 cột mở rộng trên `user_progress` (2 bảng mới) |
 | **Dữ liệu JSON lồng (Embedded)** | Lưu trong `user_progress` | `pet_data` (`PET_INSTANCE`), `srs_data`, `checkpoint_scores`, `daily_journal`, `elemental_stones`, `checkin_data` |
 | **Danh mục tĩnh (Static Catalog)** | Lưu trên Frontend (`src/data/`) | `LEARNING_PATH` → `UNIT` → `LESSON` → `VOCABULARY`, `PET_SPECIES` (22 loài) → `EVOLUTION_STAGE` (5 cấp), `TOPUP_PACKAGE`, `SHOP_ITEM` |
-| **Mở rộng tương lai (Phase 3–4)** | Đề xuất trong `PET-INTERACTION-REDESIGN.md` | `pet_memory`, `pet_visits` (2 bảng dự kiến) |
+| **Mở rộng tương lai (Phase 3–4)** | Đề xuất trong `SDD-PET-INTERACTION-v1.0.md` | `pet_memory`, `pet_visits` (2 bảng dự kiến) |
 
 ---
 
@@ -303,7 +303,7 @@ erDiagram
 
 ## 4. Sơ đồ ERD Mở Rộng Tương Lai (Phase 3–4 — Tương Tác Pet)
 
-Theo tài liệu `docs/04-design/PET-INTERACTION-REDESIGN.md` (chưa migrate, dự kiến triển khai ở giai đoạn tiếp theo):
+Theo tài liệu `docs/04-design/SDD-PET-INTERACTION-v1.0.md` (chưa migrate, dự kiến triển khai ở giai đoạn tiếp theo):
 
 ```mermaid
 erDiagram
@@ -365,7 +365,7 @@ Lưu toàn bộ tiến trình học, chỉ số đấu trường, cài đặt nh
 |---|---|---|---|
 | **Định danh** | `id`, `user_id` | `INT UNSIGNED` | `id` PK; `user_id` UNIQUE FK → `users(id) ON DELETE CASCADE` |
 | **Tiến trình học** | `total_xp`, `available_xp`, `streak`, `lessons_completed`, `quizzes_completed`, `perfect_quizzes`, `words_learned` | `INT UNSIGNED` | `total_xp` chỉ tăng (Level & BXH); `available_xp` là ví XP cũ (migrate sang `milk`) |
-| **Kinh tế v1.0** | `milk`, `total_milk_earned`, `gems`, `total_gems_earned`, `gacha_tickets`, `gacha_pity` | `INT UNSIGNED` | Ví Sữa, Gem, Vé Gacha, bộ đếm Pity (theo `IMPLEMENT-COWDI-PLAN-V1.0.md`) |
+| **Kinh tế v1.0** | `milk`, `total_milk_earned`, `gems`, `total_gems_earned`, `gacha_tickets`, `gacha_pity` | `INT UNSIGNED` | Ví Sữa, Gem, Vé Gacha, bộ đếm Pity (theo `SPMP-ECONOMY-PET-v1.0.md`) |
 | **Đấu trường** | `nickname`, `league_points`, `duel_wins`, `duel_losses`, `duel_streak` | `VARCHAR(20)` / `INT UNSIGNED` | Thống kê PvP & BXH ẩn danh |
 | **Thông báo** | `push_enabled`, `last_reminder_at` | `TINYINT(1)` / `DATETIME` | Cờ nhận Web Push & chống spam nhắc streak |
 | **JSON hiện hành** | `completed_lessons`, `word_status`, `active_days`, `achievements`, `daily_tasks`, `srs_data`, `checkpoint_scores`, `skill_xp`, `daily_journal`, `pet_data` | `LONGTEXT` | Dữ liệu học tập, SRS SM-2, nhật ký ngày và bộ sưu tập Pet |

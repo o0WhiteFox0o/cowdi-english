@@ -67,13 +67,13 @@ Card "Cho Pet ăn XP":
 
 | File | Mô tả |
 |---|---|
-| [src/hooks/useUser.jsx](src/hooks/useUser.jsx) | `DEFAULT_DATA.availableXP`, sanitize migration, `addXP` cộng cả ví, hàm mới `spendXP`, merge logic |
-| [src/hooks/usePet.jsx](src/hooks/usePet.jsx) | `feedXPToPet(amount)` mới, tự kích hoạt tiến hóa |
-| [src/features/pet/PetPage.jsx](src/features/pet/PetPage.jsx) | Card "Cho Pet ăn XP" + toast |
-| [src/pages/AccountPage.jsx](src/pages/AccountPage.jsx) | Hiển thị thêm thẻ Ví XP |
-| [server/routes/api.js](server/routes/api.js) | Đọc/ghi `available_xp` qua `/api/progress` |
-| [server/db/schema.sql](server/db/schema.sql) | Cột `available_xp` trong schema mới |
-| [server/db/migrate-available-xp.sql](server/db/migrate-available-xp.sql) | Migration cho DB hiện hữu |
+| [src/hooks/useUser.jsx](../../src/hooks/useUser.jsx) | `DEFAULT_DATA.availableXP`, sanitize migration, `addXP` cộng cả ví, hàm mới `spendXP`, merge logic |
+| [src/hooks/usePet.jsx](../../src/hooks/usePet.jsx) | `feedXPToPet(amount)` mới, tự kích hoạt tiến hóa |
+| [src/features/pet/PetPage.jsx](../../src/features/pet/PetPage.jsx) | Card "Cho Pet ăn XP" + toast |
+| [src/pages/AccountPage.jsx](../../src/pages/AccountPage.jsx) | Hiển thị thêm thẻ Ví XP |
+| [server/routes/api.js](../../server/routes/api.js) | Đọc/ghi `available_xp` qua `/api/progress` |
+| [server/db/schema.sql](../../server/db/schema.sql) | Cột `available_xp` trong schema mới |
+| [server/db/migrate-available-xp.sql](../../server/db/migrate-available-xp.sql) | Migration cho DB hiện hữu |
 
 ## 4. Hướng dẫn deploy
 ```bash

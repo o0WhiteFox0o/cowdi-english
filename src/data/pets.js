@@ -3,6 +3,9 @@
 // Thêm pet mới = thêm 1 entry vào PET_REGISTRY
 // ============================================
 
+import { PET_BATTLE_DATA, ELEMENTS, GROUPS, GROUP_SKILLS, MAX_EVOLUTION } from '../../shared/game-config.js';
+import { computePowerScore } from '../../shared/battle-engine.js';
+
 // ── Cowdi Image Paths ────────────────────────────────────────────────────────
 const COWDI_IMG = '/assets/images/pets/Cowdi';
 export const COWDI_IMAGES = {
@@ -230,8 +233,7 @@ export const PET_REGISTRY = {
     name: 'Cowdi',
     species: 'Bò sữa',
     emoji: '🐮',
-    element: 'neutral',
-    rarity: 'starter',
+    ...PET_BATTLE_DATA.cowdi, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 5, speaking: 5, reading: 5, writing: 5 },
     description: 'Chú bò hiền lành yêu tiếng Anh, luôn đồng hành cùng bạn từ ngày đầu.',
     evolutions: [
@@ -267,8 +269,7 @@ export const PET_REGISTRY = {
     name: 'Foxie',
     species: 'Cáo lửa',
     emoji: '🦊',
-    element: 'fire',
-    rarity: 'common',
+    ...PET_BATTLE_DATA.foxie, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 3, reading: 8, writing: 5 },
     description: 'Cáo thông minh, giỏi ngữ pháp, thích giải đố.',
     evolutions: [
@@ -303,8 +304,7 @@ export const PET_REGISTRY = {
     name: 'Pingu',
     species: 'Chim cánh cụt',
     emoji: '🐧',
-    element: 'water',
-    rarity: 'common',
+    ...PET_BATTLE_DATA.pingu, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 8, speaking: 4, reading: 4, writing: 4 },
     description: 'Cánh cụt chăm chỉ, thính giác siêu nhạy, yêu âm nhạc.',
     evolutions: [
@@ -339,8 +339,7 @@ export const PET_REGISTRY = {
     name: 'Leafy',
     species: 'Rùa lá',
     emoji: '🐢',
-    element: 'nature',
-    rarity: 'common',
+    ...PET_BATTLE_DATA.leafy, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 8, reading: 4, writing: 4 },
     description: 'Rùa kiên nhẫn, nhớ từ vựng rất giỏi, chậm mà chắc.',
     evolutions: [
@@ -375,8 +374,7 @@ export const PET_REGISTRY = {
     name: 'Sparky',
     species: 'Rồng nhỏ',
     emoji: '🐉',
-    element: 'fire',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.sparky, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 4, reading: 5, writing: 8 },
     description: 'Rồng nhỏ đầy năng lượng, sáng tạo vô hạn, thích viết câu.',
     evolutions: [
@@ -411,8 +409,7 @@ export const PET_REGISTRY = {
     name: 'Mimi',
     species: 'Mèo mây',
     emoji: '🐱',
-    element: 'cosmic',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.mimi, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 7, speaking: 4, reading: 7, writing: 3 },
     description: 'Mèo thần bí từ thiên hà xa xôi, giỏi phân tích và lắng nghe.',
     evolutions: [
@@ -447,8 +444,7 @@ export const PET_REGISTRY = {
     name: 'Owlbert',
     species: 'Cú vọ',
     emoji: '🦉',
-    element: 'nature',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.owlbert, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 3, reading: 10, writing: 4 },
     description: 'Cú vọ thông thái, bậc thầy ngữ pháp, biết mọi quy tắc.',
     evolutions: [
@@ -483,8 +479,7 @@ export const PET_REGISTRY = {
     name: 'Flippy',
     species: 'Cá heo',
     emoji: '🐬',
-    element: 'water',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.flippy, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 7, speaking: 7, reading: 3, writing: 4 },
     description: 'Cá heo vui vẻ, giao tiếp tuyệt vời, nghe hiểu siêu nhanh.',
     evolutions: [
@@ -519,8 +514,7 @@ export const PET_REGISTRY = {
     name: 'Leo',
     species: 'Sư tử',
     emoji: '🦁',
-    element: 'fire',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.leo, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Sư tử dũng mãnh, mạnh mẽ toàn diện, vua của muôn loài.',
     evolutions: [
@@ -555,8 +549,7 @@ export const PET_REGISTRY = {
     name: 'Bamboo',
     species: 'Gấu trúc',
     emoji: '🐼',
-    element: 'nature',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.bamboo, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 5, speaking: 9, reading: 4, writing: 5 },
     description: 'Gấu trúc dễ thương, bậc thầy giao tiếp, nói chuyện suốt ngày.',
     evolutions: [
@@ -591,8 +584,7 @@ export const PET_REGISTRY = {
     name: 'Storm',
     species: 'Đại bàng',
     emoji: '🦅',
-    element: 'cosmic',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.storm, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 7, speaking: 4, reading: 4, writing: 8 },
     description: 'Đại bàng kiên cường, bay qua mọi giông bão, sáng tạo vô tận.',
     evolutions: [
@@ -627,8 +619,7 @@ export const PET_REGISTRY = {
     name: 'Shadow',
     species: 'Sói bóng',
     emoji: '🐺',
-    element: 'cosmic',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.shadow, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 3, reading: 8, writing: 8 },
     description: 'Sói huyền bí, trí tuệ sâu sắc, sáng tạo trong bóng tối.',
     evolutions: [
@@ -663,8 +654,7 @@ export const PET_REGISTRY = {
     name: 'Prisma',
     species: 'Kỳ lân',
     emoji: '🦄',
-    element: 'cosmic',
-    rarity: 'legendary',
+    ...PET_BATTLE_DATA.prisma, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 8, speaking: 8, reading: 8, writing: 8 },
     description: 'Kỳ lân huyền thoại, tỏa sáng bởi kiến thức toàn diện.',
     evolutions: [
@@ -699,8 +689,7 @@ export const PET_REGISTRY = {
     name: 'Draco',
     species: 'Rồng cổ đại',
     emoji: '🐲',
-    element: 'fire',
-    rarity: 'legendary',
+    ...PET_BATTLE_DATA.draco, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 9, speaking: 9, reading: 9, writing: 9 },
     description: 'Rồng cổ đại, bậc thầy vạn vật, chỉ xuất hiện khi thu thập đủ tất cả.',
     evolutions: [
@@ -735,8 +724,7 @@ export const PET_REGISTRY = {
     name: 'Pumpkin',
     species: 'Bí ngô ma',
     emoji: '🎃',
-    element: 'cosmic',
-    rarity: 'event',
+    ...PET_BATTLE_DATA.pumpkin, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 6, speaking: 6, reading: 6, writing: 6 },
     description: 'Bí ngô phép thuật từ lễ hội Halloween, mang bonus XP đặc biệt.',
     evolutions: [
@@ -771,8 +759,7 @@ export const PET_REGISTRY = {
     name: 'Monk',
     species: 'Tiểu hòa thượng',
     emoji: '🧘',
-    element: 'cosmic',
-    rarity: 'event',
+    ...PET_BATTLE_DATA.monk, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 7, speaking: 6, reading: 8, writing: 7 },
     description: 'Tiểu hòa thượng thanh tịnh, chỉ xuất hiện trong các ngày lễ lớn của Phật giáo, mang đến trí tuệ an lạc và bonus học tập.',
     evolutions: [
@@ -807,8 +794,7 @@ export const PET_REGISTRY = {
     name: 'Ginseng',
     species: 'Nhân sâm',
     emoji: '🥕',
-    element: 'earth',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.ginseng, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 5, speaking: 5, reading: 7, writing: 7 },
     description: 'Nhân sâm cổ đại, sống lâu nghìn năm, hồi phục mạnh và trí tuệ sâu sắc.',
     evolutions: [
@@ -843,8 +829,7 @@ export const PET_REGISTRY = {
     name: 'Paddy',
     species: 'Lúa',
     emoji: '🌾',
-    element: 'nature',
-    rarity: 'common',
+    ...PET_BATTLE_DATA.paddy, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 4, speaking: 4, reading: 6, writing: 6 },
     description: 'Cây lúa chăm chỉ, tích lũy tài nguyên, bền bỉ qua mọi mùa vụ.',
     evolutions: [
@@ -879,8 +864,7 @@ export const PET_REGISTRY = {
     name: 'Sprout',
     species: 'Măng tre',
     emoji: '🎋',
-    element: 'nature',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.sprout, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     baseStats: { listening: 5, speaking: 6, reading: 5, writing: 6 },
     description: 'Măng tre kiên cường, linh hoạt, vươn cao không ngừng.',
     evolutions: [
@@ -915,8 +899,7 @@ export const PET_REGISTRY = {
     name: 'Nấm Rơm',
     species: 'Nấm rơm',
     emoji: '🍄',
-    element: 'earth',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.mushroom, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     comingSoon: true,
     baseStats: { listening: 6, speaking: 4, reading: 7, writing: 5 },
     description: 'Nấm rơm khiêm nhường mọc trong đêm, lặng lẽ tích lũy tri thức như mùa rơm rạ sau gặt.',
@@ -952,8 +935,7 @@ export const PET_REGISTRY = {
     name: 'Củ Cải Trắng',
     species: 'Củ cải trắng',
     emoji: '🥬',
-    element: 'earth',
-    rarity: 'rare',
+    ...PET_BATTLE_DATA.radish, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     comingSoon: true,
     baseStats: { listening: 5, speaking: 5, reading: 6, writing: 7 },
     description: 'Củ cải trắng cắm rễ sâu vào đất, viết từng nét chữ chắc nịch như củ trắng giòn ngọt.',
@@ -989,8 +971,7 @@ export const PET_REGISTRY = {
     name: 'Bánh Bao',
     species: 'Bánh bao',
     emoji: '🥟',
-    element: 'neutral',
-    rarity: 'epic',
+    ...PET_BATTLE_DATA.bun, // element (10 hệ), group, rarity, evolveReq — shared/game-config.js
     comingSoon: true,
     baseStats: { listening: 6, speaking: 7, reading: 5, writing: 5 },
     description: 'Bánh Bao mũm mĩm, ấm áp và hào phóng — luôn sẵn sàng kể chuyện và mời bạn cùng học.',
@@ -1077,15 +1058,30 @@ export const WEEKLY_QUESTS = [
   { id: 'weekly_perfect', title: '💯 Quiz Master', desc: 'Đạt 3 perfect quiz trong tuần', reward: 80, target: 3 },
 ];
 
-// ── Element Colors ───────────────────────────────────────────────────────────
-export const ELEMENT_COLORS = {
-  neutral: { bg: '#F0F0F0', text: '#666', name: 'Trung tính' },
-  fire:    { bg: '#FFE0D0', text: '#E0527E', name: 'Lửa' },
-  water:   { bg: '#D0E8FF', text: '#4A90D9', name: 'Nước' },
-  nature:  { bg: '#D0F0D0', text: '#2E8B57', name: 'Thiên nhiên' },
-  earth:   { bg: '#F0E8D0', text: '#8B6914', name: 'Đất 🌱' },
-  cosmic:  { bg: '#E8D0FF', text: '#8B5CF6', name: 'Vũ trụ' },
+// ── Element Colors (10 hệ v2 — tên lấy từ shared/game-config.js) ────────────
+const ELEMENT_PALETTE = {
+  metal:   { bg: '#ECEFF1', text: '#607D8B' },
+  wood:    { bg: '#D0F0D0', text: '#2E8B57' },
+  water:   { bg: '#D0E8FF', text: '#4A90D9' },
+  fire:    { bg: '#FFE0D0', text: '#E0527E' },
+  earth:   { bg: '#F0E8D0', text: '#8B6914' },
+  dark:    { bg: '#E3DCEF', text: '#5B3F8C' },
+  light:   { bg: '#FFF6CC', text: '#B58900' },
+  neutral: { bg: '#F0F0F0', text: '#666' },
+  wind:    { bg: '#DDF6F1', text: '#1E9E8A' },
+  thunder: { bg: '#FFF1C2', text: '#C77700' },
 };
+export const ELEMENT_COLORS = Object.fromEntries(
+  Object.entries(ELEMENT_PALETTE).map(([k, c]) => [k, { ...c, name: ELEMENTS[k].labelVi, desc: ELEMENTS[k].descVi }]),
+);
+
+// ── Nhóm & kỹ năng nhóm (để UI hiển thị, không hard-code chữ) ───────────────
+export function getGroupInfo(groupKey) {
+  const g = GROUPS[groupKey];
+  if (!g) return null;
+  const skill = GROUP_SKILLS[g.skill];
+  return { key: groupKey, name: g.labelVi, skillKey: g.skill, skillName: skill?.labelVi, skillDesc: skill?.descVi };
+}
 
 export const RARITY_COLORS = {
   starter:   { bg: '#F0F0F0', text: '#888', name: '⭐ Starter' },
@@ -1153,29 +1149,34 @@ export const QUIZ_TO_SKILL = {
   mixed:          null, // điểm chia đều cho 4 kỹ năng
 };
 
-// ── Helper: Get current evolution stage ──────────────────────────────────────
-export function getPetEvolution(speciesId, totalXP) {
+// ── Helper: Thông tin cấp tiến hoá hiện tại ──────────────────────────────────
+// v2: cấp lưu ở pet.evolution (0–4), KHÔNG tính lại từ XP. Trường `xp` trong
+// `evolutions[]` không còn được dùng.
+export function getEvolutionInfo(speciesId, stage) {
   const species = PET_REGISTRY[speciesId];
   if (!species) return null;
-  let current = species.evolutions[0];
-  for (const evo of species.evolutions) {
-    if (totalXP >= evo.xp) current = evo;
-    else break;
-  }
-  return current;
+  const s = Math.min(MAX_EVOLUTION, species.evolutions.length - 1, Math.max(0, Math.floor(Number(stage) || 0)));
+  return species.evolutions[s];
 }
 
-// ── Helper: Calculate power score ────────────────────────────────────────────
-const EVOLUTION_MULTIPLIER = [0.5, 0.8, 1.0, 1.3, 1.5];
-const RARITY_BONUS = { starter: 1.0, common: 1.0, rare: 1.1, epic: 1.2, legendary: 1.3, event: 1.1 };
+// ── Helper: Snapshot chiến đấu của 1 pet instance ───────────────────────────
+export function getPetSnapshot(petInstance) {
+  if (!petInstance) return null;
+  const species = PET_REGISTRY[petInstance.speciesId];
+  return {
+    speciesId: petInstance.speciesId,
+    evolution: petInstance.evolution || 0,
+    skills: petInstance.skills,
+    element: species?.element,
+    group: species?.group,
+    rarity: species?.rarity,
+  };
+}
 
+// ── Helper: Power score (v2, mục 4.3: round(HP/10 + ATK + DEF/2 + AGI/2)) ───
 export function calculatePowerScore(petInstance, species) {
   if (!petInstance || !species) return 0;
-  const { listening = 0, speaking = 0, reading = 0, writing = 0 } = petInstance.skills;
-  const base = listening + speaking + reading + writing;
-  const evoMul = EVOLUTION_MULTIPLIER[petInstance.evolution] ?? 1.0;
-  const rarMul = RARITY_BONUS[species.rarity] ?? 1.0;
-  return Math.floor(base * evoMul * rarMul);
+  return computePowerScore(getPetSnapshot(petInstance));
 }
 
 // ── Helper: Get skill level (1-10) ──────────────────────────────────────────

@@ -3,7 +3,7 @@ import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { usePet } from '../hooks/usePet';
 import { useAuth } from '../hooks/useAuth';
-import { PET_REGISTRY, calculatePowerScore, SKILL_META, getPetEvolution } from '../data/pets';
+import { PET_REGISTRY, calculatePowerScore, SKILL_META, getEvolutionInfo } from '../data/pets';
 import Icon, { SKILL_ICON } from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -24,16 +24,16 @@ const LEAGUES = {
   master:  { name: 'Cao thủ',   icon: '👑', color: '#E91E63' },
 };
 
-function resolvePetAvatar(speciesId, totalXpEarned) {
+function resolvePetAvatar(speciesId, evolution) {
   if (!speciesId) return { emoji: '🐾', image: null };
   const species = PET_REGISTRY[speciesId];
   if (!species) return { emoji: '🐾', image: null };
-  const evo = getPetEvolution(speciesId, totalXpEarned || 0);
+  const evo = getEvolutionInfo(speciesId, evolution);
   return { emoji: evo?.emoji || species.emoji, image: evo?.image || null };
 }
 
-function PetAvatarInline({ speciesId, totalXpEarned, size = 32 }) {
-  const { emoji, image } = resolvePetAvatar(speciesId, totalXpEarned);
+function PetAvatarInline({ speciesId, evolution, size = 32 }) {
+  const { emoji, image } = resolvePetAvatar(speciesId, evolution);
   if (image) return <img src={image} alt="pet" loading="lazy" decoding="async" style={{ width: size, height: size, objectFit: 'contain' }} />;
   return <Emoji e={emoji} size={Math.round(size * 0.8)} />;
 }
@@ -78,7 +78,7 @@ export default function LeaderboardPage() {
     const pet = petData.collection[petData.activePetId];
     if (!pet) return null;
     const species = PET_REGISTRY[pet.speciesId];
-    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned);
+    const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
     return {
       name: pet.customName,
       species: species?.name,
@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
                   return (
                     <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
                       <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
-                      <PetAvatarInline speciesId={entry.pet?.speciesId} totalXpEarned={entry.pet?.totalXpEarned} size={36} />
+                      <PetAvatarInline speciesId={entry.pet?.speciesId} evolution={entry.pet?.evolution} size={36} />
                       <div className="flex-grow-1">
                         <div className="fw-bold small">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>
                         <div style={{ fontSize: '0.7rem' }} className="text-muted">
@@ -191,7 +191,7 @@ export default function LeaderboardPage() {
                 {leaderboard.slice(0, 20).map((entry, i) => (
                   <div key={i} className={`list-group-item d-flex align-items-center gap-2 ${i < 3 ? 'bg-warning bg-opacity-10' : ''}`}>
                     <span className="fw-bold" style={{ minWidth: 32 }}>{rankMedal(i)}</span>
-                    <PetAvatarInline speciesId={entry.speciesId} totalXpEarned={entry.totalXpEarned} size={36} />
+                    <PetAvatarInline speciesId={entry.speciesId} evolution={entry.evolution} size={36} />
                     <div className="flex-grow-1">
                       <div className="fw-bold small">{entry.petName || entry.nickname || entry.displayName || 'Pet'}</div>
                       <div style={{ fontSize: '0.7rem' }} className="text-muted">{entry.nickname || entry.displayName || 'Ẩn danh'}</div>

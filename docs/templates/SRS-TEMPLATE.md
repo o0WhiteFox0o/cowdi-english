@@ -17,7 +17,7 @@ _ISO/IEC/IEEE 29148:2018_
 
 ---
 ## 1. Introduction
-1.1 Purpose · 1.2 Scope · 1.3 Definitions/Acronyms (xem [GLOSSARY](../00-general/GLOSSARY.md)) · 1.4 References · 1.5 Overview
+1.1 Purpose · 1.2 Scope · 1.3 Definitions/Acronyms (xem [GLOSSARY](../00-general/GLO-GENERAL.md)) · 1.4 References · 1.5 Overview
 
 ## 2. Overall Description
 2.1 Product perspective · 2.2 Product functions · 2.3 User classes & characteristics · 2.4 Operating environment · 2.5 Constraints · 2.6 Assumptions & dependencies
@@ -42,6 +42,6 @@ Performance · Security · Reliability · Usability · Compatibility · Maintain
 ### 3.5 Design Constraints
 
 ## 4. Verification
-Phương pháp: Inspection / Analysis / Demonstration / Test — liên kết [Traceability Matrix](../02-requirements/TRACEABILITY-MATRIX.md).
+Phương pháp: Inspection / Analysis / Demonstration / Test — liên kết [Traceability Matrix](../02-requirements/RTM-COWDI.md).
 
 ## Appendices

@@ -206,7 +206,7 @@ Hoặc thủ công: menu Chrome (⋮) → **"Add to Home Screen"**
 
 ## 5. CẬP NHẬT APP (Auto Update)
 
-`registerType: 'autoUpdate'` đã được cấu hình trong [vite.config.prod.js](vite.config.prod.js).
+`registerType: 'autoUpdate'` đã được cấu hình trong [vite.config.prod.js](../../vite.config.prod.js).
 
 **Luồng tự động:**
 ```
@@ -219,7 +219,7 @@ SW tải về version mới ở background (user không hay biết)
 Lần reload tiếp theo → version mới được áp dụng tự động
 ```
 
-**Tùy chọn: Hiện thông báo "Có cập nhật"** — thêm vào [src/main.jsx](src/main.jsx):
+**Tùy chọn: Hiện thông báo "Có cập nhật"** — thêm vào [src/main.jsx](../../src/main.jsx):
 
 ```js
 import { registerSW } from 'virtual:pwa-register';
@@ -267,8 +267,8 @@ cowdi-english/
 | Cache cũ sau deploy khẩn | SW chưa activate ngay | DevTools → Application → Service Workers → "Skip waiting" |
 | Offline không load | SW chưa activate lần đầu | Phải online lần đầu để SW cài đặt |
 | `manifest.webmanifest` 404 | Nginx không phục vụ đúng MIME | Thêm block `location = /manifest.webmanifest` trước `location /` |
-| Web trắng sau khi thêm config Nginx | `location /` có cả `try_files` lẫn `return 301` | Xoá `return 301` trong block HTTPS, xem [nginx-spa.conf](nginx-spa.conf) |
-| Google OAuth callback lỗi 404 | Nginx proxy `/auth/` có trailing slash | Đổi thành `/auth` (không có `/`), xem [nginx-spa.conf](nginx-spa.conf) |
+| Web trắng sau khi thêm config Nginx | `location /` có cả `try_files` lẫn `return 301` | Xoá `return 301` trong block HTTPS, xem [nginx-spa.conf](../../nginx-spa.conf) |
+| Google OAuth callback lỗi 404 | Nginx proxy `/auth/` có trailing slash | Đổi thành `/auth` (không có `/`), xem [nginx-spa.conf](../../nginx-spa.conf) |
 | Push notification iOS không nhận | iOS cần cài Home Screen trước | Đảm bảo user đã Add to Home Screen, iOS 16.4+ |
 
 ---

@@ -13,10 +13,10 @@ Dự án đã có rất nhiều "vật liệu" tốt cho viral nhưng chưa đư
 | Tài sản | Vị trí | Tiềm năng viral |
 |---|---|---|
 | Pet collection (20 loài, 5 stage tiến hóa) | `src/data/pets.js` | Cảm xúc cá nhân – ai cũng muốn khoe |
-| Duel battle PvP | `src/features/duel/`, `DUEL-BATTLE-DESIGN.md` | Cần đối thủ ⇒ tự nhiên rủ bạn |
+| Duel battle PvP | `src/features/duel/`, `SDD-DUEL-BATTLE-v1.0.md` | Cần đối thủ ⇒ tự nhiên rủ bạn |
 | Leaderboard / Student Ranking | `src/pages/LeaderboardPage.jsx`, `StudentRankingPage.jsx` | So sánh xã hội |
 | Mini-games & Event pet (Halloween/Pumpkin, Buddhist/Monk) | `src/features/mini-games/`, `pets.js` | FOMO theo mùa |
-| PWA cài đặt 1-chạm | `PWA-GUIDE.md` | Link là dùng được, không cần app store |
+| PWA cài đặt 1-chạm | `GDE-PWA-v1.0.md` | Link là dùng được, không cần app store |
 | Cowdi Chat + nhân vật pet | `src/components/CowdiChat.jsx`, pet evolutions | Brand face – content cute sinh sẵn |
 
 **Vấn đề cốt lõi**: Người dùng không có **lý do**, không có **cách**, và không có **phần thưởng** để mời người khác. Thiếu cả 3 ⇒ dù họ thích cũng chỉ thích trong im lặng.
@@ -119,4 +119,4 @@ Sự kiện log (qua `server/routes/api.js`):
 
 ---
 
-> 📎 Xem thêm thiết kế chi tiết Sprint 1 ở [`SHARE-FEATURE-DESIGN.md`](../04-design/SHARE-FEATURE-DESIGN.md)
+> 📎 Xem thêm thiết kế chi tiết Sprint 1 ở [`SDD-SHARE-v1.0.md`](../04-design/SDD-SHARE-v1.0.md)

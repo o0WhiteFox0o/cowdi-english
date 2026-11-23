@@ -7,7 +7,7 @@ import { usePet } from '../../hooks/usePet';
 import { useUser, GAME_XP_DAILY_CAP } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
-import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
 
@@ -21,9 +21,9 @@ function gameXpMsg(granted, raw, tail = '') {
   return `+${granted} XP! ${tail}`;
 }
 
-function resolvePetImg(speciesId, xp) {
+function resolvePetImg(speciesId, stage) {
   if (!speciesId) return null;
-  const evo = getPetEvolution(speciesId, xp || 0);
+  const evo = getEvolutionInfo(speciesId, stage);
   return evo?.image || null;
 }
 
@@ -231,17 +231,17 @@ export default function MiniGamePage() {
 
   const myPetInfo = useMemo(() => {
     const pet = petData?.collection?.[petData?.activePetId];
-    if (!pet) return { emoji: '🐮', speciesId: null, xp: 0 };
+    if (!pet) return { emoji: '🐮', speciesId: null, evolution: 0 };
     const species = PET_REGISTRY[pet.speciesId];
-    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned || 0);
+    const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
     return {
       emoji: evo?.emoji || species?.emoji || '🐮',
       speciesId: pet.speciesId,
-      xp: pet.totalXpEarned || 0,
+      evolution: pet.evolution || 0,
     };
   }, [petData]);
 
-  const myPetImg = useMemo(() => resolvePetImg(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
+  const myPetImg = useMemo(() => resolvePetImg(myPetInfo.speciesId, myPetInfo.evolution), [myPetInfo]);
 
   function resetBattle() {
     setPlayerHp(100);

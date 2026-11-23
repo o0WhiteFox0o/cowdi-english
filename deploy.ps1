@@ -6,7 +6,7 @@
 #
 # Script sẽ:
 #   1. Build production
-#   2. Tạo file deploy.zip chứa dist-prod/ + server/
+#   2. Tạo file deploy.zip chứa dist-prod/ + server/ + shared/
 #   3. Bạn upload file zip lên server qua aaPanel File Manager
 # ============================================
 
@@ -34,6 +34,11 @@ Copy-Item "$root\dist-prod\*" -Destination $deployDir -Recurse
 
 # Copy server directory
 Copy-Item "$root\server" -Destination "$deployDir\server" -Recurse
+
+# Copy shared/ (game-config + battle-engine) cùng cấp với server/,
+# để server import được '../shared/...'. Không chứa bí mật; bỏ file test.
+Copy-Item "$root\shared" -Destination "$deployDir\shared" -Recurse -Exclude "*.test.js"
+if (-not (Test-Path "$deployDir\shared\battle-engine.js")) { Write-Error "shared/ chưa được copy vào deploy package!"; exit 1 }
 
 # Copy nginx config for reference
 Copy-Item "$root\nginx-spa.conf" -Destination "$deployDir\nginx-spa.conf"

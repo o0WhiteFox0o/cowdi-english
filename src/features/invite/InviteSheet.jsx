@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
 import Icon from '../../components/Icon';
 
 /**
@@ -116,7 +116,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   }
 
   // ── Pet preview ─────────────────────────────────────────
-  const evo = getPetEvolution('cowdi', 0);
+  const evo = getEvolutionInfo('cowdi', 0);
   const petImage = evo?.image || '/assets/images/pets/Cowdi/Cowdi_egg.webp';
 
   // ── If not logged in ────────────────────────────────────

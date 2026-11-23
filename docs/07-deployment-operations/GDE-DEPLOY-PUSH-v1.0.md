@@ -274,7 +274,7 @@ cd /www/wwwroot/cowdi.net/
 | Toggle bật xong không có push | SW chưa update / VAPID sai | Hard reload (Ctrl+Shift+R) + check Network tab |
 | `404 /api/push/vapid-public-key` | Code backend cũ | Pull mới + `pm2 restart` |
 | iOS không hiện toggle xin quyền | Chưa Add to Home Screen | UI tự hướng dẫn — bắt buộc cài về home |
-| Reminder không gửi | streak<3, vắng <18h, hoặc đã gửi <20h trước | Check điều kiện trong [server/jobs/reminder.js](server/jobs/reminder.js) |
+| Reminder không gửi | streak<3, vắng <18h, hoặc đã gửi <20h trước | Check điều kiện trong [server/jobs/reminder.js](../../server/jobs/reminder.js) |
 | `Multiple exports with the same name "default"` khi build | `vite.config.prod.js` bị trùng nội dung | Đã fix, file chỉ còn 73 dòng |
 
 ---
@@ -295,6 +295,6 @@ cd /www/wwwroot/cowdi.net/
 ---
 
 📚 Xem thêm:
-- [PWA-GUIDE.md](../05-implementation/PWA-GUIDE.md) — chi tiết kiến trúc PWA
-- [BUILD.md](../05-implementation/BUILD.md) — hướng dẫn build chung
-- [nginx-spa.conf](nginx-spa.conf) — cấu hình reverse proxy
+- [GDE-PWA-v1.0.md](../05-implementation/GDE-PWA-v1.0.md) — chi tiết kiến trúc PWA
+- [GDE-BUILD-v1.0.md](../05-implementation/GDE-BUILD-v1.0.md) — hướng dẫn build chung
+- [nginx-spa.conf](../../nginx-spa.conf) — cấu hình reverse proxy

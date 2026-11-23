@@ -2,7 +2,7 @@
 
 > Ngày: 2026-05-14
 > Trạng thái: **Design + chuẩn bị implement**
-> Liên quan: [GROWTH-STRATEGY-2026-05.md](../01-project-management/GROWTH-STRATEGY-2026-05.md), [SHARE-FEATURE-DESIGN.md](SHARE-FEATURE-DESIGN.md)
+> Liên quan: [STRAT-GROWTH-v1.0.md](../01-project-management/STRAT-GROWTH-v1.0.md), [SDD-SHARE-v1.0.md](SDD-SHARE-v1.0.md)
 
 ---
 

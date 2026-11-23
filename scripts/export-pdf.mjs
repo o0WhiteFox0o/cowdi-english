@@ -299,8 +299,8 @@ function exportFile(mdFilename, pdfFilename, title) {
   console.log(`✅ Đã xuất thành công: ${pdfFilename}`);
 }
 
-exportFile('docs/03-architecture/SECURITY-REPORT-v01.md', 'docs/03-architecture/SECURITY-REPORT-v01.pdf', 'Báo cáo An toàn Bảo mật v01 - Cowdi English');
-exportFile('docs/08-reports/SEO-REPORT-v01.md', 'docs/08-reports/SEO-REPORT-v01.pdf', 'Báo cáo Chiến lược SEO v01 - Cowdi English');
-exportFile('docs/00-general/STANDARDS-REPORT-v01.md', 'docs/00-general/STANDARDS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn Công nghệ v01 - Cowdi English');
-exportFile('docs/03-architecture/IEEE-AND-NESTJS-REPORT-v01.md', 'docs/03-architecture/IEEE-AND-NESTJS-REPORT-v01.pdf', 'Báo cáo Tiêu chuẩn IEEE & So sánh NestJS - Cowdi English');
+exportFile('docs/03-architecture/RPT-SECURITY-2026-09.md', 'docs/03-architecture/RPT-SECURITY-2026-09.pdf', 'Báo cáo An toàn Bảo mật v01 - Cowdi English');
+exportFile('docs/08-reports/RPT-SEO-2026-09.md', 'docs/08-reports/RPT-SEO-2026-09.pdf', 'Báo cáo Chiến lược SEO v01 - Cowdi English');
+exportFile('docs/00-general/RPT-TECH-STANDARDS-2026-09.md', 'docs/00-general/RPT-TECH-STANDARDS-2026-09.pdf', 'Báo cáo Tiêu chuẩn Công nghệ v01 - Cowdi English');
+exportFile('docs/03-architecture/RPT-IEEE-NESTJS-2026-09.md', 'docs/03-architecture/RPT-IEEE-NESTJS-2026-09.pdf', 'Báo cáo Tiêu chuẩn IEEE & So sánh NestJS - Cowdi English');
 console.log('\n🎉 Hoàn thành xuất toàn bộ các file PDF!');

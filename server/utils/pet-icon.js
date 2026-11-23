@@ -18,12 +18,11 @@ const PET_NAMES = {
   shadow: 'Shadow', prisma: 'Prisma', draco: 'Draco', pumpkin: 'Pumpkin',
 };
 
-function evolutionStageFor(xp = 0) {
-  if (xp >= 2500) return 'legendary';
-  if (xp >= 1200) return 'super';
-  if (xp >= 500)  return 'junior';
-  if (xp >= 100)  return 'baby';
-  return 'egg';
+// v2: cấp lấy trực tiếp từ pet.evolution (0–4), không tính lại từ XP.
+const STAGE_NAMES = ['egg', 'baby', 'junior', 'super', 'legendary'];
+function evolutionStageName(evolution = 0) {
+  const s = Math.min(STAGE_NAMES.length - 1, Math.max(0, Math.floor(Number(evolution) || 0)));
+  return STAGE_NAMES[s];
 }
 
 /**
@@ -47,8 +46,7 @@ export function pickPetIcon(petDataRaw) {
   const activeId = petData.activePetId || 'cowdi';
   const collection = petData.collection || {};
   const pet = collection[activeId] || {};
-  const xp = pet.totalXpEarned || 0;
-  const stage = evolutionStageFor(xp);
+  const stage = evolutionStageName(pet.evolution);
 
   const speciesKey = String(activeId).toLowerCase();
   const folder = (PET_NAMES[speciesKey] || 'Cowdi'); // Pascal case folder name

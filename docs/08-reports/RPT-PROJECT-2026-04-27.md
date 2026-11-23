@@ -28,7 +28,7 @@ Cowdi-English là một SPA học tiếng Anh kết hợp **gamification pet sys
 | **Backend** | Express 4.18 · Passport (Google OAuth 2.0) · JWT 9 (7 ngày) · mysql2/promise (pool 10) |
 | **Database** | MySQL 8 · UTF8MB4 · 2 bảng (users, user_progress) · LONGTEXT JSON columns |
 | **Deploy** | aaPanel + Nginx SPA · PM2 backend port 3001 · domain `cowdi.net` |
-| **Build** | `npm run build:prod` → [dist-prod/](dist-prod/) (vendor chunk tách, không sourcemap) |
+| **Build** | `npm run build:prod` → [dist-prod/](../../dist-prod/) (vendor chunk tách, không sourcemap) |
 
 ### 1.2 Sơ đồ luồng dữ liệu
 
@@ -76,7 +76,7 @@ cowdi-english/
          VOCABULARY, PET-IMAGE-GUIDE, SCORING-REPORT, EVALUATION-2026-04
 ```
 
-> ✅ **Cập nhật so với báo cáo 4/2026:** `src/components/{CowdiChat,Navbar,Toast}.jsx` ở root **không còn duplicate** — chỉ là re-export từ `layout/`. Đã xác nhận `src/features/` **không phải orphan** — pages thin chỉ làm proxy đến features. Như vậy 2 critical issue trong [EVALUATION-2026-04.md](../06-verification-validation/EVALUATION-2026-04.md) (#1 & #3) đã được giải quyết hoặc đánh giá chưa chính xác.
+> ✅ **Cập nhật so với báo cáo 4/2026:** `src/components/{CowdiChat,Navbar,Toast}.jsx` ở root **không còn duplicate** — chỉ là re-export từ `layout/`. Đã xác nhận `src/features/` **không phải orphan** — pages thin chỉ làm proxy đến features. Như vậy 2 critical issue trong [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) (#1 & #3) đã được giải quyết hoặc đánh giá chưa chính xác.
 
 ---
 
@@ -86,32 +86,32 @@ cowdi-english/
 
 | Page | Vai trò | Module thực thi |
 |---|---|---|
-| [HomePage.jsx](src/pages/HomePage.jsx) | Dashboard: quick action, XP bar, active pet, stats | self-contained |
-| [LessonsPage.jsx](src/pages/LessonsPage.jsx) | Browser lesson, filter standard/track/band | self-contained |
-| [LessonDetailPage.jsx](src/pages/LessonDetailPage.jsx) | Lesson player + quiz | re-export `features/lesson/` |
-| [VocabularyPage.jsx](src/pages/VocabularyPage.jsx) | Topic → Subtopic → Words; flashcard 3D + list | self-contained |
-| [PracticePage.jsx](src/pages/PracticePage.jsx) | Quiz engine 4 category | re-export `features/practice/` |
-| [ReviewPage.jsx](src/pages/ReviewPage.jsx) | SRS spaced repetition | re-export `features/review/` |
-| [ProgressPage.jsx](src/pages/ProgressPage.jsx) | Stats, calendar streak, skill XP, achievements | self-contained |
-| [DuelPage.jsx](src/pages/DuelPage.jsx) | PvP Arena | re-export `features/duel/` |
-| [PetPage.jsx](src/pages/PetPage.jsx) | Active pet UI, needs/skill | re-export `features/pet/` |
-| [CollectionPage.jsx](src/pages/CollectionPage.jsx) | Owned pets gallery | re-export `features/pet/` |
-| [ShopPage.jsx](src/pages/ShopPage.jsx) | Mua hat/outfit/room/effect/food | re-export `features/pet/` |
-| [LeaderboardPage.jsx](src/pages/LeaderboardPage.jsx) | 4 tab: power/skill/collection/league (ẩn danh) | self-contained |
-| [StudentRankingPage.jsx](src/pages/StudentRankingPage.jsx) | Player board theo XP/streak/word… | self-contained |
-| [MiniGamePage.jsx](src/pages/MiniGamePage.jsx) | Launcher 7 mini-game | re-export `features/mini-games/` |
-| [LearningPathPage.jsx](src/pages/LearningPathPage.jsx) | 7 unit + checkpoint | self-contained |
-| [AccountPage.jsx](src/pages/AccountPage.jsx) | Profile, OAuth, nickname, logout | self-contained |
-| [AuthCallbackPage.jsx](src/pages/AuthCallbackPage.jsx) | Nhận JWT từ URL → localStorage → redirect | self-contained |
+| [HomePage.jsx](../../src/pages/HomePage.jsx) | Dashboard: quick action, XP bar, active pet, stats | self-contained |
+| [LessonsPage.jsx](../../src/pages/LessonsPage.jsx) | Browser lesson, filter standard/track/band | self-contained |
+| [LessonDetailPage.jsx](../../src/pages/LessonDetailPage.jsx) | Lesson player + quiz | re-export `features/lesson/` |
+| [VocabularyPage.jsx](../../src/pages/VocabularyPage.jsx) | Topic → Subtopic → Words; flashcard 3D + list | self-contained |
+| [PracticePage.jsx](../../src/pages/PracticePage.jsx) | Quiz engine 4 category | re-export `features/practice/` |
+| [ReviewPage.jsx](../../src/pages/ReviewPage.jsx) | SRS spaced repetition | re-export `features/review/` |
+| [ProgressPage.jsx](../../src/pages/ProgressPage.jsx) | Stats, calendar streak, skill XP, achievements | self-contained |
+| [DuelPage.jsx](../../src/pages/DuelPage.jsx) | PvP Arena | re-export `features/duel/` |
+| [PetPage.jsx](../../src/pages/PetPage.jsx) | Active pet UI, needs/skill | re-export `features/pet/` |
+| [CollectionPage.jsx](../../src/pages/CollectionPage.jsx) | Owned pets gallery | re-export `features/pet/` |
+| [ShopPage.jsx](../../src/pages/ShopPage.jsx) | Mua hat/outfit/room/effect/food | re-export `features/pet/` |
+| [LeaderboardPage.jsx](../../src/pages/LeaderboardPage.jsx) | 4 tab: power/skill/collection/league (ẩn danh) | self-contained |
+| [StudentRankingPage.jsx](../../src/pages/StudentRankingPage.jsx) | Player board theo XP/streak/word… | self-contained |
+| [MiniGamePage.jsx](../../src/pages/MiniGamePage.jsx) | Launcher 7 mini-game | re-export `features/mini-games/` |
+| [LearningPathPage.jsx](../../src/pages/LearningPathPage.jsx) | 7 unit + checkpoint | self-contained |
+| [AccountPage.jsx](../../src/pages/AccountPage.jsx) | Profile, OAuth, nickname, logout | self-contained |
+| [AuthCallbackPage.jsx](../../src/pages/AuthCallbackPage.jsx) | Nhận JWT từ URL → localStorage → redirect | self-contained |
 
 ### 2.2 Hooks — quản lý state
 
-- **[useAuth.jsx](src/hooks/useAuth.jsx)** — JWT lifecycle: parse (UTF-8 cho tiếng Việt), validate expiry, fetch wrapper Bearer, `loginWithGoogle()`, `logout()`.
-- **[useUser.jsx](src/hooks/useUser.jsx)** — Trung tâm progress: totalXP, streak, completed lessons/quizzes, wordStatus (`new|learning|learned`), achievements, dailyTasks, activeDays, srsData, checkpointScores, skillXP (4 trục), perfectQuizzes. Dirty-flag sync queue → `PUT /api/progress` & `PUT /api/word-status` (lightweight). VALID_WORDS whitelist từ LESSONS + VOCAB_TOPICS để chống ghi nhận từ rác.
-- **[usePet.jsx](src/hooks/usePet.jsx)** — Collection per-pet: speciesId, totalXpEarned, skills, needs (energy/happiness/health/knowledge). Decay theo giờ. Migration tên skill cũ (`speech→speaking`...). Power score = (Σskills) × evoMul × rarityBonus. Sync `pet_data` JSON.
-- **[useSound.jsx](src/hooks/useSound.jsx)** — Web Audio API singleton. Oscillator + noise buffer. Không file mp3, footprint cực nhỏ. Mute toggle.
+- **[useAuth.jsx](../../src/hooks/useAuth.jsx)** — JWT lifecycle: parse (UTF-8 cho tiếng Việt), validate expiry, fetch wrapper Bearer, `loginWithGoogle()`, `logout()`.
+- **[useUser.jsx](../../src/hooks/useUser.jsx)** — Trung tâm progress: totalXP, streak, completed lessons/quizzes, wordStatus (`new|learning|learned`), achievements, dailyTasks, activeDays, srsData, checkpointScores, skillXP (4 trục), perfectQuizzes. Dirty-flag sync queue → `PUT /api/progress` & `PUT /api/word-status` (lightweight). VALID_WORDS whitelist từ LESSONS + VOCAB_TOPICS để chống ghi nhận từ rác.
+- **[usePet.jsx](../../src/hooks/usePet.jsx)** — Collection per-pet: speciesId, totalXpEarned, skills, needs (energy/happiness/health/knowledge). Decay theo giờ. Migration tên skill cũ (`speech→speaking`...). Power score = (Σskills) × evoMul × rarityBonus. Sync `pet_data` JSON.
+- **[useSound.jsx](../../src/hooks/useSound.jsx)** — Web Audio API singleton. Oscillator + noise buffer. Không file mp3, footprint cực nhỏ. Mute toggle.
 
-### 2.3 Routing — [App.jsx](src/App.jsx)
+### 2.3 Routing — [App.jsx](../../src/App.jsx)
 
 18 route + fallback `*` → home. Chưa có `React.lazy()` → toàn bộ app load 1 chunk.
 
@@ -119,15 +119,15 @@ cowdi-english/
 
 | Loại dữ liệu | Số lượng | File |
 |---|---|---|
-| General lessons | 21 | [src/data/lessons/general/](src/data/lessons/general/) |
-| Exam lessons | ~40 (IELTS, B1, B2, TOEIC, Advanced) | [src/data/lessons/](src/data/lessons/) |
-| Vocab topics | 13 (animals, countries, drinking, eating, holidays, house, human, love, nature, numbers, public-places, sports, transportation) | [src/data/vocab/](src/data/vocab/) |
+| General lessons | 21 | [src/data/lessons/general/](../../src/data/lessons/general/) |
+| Exam lessons | ~40 (IELTS, B1, B2, TOEIC, Advanced) | [src/data/lessons/](../../src/data/lessons/) |
+| Vocab topics | 13 (animals, countries, drinking, eating, holidays, house, human, love, nature, numbers, public-places, sports, transportation) | [src/data/vocab/](../../src/data/vocab/) |
 | Tổng từ vựng | ~912 | aggregated |
-| Quiz pool | 1300+ (vocab, grammar, listening, sentences) | [src/data/lessons/quiz-bank.js](src/data/lessons/quiz-bank.js), [src/data/quiz/](src/data/quiz/) |
-| Pets | 15 species × 5 evolution × 4 skill | [src/data/pets.js](src/data/pets.js) |
-| Achievements | 18 (10 user + 8 pet) | [src/data/config/achievements.js](src/data/config/achievements.js) |
-| Levels | 8 (0→2500 XP) | [src/data/config/levels.js](src/data/config/levels.js) |
-| Learning path units | 7 (có checkpoint test) | [src/data/config/units.js](src/data/config/units.js) |
+| Quiz pool | 1300+ (vocab, grammar, listening, sentences) | [src/data/lessons/quiz-bank.js](../../src/data/lessons/quiz-bank.js), [src/data/quiz/](../../src/data/quiz/) |
+| Pets | 15 species × 5 evolution × 4 skill | [src/data/pets.js](../../src/data/pets.js) |
+| Achievements | 18 (10 user + 8 pet) | [src/data/config/achievements.js](../../src/data/config/achievements.js) |
+| Levels | 8 (0→2500 XP) | [src/data/config/levels.js](../../src/data/config/levels.js) |
+| Learning path units | 7 (có checkpoint test) | [src/data/config/units.js](../../src/data/config/units.js) |
 | Shop items | 26 (5 category) | (data trong feature pet) |
 
 ---
@@ -136,12 +136,12 @@ cowdi-english/
 
 ### 3.1 Endpoints
 
-**[server/routes/auth.js](server/routes/auth.js)** (3):
+**[server/routes/auth.js](../../server/routes/auth.js)** (3):
 - `GET /auth/google` — start OAuth (`prompt=select_account`)
 - `GET /auth/google/callback` — sign JWT 7d, redirect `${FRONTEND_URL}/auth-callback?token=...`
 - `GET /auth/status` — verify Bearer JWT
 
-**[server/routes/api.js](server/routes/api.js)** (15):
+**[server/routes/api.js](../../server/routes/api.js)** (15):
 
 | Method | Path | Auth | Mô tả |
 |---|---|---|---|
@@ -158,7 +158,7 @@ cowdi-english/
 | GET | `/api/rankings` | ❌ | Player league/global |
 | GET | `/api/student-rankings` | ❌ | Lớp học |
 
-### 3.2 Database — [server/db/schema.sql](server/db/schema.sql)
+### 3.2 Database — [server/db/schema.sql](../../server/db/schema.sql)
 
 ```sql
 users (id PK, google_sub UNIQUE, email UNIQUE, display_name, avatar_url, created_at, last_seen_at)
@@ -265,14 +265,14 @@ Mục tiêu: Cảm giác "ứng dụng pro", giảm bounce rate landing.
 
 | # | Task | File chính | Effort | Tác động |
 |---|---|---|---|---|
-| A1 | `React.lazy()` 17 page + `<Suspense fallback={Skeleton}/>` | [src/App.jsx](src/App.jsx) | 4h | LCP -60%, FCP -40% |
+| A1 | `React.lazy()` 17 page + `<Suspense fallback={Skeleton}/>` | [src/App.jsx](../../src/App.jsx) | 4h | LCP -60%, FCP -40% |
 | A2 | `<ErrorBoundary>` page-level + fallback UI thân thiện | new component | 2h | Không trắng trang |
-| A3 | `helmet()` + `express-rate-limit` (100 req/15p `/api`, 10 req/15p `/auth`) | [server/index.js](server/index.js) | 1h | Security baseline |
-| A4 | 4 DB indexes qua migration mới | [server/db/](server/db/) | 30m | Leaderboard 10× |
-| A5 | `.env.example` + startup validate (chặn boot nếu thiếu key) | [server/config/env.js](server/config/env.js) | 30m | Onboard nhanh |
-| A6 | `rollup-plugin-visualizer` cho bundle analyzer | [vite.config.prod.js](vite.config.prod.js) | 30m | Track size |
+| A3 | `helmet()` + `express-rate-limit` (100 req/15p `/api`, 10 req/15p `/auth`) | [server/index.js](../../server/index.js) | 1h | Security baseline |
+| A4 | 4 DB indexes qua migration mới | [server/db/](../../server/db/) | 30m | Leaderboard 10× |
+| A5 | `.env.example` + startup validate (chặn boot nếu thiếu key) | [server/config/env.js](../../server/config/env.js) | 30m | Onboard nhanh |
+| A6 | `rollup-plugin-visualizer` cho bundle analyzer | [vite.config.prod.js](../../vite.config.prod.js) | 30m | Track size |
 | A7 | Loading skeletons cho lesson/quiz/pet | components | 2h | UX cao cấp |
-| A8 | Pino structured log + request ID | [server/index.js](server/index.js) | 1.5h | Debug production |
+| A8 | Pino structured log + request ID | [server/index.js](../../server/index.js) | 1.5h | Debug production |
 
 **Output:** Lighthouse 85+ → 95+ trên cả Performance & Best Practices.
 
@@ -442,7 +442,7 @@ bug, p95 < 300ms│ +50% retention │ user ≥ 0.5/tuần │ NPS ≥ 50       
 
 ## 9. KẾT LUẬN
 
-Cowdi-English có **nền tảng cực vững** và **ý tưởng khác biệt thật sự** (Pet × Language). Báo cáo cũ ([EVALUATION-2026-04.md](../06-verification-validation/EVALUATION-2026-04.md)) đã cảnh báo đúng các vấn đề kỹ thuật, nhưng để **bùng nổ user**, riêng kỹ thuật thôi không đủ — cần **3 đòn bẩy chiến lược**:
+Cowdi-English có **nền tảng cực vững** và **ý tưởng khác biệt thật sự** (Pet × Language). Báo cáo cũ ([RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md)) đã cảnh báo đúng các vấn đề kỹ thuật, nhưng để **bùng nổ user**, riêng kỹ thuật thôi không đủ — cần **3 đòn bẩy chiến lược**:
 
 1. **Real-time Duel + Social Loop** (Phase B) → biến mỗi user thành kênh marketing miễn phí.
 2. **AI Tutor thông minh** (Phase C1) → định vị Cowdi là "Duolingo có pet và có gia sư AI" — vừa tốt hơn Cake về gamification, vừa tốt hơn Duolingo về AI tutor.

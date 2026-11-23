@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import { generateDuelQuiz } from '../../data/quiz/duel-quiz-pool';
-import { PET_REGISTRY, getPetEvolution } from '../../data/pets';
+import { PET_REGISTRY, getEvolutionInfo, ELEMENT_COLORS } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import Icon from '../../components/Icon';
@@ -21,14 +21,22 @@ const LEAGUES = {
 };
 
 // ── Element theming ──────────────────────────────────────────
-const ELEMENT_THEME = {
-  fire:    { color: '#FF6B35', label: '🔥 Lửa',    skillName: 'Fireball' },
-  water:   { color: '#0096FF', label: '💧 Nước',    skillName: 'Aqua Blast' },
-  nature:  { color: '#2ECC71', label: '🌿 Thiên nhiên', skillName: 'Leaf Storm' },
-  cosmic:  { color: '#9B59B6', label: '🌟 Vũ trụ',  skillName: 'Star Pulse' },
-  earth:   { color: '#8B5A2B', label: '🪨 Đất',     skillName: 'Rock Smash' },
-  neutral: { color: '#95A5A6', label: '⚪ Trung tính', skillName: 'Tackle' },
+// Tên hệ lấy từ shared/game-config.js (qua ELEMENT_COLORS); ở đây chỉ giữ màu/emoji/tên chiêu.
+const ELEMENT_FX = {
+  metal:   { color: '#78909C', emoji: '⚙️', skillName: 'Steel Strike' },
+  wood:    { color: '#2ECC71', emoji: '🌿', skillName: 'Leaf Storm' },
+  water:   { color: '#0096FF', emoji: '💧', skillName: 'Aqua Blast' },
+  fire:    { color: '#FF6B35', emoji: '🔥', skillName: 'Fireball' },
+  earth:   { color: '#8B5A2B', emoji: '🪨', skillName: 'Rock Smash' },
+  dark:    { color: '#5B3F8C', emoji: '🌑', skillName: 'Shadow Bite' },
+  light:   { color: '#F1C40F', emoji: '✨', skillName: 'Holy Ray' },
+  neutral: { color: '#95A5A6', emoji: '⚪', skillName: 'Tackle' },
+  wind:    { color: '#1ABC9C', emoji: '🌪️', skillName: 'Gale Slash' },
+  thunder: { color: '#F39C12', emoji: '⚡', skillName: 'Thunder Bolt' },
 };
+const ELEMENT_THEME = Object.fromEntries(
+  Object.entries(ELEMENT_FX).map(([k, fx]) => [k, { ...fx, label: `${fx.emoji} ${ELEMENT_COLORS[k]?.name || k}` }]),
+);
 
 function getLeague(points) {
   if (points >= 1000) return 'master';
@@ -48,16 +56,14 @@ function petEmoji(petSummary) {
   if (!petSummary?.speciesId) return '🐾';
   const species = PET_REGISTRY[petSummary.speciesId];
   if (!species) return '🐾';
-  const evo = getPetEvolution(petSummary.speciesId, petSummary.totalXpEarned || 0);
+  const evo = getEvolutionInfo(petSummary.speciesId, petSummary.evolution);
   return evo?.emoji || species.emoji;
 }
 
-// ── Resolve pet image or emoji ──
-function resolvePetImage(speciesId, xp) {
+// ── Resolve pet image or emoji (theo cấp pet.evolution, không theo XP) ──
+function resolvePetImage(speciesId, stage) {
   if (!speciesId) return null;
-  const species = PET_REGISTRY[speciesId];
-  if (!species) return null;
-  const evo = getPetEvolution(speciesId, xp || 0);
+  const evo = getEvolutionInfo(speciesId, stage);
   return evo?.image || null;
 }
 
@@ -254,10 +260,10 @@ export default function DuelPage() {
     const petKeys = Object.keys(PET_REGISTRY).filter(k => k !== myPetInfo.speciesId);
     const randKey = petKeys[Math.floor(Math.random() * petKeys.length)] || Object.keys(PET_REGISTRY)[0];
     const randSpecies = PET_REGISTRY[randKey];
-    const randImg = resolvePetImage(randKey, 500);
+    const randImg = resolvePetImage(randKey, 2);
     setOpponentPet({
       speciesId: randKey,
-      xp: 500,
+      evolution: 2,
       name: randSpecies?.name || 'Đối thủ',
       emoji: randSpecies?.emoji || '🐾',
       image: randImg,
@@ -269,19 +275,19 @@ export default function DuelPage() {
   // ── Get my pet element ────────────────────────────────────
   const myPetInfo = useMemo(() => {
     const pet = petData.collection[petData.activePetId];
-    if (!pet) return { emoji: '🐮', element: 'neutral', speciesId: null, xp: 0 };
+    if (!pet) return { emoji: '🐮', element: 'neutral', speciesId: null, evolution: 0 };
     const species = PET_REGISTRY[pet.speciesId];
-    const evo = getPetEvolution(pet.speciesId, pet.totalXpEarned);
+    const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
     return {
       emoji: evo?.emoji || species?.emoji || '🐮',
       element: species?.element || 'neutral',
       speciesId: pet.speciesId,
-      xp: pet.totalXpEarned || 0,
+      evolution: pet.evolution || 0,
       name: pet.customName || species?.name || 'Pet',
     };
   }, [petData]);
 
-  const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.xp), [myPetInfo]);
+  const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.evolution), [myPetInfo]);
 
   // ── Run battle animation sequence ───────────────────────────
   // Both pets can attack independently:
@@ -536,17 +542,17 @@ export default function DuelPage() {
         // Use challenger's pet as opponent
         if (data.challengerPet?.speciesId) {
           const cSpecies = PET_REGISTRY[data.challengerPet.speciesId];
-          const cImg = resolvePetImage(data.challengerPet.speciesId, data.challengerPet.totalXpEarned);
+          const cImg = resolvePetImage(data.challengerPet.speciesId, data.challengerPet.evolution);
           setOpponentPet({
             speciesId: data.challengerPet.speciesId,
-            xp: data.challengerPet.totalXpEarned || 0,
+            evolution: data.challengerPet.evolution || 0,
             name: data.challengerPet.customName || cSpecies?.name || 'Đối thủ',
             emoji: cSpecies?.emoji || '🐾',
             image: cImg,
             element: cSpecies?.element || 'neutral',
           });
         } else {
-          setOpponentPet({ speciesId: null, xp: 0, name: 'Đối thủ', emoji: '🐾', image: null, element: 'neutral' });
+          setOpponentPet({ speciesId: null, evolution: 0, name: 'Đối thủ', emoji: '🐾', image: null, element: 'neutral' });
         }
         setMode('playing');
       } else {
@@ -1107,8 +1113,8 @@ export default function DuelPage() {
               <div key={duel.id} className="card shadow-sm card-hover" style={{ cursor: 'pointer' }} onClick={() => playDuel(duel.id)}>
                 <div className="card-body py-2">
                   <div className="d-flex align-items-center gap-2">
-                    {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned) ? (
-                      <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.totalXpEarned)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
+                    {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.evolution) ? (
+                      <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.evolution)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
                     ) : (
                       <span className="fs-3"><Emoji e={petEmoji(duel.challengerPet)} size={28} /></span>
                     )}
@@ -1182,8 +1188,8 @@ export default function DuelPage() {
                     <span className={`fw-bold ${isWin ? 'text-success' : isDraw ? 'text-warning' : 'text-danger'}`}>
                       <Icon name={isWin ? 'check' : isDraw ? 'handshake' : 'x'} size={18} />
                     </span>
-                    {resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned) ? (
-                      <img src={resolvePetImage(opponentPetData?.speciesId, opponentPetData?.totalXpEarned)} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                    {resolvePetImage(opponentPetData?.speciesId, opponentPetData?.evolution) ? (
+                      <img src={resolvePetImage(opponentPetData?.speciesId, opponentPetData?.evolution)} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
                     ) : (
                       <span className="fs-4"><Emoji e={petEmoji(opponentPetData)} size={24} /></span>
                     )}

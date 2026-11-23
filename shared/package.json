@@ -1,0 +1,6 @@
+{
+  "name": "cowdi-shared",
+  "private": true,
+  "type": "module",
+  "description": "Code dùng chung client (Vite) và server (Node ESM): cấu hình cân bằng + battle engine. Không chứa bí mật."
+}

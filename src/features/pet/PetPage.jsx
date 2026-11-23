@@ -6,10 +6,11 @@ import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import { useToast } from '../../components/Toast';
 import {
-  PET_REGISTRY, getPetEvolution, calculatePowerScore, getSkillLevel,
+  PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
   getPetMood, getPetMessage, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
+import { CURRENCIES } from '../../../shared/game-config.js';
 import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../../components/Icon';
@@ -17,7 +18,7 @@ import Emoji, { EmojiText } from '../../components/Emoji';
 
 export default function PetPage() {
   useSEO(SEO_CONFIGS['/pet']);
-  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, feedXPToPet } = usePet();
+  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins } = usePet();
   const { userData } = useUser();
   const showToast = useToast();
   const [renaming, setRenaming] = useState(false);
@@ -29,34 +30,8 @@ export default function PetPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [sharePrefill, setSharePrefill] = useState('');
 
-  // Helper: gọi feedXPToPet và nếu pet tiến hóa, kích hoạt animation Pokemon-style.
-  function feedWithEvoAnim(amount, opts = {}) {
-    // Snapshot stage cũ trước khi feed
-    const before = getActivePetWithDecay();
-    const beforeSpecies = before ? PET_REGISTRY[before.speciesId] : null;
-    const beforeEvo = before && beforeSpecies
-      ? getPetEvolution(before.speciesId, before.totalXpEarned)
-      : null;
-
-    const r = feedXPToPet(amount);
-    if (!r.ok) {
-      if (r.reason === 'insufficient') showToast('Không đủ XP trong ví!', 'warning');
-      return r;
-    }
-    if (r.evolved && beforeSpecies) {
-      const newEvo = beforeSpecies.evolutions.find((e) => e.stage === r.newEvoStage)
-        || getPetEvolution(before.speciesId, (before.totalXpEarned || 0) + amount);
-      setEvoEvent({
-        stage: 'animation',
-        oldEvo: beforeEvo,
-        newEvo,
-        petName: before.customName,
-      });
-    } else if (!opts.silent) {
-      showToast(`+${amount} XP cho Pet`, 'success');
-    }
-    return r;
-  }
+  // (v2) Card "Cho Pet ăn XP" đã bỏ. Animation tiến hoá (evoEvent) giữ lại để
+  // nút "Tiến hoá" ở Phase 4 dùng lại sau khi API evolve trả kết quả.
 
   function openShareForEvo() {
     if (!evoEvent) return;
@@ -68,8 +43,8 @@ export default function PetPage() {
 
   const activePet = getActivePetWithDecay();
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const evolution = activePet && species ? getPetEvolution(activePet.speciesId, activePet.totalXpEarned) : null;
-  const nextEvo = species?.evolutions.find((e) => e.xp > (activePet?.totalXpEarned || 0));
+  const evolution = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
+  const nextEvo = species && evolution ? species.evolutions[evolution.stage + 1] || null : null;
   const power = activePet && species ? calculatePowerScore(activePet, species) : 0;
   const mood = activePet ? getPetMood(activePet.needs) : 'happy';
   const message = species ? getPetMessage(activePet.speciesId, mood) : '';
@@ -213,65 +188,12 @@ export default function PetPage() {
             )}
             <span className="pet-evo-next-name">{nextEvo.name}</span>
           </div>
-          <div className="pet-progress-bar">
-            <div className="pet-progress-fill" style={{
-              width: `${Math.min(100, ((activePet.totalXpEarned - (evolution?.xp || 0)) / (nextEvo.xp - (evolution?.xp || 0))) * 100)}%`
-            }}></div>
+          {/* Phase 4 thay bằng khối điều kiện (Sữa/Gem/Đá/kỹ năng) + nút "Tiến hoá" gọi API evolve. */}
+          <div className="pet-progress-text">
+            Tiến hoá bằng {Object.values(CURRENCIES).map((c) => `${c.labelVi} ${c.icon}`).join(', ')} — sắp ra mắt.
           </div>
-          <div className="pet-progress-text">{activePet.totalXpEarned} / {nextEvo.xp} XP</div>
         </div>
       )}
-
-      {/* Feed XP – user tiêu XP đã kiếm được để tiến hóa Pet */}
-      <div className="pet-section-card mb-3">
-        <div className="pet-section-header">
-          <span className="pet-section-icon"><Icon name="sparkles" size={22} /></span>
-          <span>Cho Pet ăn XP</span>
-          <span className="pet-badge ms-auto" style={{ background: '#FFF3CD', color: '#856404' }}>
-            <Icon name="star" size={14} /> Ví: {userData.availableXP || 0}
-          </span>
-        </div>
-        <div className="text-muted small mb-2">
-          XP bạn kiếm được qua học tập có thể “cho Pet ăn” để trực tiếp tăng tiến độ tiến hóa (1 XP = 1 điểm tiến hóa).
-          Tổng XP sự nghiệp (lên cấp user / bảng xếp hạng) vẫn được giữ nguyên.
-        </div>
-        <div className="d-flex flex-wrap gap-2">
-          {[50, 200, 500].map((amt) => (
-            <button
-              key={amt}
-              type="button"
-              className="btn btn-sm btn-warning fw-bold"
-              disabled={(userData.availableXP || 0) < amt}
-              onClick={() => { feedWithEvoAnim(amt); }}
-            >
-              +{amt} XP
-            </button>
-          ))}
-          {nextEvo && (userData.availableXP || 0) >= (nextEvo.xp - (activePet.totalXpEarned || 0)) && (
-            <button
-              type="button"
-              className="btn btn-sm btn-success fw-bold"
-              onClick={() => {
-                const need = nextEvo.xp - (activePet.totalXpEarned || 0);
-                feedWithEvoAnim(need, { silent: true });
-              }}
-            >
-              <Icon name="bolt" size={14} /> Tiến hóa ngay ({nextEvo.xp - (activePet.totalXpEarned || 0)} XP)
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-warning fw-bold"
-            disabled={(userData.availableXP || 0) <= 0}
-            onClick={() => {
-              const all = userData.availableXP || 0;
-              feedWithEvoAnim(all);
-            }}
-          >
-            Tiêu tất cả ({userData.availableXP || 0})
-          </button>
-        </div>
-      </div>
 
       {/* Needs bars */}
       <div className="pet-section-card mb-3">
