@@ -185,7 +185,9 @@ export default function BookShell({ children }) {
               <div key={gi}>
                 {group.label && <div className="book-tab-group">{group.label}</div>}
                 <ul className="book-tabs">
-                  {group.items.map((item) => (
+                  {group.items
+                    .filter((item) => item.to !== '/lessons' || Boolean(user?.is_admin))
+                    .map((item) => (
                     <li key={item.to}>
                       <NavLink
                         to={item.to}
@@ -198,7 +200,7 @@ export default function BookShell({ children }) {
                       </NavLink>
                     </li>
                   ))}
-                  {group.label?.includes('Sổ tay') && user?.is_admin && (
+                  {group.label?.includes('Sổ tay') && Boolean(user?.is_admin) && (
                     <li>
                       <NavLink to="/admin" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
                         <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
@@ -282,7 +284,9 @@ export default function BookShell({ children }) {
       <nav className="book-bottom-nav" aria-label="Điều hướng di động" ref={popupRef}>
         {openTab && MOBILE_MENUS[openTab] && (
           <div className="bottom-popup-menu">
-            {MOBILE_MENUS[openTab].map((item) => (
+            {MOBILE_MENUS[openTab]
+              .filter((item) => item.path !== '/lessons' || Boolean(user?.is_admin))
+              .map((item) => (
               <button
                 key={item.path || item.action}
                 type="button"

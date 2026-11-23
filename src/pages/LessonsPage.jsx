@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, Navigate } from 'react-router-dom';
 import { ALL_LESSONS, STANDARDS } from '../data/lessons';
 import { getLessonAccess, getNextPathLesson } from '../data/path';
 import { useUser } from '../hooks/useUser';
+import { useAuth } from '../hooks/useAuth';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -98,8 +99,14 @@ const ITEMS_PER_PAGE = 12;
 
 export default function LessonsPage() {
   useSEO(SEO_CONFIGS['/lessons']);
+  const { user } = useAuth();
   const { categoryId } = useParams();
   const { userData } = useUser();
+
+  // Nếu không phải admin, ẩn/chặn truy cập Thư viện bài học
+  if (!user?.is_admin) {
+    return <Navigate to="/" replace />;
+  }
 
   // If categoryId exists in URL, render Category Detail View
   if (categoryId) {

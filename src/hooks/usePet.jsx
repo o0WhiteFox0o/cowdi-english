@@ -88,7 +88,8 @@ function mergePetData(local, remote) {
       ...newer,
       skills,
       totalXpEarned: Math.max(a.totalXpEarned || 0, b.totalXpEarned || 0),
-      evolution: Math.max(a.evolution || 0, b.evolution || 0),
+      // Server là nguồn sự thật cho cấp tiến hoá
+      evolution: (b.evolution !== undefined && b.evolution !== null) ? b.evolution : (a.evolution || 0),
     };
   }
   const totalCoinsEarned = Math.max(l.totalCoinsEarned || 0, r.totalCoinsEarned || 0);
@@ -261,11 +262,13 @@ export function PetProvider({ children }) {
 
   // ── Add skill points to active pet ───────────────────────────────────────
   const addSkillPoints = useCallback((quizCategory, correct, total) => {
+    if (correct <= 0) return;
     const skill = QUIZ_TO_SKILL[quizCategory];
-    const isPerfect = correct === total;
+    const isPerfect = total > 0 && correct === total;
+    // v2: +1 điểm kỹ năng mỗi câu đúng; nếu trọn điểm (100%) thưởng thêm +5 điểm
     const points = isPerfect ? correct + 5 : correct;
     if (skill === null || skill === undefined) {
-      // mixed → distribute evenly across 4 skills
+      // mixed → chia đều cho 4 kỹ năng
       const each = Math.max(1, Math.floor(points / 4));
       updateActivePet((pet) => ({
         ...pet,
@@ -275,7 +278,6 @@ export function PetProvider({ children }) {
           reading: (pet.skills.reading || 0) + each,
           writing: (pet.skills.writing || 0) + each,
         },
-        totalXpEarned: pet.totalXpEarned + correct * 10 + (isPerfect ? 20 : 0),
         needsUpdatedAt: new Date().toISOString(),
       }));
       return;
@@ -283,12 +285,11 @@ export function PetProvider({ children }) {
     updateActivePet((pet) => ({
       ...pet,
       skills: { ...pet.skills, [skill]: (pet.skills[skill] || 0) + points },
-      totalXpEarned: pet.totalXpEarned + correct * 10 + (isPerfect ? 20 : 0),
       needsUpdatedAt: new Date().toISOString(),
     }));
   }, [updateActivePet]);
 
-  // ── Add all skills (lesson complete) ─────────────────────────────────────
+  // ── Add all skills (legacy / manual) ──────────────────────────────────────
   const addAllSkillPoints = useCallback((amount) => {
     updateActivePet((pet) => ({
       ...pet,
@@ -298,7 +299,6 @@ export function PetProvider({ children }) {
         reading: (pet.skills.reading || 0) + amount,
         writing: (pet.skills.writing || 0) + amount,
       },
-      totalXpEarned: pet.totalXpEarned + amount * 10,
       needs: {
         ...pet.needs,
         energy: Math.min(100, (pet.needs?.energy ?? 80) + 30),
@@ -322,14 +322,46 @@ export function PetProvider({ children }) {
   // ── On quiz complete → feed happiness ────────────────────────────────────
   const onQuizComplete = useCallback((quizCategory, correct, total) => {
     addSkillPoints(quizCategory, correct, total);
-    const isPerfect = correct === total;
+    const isPerfect = total > 0 && correct === total;
     feedPet('happiness', isPerfect ? 40 : 20);
   }, [addSkillPoints, feedPet]);
 
-  // ── On lesson complete → feed energy + all skills ────────────────────────
+  // ── On lesson complete → feed energy (bỏ tự cộng +5 cả 4 kỹ năng) ─────────
   const onLessonComplete = useCallback(() => {
-    addAllSkillPoints(5);
-  }, [addAllSkillPoints]);
+    feedPet('energy', 30);
+  }, [feedPet]);
+
+  // ── Evolve pet via server API (transaction) ──────────────────────────────
+  const evolvePet = useCallback(async (instanceId) => {
+    if (!user) return { ok: false, error: 'Cần đăng nhập để tiến hoá pet.' };
+    try {
+      const res = await authFetch(`/api/pets/${instanceId}/evolve`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        return { ok: false, error: data.error || 'Tiến hoá thất bại.', checks: data.checks };
+      }
+      setPetData((prev) => {
+        const currentPet = prev.collection?.[instanceId];
+        if (!currentPet) return prev;
+        return {
+          ...prev,
+          collection: {
+            ...prev.collection,
+            [instanceId]: {
+              ...currentPet,
+              evolution: data.evolution,
+              needsUpdatedAt: new Date().toISOString(),
+            },
+          },
+        };
+      });
+      return { ok: true, pet: data.pet, evolution: data.evolution, wallet: data.wallet };
+    } catch (err) {
+      return { ok: false, error: err.message || 'Lỗi mạng khi tiến hoá.' };
+    }
+  }, [user, authFetch]);
 
   // ── On vocab review → feed knowledge ─────────────────────────────────────
   const onVocabReview = useCallback(() => {
@@ -532,6 +564,7 @@ export function PetProvider({ children }) {
     equipItem,
     useFood,
     completeDailyQuest,
+    evolvePet,
   };
 
   return <PetContext.Provider value={value}>{children}</PetContext.Provider>;

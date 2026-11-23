@@ -18,7 +18,8 @@ const VALID_WORDS = new Set([
 
 const DEFAULT_DATA = {
   totalXP: 0,        // Lifetime XP (KHÔNG bao giờ giảm) – dùng cho cấp độ user & leaderboard
-  availableXP: 0,    // Ví XP có thể tiêu để nuôi/tiến hóa Pet. Giảm khi spendXP().
+  availableXP: 0,    // Ví XP có thể tiêu để nuôi/tiến hóa Pet (Sữa trong Kinh tế v2)
+  wallet: { milk: 0, gem: 0, stone: 0, stone_shard: 0 }, // Ví Kinh tế v2
   streak: 0,
   lastActiveDate: null,
   lessonsCompleted: 0,
@@ -298,6 +299,10 @@ function mergeProgress(local, remote) {
   // nên lấy max(spent) của 2 bên là an toàn bất kể timestamp/cache cũ.
   const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
   merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
+  merged.wallet = remote.wallet || local.wallet || { milk: merged.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+  if (remote.wallet?.milk !== undefined) {
+    merged.availableXP = remote.wallet.milk;
+  }
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
   const mergedSrs = { ...(local.srsData || {}) };
@@ -744,10 +749,25 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Refresh wallet từ server
+  const refreshWallet = useCallback(async () => {
+    if (!user) return null;
+    try {
+      const res = await authFetch('/api/wallet');
+      if (res.ok) {
+        const w = await res.json();
+        setUserData((prev) => ({ ...prev, wallet: w, availableXP: w.milk }));
+        return w;
+      }
+    } catch {}
+    return null;
+  }, [user, authFetch]);
+
   const value = {
     userData,
     addXP,
     spendXP,
+    refreshWallet,
     gameXpRemainingToday,
     addSkillXP,
     markLessonCompleted,

@@ -7,6 +7,7 @@ import {
   PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
   checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS, getGroupInfo,
 } from '../../data/pets';
+import { computeStats, computePowerScore } from '../../../shared/battle-engine.js';
 import Icon, { ELEMENT_ICON, SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 
@@ -178,7 +179,7 @@ export default function CollectionPage() {
                 <span className="dex-badge" style={{ background: RARITY_COLORS[sel.rarity]?.bg, color: RARITY_COLORS[sel.rarity]?.text }}>
                   <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
                 </span>
-                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {calculatePowerScore(selOwned, sel)}</span>}
+                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {computePowerScore(selOwned)}</span>}
               </div>
 
               <p className="dex-desc">{sel.description}</p>
@@ -197,6 +198,24 @@ export default function CollectionPage() {
                   </p>
                 )}
               </div>
+
+              {/* Chỉ số chiến đấu thực tế (v2) */}
+              {selOwned && (
+                <div className="dex-section">
+                  <div className="dex-section-title">Chỉ số chiến đấu hiện tại</div>
+                  {(() => {
+                    const st = computeStats(selOwned);
+                    return (
+                      <div className="row g-1 text-center small p-1 border rounded bg-light">
+                        <div className="col-3"><b>HP</b>: {st.hp}</div>
+                        <div className="col-3"><b>ATK</b>: {st.atk}</div>
+                        <div className="col-3"><b>DEF</b>: {st.def.toFixed(1)}</div>
+                        <div className="col-3"><b>AGI</b>: {st.agi.toFixed(1)}</div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* Base stats */}
               <div className="dex-section">

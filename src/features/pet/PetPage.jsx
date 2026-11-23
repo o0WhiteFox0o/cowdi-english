@@ -4,6 +4,7 @@ import { SEO_CONFIGS } from '../../data/seo-config';
 import { Link } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
+import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/Toast';
 import {
   PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
@@ -11,6 +12,7 @@ import {
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
 import { CURRENCIES } from '../../../shared/game-config.js';
+import { computeStats, computePowerScore, canEvolve } from '../../../shared/battle-engine.js';
 import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../../components/Icon';
@@ -18,11 +20,13 @@ import Emoji, { EmojiText } from '../../components/Emoji';
 
 export default function PetPage() {
   useSEO(SEO_CONFIGS['/pet']);
-  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins } = usePet();
-  const { userData } = useUser();
+  const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, evolvePet } = usePet();
+  const { userData, refreshWallet } = useUser();
+  const { user } = useAuth();
   const showToast = useToast();
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [evolving, setEvolving] = useState(false);
 
   // Evolution animation flow:
   //  evoEvent = { stage: 'animation' | 'result', oldEvo, newEvo, petName }
@@ -30,8 +34,41 @@ export default function PetPage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [sharePrefill, setSharePrefill] = useState('');
 
-  // (v2) Card "Cho Pet ăn XP" đã bỏ. Animation tiến hoá (evoEvent) giữ lại để
-  // nút "Tiến hoá" ở Phase 4 dùng lại sau khi API evolve trả kết quả.
+  const activePet = getActivePetWithDecay();
+  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const evolution = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
+  const nextEvo = species && evolution ? species.evolutions[evolution.stage + 1] || null : null;
+  const battleStats = activePet ? computeStats(activePet) : null;
+  const power = activePet ? computePowerScore(activePet) : 0;
+  const mood = activePet ? getPetMood(activePet.needs) : 'happy';
+  const message = species ? getPetMessage(activePet.speciesId, mood) : '';
+
+  const walletForEvo = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0 };
+  const evoCheck = activePet ? canEvolve(activePet, walletForEvo) : { ok: false, checks: [] };
+
+  async function handleEvolve() {
+    if (!evoCheck.ok || evolving || !petData.activePetId) return;
+    setEvolving(true);
+    try {
+      const res = await evolvePet(petData.activePetId);
+      if (res.ok) {
+        if (refreshWallet) await refreshWallet();
+        setEvoEvent({
+          stage: 'animation',
+          oldEvo: evolution,
+          newEvo: nextEvo,
+          petName: activePet.customName,
+        });
+        showToast('Tiến hóa thành công! 🎉', 'success');
+      } else {
+        showToast(res.error || 'Tiến hóa thất bại.', 'danger');
+      }
+    } catch {
+      showToast('Lỗi mạng khi tiến hóa.', 'danger');
+    } finally {
+      setEvolving(false);
+    }
+  }
 
   function openShareForEvo() {
     if (!evoEvent) return;
@@ -40,14 +77,6 @@ export default function PetPage() {
     setEvoEvent(null);
     setShareOpen(true);
   }
-
-  const activePet = getActivePetWithDecay();
-  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
-  const evolution = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
-  const nextEvo = species && evolution ? species.evolutions[evolution.stage + 1] || null : null;
-  const power = activePet && species ? calculatePowerScore(activePet, species) : 0;
-  const mood = activePet ? getPetMood(activePet.needs) : 'happy';
-  const message = species ? getPetMessage(activePet.speciesId, mood) : '';
 
   // Daily quests with completion check
   const dailyStatus = useMemo(() => {
@@ -173,25 +202,97 @@ export default function PetPage() {
         </div>
       </div>
 
-      {/* Evolution Progress */}
-      {nextEvo && (
+      {/* 4 Chỉ số chiến đấu v2 */}
+      {battleStats && (
         <div className="pet-section-card mb-3">
           <div className="pet-section-header">
             <span className="pet-section-icon"><Icon name="bolt" size={22} /></span>
-            <span>Tiến hóa tiếp theo</span>
+            <span>Chỉ số chiến đấu</span>
+            <span className="badge bg-primary ms-auto">Lực chiến: {power}</span>
           </div>
-          <div className="pet-evo-preview">
+          <div className="row g-2 text-center">
+            <div className="col-3">
+              <div className="p-2 border rounded bg-light">
+                <div className="small text-muted fw-bold">HP</div>
+                <div className="fs-5 fw-bold text-success">{battleStats.hp}</div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="p-2 border rounded bg-light">
+                <div className="small text-muted fw-bold">ATK</div>
+                <div className="fs-5 fw-bold text-danger">{battleStats.atk}</div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="p-2 border rounded bg-light">
+                <div className="small text-muted fw-bold">DEF</div>
+                <div className="fs-5 fw-bold text-primary">{battleStats.def.toFixed(1)}</div>
+              </div>
+            </div>
+            <div className="col-3">
+              <div className="p-2 border rounded bg-light">
+                <div className="small text-muted fw-bold">AGI</div>
+                <div className="fs-5 fw-bold text-warning">{battleStats.agi.toFixed(1)}</div>
+              </div>
+            </div>
+          </div>
+          <div className="small text-muted text-center mt-2">
+            Sát thương chí mạng: <span className="fw-bold">×{battleStats.critMult.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Evolution Progress & Evolve Button (v2) */}
+      {nextEvo ? (
+        <div className="pet-section-card mb-3">
+          <div className="pet-section-header">
+            <span className="pet-section-icon"><Icon name="sparkle" size={22} /></span>
+            <span>Tiến hóa tiếp theo: {nextEvo.name}</span>
+          </div>
+          <div className="pet-evo-preview d-flex align-items-center gap-3 mb-3">
             {nextEvo.image ? (
-              <img src={nextEvo.image} alt={nextEvo.name} className="pet-evo-next-img" />
+              <img src={nextEvo.image} alt={nextEvo.name} className="pet-evo-next-img" style={{ width: 64, height: 64, objectFit: 'contain' }} />
             ) : (
-              <span className="pet-evo-next-emoji"><Emoji e={nextEvo.emoji} size={36} /></span>
+              <span className="pet-evo-next-emoji"><Emoji e={nextEvo.emoji} size={48} /></span>
             )}
-            <span className="pet-evo-next-name">{nextEvo.name}</span>
+            <div>
+              <div className="fw-bold fs-5">{nextEvo.name}</div>
+              <div className="small text-muted">Cấp {evolution?.stage ?? 0} → Cấp {(evolution?.stage ?? 0) + 1}</div>
+            </div>
           </div>
-          {/* Phase 4 thay bằng khối điều kiện (Sữa/Gem/Đá/kỹ năng) + nút "Tiến hoá" gọi API evolve. */}
-          <div className="pet-progress-text">
-            Tiến hoá bằng {Object.values(CURRENCIES).map((c) => `${c.labelVi} ${c.icon}`).join(', ')} — sắp ra mắt.
+
+          <div className="mb-3">
+            <div className="small fw-bold text-muted mb-2">Điều kiện tiến hóa:</div>
+            <div className="d-flex flex-column gap-2">
+              {evoCheck.checks.map((chk, idx) => (
+                <div key={idx} className="d-flex justify-content-between align-items-center small p-2 rounded border bg-light">
+                  <span>
+                    {chk.key === 'milk' && '🥛 Sữa'}
+                    {chk.key === 'gem' && '💎 Gem'}
+                    {chk.key === 'stone' && '🪨 Đá nguyên tố'}
+                    {chk.key === 'totalSkills' && '📚 Tổng điểm 4 kỹ năng'}
+                    {chk.kind === 'skill' && `🎯 Kỹ năng ${chk.key}`}
+                  </span>
+                  <span className={chk.ok ? 'text-success fw-bold' : 'text-danger fw-bold'}>
+                    {chk.have} / {chk.need} {chk.ok ? '✓' : '✗'}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
+
+          <button
+            type="button"
+            className={`btn w-100 py-2 fw-bold ${evoCheck.ok ? 'btn-success' : 'btn-secondary'}`}
+            disabled={!evoCheck.ok || evolving}
+            onClick={handleEvolve}
+          >
+            {evolving ? 'Đang tiến hóa...' : evoCheck.ok ? '✨ Tiến hóa ngay!' : 'Chưa đủ điều kiện'}
+          </button>
+        </div>
+      ) : (
+        <div className="pet-section-card mb-3 text-center py-3">
+          <span className="badge bg-warning text-dark fs-6">👑 Pet đã đạt cấp tối đa</span>
         </div>
       )}
 
@@ -281,7 +382,7 @@ export default function PetPage() {
 
       {/* Quick Actions */}
       <div className="pet-quick-actions">
-        <Link to="/lessons" className="pet-action-card">
+        <Link to={user?.is_admin ? "/lessons" : "/"} className="pet-action-card">
           <div className="pet-action-icon"><Icon name="grad" size={36} /></div>
           <div className="pet-action-label">Học bài</div>
           <div className="pet-action-hint">+<Icon name="apple" size={12} /> +Skills</div>

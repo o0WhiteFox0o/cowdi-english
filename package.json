@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
+    "prebuild": "node scripts/build-lesson-ids.mjs",
     "build": "vite build",
     "build:prod": "vite build --config vite.config.prod.js --mode production",
     "preview": "vite preview",

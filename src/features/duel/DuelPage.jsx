@@ -482,14 +482,21 @@ export default function DuelPage() {
         if (data.ok) {
           const isWin = data.winnerId === user.id;
           const isDraw = !data.winnerId;
+          const myHpPct = data.opponentHpPct != null ? data.opponentHpPct : (100 - (data.challengerScore || 0) * 10);
+          const theirHpPct = data.challengerHpPct != null ? data.challengerHpPct : (100 - (data.opponentScore || 0) * 10);
+          setMyHp(myHpPct);
+          setOpponentHp(theirHpPct);
           setResult({
             mode: 'played',
             myScore: data.opponentScore,
             theirScore: data.challengerScore,
             myTime: time,
             theirTime: data.challengerTime,
-            myPoints: data.opponentPoints,
-            theirPoints: data.challengerPoints,
+            myPoints: myHpPct,
+            theirPoints: theirHpPct,
+            myHpPct,
+            theirHpPct,
+            battleLog: data.battleLog || [],
             breakdown: data.breakdown || [],
             winnerId: data.winnerId,
             isWin,
@@ -1031,6 +1038,38 @@ export default function DuelPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Server Battle Log (v2) */}
+        {Array.isArray(result.battleLog) && result.battleLog.length > 0 && (
+          <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 360 }}>
+            <div className="card-body">
+              <h6 className="fw-bold mb-2">⚔️ Nhật ký trận đấu (Server v2)</h6>
+              <div style={{ maxHeight: 220, overflowY: 'auto' }} className="text-start small">
+                {result.battleLog.map((entry, idx) => (
+                  <div key={idx} className="py-1 border-bottom">
+                    <span className="badge bg-secondary me-1">C{entry.q}</span>
+                    <span className={entry.side === 'opponent' ? 'text-primary fw-bold' : 'text-danger fw-bold'}>
+                      {entry.side === 'opponent' ? 'Bạn' : 'Đối thủ'}
+                    </span>
+                    {entry.type === 'miss' && ' trả lời sai (hụt đòn)'}
+                    {entry.type === 'attack' && (
+                      <>
+                        {entry.crit && <span className="text-danger fw-bold"> [CRIT]</span>}
+                        {entry.dodged && <span className="text-info"> [Né đòn]</span>}
+                        {entry.blocked && <span className="text-warning"> [Chặn khiên]</span>}
+                        {!entry.dodged && !entry.blocked && ` gây ${entry.damage} sát thương`}
+                        {entry.burnApplied && ' (gây bỏng)'}
+                        {entry.stunApplied && ' (gây choáng)'}
+                        {entry.lifesteal > 0 && ` (hút ${entry.lifesteal} HP)`}
+                      </>
+                    )}
+                    {entry.type === 'burn' && ` dính ${entry.damage} sát thương bỏng`}
+                  </div>
+                ))}
               </div>
             </div>
           </div>

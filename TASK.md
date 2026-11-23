@@ -23,7 +23,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | GĐ | Nội dung | Trạng thái | Nhánh | Ngày xong |
 |---|---|---|---|---|
 | 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
-| 1 | Nền tảng v2 | `[~]` | `feat/economy-battle-v2` | |
+| 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
 | 2 | Mô phỏng cân bằng | `[ ]` | `feat/balance-sim-v2` | |
 | 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
@@ -75,28 +75,28 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23 · afc4f52
-- [x] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt") — 2026-11-23
+- [x] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt") — 2026-11-23 · e15401f
 
 ## GĐ1 — Nền tảng v2
-- [x] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt — 2026-11-23
-- [x] File cấu hình hằng số dùng chung (server + mô phỏng) — 2026-11-23
-- [ ] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet`
-- [ ] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4
-- [ ] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng
-- [ ] Tiến hoá thủ công qua API (transaction)
-- [ ] Gem/Đá theo bài mới trên server
-- [ ] Gem theo unit (D2)
-- [ ] Đổi Gem lấy đá 1/tuần (D3)
-- [ ] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại
-- [ ] Migration dữ liệu cũ (chạy lại an toàn)
-- [ ] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm)
-- [ ] Cập nhật SRS, thiết kế, test case, traceability
+- [x] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt — 2026-11-23 · e15401f
+- [x] File cấu hình hằng số dùng chung (server + mô phỏng) — 2026-11-23 · e15401f
+- [x] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet` — 2026-11-23
+- [x] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4 — 2026-11-23
+- [x] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng — 2026-11-23
+- [x] Tiến hoá thủ công qua API (transaction) — 2026-11-23
+- [x] Gem/Đá theo bài mới trên server — 2026-11-23
+- [x] Gem theo unit (D2) — 2026-11-23
+- [x] Đổi Gem lấy đá 1/tuần (D3) — 2026-11-23
+- [x] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại — 2026-11-23
+- [x] Migration dữ liệu cũ (chạy lại an toàn) — 2026-11-23
+- [x] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm) — 2026-11-23
+- [x] Cập nhật SRS, thiết kế, test case, traceability — 2026-11-23
 
 **Tiêu chí xong**
-- [ ] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
-- [ ] Gem/Đá không cộng trùng khi làm lại bài hoặc chạy lại migration
-- [ ] Client sửa dữ liệu không đổi được kết quả trận
-- [ ] `npm run build` thành công
+- [x] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
+- [x] Gem/Đá không cộng trùng khi làm lại bài hoặc chạy lại migration
+- [x] Client sửa dữ liệu không đổi được kết quả trận
+- [x] `npm run build` thành công
 
 ## GĐ2 — Mô phỏng cân bằng
 - [ ] `scripts/simulate-balance.js` gọi engine thật
@@ -181,8 +181,9 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | — | 45 test pass |
-| 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | — | Nhánh feat/economy-battle-v2 |
+| 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | pending | 45 test pass, build pass |
+| 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | e15401f | 45 test pass |
+| 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | e15401f | Nhánh feat/economy-battle-v2 |
 | 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | afc4f52 | Đã cập nhật sổ đăng ký |
 | 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | afc4f52 | Đồng bộ tài liệu thiết kế v2 |
 | 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | afc4f52 | Đã commit git |

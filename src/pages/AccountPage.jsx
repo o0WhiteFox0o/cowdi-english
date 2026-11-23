@@ -15,6 +15,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
+import { useToast } from '../components/Toast';
 
 /**
  * ExpandableAchievementCard:
@@ -125,10 +126,11 @@ function ExpandableAchievementCard({ ach, isExpanded, onToggle }) {
 
 export default function AccountPage() {
   useSEO(SEO_CONFIGS['/account']);
-  const { user, loginWithGoogle, logout } = useAuth();
-  const { userData } = useUser();
+  const { user, loginWithGoogle, logout, authFetch } = useAuth();
+  const { userData, refreshWallet } = useUser();
   const { petData, setNickname } = usePet();
   const navigate = useNavigate();
+  const showToast = useToast();
 
   // Tab state: 'pet_achievements' | 'learning_achievements' | 'settings'
   const [activeTab, setActiveTab] = useState('pet_achievements');
@@ -137,6 +139,45 @@ export default function AccountPage() {
   const [achieveFilter, setAchieveFilter] = useState('all');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [ready, setReady] = useState(false);
+  const [walletActionLoading, setWalletActionLoading] = useState(false);
+
+  const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+
+  async function handleExchangeStone() {
+    setWalletActionLoading(true);
+    try {
+      const res = await authFetch('/api/wallet/exchange-stone', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (refreshWallet) await refreshWallet();
+        showToast('Đổi thành công 1 Đá nguyên tố! 🪨', 'success');
+      } else {
+        showToast(data.error || 'Đổi đá thất bại.', 'danger');
+      }
+    } catch {
+      showToast('Lỗi kết nối khi đổi đá.', 'danger');
+    } finally {
+      setWalletActionLoading(false);
+    }
+  }
+
+  async function handleCombineShards() {
+    setWalletActionLoading(true);
+    try {
+      const res = await authFetch('/api/wallet/combine-shards', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (refreshWallet) await refreshWallet();
+        showToast('Ghép thành công 1 Đá nguyên tố! 🪨', 'success');
+      } else {
+        showToast(data.error || 'Ghép mảnh thất bại.', 'danger');
+      }
+    } catch {
+      showToast('Lỗi kết nối khi ghép mảnh.', 'danger');
+    } finally {
+      setWalletActionLoading(false);
+    }
+  }
 
   // Expandable achievement state: stores the ID of the single expanded achievement, or null if none
   const [expandedAchId, setExpandedAchId] = useState(null);
@@ -617,6 +658,69 @@ export default function AccountPage() {
             <span className="acc-stat-icon"><Emoji e="🏆" size={20} /></span>
             <span className="acc-stat-num">{unlockedPetCount + unlockedLearningCount}/{totalPetAchievements + totalLearningAchievements}</span>
             <span className="acc-stat-label">Thành tựu</span>
+          </div>
+        </div>
+
+        {/* Ví tài nguyên Kinh tế v2 (Sữa, Gem, Đá, Mảnh đá) */}
+        <div className="card shadow-sm border-0 rounded-4 p-3 mt-3 bg-white">
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <div className="d-flex align-items-center gap-2">
+              <span className="fs-5"><Emoji e="🎒" size={24} /></span>
+              <h6 className="fw-bold mb-0">Ví tài nguyên (Kinh tế v2)</h6>
+            </div>
+            <span className="small text-muted">Dùng cho tiến hoá & chiến đấu</span>
+          </div>
+
+          <div className="row g-2 text-center mb-3">
+            <div className="col-6 col-md-3">
+              <div className="p-3 rounded-3 border bg-light">
+                <div className="fs-4"><Emoji e="🥛" size={28} /></div>
+                <div className="small text-muted fw-semibold">Sữa Cowdi</div>
+                <div className="fs-5 fw-bold text-primary">{wallet.milk}</div>
+              </div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="p-3 rounded-3 border bg-light">
+                <div className="fs-4"><Emoji e="💎" size={28} /></div>
+                <div className="small text-muted fw-semibold">Gem</div>
+                <div className="fs-5 fw-bold text-info">{wallet.gem}</div>
+              </div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="p-3 rounded-3 border bg-light">
+                <div className="fs-4"><Emoji e="🪨" size={28} /></div>
+                <div className="small text-muted fw-semibold">Đá nguyên tố</div>
+                <div className="fs-5 fw-bold text-success">{wallet.stone}</div>
+              </div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="p-3 rounded-3 border bg-light">
+                <div className="fs-4"><Emoji e="✨" size={28} /></div>
+                <div className="small text-muted fw-semibold">Mảnh đá</div>
+                <div className="fs-5 fw-bold text-warning">{wallet.stone_shard}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="d-flex gap-2 flex-wrap justify-content-end">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-info fw-semibold"
+              disabled={walletActionLoading || wallet.gem < 15}
+              onClick={handleExchangeStone}
+              title="Đổi 15 Gem lấy 1 Đá nguyên tố (tối đa 1 lần/tuần)"
+            >
+              🔄 Đổi đá (15 💎 → 1 🪨)
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-warning fw-semibold"
+              disabled={walletActionLoading || wallet.stone_shard < 10}
+              onClick={handleCombineShards}
+              title="Ghép 10 mảnh đá thành 1 Đá nguyên tố"
+            >
+              ✨ Ghép mảnh (10 mảnh → 1 🪨)
+            </button>
           </div>
         </div>
       </div>
