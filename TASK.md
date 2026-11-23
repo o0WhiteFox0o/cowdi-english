@@ -117,6 +117,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`) — 2026-11-23 · 6adecd0
 - [x] Trang cửa hàng mới (tab Giữ nhịp) — 2026-11-23 · 6adecd0
 - [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
+- [x] Làm lại UI cửa hàng theo mục Giao diện cửa hàng — 2026-11-23 · 7340b95
 
 **Tiêu chí xong**
 - [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
@@ -184,6 +185,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 3 | Làm lại UI Cửa hàng theo chuẩn: 3 tab (Giữ nhịp, Trang trí, Kho đồ), danh sách phẳng, 3 bottom sheet (Cách kiếm, Chi tiết, Khế ước), HUD link | 7340b95 | 62 test pass, build pass, screenshots |
 | 2026-11-23 | 3 | Hoàn thành GĐ3: Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi, streak server-side theo múi giờ, chốt D13) | 6adecd0 | 61 test pass, build pass |
 | 2026-11-23 | 3 | Bỏ hẳn Coins, thay bằng Sữa (x3) & Gem, migration DB, HUD 2 chip (Sữa/Gem), cập nhật Lộ trình, Cửa hàng & Bài học | ac3b700 | 53 test pass, build pass |
 | 2026-11-23 | 2 | Hoàn thành GĐ2: Mô phỏng 6 kịch bản cân bằng, xuất 6 CSV & BALANCE-REPORT-v2.md, cập nhật tài liệu tương khắc & 3 test hồi quy | 55841d7 | 48 test pass, build pass |

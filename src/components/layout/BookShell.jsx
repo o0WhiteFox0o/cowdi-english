@@ -178,11 +178,11 @@ export default function BookShell({ children }) {
         <div className="book-mobile-stats">
           <span className="book-pill" title="Chuỗi ngày học"><Icon name="fire" size={20} />{userData.streak}</span>
           <span className="book-pill" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
-          <Link to="/account#wallet" className={`book-pill position-relative ${milkDelta ? 'pulse-pop' : ''}`} title={`Sữa: ${wallet.milk}`}>
+          <Link to="/shop?help=earn" className={`book-pill position-relative ${milkDelta ? 'pulse-pop' : ''}`} title={`Sữa: ${wallet.milk} · Bấm để xem cách kiếm`}>
             <span>🥛</span>{formatCompact(wallet.milk)}
             {milkDelta && <span className="resource-float-delta text-primary">+{milkDelta}</span>}
           </Link>
-          <Link to="/account#wallet" className={`book-pill position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem}`}>
+          <Link to="/shop?help=earn" className={`book-pill position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem} · Bấm để xem cách kiếm`}>
             <span>💎</span>{formatCompact(wallet.gem)}
             {gemDelta && <span className="resource-float-delta text-info">+{gemDelta}</span>}
           </Link>
@@ -285,9 +285,9 @@ export default function BookShell({ children }) {
                 <Icon name="medal" size={24} />Lv{level.level}
               </Link>
               <Link
-                to="/account#wallet"
+                to="/shop?help=earn"
                 className={`book-pill book-hud-resource position-relative ${milkDelta ? 'pulse-pop' : ''}`}
-                title={`Sữa: ${wallet.milk.toLocaleString('vi-VN')} · Bấm để xem Ví tài nguyên`}
+                title={`Sữa: ${wallet.milk.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
               >
                 <span>🥛</span><span>{formatCompact(wallet.milk)}</span>
                 {milkDelta && (
@@ -295,9 +295,9 @@ export default function BookShell({ children }) {
                 )}
               </Link>
               <Link
-                to="/account#wallet"
+                to="/shop?help=earn"
                 className={`book-pill book-hud-resource position-relative ${gemDelta ? 'pulse-pop' : ''}`}
-                title={`Gem: ${wallet.gem.toLocaleString('vi-VN')} · Bấm để xem Ví tài nguyên`}
+                title={`Gem: ${wallet.gem.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
               >
                 <span>💎</span><span>{formatCompact(wallet.gem)}</span>
                 {gemDelta && (

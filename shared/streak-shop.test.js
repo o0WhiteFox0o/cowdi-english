@@ -149,3 +149,51 @@ test('GĐ3 — Logic thưởng Đồng hồ Cowdi (+10% Sữa, max 3 bài/ngày)
   assert.equal(bonusLessons, 3, 'Chỉ thưởng tối đa 3 bài/ngày');
   assert.equal(totalBonus, 51, 'Tổng thưởng 3 bài = 51 Sữa');
 });
+
+test('GĐ3 UI — Trạng thái nút đúng bảng thiết kế cho 4 món Giữ nhịp', () => {
+  // 1. Khăn giữ lửa: Đủ tiền, thiếu tiền, đạt giới hạn kho, đạt giới hạn tuần
+  function getFreezeButton(userMilk, freezeCount, freezesBoughtThisWeek) {
+    if (freezeCount >= 2) return { disabled: true, label: 'Đủ 2/2 khăn' };
+    if (freezesBoughtThisWeek >= 2) return { disabled: true, label: 'Tuần sau mua tiếp (2/2)' };
+    if (userMilk < 400) return { disabled: true, label: `Thiếu ${400 - userMilk} 🥛` };
+    return { disabled: false, label: '400 🥛' };
+  }
+
+  assert.deepEqual(getFreezeButton(500, 0, 0), { disabled: false, label: '400 🥛' });
+  assert.deepEqual(getFreezeButton(300, 0, 0), { disabled: true, label: 'Thiếu 100 🥛' });
+  assert.deepEqual(getFreezeButton(1000, 2, 0), { disabled: true, label: 'Đủ 2/2 khăn' });
+  assert.deepEqual(getFreezeButton(1000, 1, 2), { disabled: true, label: 'Tuần sau mua tiếp (2/2)' });
+
+  // 2. Vé quay lại: Đang dùng, chưa đủ điều kiện, thiếu tiền, đủ tiền
+  function getReturnTicketButton(userMilk, active, canBuy, lessonsDone) {
+    if (active) return { disabled: true, label: `● Đang dùng (${lessonsDone}/2)` };
+    if (!canBuy) return { disabled: true, label: 'Mở khi nghỉ 2–14 ngày' };
+    if (userMilk < 300) return { disabled: true, label: `Thiếu ${300 - userMilk} 🥛` };
+    return { disabled: false, label: '300 🥛' };
+  }
+
+  assert.deepEqual(getReturnTicketButton(500, false, true, 0), { disabled: false, label: '300 🥛' });
+  assert.deepEqual(getReturnTicketButton(200, false, true, 0), { disabled: true, label: 'Thiếu 100 🥛' });
+  assert.deepEqual(getReturnTicketButton(500, false, false, 0), { disabled: true, label: 'Mở khi nghỉ 2–14 ngày' });
+  assert.deepEqual(getReturnTicketButton(500, true, true, 1), { disabled: true, label: '● Đang dùng (1/2)' });
+
+  // 3. Khế ước 7 ngày: Chưa có (Chọn mức), Đang có (tiến độ x/7)
+  function getContractButton(contract) {
+    if (contract) return { disabled: false, isProgress: true, label: `${contract.daysCompleted}/7 ngày (còn ${7 - contract.daysCompleted} ngày)` };
+    return { disabled: false, isContractSelect: true, label: 'Chọn mức' };
+  }
+
+  assert.deepEqual(getContractButton(null), { disabled: false, isContractSelect: true, label: 'Chọn mức' });
+  assert.deepEqual(getContractButton({ daysCompleted: 3 }), { disabled: false, isProgress: true, label: '3/7 ngày (còn 4 ngày)' });
+
+  // 4. Đồng hồ Cowdi: Chưa mua (1 000 🥛 / Thiếu N 🥛), Đã mua (Giờ vàng HH:MM · Đổi giờ)
+  function getClockButton(userMilk, hasClock, hour) {
+    if (hasClock) return { disabled: false, isClockManage: true, label: `Giờ vàng ${String(hour).padStart(2, '0')}:00 · Đổi giờ` };
+    if (userMilk < 1000) return { disabled: true, label: `Thiếu ${1000 - userMilk} 🥛` };
+    return { disabled: false, label: '1 000 🥛' };
+  }
+
+  assert.deepEqual(getClockButton(1500, false, null), { disabled: false, label: '1 000 🥛' });
+  assert.deepEqual(getClockButton(800, false, null), { disabled: true, label: 'Thiếu 200 🥛' });
+  assert.deepEqual(getClockButton(500, true, 20), { disabled: false, isClockManage: true, label: 'Giờ vàng 20:00 · Đổi giờ' });
+});
