@@ -173,7 +173,7 @@ export default function CollectionPage() {
                 </div>
               </div>
 
-              <div className="dex-badges align-items-center">
+              <div className="dex-badges align-items-center flex-nowrap mb-2">
                 <span className="dex-badge" style={{ background: ELEMENT_COLORS[sel.element]?.bg, color: ELEMENT_COLORS[sel.element]?.text }}>
                   <Icon name={ELEMENT_ICON[sel.element]} size={16} /> {elName(ELEMENT_COLORS[sel.element])}
                 </span>

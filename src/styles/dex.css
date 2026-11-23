@@ -400,16 +400,27 @@
 .dex-badges {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.dex-badges::-webkit-scrollbar {
+  display: none;
 }
 
 .dex-badge {
   font-family: var(--font-hand);
-  font-size: .9rem;
-  padding: 3px 10px;
+  font-size: .88rem;
+  padding: 3px 8px;
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .dex-badge.power {
