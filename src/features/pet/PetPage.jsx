@@ -17,6 +17,7 @@ import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
+import { BATTLE_STAT_ICONS, SKILL_IMAGE_ICONS } from './CollectionPage';
 
 export default function PetPage() {
   useSEO(SEO_CONFIGS['/pet']);
@@ -212,25 +213,29 @@ export default function PetPage() {
           </div>
           <div className="row g-2 text-center">
             <div className="col-3">
-              <div className="p-2 border rounded bg-light">
+              <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
+                <img src={BATTLE_STAT_ICONS.hp} alt="HP" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">HP</div>
                 <div className="fs-5 fw-bold text-success">{battleStats.hp}</div>
               </div>
             </div>
             <div className="col-3">
-              <div className="p-2 border rounded bg-light">
+              <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
+                <img src={BATTLE_STAT_ICONS.atk} alt="ATK" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">ATK</div>
                 <div className="fs-5 fw-bold text-danger">{battleStats.atk}</div>
               </div>
             </div>
             <div className="col-3">
-              <div className="p-2 border rounded bg-light">
+              <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
+                <img src={BATTLE_STAT_ICONS.def} alt="DEF" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">DEF</div>
                 <div className="fs-5 fw-bold text-primary">{battleStats.def.toFixed(1)}</div>
               </div>
             </div>
             <div className="col-3">
-              <div className="p-2 border rounded bg-light">
+              <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
+                <img src={BATTLE_STAT_ICONS.agi} alt="AGI" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">AGI</div>
                 <div className="fs-5 fw-bold text-warning">{battleStats.agi.toFixed(1)}</div>
               </div>
@@ -342,7 +347,13 @@ export default function PetPage() {
             const lvl = getSkillLevel(val);
             return (
               <div className="pet-skill-card" key={key} style={{ '--skill-color': meta.color }}>
-                <div className="pet-skill-icon">{SKILL_ICON[key] ? <Icon name={SKILL_ICON[key]} size={30} /> : <Emoji e={meta.icon} size={30} />}</div>
+                <div className="pet-skill-icon">
+                  {SKILL_IMAGE_ICONS[key] ? (
+                    <img src={SKILL_IMAGE_ICONS[key]} alt={meta.name} style={{ width: 34, height: 34, objectFit: 'contain' }} />
+                  ) : (
+                    <Icon name={SKILL_ICON[key]} size={30} />
+                  )}
+                </div>
                 <div className="pet-skill-level">Lv.{lvl}</div>
                 <div className="pet-skill-name">{meta.name}</div>
                 <div className="pet-skill-bar">

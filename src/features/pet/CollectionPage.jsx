@@ -20,6 +20,20 @@ const Stars = ({ n }) => (
   <span className="dex-stars">{Array.from({ length: n }, (_, i) => <Icon key={i} name="star" size={12} />)}</span>
 );
 
+export const BATTLE_STAT_ICONS = {
+  hp: '/image/icon_pet/HP.webp',
+  atk: '/image/icon_pet/Attack.webp',
+  def: '/image/icon_pet/Defense.webp',
+  agi: '/image/icon_pet/Speed.webp',
+};
+
+export const SKILL_IMAGE_ICONS = {
+  listening: '/image/icon_pet/Listening.webp',
+  speaking: '/image/icon_pet/Speaking.webp',
+  reading: '/image/icon_pet/Reading.webp',
+  writing: '/image/icon_pet/Writing.webp',
+};
+
 /* Image with emoji fallback (some species have no artwork yet) */
 function PetArt({ src, emoji, alt, className, silhouette }) {
   const [broken, setBroken] = useState(false);
@@ -214,11 +228,35 @@ export default function CollectionPage() {
                   {(() => {
                     const st = computeStats(selOwned);
                     return (
-                      <div className="row g-1 text-center small p-1 border rounded bg-light">
-                        <div className="col-3"><b>HP</b>: {st.hp}</div>
-                        <div className="col-3"><b>ATK</b>: {st.atk}</div>
-                        <div className="col-3"><b>DEF</b>: {st.def.toFixed(1)}</div>
-                        <div className="col-3"><b>AGI</b>: {st.agi.toFixed(1)}</div>
+                      <div className="dex-combat-grid">
+                        <div className="dex-combat-cell" title="HP (Máu)">
+                          <img src={BATTLE_STAT_ICONS.hp} alt="HP" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">HP</span>
+                            <b className="dex-combat-val">{st.hp}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="ATK (Tấn công)">
+                          <img src={BATTLE_STAT_ICONS.atk} alt="ATK" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">ATK</span>
+                            <b className="dex-combat-val">{st.atk}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="DEF (Phòng thủ)">
+                          <img src={BATTLE_STAT_ICONS.def} alt="DEF" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">DEF</span>
+                            <b className="dex-combat-val">{st.def.toFixed(1)}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="AGI (Tốc độ)">
+                          <img src={BATTLE_STAT_ICONS.agi} alt="AGI" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">AGI</span>
+                            <b className="dex-combat-val">{st.agi.toFixed(1)}</b>
+                          </div>
+                        </div>
                       </div>
                     );
                   })()}
@@ -231,7 +269,9 @@ export default function CollectionPage() {
                 <div className="dex-stats">
                   {Object.entries(SKILL_META).map(([key, meta]) => (
                     <div className="dex-stat" key={key}>
-                      <span className="dex-stat-name"><Icon name={SKILL_ICON[key]} size={16} /> {meta.name}</span>
+                      <span className="dex-stat-name">
+                        <img src={SKILL_IMAGE_ICONS[key]} alt={meta.name} className="dex-stat-img-icon" /> {meta.name}
+                      </span>
                       <div className="book-bar"><i style={{ width: `${(sel.baseStats[key] / MAX_STAT) * 100}%`, background: meta.color }} /></div>
                       <span className="dex-stat-val">{sel.baseStats[key]}</span>
                     </div>
@@ -245,7 +285,7 @@ export default function CollectionPage() {
                   <div className="dex-skills">
                     {Object.entries(SKILL_META).map(([key, meta]) => (
                       <div className="dex-skill" key={key} style={{ '--c': meta.color }}>
-                        <span><Icon name={SKILL_ICON[key]} size={22} /></span>
+                        <img src={SKILL_IMAGE_ICONS[key]} alt={meta.name} className="dex-skill-img-icon" />
                         <b>Lv.{getSkillLevel(selOwned.skills?.[key] || 0)}</b>
                         <small>{selOwned.skills?.[key] || 0} pts</small>
                       </div>

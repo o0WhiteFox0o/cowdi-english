@@ -450,6 +450,74 @@
   color: var(--ink-soft);
 }
 
+/* Combat stats grid */
+.dex-combat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 6px 4px;
+}
+
+.dex-combat-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 2px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dex-combat-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dex-combat-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.dex-combat-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #6c757d;
+}
+
+.dex-combat-val {
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dex-stat-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dex-stat-img-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dex-skill-img-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  margin-bottom: 2px;
+}
+
 .dex-section {
   background: rgba(255, 255, 255, 0.92);
   border-radius: 12px;
