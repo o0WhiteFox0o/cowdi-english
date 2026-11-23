@@ -114,15 +114,27 @@ Tên trang: Glossary, Simulator, Element Matchups, Pet Matchups, Rarity, Economy
 
 ### 2.2 Gem
 - Mới. Số dư lưu trên **server** (mục 6).
-- Nguồn (mặc định, để trong config):
-  - `GEM_PER_NEW_LESSONS = 2` → **1 Gem mỗi 2 bài học hoàn thành lần đầu** (đếm `completedLessons`, chỉ lần đầu). **[MỞ]** quy tắc chính thức; thêm thưởng bài kiểm tra cuối unit nếu Sonny chốt.
+- Nguồn:
+  - `GEM_PER_NEW_LESSONS = 2` → **1 Gem mỗi 2 bài học hoàn thành lần đầu** (đếm `completedLessons`, chỉ lần đầu).
+  - **Gem theo unit (D2):**
+    - `GEM_PER_UNIT = 1`: hoàn thành unit (toàn bộ bài học trong unit) nhận **1 Gem**.
+    - `GEM_PER_UNIT_PERFECT = 2`: hoàn thành 100% unit nhận thêm **2 Gem** nữa.
+    - Mỗi unit nhận tối đa 1 lần (chống cộng trùng qua `uq_grant`).
   - Nạp tiền: **chưa làm**, nhưng ledger phải có `reason = 'purchase'` sẵn.
-- Chỗ tiêu: tiến hoá C2→C3 trở lên.
+- Chỗ tiêu: tiến hoá C2→C3 trở lên; đổi lấy Đá nguyên tố (mục 2.3).
 
-### 2.3 Đá nguyên tố (Element Stone)
-- Mới, lưu server. Mặc định **1 loại dùng chung** (**[MỞ]** có tách theo 10 hệ không).
-- Nguồn: `STONE_PER_NEW_LESSONS = 10` → **1 đá mỗi 10 bài học hoàn thành lần đầu**.
-- **[MỞ]** Gem nạp tiền có được thay đá không → mặc định **không**.
+### 2.3 Đá nguyên tố (Element Stone) & Mảnh đá (Stone Shard)
+- Mới, lưu server. Mặc định **1 loại dùng chung** (**[MỞ]** có tách theo 10 hệ không — xem TASK.md).
+- Nguồn:
+  - `STONE_PER_NEW_LESSONS = 10` → **1 đá mỗi 10 bài học hoàn thành lần đầu** (D3: giữ 1 đá / 10 bài mới).
+  - **Đổi Gem lấy đá (D3):**
+    - `GEM_PER_STONE = 15` (15 Gem đổi được 1 đá).
+    - `STONE_EXCHANGE_PER_WEEK = 1` (tối đa 1 lần/tuần, reset thứ Hai 00:00).
+    - Không bán đá trực tiếp bằng tiền thật.
+  - **Tài nguyên mới: Mảnh đá nguyên tố (`stone_shard`):**
+    - 10 mảnh đá ghép thành 1 đá nguyên tố (`SHARDS_PER_STONE = 10`).
+    - Nguồn nhận: thưởng Đấu trường (GĐ5), sự kiện...
+- Gem nạp tiền **không** được thay đá trực tiếp (chỉ qua đổi Gem lấy đá có trần tuần).
 
 ### 2.4 Coins
 - **Không sửa trong đợt này** (Shop tạm gác). Không thêm cách dùng coins mới. Không cho coins mua Sữa/Gem/Đá.
@@ -331,21 +343,24 @@ Bảng mới `wallet_ledger`:
 CREATE TABLE wallet_ledger (
   id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id     INT UNSIGNED NOT NULL,
-  currency    ENUM('milk','gem','stone') NOT NULL,
+  currency    ENUM('milk','gem','stone','stone_shard') NOT NULL,
   amount      INT NOT NULL,              -- dương = nhận, âm = tiêu
-  reason      VARCHAR(40) NOT NULL,      -- lesson_first, lesson_milestone, evolve, purchase, migration, admin…
-  ref_id      VARCHAR(64) DEFAULT NULL,  -- lessonId, petInstanceId, orderId…
+  reason      VARCHAR(40) NOT NULL,      -- lesson_first, lesson_milestone, unit_complete, unit_perfect, stone_exchange, shard_combine, evolve, purchase, migration, admin…
+  ref_id      VARCHAR(64) DEFAULT NULL,  -- lessonId, unitId, petInstanceId, orderId…
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX (user_id, currency),
   UNIQUE KEY uq_grant (user_id, currency, reason, ref_id)  -- chống cộng trùng
 );
 ```
-Số dư = `SUM(amount)` theo user + currency (có thể cache cột `gem_balance`, `stone_balance` trong `user_progress`, cập nhật trong cùng transaction).
+Số dư = `SUM(amount)` theo user + currency (có thể cache cột `gem_balance`, `stone_balance`, `stone_shard_balance` trong `user_progress`, cập nhật trong cùng transaction).
 Migration theo kiểu idempotent như các file `server/db/migrate-*.sql` hiện có.
 
 ### 6.2 API mới / sửa
 - Cấp Gem/Đá: mặc định làm trong `PUT /api/progress` theo 0.5.5 (lọc theo `shared/lesson-ids.json`, `ref_id` theo số mốc). Có thể thêm `POST /api/lessons/:lessonId/complete` để UI nhận thông báo thưởng ngay, nhưng dùng chung một hàm cấp thưởng. Client không tự cộng Gem/Đá.
-- `GET /api/wallet` → `{ milk, gem, stone }` (milk tính theo 0.5.4).
+- Cấp Gem theo unit (D2): khi hoàn thành tất cả bài trong unit, cấp 1 Gem (`reason='unit_complete'`); hoàn thành 100% cấp thêm 2 Gem (`reason='unit_perfect'`).
+- `GET /api/wallet` → `{ milk, gem, stone, stone_shard }` (milk tính theo 0.5.4).
+- `POST /api/wallet/exchange-stone`: đổi 15 Gem lấy 1 đá (`GEM_PER_STONE = 15`), kiểm tra trần tối đa 1 lần/tuần (`STONE_EXCHANGE_PER_WEEK = 1`, reset thứ Hai 00:00).
+- `POST /api/wallet/combine-shards`: ghép 10 mảnh đá thành 1 đá nguyên tố.
 - `POST /api/pets/:instanceId/evolve` → server kiểm tra: pet thuộc user, cấp hiện tại < 5, đủ Sữa/Gem/Đá, đủ điều kiện điểm kỹ năng (3.2–3.3); trừ tài nguyên qua ledger trong **transaction**, tăng `evolution`; trả trạng thái mới. Client không tự đổi `pet.evolution`.
 - `PUT /api/pet-data` (`server/routes/api.js` ~dòng 186–207): `pet_data` là một khối JSON lưu nguyên. Server đọc bản đang lưu, **ghi đè `collection[*].evolution`** bằng giá trị cũ, và kẹp `collection[*].skills` không giảm (6.3) rồi mới lưu. Coins để nguyên (Shop tạm gác).
 - `PUT /api/progress` (~dòng 75): bỏ `availableXP` và `skillXP` khỏi whitelist ghi (0.5.4).
@@ -366,9 +381,18 @@ Migration theo kiểu idempotent như các file `server/db/migrate-*.sql` hiện
 
 ---
 
-## 7. Ngoài phạm vi đợt này
-- Shop, đồ trang trí, coins, quà trứng (`gift_egg`) — giữ nguyên.
-- Nạp tiền mua Gem (chỉ chuẩn bị ledger).
+## 7. Lộ trình tính năng tiếp theo (Shop & các hệ thống khác)
+Mục "Shop tạm gác" được tách thành các giai đoạn triển khai chi tiết theo `docs/01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`:
+- **GĐ2 — Mô phỏng cân bằng**: script `scripts/simulate-balance.js` gọi engine thật, ma trận 10 hệ, 7 nhóm, điều chỉnh hằng số (`docs/04-design/economy-v2/lenh-claude-code-2-can-bang-he-tuong-khac.md`).
+- **GĐ3 — Cửa hàng Giữ nhịp**: chuyển tính streak lên server theo múi giờ; 4 vật phẩm Giữ nhịp mua bằng Sữa (Khăn giữ lửa 400, Vé quay lại 300, Khế ước 7 ngày cọc 300/700/1500 hoàn ×1.5, Đồng hồ Cowdi 1000); xử lý coins và đồ cũ (`docs/04-design/economy-v2/de-xuat-vat-pham-cua-hang-v2.md`).
+- **GĐ4 — Hệ thống đồ trang trí**: bảng `owned_cosmetics`, 6 bậc, đồ mốc học tự cấp, nền và hào quang mới, khung avatar, danh hiệu (`docs/04-design/economy-v2/de-xuat-trang-tri-nen-hao-quang.md`).
+- **GĐ5 — Đấu trường**: vé đấu từ học (3/ngày + 2/bài mới + 3/unit 100%), ghép trận cấp ±1 + LP, 6 bậc, thưởng trận 8/5/2 Sữa, rương tuần, thưởng mùa có Gem, mảnh đá (`docs/04-design/economy-v2/de-xuat-dau-truong-va-qua-tang.md`).
+- **GĐ6 — Lõi gacha + thiệp mời + quay khởi đầu**: sửa `ensureInitialPet` trong `src/hooks/usePet.jsx`, thiệp mời chọn Cowdi hoặc quay khởi đầu (bể 21 pet, 50/30/13/5/2) (`docs/04-design/economy-v2/de-xuat-gacha-v2.md`).
+- **GĐ7 — Gacha đầy đủ**: vé gacha 50 Gem mua lẻ, không bảo hiểm (67/22/8/3), banner 3 tuần + pet giới hạn, Thẻ tặng pet qua `InviteSheet`, Bụi sao (`docs/04-design/economy-v2/de-xuat-gacha-v2.md`).
+- **GĐ8 — Thanh toán & gói trả phí**: Thẻ mùa học tập (30 tầng), Thẻ tháng Sữa ×1.5, gói Gem, giới hạn chi tiêu cho tài khoản nhỏ tuổi (`docs/04-design/economy-v2/lo-trinh-kiem-tien-v2.md`).
+- **GĐ9 — Theo dõi & điều chỉnh liên tục**: dashboard và theo dõi chỉ số người dùng.
+
+**Vẫn ngoài phạm vi:**
 - Đội 3 pet, thanh năng lượng chiêu, hệ tăng sức mạnh theo tuần, ấn ký.
 - Cập nhật bảng cân bằng trên claude.ai (Sonny làm riêng).
 

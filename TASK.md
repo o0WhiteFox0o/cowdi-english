@@ -1,0 +1,184 @@
+# TASK — Triển khai Kinh tế v2 (Cowdi English)
+
+> File theo dõi tiến độ cho `docs/01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`.
+> **Claude Code đọc file này đầu mỗi phiên và cập nhật ngay khi xong mỗi việc.**
+> Cách dùng: xem `docs/01-project-management/PROMPT-CLAUDE-CODE-KINH-TE-V2.md` (Claude Code và Antigravity).
+> Antigravity: gõ `/tiep-tuc` để làm tiếp, `/kiem-tra-tien-do` để xem tiến độ.
+
+## Ký hiệu
+| Ký hiệu | Nghĩa |
+|---|---|
+| `[ ]` | Chưa làm |
+| `[~]` | Đang làm |
+| `[x]` | Xong (ghi ngày + commit ở cuối dòng) |
+| `[!]` | Bị chặn (ghi lý do ở mục "Vấn đề đang chặn") |
+| `[-]` | Bỏ, không làm (ghi lý do) |
+
+Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a1b2c3d`
+
+---
+
+## Trạng thái tổng
+
+| GĐ | Nội dung | Trạng thái | Nhánh | Ngày xong |
+|---|---|---|---|---|
+| 0 | Chuẩn bị tài liệu & chốt | `[~]` | — | |
+| 1 | Nền tảng v2 | `[ ]` | `feat/economy-battle-v2` | |
+| 2 | Mô phỏng cân bằng | `[ ]` | `feat/balance-sim-v2` | |
+| 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
+| 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
+| 5 | Đấu trường | `[ ]` | `feat/arena` | |
+| 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
+| 7 | Gacha đầy đủ | `[ ]` | `feat/gacha-full` | |
+| 8 | Thanh toán | `[ ]` | `feat/payments` | |
+| 9 | Theo dõi & điều chỉnh | `[ ]` | — | Liên tục |
+
+---
+
+## Quyết định đã chốt (ưu tiên cao nhất khi tài liệu mâu thuẫn)
+
+| # | Quyết định | Ngày |
+|---|---|---|
+| D1 | Vật phẩm Giữ nhịp giá Sữa: Khăn giữ lửa 400 · Vé quay lại 300 · Khế ước 7 ngày cọc 300/700/1 500 hoàn ×1.5 · Đồng hồ Cowdi 1 000 | 23/11/2026 |
+| D2 | Gem theo unit: hoàn thành unit +1 Gem; hoàn thành 100% +2 Gem nữa (mỗi unit nhận 1 lần) | 23/11/2026 |
+| D3 | Đá: giữ 1 đá / 10 bài mới; đổi 15 Gem lấy 1 đá, tối đa 1/tuần; không bán đá trực tiếp | 23/11/2026 |
+| D4 | Đấu trường: vé từ học (3/ngày + 2/bài mới + 3/unit 100%, giữ tối đa 15); thưởng 8/5/2 Sữa; không trần Sữa/ngày; Thẻ tháng không nhân Sữa Đấu trường | 23/11/2026 |
+| D5 | Gacha: 50 Gem/vé, không có gói 10, **không có bảo hiểm**; tỉ lệ 67/22/8/3 | 23/11/2026 |
+| D6 | Không có bản lấp lánh; pet giới hạn trùng → Thẻ tặng pet (gửi qua Mời bạn, chỉ người mới nhận, người tặng +3 Gem khi người nhận học 3 bài, tối đa 3 thẻ/tháng) | 23/11/2026 |
+| D7 | Thiệp mời chỉ cho người mới. Qua thiệp thường: chọn Cowdi **hoặc** quay pet khởi đầu (bể 21 pet trừ Cowdi, 50/30/13/5/2). Qua thẻ tặng: nhận pet được tặng. Tự đăng ký: Cowdi. Tài khoản không có Cowdi là cố ý | 23/11/2026 |
+| D8 | Thẻ tháng Sữa ×1.5 và Thẻ mùa học tập là hướng kiếm tiền chính (chưa thiết kế chi tiết) | 23/11/2026 |
+
+> Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
+
+## Cần chốt (chặn giai đoạn ghi trong ngoặc)
+- [ ] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — mặc định: đánh đủ 10 câu, để cờ cấu hình)
+- [ ] Đá dùng chung hay tách theo 10 hệ? (GĐ1)
+- [ ] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1)
+- [ ] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3)
+- [ ] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3)
+- [ ] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4)
+- [ ] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5)
+- [ ] Tỉ lệ pet giới hạn 3% hay 5%? (GĐ7)
+- [ ] Pet giới hạn đầu tiên: tên, hệ, nhóm, 8 mức điểm kỹ năng, 5 ảnh (GĐ7)
+- [ ] Người chơi cũ lấy lại pet giới hạn mùa cũ bằng cách nào? (GĐ7)
+- [ ] Thiết kế chi tiết Thẻ mùa và Thẻ tháng; giá gói Gem; giới hạn chi tiêu cho tài khoản nhỏ tuổi (GĐ8)
+- [ ] Thời gian học trung bình mỗi bài (để chỉnh giá vé gacha) (GĐ9)
+
+---
+
+## GĐ0 — Chuẩn bị tài liệu & chốt
+- [x] Chép đề xuất vào `docs/04-design/economy-v2/` — 2026-11-23
+- [x] Tạo `QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`, `PROMPT-CLAUDE-CODE-KINH-TE-V2.md`, `TASK.md` — 2026-11-23
+- [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23
+- [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23
+- [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23
+- [ ] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt")
+
+## GĐ1 — Nền tảng v2
+- [ ] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt
+- [ ] File cấu hình hằng số dùng chung (server + mô phỏng)
+- [ ] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet`
+- [ ] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4
+- [ ] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng
+- [ ] Tiến hoá thủ công qua API (transaction)
+- [ ] Gem/Đá theo bài mới trên server
+- [ ] Gem theo unit (D2)
+- [ ] Đổi Gem lấy đá 1/tuần (D3)
+- [ ] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại
+- [ ] Migration dữ liệu cũ (chạy lại an toàn)
+- [ ] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm)
+- [ ] Cập nhật SRS, thiết kế, test case, traceability
+
+**Tiêu chí xong**
+- [ ] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
+- [ ] Gem/Đá không cộng trùng khi làm lại bài hoặc chạy lại migration
+- [ ] Client sửa dữ liệu không đổi được kết quả trận
+- [ ] `npm run build` thành công
+
+## GĐ2 — Mô phỏng cân bằng
+- [ ] `scripts/simulate-balance.js` gọi engine thật
+- [ ] Chạy 6 nhóm kịch bản trong lệnh 2 (kể cả pet Huyền thoại/Sự kiện C1)
+- [ ] Xuất CSV + `BALANCE-REPORT-v2.md`
+- [ ] Đề xuất chỉnh hằng số được duyệt và áp dụng
+- [ ] Test hồi quy cho kịch bản biên
+- [ ] (Thủ công) Cập nhật bảng cân bằng trên claude.ai
+
+## GĐ3 — Cửa hàng Giữ nhịp
+- [ ] Streak tính trên server theo múi giờ người dùng
+- [ ] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần)
+- [ ] Vé quay lại
+- [ ] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger)
+- [ ] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`)
+- [ ] Trang cửa hàng mới (tab Giữ nhịp)
+- [ ] Xử lý coins và đồ cũ theo quyết định đã chốt
+
+**Tiêu chí xong**
+- [ ] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
+
+## GĐ4 — Đồ trang trí
+- [ ] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua
+- [ ] Đồ mốc học tự cấp: Lửa streak, 4 hào quang kỹ năng, Toàn năng, Phòng học theo trình độ
+- [ ] Nền và hào quang mới (10 nền hệ, đồ Gem)
+- [ ] Khung avatar, danh hiệu
+- [ ] Hiển thị ở trang pet, Đấu trường, bảng xếp hạng, thẻ chia sẻ
+
+**Tiêu chí xong**
+- [ ] Trang bị/tháo được ở mọi nơi hiển thị; đồ mốc học tự mở khi đạt điều kiện
+
+## GĐ5 — Đấu trường
+- [ ] Vé đấu gắn với học (D4)
+- [ ] Ghép trận cấp ±1 + LP; đối thủ luyện tập; bảo vệ người mới
+- [ ] LP, 6 bậc, mùa 4 tuần, reset mềm
+- [ ] Thưởng trận, rương tuần, thưởng mùa (Gem, mảnh đá, vé gacha, đồ trang trí mùa)
+- [ ] Cỏ ba lá, mời bạn vào Đấu trường, nhiệm vụ Đấu trường
+- [ ] Chống lạm dụng (2 trận tính thưởng/ngày với cùng đối thủ)
+- [ ] Mùa 0 thử nghiệm 2 tuần
+
+**Tiêu chí xong**
+- [ ] Sữa Đấu trường ≈ 10–20% Sữa từ học trên dữ liệu thử
+
+## GĐ6 — Lõi gacha + thiệp mời + quay khởi đầu
+- [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; rà `activePetId = 'cowdi_1'`
+- [ ] Lõi gacha server: RNG an toàn, tỉ lệ theo config, lịch sử 100 lượt, công khai tỉ lệ
+- [ ] Thiệp mời chỉ cho người mới; màn chọn Cowdi / quay pet khởi đầu (D7)
+- [ ] Bảng `invites`: `starter_choice`, `starter_species`, `gift_card_id`
+
+**Tiêu chí xong**
+- [ ] Người mới qua thiệp nhận đúng pet theo lựa chọn; không tạo nhầm Cowdi; tài khoản cũ không nhận được thiệp
+
+## GĐ7 — Gacha đầy đủ
+- [ ] Vé gacha 50 Gem mua lẻ; nguồn vé miễn phí
+- [ ] Bể gacha thường (D5), không bảo hiểm
+- [ ] Banner 3 tuần + pet giới hạn đầu tiên + nhiệm vụ sự kiện 15 bài
+- [ ] Thẻ tặng pet qua `InviteSheet` (D6); bảng `pet_gift_cards`
+- [ ] Bụi sao và cửa hàng Bụi sao
+
+**Tiêu chí xong**
+- [ ] Mô phỏng 100 000 lượt ra đúng tỉ lệ; thẻ tặng chỉ người mới nhận được
+
+## GĐ8 — Thanh toán
+- [ ] Thiết kế chi tiết Thẻ mùa (30 tầng, điểm mùa) và Thẻ tháng
+- [ ] Chốt gói Gem
+- [ ] Tích hợp cổng thanh toán; ledger `purchase`; hoàn tiền; chống gian lận
+- [ ] Giới hạn chi tiêu theo tháng cho tài khoản nhỏ tuổi
+- [ ] Công khai tỉ lệ gacha và điều khoản mua
+
+## GĐ9 — Theo dõi & điều chỉnh
+- [ ] Dashboard/truy vấn cho các chỉ số trong quy trình (thời gian học/bài, tỉ lệ unit 100%, Sữa Đấu trường, khế ước, phân bố bậc, lượt gacha trước khi trúng, giữ chân ngày 7)
+
+---
+
+## Vấn đề đang chặn
+| Ngày | GĐ | Vấn đề | Cần ai quyết | Trạng thái |
+|---|---|---|---|---|
+| | | | | |
+
+## Nhật ký
+> Claude Code thêm 1 dòng mỗi khi xong một việc hoặc kết thúc phiên. Mới nhất ở trên cùng.
+
+| Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
+|---|---|---|---|---|
+| 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | — | Đã cập nhật sổ đăng ký |
+| 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | — | Đồng bộ tài liệu thiết kế v2 |
+| 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | — | Làm từ claude.ai, chưa commit git |
+| 2026-11-23 | 0 | Tạo TASK.md, quy trình, prompt; chép đề xuất vào `docs/04-design/economy-v2/` | — | Làm từ claude.ai, chưa commit git |

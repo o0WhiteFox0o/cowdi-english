@@ -17,6 +17,9 @@ Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · C�
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | LOG | **Nhật ký tiến trình dự án** | [LOG-PROGRESS.md](../01-project-management/LOG-PROGRESS.md) | sống | Approved | (mới) |
+| TASK | **File theo dõi tiến độ Kinh tế v2** | [TASK.md](../../TASK.md) | sống | Approved | — |
+| PROC | **Quy trình & thứ tự triển khai Kinh tế v2** | [QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md](../01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md) | sống | Approved | — |
+| PROMP | Hướng dẫn prompt Kinh tế v2 | [PROMPT-CLAUDE-CODE-KINH-TE-V2.md](../01-project-management/PROMPT-CLAUDE-CODE-KINH-TE-V2.md) | sống | Approved | — |
 | SPMP | Kế hoạch triển khai Kinh tế & Nuôi pet | [SPMP-ECONOMY-PET-v1.0.md](../01-project-management/SPMP-ECONOMY-PET-v1.0.md) | 1.0 | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | IMPLEMENT-COWDI-PLAN-V1.0.md |
 | SCMP | Kế hoạch quản lý cấu hình | [SCMP-COWDI-v0.1.md](../01-project-management/SCMP-COWDI-v0.1.md) | 0.1 | Draft (rỗng) | — |
 | STRAT | Chiến lược tăng người dùng qua chia sẻ | [STRAT-GROWTH-v1.0.md](../01-project-management/STRAT-GROWTH-v1.0.md) | 1.0 | Approved | GROWTH-STRATEGY-2026-05.md |
@@ -42,6 +45,7 @@ Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · C�
 | SDD | **Kinh tế & Chiến đấu v2.1 — nguồn sự thật hiện hành** | [SDD-ECONOMY-BATTLE-v2.1.md](../04-design/SDD-ECONOMY-BATTLE-v2.1.md) | 2.1 | Approved | ECONOMY-BATTLE-V2-IMPLEMENTATION.md |
 | SDD | Đặc tả chiến đấu pet v2 (tài liệu nguồn) | [SDD-PET-BATTLE-SPEC-v2.0.docx](../04-design/SDD-PET-BATTLE-SPEC-v2.0.docx) | 2.0 | Superseded bởi v2.1 khi mâu thuẫn | docs/Dac-ta-chien-dau-pet-Cowdi-v2.docx |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
+| ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
 | WRD | Sơ đồ quan hệ web & phân hệ | [WRD-COWDI-v1.0.md](../04-design/WRD-COWDI-v1.0.md) | 1.0 | Approved | WEB-RELATIONSHIP-DIAGRAM-v1.0.md |
 | SDD | Game design nuôi pet | [SDD-GAME-PET-v1.0.md](../04-design/SDD-GAME-PET-v1.0.md) | 1.0 | Superseded một phần (tiến hoá, chỉ số) | GAME-DESIGN.md |
 | SDD | Thiết kế lại XP | [SDD-XP-REDESIGN-v1.0.md](../04-design/SDD-XP-REDESIGN-v1.0.md) | 1.0 | Superseded một phần (ví XP → Sữa, cho pet ăn XP) | XP-REDESIGN-2026-05.md |
@@ -49,6 +53,12 @@ Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · C�
 | SDD | Gửi trứng pet cho bạn (Invite) | [SDD-INVITE-v1.0.md](../04-design/SDD-INVITE-v1.0.md) | 1.0 | Approved | INVITE-FEATURE-DESIGN.md |
 | SDD | Share không làm phiền | [SDD-SHARE-v1.0.md](../04-design/SDD-SHARE-v1.0.md) | 1.0 | Approved | SHARE-FEATURE-DESIGN.md |
 | SDD | Tương tác pet (roadmap) | [SDD-PET-INTERACTION-v1.0.md](../04-design/SDD-PET-INTERACTION-v1.0.md) · [PDF](../04-design/SDD-PET-INTERACTION-v1.0.pdf) | 1.0 | Approved | PET-INTERACTION-REDESIGN |
+| SDD | Kinh tế v2: Đề xuất vật phẩm cửa hàng (Giữ nhịp) | [de-xuat-vat-pham-cua-hang-v2.md](../04-design/economy-v2/de-xuat-vat-pham-cua-hang-v2.md) | 2.0 | Approved | — |
+| SDD | Kinh tế v2: Lộ trình kiếm tiền & gói trả phí | [lo-trinh-kiem-tien-v2.md](../04-design/economy-v2/lo-trinh-kiem-tien-v2.md) | 2.0 | Approved | — |
+| SDD | Kinh tế v2: Đề xuất trang trí nền & hào quang | [de-xuat-trang-tri-nen-hao-quang.md](../04-design/economy-v2/de-xuat-trang-tri-nen-hao-quang.md) | 2.0 | Approved | — |
+| SDD | Kinh tế v2: Đề xuất Đấu trường & quà tặng | [de-xuat-dau-truong-va-qua-tang.md](../04-design/economy-v2/de-xuat-dau-truong-va-qua-tang.md) | 2.0 | Approved | — |
+| SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.0 | Approved | — |
+| SPEC | Kinh tế v2: Lệnh mô phỏng cân bằng hệ tương khắc | [lenh-claude-code-2-can-bang-he-tuong-khac.md](../04-design/economy-v2/lenh-claude-code-2-can-bang-he-tuong-khac.md) | 2.0 | Approved | — |
 
 ## 05 — Triển khai mã
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
