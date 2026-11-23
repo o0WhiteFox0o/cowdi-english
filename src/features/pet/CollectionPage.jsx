@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { usePet } from '../../hooks/usePet';
@@ -172,7 +173,7 @@ export default function CollectionPage() {
                 </div>
               </div>
 
-              <div className="dex-badges">
+              <div className="dex-badges align-items-center">
                 <span className="dex-badge" style={{ background: ELEMENT_COLORS[sel.element]?.bg, color: ELEMENT_COLORS[sel.element]?.text }}>
                   <Icon name={ELEMENT_ICON[sel.element]} size={16} /> {elName(ELEMENT_COLORS[sel.element])}
                 </span>
@@ -180,6 +181,13 @@ export default function CollectionPage() {
                   <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
                 </span>
                 {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {computePowerScore(selOwned)}</span>}
+                <Link
+                  to="/shop?tab=cosmetics"
+                  className="dex-badge dex-badge-shop d-inline-flex align-items-center gap-1"
+                  title="Đến Cửa hàng sắm đồ trang trí cho pet"
+                >
+                  <Icon name="bag" size={14} /> Shop
+                </Link>
               </div>
 
               <p className="dex-desc">{sel.description}</p>

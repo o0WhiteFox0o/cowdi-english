@@ -417,6 +417,23 @@
   color: var(--orange-dark);
 }
 
+.dex-badge-shop {
+  background: #fff;
+  color: var(--leaf);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.dex-badge-shop:hover {
+  background: var(--leaf-pale, #e8f5e9);
+  color: var(--leaf);
+  transform: translateY(-1px);
+  border-color: var(--leaf);
+}
+
 .dex-desc {
   margin: 0;
   background: rgba(255, 255, 255, 0.92);
