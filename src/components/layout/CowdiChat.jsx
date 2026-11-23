@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePet } from '../../hooks/usePet';
 import { PET_REGISTRY, getPetMood, getPetMessage, getEvolutionInfo } from '../../data/pets';
+import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import Emoji, { EmojiText } from '../Emoji';
 
 // ── Snap positions (% of viewport, stored as {x,y} in px) ──
@@ -57,7 +58,19 @@ export default function CowdiChat() {
   }, [location.pathname]);
 
   const btnRef    = useRef(null);
+  const chatPetRef = useRef(null);
   const dragState = useRef(null); // { startX, startY, origX, origY }
+
+  // Phát sự kiện pet_speak_start / pet_speak_end theo trạng thái bong bóng chat
+  useEffect(() => {
+    if (open && msg) {
+      chatPetRef.current?.emit('pet_speak_start', { text: msg });
+      chatPetRef.current?.setVoiceLevel(0.65);
+    } else {
+      chatPetRef.current?.setVoiceLevel(0);
+      chatPetRef.current?.emit('pet_speak_end');
+    }
+  }, [open, msg]);
 
   // Only enable drag on touch devices or narrow screens
   const isMobile = () => window.innerWidth < 992;
@@ -207,8 +220,20 @@ export default function CowdiChat() {
         onClick={handleDesktopClick}
         title={`Chat với ${species?.name || 'Cowdi'}`}
       >
-        {petImage ? (
-          <img src={petImage} alt={species?.name || 'Cowdi'} className="cowdi-chat-img" />
+        {pet ? (
+          <PetAvatar
+            ref={chatPetRef}
+            petId={pet.speciesId}
+            stage={(pet.evolution || 0) + 1}
+            group={species?.group}
+            bond={bondOf(pet.skills)}
+            topSkill={topSkillOf(pet.skills)}
+            mode="home"
+            fallbackSrc={petImage || undefined}
+            alt={species?.name || 'Cowdi'}
+            className="cowdi-chat-img"
+            imgClassName="cowdi-chat-img"
+          />
         ) : (
           <Emoji e={petEmoji} size={34} />
         )}

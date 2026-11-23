@@ -255,9 +255,10 @@ export const PET_BATTLE_DATA = deepFreeze({
   storm:    { element: 'thunder', group: 'sky', rarity: 'epic',    evolveReq: { c4: [60, 150, 60, 250],  c5: [150, 400, 150, 600] } },
   sparky:   { element: 'fire',    group: 'dragon', rarity: 'rare', evolveReq: { c4: [60, 250, 60, 150],  c5: [150, 600, 150, 400] } },
   draco:    { element: 'fire',    group: 'dragon', rarity: 'legendary', evolveReq: { c4: [150, 250, 60, 60],  c5: [400, 600, 150, 150] } },
-  pumpkin:  { element: 'dark',    group: 'spirit', rarity: 'event', evolveReq: { c4: [60, 60, 150, 250],  c5: [150, 150, 400, 600] } },
-  monk:     { element: 'light',   group: 'spirit', rarity: 'event', evolveReq: { c4: [150, 60, 250, 60],  c5: [400, 150, 600, 150] } },
-  prisma:   { element: 'light',   group: 'spirit', rarity: 'legendary', evolveReq: { c4: [250, 60, 150, 60],  c5: [600, 150, 400, 150] } },
+  pumpkin:       { element: 'dark',    group: 'spirit', rarity: 'event', evolveReq: { c4: [60, 60, 150, 250],  c5: [150, 150, 400, 600] } },
+  monk:          { element: 'light',   group: 'spirit', rarity: 'event', evolveReq: { c4: [150, 60, 250, 60],  c5: [400, 150, 600, 150] } },
+  prisma:        { element: 'light',   group: 'spirit', rarity: 'legendary', evolveReq: { c4: [250, 60, 150, 60],  c5: [600, 150, 400, 150] } },
+  bamboo_spirit: { element: 'wood',    group: 'spirit', rarity: 'epic', evolveReq: { c4: [150, 250, 60, 60],  c5: [400, 600, 150, 150] } },
 });
 
 // Gợi ý 4.3 — power score cho leaderboard (Phase 2 mới dùng).

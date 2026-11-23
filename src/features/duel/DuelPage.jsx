@@ -6,6 +6,7 @@ import { usePet } from '../../hooks/usePet';
 import { useUser } from '../../hooks/useUser';
 import { generateDuelQuiz } from '../../data/quiz/duel-quiz-pool';
 import { PET_REGISTRY, getEvolutionInfo, ELEMENT_COLORS } from '../../data/pets';
+import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import Icon from '../../components/Icon';
@@ -161,6 +162,10 @@ export default function DuelPage() {
   const [challengerNick, setChallengerNick] = useState(null); // challenger's nickname (when accepting)
   const [challengerTotalTime, setChallengerTotalTime] = useState(null); // challenger's total time (seconds)
   const battleAnimTimeoutRef = useRef(null);
+  const myPetRef = useRef(null);
+  const oppPetRef = useRef(null);
+  const resultMyPetRef = useRef(null);
+  const resultOppPetRef = useRef(null);
 
   // Result state
   const [result, setResult] = useState(null);
@@ -217,6 +222,21 @@ export default function DuelPage() {
     }
   }, [mode]);
 
+  // Phát sự kiện battle_start khi vào đấu và battle_win / battle_lose khi có kết quả
+  useEffect(() => {
+    if (mode === 'creating' || mode === 'playing') {
+      myPetRef.current?.emit('battle_start');
+      oppPetRef.current?.emit('battle_start');
+    } else if (mode === 'result' && result) {
+      if (result.mode === 'created') {
+        resultMyPetRef.current?.emit(result.score >= result.total / 2 ? 'battle_win' : 'battle_start');
+      } else {
+        resultMyPetRef.current?.emit(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
+        resultOppPetRef.current?.emit(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
+      }
+    }
+  }, [mode, result]);
+
   // ── Open setup screen to configure a new duel ──────────────
   function openSetup() {
     play('click');
@@ -264,6 +284,7 @@ export default function DuelPage() {
     setOpponentPet({
       speciesId: randKey,
       evolution: 2,
+      group: randSpecies?.group || 'farm',
       name: randSpecies?.name || 'Đối thủ',
       emoji: randSpecies?.emoji || '🐾',
       image: randImg,
@@ -275,12 +296,14 @@ export default function DuelPage() {
   // ── Get my pet element ────────────────────────────────────
   const myPetInfo = useMemo(() => {
     const pet = petData.collection[petData.activePetId];
-    if (!pet) return { emoji: '🐮', element: 'neutral', speciesId: null, evolution: 0 };
+    if (!pet) return { emoji: '🐮', element: 'neutral', group: 'farm', skills: {}, speciesId: null, evolution: 0 };
     const species = PET_REGISTRY[pet.speciesId];
     const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
     return {
       emoji: evo?.emoji || species?.emoji || '🐮',
       element: species?.element || 'neutral',
+      group: species?.group || 'farm',
+      skills: pet.skills || {},
       speciesId: pet.speciesId,
       evolution: pet.evolution || 0,
       name: pet.customName || species?.name || 'Pet',
@@ -329,9 +352,11 @@ export default function DuelPage() {
     if (myPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-mine');
+        myPetRef.current?.emit(isCritical ? 'battle_crit' : 'battle_attack');
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-opponent');
+          oppPetRef.current?.emit('battle_hit');
           setEffectClass(`effect-${myElement}`);
           const dmg = isCritical ? critDmg : baseDmg;
           if (isCritical) {
@@ -355,9 +380,11 @@ export default function DuelPage() {
     if (oppPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-opponent');
+        oppPetRef.current?.emit(oppCritical ? 'battle_crit' : 'battle_attack');
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-mine');
+          myPetRef.current?.emit('battle_hit');
           setEffectClass(`effect-${oppElement}`);
           const oppDmg = oppCritical ? critDmg : baseDmg;
           if (oppCritical) {
@@ -377,8 +404,10 @@ export default function DuelPage() {
       });
     }
 
-    // If neither attacks (shouldn't happen often), just advance
+    // If neither attacks (both missed), emit battle_dodge before advancing
     if (sequence.length === 0) {
+      myPetRef.current?.emit('battle_dodge');
+      oppPetRef.current?.emit('battle_dodge');
       callback();
       return;
     }
@@ -546,13 +575,14 @@ export default function DuelPage() {
           setOpponentPet({
             speciesId: data.challengerPet.speciesId,
             evolution: data.challengerPet.evolution || 0,
+            group: cSpecies?.group || 'farm',
             name: data.challengerPet.customName || cSpecies?.name || 'Đối thủ',
             emoji: cSpecies?.emoji || '🐾',
             image: cImg,
             element: cSpecies?.element || 'neutral',
           });
         } else {
-          setOpponentPet({ speciesId: null, evolution: 0, name: 'Đối thủ', emoji: '🐾', image: null, element: 'neutral' });
+          setOpponentPet({ speciesId: null, evolution: 0, group: 'farm', name: 'Đối thủ', emoji: '🐾', image: null, element: 'neutral' });
         }
         setMode('playing');
       } else {
@@ -781,8 +811,18 @@ export default function DuelPage() {
             battleAnim === 'damage-mine' ? 'anim-damage' :
             myHp <= 0 ? 'anim-faint' : ''
           }`}>
-            {myPetImage ? (
-              <img src={myPetImage} alt={myPetInfo.name} />
+            {myPetInfo.speciesId ? (
+              <PetAvatar
+                ref={myPetRef}
+                petId={myPetInfo.speciesId}
+                stage={(myPetInfo.evolution || 0) + 1}
+                group={myPetInfo.group}
+                bond={bondOf(myPetInfo.skills)}
+                topSkill={topSkillOf(myPetInfo.skills)}
+                mode="battle"
+                fallbackSrc={myPetImage || undefined}
+                alt={myPetInfo.name}
+              />
             ) : (
               <div className="pet-emoji-lg emoji-big"><Emoji e={myPetInfo.emoji} size={96} /></div>
             )}
@@ -794,8 +834,16 @@ export default function DuelPage() {
             battleAnim === 'damage-opponent' ? 'anim-damage' :
             opponentHp <= 0 ? 'anim-faint' : ''
           }`}>
-            {opponentPet?.image ? (
-              <img src={opponentPet.image} alt={opponentPet.name} />
+            {opponentPet?.speciesId ? (
+              <PetAvatar
+                ref={oppPetRef}
+                petId={opponentPet.speciesId}
+                stage={(opponentPet.evolution || 0) + 1}
+                group={opponentPet.group}
+                mode="battle"
+                fallbackSrc={opponentPet.image || undefined}
+                alt={opponentPet.name}
+              />
             ) : (
               <div className="pet-emoji-lg emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={96} /></div>
             )}
@@ -892,9 +940,20 @@ export default function DuelPage() {
           <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
             <div className="card-body">
               {/* Battle Pet Display */}
-              <div className="mb-2">
-                {myPetImage ? (
-                  <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 80, maxHeight: 80, objectFit: 'contain' }} />
+              <div className="mb-2 d-flex justify-content-center">
+                {myPetInfo.speciesId ? (
+                  <PetAvatar
+                    ref={resultMyPetRef}
+                    petId={myPetInfo.speciesId}
+                    stage={(myPetInfo.evolution || 0) + 1}
+                    group={myPetInfo.group}
+                    bond={bondOf(myPetInfo.skills)}
+                    topSkill={topSkillOf(myPetInfo.skills)}
+                    mode="battle"
+                    fallbackSrc={myPetImage || undefined}
+                    alt={myPetInfo.name}
+                    style={{ width: 88, maxWidth: 88, maxHeight: 96 }}
+                  />
                 ) : (
                   <div className="fs-1 emoji-big"><Emoji e={myPetInfo.emoji} size={44} /></div>
                 )}
@@ -942,9 +1001,20 @@ export default function DuelPage() {
         <div className="d-flex justify-content-center align-items-center gap-3 my-4">
           {/* My pet */}
           <div className="text-center">
-            <div className="mb-1">
-              {myPetImage ? (
-                <img src={myPetImage} alt={myPetInfo.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
+            <div className="mb-1 d-flex justify-content-center">
+              {myPetInfo.speciesId ? (
+                <PetAvatar
+                  ref={resultMyPetRef}
+                  petId={myPetInfo.speciesId}
+                  stage={(myPetInfo.evolution || 0) + 1}
+                  group={myPetInfo.group}
+                  bond={bondOf(myPetInfo.skills)}
+                  topSkill={topSkillOf(myPetInfo.skills)}
+                  mode="battle"
+                  fallbackSrc={myPetImage || undefined}
+                  alt={myPetInfo.name}
+                  style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
+                />
               ) : (
                 <div className="fs-2 emoji-big"><Emoji e={myPetInfo.emoji} size={36} /></div>
               )}
@@ -964,9 +1034,18 @@ export default function DuelPage() {
 
           {/* Opponent pet */}
           <div className="text-center">
-            <div className="mb-1">
-              {opponentPet?.image ? (
-                <img src={opponentPet.image} alt={opponentPet.name} style={{ maxWidth: 70, maxHeight: 70, objectFit: 'contain' }} />
+            <div className="mb-1 d-flex justify-content-center">
+              {opponentPet?.speciesId ? (
+                <PetAvatar
+                  ref={resultOppPetRef}
+                  petId={opponentPet.speciesId}
+                  stage={(opponentPet.evolution || 0) + 1}
+                  group={opponentPet.group}
+                  mode="battle"
+                  fallbackSrc={opponentPet.image || undefined}
+                  alt={opponentPet.name}
+                  style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
+                />
               ) : (
                 <div className="fs-2 emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={36} /></div>
               )}

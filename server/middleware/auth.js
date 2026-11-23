@@ -3,47 +3,56 @@ import jwt from 'jsonwebtoken';
 import pool from '../config/database.js';
 
 /**
- * Middleware xác thực JWT từ header Authorization: Bearer <token>
+ * Tạo middleware xác thực JWT từ header Authorization: Bearer <token>
  * Gắn req.user = { id, email, display_name, avatar_url, is_admin }
  */
-export function requireAuth(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Token không hợp lệ hoặc thiếu.' });
-  }
+export function createRequireAuth({ onHeartbeat = _runHeartbeat } = {}) {
+  return function requireAuthMiddleware(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Token không hợp lệ hoặc thiếu.' });
+    }
 
-  const token = authHeader.slice(7);
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = payload;
-    _runHeartbeat(payload.id);
-    next();
-  } catch {
-    return res.status(401).json({ error: 'Token hết hạn hoặc không hợp lệ.' });
-  }
+    const token = authHeader.slice(7);
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = payload;
+      if (onHeartbeat) onHeartbeat(payload.id);
+      next();
+    } catch {
+      return res.status(401).json({ error: 'Token hết hạn hoặc không hợp lệ.' });
+    }
+  };
 }
+
+export const requireAuth = createRequireAuth();
 
 /**
- * Middleware chỉ cho phép admin (chạy SAU requireAuth).
+ * Tạo middleware chỉ cho phép admin (chạy SAU requireAuth).
  * Đọc lại is_admin từ DB để tránh JWT cũ bị stale.
  */
-export async function requireAdmin(req, res, next) {
-  if (!req.user?.id) return res.status(401).json({ error: 'Chưa xác thực.' });
-  try {
-    const [[row]] = await pool.execute(
-      'SELECT is_admin FROM users WHERE id = ?',
-      [req.user.id]
-    );
-    if (!row || !row.is_admin) {
-      return res.status(403).json({ error: 'Không có quyền truy cập.' });
+export function createRequireAdmin(db = pool) {
+  return async function requireAdminMiddleware(req, res, next) {
+    if (!req.user?.id) return res.status(401).json({ error: 'Chưa xác thực.' });
+    try {
+      const [[row]] = await db.execute(
+        'SELECT is_admin FROM users WHERE id = ?',
+        [req.user.id]
+      );
+      if (!row || !row.is_admin) {
+        return res.status(403).json({ error: 'Không có quyền truy cập.' });
+      }
+      req.user.is_admin = 1;
+      req.user.isAdmin = true;
+      next();
+    } catch (err) {
+      console.error('requireAdmin error:', err);
+      res.status(500).json({ error: 'Lỗi kiểm tra quyền.' });
     }
-    req.user.is_admin = 1;
-    next();
-  } catch (err) {
-    console.error('requireAdmin error:', err);
-    res.status(500).json({ error: 'Lỗi kiểm tra quyền.' });
-  }
+  };
 }
+
+export const requireAdmin = createRequireAdmin(pool);
 
 // In-memory throttle: { userId: lastTimestamp }
 const _hbCache = new Map();

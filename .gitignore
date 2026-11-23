@@ -33,6 +33,10 @@ DEPLOY-AAPANEL.html
 # Database & dump files (NEVER commit database)
 database/
 *.sql
+!server/db/*.sql
+
+# Server uploaded media (NEVER commit or overwrite on deploy)
+server/storage/
 
 # Archives
 *.zip

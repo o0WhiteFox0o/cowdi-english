@@ -73,7 +73,7 @@ const MOBILE_MENUS = {
 
 export default function BookShell({ children }) {
   const { userData } = useUser();
-  const { user, loginWithGoogle } = useAuth();
+  const { user, isAdmin, loginWithGoogle } = useAuth();
   const { petData, getActivePetWithDecay } = usePet();
   const { muted, toggleMute } = useSound();
   const { pathname } = useLocation();
@@ -198,12 +198,19 @@ export default function BookShell({ children }) {
                       </NavLink>
                     </li>
                   ))}
-                  {group.label?.includes('Sổ tay') && user?.is_admin && (
-                    <li>
-                      <NavLink to="/admin" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
-                        <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
-                      </NavLink>
-                    </li>
+                  {group.label?.includes('Sổ tay') && isAdmin && (
+                    <>
+                      <li>
+                        <NavLink to="/admin" end className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
+                          <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/admin/pet-motion" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#2F9E4F' }}>
+                          <span className="book-tab-icon">{renderTabIcon('PET', 22)}</span><span>Chỉnh động tác pet</span>
+                        </NavLink>
+                      </li>
+                    </>
                   )}
                   {group.label?.includes('Sổ tay') && (
                     <li>
@@ -282,7 +289,15 @@ export default function BookShell({ children }) {
       <nav className="book-bottom-nav" aria-label="Điều hướng di động" ref={popupRef}>
         {openTab && MOBILE_MENUS[openTab] && (
           <div className="bottom-popup-menu">
-            {MOBILE_MENUS[openTab].map((item) => (
+            {[
+              ...MOBILE_MENUS[openTab],
+              ...(openTab === 'me' && isAdmin
+                ? [
+                    { icon: 'wrench', label: 'Quản trị', path: '/admin' },
+                    { icon: 'PET', label: 'Chỉnh động tác pet', path: '/admin/pet-motion' },
+                  ]
+                : []),
+            ].map((item) => (
               <button
                 key={item.path || item.action}
                 type="button"

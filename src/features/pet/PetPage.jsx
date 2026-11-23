@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { Link } from 'react-router-dom';
@@ -11,6 +11,7 @@ import {
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
 import { CURRENCIES } from '../../../shared/game-config.js';
+import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../../components/Icon';
@@ -23,6 +24,7 @@ export default function PetPage() {
   const showToast = useToast();
   const [renaming, setRenaming] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const petAvatarRef = useRef(null);
 
   // Evolution animation flow:
   //  evoEvent = { stage: 'animation' | 'result', oldEvo, newEvo, petName }
@@ -65,6 +67,31 @@ export default function PetPage() {
     SHOP_ITEMS.filter((i) => i.category === 'food' && petData.ownedItems.includes(i.id)),
   [petData.ownedItems]);
 
+  // Phát sự kiện tiến hoá khi cấp tiến hoá của pet tăng hoặc animation tiến hoá kích hoạt
+  const prevEvoRef = useRef(activePet?.evolution);
+  useEffect(() => {
+    if (!activePet) return;
+    if (prevEvoRef.current != null && activePet.evolution > prevEvoRef.current) {
+      petAvatarRef.current?.emit('evolve_ok', { stage: activePet.evolution + 1 });
+    }
+    prevEvoRef.current = activePet.evolution;
+  }, [activePet?.evolution]);
+
+  useEffect(() => {
+    if (evoEvent?.stage === 'animation' && evoEvent.newEvo) {
+      const nextStage = (evoEvent.newEvo.stage ?? (activePet?.evolution || 0)) + 1;
+      petAvatarRef.current?.emit('evolve_ok', { stage: nextStage });
+    }
+  }, [evoEvent]);
+
+  function handleFeedFood(item) {
+    if (!item || !activePet) return;
+    if (useFood(item.id)) {
+      petAvatarRef.current?.emit('feed');
+      showToast(`${activePet.customName} rất thích ${item.name}!`, 'success');
+    }
+  }
+
   if (!activePet || !species) {
     return (
       <div className="text-center py-5 fade-in">
@@ -106,18 +133,20 @@ export default function PetPage() {
             <div className="pet-hat-img"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji || ''} size={42} /></div>
           )}
 
-          {/* Pet Image or Emoji */}
+          {/* Pet Avatar (live rig nếu đã duyệt, ảnh tĩnh nếu chưa duyệt) */}
           <div className="pet-image-wrapper">
-            {evolution?.image ? (
-              <img
-                src={evolution.image}
-                alt={evolution.name}
-                className="pet-character-img"
-                draggable={false}
-              />
-            ) : (
-              <div className="pet-emoji-fallback emoji-big"><Emoji e={evolution?.emoji || species.emoji} size={110} /></div>
-            )}
+            <PetAvatar
+              ref={petAvatarRef}
+              petId={activePet.speciesId}
+              stage={(activePet.evolution || 0) + 1}
+              group={species.group}
+              bond={bondOf(activePet.skills)}
+              topSkill={topSkillOf(activePet.skills)}
+              mode="home"
+              fallbackSrc={evolution?.image}
+              alt={evolution?.name || activePet.customName}
+              className="pet-character-img"
+            />
           </div>
 
           {/* Outfit */}
@@ -227,6 +256,20 @@ export default function PetPage() {
             </div>
           ))}
         </div>
+        {ownedFood.length > 0 && (
+          <div className="d-flex flex-wrap gap-2 mt-3 pt-2 border-top">
+            {ownedFood.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="btn btn-sm btn-outline-cowdi d-inline-flex align-items-center gap-1"
+                onClick={() => handleFeedFood(item)}
+              >
+                <Emoji e={item.emoji} size={16} /> Cho ăn {item.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Skills */}
