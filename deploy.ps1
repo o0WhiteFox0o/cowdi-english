@@ -32,8 +32,14 @@ New-Item -ItemType Directory -Path $deployDir | Out-Null
 # Copy dist-prod contents (frontend) → root of deploy folder
 Copy-Item "$root\dist-prod\*" -Destination $deployDir -Recurse
 
-# Copy server directory
+# Copy server directory (KHÔNG đóng gói server/storage/ để tránh ghi đè dữ liệu ảnh đã upload trên production)
 Copy-Item "$root\server" -Destination "$deployDir\server" -Recurse
+$stagedStorage = Join-Path $deployDir "server\storage"
+if (Test-Path $stagedStorage) { Remove-Item $stagedStorage -Recurse -Force }
+$stagedNodeModules = Join-Path $deployDir "server\node_modules"
+if (Test-Path $stagedNodeModules) { Remove-Item $stagedNodeModules -Recurse -Force }
+$stagedEnv = Join-Path $deployDir "server\.env"
+if (Test-Path $stagedEnv) { Remove-Item $stagedEnv -Force }
 
 # Copy shared/ (game-config + battle-engine) cùng cấp với server/,
 # để server import được '../shared/...'. Không chứa bí mật; bỏ file test.

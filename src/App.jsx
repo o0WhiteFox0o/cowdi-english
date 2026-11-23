@@ -4,6 +4,7 @@ import BookShell from './components/layout/BookShell';
 import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import RequireAdmin from './components/RequireAdmin';
 import { SoundProvider } from './hooks/useSound';
 import LearningPathPage from './pages/LearningPathPage';
 
@@ -26,6 +27,7 @@ const DuelPage            = lazy(() => import('./pages/DuelPage'));
 const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
 const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage'));
+const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
 
@@ -83,6 +85,7 @@ export default function App() {
             <Route path="/student-ranking" element={<StudentRankingPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/images" element={<AdminImageManagerPage />} />
+            <Route path="/admin/pet-motion" element={<RequireAdmin><PetMotionPage /></RequireAdmin>} />
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />

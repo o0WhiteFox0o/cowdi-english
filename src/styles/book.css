@@ -2513,6 +2513,10 @@ hr {
   filter: drop-shadow(0 6px 12px rgba(40, 26, 14, 0.12));
   transition: transform 0.3s ease;
 }
+canvas.dash-hero-mascot-img {
+  width: 120px;
+  height: auto;
+}
 .dash-hero-mascot-img:hover {
   transform: scale(1.06) rotate(3deg);
 }
@@ -2766,8 +2770,8 @@ hr {
 }
 .dash-pet-avatar-wrap {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2777,6 +2781,11 @@ hr {
   width: 110px;
   height: 110px;
   object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(40, 26, 14, 0.12));
+}
+.dash-pet-avatar-wrap canvas {
+  width: 132px;
+  height: auto;
   filter: drop-shadow(0 6px 14px rgba(40, 26, 14, 0.12));
 }
 .dash-pet-name {

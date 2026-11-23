@@ -1,0 +1,38 @@
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),S=Math.sin,TAU=Math.PI*2;
+const keysF=(k,p)=>{const n=k.length-1,x=clamp(p,0,1)*n,i=Math.min(Math.floor(x),n-1),t=(1-Math.cos((x-i)*Math.PI))/2;return k[i]+(k[i+1]-k[i])*t};
+const mic=.6,voice=.6;
+export const SRC={
+ idle:[3,1,(p,A)=>({sy:1+.022*A*S(TAU*p),sx:1-.012*A*S(TAU*p),crown:4*A*S(TAU*p+.6),cskew:.05*A*S(TAU*p+.3),armL:5*S(TAU*p),armR:5*S(TAU*p+1)})],
+ look_around:[2.2,0,(p,A)=>({lookX:keysF([0,-1,-1,0,1,1,0],p),rot:keysF([0,-2,-2,0,2,2,0],p)*A,crown:keysF([0,5,4,0,-5,-4,0],p)*A})],
+ fidget:[2.6,0,(p,A)=>({sy:keysF([1,.94,1.1,1.1,1.06,1],p),sx:keysF([1,1.05,.95,.95,.97,1],p),armL:keysF([0,-10,70,75,40,0],p),armR:keysF([0,-10,70,75,40,0],p),eyes:p>.25&&p<.8?'closed':'open',crown:10*A*S(TAU*2*p)})],
+ sleepy:[4,1,(p,A)=>({eyes:'half',sy:.97+.02*S(TAU*p),crown:-8+3*S(TAU*p),cskew:-.06,armL:-5,armR:-5,lookY:.4})],
+ sleep:[4,1,(p,A)=>({eyes:'closed',sy:.95+.035*S(TAU*p),sx:1.02-.015*S(TAU*p),crown:-12+2*S(TAU*p),cskew:-.08,armL:-8,armR:-8})],
+ wake_up:[1.1,0,(p,A)=>({sy:keysF([.95,.9,1.12,1],p),sx:keysF([1.03,1.06,.94,1],p),armL:keysF([0,0,70,0],p),armR:keysF([0,0,70,0],p),eyes:p<.5?'closed':'open',crown:keysF([-12,-12,10,0],p)})],
+ attentive:[2.4,1,(p,A)=>({rot:-3*A,sy:1.015+.015*A*S(TAU*p),crown:3*A*S(TAU*p),cskew:-.04,lookY:.55,lookX:-.25,armL:8,armR:8})],
+ think:[3,1,(p,A)=>({rot:4*A+1.5*S(TAU*p),lookX:.6,lookY:-.9,armR:55+5*S(TAU*2*p),crown:5*S(TAU*p)})],
+ cheer_small:[.6,0,(p,A)=>({dy:-.09*A*S(Math.PI*clamp(p*1.5,0,1)),sy:keysF([1,.88,1.1,.95,1],p),sx:keysF([1,1.08,.94,1.03,1],p),eyes:'happy',mouth:.7,crown:keysF([0,-8,12,-4,0],p)*A,armL:keysF([0,0,60,20,0],p),armR:keysF([0,0,60,20,0],p)})],
+ cheer_big:[1.3,0,(p,A)=>({dy:-.3*A*S(Math.PI*clamp((p-.15)/.6,0,1)),sy:keysF([1,.82,1.15,1.05,1.05,.88,1],p),sx:keysF([1,1.12,.92,.97,.97,1.1,1],p),rot:keysF([0,0,-8,8,-6,0,0],p)*A,eyes:'happy',mouth:1,armL:keysF([0,0,85,85,85,30,0],p),armR:keysF([0,0,85,85,85,30,0],p),crown:15*A*S(TAU*3*p)})],
+ dance:[1.8,1,(p,A)=>({dx:.08*S(TAU*2*p),rot:9*S(TAU*2*p)*A,dy:-.05*Math.abs(S(TAU*4*p))*A,eyes:'happy',mouth:.6,armL:50+30*S(TAU*4*p),armR:50-30*S(TAU*4*p),crown:14*S(TAU*2*p+1)})],
+ encourage:[.9,0,(p,A)=>({rot:keysF([0,7,7,7,0],p),sy:keysF([1,1,.95,1,.96,1,1],p),lookX:-.1,lookY:0,armR:keysF([0,40,55,55,0],p),crown:keysF([0,6,3,6,0],p),mouth:keysF([0,0,.35,.35,0],p)})],
+ listen:[1,1,(p,A)=>({crown:-6+10*mic*(.7+.3*S(TAU*p)),cskew:-.08,sy:1+.05*mic*A*(.6+.4*S(TAU*2*p)),lookY:-.2,armL:10+30*mic,armR:10+30*mic})],
+ talk:[1,1,(p,A)=>({mouth:.3+.6*Math.abs(S(TAU*3*p)),sy:1+.02*Math.abs(S(TAU*3*p)),crown:4*voice*S(TAU*2*p),lookY:.1})],
+ tap_head:[.55,0,(p,A)=>({sy:keysF([1,.86,1.06,1],p),sx:keysF([1,1.1,.97,1],p),eyes:'happy',mouth:.4,crown:keysF([0,-15,10,0],p)})],
+ tap_body:[.55,0,(p,A)=>({rot:8*S(TAU*2.5*p)*(1-p),eyes:'happy',mouth:.6,armL:30,armR:30})],
+ dizzy:[1.3,0,(p,A)=>({rot:10*S(TAU*3*p)*(1-p*.6),dx:.03*S(TAU*3*p+1),eyes:'spiral',crown:15*S(TAU*3*p)})],
+ wave:[1.1,0,(p,A)=>({armR:p<.9?60+30*S(TAU*3*p):0,rot:-3,eyes:'happy',mouth:.4,crown:4*S(TAU*2*p)})],
+ eat:[1.3,0,(p,A)=>({sy:1-.06*Math.abs(S(TAU*3*p)),sx:1+.04*Math.abs(S(TAU*3*p)),mouth:p>.2?Math.abs(S(TAU*3*p)):0,eyes:p>.25?'happy':'open',armL:p<.3?60:20,armR:p<.3?60:20})],
+ greet_return:[1.6,0,(p,A)=>({dy:-.12*A*Math.abs(S(TAU*2*clamp(p/.6,0,1)))*(p<.6?1:0),eyes:'happy',mouth:.8,armR:p>.5?60+30*S(TAU*3*p):40,armL:40,crown:10*S(TAU*2*p)})],
+ proud:[1.5,0,(p,A)=>({sx:p>.2&&p<.7?1.04*Math.cos(TAU*(p-.2)/.5):1.04,sy:1.05,eyes:'happy',mouth:.3,dy:-.04*S(Math.PI*p),armL:30,armR:30})],
+ evolve:[3,0,(p,A)=>({sx:p>.25&&p<.75?Math.cos(TAU*2*(p-.25)/.5):1,dy:-.1*S(Math.PI*p),glow:S(Math.PI*p),eyes:p>.75?'happy':'closed',sy:1+.05*S(Math.PI*p)})],
+ prop_listening:[2,1,(p,A)=>{const b=S(TAU*p);return {rot:4*b,sy:1+.02*Math.abs(b),eyes:'closed',crown:6*b,armL:5,armR:5}}],
+ prop_speaking:[2,1,(p,A)=>{const b=S(TAU*p);return {mouth:.3+.3*Math.abs(S(TAU*3*p)),sy:1+.015*b,crown:4*b,eyes:'happy'}}],
+ prop_reading:[2,1,(p,A)=>{const b=S(TAU*p);return {lookY:.8,lookX:.1*b,armL:45,armR:45,rot:-2,crown:3*b,sy:1+.01*b}}],
+ prop_writing:[2,1,(p,A)=>{const b=S(TAU*p);return {armR:40+20*S(TAU*2*p),lookX:.7,lookY:.3,crown:3*b}}],
+ battle_ready:[1.5,1,(p,A)=>({sy:1+.03*S(TAU*p),rot:-4,armL:30,armR:30,crown:4*S(TAU*p),glow:.25+.1*S(TAU*p)})],
+ attack:[.7,0,(p,A)=>({dx:keysF([0,-.05,-.06,.14,.1,0],p),rot:keysF([0,-6,-8,12,6,0],p),sx:keysF([1,.95,.94,1.08,1.03,1],p),armR:keysF([0,40,70,-20,0,0],p),eyes:'open'})],
+ crit:[.9,0,(p,A)=>({dx:keysF([0,-.07,-.08,.18,.12,0],p),rot:keysF([0,-8,-10,15,8,0],p),sx:keysF([1,.92,.9,1.12,1.04,1],p),armR:keysF([0,60,85,-30,0,0],p),glow:keysF([0,.3,.6,1,.4,0],p),eyes:'wide'})],
+ dodge:[.5,0,(p,A)=>({dx:keysF([0,-.18,-.2,-.1,0],p),rot:keysF([0,-12,-10,-4,0],p),eyes:'wide'})],
+ hit:[.5,0,(p,A)=>({dx:keysF([0,.08,-.04,.02,0],p),rot:keysF([0,8,4,1,0],p),eyes:p<.6?'closed':'open',sy:keysF([1,.94,1,1,1],p)})],
+ win:[1.5,0,(p,A)=>({dy:-.2*S(Math.PI*clamp(p/.6,0,1)),eyes:'happy',mouth:.9,armL:80,armR:80,crown:12*S(TAU*2*p),glow:.5*S(Math.PI*p)})],
+ lose_proud:[1.5,0,(p,A)=>({sy:keysF([1,.9,.9,1.02,1],p),rot:keysF([0,6,6,-2,0],p),eyes:p<.4?'closed':'open',armR:keysF([0,0,0,70,40],p),mouth:keysF([0,0,0,.4,.3],p)})]
+};

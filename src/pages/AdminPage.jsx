@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { useAuth } from '../hooks/useAuth';
@@ -101,6 +101,11 @@ export default function AdminPage() {
             >
               <i className="fas fa-images me-2"></i>Quản lý & Đổi file ảnh
             </button>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link fw-bold px-3 py-2 text-dark" to="/admin/pet-motion">
+              <i className="fas fa-film me-2"></i>Chỉnh động tác pet
+            </Link>
           </li>
         </ul>
         <span className="badge bg-secondary-subtle text-secondary px-2 py-1 rounded-pill small">

@@ -5,7 +5,8 @@ import { SEO_CONFIGS } from '../../data/seo-config';
 import { QUIZ_BANK, LESSONS } from '../../data/lessons';
 import { getAllTopicWords } from '../../data/vocab-topics';
 import { LISTEN_SENTENCE_TOPICS, getListenTopic } from '../../data/quiz/sentences-quiz';
-import { SKILL_GROUPS, QUIZ_TO_SKILL } from '../../data/pets';
+import { SKILL_GROUPS, QUIZ_TO_SKILL, PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
+import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { useToast } from '../../components/layout/Toast';
@@ -371,9 +372,31 @@ function useSpeechRec() {
 export default function PracticePage() {
   useSEO(SEO_CONFIGS['/practice']);
   const { addXP, addSkillXP, incrementQuizzes } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
+  const { getActivePetWithDecay, onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();
+  const petRef = useRef(null);
+  const streakRef = useRef(0);
+
+  const activePet = getActivePetWithDecay();
+  const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
+  const petName = activePet?.customName || petSpecies?.name || 'Cowdi';
+
+  const emitPetAnswer = useCallback((isCorrect) => {
+    if (isCorrect) {
+      streakRef.current += 1;
+      const c = streakRef.current;
+      if (c === 3 || c === 5 || (c >= 10 && c % 5 === 0)) {
+        petRef.current?.emit('streak', { count: c });
+      } else {
+        petRef.current?.emit('answer_correct');
+      }
+    } else {
+      streakRef.current = 0;
+      petRef.current?.emit('answer_wrong');
+    }
+  }, []);
 
   const [quizType, setQuizType] = useState(null);
   const [searchParams] = useSearchParams();
@@ -486,9 +509,72 @@ export default function PracticePage() {
       const u = new SpeechSynthesisUtterance(clean);
       u.lang = 'en-US';
       u.rate = 0.8;
+      u.onstart = () => {
+        petRef.current?.emit('pet_speak_start', { text: clean });
+        petRef.current?.setVoiceLevel(0.7);
+      };
+      const done = () => {
+        petRef.current?.setVoiceLevel(0);
+        petRef.current?.emit('pet_speak_end');
+      };
+      u.onend = done;
+      u.onerror = done;
       speechSynthesis.speak(u);
     }
   }, []);
+
+  // Sự kiện pet: vào bài luyện tập & hoàn thành bài
+  useEffect(() => {
+    if (!quizType) return;
+    if (!finished) {
+      streakRef.current = 0;
+      petRef.current?.emit('lesson_start');
+    } else {
+      petRef.current?.emit('lesson_done', { text: 'Hoàn thành luyện tập!' });
+    }
+  }, [quizType, finished]);
+
+  // Sự kiện pet: sang câu hỏi mới (mọi chế độ luyện tập)
+  useEffect(() => {
+    if (quizType && !finished) {
+      petRef.current?.emit('question_shown');
+    }
+  }, [quizType, finished, qIndex, dictIdx, fillIdx, reorderIdx, dynIdx, wgIdx, tfIdx, wbIdx, twIdx, spkIdx, matchRound]);
+
+  // Sự kiện pet: bật / tắt mic khi luyện nói
+  useEffect(() => {
+    if (!speechRec.listening) {
+      petRef.current?.setMicLevel(0);
+      petRef.current?.emit('mic_end');
+      return;
+    }
+    petRef.current?.emit('mic_start');
+    const iv = setInterval(() => {
+      petRef.current?.setMicLevel(0.25 + Math.random() * 0.55);
+    }, 120);
+    return () => {
+      clearInterval(iv);
+      petRef.current?.setMicLevel(0);
+    };
+  }, [speechRec.listening]);
+
+  // Sự kiện pet: lên cấp kỹ năng sau onQuizComplete
+  const prevSkillLvlsRef = useRef(null);
+  useEffect(() => {
+    const s = activePet?.skills;
+    if (!s) return;
+    const cur = {
+      listening: getSkillLevel(s.listening || 0),
+      speaking: getSkillLevel(s.speaking || 0),
+      reading: getSkillLevel(s.reading || 0),
+      writing: getSkillLevel(s.writing || 0),
+    };
+    if (prevSkillLvlsRef.current) {
+      const leveledUp = Object.keys(cur).some((k) => cur[k] > prevSkillLvlsRef.current[k]);
+      if (leveledUp) petRef.current?.emit('skill_level_up');
+    }
+    prevSkillLvlsRef.current = cur;
+  }, [activePet?.skills]);
 
   // Auto-play sentence when listenSentence question changes
   useEffect(() => {
@@ -693,11 +779,13 @@ export default function PracticePage() {
         setSpkResult({ correct, transcript, ratio });
         if (correct) { setSpkScore((s) => s + 1); play('correct'); }
         else play('wrong');
+        emitPetAnswer(correct);
       },
       () => {
         clearTimeout(spkTimerRef.current);
         setSpkResult((prev) => prev || { correct: false, transcript: '', ratio: 0 });
         play('wrong');
+        emitPetAnswer(false);
       }
     );
   }
@@ -746,7 +834,9 @@ export default function PracticePage() {
     if (answered !== null) return;
     setAnswered(idx);
     const q = questions[qIndex];
-    if (idx === q.correct) { setScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    const ok = idx === q.correct;
+    if (ok) { setScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(ok);
 
     setTimeout(() => {
       if (qIndex + 1 < questions.length) {
@@ -776,6 +866,7 @@ export default function PracticePage() {
     const correct = dictInput.trim().toLowerCase() === q.word.toLowerCase();
     setDictChecked(correct);
     if (correct) { setDictScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
 
   function nextDictation() {
@@ -807,6 +898,7 @@ export default function PracticePage() {
     const correct = fillInput.trim().toLowerCase() === q.answer.toLowerCase();
     setFillChecked(correct);
     if (correct) { setFillScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
 
   function nextFillIn() {
@@ -855,6 +947,7 @@ export default function PracticePage() {
     const correct = reorderSelected.join(' ') === q.correctOrder.join(' ');
     setReorderChecked(correct);
     if (correct) { setReorderScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
 
   function nextReorder() {
@@ -899,6 +992,7 @@ export default function PracticePage() {
     const q = dynQs[dynIdx];
     const isCorrect = idx === q.correct;
     if (isCorrect) { setDynScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(isCorrect);
 
     setTimeout(() => {
       if (dynIdx + 1 < dynQs.length) {
@@ -929,6 +1023,7 @@ export default function PracticePage() {
     const correct = wgInput.trim().toLowerCase() === q.word.toLowerCase();
     setWgChecked(correct);
     if (correct) { setWgScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
   function nextWordGuess() {
     if (wgIdx + 1 < wgQs.length) {
@@ -956,6 +1051,7 @@ export default function PracticePage() {
     const isCorrect = answer === q.isTrue;
     setTfPicked(answer);
     if (isCorrect) { setTfScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(isCorrect);
 
     setTimeout(() => {
       if (tfIdx + 1 < tfQs.length) {
@@ -999,6 +1095,7 @@ export default function PracticePage() {
     const correct = wbSelected.join('').toLowerCase() === q.word.toLowerCase();
     setWbChecked(correct);
     if (correct) { setWbScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
   function nextWordBuild() {
     if (wbIdx + 1 < wbQs.length) {
@@ -1030,6 +1127,7 @@ export default function PracticePage() {
     const correct = userText === answerText;
     setTwChecked(correct);
     if (correct) { setTwScore((s) => s + 1); play('correct'); } else { play('wrong'); }
+    emitPetAnswer(correct);
   }
   function nextTranslateWrite() {
     if (twIdx + 1 < twQs.length) {
@@ -1060,6 +1158,7 @@ export default function PracticePage() {
       if (next.en === next.vi) {
         // Correct pair
         play('correct');
+        emitPetAnswer(true);
         setMatchPaired((prev) => [...prev, next.en]);
         setMatchScore((s) => s + 1);
         setMatchSelected({ en: null, vi: null });
@@ -1092,6 +1191,7 @@ export default function PracticePage() {
       } else {
         // Wrong pair
         play('wrong');
+        emitPetAnswer(false);
         setMatchWrong(true);
         setTimeout(() => {
           setMatchSelected({ en: null, vi: null });
@@ -1359,10 +1459,37 @@ export default function PracticePage() {
     );
   }
 
+  /* ── Pet companion dock (giữ mount xuyên suốt mọi chế độ luyện tập và màn kết quả) ── */
+  const petDock = activePet ? (
+    <div className="study-pet-dock" style={{ maxWidth: 700, margin: '0 auto 14px' }}>
+      <div className="study-pet-avatar">
+        <PetAvatar
+          ref={petRef}
+          petId={activePet.speciesId}
+          stage={(activePet.evolution || 0) + 1}
+          group={petSpecies?.group}
+          bond={bondOf(activePet.skills)}
+          topSkill={topSkillOf(activePet.skills)}
+          mode={finished ? 'home' : 'lesson'}
+          fallbackSrc={petEvo?.image}
+          alt={petName}
+        />
+      </div>
+      <div className="study-pet-meta">
+        <div className="study-pet-name">{petName} đang cổ vũ bạn!</div>
+        <div className="study-pet-hint">
+          {finished
+            ? `Hoàn thành ${TYPE_LABELS[quizType]?.title || 'bài luyện tập'}!`
+            : TYPE_LABELS[quizType]?.title || 'Đang luyện tập'}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   /* ══════════════════════════════════════════
-     FINISHED (shared for all types)
-     FINISHED (shared for all types)
+     FINISHED & ACTIVE PRACTICE MODES
      ══════════════════════════════════════════ */
+  const renderPracticeBody = () => {
   if (finished) {
     const DYN_MCQ_TYPES = ['listenPick', 'listenSentence', 'speedRound', 'contextClue'];
     const SPK_TYPES = ['speakWord', 'speakSentence', 'readAloud', 'speakFast'];
@@ -2131,6 +2258,14 @@ export default function PracticePage() {
         })}
       </div>
     </div>
+  );
+  };
+
+  return (
+    <>
+      {petDock}
+      {renderPracticeBody()}
+    </>
   );
 }
 

@@ -24,6 +24,8 @@ function loadStepDone(lessonId) {
 }
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
+import { PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
+import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 
@@ -470,12 +472,34 @@ export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { userData, addXP, addSkillXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus, refreshWallet } = useUser();
-  const { onLessonComplete } = usePet();
+  const { getActivePetWithDecay, onLessonComplete } = usePet();
   const showToast = useToast();
   const { play } = useSound();
   const lesson = ALL_LESSONS.find((l) => l.id === id);
 
   const confettiRef = useRef(null);
+  const petRef = useRef(null);
+  const streakRef = useRef(0);
+
+  const activePet = getActivePetWithDecay();
+  const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
+  const petName = activePet?.customName || petSpecies?.name || 'Cowdi';
+
+  const emitPetAnswer = useCallback((isCorrect) => {
+    if (isCorrect) {
+      streakRef.current += 1;
+      const c = streakRef.current;
+      if (c === 3 || c === 5 || (c >= 10 && c % 5 === 0)) {
+        petRef.current?.emit('streak', { count: c });
+      } else {
+        petRef.current?.emit('answer_correct');
+      }
+    } else {
+      streakRef.current = 0;
+      petRef.current?.emit('answer_wrong');
+    }
+  }, []);
 
   // Steps: vocab → flashcard → grammar → reading → listen → speak → quiz
   const [tab, setTab] = useState('vocab');
@@ -557,9 +581,15 @@ export default function LessonDetailPage() {
           });
         }
         setIsRecording(false);
-        if (result.score >= 70) play('correct');
-        else if (result.score >= 40) play('click');
-        else play('wrong');
+        if (result.score >= 70) {
+          play('correct');
+          emitPetAnswer(true);
+        } else if (result.score >= 40) {
+          play('click');
+        } else {
+          play('wrong');
+          emitPetAnswer(false);
+        }
       }
     };
     recognition.onerror = (event) => {
@@ -574,7 +604,7 @@ export default function LessonDetailPage() {
     };
     recognition.onend = () => setIsRecording(false);
     recognition.start();
-  }, [play]);
+  }, [play, emitPetAnswer]);
 
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
@@ -586,6 +616,11 @@ export default function LessonDetailPage() {
   const speakWord = useCallback((text, rate = 0.8, opts = {}) => {
     if (!('speechSynthesis' in window) || !text) return Promise.resolve();
     return new Promise((resolve) => {
+      const done = () => {
+        petRef.current?.setVoiceLevel(0);
+        petRef.current?.emit('pet_speak_end');
+        resolve();
+      };
       try {
         speechSynthesis.cancel();
         // Làm sạch: bỏ chú thích trong ngoặc, đổi ___ và / thành dấu phẩy
@@ -597,13 +632,16 @@ export default function LessonDetailPage() {
           .trim();
         if (!cleaned) { resolve(); return; }
 
+        petRef.current?.emit('pet_speak_start', { text: cleaned });
+        petRef.current?.setVoiceLevel(0.7);
+
         // Nếu caller chỉ định lang → dùng luôn (1 utterance)
         if (opts.lang) {
           const u = new SpeechSynthesisUtterance(cleaned);
           u.lang = opts.lang;
           u.rate = rate;
-          u.onend = () => resolve();
-          u.onerror = () => resolve();
+          u.onend = done;
+          u.onerror = done;
           speechSynthesis.speak(u);
           return;
         }
@@ -628,10 +666,10 @@ export default function LessonDetailPage() {
         const queue = segs
           .map((s) => ({ ...s, text: s.text.trim() }))
           .filter((s) => s.text && /[\p{L}\p{N}]/u.test(s.text));
-        if (queue.length === 0) { resolve(); return; }
+        if (queue.length === 0) { done(); return; }
 
         const speakNext = (i) => {
-          if (i >= queue.length) { resolve(); return; }
+          if (i >= queue.length) { done(); return; }
           const { lang, text: t } = queue[i];
           const u = new SpeechSynthesisUtterance(t);
           u.lang = lang;
@@ -642,7 +680,7 @@ export default function LessonDetailPage() {
         };
         speakNext(0);
       } catch {
-        resolve();
+        done();
       }
     });
   }, []);
@@ -683,6 +721,66 @@ export default function LessonDetailPage() {
   useEffect(() => { if (listenDone) markStep('listen'); }, [listenDone, markStep]);
   useEffect(() => { if (speakDone) markStep('speak'); }, [speakDone, markStep]);
   useEffect(() => { if (finished) markStep('quiz'); }, [finished, markStep]);
+
+  // Sự kiện pet: vào bài học
+  useEffect(() => {
+    streakRef.current = 0;
+    petRef.current?.emit('lesson_start');
+  }, [id]);
+
+  // Sự kiện pet: hiện câu hỏi mới (quiz / nghe câu / nói theo)
+  useEffect(() => {
+    if (quizMode && !finished) {
+      petRef.current?.emit('question_shown');
+    }
+  }, [quizMode, qIndex, finished]);
+
+  useEffect(() => {
+    if (tab === 'listen' && listenQs.length > 0 && !listenDone) {
+      petRef.current?.emit('question_shown');
+    }
+  }, [tab, listenIdx, listenQs.length, listenDone]);
+
+  useEffect(() => {
+    if (tab === 'speak' && !speakDone) {
+      petRef.current?.emit('question_shown');
+    }
+  }, [tab, speakIdx, speakDone]);
+
+  // Sự kiện pet: bật / tắt mic khi luyện nói
+  useEffect(() => {
+    if (!isRecording) {
+      petRef.current?.setMicLevel(0);
+      petRef.current?.emit('mic_end');
+      return;
+    }
+    petRef.current?.emit('mic_start');
+    const iv = setInterval(() => {
+      petRef.current?.setMicLevel(0.25 + Math.random() * 0.55);
+    }, 120);
+    return () => {
+      clearInterval(iv);
+      petRef.current?.setMicLevel(0);
+    };
+  }, [isRecording]);
+
+  // Sự kiện pet: lên cấp kỹ năng
+  const prevSkillLvlsRef = useRef(null);
+  useEffect(() => {
+    const s = activePet?.skills;
+    if (!s) return;
+    const cur = {
+      listening: getSkillLevel(s.listening || 0),
+      speaking: getSkillLevel(s.speaking || 0),
+      reading: getSkillLevel(s.reading || 0),
+      writing: getSkillLevel(s.writing || 0),
+    };
+    if (prevSkillLvlsRef.current) {
+      const leveledUp = Object.keys(cur).some((k) => cur[k] > prevSkillLvlsRef.current[k]);
+      if (leveledUp) petRef.current?.emit('skill_level_up');
+    }
+    prevSkillLvlsRef.current = cur;
+  }, [activePet?.skills]);
 
   if (!lesson) {
     return (
@@ -805,18 +903,22 @@ export default function LessonDetailPage() {
     setListenPicked(null);
     setListenScore(0);
     setListenDone(false);
+    streakRef.current = 0;
+    petRef.current?.emit('lesson_start');
   }
 
   function handleListenPick(i) {
     if (listenPicked !== null) return;
     setListenPicked(i);
     const q = listenQs[listenIdx];
-    if (i === q.correct) {
+    const ok = i === q.correct;
+    if (ok) {
       setListenScore((s) => s + 1);
       play('correct');
     } else {
       play('wrong');
     }
+    emitPetAnswer(ok);
   }
 
   function handleListenNext() {
@@ -832,6 +934,7 @@ export default function LessonDetailPage() {
       addXP(xp);
       addSkillXP('listening', xp);
       play('celebration');
+      petRef.current?.emit('lesson_done', { text: 'Nghe giỏi lắm!' });
       showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} XP 🎧`, 'success');
     }
   }
@@ -852,6 +955,7 @@ export default function LessonDetailPage() {
     speakAwardedRef.current = true;
     setSpeakDone(true);
     play('celebration');
+    petRef.current?.emit('lesson_done', { text: 'Phát âm tuyệt lắm!' });
     showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} XP, +${xp} điểm Speaking`, 'success');
   }
 
@@ -902,6 +1006,7 @@ export default function LessonDetailPage() {
       play('wrong');
       setTimeout(() => setWrongAnim(false), 500);
     }
+    emitPetAnswer(isCorrect);
 
     // 🔊 Khi trả lời ĐÚNG → đọc xác nhận đáp án (giọng tự detect EN/VN)
     //    rồi mới sang câu kế tiếp. Trả lời sai → giữ delay 1.2s như cũ.
@@ -937,6 +1042,7 @@ export default function LessonDetailPage() {
       incrementQuizzes(isPerfect);
       onLessonComplete();
       play('celebration');
+      petRef.current?.emit('lesson_done', { text: isPerfect ? 'Trọn điểm xuất sắc!' : 'Hoàn thành bài học!' });
       spawnConfetti(confettiRef);
 
       // Cập nhật số dư thực nhận từ server
@@ -973,6 +1079,8 @@ export default function LessonDetailPage() {
     setFinished(false);
     setCorrectAnim(false);
     setWrongAnim(false);
+    streakRef.current = 0;
+    petRef.current?.emit('lesson_start');
   }
 
   /* ── Flashcard helpers ── */
@@ -999,9 +1107,43 @@ export default function LessonDetailPage() {
     });
   }
 
+  /* ── Pet companion dock (giữ mount xuyên suốt giữa bài học, quiz và kết quả) ── */
+  const petDock = activePet ? (
+    <div className="study-pet-dock" style={quizMode ? { maxWidth: 680, margin: '0 auto 14px' } : undefined}>
+      <div className="study-pet-avatar">
+        <PetAvatar
+          ref={petRef}
+          petId={activePet.speciesId}
+          stage={(activePet.evolution || 0) + 1}
+          group={petSpecies?.group}
+          bond={bondOf(activePet.skills)}
+          topSkill={topSkillOf(activePet.skills)}
+          mode={finished ? 'home' : 'lesson'}
+          fallbackSrc={petEvo?.image}
+          alt={petName}
+        />
+      </div>
+      <div className="study-pet-meta">
+        <div className="study-pet-name">{petName} đang học cùng bạn</div>
+        <div className="study-pet-hint">
+          {quizMode && finished
+            ? 'Tuyệt vời! Bạn vừa hoàn thành bài kiểm tra.'
+            : quizMode
+              ? 'Tập trung trả lời nhé — trả lời đúng liên tiếp để nhận cổ vũ!'
+              : tab === 'speak'
+                ? 'Nhấn micro để đọc to — pet sẽ lắng nghe cùng bạn.'
+                : tab === 'listen'
+                  ? 'Lắng nghe thật kỹ và chọn nghĩa đúng nhé!'
+                  : `Bài: ${lesson.title}`}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   /* ══════════════════════════════════════════
-     QUIZ RESULT SCREEN
+     QUIZ RESULT / QUIZ / MAIN LESSON VIEW
      ══════════════════════════════════════════ */
+  const renderLessonBody = () => {
   if (quizMode && finished) {
     const pct = Math.round((score / quiz.length) * 100);
     return (
@@ -1856,6 +1998,14 @@ export default function LessonDetailPage() {
         </div>
       )}
     </div>
+  );
+  };
+
+  return (
+    <>
+      {petDock}
+      {renderLessonBody()}
+    </>
   );
 }
 

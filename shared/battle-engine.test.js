@@ -372,9 +372,9 @@ describe('5.1/5.5/5.6 — mô phỏng trận', () => {
 
 // ---------------------------------------------------------------
 describe('dữ liệu config', () => {
-  test('22 pet đủ hệ/nhóm/evolveReq hợp lệ; C5 ≥ C4', () => {
+  test('23 pet đủ hệ/nhóm/evolveReq hợp lệ; C5 ≥ C4', () => {
     const ids = Object.keys(PET_BATTLE_DATA);
-    assert.equal(ids.length, 22);
+    assert.equal(ids.length, 23);
     for (const id of ids) {
       const p = PET_BATTLE_DATA[id];
       assert.ok(ELEMENTS[p.element], `${id} element`);

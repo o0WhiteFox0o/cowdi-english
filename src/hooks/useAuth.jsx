@@ -34,7 +34,9 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(loadToken);
-  const user = token ? parseJwt(token) : null;
+  const rawUser = token ? parseJwt(token) : null;
+  const isAdmin = Boolean(rawUser?.is_admin || rawUser?.isAdmin);
+  const user = rawUser ? { ...rawUser, isAdmin } : null;
 
   const saveToken = useCallback((newToken) => {
     localStorage.setItem(JWT_KEY, newToken);
@@ -72,7 +74,7 @@ export function AuthProvider({ children }) {
   );
 
   return (
-    <AuthContext.Provider value={{ user, token, loginWithGoogle, logout, saveToken, authFetch }}>
+    <AuthContext.Provider value={{ user, isAdmin, token, loginWithGoogle, logout, saveToken, authFetch }}>
       {children}
     </AuthContext.Provider>
   );

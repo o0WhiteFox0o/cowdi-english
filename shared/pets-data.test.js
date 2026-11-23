@@ -18,9 +18,10 @@ const TABLE_5_7 = {
   mimi: ['wind', 'sky', 'rare'], owlbert: ['wind', 'sky', 'rare'], storm: ['thunder', 'sky', 'epic'],
   sparky: ['fire', 'dragon', 'rare'], draco: ['fire', 'dragon', 'legendary'],
   pumpkin: ['dark', 'spirit', 'event'], monk: ['light', 'spirit', 'event'], prisma: ['light', 'spirit', 'legendary'],
+  bamboo_spirit: ['wood', 'spirit', 'epic'],
 };
 
-test('22 pet: hệ, nhóm, độ hiếm khớp bảng 5.7', () => {
+test('23 pet: hệ, nhóm, độ hiếm khớp bảng 5.7 + bamboo_spirit', () => {
   assert.deepEqual(Object.keys(PET_REGISTRY).sort(), Object.keys(TABLE_5_7).sort());
   for (const [id, [element, group, rarity]] of Object.entries(TABLE_5_7)) {
     const sp = PET_REGISTRY[id];

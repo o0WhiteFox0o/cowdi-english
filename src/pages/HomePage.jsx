@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useSEO } from '../hooks/useSEO';
 import { SEO_CONFIGS } from '../data/seo-config';
 import { Link } from 'react-router-dom';
@@ -8,9 +8,17 @@ import { usePet } from '../hooks/usePet';
 import { LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
 import { PET_REGISTRY, getEvolutionInfo, getPetMood } from '../data/pets';
+import { PetAvatar, bondOf, topSkillOf } from '../pet-rig/PetAvatar';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
+
+function calcDaysAway(lastDateStr) {
+  if (!lastDateStr) return 0;
+  const t = new Date(lastDateStr).getTime();
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, Math.floor((Date.now() - t) / 86400000));
+}
 
 const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const NEED_META = {
@@ -51,6 +59,18 @@ export default function HomePage() {
   const petName = activePet?.customName || species?.name || 'Cowdi';
   const petImg = evo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
   const mood = activePet ? getPetMood(activePet.needs) : 'happy';
+
+  const heroPetRef = useRef(null);
+  const cardPetRef = useRef(null);
+  const appOpenSentRef = useRef(false);
+
+  useEffect(() => {
+    if (appOpenSentRef.current || !activePet?.speciesId) return;
+    appOpenSentRef.current = true;
+    const daysAway = calcDaysAway(userData.lastActiveDate || activePet.needsUpdatedAt);
+    heroPetRef.current?.emit('app_open', { daysAway });
+    cardPetRef.current?.emit('app_open', { daysAway });
+  }, [activePet?.speciesId, activePet?.needsUpdatedAt, userData.lastActiveDate]);
 
   const completed = userData.completedLessons || [];
   const pathInfo = getPathProgress(getPathById('general'), userData);
@@ -215,7 +235,18 @@ export default function HomePage() {
         </div>
 
         <div className="dash-hero-mascot-box">
-          <img src={petImg} alt={petName} className="dash-hero-mascot-img" />
+          <PetAvatar
+            ref={heroPetRef}
+            petId={activePet?.speciesId}
+            stage={(activePet?.evolution || 0) + 1}
+            group={species?.group}
+            bond={bondOf(activePet?.skills)}
+            topSkill={topSkillOf(activePet?.skills)}
+            mode="home"
+            fallbackSrc={petImg}
+            alt={petName}
+            className="dash-hero-mascot-img"
+          />
           <span className="dash-hero-mood-tag">
             <Emoji e={evo?.emoji || species?.emoji || '🐮'} size={14} /> {petName} {MOOD_LABEL[mood] || 'đang vui'}
           </span>
@@ -326,7 +357,17 @@ export default function HomePage() {
         <div className="dash-column">
           <section className="dash-card dash-pet-card" aria-label="Bạn đồng hành Cowdi">
             <div className="dash-pet-avatar-wrap">
-              <img src={petImg} alt={petName} />
+              <PetAvatar
+                ref={cardPetRef}
+                petId={activePet?.speciesId}
+                stage={(activePet?.evolution || 0) + 1}
+                group={species?.group}
+                bond={bondOf(activePet?.skills)}
+                topSkill={topSkillOf(activePet?.skills)}
+                mode="home"
+                fallbackSrc={petImg}
+                alt={petName}
+              />
             </div>
             <h4 className="dash-pet-name">{petName}</h4>
             <div className="dash-pet-stage">

@@ -7,6 +7,9 @@ import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
 import shopRouter from './routes/shop.js';
 import adminRouter from './routes/admin.js';
+import { createPetMotionAdminRouter } from './routes/petMotionAdmin.js';
+import { createPetMotionPublicRouter } from './routes/petMotionPublic.js';
+import { createMotionCache } from './utils/petMotion.js';
 import invitesRouter from './routes/invites.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
@@ -45,11 +48,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ── Routes ───────────────────────────────────────────────────────────────────
+const petMotionCache = createMotionCache();
+const petMotionAdminRouter = createPetMotionAdminRouter({ motionCache: petMotionCache });
+const petMotionPublicRouter = createPetMotionPublicRouter({ motionCache: petMotionCache });
+
 app.use('/auth', authRouter);
 app.use('/api/invites', invitesRouter);
 app.use('/api/shop', shopRouter);
-app.use('/api',  apiRouter);
+app.use('/api/admin/pet-motion', petMotionAdminRouter);
+app.use('/api/pet-motion', petMotionPublicRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api',  apiRouter);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date() }));

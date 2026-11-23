@@ -18,7 +18,7 @@ router.get('/me', requireAuth, async (req, res) => {
       [req.user.id]
     );
     if (!user) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
-    res.json(user);
+    res.json({ ...user, isAdmin: Boolean(user.is_admin) });
   } catch (err) {
     console.error('GET /api/me error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
