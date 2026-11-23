@@ -25,7 +25,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
 | 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
 | 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
-| 3 | Cửa hàng Giữ nhịp | `[~]` | `feat/shop-streak` | |
+| 3 | Cửa hàng Giữ nhịp | `[x]` | `feat/shop-streak` | 2026-11-23 |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
@@ -51,6 +51,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | D10 | Đá nguyên tố: dùng chung 1 loại (chưa tách theo 10 hệ) | 23/11/2026 |
 | D11 | Hoàn thành 100% unit: toàn bộ bài học trong unit trọn điểm + kiểm tra cuối unit 100% (thưởng thêm 2 Gem) | 23/11/2026 |
 | D12 | Bỏ Coins hoàn toàn khỏi giao diện và kinh tế. Coins hiện có đổi 1 lần sang Sữa (1 coin = 3 Sữa, ledger reason 'coin_migration', an toàn chạy lại). Mọi thưởng coins chuyển sang Sữa (×3: nhiệm vụ ngày 30/75, perfect quiz 45, streak 60/150, thành tựu 90, nhiệm vụ tuần ×3). Duel bỏ thưởng coins, giữ Sữa điểm trận. Cửa hàng: giữ đồ đã mua, tạm ngừng bán mũ/áo/phòng/hiệu ứng/đồ ăn chờ GĐ3/GĐ4; bỏ 5 đồ ăn; bỏ gift_egg thay bằng nút Mời bạn miễn phí (InviteSheet). | 23/11/2026 |
+| D13 | Tặng 1 Khăn giữ lửa miễn phí khi đạt các mốc streak 7, 30, 100 ngày nếu số khăn trong kho chưa đủ 2 (tối đa 2 khăn). | 23/11/2026 |
 
 > Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
 
@@ -58,7 +59,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — chốt D9: đánh đủ 10 câu)
 - [x] Đá dùng chung hay tách theo 10 hệ? (GĐ1 — chốt D10: dùng chung)
 - [x] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1 — chốt D11)
-- [ ] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3)
+- [x] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3 — chốt D13: có tặng nếu kho < 2)
 - [x] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3 — chốt D12)
 - [ ] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4)
 - [ ] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5)
@@ -109,16 +110,16 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ## GĐ3 — Cửa hàng Giữ nhịp
 - [x] Bỏ Coins, đổi coins sang Sữa — 2026-11-23 · ac3b700
-- [~] Streak tính trên server theo múi giờ người dùng
-- [ ] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần)
-- [ ] Vé quay lại
-- [ ] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger)
-- [ ] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`)
-- [ ] Trang cửa hàng mới (tab Giữ nhịp)
+- [x] Streak tính trên server theo múi giờ người dùng — 2026-11-23 · 6adecd0
+- [x] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần) — 2026-11-23 · 6adecd0
+- [x] Vé quay lại — 2026-11-23 · 6adecd0
+- [x] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger) — 2026-11-23 · 6adecd0
+- [x] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`) — 2026-11-23 · 6adecd0
+- [x] Trang cửa hàng mới (tab Giữ nhịp) — 2026-11-23 · 6adecd0
 - [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
 
 **Tiêu chí xong**
-- [ ] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
+- [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
 
 ## GĐ4 — Đồ trang trí
 - [ ] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua
@@ -183,6 +184,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 3 | Hoàn thành GĐ3: Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi, streak server-side theo múi giờ, chốt D13) | 6adecd0 | 61 test pass, build pass |
 | 2026-11-23 | 3 | Bỏ hẳn Coins, thay bằng Sữa (x3) & Gem, migration DB, HUD 2 chip (Sữa/Gem), cập nhật Lộ trình, Cửa hàng & Bài học | ac3b700 | 53 test pass, build pass |
 | 2026-11-23 | 2 | Hoàn thành GĐ2: Mô phỏng 6 kịch bản cân bằng, xuất 6 CSV & BALANCE-REPORT-v2.md, cập nhật tài liệu tương khắc & 3 test hồi quy | 55841d7 | 48 test pass, build pass |
 | 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | 327d136 | 45 test pass, build pass |

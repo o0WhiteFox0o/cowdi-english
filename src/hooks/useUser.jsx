@@ -435,11 +435,12 @@ export function UserProvider({ children }) {
           pendingSyncRef.current = false;
           try {
             const res = await r.json();
-            if (res.wallet) {
+            if (res.wallet || res.streak != null || res.streakState) {
               setUserData((prev) => ({
                 ...prev,
-                wallet: res.wallet,
-                availableXP: res.wallet.milk,
+                ...(res.wallet ? { wallet: res.wallet, availableXP: res.wallet.milk } : {}),
+                ...(res.streak != null ? { streak: res.streak } : {}),
+                ...(res.streakState ? { streakState: res.streakState } : {}),
               }));
             }
           } catch {}
@@ -503,7 +504,13 @@ export function UserProvider({ children }) {
             final.dailyDate = today;
           }
         }
-        final.streak = calculateStreak(final.activeDays);
+        // Server streak ưu tiên nếu đăng nhập (GĐ3)
+        if (remote?.streak != null) {
+          final.streak = remote.streak;
+          if (remote.streakState) final.streakState = remote.streakState;
+        } else {
+          final.streak = calculateStreak(final.activeDays);
+        }
         setUserData(checkAchievements(final));
         readyRef.current = true;
       })

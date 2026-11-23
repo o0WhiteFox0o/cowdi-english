@@ -5,6 +5,7 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
+import shopRouter from './routes/shop.js';
 import adminRouter from './routes/admin.js';
 import invitesRouter from './routes/invites.js';
 import pool from './config/database.js';
@@ -46,6 +47,7 @@ app.use(passport.session());
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/auth', authRouter);
 app.use('/api/invites', invitesRouter);
+app.use('/api/shop', shopRouter);
 app.use('/api',  apiRouter);
 app.use('/api/admin', adminRouter);
 

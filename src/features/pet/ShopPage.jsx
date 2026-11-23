@@ -7,10 +7,12 @@ import { SHOP_ITEMS, PET_REGISTRY } from '../../data/pets';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import InviteSheet from '../invite/InviteSheet';
+import StreakShopSection from './StreakShopSection';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
 
 const CATEGORIES = [
+  { id: 'streak', icon: '🔥', label: 'Giữ nhịp' },
   { id: 'hat', icon: '🎩', label: 'Mũ' },
   { id: 'outfit', icon: '👔', label: 'Trang phục' },
   { id: 'room', icon: '🏠', label: 'Phòng' },
@@ -24,7 +26,7 @@ export default function ShopPage() {
   const { userData } = useUser();
   const showToast = useToast();
   const { play } = useSound();
-  const [category, setCategory] = useState('hat');
+  const [category, setCategory] = useState('streak');
   const [giftOpen, setGiftOpen] = useState(false);
 
   const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
@@ -95,13 +97,10 @@ export default function ShopPage() {
         ))}
       </div>
 
-      {/* Banner thông báo sắp có Giữ nhịp & Đồ trang trí mới */}
-      <div className="alert alert-info py-2 px-3 text-center mb-3">
-        ✨ <strong>Sắp có:</strong> Vật phẩm Giữ nhịp &amp; hệ thống đồ trang trí mới theo Kinh tế v2!
-      </div>
-
       {/* Items grid */}
-      {category === 'gift' ? (
+      {category === 'streak' ? (
+        <StreakShopSection />
+      ) : category === 'gift' ? (
         <div className="row justify-content-center">
           <div className="col-12 col-md-6 col-lg-5">
             <div className="card shadow-sm text-center border-success">
@@ -123,7 +122,11 @@ export default function ShopPage() {
           </div>
         </div>
       ) : (
-        <div className="row g-3">
+        <>
+          <div className="alert alert-secondary py-2 px-3 text-center mb-3 small">
+            🎨 Đang tạm dừng bán vật phẩm trang trí cũ để chuẩn bị hệ thống Đồ trang trí Kinh tế v2 (Giai đoạn 4). Đồ bạn đã mua vẫn trang bị và tháo được bình thường!
+          </div>
+          <div className="row g-3">
           {items.map((item) => {
             const owned = petData.ownedItems.includes(item.id);
             const isEquippable = ['hat', 'outfit', 'room', 'effect'].includes(item.category);
@@ -157,6 +160,7 @@ export default function ShopPage() {
             );
           })}
         </div>
+        </>
       )}
 
       {/* Cách kiếm Sữa & Gem v2 */}

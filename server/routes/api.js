@@ -6,6 +6,7 @@ import { pickPetIcon } from '../utils/pet-icon.js';
 import { PET_BATTLE_DATA } from '../../shared/game-config.js';
 import { computePowerScore, canEvolve, simulateBattle, canMatch, resolveSnapshot } from '../../shared/battle-engine.js';
 import { getWallet, grantLessonAndUnitRewards, exchangeStone, combineShards } from '../utils/wallet.js';
+import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 
 const router = express.Router();
 
@@ -49,12 +50,17 @@ router.get('/progress', requireAuth, async (req, res) => {
     // Lấy số dư ví server v2 (Sữa tính từ total_xp trừ ledger, Gem, Đá, Mảnh đá)
     const wallet = await getWallet(req.user.id);
 
+    // Lấy trạng thái Giữ nhịp & streak server-side (GĐ3)
+    const tz = req.headers['x-timezone'] || 'Asia/Ho_Chi_Minh';
+    const streakState = await getUserStreakState(req.user.id, tz);
+
     // Chuyển về camelCase để khớp với frontend userData
     res.json({
       totalXP:          row.total_xp,
       availableXP:      wallet.milk,
       wallet,
-      streak:           row.streak,
+      streak:           streakState ? streakState.currentStreak : row.streak,
+      streakState,
       lastActiveDate:   row.last_active_date,
       lessonsCompleted: row.lessons_completed,
       quizzesCompleted: row.quizzes_completed,
@@ -271,14 +277,40 @@ router.put('/progress', requireAuth, async (req, res) => {
     );
 
     // Cấp Gem và Đá nguyên tố theo mốc bài học và theo unit (D2, D11)
-    const wallet = await grantLessonAndUnitRewards(
+    let wallet = await grantLessonAndUnitRewards(
       req.user.id,
       rawCompleted,
       rawCheckpointScores,
       d.lessonScores || {}
     );
 
-    res.json({ ok: true, wallet });
+    // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày
+    const tz = req.headers['x-timezone'] || d.timezone || 'Asia/Ho_Chi_Minh';
+    const isLesson = (d.lessonsCompleted > 0) || (rawCompleted.length > 0);
+    const accuracy = Number(d.lastAccuracy) || 100;
+    const baseMilk = Number(d.lastMilkEarned) || 0;
+
+    const streakResult = await recordActivity(req.user.id, {
+      timezone: tz,
+      isLesson,
+      accuracy,
+      baseMilkEarned: baseMilk,
+    });
+
+    // Lấy lại ví mới nhất nếu có thưởng từ Đồng hồ hoặc Khế ước
+    if (streakResult.clockBonusMilk > 0 || streakResult.contractProgress?.status === 'completed') {
+      wallet = await getWallet(req.user.id);
+    }
+
+    const streakState = await getUserStreakState(req.user.id, tz);
+
+    res.json({
+      ok: true,
+      wallet,
+      streak: streakResult.currentStreak,
+      streakState,
+      streakResult,
+    });
   } catch (err) {
     console.error('PUT /api/progress error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
