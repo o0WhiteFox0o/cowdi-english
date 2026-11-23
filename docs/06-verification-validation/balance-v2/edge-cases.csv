@@ -1,0 +1,18 @@
+caseId,description,sideA,sideB,winRateA,avgDiff,note
+5a_leo_leafy_c3,Leo (Kim/Thú săn) vs Leafy (Mộc/Thảo mộc) C3,Leo C3,Leafy C3,0.9850,0.2046,Kim khắc Mộc
+5a_leo_leafy_c5,Leo (Kim/Thú săn) vs Leafy (Mộc/Thảo mộc) C5,Leo C5,Leafy C5,0.9644,0.1622,Kim khắc Mộc
+5b_storm_say1800,Storm C5 dồn Nói 1800 vs Cowdi C5 min,Storm (Nói 1800),Cowdi C5 min,0.9046,0.0988,Số câu hạ trung bình: N/A
+5b_storm_say6300,Storm C5 dồn Nói 6300 vs Cowdi C5 min,Storm (Nói 6300),Cowdi C5 min,1.0000,0.3940,Số câu hạ trung bình: 8.88
+5c_sky_vs_leafy,Zephyr (Bầu trời) vs leafy (Đọc 1800),Zephyr C5,leafy C5,0.0000,-0.1766,Bỏ qua 20% DEF
+5c_sky_vs_ginseng,Zephyr (Bầu trời) vs ginseng (Đọc 1800),Zephyr C5,ginseng C5,0.0083,-0.0870,Bỏ qua 20% DEF
+5c_sky_vs_monk,Zephyr (Bầu trời) vs monk (Đọc 1800),Zephyr C5,monk C5,0.0037,-0.1250,Bỏ qua 20% DEF
+5c_sky_vs_owlbert,Zephyr (Bầu trời) vs owlbert (Đọc 1800),Zephyr C5,owlbert C5,0.0000,-0.2062,Bỏ qua 20% DEF
+5c_sky_vs_nam_rom,Zephyr (Bầu trời) vs nam_rom (Đọc 1800),Zephyr C5,nam_rom C5,0.0000,-0.0939,Bỏ qua 20% DEF
+5d_farm_c5,Cowdi (Nông trại No nê) vs Neutral C5,Cowdi C5,Neutral C5,0.4938,-0.0007,Hồi 3% khi streak>=3
+5d_plant_c5,Leafy (Thảo mộc Bám rễ) vs Neutral C5,Leafy C5,Neutral C5,0.5468,0.0074,Giảm 30% khi HP<50%
+5e_bubbles_equal_agi,Bubbles (Biển/Thủy) vs Cowdi AGI bằng,Bubbles,Cowdi (AGI bằng),0.0184,-0.0483,Né đòn + crit
+5e_bubbles_lower_agi,Bubbles (Biển/Thủy) vs Storm AGI cao hơn,Bubbles,Storm (AGI cao),0.0536,-0.1143,Bị vượt tốc
+5f_aurelius_c1_vs_c1,Aurelius (Huyền thoại) C1 vs Cowdi C1,Aurelius C1,Cowdi C1,0.4838,0.0000,Chênh lệch starter gacha
+5f_aurelius_c1_vs_c2,Aurelius (Huyền thoại) C1 vs Cowdi C2,Aurelius C1,Cowdi C2,0.0000,-0.5377,Thử thách vượt cấp
+5f_jacko_c1_vs_c1,Jacko (Sự kiện) C1 vs Cowdi C1,Jacko C1,Cowdi C1,0.4986,0.0000,Chênh lệch starter gacha
+5f_jacko_c1_vs_c2,Jacko (Sự kiện) C1 vs Cowdi C2,Jacko C1,Cowdi C2,0.0000,-0.5376,Thử thách vượt cấp

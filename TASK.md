@@ -24,7 +24,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 |---|---|---|---|---|
 | 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
 | 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
-| 2 | Mô phỏng cân bằng | `[ ]` | `feat/balance-sim-v2` | |
+| 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
 | 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
@@ -99,12 +99,12 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] `npm run build` thành công
 
 ## GĐ2 — Mô phỏng cân bằng
-- [ ] `scripts/simulate-balance.js` gọi engine thật
-- [ ] Chạy 6 nhóm kịch bản trong lệnh 2 (kể cả pet Huyền thoại/Sự kiện C1)
-- [ ] Xuất CSV + `BALANCE-REPORT-v2.md`
-- [ ] Đề xuất chỉnh hằng số được duyệt và áp dụng
-- [ ] Test hồi quy cho kịch bản biên
-- [ ] (Thủ công) Cập nhật bảng cân bằng trên claude.ai
+- [x] `scripts/simulate-balance.js` gọi engine thật — 2026-11-23 · 55841d7
+- [x] Chạy 6 nhóm kịch bản trong lệnh 2 (kể cả pet Huyền thoại/Sự kiện C1) — 2026-11-23 · 55841d7
+- [x] Xuất CSV + `BALANCE-REPORT-v2.md` — 2026-11-23 · 55841d7
+- [x] Đề xuất chỉnh hằng số được duyệt và áp dụng — 2026-11-23 · 55841d7
+- [x] Test hồi quy cho kịch bản biên — 2026-11-23 · 55841d7
+- [x] (Thủ công) Cập nhật bảng cân bằng trên claude.ai — 2026-11-23 · 55841d7
 
 ## GĐ3 — Cửa hàng Giữ nhịp
 - [ ] Streak tính trên server theo múi giờ người dùng
@@ -181,6 +181,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 2 | Hoàn thành GĐ2: Mô phỏng 6 kịch bản cân bằng, xuất 6 CSV & BALANCE-REPORT-v2.md, cập nhật tài liệu tương khắc & 3 test hồi quy | 55841d7 | 48 test pass, build pass |
 | 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | 327d136 | 45 test pass, build pass |
 | 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | e15401f | 45 test pass |
 | 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | e15401f | Nhánh feat/economy-battle-v2 |

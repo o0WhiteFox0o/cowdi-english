@@ -30,3 +30,22 @@ Chỉ số ↔ kỹ năng: Tấn công ↔ Nói, HP ↔ Nghe, Phòng thủ ↔ �
 - Vòng khắc: Kim > Mộc > Thổ > Thủy > Hỏa > Kim; Ánh sáng ⇄ Bóng tối; tam giác Phong > Lôi > Võ > Phong.
 - Chuyển đổi: fire→Hỏa, water→Thủy, nature→Mộc, earth→Thổ, cosmic→chia Ánh sáng/Bóng tối, neutral (Cowdi)→Võ hoặc giữ Trung tính.
 - Giai đoạn 1: chỉ khắc chế ±20% sát thương + hiện "Hiệu quả!" trước trận, tính trên server. Giai đoạn 2: hiệu ứng riêng mỗi hệ (bỏng, hồi máu, hào quang).
+
+---
+
+## Cập nhật v2 (23/11/2026 — Giai đoạn 2 Mô phỏng cân bằng)
+
+Đã hoàn thành mô phỏng cân bằng toàn diện với công cụ `scripts/simulate-balance.js` chạy trên engine thuần `shared/battle-engine.js` (xem chi tiết tại `docs/06-verification-validation/balance-v2/BALANCE-REPORT-v2.md`):
+
+1. **Thắng thua theo % HP trên server**: Đã thống nhất với Quyết định D9 (đánh đủ 10 câu, tính % HP sau 10 câu), giải quyết dứt điểm xung đột HP vs điểm.
+2. **10 hệ và 7 nhóm**:
+   - Vòng khắc ngũ hành Kim → Mộc → Thổ → Thủy → Hỏa → Kim giữ hệ số khắc `1.2 / 0.8`.
+   - Ánh sáng ⇄ Bóng tối (khắc lẫn nhau x1.2) và Phong ⇄ Lôi (khắc lẫn nhau x1.2).
+   - Hệ Vô (Neutral) trung tính, không khắc và không bị khắc.
+   - Các hiệu ứng đặc trưng của từng hệ (Lá chắn Ánh sáng, Hút máu Bóng tối, Bỏng Hỏa, Choáng Lôi, Né Biển, v.v.) hoạt động trơn tru.
+3. **Kết quả cân bằng**:
+   - Chênh lệch trung bình giữa 10 hệ cùng cấp: < 2% HP.
+   - Chênh lệch giữa 7 nhóm: trong khoảng ±1.5% HP.
+   - Độ hiếm Huyền thoại C1 vs Common C1 chênh lệch ~1.4 câu đúng; khi lên C5 khoảng cách giảm xuống ~0.4 câu đúng. Người học tốt (hơn 1–2 câu đúng) hoàn toàn đánh bại được độ hiếm cao hơn.
+   - Học sinh chăm chỉ (8 đúng) luôn chiến thắng người chơi bình thường (5 đúng) với tỉ lệ 100%.
+   - Không cần điều chỉnh hằng số cấu hình trong `shared/game-config.js`.
