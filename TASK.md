@@ -25,7 +25,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
 | 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
 | 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
-| 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
+| 3 | Cửa hàng Giữ nhịp | `[~]` | `feat/shop-streak` | |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
@@ -109,7 +109,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ## GĐ3 — Cửa hàng Giữ nhịp
 - [x] Bỏ Coins, đổi coins sang Sữa — 2026-11-23 · ac3b700
-- [ ] Streak tính trên server theo múi giờ người dùng
+- [~] Streak tính trên server theo múi giờ người dùng
 - [ ] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần)
 - [ ] Vé quay lại
 - [ ] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger)
