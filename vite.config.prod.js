@@ -46,7 +46,7 @@ export default defineConfig({
       },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2}'],
-        globIgnores: ['**/assets/images/Icons/**', '**/assets/images/pets/**'],
+        globIgnores: ['**/assets/images/Icons/**', '**/assets/images/pets/**', '**/pets/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       devOptions: {

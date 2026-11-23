@@ -10,6 +10,7 @@
  *   node server/scripts/seed-pet-rigs.mjs --force   (ghi đè draft đã tồn tại)
  */
 import crypto from 'node:crypto';
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -20,7 +21,9 @@ const SERVER_ROOT = path.resolve(__dirname, '..');
 const REPO_ROOT = path.resolve(SERVER_ROOT, '..');
 
 export const DEFAULT_SEED_PETS = ['radish', 'bamboo_spirit'];
-export const DEFAULT_SOURCE_DIR = path.join(REPO_ROOT, 'public', 'pets');
+export const DEFAULT_SOURCE_DIR = fsSync.existsSync(path.join(REPO_ROOT, 'public', 'pets'))
+  ? path.join(REPO_ROOT, 'public', 'pets')
+  : path.join(REPO_ROOT, 'pets');
 export const DEFAULT_STORAGE_DIR = path.join(SERVER_ROOT, 'storage', 'pets');
 
 function sha1Short(buf) {
