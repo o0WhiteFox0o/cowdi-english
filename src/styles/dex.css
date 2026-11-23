@@ -399,28 +399,24 @@
 
 .dex-badges {
   display: flex;
-  gap: 6px;
-  flex-wrap: nowrap;
+  gap: 5px;
   align-items: center;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.dex-badges::-webkit-scrollbar {
-  display: none;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .dex-badge {
   font-family: var(--font-hand);
-  font-size: .88rem;
+  font-size: .82rem;
   padding: 3px 8px;
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
   white-space: nowrap;
-  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  line-height: 1.2;
 }
 
 .dex-badge.power {

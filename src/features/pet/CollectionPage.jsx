@@ -173,20 +173,20 @@ export default function CollectionPage() {
                 </div>
               </div>
 
-              <div className="dex-badges align-items-center flex-nowrap mb-2">
+              <div className="dex-badges">
                 <span className="dex-badge" style={{ background: ELEMENT_COLORS[sel.element]?.bg, color: ELEMENT_COLORS[sel.element]?.text }}>
-                  <Icon name={ELEMENT_ICON[sel.element]} size={16} /> {elName(ELEMENT_COLORS[sel.element])}
+                  <Icon name={ELEMENT_ICON[sel.element]} size={14} /> {elName(ELEMENT_COLORS[sel.element])}
                 </span>
                 <span className="dex-badge" style={{ background: RARITY_COLORS[sel.rarity]?.bg, color: RARITY_COLORS[sel.rarity]?.text }}>
                   <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
                 </span>
-                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {computePowerScore(selOwned)}</span>}
+                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={14} /> {computePowerScore(selOwned)}</span>}
                 <Link
                   to="/shop?tab=cosmetics"
-                  className="dex-badge dex-badge-shop d-inline-flex align-items-center gap-1"
+                  className="dex-badge dex-badge-shop"
                   title="Đến Cửa hàng sắm đồ trang trí cho pet"
                 >
-                  <Icon name="bag" size={14} /> Shop
+                  <Icon name="bag" size={13} /> Shop
                 </Link>
               </div>
 
