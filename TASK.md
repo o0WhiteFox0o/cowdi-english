@@ -22,8 +22,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | GĐ | Nội dung | Trạng thái | Nhánh | Ngày xong |
 |---|---|---|---|---|
-| 0 | Chuẩn bị tài liệu & chốt | `[~]` | — | |
-| 1 | Nền tảng v2 | `[ ]` | `feat/economy-battle-v2` | |
+| 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
+| 1 | Nền tảng v2 | `[~]` | `feat/economy-battle-v2` | |
 | 2 | Mô phỏng cân bằng | `[ ]` | `feat/balance-sim-v2` | |
 | 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
@@ -47,13 +47,16 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | D6 | Không có bản lấp lánh; pet giới hạn trùng → Thẻ tặng pet (gửi qua Mời bạn, chỉ người mới nhận, người tặng +3 Gem khi người nhận học 3 bài, tối đa 3 thẻ/tháng) | 23/11/2026 |
 | D7 | Thiệp mời chỉ cho người mới. Qua thiệp thường: chọn Cowdi **hoặc** quay pet khởi đầu (bể 21 pet trừ Cowdi, 50/30/13/5/2). Qua thẻ tặng: nhận pet được tặng. Tự đăng ký: Cowdi. Tài khoản không có Cowdi là cố ý | 23/11/2026 |
 | D8 | Thẻ tháng Sữa ×1.5 và Thẻ mùa học tập là hướng kiếm tiền chính (chưa thiết kế chi tiết) | 23/11/2026 |
+| D9 | Trận đấu pet: đánh đủ 10 câu (STOP_AT_ZERO = false, để cờ cấu hình); thắng thua theo % HP còn lại sau 10 câu | 23/11/2026 |
+| D10 | Đá nguyên tố: dùng chung 1 loại (chưa tách theo 10 hệ) | 23/11/2026 |
+| D11 | Hoàn thành 100% unit: toàn bộ bài học trong unit trọn điểm + kiểm tra cuối unit 100% (thưởng thêm 2 Gem) | 23/11/2026 |
 
 > Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
 
 ## Cần chốt (chặn giai đoạn ghi trong ngoặc)
-- [ ] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — mặc định: đánh đủ 10 câu, để cờ cấu hình)
-- [ ] Đá dùng chung hay tách theo 10 hệ? (GĐ1)
-- [ ] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1)
+- [x] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — chốt D9: đánh đủ 10 câu)
+- [x] Đá dùng chung hay tách theo 10 hệ? (GĐ1 — chốt D10: dùng chung)
+- [x] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1 — chốt D11)
 - [ ] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3)
 - [ ] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3)
 - [ ] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4)
@@ -72,11 +75,11 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23 · afc4f52
-- [ ] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt")
+- [x] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt") — 2026-11-23
 
 ## GĐ1 — Nền tảng v2
-- [ ] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt
-- [ ] File cấu hình hằng số dùng chung (server + mô phỏng)
+- [x] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt — 2026-11-23
+- [x] File cấu hình hằng số dùng chung (server + mô phỏng) — 2026-11-23
 - [ ] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet`
 - [ ] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4
 - [ ] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng
@@ -178,6 +181,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | — | 45 test pass |
+| 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | — | Nhánh feat/economy-battle-v2 |
 | 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | afc4f52 | Đã cập nhật sổ đăng ký |
 | 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | afc4f52 | Đồng bộ tài liệu thiết kế v2 |
 | 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | afc4f52 | Đã commit git |

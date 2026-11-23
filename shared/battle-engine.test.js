@@ -6,7 +6,10 @@ import {
   computeStats, canEvolve, getCounterMultiplier, getCritChance, getDodgeChance,
   computeDamage, simulateBattle, createRng, isGroupSkillUnlocked, normalizeRarity, canMatch,
 } from './battle-engine.js';
-import { ELEMENTS, GROUPS, GROUP_SKILLS, PET_BATTLE_DATA, EVOLUTION_COSTS, SKILL_KEYS } from './game-config.js';
+import {
+  ELEMENTS, GROUPS, GROUP_SKILLS, PET_BATTLE_DATA, EVOLUTION_COSTS, SKILL_KEYS,
+  CURRENCIES, ECONOMY, LEDGER_REASONS,
+} from './game-config.js';
 
 const sk = (l, s, r, w) => ({ listening: l, speaking: s, reading: r, writing: w });
 const near = (actual, expected, tol = 0.1, msg) =>
@@ -383,5 +386,20 @@ describe('dữ liệu config', () => {
     for (const t of [ELEMENTS, GROUPS, GROUP_SKILLS]) {
       for (const [k, v] of Object.entries(t)) assert.ok(v.labelVi, k);
     }
+  });
+
+  test('tiền tệ & hằng số kinh tế v2 (D2, D3, stone_shard)', () => {
+    assert.deepEqual(Object.keys(CURRENCIES), ['milk', 'gem', 'stone', 'stone_shard']);
+    assert.equal(CURRENCIES.stone_shard.labelVi, 'Mảnh đá nguyên tố');
+    assert.equal(ECONOMY.GEM_PER_UNIT, 1);
+    assert.equal(ECONOMY.GEM_PER_UNIT_PERFECT, 2);
+    assert.equal(ECONOMY.GEM_PER_STONE, 15);
+    assert.equal(ECONOMY.STONE_EXCHANGE_PER_WEEK, 1);
+    assert.equal(ECONOMY.SHARDS_PER_STONE, 10);
+    assert.equal(ECONOMY.STONE_PER_ELEMENT, false);
+    assert.ok(LEDGER_REASONS.includes('unit_complete'));
+    assert.ok(LEDGER_REASONS.includes('unit_perfect'));
+    assert.ok(LEDGER_REASONS.includes('stone_exchange'));
+    assert.ok(LEDGER_REASONS.includes('shard_combine'));
   });
 });

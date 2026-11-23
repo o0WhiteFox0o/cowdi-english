@@ -51,25 +51,35 @@ export const STAT_FORMULA = deepFreeze({
 
 // ---------- Tiền tệ & vật phẩm (mục 2) ----------
 export const CURRENCIES = deepFreeze({
-  milk:  { labelVi: 'Sữa',          icon: '🥛' },
-  gem:   { labelVi: 'Gem',          icon: '💎' },
-  stone: { labelVi: 'Đá nguyên tố', icon: '🪨' },
+  milk:        { labelVi: 'Sữa',               icon: '🥛' },
+  gem:         { labelVi: 'Gem',               icon: '💎' },
+  stone:       { labelVi: 'Đá nguyên tố',      icon: '🪨' },
+  stone_shard: { labelVi: 'Mảnh đá nguyên tố', icon: '🧩' },
 });
 
 export const ECONOMY = deepFreeze({
-  // [MỞ] 2.2 — 1 Gem mỗi 2 bài học hoàn thành lần đầu.
+  // 2.2 — 1 Gem mỗi 2 bài học hoàn thành lần đầu.
   GEM_PER_NEW_LESSONS: 2,
+  // 2.2, D2 — Thưởng Gem theo unit (mỗi unit nhận 1 lần).
+  GEM_PER_UNIT: 1,
+  GEM_PER_UNIT_PERFECT: 2,
   // 2.3 — 1 Đá mỗi 10 bài học hoàn thành lần đầu.
   STONE_PER_NEW_LESSONS: 10,
-  // [MỞ] 2.3 — Đá dùng chung 1 loại (chưa tách theo 10 hệ).
+  // 2.3, D10 — Đá dùng chung 1 loại (chưa tách theo 10 hệ).
   STONE_PER_ELEMENT: false,
-  // [MỞ] 2.3 — Gem nạp tiền KHÔNG được thay Đá.
+  // 2.3 — Gem nạp tiền KHÔNG được thay Đá trực tiếp.
   GEM_CAN_REPLACE_STONE: false,
+  // 2.3, D3 — Đổi Gem lấy đá (tối đa 1 lần/tuần, reset thứ Hai).
+  GEM_PER_STONE: 15,
+  STONE_EXCHANGE_PER_WEEK: 1,
+  // 2.3 — Ghép mảnh đá thành đá nguyên tố (10 mảnh = 1 đá).
+  SHARDS_PER_STONE: 10,
 });
 
 // Lý do ghi ledger (6.1). `purchase` có sẵn dù chưa làm nạp tiền.
 export const LEDGER_REASONS = deepFreeze([
-  'lesson_first', 'lesson_milestone', 'evolve', 'purchase', 'migration', 'admin',
+  'lesson_first', 'lesson_milestone', 'unit_complete', 'unit_perfect',
+  'stone_exchange', 'shard_combine', 'evolve', 'purchase', 'migration', 'admin',
 ]);
 
 // ---------- Tiến hoá (mục 3, 4.2) ----------
