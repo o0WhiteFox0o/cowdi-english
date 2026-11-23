@@ -67,11 +67,11 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 ---
 
 ## GĐ0 — Chuẩn bị tài liệu & chốt
-- [x] Chép đề xuất vào `docs/04-design/economy-v2/` — 2026-11-23
-- [x] Tạo `QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`, `PROMPT-CLAUDE-CODE-KINH-TE-V2.md`, `TASK.md` — 2026-11-23
-- [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23
-- [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23
-- [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23
+- [x] Chép đề xuất vào `docs/04-design/economy-v2/` — 2026-11-23 · afc4f52
+- [x] Tạo `QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`, `PROMPT-CLAUDE-CODE-KINH-TE-V2.md`, `TASK.md` — 2026-11-23 · afc4f52
+- [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23 · afc4f52
+- [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23 · afc4f52
+- [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23 · afc4f52
 - [ ] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt")
 
 ## GĐ1 — Nền tảng v2
@@ -178,7 +178,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | — | Đã cập nhật sổ đăng ký |
-| 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | — | Đồng bộ tài liệu thiết kế v2 |
-| 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | — | Làm từ claude.ai, chưa commit git |
-| 2026-11-23 | 0 | Tạo TASK.md, quy trình, prompt; chép đề xuất vào `docs/04-design/economy-v2/` | — | Làm từ claude.ai, chưa commit git |
+| 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | afc4f52 | Đã cập nhật sổ đăng ký |
+| 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | afc4f52 | Đồng bộ tài liệu thiết kế v2 |
+| 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | afc4f52 | Đã commit git |
+| 2026-11-23 | 0 | Tạo TASK.md, quy trình, prompt; chép đề xuất vào `docs/04-design/economy-v2/` | afc4f52 | Đã commit git |
