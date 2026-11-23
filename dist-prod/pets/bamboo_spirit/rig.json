@@ -1,0 +1,379 @@
+{
+ "c1": {
+  "size": [
+   134,
+   189
+  ],
+  "ground": [
+   66.12705539031371,
+   188
+  ],
+  "slots": [
+   {
+    "name": "body",
+    "img": "body",
+    "z": 0,
+    "kind": "body",
+    "face": true
+   }
+  ],
+  "eyes": [],
+  "mouth": null,
+  "ellipse": [
+   66.12705539031371,
+   105.3146641225658,
+   133.0,
+   188.0
+  ],
+  "headBox": [
+   66.5,
+   94.0,
+   133.0,
+   188.0
+  ],
+  "headLine": 105.3146641225658
+ },
+ "c2": {
+  "size": [
+   165,
+   230
+  ],
+  "ground": [
+   76.2858062561539,
+   229
+  ],
+  "slots": [
+   {
+    "name": "body",
+    "img": "body",
+    "z": 0,
+    "kind": "body",
+    "face": false
+   },
+   {
+    "name": "head",
+    "img": "head",
+    "z": 2,
+    "kind": "head",
+    "drive": "head",
+    "pivot": [
+     85,
+     118
+    ],
+    "face": true,
+    "maxRot": 90
+   }
+  ],
+  "eyes": [
+   {
+    "c": [
+     57,
+     66
+    ],
+    "w": 15,
+    "h": 14,
+    "box": [
+     48,
+     57,
+     19,
+     19
+    ]
+   },
+   {
+    "c": [
+     106,
+     90
+    ],
+    "w": 16,
+    "h": 17,
+    "box": [
+     96,
+     80,
+     21,
+     21
+    ]
+   }
+  ],
+  "mouth": null,
+  "ellipse": [
+   76.2858062561539,
+   120.85730515791866,
+   164.0,
+   229.0
+  ],
+  "headBox": [
+   84.0,
+   59.0,
+   160.0,
+   118.0
+  ],
+  "headLine": 118
+ },
+ "c3": {
+  "size": [
+   203,
+   274
+  ],
+  "ground": [
+   93.15057214624616,
+   273
+  ],
+  "slots": [
+   {
+    "name": "body",
+    "img": "body",
+    "z": 0,
+    "kind": "body",
+    "face": false
+   },
+   {
+    "name": "armL",
+    "img": "armL",
+    "z": -1,
+    "kind": "arm",
+    "drive": "armL",
+    "pivot": [
+     40,
+     146
+    ],
+    "face": false,
+    "maxRot": 90
+   },
+   {
+    "name": "armR",
+    "img": "armR",
+    "z": 1,
+    "kind": "arm",
+    "drive": "armR",
+    "pivot": [
+     130,
+     150
+    ],
+    "face": false,
+    "maxRot": 12
+   },
+   {
+    "name": "head",
+    "img": "head",
+    "z": 2,
+    "kind": "head",
+    "drive": "head",
+    "pivot": [
+     95,
+     130
+    ],
+    "face": true,
+    "maxRot": 90
+   }
+  ],
+  "eyes": [
+   {
+    "c": [
+     40,
+     85
+    ],
+    "w": 16,
+    "h": 17,
+    "box": [
+     30,
+     75,
+     21,
+     21
+    ]
+   },
+   {
+    "c": [
+     98,
+     83
+    ],
+    "w": 17,
+    "h": 18,
+    "box": [
+     88,
+     72,
+     21,
+     23
+    ]
+   }
+  ],
+  "mouth": [
+   66,
+   108,
+   12
+  ],
+  "ellipse": [
+   95.71264800393712,
+   132.16703818429204,
+   191.0,
+   273.0
+  ],
+  "headBox": [
+   93.0,
+   64.5,
+   164.0,
+   129.0
+  ],
+  "headLine": 130
+ },
+ "c4": {
+  "size": [
+   343,
+   403
+  ],
+  "ground": [
+   181.139921024752,
+   402
+  ],
+  "slots": [
+   {
+    "name": "body",
+    "img": "body",
+    "z": 0,
+    "kind": "body",
+    "face": false
+   },
+   {
+    "name": "armL",
+    "img": "armL",
+    "z": 1,
+    "kind": "arm",
+    "drive": "armL",
+    "pivot": [
+     102,
+     268
+    ],
+    "face": false,
+    "maxRot": 12
+   },
+   {
+    "name": "armR",
+    "img": "armR",
+    "z": 1,
+    "kind": "arm",
+    "drive": "armR",
+    "pivot": [
+     245,
+     275
+    ],
+    "face": false,
+    "maxRot": 12
+   },
+   {
+    "name": "head",
+    "img": "head",
+    "z": 2,
+    "kind": "head",
+    "drive": "head",
+    "pivot": [
+     165,
+     250
+    ],
+    "face": true,
+    "maxRot": 90
+   },
+   {
+    "name": "fx",
+    "img": "fx",
+    "z": 3,
+    "kind": "float"
+   }
+  ],
+  "eyes": [
+   {
+    "c": [
+     174,
+     185
+    ],
+    "w": 16,
+    "h": 23,
+    "box": [
+     164,
+     172,
+     21,
+     27
+    ]
+   },
+   {
+    "c": [
+     113,
+     188
+    ],
+    "w": 11,
+    "h": 16,
+    "box": [
+     106,
+     178,
+     15,
+     21
+    ]
+   }
+  ],
+  "mouth": null,
+  "ellipse": [
+   190.00296367916596,
+   243.32133848999496,
+   258.0,
+   295.0
+  ],
+  "headBox": [
+   177.5,
+   179.5,
+   185.0,
+   145.0
+  ],
+  "headLine": 250
+ },
+ "c5": {
+  "size": [
+   642,
+   666
+  ],
+  "ground": [
+   350.52946969482934,
+   665
+  ],
+  "slots": [
+   {
+    "name": "body",
+    "img": "body",
+    "z": 0,
+    "kind": "body",
+    "face": false
+   },
+   {
+    "name": "head",
+    "img": "head",
+    "z": 2,
+    "kind": "head",
+    "drive": "head",
+    "pivot": [
+     290,
+     320
+    ],
+    "face": true,
+    "maxRot": 90
+   },
+   {
+    "name": "aura",
+    "img": "aura",
+    "z": 3,
+    "kind": "flicker"
+   }
+  ],
+  "eyes": [],
+  "mouth": null,
+  "ellipse": [
+   355.5398237130727,
+   374.3334331949314,
+   635.0,
+   665.0
+  ],
+  "headBox": [
+   282.0,
+   195.0,
+   226.0,
+   270.0
+  ],
+  "headLine": 320
+ }
+}
