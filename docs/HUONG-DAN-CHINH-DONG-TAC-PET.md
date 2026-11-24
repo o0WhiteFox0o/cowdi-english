@@ -1,6 +1,6 @@
-# Hướng dẫn sử dụng: Chỉnh động tác & Rig Pet (`/admin/pet-motion`)
+# Hướng dẫn sử dụng: Quản lý Pet, Rig & Chỉnh động tác (`/admin/pet-motion`)
 
-Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để quản lý ảnh, tạo rig bộ phận, vẽ sửa trực tiếp PNG, chỉnh 34 động tác và duyệt hiển thị cho người học trong ứng dụng **Cowdi English**.
+Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để **thêm/sửa/xoá và upload loài pet mới**, quản lý ảnh 5 cấp, tạo rig bộ phận, vẽ sửa trực tiếp PNG, chỉnh 34 động tác và duyệt hiển thị cho người học trong ứng dụng **Cowdi English** (tuân thủ quy chuẩn mỹ thuật [`STD-ART-STYLE-v1.1.md`](05-implementation/art/STD-ART-STYLE-v1.1.md)).
 
 ---
 
@@ -19,11 +19,19 @@ Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để qu�
 
 ---
 
-## 2. Màn hình Tổng quan — Kho Pet 23 loài × 5 cấp
+## 2. Màn hình Tổng quan — Quản lý toàn bộ Pet × 5 cấp
 
-Truy cập từ menu thanh bên **Chỉnh động tác pet** hoặc trang **Quản trị (`/admin`)** → `/admin/pet-motion`.
+Truy cập từ menu **Thêm & Hồ sơ ⋯ → Quản lý Pet** (Desktop) hoặc tab **Tôi → Quản lý Pet** (Mobile) → `/admin/pet-motion`.
 
-- Hiển thị toàn bộ **23 loài pet** (bao gồm `bamboo` gấu trúc đen-trắng và `bamboo_spirit` Linh trúc tách riêng) × **5 cấp tiến hoá (`C1 Trứng` → `C5 Huyền thoại`)** cùng ảnh đại diện hiện tại.
+- Hiển thị toàn bộ **23 loài pet gốc + các loài pet mới do Admin tạo** × **5 cấp tiến hoá (`C1 Trứng` → `C5 Huyền thoại`)** cùng ảnh đại diện hiện tại.
+- **Thêm Pet mới (`+ Thêm Pet mới`):**
+  1. Bấm nút **`+ Thêm Pet mới`** ở góc phải trên cùng.
+  2. Điền **Tên hiển thị**, **Mã Pet (`petId`)** (tự sinh slug `a-z`, `0-9`, `_`), **Loài**, **Emoji**, chọn **Hệ (10 hệ)**, **Nhóm kỹ năng (7 nhóm)**, **Độ hiếm (5 bậc)** và **Mô tả ngắn**.
+  3. Tại khung **Ảnh & Tên 5 cấp tiến hoá (`C1–C5`)**, bấm chọn trực tiếp ảnh PNG/WebP nền trong suốt cho từng cấp (nên giữ bật **Tự nén WebP chuẩn 512/640 px**).
+  4. Bấm **`+ Tạo Pet mới`**: hệ thống tự lưu vào `pet_catalog`, tải lên các ảnh cấp đã chọn và đồng bộ ngay cho toàn bộ người học qua `/api/pet-motion/catalog`.
+- **Chỉnh sửa & Xoá Pet:**
+  - Bấm **`✏️ Sửa`** trên từng pet để đổi tên, hệ, nhóm, độ hiếm, mô tả, tên 5 cấp hoặc thay nhanh 5 ảnh `C1–C5`.
+  - Với pet tự thêm (có nhãn **`Mới`**), có thể bấm **`🗑️ Xoá`** để xoá sạch dữ liệu & ảnh của pet đó (23 pet gốc được bảo vệ, không thể xoá nhầm).
 - **Lọc nhanh**: theo nhóm pet (Nông trại, Thảo mộc, Thú săn, Biển, Bầu trời, Rồng, Linh khí), theo trạng thái (`Đã có Rig` / `Chưa có Rig`), hoặc ô tìm kiếm theo tên.
 - Trên mỗi thẻ cấp của pet:
   - **Đổi ảnh / + Bổ sung ảnh**: tải ảnh tĩnh mặc định (PNG/WebP ≤ 2 MB) hiển thị làm avatar cho cấp đó.
@@ -182,4 +190,4 @@ npm run build
 ```
 
 - **Lưu trữ file ảnh**: `server/storage/pets/` (không commit vào git, không nén vào `deploy.zip`; cần sao lưu định kỳ thư mục này trên server production cùng với DB).
-- **Cấu hình Nginx**: giữ `location ^~ /api/` trong [nginx-spa.conf](file:///Users/mac/Documents/GitHub/cowdi-english/nginx-spa.conf) để các URL `/api/pet-motion/assets/*.png|*.webp` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh.
+- **Cấu hình Nginx**: giữ `location ^~ /api/` trong [nginx-spa.conf](../nginx-spa.conf) để các URL `/api/pet-motion/assets/*.png|*.webp` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh.

@@ -52,7 +52,8 @@
 | SDD | Đặc tả chiến đấu pet v2 (tài liệu nguồn) | [SDD-PET-BATTLE-SPEC-v2.0.docx](../04-design/SDD-PET-BATTLE-SPEC-v2.0.docx) | 2.0 | Superseded bởi v2.1 khi mâu thuẫn | docs/Dac-ta-chien-dau-pet-Cowdi-v2.docx |
 | SDD | Nhận xét & tinh chỉnh hệ thống tương khắc (GĐ2) | [nhan-xet-he-thong-tuong-khac.md](../04-design/nhan-xet-he-thong-tuong-khac.md) | sống | Approved | (mới 2026-11-23) |
 | SDD | **Tách lộ trình học thành 3 nhóm người học (Mới học · Trung bình · Luyện thi)** | [SDD-LEARNING-GROUPS-v2.0.md](../04-design/SDD-LEARNING-GROUPS-v2.0.md) | 2.0 | Approved | GEMINI-LEARNING-GROUPS.md (Bản 2) |
-| SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (mới 2026-11-24) |
+| SDD | **Quản lý Pet (từ Pet Motion) & Tối ưu UI/UX Zero-Scroll Quiz** | [SDD-PET-MANAGEMENT-v1.0.md](../04-design/SDD-PET-MANAGEMENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24 — mở rộng `PET-MOTION.md`) |
+| SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (cập nhật 2026-11-24: Quản lý Pet + `pet_catalog`) |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
 | ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
 | WRD | Sơ đồ quan hệ web & phân hệ | [WRD-COWDI-v1.0.md](../04-design/WRD-COWDI-v1.0.md) | 1.0 | Approved | WEB-RELATIONSHIP-DIAGRAM-v1.0.md |

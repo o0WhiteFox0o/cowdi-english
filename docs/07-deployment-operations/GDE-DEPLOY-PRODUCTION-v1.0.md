@@ -35,7 +35,7 @@ cp -R server deploy-package/server
 rm -rf deploy-package/server/storage deploy-package/server/node_modules deploy-package/server/.env deploy-package/server/package-lock.json deploy-package/server/tests
 cp -R shared deploy-package/shared
 rm -f deploy-package/shared/*.test.js
-cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js deploy-package/scripts/
+cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js scripts/run-v2-cosmetics-migration.js scripts/run-learning-groups-migration.js scripts/run-pet-catalog-migration.js deploy-package/scripts/
 cp nginx-spa.conf deploy-package/nginx-spa.conf
 (cd deploy-package && zip -rq ../deploy.zip .)
 rm -rf deploy-package
@@ -65,6 +65,9 @@ npm install --production
 # Chỉ chạy khi bản phát hành có thay đổi DB (an toàn chạy lại nhiều lần):
 node ../scripts/run-v2-migration.js
 node ../scripts/run-v2-streak-migration.js
+node ../scripts/run-v2-cosmetics-migration.js
+node ../scripts/run-learning-groups-migration.js
+node ../scripts/run-pet-catalog-migration.js
 
 # Nếu lần đầu bật Pet Motion (chỉ cần chạy 1 lần):
 # Import server/db/migrate-pet-motion.sql trong phpMyAdmin, rồi:
