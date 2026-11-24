@@ -5215,6 +5215,99 @@ canvas.dash-hero-mascot-img {
   font-size: 1.1rem;
 }
 
+/* Thanh điều hướng & bộ lọc đồng bộ font chữ chuẩn website */
+.shop-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.shop-toolbar-pill {
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: all .15s ease;
+  line-height: 1;
+}
+
+.shop-toolbar-pill:hover {
+  transform: translateY(-1px);
+  color: var(--ink);
+  border-color: var(--leaf-light);
+}
+
+.shop-toolbar-pill.on {
+  background: var(--cowdi-primary);
+  border-color: var(--cowdi-primary-dark);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+
+.shop-toolbar-filter {
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: all .15s ease;
+  line-height: 1;
+}
+
+.shop-toolbar-filter:hover {
+  transform: translateY(-1px);
+  color: var(--ink);
+}
+
+.shop-toolbar-filter.active {
+  background: var(--leaf-pale, #e8f5e9);
+  border-color: var(--cowdi-primary);
+  color: var(--cowdi-primary);
+  font-weight: 700;
+}
+
+.shop-toolbar-badge {
+  font-family: var(--font);
+  font-size: 0.92rem;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: #F0F9FF;
+  border: 1.5px solid #BAE6FD;
+  color: #0369A1;
+  line-height: 1;
+}
+
 .shop-compact-card {
   transition: transform .12s ease, border-color .15s ease, box-shadow .15s ease;
   background: #ffffff;
@@ -5228,10 +5321,81 @@ canvas.dash-hero-mascot-img {
 
 .shop-compact-title {
   font-family: var(--font-hand, cursive);
-  font-size: 0.92rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--ink, #1f2937);
-  line-height: 1.2;
-  margin: 2px 0 4px;
+  line-height: 1.25;
+  margin: 3px 0 6px;
+}
+
+.shop-compact-btn {
+  font-family: var(--font-hand, cursive) !important;
+  font-size: 1.08rem !important;
+  font-weight: 700 !important;
+  min-height: 36px;
+  line-height: 1;
+}
+
+/* 7. Phân trang Cửa hàng (Chuẩn Sổ tay Cowdi) */
+.shop-pagination-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0 10px;
+}
+
+.shop-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  background: var(--paper-2, #ffffff);
+  border: 1.5px solid var(--paper-line, #e2dbd2);
+  border-radius: 12px;
+  box-shadow: 0 2px 0 var(--paper-line);
+}
+
+.shop-page-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: var(--font-hand, cursive);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .15s ease;
+  line-height: 1;
+}
+
+.shop-page-btn:hover:not(:disabled) {
+  background: var(--paper-3, #f5f0e8);
+  color: var(--ink);
+}
+
+.shop-page-btn.active {
+  background: var(--cowdi-primary);
+  color: #fff;
+  border-color: var(--cowdi-primary-dark);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+
+.shop-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.shop-page-hint {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  color: var(--ink-muted);
 }
 
 @keyframes cowdiSlideUp {

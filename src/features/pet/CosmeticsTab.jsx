@@ -22,6 +22,8 @@ const COSMETIC_CATEGORIES = [
   { id: 'effect', label: `✨ Hào quang (${EFFECT_ITEMS.length})` },
 ];
 
+const PAGE_SIZE = 8; // 8 món mỗi trang = 2 hàng x 4 cột vừa khít 1 màn hình
+
 export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const { authFetch } = useAuth();
   const { petData, equipItem } = usePet();
@@ -32,6 +34,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const [rarityFilter, setRarityFilter] = useState('all');
   const [elementFilter, setElementFilter] = useState('all');
   const [previewItem, setPreviewItem] = useState(null);
+  const [page, setPage] = useState(1);
 
   // Modal / Sheet states
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -43,6 +46,11 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const [userStats, setUserStats] = useState(null);
   const [buyingItem, setBuyingItem] = useState(null);
   const [loadingBuy, setLoadingBuy] = useState(false);
+
+  // Reset trang về 1 khi đổi danh mục hoặc bộ lọc
+  useEffect(() => {
+    setPage(1);
+  }, [subCategory, rarityFilter, elementFilter]);
 
   // Tải danh mục và trạng thái từ server
   useEffect(() => {
@@ -98,6 +106,13 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   }, [rawList, rarityFilter, elementFilter, subCategory]);
 
   const activeFilterCount = (rarityFilter !== 'all' ? 1 : 0) + (subCategory === 'room' && elementFilter !== 'all' ? 1 : 0);
+
+  // Phân trang
+  const totalPages = Math.ceil(filteredList.length / PAGE_SIZE) || 1;
+  const paginatedList = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredList.slice(start, start + PAGE_SIZE);
+  }, [filteredList, page]);
 
   // Kiểm tra xem món đồ có đủ điều kiện hưởng combo không (sở hữu món khác cùng theme)
   const checkHasCombo = (item) => {
@@ -170,7 +185,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
 
   return (
     <div className="cosmetics-tab-container">
-      {/* 1. Thanh Phòng thử đồ thú cưng gọn gàng (cao ~44px, không chiếm nửa trang) */}
+      {/* 1. Thanh Phòng thử đồ thú cưng gọn gàng (cao ~42px, không chiếm nửa trang) */}
       {currentPet && (
         <div className="shop-dressing-bar mb-3">
           <div className="d-flex align-items-center gap-2 min-w-0">
@@ -181,10 +196,10 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                 <span>{currentEvo?.emoji || species?.emoji || '🐮'}</span>
               )}
             </span>
-            <div className="text-truncate" style={{ fontSize: '0.92rem', lineHeight: 1.2 }}>
+            <div className="text-truncate" style={{ fontSize: '0.95rem', lineHeight: 1.2 }}>
               <span className="fw-bold text-dark">{currentPet.customName || species?.name}</span>
               {previewItem && (
-                <span className="badge bg-success-subtle text-success border ms-2 py-0 px-2" style={{ fontSize: '10px' }}>
+                <span className="badge bg-success-subtle text-success border ms-2 py-0 px-2" style={{ fontSize: '11px' }}>
                   Đang ướm: {previewItem.name}
                 </span>
               )}
@@ -193,8 +208,8 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0"
-            style={{ fontSize: '12px' }}
+            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0 fw-bold"
+            style={{ fontSize: '13px' }}
             onClick={() => setDressingModalOpen(true)}
           >
             <span>👗</span> Phòng thử đồ
@@ -202,39 +217,32 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         </div>
       )}
 
-      {/* 2. Thanh Danh mục (Nền / Hào quang) + Nút Lọc thu gọn trong 1 hàng */}
-      <div className="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
-        <div className="d-flex gap-1">
+      {/* 2. Thanh Danh mục (Nền / Hào quang) + Nút Lọc — ĐỒNG BỘ 100% CỠ CHỮ & CHIỀU CAO */}
+      <div className="shop-toolbar">
+        <div className="d-flex gap-2">
           {COSMETIC_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
               type="button"
-              className={`btn btn-sm rounded-pill px-3 py-1 fw-bold ${
-                subCategory === cat.id ? 'btn-cowdi-primary shadow-xs' : 'btn-light border text-muted'
-              }`}
-              style={{ fontSize: '12px' }}
-              onClick={() => { setSubCategory(cat.id); }}
+              className={`shop-toolbar-pill ${subCategory === cat.id ? 'on' : ''}`}
+              onClick={() => setSubCategory(cat.id)}
             >
               {cat.label}
             </button>
           ))}
         </div>
 
-        <div className="d-flex align-items-center gap-1">
+        <div className="d-flex align-items-center gap-2">
           <button
             type="button"
-            className={`btn btn-sm rounded-pill px-3 py-1 d-flex align-items-center gap-1 ${
-              activeFilterCount > 0 ? 'btn-cowdi-primary fw-bold' : 'btn-light border text-muted'
-            }`}
-            style={{ fontSize: '12px' }}
+            className={`shop-toolbar-filter ${activeFilterCount > 0 ? 'active' : ''}`}
             onClick={() => setFilterSheetOpen(true)}
           >
             <span>🔍</span> Lọc {activeFilterCount > 0 && `(${activeFilterCount})`}
           </button>
 
           <span
-            className="badge rounded-pill text-primary border border-primary-subtle d-none d-sm-inline-flex"
-            style={{ backgroundColor: '#F0F9FF', fontSize: '11px', padding: '5px 9px' }}
+            className="shop-toolbar-badge d-none d-sm-inline-flex"
             title="Mua combo Nền + Hào quang cùng chủ đề giảm 20%"
           >
             ✨ Combo -20%
@@ -244,11 +252,11 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
 
       {/* 3. Chip bộ lọc đang hoạt động (nếu có, có thể gỡ nhanh 1 chạm) */}
       {activeFilterCount > 0 && (
-        <div className="d-flex align-items-center gap-1 mb-2 flex-wrap" style={{ fontSize: '11px' }}>
+        <div className="d-flex align-items-center gap-1 mb-2 flex-wrap" style={{ fontSize: '12px' }}>
           <span className="text-muted small">Đang lọc:</span>
           {rarityFilter !== 'all' && (
             <span
-              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer"
+              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer px-2 py-1"
               onClick={() => setRarityFilter('all')}
               style={{ cursor: 'pointer' }}
             >
@@ -257,7 +265,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
           )}
           {subCategory === 'room' && elementFilter !== 'all' && (
             <span
-              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer"
+              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer px-2 py-1"
               onClick={() => setElementFilter('all')}
               style={{ cursor: 'pointer' }}
             >
@@ -274,14 +282,14 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         </div>
       )}
 
-      {/* 4. Lưới sản phẩm dạng Compact (3 cột mobile, 4 cột desktop) */}
-      <div className="row g-2 mb-3">
-        {filteredList.length === 0 ? (
-          <div className="col-12 text-center py-4 text-muted small">
+      {/* 4. Lưới sản phẩm dạng Compact có phân trang (3 cột mobile, 4 cột desktop) */}
+      <div className="row g-2 mb-2">
+        {paginatedList.length === 0 ? (
+          <div className="col-12 text-center py-5 text-muted small">
             Không tìm thấy vật phẩm phù hợp với bộ lọc hiện tại.
           </div>
         ) : (
-          filteredList.map((item) => {
+          paginatedList.map((item) => {
             const isSelected = previewItem?.id === item.id;
             const isOwned = ownedSet.has(item.id);
             const rStyle = COSMETIC_RARITIES[item.rarity] || COSMETIC_RARITIES.common;
@@ -303,63 +311,62 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                   title="Bấm để thử lên thú cưng"
                   style={{ cursor: 'pointer', borderRadius: '12px' }}
                 >
-                  {/* Badge phẩm chất trên góc */}
+                  {/* Badge phẩm chất trên góc (RÕ RÀNG, CHỮ TO HƠN) */}
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <span
-                      className="badge rounded-pill px-2 py-0"
-                      style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '9px', fontWeight: 600 }}
+                      className="badge rounded-pill px-2 py-1"
+                      style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '12px', fontWeight: 700 }}
                     >
                       {rStyle.label.split(' ')[1] || rStyle.label}
                     </span>
                     {hasCombo && !isOwned && !isMilestone && (
-                      <span className="badge bg-danger rounded-pill px-1 py-0" style={{ fontSize: '9px' }}>
+                      <span className="badge bg-danger rounded-pill px-2 py-1" style={{ fontSize: '11px', fontWeight: 700 }}>
                         -20%
                       </span>
                     )}
                   </div>
 
-                  {/* Icon vật phẩm */}
+                  {/* Icon vật phẩm to rõ hơn */}
                   <div
                     className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1"
                     style={{
-                      width: '46px',
-                      height: '46px',
+                      width: '54px',
+                      height: '54px',
                       backgroundColor: item.bgStyle || '#F8F9FA',
                       border: '1px solid #ECEFF1',
                     }}
                   >
-                    <Emoji e={item.emoji} size={28} />
+                    <Emoji e={item.emoji} size={34} />
                   </div>
 
-                  {/* Tên vật phẩm */}
+                  {/* Tên vật phẩm (CỠ CHỮ TO ĐẸP RÕ RÀNG) */}
                   <div className="shop-compact-title text-truncate" title={item.name}>
                     {item.name}
                   </div>
 
-                  {/* Nút hành động / Giá tiền */}
+                  {/* Nút hành động / Giá tiền (SỐ TO, DỄ ĐỌC) */}
                   <div className="mt-auto pt-1">
                     {isOwned ? (
-                      <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-1" style={{ fontSize: '10px' }}>
+                      <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-2" style={{ fontSize: '13px', fontWeight: 700 }}>
                         ✓ Đã có
                       </span>
                     ) : isMilestone ? (
-                      <span className={`badge rounded-pill w-100 py-1 ${isMilestoneUnlocked ? 'bg-primary-subtle text-primary border' : 'bg-light text-muted border'}`} style={{ fontSize: '10px' }}>
+                      <span className={`badge rounded-pill w-100 py-2 ${isMilestoneUnlocked ? 'bg-primary-subtle text-primary border' : 'bg-light text-muted border'}`} style={{ fontSize: '12px', fontWeight: 600 }}>
                         {isMilestoneUnlocked ? '🟢 Mở mốc' : '🔒 Đạt mốc'}
                       </span>
                     ) : item.rarity === 'season' ? (
-                      <span className="badge bg-warning-subtle text-dark border rounded-pill w-100 py-1" style={{ fontSize: '10px' }}>
+                      <span className="badge bg-warning-subtle text-dark border rounded-pill w-100 py-2" style={{ fontSize: '12px' }}>
                         Thẻ Mùa
                       </span>
                     ) : (
                       <button
                         type="button"
-                        className="btn btn-xs btn-cowdi-primary w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shadow-xs"
-                        style={{ fontSize: '11px' }}
+                        className="btn btn-cowdi-primary w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shadow-xs shop-compact-btn"
                         onClick={(e) => handleOpenBuy(item, e)}
                         title="Bấm để mua"
                       >
                         {hasCombo && (
-                          <span className="text-decoration-line-through opacity-75" style={{ fontSize: '9px' }}>
+                          <span className="text-decoration-line-through opacity-75 me-1" style={{ fontSize: '12px' }}>
                             {originalPrice}
                           </span>
                         )}
@@ -376,7 +383,48 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         )}
       </div>
 
-      {/* 5. Popup Bộ lọc Phẩm chất & Hệ */}
+      {/* 5. Phân trang Cửa hàng đẹp mắt chuẩn Sổ tay Cowdi */}
+      {totalPages > 1 && (
+        <div className="shop-pagination-wrap">
+          <div className="shop-pagination">
+            <button
+              type="button"
+              className="shop-page-btn"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="Trang trước"
+              title="Trang trước"
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => (
+              <button
+                key={pNum}
+                type="button"
+                className={`shop-page-btn ${page === pNum ? 'active' : ''}`}
+                onClick={() => setPage(pNum)}
+              >
+                {pNum}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="shop-page-btn"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              aria-label="Trang sau"
+              title="Trang sau"
+            >
+              ›
+            </button>
+          </div>
+          <span className="shop-page-hint">
+            Trang {page} / {totalPages} · {filteredList.length} vật phẩm
+          </span>
+        </div>
+      )}
+
+      {/* 6. Popup Bộ lọc Phẩm chất & Hệ */}
       <CosmeticFilterSheet
         open={filterSheetOpen}
         onClose={() => setFilterSheetOpen(false)}
@@ -388,7 +436,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         onReset={() => { setRarityFilter('all'); setElementFilter('all'); }}
       />
 
-      {/* 6. Modal Phòng thử đồ thú cưng */}
+      {/* 7. Modal Phòng thử đồ thú cưng */}
       <PetDressingModal
         open={dressingModalOpen}
         onClose={() => setDressingModalOpen(false)}
@@ -401,7 +449,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         onClearPreview={() => setPreviewItem(null)}
       />
 
-      {/* 7. Bottom Sheet: Mua vật phẩm */}
+      {/* 8. Bottom Sheet: Mua vật phẩm */}
       <CosmeticBuySheet
         open={Boolean(buyingItem)}
         item={buyingItem}
