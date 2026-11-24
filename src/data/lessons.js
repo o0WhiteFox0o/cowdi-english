@@ -1,6 +1,7 @@
 // Wrapper mỏng — mỗi bài học đã được tách ra thành file riêng trong ./lessons/<track>/
 // Giữ file này để các import cũ `../data/lessons` tiếp tục hoạt động.
 export {
+  STARTER_LESSONS,
   LESSONS,
   EXAM_LESSONS,
   ALL_LESSONS,
@@ -12,6 +13,13 @@ export {
   buildPassage,
   LEVELS,
   UNITS,
+  BEGINNER_UNITS,
+  INTERMEDIATE_UNITS,
+  EXAM_INTRO_UNIT,
+  EXAM_PRON_UNIT,
+  LEARNER_GROUPS,
+  getGroup,
+  getGroupOfPath,
   ACHIEVEMENTS,
   COWDI_MESSAGES,
 } from './lessons/index.js';

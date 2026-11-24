@@ -72,7 +72,9 @@ export function classifyLesson(lesson) {
   if (lesson.toeicBand)   s.toeic = lesson.toeicBand;
   if (lesson.vstepLevel)  s.vstep = lesson.vstepLevel;
 
-  if (track === 'general') {
+  if (track === 'starter') {
+    if (!s.cefr) s.cefr = 'A1';
+  } else if (track === 'general') {
     // Chủ đề cơ bản → ánh xạ theo level (nếu chưa có cefrLevel override)
     if (!s.cefr) {
       if (level === 'beginner')      s.cefr = 'A1';

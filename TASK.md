@@ -180,8 +180,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 > Tài liệu nguồn: [SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md](docs/01-project-management/SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS-LESSON-3-LEVELS-v1.0.md](docs/02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD-LEARNING-GROUPS-v2.0.md](docs/04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD-LESSON-CONTENT-v1.0.md](docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md)
 
 - [x] Bước 0 — Vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ (`ielts-pre-grammar`, `ielts-pre-writing`), thêm test hồi quy & gắn `validate-lessons.mjs` vào `prebuild` — 2026-11-24
-- [~] GĐ A — Dữ liệu & luật lộ trình 3 nhóm (`groups.js`, `units.js`, `paths.js`, Unit S1 `starter/`, `path.js`, `build-lesson-ids.mjs`, `shared/learning-path.test.js`)
-- [ ] GĐ B — Server migration MySQL 5.6+ (`migrate-learning-groups.sql` + runner), `api.js`, `wallet.js` (sửa H6/H7), `guard-unit-gems.mjs` & server tests
+- [x] GĐ A — Dữ liệu & luật lộ trình 3 nhóm (`groups.js`, `units.js`, `paths.js`, Unit S1 `starter/`, `path.js`, `build-lesson-ids.mjs`, `shared/learning-path.test.js`) — 2026-11-24
+- [~] GĐ B — Server migration MySQL 5.6+ (`migrate-learning-groups.sql` + runner), `api.js`, `wallet.js` (sửa H6/H7), `guard-unit-gems.mjs` & server tests
 - [ ] GĐ C — Trải nghiệm bài học 3 nhóm (`PictureLesson.jsx`, `LessonDetailPage` + `U1–U7`, `U10`, `quiz-gen.js` & `buildCheckpointQuestions` mới, `useUser.jsx`)
 - [ ] GĐ D — `GroupPicker.jsx`, `PlacementTest.jsx` (`/placement`), `LearningPathPage`, `HomePage`, `BookShell`, `LessonsPage`
 - [ ] GĐ E — Chuyển đổi người dùng cũ (`migrateLegacyProgress`, gợi ý nhóm), E2E & xác minh toàn bộ test/build

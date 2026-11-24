@@ -1,8 +1,11 @@
-// Auto-generated — các lộ trình luyện thi (IELTS / B1 / B2 / TOEIC)
+// Các lộ trình luyện thi (IELTS / B1 / B2 / TOEIC) và nâng cao (C1–C2)
+import { EXAM_INTRO_UNIT, EXAM_PRON_UNIT } from '../config/units.js';
 
 export const EXAM_PATHS = [
   {
     id: "ielts",
+    groupId: "exam",
+    requiredUnits: ["exam-intro", "exam-pron"],
     title: "Luyện thi IELTS",
     subtitle: "International English Language Testing System",
     icon: "🎓",
@@ -10,6 +13,8 @@ export const EXAM_PATHS = [
     description: "Luyện 4 kỹ năng: Listening, Reading, Writing, Speaking cho kỳ thi IELTS Academic & General.",
     targetLevel: "Band 4.0 – 7.5+",
     units: [
+      EXAM_INTRO_UNIT,
+      EXAM_PRON_UNIT,
       {
         id: "ielts-unit-foundation",
         title: "Foundation (A2) — Band 4.0",
@@ -137,11 +142,79 @@ export const EXAM_PATHS = [
           passRate: 0.7,
           questionCount: 15
         }
+      },
+      {
+        id: "ielts-unit-topics-1",
+        title: "Chủ đề Speaking & Writing 1",
+        subtitle: "Technology, Media, Tourism, Globalization, Crime, Economy, Family, Culture, Transport, Urbanization",
+        icon: "🌐",
+        color: "#AD1457",
+        lessons: [
+          "ielts-vocab-technology",
+          "ielts-vocab-media",
+          "ielts-vocab-tourism",
+          "ielts-vocab-globalization",
+          "ielts-vocab-crime",
+          "ielts-vocab-economy",
+          "ielts-vocab-family",
+          "ielts-vocab-culture",
+          "ielts-vocab-transport",
+          "ielts-vocab-urbanization"
+        ],
+        checkpoint: {
+          title: "Kiểm tra Chủ đề Speaking & Writing 1"
+        }
+      },
+      {
+        id: "ielts-unit-topics-2",
+        title: "Chủ đề Speaking & Writing 2",
+        subtitle: "Employment, Art, Food, Government, Science, Language, Sports, History, Architecture, Agriculture",
+        icon: "🏛️",
+        color: "#880E4F",
+        lessons: [
+          "ielts-vocab-employment",
+          "ielts-vocab-art",
+          "ielts-vocab-food",
+          "ielts-vocab-government",
+          "ielts-vocab-science",
+          "ielts-vocab-language",
+          "ielts-vocab-sports",
+          "ielts-vocab-history",
+          "ielts-vocab-architecture",
+          "ielts-vocab-agriculture"
+        ],
+        checkpoint: {
+          title: "Kiểm tra Chủ đề Speaking & Writing 2"
+        }
+      },
+      {
+        id: "ielts-unit-topics-3",
+        title: "Chủ đề 3 & kỹ năng bổ sung",
+        subtitle: "Energy, Shopping, Childhood, Aging, Grammar & Task 1/Speaking Part 2–3",
+        icon: "🎯",
+        color: "#6A1B9A",
+        lessons: [
+          "ielts-vocab-energy",
+          "ielts-vocab-shopping",
+          "ielts-vocab-childhood",
+          "ielts-vocab-aging",
+          "ielts-grammar-conditionals",
+          "ielts-grammar-passive",
+          "ielts-writing-task1-maps",
+          "ielts-writing-task1-process",
+          "ielts-speaking-part2-cue",
+          "ielts-speaking-part3-discussion"
+        ],
+        checkpoint: {
+          title: "Kiểm tra Chủ đề 3 & kỹ năng bổ sung"
+        }
       }
     ]
   },
   {
     id: "b1",
+    groupId: "exam",
+    requiredUnits: ["exam-intro", "exam-pron"],
     title: "Luyện thi B1",
     subtitle: "CEFR B1 – Intermediate (PET)",
     icon: "📗",
@@ -149,6 +222,8 @@ export const EXAM_PATHS = [
     description: "Trình độ B1: giao tiếp hàng ngày, du lịch, công việc. Phù hợp với PET (Preliminary English Test).",
     targetLevel: "CEFR B1",
     units: [
+      EXAM_INTRO_UNIT,
+      EXAM_PRON_UNIT,
       {
         id: "b1-unit-1",
         title: "Giao tiếp & Du lịch",
@@ -233,6 +308,8 @@ export const EXAM_PATHS = [
   },
   {
     id: "b2",
+    groupId: "exam",
+    requiredUnits: ["exam-intro", "exam-pron"],
     title: "Luyện thi B2",
     subtitle: "CEFR B2 – Upper Intermediate (FCE)",
     icon: "📘",
@@ -240,6 +317,8 @@ export const EXAM_PATHS = [
     description: "Trình độ B2: chủ đề trừu tượng, viết formal, ngữ pháp nâng cao. Phù hợp với FCE (First Certificate).",
     targetLevel: "CEFR B2",
     units: [
+      EXAM_INTRO_UNIT,
+      EXAM_PRON_UNIT,
       {
         id: "b2-unit-1",
         title: "Reading & Use of English",
@@ -325,6 +404,8 @@ export const EXAM_PATHS = [
   },
   {
     id: "toeic",
+    groupId: "exam",
+    requiredUnits: ["exam-intro"],
     title: "Luyện thi TOEIC",
     subtitle: "Test of English for International Communication",
     icon: "💼",
@@ -332,6 +413,8 @@ export const EXAM_PATHS = [
     description: "Lộ trình toàn diện 53 bài: từ vựng kinh doanh, ngữ pháp, Listening & Reading từ Part 1 đến Part 7.",
     targetLevel: "300 – 900+",
     units: [
+      EXAM_INTRO_UNIT,
+      EXAM_PRON_UNIT,
       {
         id: "toeic-unit-basics",
         title: "Basics (A1) — TOEIC 300+",
@@ -509,6 +592,7 @@ export const EXAM_PATHS = [
   },
   {
     id: "advanced",
+    groupId: "intermediate",
     title: "Nâng cao C1–C2",
     subtitle: "Mastery — CEFR C1 & C2",
     icon: "🏆",
