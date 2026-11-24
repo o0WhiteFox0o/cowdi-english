@@ -26,7 +26,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
 | 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
 | 3 | Cửa hàng Giữ nhịp | `[x]` | `feat/shop-streak` | 2026-11-23 |
-| 4 | Đồ trang trí | `[~]` | `feat/cosmetics-v2` | — |
+| 4 | Đồ trang trí | `[x]` | `feat/cosmetics-v2` | 2026-11-24 |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
 | 7 | Gacha đầy đủ | `[ ]` | `feat/gacha-full` | |
@@ -131,7 +131,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua — 2026-11-24 · 284d9a5
 - [x] Đồ mốc học tự cấp: Lửa streak, 4 hào quang kỹ năng, Toàn năng, Phòng học theo trình độ — 2026-11-24 · 284d9a5
 - [x] Nền và hào quang mới (10 nền hệ, đồ Gem) — 2026-11-24 · 284d9a5
-- [ ] Khung avatar, danh hiệu
+- [-] Khung avatar, danh hiệu — Chuyển sang GĐ5 Đấu trường (phần thưởng bậc xếp hạng Đồng → Cao thủ theo thiết kế)
 - [x] Hiển thị ở trang pet, Đấu trường, bảng xếp hạng, thẻ chia sẻ — 2026-11-24 · 284d9a5
 
 **Tiêu chí xong**
