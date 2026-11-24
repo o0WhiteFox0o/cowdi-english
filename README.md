@@ -28,7 +28,7 @@ Nền tảng học tiếng Anh tương tác (PWA) tích hợp hệ thống nuôi
 
 | Hạng mục | Thực tế hiện tại |
 |---|---|
-| **Nội dung học tập** | **221 bài học** · **54 unit** lộ trình 3 nhóm (`shared/lesson-ids.json`, `shared/units.json`, **36 bài chuẩn v2**: 12 Starter S1–S3, 21 Intermediate `int-u1..u5`, 3 IELTS Reading v2) · SRS SM-2 · 7 mini-game (gồm TyperShark) |
+| **Nội dung học tập** | **221 bài học** · **54 unit** lộ trình 3 nhóm (`shared/lesson-ids.json`, `shared/units.json`, **54 bài chuẩn v2**: 12 Starter S1–S3, **39/39 trọn bộ Intermediate `int-u1..u10`**, 3 IELTS Reading v2) · SRS SM-2 · 7 mini-game (gồm TyperShark) |
 | **Hệ thống Pet** | **23 loài pet × 5 cấp (`115` pet-cấp)** · 10 hệ tương khắc · 7 nhóm kỹ năng · 5 độ hiếm · 34 động tác `PetRig` |
 | **Kinh tế & Chiến đấu v2** | **Hoàn thành GĐ0–GĐ3** (đã merge `main` & deploy): Ledger 4 loại (`milk`, `gem`, `stone`, `stone_shard`), bỏ Coins (`×3` Sữa), Battle Engine server-side có seed, Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi), Streak v2 theo múi giờ |
 | **Chỉnh động tác & Rig Pet** | **Hoàn thành 100%** (`/admin/pet-motion`): Kho 23×5, Bàn chỉnh keyframe 15 kênh, Trình vẽ PNG Studio đa Layer, quy trình duyệt xuất bản, Tab **Xem trước khi học (5.8)**, gợi ý kích thước + nén WebP tại trình duyệt |
