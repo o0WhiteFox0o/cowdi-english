@@ -141,6 +141,7 @@ export default function AccountPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [ready, setReady] = useState(false);
   const [walletActionLoading, setWalletActionLoading] = useState(false);
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
 
   const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
 
@@ -531,7 +532,6 @@ export default function AccountPage() {
     );
   }
 
-  const [showGroupPicker, setShowGroupPicker] = useState(false);
   const currentGroup = userData.learnerGroup ? getGroup(userData.learnerGroup) : null;
 
   // ── Đã đăng nhập ─────────────────────────────────────────────────────────
