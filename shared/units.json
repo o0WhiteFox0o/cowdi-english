@@ -14,6 +14,34 @@
     "hasCheckpoint": true
   },
   {
+    "pathId": "beginner",
+    "pathIds": [
+      "beginner"
+    ],
+    "unitId": "s1-u2",
+    "lessons": [
+      "s1-color-1",
+      "s1-color-2",
+      "s1-shape",
+      "s1-size"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "beginner",
+    "pathIds": [
+      "beginner"
+    ],
+    "unitId": "s1-u3",
+    "lessons": [
+      "s1-pets",
+      "s1-farm",
+      "s1-wild",
+      "s1-water"
+    ],
+    "hasCheckpoint": true
+  },
+  {
     "pathId": "intermediate",
     "pathIds": [
       "intermediate"
