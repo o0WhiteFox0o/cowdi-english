@@ -17,6 +17,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [SDD-SHARE-v1.0.md](SDD-SHARE-v1.0.md)
 - [SDD-XP-REDESIGN-v1.0.md](SDD-XP-REDESIGN-v1.0.md)
 - [SDD-ECONOMY-BATTLE-v2.1.md](SDD-ECONOMY-BATTLE-v2.1.md)
+- [SDD-LEARNING-GROUPS-v2.0.md](SDD-LEARNING-GROUPS-v2.0.md) — **Thiết kế tách lộ trình học thành 3 nhóm (Mới học · Trung bình · Luyện thi) & migration**
 - [SDD-PET-BATTLE-SPEC-v2.0.docx](SDD-PET-BATTLE-SPEC-v2.0.docx)
 - [WRD-COWDI-v1.0.md](WRD-COWDI-v1.0.md)
 - [SDD-GAME-PET-v1.0.md](SDD-GAME-PET-v1.0.md)

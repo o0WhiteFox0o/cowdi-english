@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { ACHIEVEMENTS, LESSONS } from '../data/lessons';
+import { ACHIEVEMENTS, ALL_LESSONS } from '../data/lessons';
+import { migrateLegacyProgress } from '../data/path';
 import { getAllTopicWords } from '../data/vocab-topics';
 import { useAuth } from './useAuth';
 
@@ -10,9 +11,9 @@ function getStorageKey(userId) {
   return userId ? `${STORAGE_KEY_PREFIX}_${userId}` : STORAGE_KEY_PREFIX;
 }
 
-// Tập hợp tất cả từ vựng hợp lệ từ LESSONS + VOCAB_TOPICS (dùng để lọc data rác)
+// Tập hợp tất cả từ vựng hợp lệ từ ALL_LESSONS + VOCAB_TOPICS (dùng để lọc data rác)
 const VALID_WORDS = new Set([
-  ...LESSONS.flatMap((l) => l.vocabulary.map((v) => v.word)),
+  ...ALL_LESSONS.flatMap((l) => (l.vocabulary || []).map((v) => v.word)),
   ...getAllTopicWords().map((w) => w.word),
 ]);
 
@@ -34,6 +35,11 @@ const DEFAULT_DATA = {
   achievements: [],
   srsData: {},
   checkpointScores: {},
+  lessonScores: {},
+  learnerGroup: null,
+  activePath: null,
+  placement: null,
+  learningGroupsMigrated: false,
   skillXP: { listening: 0, speaking: 0, reading: 0, writing: 0 },
   dailyJournal: {},   // { 'YYYY-MM-DD': { lessons, quizzes, perfectQuizzes, words, reviews, xp } }
   _lastModified: null,
@@ -329,15 +335,38 @@ function mergeProgress(local, remote) {
   }
   merged.srsData = mergedSrs;
 
-  // Merge checkpointScores – giữ score cao hơn
+  // Merge checkpointScores – ưu tiên source: 'checkpoint' thật > 'placement'/'legacy', rồi tới % cao hơn
   const mergedCheckpoints = { ...(local.checkpointScores || {}) };
+  const cpPct = (r) => (r && r.total > 0 ? r.score / r.total : (r?.passed ? 0 : -1));
+  const isRealCp = (r) => Boolean(r) && (r.source ?? 'checkpoint') === 'checkpoint';
   for (const [uid, rScore] of Object.entries(remote.checkpointScores || {})) {
     const lScore = mergedCheckpoints[uid];
-    if (!lScore || (rScore.score / rScore.total) > (lScore.score / lScore.total)) {
+    if (!lScore) {
+      mergedCheckpoints[uid] = rScore;
+    } else if (isRealCp(rScore) && !isRealCp(lScore)) {
+      mergedCheckpoints[uid] = rScore;
+    } else if (isRealCp(lScore) && !isRealCp(rScore)) {
+      // giữ bản checkpoint thật ở local
+    } else if (cpPct(rScore) > cpPct(lScore)) {
       mergedCheckpoints[uid] = rScore;
     }
   }
   merged.checkpointScores = mergedCheckpoints;
+
+  // Merge lessonScores – lấy max theo từng lessonId
+  const mergedLessonScores = { ...(local.lessonScores || {}) };
+  for (const [lid, rSc] of Object.entries(remote.lessonScores || {})) {
+    const num = Number(rSc);
+    if (Number.isFinite(num) && (mergedLessonScores[lid] == null || num > mergedLessonScores[lid])) {
+      mergedLessonScores[lid] = Math.max(0, Math.min(100, Math.round(num)));
+    }
+  }
+  merged.lessonScores = mergedLessonScores;
+
+  // Giữ learnerGroup / activePath / placement (ưu tiên bên mới hơn có giá trị)
+  merged.learnerGroup = base.learnerGroup ?? local.learnerGroup ?? remote.learnerGroup ?? null;
+  merged.activePath = base.activePath ?? local.activePath ?? remote.activePath ?? null;
+  merged.placement = base.placement ?? local.placement ?? remote.placement ?? null;
 
   // Merge skillXP – keep highest per skill
   const localSkill = local.skillXP || { listening: 0, speaking: 0, reading: 0, writing: 0 };
@@ -483,8 +512,10 @@ export function UserProvider({ children }) {
     readyRef.current = false; // Block persist cho đến khi load xong
 
     if (!uid) {
-      // Logout – reset về data không đăng nhập (anonymous)
-      setUserData(loadUserData(null));
+      // Logout – reset về data không đăng nhập (anonymous) + di trú dữ liệu cũ nếu có
+      const anon = loadUserData(null);
+      const mig = migrateLegacyProgress(anon);
+      setUserData(mig.changed ? mig.userData : anon);
       readyRef.current = true;
       return;
     }
@@ -528,6 +559,10 @@ export function UserProvider({ children }) {
         } else {
           final.streak = calculateStreak(final.activeDays);
         }
+        // Di trú tiến độ người dùng cũ 1 lần (SDD-LEARNING-GROUPS §6.1 — idempotent)
+        const migrated = migrateLegacyProgress(final);
+        if (migrated.changed) final = migrated.userData;
+
         setUserData(checkAchievements(final));
         readyRef.current = true;
       })
@@ -666,9 +701,8 @@ export function UserProvider({ children }) {
       if (prev.completedLessons.includes(lessonId)) return prev;
       const dailyJournal = bumpJournal(prev, 'lessons', 1);
 
-      // 🔄 Tự động nạp toàn bộ từ vựng của bài vào kho ôn tập SRS
-      // (loại bỏ thao tác "Thêm từ vào kho" thủ công)
-      const lesson = LESSONS.find((l) => l.id === lessonId);
+      // 🔄 Tự động nạp toàn bộ từ vựng của bài vào kho ôn tập SRS (tìm trên ALL_LESSONS)
+      const lesson = ALL_LESSONS.find((l) => l.id === lessonId);
       const srsData = { ...prev.srsData };
       if (lesson?.vocabulary) {
         for (const v of lesson.vocabulary) {
@@ -780,17 +814,78 @@ export function UserProvider({ children }) {
     });
   }, []);
 
-  // Learning Path – save checkpoint score (keep best)
-  const saveCheckpointScore = useCallback((unitId, score, total) => {
+  // Ghi nhận điểm % cao nhất cho một bài học (0-100)
+  const recordLessonScore = useCallback((lessonId, pctInt) => {
+    const score = Math.max(0, Math.min(100, Math.round(Number(pctInt) || 0)));
+    setUserData((prev) => {
+      const cur = prev.lessonScores?.[lessonId];
+      if (cur != null && cur >= score) return prev;
+      return {
+        ...prev,
+        lessonScores: { ...(prev.lessonScores || {}), [lessonId]: score },
+      };
+    });
+  }, []);
+
+  // Chọn / đổi nhóm học và lộ trình (không xoá tiến độ — L1)
+  const setLearningGroup = useCallback((learnerGroup, activePath) => {
+    setUserData((prev) => ({
+      ...prev,
+      learnerGroup,
+      activePath,
+      _lastModified: new Date().toISOString(),
+    }));
+  }, []);
+
+  // Lưu kết quả kiểm tra đầu vào (/placement — SDD §5.2)
+  const savePlacementResult = useCallback((placement, placedUnitIds = [], learnerGroup, activePath) => {
+    setUserData((prev) => {
+      const nextCp = { ...(prev.checkpointScores || {}) };
+      const now = new Date().toISOString();
+      for (const uid of placedUnitIds) {
+        const existing = nextCp[uid];
+        // placement KHÔNG BAO GIỜ ghi đè checkpoint thật
+        if (existing && (existing.source ?? 'checkpoint') === 'checkpoint') continue;
+        nextCp[uid] = { passed: true, source: 'placement', score: 0, total: 0, date: now };
+      }
+      return {
+        ...prev,
+        placement,
+        checkpointScores: nextCp,
+        learnerGroup,
+        activePath,
+        _lastModified: now,
+      };
+    });
+  }, []);
+
+  // Learning Path – save checkpoint score theo quy tắc SDD §2.2
+  const saveCheckpointScore = useCallback((unitId, score, total, { source = 'checkpoint', passRate = 0.7 } = {}) => {
     setUserData((prev) => {
       const existing = prev.checkpointScores?.[unitId];
-      const pct = score / total;
-      if (existing && existing.score / existing.total >= pct) return prev;
+      const existingIsReal = Boolean(existing) && (existing.source ?? 'checkpoint') === 'checkpoint';
+      const pct = total > 0 ? score / total : 0;
+
+      if (source !== 'checkpoint') {
+        if (existingIsReal) return prev;
+        return {
+          ...prev,
+          checkpointScores: {
+            ...prev.checkpointScores,
+            [unitId]: { score: 0, total: 0, passed: true, source, date: new Date().toISOString() },
+          },
+        };
+      }
+
+      // source === 'checkpoint': luôn ghi đè placement/legacy; nếu cũ cũng là checkpoint thì giữ % cao hơn
+      if (existingIsReal && existing.total > 0 && existing.score / existing.total >= pct) {
+        return prev;
+      }
       return {
         ...prev,
         checkpointScores: {
           ...prev.checkpointScores,
-          [unitId]: { score, total, passed: pct >= 0.7, date: new Date().toISOString() },
+          [unitId]: { score, total, passed: pct >= passRate, source: 'checkpoint', date: new Date().toISOString() },
         },
       };
     });
@@ -818,6 +913,9 @@ export function UserProvider({ children }) {
     gameXpRemainingToday,
     addSkillXP,
     markLessonCompleted,
+    recordLessonScore,
+    setLearningGroup,
+    savePlacementResult,
     incrementQuizzes,
     setWordStatus,
     getWordStatus,

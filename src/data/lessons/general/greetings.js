@@ -1,174 +1,212 @@
-// Auto-generated — chỉnh sửa bài học bằng cách sửa trực tiếp file này.
-// Track: general — Chào hỏi cơ bản
+// Track: general — Unit int-u1: Làm quen · Bài 1: Chào hỏi cơ bản (v2)
+// Nâng cấp từ bản golden src/data/lessons/_golden/greetings.js theo STD-LESSON-CONTENT-v1.0.
+
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
 
 export const GREETINGS_LESSON = {
-  id: "greetings",
-  title: "Chào hỏi cơ bản",
-  description: "Học cách chào hỏi và giới thiệu bản thân bằng tiếng Anh",
-  level: "beginner",
-  icon: "👋",
-  vocabulary: [
-    {
-      word: "Hello",
-      phonetic: "/həˈloʊ/",
-      meaning: "Xin chào",
-      example: "Hello, how are you?",
-      illustration: "🙋"
-    },
-    {
-      word: "Goodbye",
-      phonetic: "/ɡʊdˈbaɪ/",
-      meaning: "Tạm biệt",
-      example: "Goodbye, see you tomorrow!",
-      illustration: "👋"
-    },
-    {
-      word: "Thank you",
-      phonetic: "/θæŋk juː/",
-      meaning: "Cảm ơn",
-      example: "Thank you for your help.",
-      illustration: "🙏"
-    },
-    {
-      word: "Please",
-      phonetic: "/pliːz/",
-      meaning: "Làm ơn",
-      example: "Please open the door.",
-      illustration: "🤲"
-    },
-    {
-      word: "Sorry",
-      phonetic: "/ˈsɒri/",
-      meaning: "Xin lỗi",
-      example: "Sorry, I'm late.",
-      illustration: "😔"
-    },
-    {
-      word: "Yes",
-      phonetic: "/jɛs/",
-      meaning: "Vâng / Có",
-      example: "Yes, I understand.",
-      illustration: "✅"
-    },
-    {
-      word: "No",
-      phonetic: "/noʊ/",
-      meaning: "Không",
-      example: "No, thank you.",
-      illustration: "❌"
-    },
-    {
-      word: "Name",
-      phonetic: "/neɪm/",
-      meaning: "Tên",
-      example: "My name is Cowdi.",
-      illustration: "🏷️"
-    },
-    {
-      word: "Nice",
-      phonetic: "/naɪs/",
-      meaning: "Tốt đẹp",
-      example: "Nice to meet you!",
-      illustration: "😊"
-    },
-    {
-      word: "Friend",
-      phonetic: "/frɛnd/",
-      meaning: "Bạn bè",
-      example: "She is my best friend.",
-      illustration: "🤝"
-    }
+  id: 'greetings',
+  contentVersion: 2,
+  track: 'general',
+  level: 'beginner',
+  cefrLevel: 'A1',
+  unit: 'int-u1',
+  title: 'Chào hỏi cơ bản',
+  description: 'Chào, giới thiệu tên, hỏi thăm và tạm biệt trong một cuộc gặp đầu tiên',
+  icon: '👋',
+  objectives: [
+    'Chào hỏi phù hợp theo thời điểm trong ngày',
+    'Giới thiệu tên và hỏi tên người khác',
+    'Hỏi thăm sức khoẻ và đáp lại lời cảm ơn, lời xin lỗi',
   ],
+
+  vocabulary: [
+    v('Hello', '/həˈloʊ/', 'interjection', 'Xin chào', 'Hello! My name is Lan.', 'Xin chào! Mình tên là Lan.', '🙋'),
+    v('Hi', '/haɪ/', 'interjection', 'Chào (thân mật)', 'Hi, Minh! How are you?', 'Chào Minh! Bạn khoẻ không?', '👋'),
+    v('Good morning', '/ɡʊd ˈmɔːrnɪŋ/', 'phrase', 'Chào buổi sáng', 'Good morning, Mr. Tom.', 'Chào buổi sáng thầy Tom.', '🌅'),
+    v('Goodbye', '/ɡʊdˈbaɪ/', 'interjection', 'Tạm biệt', 'Goodbye, see you tomorrow!', 'Tạm biệt, hẹn gặp lại ngày mai!', '🙌'),
+    v('See you later', '/siː juː ˈleɪtər/', 'phrase', 'Hẹn gặp lại sau', 'I have to go now. See you later!', 'Mình phải đi bây giờ. Hẹn gặp lại sau nhé!', '⏰'),
+    v('Thank you', '/ˈθæŋk juː/', 'phrase', 'Cảm ơn', 'Thank you for your help.', 'Cảm ơn bạn đã giúp đỡ.', '🙏'),
+    v("You're welcome", '/jʊr ˈwelkəm/', 'phrase', 'Không có gì (đáp lời cảm ơn)', '"Thank you!" – "You\'re welcome!"', '"Cảm ơn!" – "Không có gì!"', '😊'),
+    v('Please', '/pliːz/', 'adverb', 'Làm ơn, vui lòng', 'Please sit down.', 'Mời bạn ngồi.', '🤲'),
+    v('Sorry', '/ˈsɑːri/', 'adjective', 'Xin lỗi', "Sorry, I'm late.", 'Xin lỗi, mình đến trễ.', '😔'),
+    v('Excuse me', '/ɪkˈskjuːz miː/', 'phrase', 'Xin lỗi, cho hỏi (để gây chú ý)', 'Excuse me, where is the library?', 'Cho mình hỏi, thư viện ở đâu?', '🙋‍♂️'),
+    v('Yes', '/jes/', 'adverb', 'Vâng / Có', 'Yes, this is my class.', 'Vâng, đây là lớp của mình.', '✅'),
+    v('No', '/noʊ/', 'adverb', 'Không', 'No, thank you.', 'Không, cảm ơn bạn.', '❌'),
+    v('Name', '/neɪm/', 'noun', 'Tên', 'What is your name?', 'Bạn tên là gì?', '🏷️'),
+    v('Nice', '/naɪs/', 'adjective', 'Tốt đẹp, dễ mến', 'Mr. Tom is a nice teacher.', 'Thầy Tom là một giáo viên dễ mến.', '😊'),
+    v('Friend', '/frend/', 'noun', 'Bạn bè', 'Minh is my new friend.', 'Minh là bạn mới của mình.', '🤝'),
+    v('Nice to meet you', '/naɪs tə miːt juː/', 'phrase', 'Rất vui được gặp bạn', 'Hi, Lan. Nice to meet you!', 'Chào Lan. Rất vui được gặp bạn!', '🤗'),
+  ],
+
   grammar: [
     {
-      title: "Giới thiệu bản thân",
-      explanation: "Dùng \"My name is...\" hoặc \"I am...\" để giới thiệu tên.",
+      title: 'Giới thiệu tên: My name is… / I am… / I\'m…',
+      explanation: 'Dùng "My name is + tên" hoặc "I am / I\'m + tên". Hỏi tên người khác: "What is your name?" hoặc "What\'s your name?".',
       examples: [
-        {
-          en: "My name is Cowdi.",
-          vi: "Tên tôi là Cowdi."
-        },
-        {
-          en: "I am a student.",
-          vi: "Tôi là học sinh."
-        },
-        {
-          en: "Nice to meet you!",
-          vi: "Rất vui được gặp bạn!"
-        }
-      ]
+        { en: 'My name is Lan.', vi: 'Tên mình là Lan.' },
+        { en: 'I am Minh.', vi: 'Mình là Minh.' },
+        { en: "I'm a new student.", vi: 'Mình là học sinh mới.' },
+        { en: 'What is your name?', vi: 'Bạn tên là gì?' },
+        { en: "What's his name?", vi: 'Bạn ấy tên là gì?' },
+      ],
+      mistakes: [
+        { wrong: 'My name are Lan.', right: 'My name is Lan.', note: '"My name" là số ít nên dùng "is".' },
+        { wrong: 'I name is Minh.', right: 'My name is Minh.', note: 'Trước "name" dùng tính từ sở hữu "my", không dùng "I".' },
+      ],
     },
     {
-      title: "Hỏi thăm sức khỏe",
-      explanation: "Dùng \"How are you?\" để hỏi thăm. Trả lời bằng \"I am fine/good/great\".",
+      title: 'Hỏi thăm sức khoẻ: How are you?',
+      explanation: 'Hỏi "How are you?" và đáp "I\'m fine / good / great, thank you." Hỏi lại người kia bằng "And you?" hoặc "How about you?".',
       examples: [
-        {
-          en: "How are you?",
-          vi: "Bạn khỏe không?"
-        },
-        {
-          en: "I am fine, thank you.",
-          vi: "Tôi khỏe, cảm ơn."
-        },
-        {
-          en: "How about you?",
-          vi: "Còn bạn thì sao?"
-        }
-      ]
-    }
+        { en: 'How are you today?', vi: 'Hôm nay bạn khoẻ không?' },
+        { en: "I'm fine, thank you.", vi: 'Mình khoẻ, cảm ơn bạn.' },
+        { en: "I'm great. And you?", vi: 'Mình rất khoẻ. Còn bạn?' },
+        { en: 'Not bad, thanks.', vi: 'Cũng ổn, cảm ơn.' },
+      ],
+      mistakes: [
+        { wrong: 'How are you? – I fine.', right: "How are you? – I'm fine.", note: 'Câu trả lời cần động từ "am" (I\'m).' },
+      ],
+    },
+    {
+      title: 'Chào theo thời điểm trong ngày',
+      explanation: 'Good morning (sáng), Good afternoon (chiều), Good evening (tối) dùng khi gặp. "Good night" chỉ dùng khi chia tay buổi tối hoặc đi ngủ.',
+      examples: [
+        { en: 'Good morning, everyone.', vi: 'Chào buổi sáng cả lớp.' },
+        { en: 'Good afternoon, Ms. Hoa.', vi: 'Chào cô Hoa (buổi chiều).' },
+        { en: 'Good evening, Grandpa.', vi: 'Chào ông (buổi tối).' },
+        { en: 'Good night, Mom. See you tomorrow.', vi: 'Chúc mẹ ngủ ngon. Mai gặp lại mẹ.' },
+      ],
+      mistakes: [
+        { wrong: 'Good night! (khi vừa gặp nhau lúc 8 giờ tối)', right: 'Good evening!', note: '"Good night" là lời chào tạm biệt, không phải lời chào khi gặp.' },
+      ],
+    },
   ],
+
+  reading: {
+    title: 'Ngày đầu ở lớp mới',
+    passage: [
+      "Lan: Good morning! Sorry, I'm late. Is this Mr. Tom's class?",
+      'Minh: Hi! Yes, it is. Please sit here.',
+      'Lan: Thank you. Hello, my name is Lan.',
+      "Minh: I'm Minh. Nice to meet you, Lan!",
+      'Lan: Nice to meet you, too. How are you today?',
+      "Minh: I'm fine, thanks. And you?",
+      "Lan: I'm great. Excuse me, where is the library?",
+      "Minh: It's next to our classroom. Do you need a map?",
+      'Lan: No, thank you. You are a nice friend.',
+      "Minh: You're welcome! I have to go now. See you later!",
+      'Lan: Goodbye, Minh!',
+    ].join('\n'),
+    translation: [
+      'Lan: Chào buổi sáng! Xin lỗi, mình đến trễ. Đây có phải lớp của thầy Tom không?',
+      'Minh: Chào bạn! Đúng rồi. Bạn ngồi đây nhé.',
+      'Lan: Cảm ơn bạn. Xin chào, mình tên là Lan.',
+      'Minh: Mình là Minh. Rất vui được gặp bạn, Lan!',
+      'Lan: Mình cũng rất vui được gặp bạn. Hôm nay bạn khoẻ không?',
+      'Minh: Mình khoẻ, cảm ơn. Còn bạn?',
+      'Lan: Mình rất khoẻ. Cho mình hỏi, thư viện ở đâu vậy?',
+      'Minh: Ở cạnh lớp mình. Bạn có cần bản đồ không?',
+      'Lan: Không, cảm ơn bạn. Bạn là một người bạn dễ mến.',
+      'Minh: Không có gì! Mình phải đi bây giờ. Hẹn gặp lại sau nhé!',
+      'Lan: Tạm biệt Minh!',
+    ].join('\n'),
+    highlights: ['Hello', 'Hi', 'Goodbye', 'Please', 'Sorry', 'Yes', 'No', 'Nice', 'Friend', 'Name'],
+    questions: [
+      {
+        question: 'Vì sao Lan nói "Sorry" ở đầu đoạn hội thoại?',
+        options: ['Vì Lan đến trễ', 'Vì Lan quên tên Minh', 'Vì Lan làm rơi sách', 'Vì Lan muốn về sớm'],
+        correct: 0,
+        explanation: 'Lan nói "Sorry, I\'m late." – xin lỗi vì đến trễ.',
+      },
+      {
+        question: 'Lan hỏi Minh điều gì bằng "Excuse me"?',
+        options: ['Tên của thầy giáo', 'Thư viện ở đâu', 'Mấy giờ rồi', 'Minh bao nhiêu tuổi'],
+        correct: 1,
+        explanation: '"Excuse me, where is the library?" – Lan hỏi đường tới thư viện.',
+      },
+      {
+        question: 'Minh đáp lại lời cảm ơn của Lan bằng câu nào?',
+        options: ['Nice to meet you', 'Good morning', "You're welcome", "I'm fine"],
+        correct: 2,
+        explanation: '"You\'re welcome" là câu đáp chuẩn khi ai đó cảm ơn mình.',
+      },
+      {
+        question: 'Cuộc nói chuyện diễn ra vào lúc nào trong ngày?',
+        options: ['Buổi sáng', 'Buổi chiều', 'Buổi tối', 'Ban đêm'],
+        correct: 0,
+        explanation: 'Lan mở đầu bằng "Good morning" nên đây là buổi sáng.',
+      },
+    ],
+  },
+
   quiz: [
     {
-      question: "\"Hello\" có nghĩa là gì?",
-      options: [
-        "Tạm biệt",
-        "Xin chào",
-        "Cảm ơn",
-        "Xin lỗi"
-      ],
-      correct: 1
+      skill: 'vocab',
+      question: '"Excuse me" dùng khi nào?',
+      options: ['Khi muốn gây chú ý để hỏi ai đó', 'Khi chào buổi sáng', 'Khi đáp lời cảm ơn', 'Khi đi ngủ'],
+      correct: 0,
+      explanation: '"Excuse me" mở đầu câu hỏi lịch sự, ví dụ hỏi đường.',
     },
     {
-      question: "Cách giới thiệu tên đúng là:",
-      options: [
-        "My name are Cowdi",
-        "My name is Cowdi",
-        "My name am Cowdi",
-        "My names is Cowdi"
-      ],
-      correct: 1
+      skill: 'grammar',
+      question: 'Chọn câu đúng:',
+      options: ['My name are Lan.', 'My name is Lan.', 'I name is Lan.', 'Me name is Lan.'],
+      correct: 1,
+      explanation: '"My name" là số ít → dùng "is".',
     },
     {
-      question: "\"Goodbye\" nghĩa là:",
-      options: [
-        "Xin chào",
-        "Cảm ơn",
-        "Tạm biệt",
-        "Xin lỗi"
-      ],
-      correct: 2
+      skill: 'usage',
+      question: 'Bạn của bạn nói: "Thank you!". Bạn đáp:',
+      options: ['Sorry.', 'Good night.', "You're welcome!", 'Hello!'],
+      correct: 2,
+      explanation: '"You\'re welcome" = Không có gì.',
     },
     {
-      question: "Điền vào chỗ trống: \"How ___ you?\"",
-      options: [
-        "is",
-        "am",
-        "are",
-        "do"
-      ],
-      correct: 2
+      skill: 'grammar',
+      question: 'Điền vào chỗ trống: "How ___ you?"',
+      options: ['is', 'am', 'are', 'do'],
+      correct: 2,
+      explanation: 'Với "you" ta dùng "are": How are you?',
     },
     {
-      question: "\"Thank you\" nghĩa là:",
-      options: [
-        "Xin lỗi",
-        "Tạm biệt",
-        "Làm ơn",
-        "Cảm ơn"
-      ],
-      correct: 3
-    }
-  ]
+      skill: 'usage',
+      question: 'Gặp cô giáo lúc 3 giờ chiều, bạn chào:',
+      options: ['Good morning', 'Good afternoon', 'Good night', 'Goodbye'],
+      correct: 1,
+      explanation: 'Buổi chiều (sau 12 giờ trưa đến khoảng 6 giờ tối) dùng "Good afternoon".',
+    },
+    {
+      skill: 'listening',
+      audioText: 'Nice to meet you.',
+      question: 'Nghe và chọn nghĩa đúng:',
+      options: ['Hẹn gặp lại sau', 'Rất vui được gặp bạn', 'Bạn khoẻ không?', 'Cho mình hỏi'],
+      correct: 1,
+      explanation: '"Nice to meet you" nói khi gặp ai đó lần đầu.',
+    },
+    {
+      skill: 'listening',
+      audioText: 'See you later!',
+      question: 'Nghe và chọn tình huống phù hợp:',
+      options: ['Khi vừa gặp nhau', 'Khi chia tay, hẹn gặp lại', 'Khi xin lỗi', 'Khi giới thiệu tên'],
+      correct: 1,
+      explanation: '"See you later" là lời tạm biệt, hẹn gặp lại sau.',
+    },
+    {
+      skill: 'usage',
+      question: 'Câu nào là câu trả lời đúng cho "How are you?"',
+      options: ["I'm Lan.", "I'm fine, thank you.", "You're welcome.", 'Nice to meet you.'],
+      correct: 1,
+      explanation: 'Hỏi thăm sức khoẻ thì đáp "I\'m fine / good / great".',
+    },
+    {
+      skill: 'vocab',
+      question: 'Từ nào là cách chào thân mật, dùng với bạn bè?',
+      options: ['Good evening', 'Hi', 'Excuse me', 'Goodbye'],
+      correct: 1,
+      explanation: '"Hi" thân mật hơn "Hello", hợp với bạn bè.',
+    },
+  ],
 };
 
 export default GREETINGS_LESSON;

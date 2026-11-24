@@ -1,4 +1,4 @@
-# TASK — Triển khai Kinh tế v2 (Cowdi English)
+    # TASK — Triển khai Kinh tế v2 (Cowdi English)
 
 > File theo dõi tiến độ cho `docs/01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`.
 > **Claude Code đọc file này đầu mỗi phiên và cập nhật ngay khi xong mỗi việc.**
@@ -175,6 +175,21 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ---
 
+## Lộ trình 3 nhóm & Chuẩn Nội dung v2 (`feat/learning-groups`)
+
+> Tài liệu nguồn: [SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md](docs/01-project-management/SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS-LESSON-3-LEVELS-v1.0.md](docs/02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD-LEARNING-GROUPS-v2.0.md](docs/04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD-LESSON-CONTENT-v1.0.md](docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md)
+
+- [x] Bước 0 — Vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ (`ielts-pre-grammar`, `ielts-pre-writing`), thêm test hồi quy & gắn `validate-lessons.mjs` vào `prebuild` — 2026-11-24
+- [x] GĐ A — Dữ liệu & luật lộ trình 3 nhóm (`groups.js`, `units.js`, `paths.js`, Unit S1 `starter/`, `path.js`, `build-lesson-ids.mjs`, `shared/learning-path.test.js`) — 2026-11-24
+- [x] GĐ B — Server migration MySQL 5.6+ (`migrate-learning-groups.sql` + runner), `api.js`, `wallet.js` (sửa H6/H7), `guard-unit-gems.mjs` & server tests — 2026-11-24
+- [x] GĐ C — Trải nghiệm bài học 3 nhóm (`PictureLesson.jsx`, `LessonDetailPage` + `U1–U7`, `U10`, `quiz-gen.js` & `buildCheckpointQuestions` mới, `useUser.jsx`) — 2026-11-24
+- [x] GĐ D — `GroupPicker.jsx`, `PlacementTest.jsx` (`/placement`), `LearningPathPage`, `HomePage`, `BookShell`, `LessonsPage`, `AccountPage` — 2026-11-24
+- [x] GĐ E — Chuyển đổi người dùng cũ (`migrateLegacyProgress`, gợi ý nhóm, `guard-unit-gems.mjs`), E2E & xác minh toàn bộ test/build — 2026-11-24
+- [x] UI U8 — Màn hình `ExamReading.jsx` (chia đôi màn hình, cột từ `glossary`, đồng hồ `timeLimitMin`, đủ 6 dạng đề thi gồm `sentence-completion` + `maxWords`, tô `evidence.quote` & bảng `paraphrasePairs`) — 2026-11-24 · b19057a
+- [x] Nội dung `int-u1` v2 — Nâng cấp toàn bộ 4 bài (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo theo `briefs/int-u1.md` — 2026-11-24
+
+---
+
 ## Vấn đề đang chặn
 | Ngày | GĐ | Vấn đề | Cần ai quyết | Trạng thái |
 |---|---|---|---|---|
@@ -185,6 +200,9 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a` | 110/110 test pass, build pass |
+| 2026-11-24 | 3-nhóm A–E | Hoàn thành toàn bộ Lộ trình 3 nhóm + Chuẩn nội dung UI v2 (`groups.js`, Unit S1 Starter, `path.js`, 0 bài mồ côi, migration MySQL 5.6+ & `guard-unit-gems.mjs`, `PictureLesson`, `LessonDetailPage` U1–U7/U10, `GroupPicker`, `PlacementTest`, `LearningPathPage`, di trú user cũ) | `feat/learning-groups` | 109/109 test pass, 210 bài / 51 unit, 0 lỗi validator, build pass |
+| 2026-11-24 | 3-nhóm B0 | Tích hợp bộ chuẩn nội dung v1.0, SRS 3 cấp, SDD Lộ trình 3 nhóm v2.0, SPMP hợp nhất; vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ, gắn `validate-lessons` vào `prebuild` | — | 92/92 test pass, 0 lỗi validator, build pass |
 | 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |
 | 2026-11-24 | 3 | Sửa lỗi P0 crash `<BookShell>` cho user mới (`PUT /api/progress` luôn trả ví chuẩn `{ milk, gem, stone, stone_shard }`) | f8baa29 | 83/83 test pass, build pass |
 | 2026-11-24 | 1–3 | Gộp `origin/feat/shop-streak` (toàn bộ GĐ1–3) vào `main`, sửa tương thích MySQL 5.6 cho `run-v2-migration.js` / SQL & sửa glob `npm test` | e432864, d57f593, ea9903b | 0 xung đột, 83/83 test pass |
