@@ -92,6 +92,23 @@ export const EXAM_PATHS = [
         }
       },
       {
+        id: "ielts-unit-reading-v2",
+        title: "Luyện đề IELTS Reading (Đợt 1)",
+        subtitle: "3 bài đọc học thuật chuẩn đề thi: TFNG, YNNG, Headings, Matching & Sentence Completion",
+        icon: "📑",
+        color: "#B71C1C",
+        lessons: [
+          "ielts-read-rooftop-farms",
+          "ielts-read-urban-trees",
+          "ielts-read-sleep-memory"
+        ],
+        checkpoint: {
+          title: "Kiểm tra Luyện đề IELTS Reading (Đợt 1)",
+          passRate: 0.7,
+          questionCount: 10
+        }
+      },
+      {
         id: "ielts-unit-3",
         title: "Module 3: Writing",
         subtitle: "Task 1 (Charts/Process) & Task 2 (Essays)",

@@ -186,7 +186,18 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] GĐ D — `GroupPicker.jsx`, `PlacementTest.jsx` (`/placement`), `LearningPathPage`, `HomePage`, `BookShell`, `LessonsPage`, `AccountPage` — 2026-11-24
 - [x] GĐ E — Chuyển đổi người dùng cũ (`migrateLegacyProgress`, gợi ý nhóm, `guard-unit-gems.mjs`), E2E & xác minh toàn bộ test/build — 2026-11-24
 - [x] UI U8 — Màn hình `ExamReading.jsx` (chia đôi màn hình, cột từ `glossary`, đồng hồ `timeLimitMin`, đủ 6 dạng đề thi gồm `sentence-completion` + `maxWords`, tô `evidence.quote` & bảng `paraphrasePairs`) — 2026-11-24 · b19057a
-- [x] Nội dung `int-u1` v2 — Nâng cấp toàn bộ 4 bài (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo theo `briefs/int-u1.md` — 2026-11-24
+- [x] Nội dung `int-u1` v2 — Nâng cấp toàn bộ 4 bài (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo theo `briefs/int-u1.md` — 2026-11-24 · 30369fa
+- [x] Nội dung `int-u2` v2 — Tạo `briefs/int-u2.md` & nâng cấp 4 bài (`school`, `weather`, `jobs`, `body`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · 33cebea
+- [x] Nội dung `int-u3` v2 — Tạo `briefs/int-u3.md` & nâng cấp 4 bài (`clothing`, `house`, `emotions`, `hobbies`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · af76a96
+- [x] Nội dung Starter `s1-u2` & `s1-u3` v2 — Tạo 2 brief + 8 bài `picture` (`s1-color-1..s1-size`, `s1-pets..s1-water`) & mở khoá 2 unit trong `units.js` (0 lỗi, 0 cảnh báo) — 2026-11-24 · 7a55d0c
+- [x] Nội dung IELTS Reading v2 (Đợt 1) — Đưa `ielts-read-rooftop-farms` vào lộ trình + viết 2 bài học thuật mới (`ielts-read-urban-trees`, `ielts-read-sleep-memory`), phủ đủ 6 dạng `ExamReading` (`ielts-unit-reading-v2`, 0 lỗi 0 cảnh báo) — 2026-11-24 · ab82bd8
+- [x] Nội dung `int-u4` v2 — Tạo `briefs/int-u4.md` & nâng cấp 5 bài (`pronouns`, `articles`, `prepositions-place`, `wh-questions`, `numbers-basic`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · 38b0042
+- [x] Nội dung `int-u5` v2 — Tạo `briefs/int-u5.md` & nâng cấp 4 bài (`daily-phrases`, `time-and-date`, `directions`, `money-prices`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · ed078ea
+- [x] Nội dung `int-u6` v2 — Tạo `briefs/int-u6.md` & nâng cấp 5 bài (`at-restaurant`, `at-airport`, `daily-routine`, `food`, `travel`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · 300f79f
+- [x] Nội dung `int-u7` v2 — Tạo `briefs/int-u7.md` & nâng cấp 4 bài (`nature`, `technology`, `shopping`, `health`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · 0987478
+- [x] Nội dung `int-u8` v2 — Tạo `briefs/int-u8.md` & nâng cấp 3 bài (`tenses`, `comparisons`, `communication-skills`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · e44ff26
+- [x] Nội dung `int-u9` v2 — Tạo `briefs/int-u9.md` & nâng cấp 3 bài (`environment`, `media`, `culture`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · b53adb2
+- [x] Nội dung `int-u10` v2 — Tạo `briefs/int-u10.md` & nâng cấp 3 bài (`business`, `science`, `education`) lên `contentVersion: 2` — **hoàn thành 100% lộ trình Trung bình `int-u1..u10` (39/39 bài, 0 lỗi 0 cảnh báo)** — 2026-11-24
 
 ---
 
@@ -200,7 +211,10 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a` | 110/110 test pass, build pass |
+| 2026-11-24 | Nội dung `int-u6..u10` | Hoàn tất cuốn chiếu 5 unit cuối (`int-u6` 5 bài, `int-u7` 4 bài, `int-u8` 3 bài, `int-u9` 3 bài, `int-u10` 3 bài — 18 bài) lên `contentVersion: 2`, khép lại **100% trọn bộ lộ trình Trung bình `int-u1..u10` (39/39 bài, 0 lỗi, 0 cảnh báo)** | `300f79f`, `0987478`, `e44ff26`, `b53adb2` + `int-u10` | 221 bài / 54 unit / 54 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
+| 2026-11-24 | Nội dung `int-u4`, `int-u5` | Nâng cấp trọn 5 bài `int-u4` (`pronouns`, `articles`, `prepositions-place`, `wh-questions`, `numbers-basic`) và 4 bài `int-u5` (`daily-phrases`, `time-and-date`, `directions`, `money-prices`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo) — hoàn tất nửa đầu lộ trình Trung bình `int-u1..u5` | `38b0042`, `ed078ea` | 221 bài / 54 unit / 36 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
+| 2026-11-24 | Nội dung v2 Đợt 2 | Hoàn tất tuần tự theo Plan trên `feat/content-v2-wave2`: nâng cấp `int-u2` (4 bài) + `int-u3` (4 bài), mở mới Starter `s1-u2` & `s1-u3` (8 bài `picture`), và đưa unit `ielts-unit-reading-v2` (3 bài IELTS Academic Reading phủ đủ 6 dạng đề) vào lộ trình `ielts` | `33cebea`, `af76a96`, `7a55d0c`, `ab82bd8` | 221 bài / 54 unit / 27 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
+| 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a`, `30369fa` | Gộp `main` (`558cd7c`) & push `origin/main` |
 | 2026-11-24 | 3-nhóm A–E | Hoàn thành toàn bộ Lộ trình 3 nhóm + Chuẩn nội dung UI v2 (`groups.js`, Unit S1 Starter, `path.js`, 0 bài mồ côi, migration MySQL 5.6+ & `guard-unit-gems.mjs`, `PictureLesson`, `LessonDetailPage` U1–U7/U10, `GroupPicker`, `PlacementTest`, `LearningPathPage`, di trú user cũ) | `feat/learning-groups` | 109/109 test pass, 210 bài / 51 unit, 0 lỗi validator, build pass |
 | 2026-11-24 | 3-nhóm B0 | Tích hợp bộ chuẩn nội dung v1.0, SRS 3 cấp, SDD Lộ trình 3 nhóm v2.0, SPMP hợp nhất; vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ, gắn `validate-lessons` vào `prebuild` | — | 92/92 test pass, 0 lỗi validator, build pass |
 | 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |

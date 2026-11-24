@@ -1,226 +1,208 @@
-// Auto-generated — chỉnh sửa bài học bằng cách sửa trực tiếp file này.
-// Track: general — Cảm xúc
+// Track: general — Unit int-u3 · Cảm xúc (contentVersion 2)
+// Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
+
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
 
 export const EMOTIONS_LESSON = {
-  id: "emotions",
-  title: "Cảm xúc",
-  description: "Diễn tả cảm xúc và trạng thái tinh thần",
-  level: "intermediate",
-  icon: "😊",
-  vocabulary: [
-    {
-      word: "Happy",
-      phonetic: "/ˈhæpi/",
-      meaning: "Vui vẻ",
-      example: "I feel happy today.",
-      illustration: "😊"
-    },
-    {
-      word: "Sad",
-      phonetic: "/sæd/",
-      meaning: "Buồn",
-      example: "She looks sad.",
-      illustration: "😢"
-    },
-    {
-      word: "Angry",
-      phonetic: "/ˈæŋɡri/",
-      meaning: "Tức giận",
-      example: "He is angry at me.",
-      illustration: "😠"
-    },
-    {
-      word: "Scared",
-      phonetic: "/skɛrd/",
-      meaning: "Sợ hãi",
-      example: "I am scared of snakes.",
-      illustration: "😨"
-    },
-    {
-      word: "Tired",
-      phonetic: "/taɪərd/",
-      meaning: "Mệt mỏi",
-      example: "I am so tired after work.",
-      illustration: "😴"
-    },
-    {
-      word: "Excited",
-      phonetic: "/ɪkˈsaɪtɪd/",
-      meaning: "Hào hứng",
-      example: "I am excited about the trip.",
-      illustration: "🤩"
-    },
-    {
-      word: "Bored",
-      phonetic: "/bɔːrd/",
-      meaning: "Chán",
-      example: "This movie is boring.",
-      illustration: "😒"
-    },
-    {
-      word: "Surprised",
-      phonetic: "/sərˈpraɪzd/",
-      meaning: "Ngạc nhiên",
-      example: "She was surprised by the gift.",
-      illustration: "😲"
-    },
-    {
-      word: "Nervous",
-      phonetic: "/ˈnɜːrvəs/",
-      meaning: "Lo lắng",
-      example: "I am nervous about the exam.",
-      illustration: "😰"
-    },
-    {
-      word: "Proud",
-      phonetic: "/praʊd/",
-      meaning: "Tự hào",
-      example: "I am proud of you!",
-      illustration: "🥹"
-    },
-    {
-      word: "Anxious",
-      phonetic: "/ˈæŋkʃəs/",
-      meaning: "Lo âu",
-      example: "She feels anxious before the test.",
-      illustration: "😟"
-    },
-    {
-      word: "Grateful",
-      phonetic: "/ˈɡreɪtfəl/",
-      meaning: "Biết ơn",
-      example: "I am grateful for your help.",
-      illustration: "🙏"
-    },
-    {
-      word: "Jealous",
-      phonetic: "/ˈdʒɛləs/",
-      meaning: "Ghen tị",
-      example: "He is jealous of her success.",
-      illustration: "😒"
-    },
-    {
-      word: "Lonely",
-      phonetic: "/ˈloʊnli/",
-      meaning: "Cô đơn",
-      example: "She feels lonely sometimes.",
-      illustration: "😔"
-    },
-    {
-      word: "Confident",
-      phonetic: "/ˈkɒnfɪdənt/",
-      meaning: "Tự tin",
-      example: "Be confident in yourself!",
-      illustration: "😎"
-    },
-    {
-      word: "Frustrated",
-      phonetic: "/frʌˈstreɪtɪd/",
-      meaning: "Bực bội",
-      example: "He is frustrated with the traffic.",
-      illustration: "😤"
-    },
-    {
-      word: "Calm",
-      phonetic: "/kɑːm/",
-      meaning: "Bình tĩnh",
-      example: "Stay calm and breathe deeply.",
-      illustration: "😌"
-    },
-    {
-      word: "Curious",
-      phonetic: "/ˈkjʊriəs/",
-      meaning: "Tò mò",
-      example: "The cat is very curious.",
-      illustration: "🤔"
-    },
-    {
-      word: "Embarrassed",
-      phonetic: "/ɪmˈbærəst/",
-      meaning: "Xấu hổ",
-      example: "She was embarrassed by the mistake.",
-      illustration: "😳"
-    },
-    {
-      word: "Hopeful",
-      phonetic: "/ˈhoʊpfəl/",
-      meaning: "Hy vọng",
-      example: "I am hopeful about the future.",
-      illustration: "🤞"
-    }
+  id: 'emotions',
+  contentVersion: 2,
+  track: 'general',
+  level: 'intermediate',
+  cefrLevel: 'A2',
+  unit: 'int-u3',
+  title: 'Cảm xúc',
+  description: 'Diễn tả cảm xúc đa dạng, phân biệt tính từ -ed/-ing và giới từ đi kèm',
+  icon: '😊',
+  objectives: [
+    'Diễn tả đúng 20 trạng thái cảm xúc tích cực và tiêu cực trong giao tiếp hằng ngày',
+    'Phân biệt rõ tính từ đuôi -ed (cảm xúc của người) và -ing (tính chất của sự vật)',
+    'Dùng đúng giới từ đi kèm tính từ cảm xúc (proud of, excited about, grateful for, scared of)',
   ],
+
+  vocabulary: [
+    v('Happy', '/ˈhæpi/', 'adjective', 'Vui vẻ', 'I feel happy when I see my friends.', 'Mình thấy vui khi gặp bạn bè.', '😊'),
+    v('Sad', '/sæd/', 'adjective', 'Buồn', 'She looks sad after saying goodbye.', 'Bạn ấy trông buồn sau khi chia tay.', '😢'),
+    v('Angry', '/ˈæŋɡri/', 'adjective', 'Tức giận', 'Try not to get angry too fast.', 'Hãy cố gắng đừng nổi giận quá nhanh.', '😠'),
+    v('Scared', '/skerd/', 'adjective', 'Sợ hãi', 'Mai is scared of dark rooms.', 'Mai sợ những căn phòng tối.', '😨'),
+    v('Tired', '/ˈtaɪərd/', 'adjective', 'Mệt mỏi', 'I feel tired after a long day.', 'Mình thấy mệt sau một ngày dài.', '😴'),
+    v('Excited', '/ɪkˈsaɪtɪd/', 'adjective', 'Hào hứng', 'We are excited about the school trip.', 'Chúng mình rất hào hứng về chuyến đi của trường.', '🤩'),
+    v('Bored', '/bɔːrd/', 'adjective', 'Chán nản', 'Minh felt bored on the rainy Sunday.', 'Minh thấy chán vào ngày Chủ Nhật mưa.', '😒'),
+    v('Surprised', '/sərˈpraɪzd/', 'adjective', 'Ngạc nhiên', 'Lan was surprised by the birthday card.', 'Lan ngạc nhiên trước tấm thiệp sinh nhật.', '😲'),
+    v('Nervous', '/ˈnɜːrvəs/', 'adjective', 'Hồi hộp, lo lắng', 'I am nervous before speaking in class.', 'Mình hơi hồi hộp trước khi phát biểu trên lớp.', '😰'),
+    v('Proud', '/praʊd/', 'adjective', 'Tự hào', 'My parents are proud of my progress.', 'Bố mẹ rất tự hào về sự tiến bộ của mình.', '🥹'),
+    v('Anxious', '/ˈæŋkʃəs/', 'adjective', 'Lo âu', 'He felt anxious before the final test.', 'Bạn ấy thấy lo âu trước kỳ thi cuối kỳ.', '😟'),
+    v('Grateful', '/ˈɡreɪtfəl/', 'adjective', 'Biết ơn', 'I am grateful for your kind support.', 'Mình biết ơn sự hỗ trợ tận tình của bạn.', '🙏'),
+    v('Jealous', '/ˈdʒeləs/', 'adjective', 'Ghen tị', 'Do not feel jealous of others.', 'Đừng cảm thấy ghen tị với người khác.', '😒'),
+    v('Lonely', '/ˈloʊnli/', 'adjective', 'Cô đơn', 'New students sometimes feel lonely.', 'Học sinh mới đôi khi cảm thấy cô đơn.', '😔'),
+    v('Confident', '/ˈkɑːnfɪdənt/', 'adjective', 'Tự tin', 'Practice helps you feel more confident.', 'Luyện tập giúp bạn cảm thấy tự tin hơn.', '😎'),
+    v('Frustrated', '/ˈfrʌstreɪtɪd/', 'adjective', 'Bực bội, nản lòng', 'He felt frustrated with the hard puzzle.', 'Bạn ấy bực bội vì câu đố quá khó.', '😤'),
+    v('Calm', '/kɑːm/', 'adjective', 'Bình tĩnh', 'Stay calm and breathe slowly.', 'Hãy giữ bình tĩnh và hít thở chậm.', '😌'),
+    v('Curious', '/ˈkjʊriəs/', 'adjective', 'Tò mò', 'Mai is curious about how planes fly.', 'Mai tò mò về cách máy bay bay lên.', '🤔'),
+    v('Embarrassed', '/ɪmˈberəst/', 'adjective', 'Ngượng ngùng, xấu hổ', 'I felt embarrassed after forgetting a line.', 'Mình thấy ngượng khi quên mất một câu thoại.', '😳'),
+    v('Hopeful', '/ˈhoʊpfəl/', 'adjective', 'Đầy hy vọng', 'We are hopeful about the team result.', 'Chúng mình đầy hy vọng về kết quả của đội.', '🤞'),
+  ],
+
   grammar: [
     {
-      title: "-ed vs -ing (Tính từ cảm xúc)",
-      explanation: "-ed mô tả cảm xúc của người. -ing mô tả tính chất của sự vật.",
+      title: 'Phân biệt tính từ cảm xúc đuôi -ed và -ing',
+      explanation: 'Tính từ đuôi "-ed" mô tả cảm xúc bên trong của con người (bored, excited, tired, surprised). Tính từ đuôi "-ing" mô tả tính chất của sự vật/sự việc gây ra cảm xúc đó (boring, exciting, tiring, surprising).',
       examples: [
-        {
-          en: "I am bored.",
-          vi: "Tôi chán. (tôi cảm thấy chán)"
-        },
-        {
-          en: "This movie is boring.",
-          vi: "Bộ phim này chán. (phim gây chán)"
-        },
-        {
-          en: "She is excited. The trip is exciting.",
-          vi: "Cô ấy hào hứng. Chuyến đi thú vị."
-        }
-      ]
-    }
+        { en: 'I am bored because the movie is boring.', vi: 'Mình thấy chán vì bộ phim này chán.' },
+        { en: 'Lan is excited about the exciting game.', vi: 'Lan hào hứng với trò chơi đầy thú vị.' },
+        { en: 'The long walk was tiring, so we are tired.', vi: 'Chặng đi bộ dài thật mệt, nên chúng mình thấy mệt.' },
+        { en: 'Minh was surprised by the surprising news.', vi: 'Minh ngạc nhiên trước tin tức đầy bất ngờ.' },
+      ],
+      mistakes: [
+        { wrong: 'I am boring today.', right: 'I am bored today.', note: '"I am boring" nghĩa là "tôi là người nhàm chán"; nói "tôi thấy chán" phải dùng "I am bored".' },
+        { wrong: 'This story is very excited.', right: 'This story is very exciting.', note: '"This story" là sự vật gây hào hứng nên dùng đuôi "-ing": "exciting".' },
+      ],
+    },
+    {
+      title: 'Giới từ thường đi kèm tính từ cảm xúc',
+      explanation: 'Nhiều tính từ cảm xúc đi với giới từ cố định: proud of (tự hào về), scared of (sợ), jealous of (ghen tị với), excited/nervous/hopeful about (về), grateful for (biết ơn vì), frustrated with (bực bội với).',
+      examples: [
+        { en: 'Ms. Hoa is proud of our class.', vi: 'Cô Hoa rất tự hào về lớp chúng mình.' },
+        { en: 'Minh is excited about the science fair.', vi: 'Minh hào hứng về hội chợ khoa học.' },
+        { en: 'I am grateful for your help today.', vi: 'Mình biết ơn sự giúp đỡ của bạn hôm nay.' },
+        { en: 'Don\'t be scared of making small mistakes.', vi: 'Đừng sợ mắc những lỗi nhỏ.' },
+      ],
+      mistakes: [
+        { wrong: 'My mom is proud with me.', right: 'My mom is proud of me.', note: '"Proud" luôn đi với giới từ "of", không dùng "with".' },
+        { wrong: 'I am grateful about your gift.', right: 'I am grateful for your gift.', note: 'Biết ơn điều gì dùng "grateful for", không dùng "about".' },
+      ],
+    },
   ],
+
+  reading: {
+    title: 'Buổi thuyết trình đầu tiên của Lan',
+    passage: [
+      'Minh: How do you feel before our talk, Lan? You look a little nervous.',
+      'Lan: Honestly, I feel anxious and scared of forgetting my words. I do not want to feel embarrassed.',
+      'Minh: Stay calm! You practiced hard, so be confident. Everyone here is curious about our topic.',
+      'Lan: Thank you, Minh. I am really grateful for your support. Yesterday I felt tired and frustrated, but today I am hopeful.',
+      'Minh: After we finish, Ms. Hoa will be proud of us, and we will feel happy and excited!',
+      'Lan: You are right. I am even surprised at how much better I feel already.',
+    ].join('\n'),
+    translation: [
+      'Minh: Bạn thấy thế nào trước bài nói của tụi mình, Lan? Trông bạn hơi hồi hộp.',
+      'Lan: Thật lòng thì mình thấy lo âu và sợ quên lời. Mình không muốn bị ngượng đâu.',
+      'Minh: Bình tĩnh nào! Bạn đã luyện tập rất chăm rồi, cứ tự tin lên. Mọi người ở đây đều tò mò về chủ đề của mình.',
+      'Lan: Cảm ơn Minh. Mình rất biết ơn sự ủng hộ của bạn. Hôm qua mình thấy mệt và nản, nhưng hôm nay mình tràn đầy hy vọng.',
+      'Minh: Khi tụi mình nói xong, cô Hoa sẽ tự hào về mình, và tụi mình sẽ thấy vui và hào hứng lắm!',
+      'Lan: Bạn nói đúng. Mình còn ngạc nhiên vì thấy nhẹ nhõm hơn hẳn rồi.',
+    ].join('\n'),
+    highlights: ['Nervous', 'Anxious', 'Scared', 'Embarrassed', 'Calm', 'Confident', 'Curious', 'Grateful', 'Tired', 'Frustrated', 'Hopeful', 'Proud', 'Happy', 'Excited', 'Surprised'],
+    questions: [
+      {
+        question: 'Trước buổi thuyết trình, Lan sợ điều gì nhất?',
+        options: ['Sợ trời mưa to', 'Sợ quên lời và bị ngượng', 'Sợ bị cô giáo mắng vì đi trễ', 'Sợ bạn bè bỏ về'],
+        correct: 1,
+        explanation: 'Lan nói: "I feel anxious and scared of forgetting my words. I do not want to feel embarrassed."',
+      },
+      {
+        question: 'Minh động viên Lan thế nào?',
+        options: [
+          'Khuyên Lan bỏ buổi thuyết trình',
+          'Khuyên Lan bình tĩnh, tự tin vì mọi người đều tò mò về chủ đề',
+          'Bảo Lan nói thật nhanh cho xong',
+          'Nhờ cô Hoa đổi ngày khác',
+        ],
+        correct: 1,
+        explanation: 'Minh nói: "Stay calm! You practiced hard, so be confident. Everyone here is curious about our topic."',
+      },
+      {
+        question: 'Hôm qua Lan đã cảm thấy thế nào?',
+        options: ['Mệt mỏi và nản lòng', 'Buồn ngủ và chán nản', 'Tức giận và ghen tị', 'Cô đơn và buồn bã'],
+        correct: 0,
+        explanation: 'Lan chia sẻ: "Yesterday I felt tired and frustrated".',
+      },
+      {
+        question: 'Sau khi nghe Minh động viên, tâm trạng của Lan thay đổi ra sao?',
+        options: ['Lo lắng hơn nhiều', 'Ngạc nhiên vì thấy tốt hơn hẳn', 'Trở nên tức giận', 'Muốn về nhà ngay'],
+        correct: 1,
+        explanation: 'Lan nói ở câu cuối: "I am even surprised at how much better I feel already."',
+      },
+    ],
+  },
+
   quiz: [
     {
-      question: "\"Happy\" nghĩa là:",
-      options: [
-        "Buồn",
-        "Vui vẻ",
-        "Tức giận",
-        "Sợ"
-      ],
-      correct: 1
+      skill: 'vocab',
+      question: 'Từ nào diễn tả cảm giác biết ơn ai đó đã giúp mình?',
+      options: ['Jealous', 'Grateful', 'Lonely', 'Frustrated'],
+      correct: 1,
+      explanation: '"Grateful" nghĩa là biết ơn (grateful for…).',
     },
     {
-      question: "\"I am ___ of you!\" (tự hào)",
-      options: [
-        "bored",
-        "scared",
-        "proud",
-        "tired"
-      ],
-      correct: 2
+      skill: 'vocab',
+      question: '"Curious" mô tả người có thái độ như thế nào?',
+      options: ['Rất tức giận', 'Tò mò, muốn tìm hiểu', 'Mệt mỏi muốn ngủ', 'Ngượng ngùng xấu hổ'],
+      correct: 1,
+      explanation: '"Curious" = tò mò, ham tìm hiểu.',
     },
     {
-      question: "\"The movie is ___.\" (gây chán)",
+      skill: 'grammar',
+      question: 'Chọn câu đúng khi bạn thấy bộ phim không hay và cảm thấy chán:',
       options: [
-        "bored",
-        "boring",
-        "bore",
-        "bores"
+        'I am boring because the movie is bored.',
+        'I am bored because the movie is boring.',
+        'I am bore because the movie is boring.',
+        'I am bored because the movie is bored.',
       ],
-      correct: 1
+      correct: 1,
+      explanation: 'Cảm xúc của người dùng "-ed" (bored), tính chất bộ phim dùng "-ing" (boring).',
     },
     {
-      question: "\"Nervous\" nghĩa là:",
-      options: [
-        "Bình tĩnh",
-        "Vui",
-        "Lo lắng",
-        "Tự tin"
-      ],
-      correct: 2
+      skill: 'grammar',
+      question: 'Điền tính từ đúng: "The long walk was very ___."',
+      options: ['tired', 'tiring', 'tire', 'tires'],
+      correct: 1,
+      explanation: '"The long walk" là sự việc gây ra cảm giác mệt nên dùng đuôi "-ing": "tiring".',
     },
     {
-      question: "\"She was ___ by the gift.\"",
+      skill: 'grammar',
+      question: 'Điền giới từ đúng: "My parents are proud ___ my progress."',
+      options: ['with', 'for', 'of', 'at'],
+      correct: 2,
+      explanation: 'Cấu trúc chuẩn là "be proud of + danh từ / V-ing".',
+    },
+    {
+      skill: 'grammar',
+      question: 'Điền giới từ đúng: "We are excited ___ the weekend trip."',
+      options: ['about', 'of', 'with', 'on'],
+      correct: 0,
+      explanation: '"Excited" đi với giới từ "about" (hào hứng về điều gì).',
+    },
+    {
+      skill: 'usage',
+      question: 'Bạn cùng lớp đang rất hồi hộp trước khi lên sân khấu. Câu động viên tự nhiên nhất là:',
       options: [
-        "surprising",
-        "surprised",
-        "surprise",
-        "surprises"
+        'Stay calm! You can do it.',
+        'You are very jealous today.',
+        'I am boring with this.',
+        'Be scared of your friends.',
       ],
-      correct: 1
-    }
-  ]
+      correct: 0,
+      explanation: '"Stay calm! You can do it." = Bình tĩnh nào! Bạn làm được mà.',
+    },
+    {
+      skill: 'listening',
+      audioText: 'I am grateful for your help today.',
+      question: 'Nghe và chọn cảm xúc người nói đang bày tỏ:',
+      options: ['Sự tức giận', 'Lòng biết ơn', 'Nỗi cô đơn', 'Sự ghen tị'],
+      correct: 1,
+      explanation: '"grateful for your help" = biết ơn sự giúp đỡ của bạn.',
+    },
+    {
+      skill: 'listening',
+      audioText: 'Lan felt confident after practicing her talk.',
+      question: 'Nghe và chọn cảm giác của Lan sau khi luyện tập:',
+      options: ['Tự tin', 'Xấu hổ', 'Lo âu', 'Chán nản'],
+      correct: 0,
+      explanation: '"felt confident" = cảm thấy tự tin.',
+    },
+  ],
 };
 
 export default EMOTIONS_LESSON;

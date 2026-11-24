@@ -1,244 +1,207 @@
-// Auto-generated — chỉnh sửa bài học bằng cách sửa trực tiếp file này.
-// Track: general — Thức ăn & Đồ uống
+// Track: general — Unit int-u6 · Thức ăn & Đồ uống (contentVersion 2)
+// Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
+
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
 
 export const FOOD_LESSON = {
-  id: "food",
-  title: "Thức ăn & Đồ uống",
-  description: "Từ vựng về đồ ăn, đồ uống và cách gọi món",
-  level: "intermediate",
-  icon: "🍕",
-  vocabulary: [
-    {
-      word: "Water",
-      phonetic: "/ˈwɔːtər/",
-      meaning: "Nước",
-      example: "Can I have some water, please?",
-      illustration: "💧"
-    },
-    {
-      word: "Rice",
-      phonetic: "/raɪs/",
-      meaning: "Cơm / Gạo",
-      example: "Vietnamese people eat rice every day.",
-      illustration: "🍚"
-    },
-    {
-      word: "Chicken",
-      phonetic: "/ˈtʃɪkɪn/",
-      meaning: "Gà",
-      example: "I like fried chicken.",
-      illustration: "🍗"
-    },
-    {
-      word: "Fruit",
-      phonetic: "/fruːt/",
-      meaning: "Trái cây",
-      example: "Eating fruit is healthy.",
-      illustration: "🍎"
-    },
-    {
-      word: "Vegetable",
-      phonetic: "/ˈvɛdʒtəbəl/",
-      meaning: "Rau",
-      example: "You should eat vegetables.",
-      illustration: "🥦"
-    },
-    {
-      word: "Coffee",
-      phonetic: "/ˈkɒfi/",
-      meaning: "Cà phê",
-      example: "I drink coffee every morning.",
-      illustration: "☕"
-    },
-    {
-      word: "Milk",
-      phonetic: "/mɪlk/",
-      meaning: "Sữa",
-      example: "Cowdi loves milk!",
-      illustration: "🥛"
-    },
-    {
-      word: "Bread",
-      phonetic: "/brɛd/",
-      meaning: "Bánh mì",
-      example: "I had bread for breakfast.",
-      illustration: "🍞"
-    },
-    {
-      word: "Delicious",
-      phonetic: "/dɪˈlɪʃəs/",
-      meaning: "Ngon",
-      example: "This food is delicious!",
-      illustration: "😋"
-    },
-    {
-      word: "Hungry",
-      phonetic: "/ˈhʌŋɡri/",
-      meaning: "Đói",
-      example: "I am so hungry!",
-      illustration: "🤤"
-    },
-    {
-      word: "Soup",
-      phonetic: "/suːp/",
-      meaning: "Súp",
-      example: "This chicken soup is warm.",
-      illustration: "🍲"
-    },
-    {
-      word: "Noodle",
-      phonetic: "/ˈnuːdəl/",
-      meaning: "Mì / Bún",
-      example: "I love eating noodles.",
-      illustration: "🍜"
-    },
-    {
-      word: "Steak",
-      phonetic: "/steɪk/",
-      meaning: "Bít tết",
-      example: "He ordered a steak for dinner.",
-      illustration: "🥩"
-    },
-    {
-      word: "Dessert",
-      phonetic: "/dɪˈzɜːrt/",
-      meaning: "Tráng miệng",
-      example: "I had ice cream for dessert.",
-      illustration: "🍰"
-    },
-    {
-      word: "Spicy",
-      phonetic: "/ˈspaɪsi/",
-      meaning: "Cay",
-      example: "This food is too spicy!",
-      illustration: "🌶️"
-    },
-    {
-      word: "Sweet",
-      phonetic: "/swiːt/",
-      meaning: "Ngọt",
-      example: "The cake is very sweet.",
-      illustration: "🍬"
-    },
-    {
-      word: "Sour",
-      phonetic: "/ˈsaʊər/",
-      meaning: "Chua",
-      example: "The lemon is sour.",
-      illustration: "🍋"
-    },
-    {
-      word: "Salty",
-      phonetic: "/ˈsɒlti/",
-      meaning: "Mặn",
-      example: "The soup is too salty.",
-      illustration: "🧂"
-    },
-    {
-      word: "Recipe",
-      phonetic: "/ˈrɛsɪpi/",
-      meaning: "Công thức nấu ăn",
-      example: "My grandmother has a special recipe.",
-      illustration: "📋"
-    },
-    {
-      word: "Appetizer",
-      phonetic: "/ˈæpɪtaɪzər/",
-      meaning: "Món khai vị",
-      example: "We had a salad as an appetizer.",
-      illustration: "🥗"
-    }
+  id: 'food',
+  contentVersion: 2,
+  track: 'general',
+  level: 'intermediate',
+  cefrLevel: 'A2',
+  unit: 'int-u6',
+  title: 'Thức ăn & Đồ uống',
+  description: 'Mô tả món ăn, đồ uống, hương vị và dùng đúng danh từ đếm được / không đếm được',
+  icon: '🍕',
+  objectives: [
+    'Gọi tên 20 từ vựng về món ăn, đồ uống, hương vị (sweet, sour, salty, spicy) và công thức nấu ăn',
+    'Phân biệt danh từ đếm được (an apple, two bowls) và không đếm được (some water, much rice, a little soup)',
+    'Gọi món, khen ngợi và nhận xét hương vị món ăn một cách tự nhiên',
   ],
+
+  vocabulary: [
+    v('Water', '/ˈwɔːtər/', 'noun', 'Nước uống', 'Can I have some cold water?', 'Cho mình xin một ít nước mát được không?', '💧'),
+    v('Rice', '/raɪs/', 'noun', 'Cơm, gạo', 'Most Vietnamese meals include steamed rice.', 'Hầu hết bữa cơm Việt Nam đều có cơm trắng.', '🍚'),
+    v('Chicken', '/ˈtʃɪkɪn/', 'noun', 'Thịt gà', 'Lan cooked ginger chicken for lunch.', 'Lan đã nấu gà kho gừng cho bữa trưa.', '🍗'),
+    v('Fruit', '/fruːt/', 'noun', 'Trái cây', 'Fresh tropical fruit is full of vitamins.', 'Trái cây nhiệt đới tươi có nhiều vitamin.', '🍎'),
+    v('Vegetable', '/ˈvedʒtəbəl/', 'noun', 'Rau củ', 'Add green vegetables to every meal.', 'Hãy thêm rau xanh vào mỗi bữa ăn.', '🥦'),
+    v('Coffee', '/ˈkɔːfi/', 'noun', 'Cà phê', 'My uncle drinks iced coffee every morning.', 'Chú mình uống cà phê đá mỗi sáng.', '☕'),
+    v('Milk', '/mɪlk/', 'noun', 'Sữa', 'Cowdi loves drinking fresh milk!', 'Cowdi rất thích uống sữa tươi!', '🥛'),
+    v('Bread', '/bred/', 'noun', 'Bánh mì', 'We bought warm bread from the bakery.', 'Chúng mình đã mua bánh mì nóng ở tiệm bánh.', '🍞'),
+    v('Delicious', '/dɪˈlɪʃəs/', 'adjective', 'Ngon miệng', 'Grandma\'s noodle soup tastes delicious!', 'Món bún nước của bà ăn thật ngon!', '😋'),
+    v('Hungry', '/ˈhʌŋɡri/', 'adjective', 'Đói bụng', 'I feel hungry after soccer practice.', 'Mình thấy đói sau buổi tập bóng đá.', '🤤'),
+    v('Soup', '/suːp/', 'noun', 'Canh, súp', 'Hot sour soup warms you up.', 'Canh chua nóng giúp bạn ấm bụng.', '🍲'),
+    v('Noodle', '/ˈnuːdəl/', 'noun', 'Mì, bún, phở', 'Minh enjoys eating beef noodles.', 'Minh rất thích ăn phở bò.', '🍜'),
+    v('Steak', '/steɪk/', 'noun', 'Thịt bò bít tết', 'He ordered a grilled steak for dinner.', 'Anh ấy gọi một phần bít tết nướng cho bữa tối.', '🥩'),
+    v('Dessert', '/dɪˈzɜːrt/', 'noun', 'Món tráng miệng', 'We shared sweet mango for dessert.', 'Chúng mình ăn chung xoài ngọt tráng miệng.', '🍰'),
+    v('Spicy', '/ˈspaɪsi/', 'adjective', 'Cay', 'This dipping sauce is slightly spicy.', 'Nước chấm này hơi cay một chút.', '🌶️'),
+    v('Sweet', '/swiːt/', 'adjective', 'Ngọt', 'Ripe bananas taste naturally sweet.', 'Chuối chín có vị ngọt tự nhiên.', '🍌'),
+    v('Sour', '/ˈsaʊər/', 'adjective', 'Chua', 'Fresh lime juice is quite sour.', 'Nước chanh tươi khá chua.', '🍋'),
+    v('Salty', '/ˈsɔːlti/', 'adjective', 'Mặn', 'Be careful not to make the soup too salty.', 'Cẩn thận đừng nấu canh mặn quá nhé.', '🧂'),
+    v('Recipe', '/ˈresəpi/', 'noun', 'Công thức nấu ăn', 'Lan followed her grandmother\'s secret recipe.', 'Lan làm theo công thức bí truyền của bà.', '📋'),
+    v('Appetizer', '/ˈæpɪtaɪzər/', 'noun', 'Món khai vị', 'We served fresh salad as an appetizer.', 'Chúng mình dọn xà lách tươi làm món khai vị.', '🥗'),
+  ],
+
   grammar: [
     {
-      title: "Danh từ đếm được & không đếm được",
-      explanation: "Danh từ đếm được có thể dùng a/an, số đếm. Không đếm được dùng some, much.",
+      title: 'Danh từ đếm được (Countable) & không đếm được (Uncountable)',
+      explanation: 'Danh từ đếm được dùng được với a/an, số đếm và "many" (an apple, two bowls, many vegetables). Danh từ không đếm được như water, rice, milk, bread, soup, coffee KHÔNG dùng a/an hay -s; ta dùng "some", "much" hoặc đơn vị chứa ("a glass of water", "a bowl of rice").',
       examples: [
-        {
-          en: "I want an apple.",
-          vi: "Tôi muốn một quả táo. (đếm được)"
-        },
-        {
-          en: "I need some water.",
-          vi: "Tôi cần một ít nước. (không đếm được)"
-        },
-        {
-          en: "How much rice do you want?",
-          vi: "Bạn muốn bao nhiêu cơm?"
-        }
-      ]
+        { en: 'Can I have a glass of cold water?', vi: 'Cho mình một ly nước mát được không?' },
+        { en: 'We need some rice and fresh vegetables.', vi: 'Chúng mình cần một ít gạo và rau tươi.' },
+        { en: 'How much milk does Cowdi drink?', vi: 'Cowdi uống bao nhiêu sữa?' },
+        { en: 'How many oranges did you buy?', vi: 'Bạn đã mua bao nhiêu quả cam?' },
+      ],
+      mistakes: [
+        { wrong: 'I would like a water and two breads.', right: 'I would like a glass of water and two loaves of bread.', note: '"Water" và "bread" không đếm được, phải dùng kèm đơn vị (a glass of, a slice/loaf of) hoặc "some".' },
+        { wrong: 'How many rice do you want?', right: 'How much rice do you want?', note: '"Rice" là danh từ không đếm được nên phải hỏi bằng "How much".' },
+      ],
     },
     {
-      title: "Gọi món & Mua sắm",
-      explanation: "Dùng \"Can I have...?\", \"I would like...\" để gọi món lịch sự.",
+      title: 'Động từ giác quan "taste / smell / look + tính từ" & "too + tính từ"',
+      explanation: 'Dùng "taste / smell + tính từ" để mô tả hương vị và mùi (tastes delicious, smells wonderful — KHÔNG dùng trạng từ). Dùng "too + tính từ" để nói vị quá mức (too spicy, too salty).',
       examples: [
-        {
-          en: "Can I have a glass of water?",
-          vi: "Cho tôi một ly nước được không?"
-        },
-        {
-          en: "I would like some coffee, please.",
-          vi: "Tôi muốn một ít cà phê."
-        },
-        {
-          en: "How much is this?",
-          vi: "Cái này giá bao nhiêu?"
-        }
-      ]
-    }
+        { en: 'This chicken soup tastes delicious!', vi: 'Món canh gà này nếm thật ngon!' },
+        { en: 'The fresh bread smells amazing.', vi: 'Bánh mì mới nướng thơm tuyệt vời.' },
+        { en: 'The sauce is too spicy for Mai.', vi: 'Nước chấm quá cay đối với Mai.' },
+        { en: 'The soup is not too salty today.', vi: 'Hôm nay món canh không bị quá mặn.' },
+      ],
+      mistakes: [
+        { wrong: 'This soup tastes deliciously.', right: 'This soup tastes delicious.', note: 'Sau động từ liên kết "taste / smell / look", dùng tính từ ("delicious"), không dùng trạng từ.' },
+      ],
+    },
   ],
+
+  reading: {
+    title: 'Bữa cơm trưa theo công thức của bà',
+    passage: [
+      'Minh: Mmm, something smells wonderful! I am so hungry, Lan.',
+      'Lan: Welcome! Today I cooked using my grandmother\'s recipe. We have salad as an appetizer, grilled chicken, steamed rice, and sour vegetable soup.',
+      'Minh: Let me try the soup. Wow, it tastes delicious—not too salty and just a little spicy!',
+      'Lan: Would you like some iced water, fresh milk, or a cup of coffee?',
+      'Minh: Just some water, please. What is for dessert?',
+      'Lan: Sweet mango and banana! Fresh fruit is great after a warm meal. Save some bread and noodles for tomorrow!',
+    ].join('\n'),
+    translation: [
+      'Minh: Ưm, có món gì thơm tuyệt vời thế! Mình đói bụng quá, Lan ơi.',
+      'Lan: Chào mừng bạn! Hôm nay mình nấu theo công thức của bà mình. Có xà lách khai vị, gà nướng, cơm trắng và canh chua rau củ.',
+      'Minh: Để mình nếm thử canh nhé. Ôi, ngon thật—không quá mặn mà chỉ hơi cay nhẹ thôi!',
+      'Lan: Bạn muốn uống chút nước mát, sữa tươi hay một tách cà phê?',
+      'Minh: Cho mình chút nước thôi nhé. Tráng miệng có món gì thế?',
+      'Lan: Xoài chín ngọt và chuối! Trái cây tươi rất hợp sau bữa cơm ấm nóng. Còn bánh mì và mì để dành ngày mai nhé!',
+    ].join('\n'),
+    highlights: ['Hungry', 'Recipe', 'Appetizer', 'Chicken', 'Rice', 'Sour', 'Vegetable', 'Soup', 'Delicious', 'Salty', 'Spicy', 'Water', 'Milk', 'Coffee', 'Dessert', 'Sweet', 'Fruit', 'Bread', 'Noodle'],
+    questions: [
+      {
+        question: 'Lan đã nấu bữa trưa dựa theo công thức của ai?',
+        options: ['Của thầy Tom', 'Của bà Lan', 'Của mẹ Minh', 'Của một nhà hàng'],
+        correct: 1,
+        explanation: 'Lan kể: "Today I cooked using my grandmother\'s recipe."',
+      },
+      {
+        question: 'Minh nhận xét vị của món canh như thế nào?',
+        options: ['Quá mặn và rất cay', 'Ngon, không quá mặn và chỉ hơi cay nhẹ', 'Quá ngọt và nguội', 'Chưa đủ chín'],
+        correct: 1,
+        explanation: 'Minh khen: "Wow, it tastes delicious—not too salty and just a little spicy!"',
+      },
+      {
+        question: 'Minh chọn uống đồ uống nào?',
+        options: ['Cà phê', 'Sữa tươi', 'Nước mát', 'Nước chanh'],
+        correct: 2,
+        explanation: 'Minh trả lời: "Just some water, please."',
+      },
+      {
+        question: 'Món tráng miệng của bữa trưa là gì?',
+        options: ['Bánh ngọt và kem', 'Xoài chín ngọt và chuối', 'Bánh mì nướng', 'Súp gà'],
+        correct: 1,
+        explanation: 'Lan nói: "Sweet mango and banana! Fresh fruit is great after a warm meal."',
+      },
+    ],
+  },
+
   quiz: [
     {
-      question: "\"Hungry\" nghĩa là:",
-      options: [
-        "No",
-        "Đói",
-        "Khát",
-        "Mệt"
-      ],
-      correct: 1
+      skill: 'vocab',
+      question: 'Từ nào có nghĩa là "công thức nấu ăn" (đừng nhầm với biên lai)?',
+      options: ['receipt', 'recipe', 'dessert', 'appetizer'],
+      correct: 1,
+      explanation: '"Recipe" (/ˈresəpi/) = công thức nấu ăn; "receipt" = biên lai.',
     },
     {
-      question: "\"I need ___ water.\"",
-      options: [
-        "a",
-        "an",
-        "some",
-        "many"
-      ],
-      correct: 2
+      skill: 'vocab',
+      question: 'Quả chanh tươi thường có vị nào?',
+      options: ['Sweet', 'Salty', 'Sour', 'Spicy'],
+      correct: 2,
+      explanation: '"Sour" nghĩa là vị chua.',
     },
     {
-      question: "\"Delicious\" nghĩa là:",
-      options: [
-        "Cay",
-        "Mặn",
-        "Ngon",
-        "Ngọt"
-      ],
-      correct: 2
+      skill: 'grammar',
+      question: 'Điền từ đúng cho danh từ không đếm được: "Can I have ___ water, please?"',
+      options: ['a', 'an', 'some', 'many'],
+      correct: 2,
+      explanation: '"Water" không đếm được nên dùng "some" trong lời đề nghị lịch sự.',
     },
     {
-      question: "\"Cowdi loves ___!\" (sữa)",
+      skill: 'grammar',
+      question: 'Chọn câu hỏi ĐÚNG ngữ pháp:',
       options: [
-        "coffee",
-        "milk",
-        "water",
-        "juice"
+        'How many rice do we need?',
+        'How much rice do we need?',
+        'How many milk is in the fridge?',
+        'How much vegetables did you buy?',
       ],
-      correct: 1
+      correct: 1,
+      explanation: '"Rice" là danh từ không đếm được nên dùng "How much".',
     },
     {
-      question: "Cách gọi món lịch sự:",
+      skill: 'grammar',
+      question: 'Chọn câu khen món ăn ĐÚNG ngữ pháp:',
       options: [
-        "Give me water!",
-        "I want water now!",
-        "Can I have some water, please?",
-        "Water!"
+        'This noodle soup tastes deliciously!',
+        'This noodle soup tastes delicious!',
+        'This noodle soup taste delicious!',
+        'This noodle soup is taste delicious!',
       ],
-      correct: 2
-    }
-  ]
+      correct: 1,
+      explanation: 'Sau "tastes" (ngôi 3 số ít) dùng tính từ "delicious".',
+    },
+    {
+      skill: 'usage',
+      question: 'Bạn nếm thử canh và thấy hơi mặn quá. Bạn nhận xét nhẹ nhàng:',
+      options: [
+        'The soup is a little too salty.',
+        'The soup is too hungry.',
+        'The soup is a recipe.',
+        'The soup is many salt.',
+      ],
+      correct: 0,
+      explanation: '"a little too salty" = hơi mặn một chút.',
+    },
+    {
+      skill: 'vocab',
+      question: 'Trong tiếng Anh, "mì / bún / phở" gọi chung bằng từ nào?',
+      options: ['Bread', 'Steak', 'Noodle', 'Soup'],
+      correct: 2,
+      explanation: '"Noodle" (thường dùng số nhiều "noodles") chỉ các món sợi như mì, bún, phở.',
+    },
+    {
+      skill: 'listening',
+      audioText: 'We need some rice, chicken, and fresh vegetables.',
+      question: 'Nghe và chọn 3 nguyên liệu cần mua:',
+      options: ['Gạo, thịt gà và rau tươi', 'Bánh mì, cà phê và sữa', 'Bít tết, xoài và nước chanh', 'Mì, cá và bánh ngọt'],
+      correct: 0,
+      explanation: 'Câu nghe nhắc rõ "rice, chicken, and fresh vegetables".',
+    },
+    {
+      skill: 'listening',
+      audioText: 'This fresh bread smells wonderful.',
+      question: 'Nghe và chọn câu đúng:',
+      options: ['Bánh mì tươi này thơm tuyệt vời.', 'Bánh mì này quá cay.', 'Bữa tối đã hết bánh mì.', 'Bạn ấy đang tìm công thức làm bánh.'],
+      correct: 0,
+      explanation: '"smells wonderful" = có mùi thơm tuyệt vời.',
+    },
+  ],
 };
 
 export default FOOD_LESSON;

@@ -64,6 +64,11 @@ import { IELTS_PRE_GRAMMAR_LESSON }              from './ielts-pre-grammar.js';
 import { IELTS_PRE_TASK1_BAR_LESSON }            from './ielts-pre-task1-bar.js';
 import { IELTS_PRE_TASK2_OPINION_LESSON }        from './ielts-pre-task2-opinion.js';
 
+// ── Đợt 1 IELTS Academic Reading v2 (ExamReading split-screen) ──
+import { IELTS_READ_ROOFTOP_FARMS_LESSON }       from './ielts-read-rooftop-farms.js';
+import { IELTS_READ_URBAN_TREES_LESSON }         from './ielts-read-urban-trees.js';
+import { IELTS_READ_SLEEP_MEMORY_LESSON }        from './ielts-read-sleep-memory.js';
+
 export const TRACK_ID = "ielts";
 export const TRACK_LABEL = "IELTS";
 export const TRACK_ICON = "🎓";
@@ -134,6 +139,10 @@ export const LESSONS = [
   IELTS_SPEAKING_PART3_LESSON,
   IELTS_LISTENING_ADVANCED_LESSON,
   IELTS_READING_ADVANCED_LESSON,
+  // Luyện đề Academic Reading v2 (Band 6.0 – 7.5)
+  IELTS_READ_ROOFTOP_FARMS_LESSON,
+  IELTS_READ_URBAN_TREES_LESSON,
+  IELTS_READ_SLEEP_MEMORY_LESSON,
 ].map(l => ({ ...l, track: TRACK_ID }));
 
 export default LESSONS;
