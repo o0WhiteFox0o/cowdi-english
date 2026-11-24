@@ -17,6 +17,8 @@ import {
 } from '../src/data/path.js';
 import { ALL_LESSONS } from '../src/data/lessons/index.js';
 import { validateLesson } from '../src/data/lessons/schema.js';
+import { GOLDEN_LESSONS } from '../src/data/lessons/_golden/index.js';
+import { buildCheckpointQuestions, generateQuizFromLesson } from '../src/utils/quiz-gen.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const emptyUser = { completedLessons: [], checkpointScores: {}, learnerGroup: null, activePath: null };
@@ -149,4 +151,26 @@ test('migrateLegacyProgress + suggestLegacyGroup + isAdvancedUnlocked hoạt đ�
   // Advanced unlock
   assert.equal(isAdvancedUnlocked(userData), false);
   assert.equal(isAdvancedUnlocked({ checkpointScores: { 'int-u10': { passed: true } } }), true);
+});
+
+test('GĐ C: buildCheckpointQuestions cho int-u4 chỉ chứa câu từ 5 bài của unit (sửa H5)', () => {
+  const intPath = getPathById('intermediate');
+  const u4 = intPath.units.find((u) => u.id === 'int-u4');
+  const allowedIds = new Set(u4.lessons);
+  const qs = buildCheckpointQuestions(u4, 15, ALL_LESSONS, 'intermediate');
+  assert.ok(qs.length >= 10 && qs.length <= 15);
+  for (const q of qs) {
+    assert.ok(allowedIds.has(q._lessonId), `Câu hỏi thuộc bài ngoài int-u4: ${q._lessonId}`);
+  }
+  // Rải đều: mọi bài trong int-u4 đều có ít nhất 1 câu
+  const coveredLessons = new Set(qs.map((q) => q._lessonId));
+  assert.equal(coveredLessons.size, u4.lessons.length);
+});
+
+test('GĐ C (U2): generateQuizFromLesson cho bài contentVersion 2 dùng toàn bộ câu soạn tay', () => {
+  const greetingsV2 = GOLDEN_LESSONS.find((l) => l.id === 'greetings');
+  const qs = generateQuizFromLesson(greetingsV2);
+  const authoredCount = qs.filter((q) => q._type === 'original').length;
+  assert.equal(authoredCount, greetingsV2.quiz.length);
+  assert.ok(qs.length >= 10);
 });

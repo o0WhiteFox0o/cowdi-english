@@ -1,12 +1,11 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LESSONS } from '../../data/lessons';
-import { EXAM_LESSONS } from '../../data/lessons';
+import { ALL_LESSONS, getGroup, getGroupOfPath } from '../../data/lessons';
 import { getLessonAccess, getNextPathLesson } from '../../data/path';
+import { generateQuizFromLesson } from '../../utils/quiz-gen';
+import PictureLesson from './PictureLesson';
 import Icon from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
-
-const ALL_LESSONS = [...LESSONS, ...EXAM_LESSONS];
 
 /* Lesson is learned as a fixed sequence of parts (Duolingo-style) */
 const LESSON_STEPS = [
@@ -103,128 +102,6 @@ const SpeechRecognitionAPI = typeof window !== 'undefined'
   ? (window.SpeechRecognition || window.webkitSpeechRecognition)
   : null;
 
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/**
- * Generate random quiz questions from lesson vocabulary & grammar.
- * Returns 10 questions (or fewer if lesson is small).
- * Question types: word→meaning, meaning→word, example fill-in, grammar.
- */
-function generateQuizFromLesson(lesson) {
-  const vocab = lesson.vocabulary || [];
-  const questions = [];
-
-  // Type 1: Word → Meaning (from vocab)
-  for (const v of vocab) {
-    const distractors = shuffleArray(vocab.filter((w) => w.word !== v.word))
-      .slice(0, 3)
-      .map((w) => w.meaning);
-    if (distractors.length < 3) continue;
-    const options = shuffleArray([v.meaning, ...distractors]);
-    questions.push({
-      question: `"${v.word}" nghĩa là:`,
-      options,
-      correct: options.indexOf(v.meaning),
-      _type: 'word2meaning',
-    });
-  }
-
-  // Type 2: Meaning → Word (from vocab)
-  for (const v of vocab) {
-    const distractors = shuffleArray(vocab.filter((w) => w.word !== v.word))
-      .slice(0, 3)
-      .map((w) => w.word);
-    if (distractors.length < 3) continue;
-    const options = shuffleArray([v.word, ...distractors]);
-    questions.push({
-      question: `Từ nào có nghĩa "${v.meaning}"?`,
-      options,
-      correct: options.indexOf(v.word),
-      _type: 'meaning2word',
-    });
-  }
-
-  // Type 3: Grammar questions from lesson.grammar examples
-  if (lesson.grammar) {
-    for (const g of lesson.grammar) {
-      for (const ex of g.examples) {
-        // Try to create a fill-in-blank from the English sentence
-        const words = ex.en.split(/\s+/);
-        if (words.length >= 4) {
-          // Pick a meaningful word to blank out (skip first/last, skip short words)
-          const candidates = words
-            .map((w, i) => ({ w: w.replace(/[.,!?;:'"]/g, ''), i }))
-            .filter((c) => c.i > 0 && c.i < words.length - 1 && c.w.length >= 3);
-          if (candidates.length > 0) {
-            const pick = candidates[Math.floor(Math.random() * candidates.length)];
-            const blank = words.map((w, i) => (i === pick.i ? '___' : w)).join(' ');
-            const otherWords = shuffleArray(
-              words.filter((_, i) => i !== pick.i && _.replace(/[.,!?;:'"]/g, '').length >= 3)
-            ).slice(0, 2);
-            // Add a random vocab word as distractor
-            const vocabDistractor = vocab.length > 0
-              ? vocab[Math.floor(Math.random() * vocab.length)].word.toLowerCase()
-              : 'something';
-            const distractors = [...new Set([...otherWords.map((w) => w.replace(/[.,!?;:'"]/g, '')), vocabDistractor])]
-              .filter((d) => d.toLowerCase() !== pick.w.toLowerCase())
-              .slice(0, 3);
-            if (distractors.length >= 3) {
-              const options = shuffleArray([pick.w, ...distractors.slice(0, 3)]);
-              questions.push({
-                question: `Điền vào chỗ trống: "${blank}"`,
-                options,
-                correct: options.indexOf(pick.w),
-                _type: 'grammar',
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Also include original quiz questions (shuffled)
-  if (lesson.quiz) {
-    for (const q of lesson.quiz) {
-      questions.push({ ...q, _type: 'original' });
-    }
-  }
-
-  // Shuffle all and pick up to 10, ensuring variety
-  const byType = {};
-  for (const q of shuffleArray(questions)) {
-    const t = q._type;
-    if (!byType[t]) byType[t] = [];
-    byType[t].push(q);
-  }
-
-  const selected = [];
-  const maxPerType = { word2meaning: 4, meaning2word: 3, grammar: 2, original: 3 };
-  for (const [type, qs] of Object.entries(byType)) {
-    const limit = maxPerType[type] || 3;
-    selected.push(...qs.slice(0, limit));
-  }
-
-  // If not enough, fill from remaining
-  const selectedSet = new Set(selected);
-  for (const q of shuffleArray(questions)) {
-    if (selected.length >= 10) break;
-    if (!selectedSet.has(q)) {
-      selected.push(q);
-      selectedSet.add(q);
-    }
-  }
-
-  return shuffleArray(selected).slice(0, Math.max(10, (lesson.quiz || []).length));
-}
-
 /** Spawn emoji confetti particles */
 function spawnConfetti(containerRef) {
   if (!containerRef.current) return;
@@ -244,18 +121,22 @@ function spawnConfetti(containerRef) {
 /* ── Component ───────────────────────────────────── */
 
 /**
- * ReadingPassage — hiển thị đoạn văn vận dụng từ đã học.
- * — Các từ trong `highlights` được in đậm/đổi màu, click để xem nghĩa & phát âm.
- * — Có nút đọc to toàn bộ đoạn, nút bật/tắt phần dịch.
- * — Có mini-quiz hiểu bài (tuỳ chọn).
+ * ReadingPassage — hiển thị đoạn văn vận dụng từ đã học (U3, U4, U5, U10).
+ * — U4: white-space: pre-line; hiển thị nhãn đoạn A, B, C… nếu có `paragraphs[]`.
+ * — U5: tô và bấm được cả cụm từ (so khớp cụm dài nhất trước).
+ * — U3: hiện `explanation` sau khi nộp bài.
+ * — U10: chỉ thưởng XP 1 lần cho mỗi bài (lưu localStorage), không farm vô hạn.
  */
 function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }) {
   const reading = lesson.reading;
+  const rewardKey = `cowdi_reading_rewarded:${lesson.id}`;
   const [showTranslation, setShowTranslation] = useState(false);
   const [activeWord, setActiveWord] = useState(null); // vocab object
   const [answers, setAnswers] = useState({}); // { qIdx: optIdx }
   const [submitted, setSubmitted] = useState(false);
-  const [rewarded, setRewarded] = useState(false);
+  const [rewarded, setRewarded] = useState(() => {
+    try { return localStorage.getItem(rewardKey) === '1'; } catch { return false; }
+  });
 
   if (!reading || !reading.passage) {
     return (
@@ -266,21 +147,51 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
     );
   }
 
-  // Map nhanh word → vocab object (không phân biệt hoa/thường)
+  // Map nhanh word/phrase → vocab object (không phân biệt hoa/thường)
   const vocabMap = {};
   for (const v of (lesson.vocabulary || [])) {
     vocabMap[v.word.toLowerCase()] = v;
   }
-  const highlightSet = new Set(reading.highlights.map((w) => w.toLowerCase()));
 
-  // Tách đoạn văn thành token (word, whitespace, punctuation) để render
-  const tokens = reading.passage.match(/[A-Za-zÀ-ỹ']+|\s+|[^\sA-Za-zÀ-ỹ']/g) || [];
+  // U5: Sắp xếp highlights dài nhất trước để khớp cụm từ trước từ đơn
+  const sortedHighlights = [...new Set((reading.highlights || []).filter(Boolean))]
+    .sort((a, b) => b.length - a.length);
+  const highlightSet = new Set(sortedHighlights.map((w) => w.toLowerCase()));
+  const highlightRegex = sortedHighlights.length
+    ? new RegExp(`(${sortedHighlights.map((w) => `\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).join('|')})`, 'gi')
+    : null;
 
   const handleWordClick = (raw) => {
     const v = vocabMap[raw.toLowerCase()];
     if (!v) return;
     setActiveWord(v);
     onSpeak(v.word);
+  };
+
+  const renderHighlightedText = (text) => {
+    if (!highlightRegex) return text;
+    const parts = String(text || '').split(highlightRegex);
+    return parts.map((part, i) => {
+      if (highlightSet.has(part.toLowerCase())) {
+        return (
+          <span
+            key={i}
+            role="button"
+            onClick={() => handleWordClick(part)}
+            className="fw-bold text-cowdi-primary"
+            style={{
+              cursor: 'pointer',
+              borderBottom: '2px dotted currentColor',
+              padding: '0 2px',
+            }}
+            title="Click để xem nghĩa"
+          >
+            {part}
+          </span>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
   };
 
   const submitQuiz = () => {
@@ -292,15 +203,26 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
       if (answers[i] === reading.questions[i].correct) correct++;
     }
     const pct = total ? Math.round((correct / total) * 100) : 0;
-    if (correct === total && !rewarded) {
-      addXP?.(15);
-      setRewarded(true);
+    if (correct === total) {
       play?.('correct');
-      showToast?.(`🎉 Trả lời đúng tất cả! +15 XP`, 'success');
+      if (!rewarded) {
+        addXP?.(15);
+        setRewarded(true);
+        try { localStorage.setItem(rewardKey, '1'); } catch { /* ignore */ }
+        showToast?.(`🎉 Trả lời đúng tất cả! +15 🥛 Sữa`, 'success');
+      } else {
+        showToast?.(`🎉 Trả lời đúng tất cả (${correct}/${total})!`, 'success');
+      }
     } else if (pct >= 50) {
-      addXP?.(5);
       play?.('click');
-      showToast?.(`Đúng ${correct}/${total}. +5 XP`, 'info');
+      if (!rewarded) {
+        addXP?.(5);
+        setRewarded(true);
+        try { localStorage.setItem(rewardKey, '1'); } catch { /* ignore */ }
+        showToast?.(`Đúng ${correct}/${total}. +5 🥛 Sữa`, 'info');
+      } else {
+        showToast?.(`Đúng ${correct}/${total}.`, 'info');
+      }
     } else {
       play?.('wrong');
       showToast?.(`Đúng ${correct}/${total}. Đọc lại đoạn văn nhé!`, 'warning');
@@ -348,31 +270,19 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
         )}
       </div>
 
-      {/* Passage */}
+      {/* Passage (U4: white-space: pre-line + nhãn đoạn A, B, C... nếu có paragraphs[]) */}
       <div className="card shadow-sm mb-3">
-        <div className="card-body" style={{ lineHeight: 1.9, fontSize: '1.08rem' }}>
-          {tokens.map((tok, i) => {
-            const lower = tok.toLowerCase();
-            if (highlightSet.has(lower)) {
-              return (
-                <span
-                  key={i}
-                  role="button"
-                  onClick={() => handleWordClick(tok)}
-                  className="fw-bold text-cowdi-primary"
-                  style={{
-                    cursor: 'pointer',
-                    borderBottom: '2px dotted currentColor',
-                    padding: '0 2px',
-                  }}
-                  title="Click để xem nghĩa"
-                >
-                  {tok}
-                </span>
-              );
-            }
-            return <span key={i}>{tok}</span>;
-          })}
+        <div className="card-body" style={{ lineHeight: 1.9, fontSize: '1.08rem', whiteSpace: 'pre-line' }}>
+          {Array.isArray(reading.paragraphs) && reading.paragraphs.length > 0 ? (
+            reading.paragraphs.map((p) => (
+              <div key={p.label} className="mb-3">
+                <span className="badge bg-primary me-2">{p.label}</span>
+                {renderHighlightedText(p.en)}
+              </div>
+            ))
+          ) : (
+            renderHighlightedText(reading.passage)
+          )}
         </div>
       </div>
 
@@ -384,11 +294,15 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
             <div className="flex-grow-1">
               <div className="fw-bold fs-5">
                 {activeWord.word}{' '}
+                {activeWord.pos && <span className="badge bg-light text-secondary border me-1 small">{activeWord.pos}</span>}
                 <small className="text-muted fw-normal">{activeWord.phonetic}</small>
               </div>
               <div className="text-cowdi-primary">→ {activeWord.meaning}</div>
               {activeWord.example && (
                 <div className="small fst-italic text-muted mt-1">“{activeWord.example}”</div>
+              )}
+              {activeWord.exampleVi && (
+                <div className="small text-muted">→ {activeWord.exampleVi}</div>
               )}
             </div>
             <button className="btn btn-sm btn-outline-secondary" onClick={() => onSpeak(activeWord.word)}>
@@ -401,15 +315,15 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
         </div>
       )}
 
-      {/* Translation */}
+      {/* Translation (U4: pre-line) */}
       {showTranslation && reading.translation && (
-        <div className="alert alert-light border">
+        <div className="alert alert-light border" style={{ whiteSpace: 'pre-line' }}>
           <div className="fw-bold text-muted small mb-1"><Emoji e="🇻🇳" size={13} /> Dịch nghĩa</div>
           <div>{reading.translation}</div>
         </div>
       )}
 
-      {/* Comprehension quiz */}
+      {/* Comprehension quiz (U3: hiện explanation sau khi nộp) */}
       {reading.questions && reading.questions.length > 0 && (
         <div className="card shadow-sm mt-3">
           <div className="card-body">
@@ -444,6 +358,11 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
                     );
                   })}
                 </div>
+                {submitted && q.explanation && (
+                  <div className="alert alert-info py-2 px-3 mt-2 mb-0 small">
+                    <strong>Giải thích:</strong> {q.explanation}
+                  </div>
+                )}
               </div>
             ))}
             <div className="d-flex gap-2 mt-3">
@@ -471,7 +390,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userData, addXP, addSkillXP, markLessonCompleted, incrementQuizzes, setWordStatus, getWordStatus, refreshWallet } = useUser();
+  const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, incrementQuizzes, setWordStatus, getWordStatus, refreshWallet } = useUser();
   const { getActivePetWithDecay, onLessonComplete } = usePet();
   const showToast = useToast();
   const { play } = useSound();
@@ -509,16 +428,17 @@ export default function LessonDetailPage() {
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(null);
   const [finished, setFinished] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(true);
+  const [wrongAnswers, setWrongAnswers] = useState([]);
   const [completedRewards, setCompletedRewards] = useState(null);
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
 
-  // Flashcard state
+  // Flashcard + Vocab batch state (SDD §4.1: vocabBatchSize = 10)
+  const [vocabBatch, setVocabBatch] = useState(0);
   const [fcIndex, setFcIndex] = useState(0);
   const [fcFlipped, setFcFlipped] = useState(false);
   const [fcMastered, setFcMastered] = useState(new Set());
-  const [fcExampleVi, setFcExampleVi] = useState({}); // { [exampleEn]: viTranslation }
-  const [fcTranslating, setFcTranslating] = useState(false);
 
   // Generated quiz questions (randomized each attempt)
   const [quizQuestions, setQuizQuestions] = useState([]);
@@ -536,6 +456,7 @@ export default function LessonDetailPage() {
   const [listenScore, setListenScore] = useState(0);
   const [listenQs, setListenQs] = useState([]);
   const [listenDone, setListenDone] = useState(false);
+  const [listenXpEarned, setListenXpEarned] = useState(0);
 
   // Speech recognition state
   const [isRecording, setIsRecording] = useState(false);
@@ -613,7 +534,17 @@ export default function LessonDetailPage() {
     setIsRecording(false);
   }, []);
 
-  const speakWord = useCallback((text, rate = 0.8, opts = {}) => {
+  /* ── Access & Group rules (SDD-LEARNING-GROUPS §4) ── */
+  const access = useMemo(() => (lesson ? getLessonAccess(lesson.id, userData) : { locked: false }), [lesson, userData]);
+  const group = useMemo(() => getGroupOfPath(access.path?.id) || getGroup('intermediate'), [access.path?.id]);
+  const rules = group.rules;
+  const defaultTtsRate = rules.ttsRate || 0.85;
+  const speakMandatory = group.id === 'exam' && Boolean(access.unit?.id === 'exam-pron' || (lesson && /speaking/i.test(lesson.id)));
+  const speakPassThreshold = access.unit?.id === 'exam-pron'
+    ? (rules.pronPassRate?.examPron || 70)
+    : (rules.pronPassRate?.speaking || 60);
+
+  const speakWord = useCallback((text, rate = defaultTtsRate, opts = {}) => {
     if (!('speechSynthesis' in window) || !text) return Promise.resolve();
     return new Promise((resolve) => {
       const done = () => {
@@ -687,19 +618,33 @@ export default function LessonDetailPage() {
 
   const speakSlow = useCallback((text) => speakWord(text, 0.55), [speakWord]);
 
-  /* ── Lesson steps: only parts that have content ── */
-  const steps = useMemo(() => {
-    if (!lesson) return [];
+  /* ── Lesson steps: phân tách phần bắt buộc & tuỳ chọn theo nhóm (SDD §4.1) ── */
+  const { requiredSteps, optionalSteps, steps } = useMemo(() => {
+    if (!lesson) return { requiredSteps: [], optionalSteps: [], steps: [] };
     const hasListen = (lesson.grammar || []).some((g) =>
       (g.examples || []).some((ex) => ex.en && ex.vi && ex.en.trim().split(/\s+/).length >= 2));
-    return LESSON_STEPS.filter((s) => {
+    const available = LESSON_STEPS.filter((s) => {
       if (s.key === 'grammar') return (lesson.grammar || []).length > 0;
       if (s.key === 'reading') return !!lesson.reading?.passage;
       if (s.key === 'listen') return hasListen;
       if (s.key === 'quiz') return (lesson.quiz || []).length > 0;
       return true;
     });
-  }, [lesson]);
+    const reqSet = new Set(rules.requiredSteps || available.map((s) => s.key));
+    if (speakMandatory) reqSet.add('speak');
+    const req = available.filter((s) => reqSet.has(s.key));
+    const opt = available.filter((s) => !reqSet.has(s.key));
+    return { requiredSteps: req, optionalSteps: opt, steps: [...req, ...opt] };
+  }, [lesson, rules.requiredSteps, speakMandatory]);
+
+  // Reset batch/flashcard khi đổi bài
+  useEffect(() => {
+    setVocabBatch(0);
+    setFcIndex(0);
+    setFcFlipped(false);
+    setQuizMode(false);
+    setFinished(false);
+  }, [id]);
 
   const markStep = useCallback((key) => {
     setStepDone((prev) => {
@@ -794,11 +739,10 @@ export default function LessonDetailPage() {
   }
 
   /* ── Sequential path: bài chưa mở khoá thì không được học ── */
-  const access = getLessonAccess(lesson.id, userData);
   if (access.locked) {
     const b = access.blocker;
     const blockerLesson = b?.type === 'lesson' ? ALL_LESSONS.find((l) => l.id === b.lessonId) : null;
-    const pathQuery = access.path?.id && access.path.id !== 'general' ? `?tab=${access.path.id}` : '';
+    const pathQuery = access.path?.id ? `?tab=${access.path.id}` : '';
     return (
       <div className="text-center py-5 fade-in" style={{ maxWidth: 520, margin: '0 auto' }}>
         <Icon name="lock" size={84} />
@@ -827,14 +771,20 @@ export default function LessonDetailPage() {
   }
 
   const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson.quiz || []);
-  const vocab = lesson.vocabulary;
-  const pathQuerySuffix = access.path?.id && access.path.id !== 'general' ? `?tab=${access.path.id}` : '';
+  const vocab = lesson.vocabulary || [];
+  const batchSize = rules.vocabBatchSize && vocab.length > rules.vocabBatchSize ? rules.vocabBatchSize : vocab.length;
+  const totalBatches = batchSize > 0 ? Math.ceil(vocab.length / batchSize) : 1;
+  const safeBatch = Math.min(vocabBatch, Math.max(0, totalBatches - 1));
+  const pagedVocab = totalBatches > 1
+    ? vocab.slice(safeBatch * batchSize, (safeBatch + 1) * batchSize)
+    : vocab;
+  const pathQuerySuffix = access.path?.id ? `?tab=${access.path.id}` : '';
   const pathNext = access.path ? getNextPathLesson(userData, access.path.id) : null;
 
-  /* ── Stepper progress ── */
-  const stepsDoneCount = steps.filter((s) => stepDone[s.key]).length;
-  const stepsPct = steps.length ? Math.round((stepsDoneCount / steps.length) * 100) : 0;
-  const firstOpenIdx = steps.findIndex((s) => !stepDone[s.key]);
+  /* ── Stepper progress (chỉ tính phần bắt buộc theo SDD §4.1) ── */
+  const stepsDoneCount = requiredSteps.filter((s) => stepDone[s.key]).length;
+  const stepsPct = requiredSteps.length ? Math.round((stepsDoneCount / requiredSteps.length) * 100) : 0;
+  const firstOpenIdx = requiredSteps.findIndex((s) => !stepDone[s.key]);
   const curStepIdx = steps.findIndex((s) => s.key === tab);
   const nextStep = curStepIdx >= 0 ? steps[curStepIdx + 1] : null;
   const completeStep = () => {
@@ -842,10 +792,10 @@ export default function LessonDetailPage() {
     if (nextStep) { setTab(nextStep.key); window.scrollTo({ top: 0, behavior: 'smooth' }); }
   };
 
-  /* ── speakAlong sentences: combine vocab examples + grammar examples ── */
+  /* ── speakAlong sentences: ưu tiên exampleVi (U7), fallback meaning ── */
   const speakSentences = [
-    ...vocab.map((v) => ({ en: v.example, vi: v.meaning, label: v.word })),
-    ...lesson.grammar.flatMap((g) => g.examples.map((ex) => ({ en: ex.en, vi: ex.vi, label: g.title }))),
+    ...vocab.map((v) => ({ en: v.example, vi: v.exampleVi || v.meaning, label: v.word })),
+    ...(lesson.grammar || []).flatMap((g) => (g.examples || []).map((ex) => ({ en: ex.en, vi: ex.vi, label: g.title }))),
   ].filter((s) => s.en && s.vi);
 
   /* ── Listen-sentence pool: chỉ dùng cặp câu en↔vi đầy đủ (không dùng vocab
@@ -931,11 +881,12 @@ export default function LessonDetailPage() {
       const isRepeat = userData.completedLessons.includes(lesson.id);
       const raw = listenScore * 3 + (listenScore === listenQs.length ? 10 : 0);
       const xp = Math.max(2, Math.round(isRepeat ? raw / 3 : raw));
+      setListenXpEarned(xp);
       addXP(xp);
       addSkillXP('listening', xp);
       play('celebration');
       petRef.current?.emit('lesson_done', { text: 'Nghe giỏi lắm!' });
-      showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} XP 🎧`, 'success');
+      showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} 🥛 Sữa 🎧`, 'success');
     }
   }
 
@@ -947,7 +898,11 @@ export default function LessonDetailPage() {
       return;
     }
     const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    // XP = avg% × số câu đã đọc × 0.2 (vd: avg 80%, 5 câu → 80 XP); ôn lại bài đã xong nhận 1/3
+    if (speakMandatory && SpeechRecognitionAPI && avg < speakPassThreshold) {
+      showToast(`Cần điểm phát âm trung bình ≥${speakPassThreshold}% để đạt phần bắt buộc này (hiện ${avg}%). Thử đọc lại nhé!`, 'warning');
+      return;
+    }
+    // XP = avg% × số câu đã đọc × 0.2; ôn lại bài đã xong nhận 1/3
     const isRepeat = userData.completedLessons.includes(lesson.id);
     const xp = Math.max(5, Math.round(avg * scores.length * 0.2 * (isRepeat ? 1 / 3 : 1)));
     addXP(xp);
@@ -956,7 +911,7 @@ export default function LessonDetailPage() {
     setSpeakDone(true);
     play('celebration');
     petRef.current?.emit('lesson_done', { text: 'Phát âm tuyệt lắm!' });
-    showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} XP, +${xp} điểm Speaking`, 'success');
+    showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} 🥛 Sữa, +${xp} điểm Speaking`, 'success');
   }
 
   function resetSpeak() {
@@ -978,19 +933,22 @@ export default function LessonDetailPage() {
     return () => clearTimeout(t);
   }, [tab, listenIdx, listenQs, listenDone, speakWord]);
 
-  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới — giúp người học nghe nhiều hơn */
+  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới (U6: nếu có audioText thì đọc audioText tiếng Anh) */
   useEffect(() => {
     if (!quizMode || finished) return;
     const q = quiz[qIndex];
     if (!q) return;
-    const t = setTimeout(() => speakWord(q.question, 0.85), 250);
+    const t = setTimeout(() => {
+      if (q.audioText) speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' });
+      else speakWord(q.question, defaultTtsRate);
+    }, 250);
     return () => {
       clearTimeout(t);
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     };
-  }, [quizMode, qIndex, finished, quiz, speakWord]);
+  }, [quizMode, qIndex, finished, quiz, speakWord, defaultTtsRate]);
 
-  /* ── Quiz answer handler ── */
+  /* ── Quiz answer handler (U3 + H4) ── */
   async function handleAnswer(idx) {
     if (answered !== null) return;
     setAnswered(idx);
@@ -1005,21 +963,90 @@ export default function LessonDetailPage() {
       setWrongAnim(true);
       play('wrong');
       setTimeout(() => setWrongAnim(false), 500);
+      setWrongAnswers((prev) => [
+        ...prev,
+        {
+          question: q.audioText ? `${q.question} ("${q.audioText}")` : q.question,
+          picked: q.options[idx],
+          correct: q.options[q.correct],
+          explanation: q.explanation || '',
+        },
+      ]);
     }
     emitPetAnswer(isCorrect);
 
-    // 🔊 Khi trả lời ĐÚNG → đọc xác nhận đáp án (giọng tự detect EN/VN)
-    //    rồi mới sang câu kế tiếp. Trả lời sai → giữ delay 1.2s như cũ.
+    // Đọc đáp án khi đúng; nếu câu có explanation hoặc trả lời sai -> chờ người học bấm "Câu tiếp theo →" (U3)
     if (isCorrect) {
-      // Chờ animation correct hiện ra rồi mới phát âm để không bị cắt
-      await new Promise((r) => setTimeout(r, 350));
-      await speakWord(q.options[q.correct], 0.85);
-      // Pause ngắn cho dễ chịu
       await new Promise((r) => setTimeout(r, 300));
-      goToNextQuestion(true);
-    } else {
-      setTimeout(() => goToNextQuestion(false), 1200);
+      await speakWord(q.options[q.correct], defaultTtsRate);
+      if (!q.explanation) {
+        await new Promise((r) => setTimeout(r, 300));
+        goToNextQuestion(true);
+      }
     }
+  }
+
+  function finishLessonAttempt({ finalScore, total, passRateOverride }) {
+    const pct = total > 0 ? finalScore / total : 0;
+    const pctInt = Math.round(pct * 100);
+    const threshold = passRateOverride ?? rules.lessonPassRate ?? 0.7;
+    // Kiểm tra phần phát âm bắt buộc ở nhóm Luyện thi (khi có micro)
+    const needSpeakFirst = speakMandatory && SpeechRecognitionAPI && !stepDone.speak && !speakDone;
+    const passed = pct >= threshold && !needSpeakFirst;
+    const isPerfect = finalScore === total && total > 0;
+    const isFirst = !userData.completedLessons.includes(lesson.id);
+
+    recordLessonScore(lesson.id, pctInt);
+
+    const base = finalScore * 10 + (isPerfect ? 30 : 0);
+    const xp = passed
+      ? (isFirst ? base + 60 : Math.max(5, Math.round(base / 3)))
+      : Math.max(5, Math.round(base / 3)); // L4: chưa đạt vẫn nhận 1/3 Sữa, không thưởng hoàn thành
+
+    const prevW = userData.wallet || {};
+    addXP(xp);
+    incrementQuizzes(isPerfect);
+
+    if (passed) {
+      markLessonCompleted(lesson.id);
+      onLessonComplete();
+      play('celebration');
+      petRef.current?.emit('lesson_done', { text: isPerfect ? 'Trọn điểm xuất sắc!' : 'Hoàn thành bài học!' });
+      spawnConfetti(confettiRef);
+    } else {
+      play('wrong');
+    }
+
+    if (typeof refreshWallet === 'function') {
+      refreshWallet().then((newW) => {
+        if (newW) {
+          setCompletedRewards({
+            milk: xp,
+            gem: Math.max(0, (newW.gem || 0) - (prevW.gem || 0)),
+            stone: Math.max(0, (newW.stone || 0) - (prevW.stone || 0)),
+          });
+        } else {
+          setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
+        }
+      });
+    } else {
+      setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
+    }
+
+    if (passed) {
+      showToast(
+        isFirst
+          ? `+${xp} 🥛 Sữa! Bạn đã hoàn thành bài học! 🎉`
+          : `Ôn lại tốt! +${xp} 🥛 Sữa ${isPerfect ? '· Trọn điểm 💯' : ''}`,
+        'success'
+      );
+    } else if (needSpeakFirst) {
+      showToast(`Cần hoàn thành phần Nói theo (≥${speakPassThreshold}%) để qua bài này!`, 'warning');
+    } else {
+      showToast(`Chưa đạt (cần ≥${Math.round(threshold * 100)}%). Nhận +${xp} 🥛 Sữa ôn tập!`, 'warning');
+    }
+
+    return { passed, xp, milk: xp, gem: 0, stone: 0, needSpeakFirst };
   }
 
   function goToNextQuestion(wasCorrect) {
@@ -1028,46 +1055,9 @@ export default function LessonDetailPage() {
       setAnswered(null);
     } else {
       setFinished(true);
-      const finalScore = wasCorrect ? score + 1 : score;
-      const isPerfect = finalScore === quiz.length;
-      const isFirst = !userData.completedLessons.includes(lesson.id);
-      // Lần đầu hoàn thành: 10 XP/câu + thưởng 60 XP (+30 nếu trọn điểm).
-      // Làm lại: 1/3 XP để ôn tập vẫn có ý nghĩa nhưng không farm được.
-      const base = finalScore * 10 + (isPerfect ? 30 : 0);
-      const xp = isFirst ? base + 60 : Math.max(5, Math.round(base / 3));
-      const prevW = userData.wallet || {};
-
-      addXP(xp);
-      markLessonCompleted(lesson.id);
-      incrementQuizzes(isPerfect);
-      onLessonComplete();
-      play('celebration');
-      petRef.current?.emit('lesson_done', { text: isPerfect ? 'Trọn điểm xuất sắc!' : 'Hoàn thành bài học!' });
-      spawnConfetti(confettiRef);
-
-      // Cập nhật số dư thực nhận từ server
-      if (typeof refreshWallet === 'function') {
-        refreshWallet().then((newW) => {
-          if (newW) {
-            setCompletedRewards({
-              milk: xp,
-              gem: Math.max(0, (newW.gem || 0) - (prevW.gem || 0)),
-              stone: Math.max(0, (newW.stone || 0) - (prevW.stone || 0)),
-            });
-          } else {
-            setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
-          }
-        });
-      } else {
-        setCompletedRewards({ milk: xp, gem: 0, stone: 0 });
-      }
-
-      showToast(
-        isFirst
-          ? `+${xp} 🥛 Sữa! Bạn đã hoàn thành bài học! 🎉`
-          : `Ôn lại tốt! +${xp} 🥛 Sữa ${isPerfect ? '· Trọn điểm 💯' : ''}`,
-        'success'
-      );
+      const finalScore = wasCorrect && answered === null ? score + 1 : score;
+      const res = finishLessonAttempt({ finalScore, total: quiz.length });
+      setQuizPassed(res.passed);
     }
   }
 
@@ -1077,6 +1067,8 @@ export default function LessonDetailPage() {
     setScore(0);
     setAnswered(null);
     setFinished(false);
+    setQuizPassed(true);
+    setWrongAnswers([]);
     setCorrectAnim(false);
     setWrongAnim(false);
     streakRef.current = 0;
@@ -1144,23 +1136,43 @@ export default function LessonDetailPage() {
      QUIZ RESULT / QUIZ / MAIN LESSON VIEW
      ══════════════════════════════════════════ */
   const renderLessonBody = () => {
-  if (quizMode && finished) {
-    const pct = Math.round((score / quiz.length) * 100);
+  // Cấp 1 (Mới học): định dạng picture chuyển thẳng sang PictureLesson (SDD §4.4)
+  if (lesson.format === 'picture') {
     return (
-      <div className="text-center py-5 fade-in position-relative" ref={confettiRef}>
-        <div className={`quiz-result-icon emoji-big ${pct >= 80 ? 'bounce-in' : ''}`} style={{ fontSize: '5rem' }}>
-          <Icon name={pct >= 80 ? 'trophy' : pct >= 50 ? 'thumb' : 'muscle'} size={96} />
+      <PictureLesson
+        lesson={lesson}
+        rules={rules}
+        speakWord={speakWord}
+        play={play}
+        petRef={petRef}
+        userData={userData}
+        pathQuerySuffix={pathQuerySuffix}
+        pathNext={pathNext}
+        onComplete={({ score: picScore, total, passed }) =>
+          finishLessonAttempt({ finalScore: picScore, total, passRateOverride: rules.lessonPassRate })
+        }
+      />
+    );
+  }
+
+  if (quizMode && finished) {
+    const pct = quiz.length ? Math.round((score / quiz.length) * 100) : 0;
+    const passPct = Math.round((rules.lessonPassRate || 0.7) * 100);
+    return (
+      <div className="text-center py-4 fade-in position-relative" style={{ maxWidth: 680, margin: '0 auto' }} ref={confettiRef}>
+        <div className={`quiz-result-icon emoji-big ${quizPassed ? 'bounce-in' : ''}`} style={{ fontSize: '5rem' }}>
+          <Icon name={quizPassed ? 'trophy' : 'muscle'} size={96} />
         </div>
-        <h2 className="fw-bold mt-3">Kết quả</h2>
-        <div className="display-4 fw-bold text-cowdi-primary my-3">{score}/{quiz.length}</div>
+        <h2 className="fw-bold mt-3">{quizPassed ? 'Hoàn thành bài học!' : `Chưa đạt — cần ≥${passPct}%`}</h2>
+        <div className="display-4 fw-bold text-cowdi-primary my-2">{score}/{quiz.length}</div>
         <p className="lead text-muted">
-          {pct}% — <EmojiText>{pct >= 80 ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : pct >= 50 ? 'Khá tốt! Cố thêm nhé! 🐮' : 'Cố gắng thêm nhé! Cowdi tin bạn! 🐮💪'}</EmojiText>
+          {pct}% — <EmojiText>{quizPassed ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : `Cần đạt ít nhất ${passPct}% để đánh dấu xong bài. Ôn lại rồi thử lại nhé! 🐮💪`}</EmojiText>
         </p>
-        {pct === 100 && <div className="badge bg-warning text-dark fs-6 mb-3"><Icon name="hundred" size={16} /> PERFECT SCORE!</div>}
+        {pct === 100 && quizPassed && <div className="badge bg-warning text-dark fs-6 mb-3"><Icon name="hundred" size={16} /> PERFECT SCORE!</div>}
 
         {/* Phần thưởng thực nhận từ server */}
         <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap my-3">
-          <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{completedRewards?.milk ?? score * 10} Sữa</span>
+          <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{completedRewards?.milk ?? 5} Sữa</span>
           {completedRewards?.gem > 0 && (
             <span className="badge bg-info text-dark fs-6 px-3 py-2">💎 +{completedRewards.gem} Gem</span>
           )}
@@ -1168,15 +1180,48 @@ export default function LessonDetailPage() {
             <span className="badge bg-success fs-6 px-3 py-2">💠 +{completedRewards.stone} Đá nguyên tố</span>
           )}
         </div>
-        <div className="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-          {pathNext?.type === 'lesson' && pathNext.lessonId !== lesson.id && (
-            <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}><Icon name="play" size={18} /> Bài tiếp theo</button>
+
+        {/* Liệt kê câu sai kèm đáp án đúng khi chưa đạt (hoặc có câu sai) */}
+        {wrongAnswers.length > 0 && (
+          <div className="card text-start shadow-sm my-3">
+            <div className="card-body">
+              <h6 className="fw-bold text-danger mb-2">Các câu cần ôn lại ({wrongAnswers.length})</h6>
+              <div className="d-flex flex-column gap-2">
+                {wrongAnswers.map((w, wi) => (
+                  <div key={wi} className="p-2 rounded bg-light small">
+                    <div className="fw-bold">{w.question}</div>
+                    <div className="text-danger">Bạn chọn: {w.picked}</div>
+                    <div className="text-success fw-bold">Đáp án đúng: {w.correct}</div>
+                    {w.explanation && <div className="text-muted mt-1">{w.explanation}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="d-flex gap-2 justify-content-center mt-4 flex-wrap">
+          {!quizPassed ? (
+            <>
+              <button className="btn btn-cowdi-primary" onClick={() => { setQuizMode(false); setTab('vocab'); }}>
+                <Icon name="book" size={16} /> Ôn lại Từ vựng
+              </button>
+              <button className="btn btn-warning" onClick={restartQuiz}>
+                <Icon name="refresh" size={16} /> Làm lại quiz
+              </button>
+            </>
+          ) : (
+            <>
+              {pathNext?.type === 'lesson' && pathNext.lessonId !== lesson.id && (
+                <button className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2" onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}><Icon name="play" size={18} /> Bài tiếp theo</button>
+              )}
+              {pathNext?.type === 'checkpoint' && (
+                <button className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="trophy" size={18} /> Làm bài kiểm tra Unit</button>
+              )}
+              <button className={`btn ${pathNext ? 'btn-outline-secondary' : 'btn-cowdi-primary'}`} onClick={restartQuiz}><Icon name="refresh" size={16} /> Làm lại</button>
+              <button className="btn btn-outline-secondary" onClick={() => setQuizMode(false)}><Icon name="books" size={16} /> Quay lại bài học</button>
+            </>
           )}
-          {pathNext?.type === 'checkpoint' && (
-            <button className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="trophy" size={18} /> Làm bài kiểm tra Unit</button>
-          )}
-          <button className={`btn ${pathNext ? 'btn-outline-secondary' : 'btn-cowdi-primary'}`} onClick={restartQuiz}><Icon name="refresh" size={16} /> Làm lại</button>
-          <button className="btn btn-outline-secondary" onClick={() => setQuizMode(false)}><Icon name="books" size={16} /> Quay lại bài học</button>
           <button className="btn btn-outline-secondary" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}><Icon name="road" size={16} /> Lộ trình</button>
         </div>
       </div>
@@ -1184,10 +1229,11 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     QUIZ IN PROGRESS
+     QUIZ IN PROGRESS (U3 explanation + U6 audioText)
      ══════════════════════════════════════════ */
   if (quizMode) {
     const q = quiz[qIndex];
+    const isListeningQ = Boolean(q?.audioText);
     return (
       <div className="fade-in position-relative" style={{ maxWidth: 680, margin: '0 auto' }} ref={confettiRef}>
         <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -1205,17 +1251,35 @@ export default function LessonDetailPage() {
           ></div>
         </div>
         <div className={`card shadow-sm mb-4 ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
-          <div className="card-body py-4">
-            <p className="fs-5 fw-bold mb-2 text-center">{q.question}</p>
-            <div className="text-center">
+          <div className="card-body py-4 text-center">
+            {isListeningQ && (
+              <div className="mb-2">
+                <span className="badge bg-info text-dark">🎧 Câu hỏi nghe</span>
+              </div>
+            )}
+            <p className="fs-5 fw-bold mb-2">{q.question}</p>
+            {isListeningQ && answered !== null && (
+              <p className="small fst-italic text-muted mb-2">“{q.audioText}”</p>
+            )}
+            <div className="d-flex justify-content-center gap-2">
               <button
                 type="button"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => speakWord(q.question, 0.85)}
-                title="Nghe lại câu hỏi"
+                className={`btn btn-sm ${isListeningQ ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                onClick={() => isListeningQ ? speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' }) : speakWord(q.question, defaultTtsRate)}
+                title="Nghe lại"
               >
                 <Icon name="sound" size={14} /> Nghe lại
               </button>
+              {isListeningQ && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => speakWord(q.audioText, 0.55, { lang: 'en-US' })}
+                  title="Nghe chậm"
+                >
+                  <Icon name="snail" size={14} /> Chậm
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1240,8 +1304,26 @@ export default function LessonDetailPage() {
           })}
         </div>
         {answered !== null && (
-          <div className={`text-center mt-3 fw-bold fs-5 fade-in ${answered === q.correct ? 'text-success' : 'text-danger'}`}>
-            {answered === q.correct ? <><Icon name="check" size={18} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.options[q.correct]}</>}
+          <div className="mt-3 fade-in">
+            <div className={`text-center fw-bold fs-5 ${answered === q.correct ? 'text-success' : 'text-danger'}`}>
+              {answered === q.correct ? <><Icon name="check" size={18} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.options[q.correct]}</>}
+            </div>
+            {q.explanation && (
+              <div className="alert alert-info mt-2 mb-2 py-2 px-3 small">
+                <strong>Giải thích:</strong> {q.explanation}
+              </div>
+            )}
+            {(q.explanation || answered !== q.correct) && (
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  className="btn btn-cowdi-primary px-4"
+                  onClick={() => goToNextQuestion(answered === q.correct)}
+                >
+                  {qIndex + 1 < quiz.length ? 'Câu tiếp theo →' : 'Xem kết quả →'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1265,25 +1347,57 @@ export default function LessonDetailPage() {
             <div>
               <h2 className="fw-bold mb-1">{lesson.title}</h2>
               <p className="text-muted mb-1">{lesson.description}</p>
-              <span className={`badge badge-level-${lesson.level}`}>{lesson.level === 'beginner' ? <><Icon name="dotGreen" size={12} /> Cơ bản</> : lesson.level === 'intermediate' ? <><Icon name="dotYellow" size={12} /> Trung cấp</> : <><Icon name="dotRed" size={12} /> Nâng cao</>}</span>
-              {userData.completedLessons.includes(lesson.id) && (
-                <span className="badge bg-success ms-2"><Icon name="check" size={12} /> Đã hoàn thành</span>
+              <div className="d-flex flex-wrap gap-1 align-items-center">
+                <span className={`badge badge-level-${lesson.level}`}>
+                  {lesson.level === 'starter'
+                    ? '🌱 Mới học'
+                    : lesson.level === 'beginner'
+                      ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
+                      : lesson.level === 'intermediate'
+                        ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
+                        : <><Icon name="dotRed" size={12} /> Nâng cao</>}
+                </span>
+                <span className="badge bg-light text-dark border">{group.title}</span>
+                {userData.completedLessons.includes(lesson.id) && (
+                  <span className="badge bg-success"><Icon name="check" size={12} /> Đã hoàn thành</span>
+                )}
+              </div>
+              {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
+                <ul className="small text-muted mb-0 mt-2 ps-3">
+                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
+                </ul>
               )}
             </div>
           </div>
+
+          {/* Pretest "Làm thử trước" cho nhóm Luyện thi (SDD §4.3) */}
+          {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+            <div className="alert alert-light border mt-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div className="small">
+                <strong>Chế độ Luyện thi:</strong> Đã nắm chắc kiến thức bài này? Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm btn-warning fw-bold"
+                onClick={() => { setQuizMode(true); restartQuiz(); }}
+              >
+                ⚡ Làm thử quiz (vượt bài)
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Sequential stepper */}
+      {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
       <div className="lesson-steps mb-4">
         <div className="lesson-steps-bar">
           <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
-          <span>{stepsDoneCount}/{steps.length} phần · <b>{stepsPct}%</b></span>
+          <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
         </div>
         <ol className="lesson-steps-list">
-          {steps.map((s, i) => {
+          {requiredSteps.map((s, i) => {
             const done = !!stepDone[s.key];
-            const locked = !done && firstOpenIdx !== -1 && i > firstOpenIdx;
+            const locked = rules.lessonOrder === 'sequential' && !done && firstOpenIdx !== -1 && i > firstOpenIdx;
             const cur = tab === s.key;
             return (
               <li key={s.key} className="lesson-step-item">
@@ -1303,55 +1417,95 @@ export default function LessonDetailPage() {
             );
           })}
         </ol>
+        {optionalSteps.length > 0 && (
+          <div className="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
+            <small className="text-muted">Tuỳ chọn:</small>
+            {optionalSteps.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                className={`btn btn-sm ${tab === s.key ? 'btn-cowdi-primary' : stepDone[s.key] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
+                onClick={() => setTab(s.key)}
+              >
+                <Icon name={s.icon} size={14} /> {s.label}{stepDone[s.key] ? ' ✓' : ''}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ── VOCAB TAB ── */}
+      {/* ── VOCAB TAB (U7: pos, exampleVi + vocabBatchSize = 10) ── */}
       {tab === 'vocab' && (
-        <div className="row g-3">
-          {vocab.map((v) => {
-            const status = getWordStatus(v.word);
-            return (
-              <div className="col-12 col-md-6" key={v.word}>
-                <div className="card shadow-sm h-100 card-hover vocab-card">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <div className="d-flex align-items-center gap-2">
-                        <span style={{ fontSize: '1.5rem' }}><Emoji e={v.illustration || lesson.icon} size={28} /></span>
-                        <div>
-                          <h5 className="fw-bold text-cowdi-primary mb-0">{v.word}</h5>
-                          <small className="text-muted font-monospace">{v.phonetic}</small>
+        <div>
+          {totalBatches > 1 && (
+            <div className="d-flex gap-2 mb-3 flex-wrap align-items-center">
+              <small className="text-muted fw-bold">Chia nhóm từ:</small>
+              {Array.from({ length: totalBatches }).map((_, bi) => (
+                <button
+                  key={bi}
+                  type="button"
+                  className={`btn btn-sm ${safeBatch === bi ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                  onClick={() => { setVocabBatch(bi); setFcIndex(bi * batchSize); setFcFlipped(false); }}
+                >
+                  Nhóm {bi + 1}/{totalBatches} ({bi * batchSize + 1}–{Math.min((bi + 1) * batchSize, vocab.length)})
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="row g-3">
+            {pagedVocab.map((v) => {
+              const status = getWordStatus(v.word);
+              return (
+                <div className="col-12 col-md-6" key={v.word}>
+                  <div className="card shadow-sm h-100 card-hover vocab-card">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <span style={{ fontSize: '1.5rem' }}><Emoji e={v.illustration || lesson.icon} size={28} /></span>
+                          <div>
+                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                              <h5 className="fw-bold text-cowdi-primary mb-0">{v.word}</h5>
+                              {v.pos && <span className="badge bg-light text-secondary border small">{v.pos}</span>}
+                            </div>
+                            <small className="text-muted font-monospace">{v.phonetic}</small>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-1">
+                          <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.word)} title="Nghe phát âm">
+                            <Icon name="sound" size={14} />
+                          </button>
+                          <button
+                            className={`btn btn-sm ${status === 'learned' ? 'btn-success' : status === 'learning' ? 'btn-outline-warning' : 'btn-outline-secondary'}`}
+                            onClick={() => setWordStatus(v.word, status === 'learned' ? 'new' : status === 'learning' ? 'learned' : 'learning')}
+                            title={status === 'learned' ? 'Đã thuộc' : status === 'learning' ? 'Đang học' : 'Đánh dấu học'}
+                          >
+                            {status === 'learned' ? <Icon name="check" size={14} /> : status === 'learning' ? <Icon name="book" size={14} /> : <Icon name="plus" size={14} />}
+                          </button>
                         </div>
                       </div>
-                      <div className="d-flex gap-1">
-                        <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.word)} title="Nghe phát âm">
+                      <p className="fw-bold mb-1">{v.meaning}</p>
+                      <div className="bg-light rounded p-2 d-flex align-items-center gap-2">
+                        <div className="flex-grow-1">
+                          <small className="fst-italic text-muted d-block">"{v.example}"</small>
+                          {v.exampleVi && <small className="text-secondary d-block mt-1">→ {v.exampleVi}</small>}
+                        </div>
+                        <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.example)} title="Nghe ví dụ" style={{ flexShrink: 0 }}>
                           <Icon name="sound" size={14} />
                         </button>
-                        <button
-                          className={`btn btn-sm ${status === 'learned' ? 'btn-success' : status === 'learning' ? 'btn-outline-warning' : 'btn-outline-secondary'}`}
-                          onClick={() => setWordStatus(v.word, status === 'learned' ? 'new' : status === 'learning' ? 'learned' : 'learning')}
-                          title={status === 'learned' ? 'Đã thuộc' : status === 'learning' ? 'Đang học' : 'Đánh dấu học'}
-                        >
-                          {status === 'learned' ? <Icon name="check" size={14} /> : status === 'learning' ? <Icon name="book" size={14} /> : <Icon name="plus" size={14} />}
-                        </button>
                       </div>
-                    </div>
-                    <p className="fw-bold mb-1">{v.meaning}</p>
-                    <div className="bg-light rounded p-2 d-flex align-items-center gap-2">
-                      <small className="fst-italic text-muted flex-grow-1">"{v.example}"</small>
-                      <button className="btn btn-sm btn-outline-secondary" onClick={() => speakWord(v.example)} title="Nghe ví dụ" style={{ flexShrink: 0 }}>
-                        <Icon name="sound" size={14} />
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {/* ── FLASHCARD TAB ── */}
-      {tab === 'flashcard' && (
+      {/* ── FLASHCARD TAB (U1: xoá translateEnToVi, hiện exampleVi) ── */}
+      {tab === 'flashcard' && vocab.length > 0 && (() => {
+        const curCard = vocab[Math.min(fcIndex, vocab.length - 1)];
+        return (
         <div className="d-flex flex-column align-items-center">
           <div className="mb-3 text-muted">
             <span className="fw-bold">{fcIndex + 1}</span> / {vocab.length}
@@ -1360,33 +1514,22 @@ export default function LessonDetailPage() {
           <div className="flashcard-wrapper" onClick={() => {
             const willFlip = !fcFlipped;
             setFcFlipped(willFlip);
-            if (willFlip) {
-              speakWord(vocab[fcIndex].word);
-              const ex = vocab[fcIndex].example;
-              if (ex && !fcExampleVi[ex]) {
-                setFcTranslating(true);
-                translateEnToVi(ex).then((vi) => {
-                  if (vi) setFcExampleVi((prev) => ({ ...prev, [ex]: vi }));
-                  setFcTranslating(false);
-                });
-              }
-            }
+            if (willFlip) speakWord(curCard.word);
           }}>
             <div className={`flashcard-inner ${fcFlipped ? 'flipped' : ''}`}>
               <div className="flashcard-front text-center">
-                <span style={{ fontSize: '2.5rem' }} className="mb-2 emoji-big"><Emoji e={vocab[fcIndex].illustration || lesson.icon} size={48} /></span>
-                <h2 className="fw-bold mb-1">{vocab[fcIndex].word}</h2>
-                <p className="mb-0 opacity-75">{vocab[fcIndex].phonetic}</p>
+                <span style={{ fontSize: '2.5rem' }} className="mb-2 emoji-big"><Emoji e={curCard.illustration || lesson.icon} size={48} /></span>
+                <h2 className="fw-bold mb-1">{curCard.word}</h2>
+                {curCard.pos && <span className="badge bg-light text-dark mb-1">{curCard.pos}</span>}
+                <p className="mb-0 opacity-75">{curCard.phonetic}</p>
                 <small className="mt-2 opacity-50"><Icon name="point" size={14} /> Nhấn để lật</small>
               </div>
               <div className="flashcard-back text-center">
-                <h3 className="fw-bold text-cowdi-primary mb-2">{vocab[fcIndex].meaning}</h3>
-                <p className="fst-italic text-muted mb-1">"{vocab[fcIndex].example}"</p>
-                {vocab[fcIndex].example && (
+                <h3 className="fw-bold text-cowdi-primary mb-2">{curCard.meaning}</h3>
+                {curCard.example && <p className="fst-italic text-muted mb-1">"{curCard.example}"</p>}
+                {curCard.exampleVi && (
                   <p className="mb-0 small" style={{ color: '#6c5ce7' }}>
-                    {fcExampleVi[vocab[fcIndex].example]
-                      ? <>→ <span className="fst-italic">{fcExampleVi[vocab[fcIndex].example]}</span></>
-                      : <span className="text-muted opacity-75">{fcTranslating ? <><Icon name="hourglass" size={13} /> Đang dịch…</> : <><Icon name="globe" size={13} /> Bấm nút bên dưới để dịch</>}</span>}
+                    → <span className="fst-italic">{curCard.exampleVi}</span>
                   </p>
                 )}
               </div>
@@ -1397,47 +1540,31 @@ export default function LessonDetailPage() {
               <i className="fas fa-chevron-left"></i> Trước
             </button>
             <button
-              className={`btn ${fcMastered.has(vocab[fcIndex].word) ? 'btn-success' : 'btn-outline-success'}`}
-              onClick={() => fcToggleMastered(vocab[fcIndex].word)}
+              className={`btn ${fcMastered.has(curCard.word) ? 'btn-success' : 'btn-outline-success'}`}
+              onClick={() => fcToggleMastered(curCard.word)}
             >
-              {fcMastered.has(vocab[fcIndex].word) ? <><Icon name="check" size={16} /> Đã thuộc</> : <><Icon name="check" size={16} /> Thuộc rồi!</>}
+              {fcMastered.has(curCard.word) ? <><Icon name="check" size={16} /> Đã thuộc</> : <><Icon name="check" size={16} /> Thuộc rồi!</>}
             </button>
             <button className="btn btn-outline-secondary" disabled={fcIndex === vocab.length - 1} onClick={fcNext}>
               Tiếp <i className="fas fa-chevron-right"></i>
             </button>
           </div>
-          <button className="btn btn-sm btn-outline-secondary mt-3" onClick={() => speakWord(vocab[fcIndex].word)} title="Nghe phát âm">
+          <button className="btn btn-sm btn-outline-secondary mt-3" onClick={() => speakWord(curCard.word)} title="Nghe phát âm">
             <Icon name="sound" size={14} /> Nghe phát âm
           </button>
-          {vocab[fcIndex].example && (
+          {curCard.example && (
             <div className="d-flex gap-2 mt-2 flex-wrap justify-content-center">
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={() => speakWord(vocab[fcIndex].example, 0.85, { lang: 'en-US' })}
+                onClick={() => speakWord(curCard.example, defaultTtsRate, { lang: 'en-US' })}
                 title="Nghe câu ví dụ"
               >
                 <Icon name="sound" size={14} /> Nghe câu ví dụ
               </button>
-              {!fcExampleVi[vocab[fcIndex].example] && (
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  disabled={fcTranslating}
-                  onClick={() => {
-                    const ex = vocab[fcIndex].example;
-                    setFcTranslating(true);
-                    translateEnToVi(ex).then((vi) => {
-                      if (vi) setFcExampleVi((prev) => ({ ...prev, [ex]: vi }));
-                      setFcTranslating(false);
-                    });
-                  }}
-                >
-                  {fcTranslating ? <><Icon name="hourglass" size={13} /> Đang dịch…</> : <><Icon name="globe" size={13} /> Dịch câu ví dụ</>}
-                </button>
-              )}
-              {fcExampleVi[vocab[fcIndex].example] && (
+              {curCard.exampleVi && (
                 <button
                   className="btn btn-sm btn-outline-success"
-                  onClick={() => speakWord(fcExampleVi[vocab[fcIndex].example], 0.85, { lang: 'vi-VN' })}
+                  onClick={() => speakWord(curCard.exampleVi, 0.9, { lang: 'vi-VN' })}
                   title="Nghe nghĩa tiếng Việt"
                 >
                   <Icon name="sound" size={14} /> Nghe tiếng Việt
@@ -1462,19 +1589,20 @@ export default function LessonDetailPage() {
             ))}
           </div>
         </div>
-      )}
+        );
+      })()}
 
-      {/* ── GRAMMAR TAB ── */}
+      {/* ── GRAMMAR TAB (U7: hiện mistakes[]) ── */}
       {tab === 'grammar' && (
         <div className="row g-3">
-          {lesson.grammar.map((g, i) => (
+          {(lesson.grammar || []).map((g, i) => (
             <div className="col-12" key={i}>
               <div className="card shadow-sm">
                 <div className="card-body">
                   <h5 className="card-title fw-bold text-cowdi-primary"><Icon name="book" size={20} /> {g.title}</h5>
                   <p className="text-muted">{g.explanation}</p>
                   <div className="d-flex flex-column gap-2">
-                    {g.examples.map((ex, j) => (
+                    {(g.examples || []).map((ex, j) => (
                       <div key={j} className="bg-light rounded p-3">
                         <div className="fw-bold d-flex align-items-center gap-2 flex-wrap">
                           {ex.en}
@@ -1486,6 +1614,20 @@ export default function LessonDetailPage() {
                       </div>
                     ))}
                   </div>
+                  {Array.isArray(g.mistakes) && g.mistakes.length > 0 && (
+                    <div className="alert alert-warning mt-3 mb-0">
+                      <div className="fw-bold small mb-2">⚠️ Lỗi thường gặp của người Việt</div>
+                      <div className="d-flex flex-column gap-2">
+                        {g.mistakes.map((m, mi) => (
+                          <div key={mi} className="small">
+                            <span className="text-danger text-decoration-line-through me-2">✗ {m.wrong}</span>
+                            <span className="text-success fw-bold">✓ {m.right}</span>
+                            {m.note && <div className="text-muted">{m.note}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1793,7 +1935,7 @@ export default function LessonDetailPage() {
                   Bạn nghe đúng <strong>{listenScore}</strong> / {listenQs.length} câu
                 </p>
                 <p className="text-muted small mb-3">
-                  +{listenQs.length * 2} XP đã được cộng vào tài khoản của bạn <Icon name="headphones" size={14} />
+                  +{listenXpEarned} 🥛 Sữa đã được cộng vào tài khoản của bạn <Icon name="headphones" size={14} />
                 </p>
                 <div className="d-flex gap-2 justify-content-center flex-wrap">
                   <button className="btn btn-outline-secondary" onClick={startLessonListen}>
@@ -1992,9 +2134,14 @@ export default function LessonDetailPage() {
           </button>
         </div>
       )}
-      {tab === 'speak' && !speakDone && (
+      {tab === 'speak' && !speakDone && (!speakMandatory || !SpeechRecognitionAPI) && (
         <div className="text-center mt-3">
           <button type="button" className="btn btn-link text-muted" onClick={completeStep}>Không có micro? Bỏ qua phần này →</button>
+        </div>
+      )}
+      {tab === 'speak' && !speakDone && speakMandatory && SpeechRecognitionAPI && (
+        <div className="text-center mt-2 small text-muted">
+          Phần phát âm bắt buộc cho nhóm Luyện thi (cần trung bình ≥{speakPassThreshold}%).
         </div>
       )}
     </div>
