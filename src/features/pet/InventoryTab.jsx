@@ -136,8 +136,8 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
                   style={{ backgroundColor: isEquipped ? '#f4fbf5' : '#fff' }}
                 >
                   <div className="fs-2 my-2"><Emoji e={item.emoji} size={36} /></div>
-                  <div className="fw-bold small text-truncate mb-1">{item.name}</div>
-                  <div className="small text-muted mb-2 text-capitalize" style={{ fontSize: '11px' }}>
+                  <div className="shop-grid-title mb-1">{item.name}</div>
+                  <div className="shop-grid-sub mb-2 text-capitalize">
                     {item.category === 'room' ? 'Nền' : item.category === 'effect' ? 'Hào quang' : item.category === 'hat' ? 'Mũ' : 'Trang phục'}
                   </div>
 

@@ -47,8 +47,8 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
               {item.icon}
             </span>
             <div>
-              <h5 className="fw-bold mb-0">{item.name}</h5>
-              <div className="small text-muted">{item.shortBenefit}</div>
+              <h3 className="shop-sheet-title mb-0">{item.name}</h3>
+              <div className="shop-row-benefit">{item.shortBenefit}</div>
             </div>
           </div>
           <button

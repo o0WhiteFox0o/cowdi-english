@@ -106,44 +106,35 @@ export default function ShopPage() {
   }, [user]);
 
   return (
-    <div className="fade-in shop-page-container pb-4" style={{ maxWidth: '640px', margin: '0 auto' }}>
-      {/* 1. Một dòng tiêu đề: Nút Quay lại + Cửa hàng + số dư 🥛 · 💎 · 💠 + nút (?) mở "Cách kiếm" */}
-      <div className="d-flex align-items-center justify-content-between py-2 mb-3 border-bottom flex-wrap gap-2">
-        <div className="d-flex align-items-center gap-2">
-          <button
-            type="button"
-            className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 px-2 py-1"
-            onClick={handleBack}
-            aria-label="Quay lại"
-            title="Quay lại"
-          >
-            <span aria-hidden="true" style={{ fontSize: '15px', fontWeight: 'bold' }}>←</span>
-            <span className="d-none d-sm-inline small fw-semibold">Quay lại</span>
-          </button>
-          <h2 className="fw-bold mb-0 fs-4 d-flex align-items-center gap-2">
-            <Icon name="bag" size={24} /> Cửa hàng
-          </h2>
-        </div>
-
-        {/* Số dư 3 tài nguyên + nút (?) */}
-        <div className="d-flex align-items-center gap-2">
-          <div
-            className="d-flex align-items-center gap-2 px-2 py-1 rounded bg-light border"
-            style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
-          >
-            <span title="Sữa">🥛 <strong>{(wallet.milk || 0).toLocaleString('vi-VN')}</strong></span>
-            <span className="text-muted">·</span>
-            <span title="Gem">💎 <strong>{(wallet.gem || 0).toLocaleString('vi-VN')}</strong></span>
-            <span className="text-muted">·</span>
-            <span title="Đá nguyên tố">💠 <strong>{(wallet.stone || 0).toLocaleString('vi-VN')}</strong></span>
+    <div className="fade-in shop-page-wrap">
+      {/* 1. Header: Nút Quay lại + Tiêu đề Cửa hàng + nút (?) Cách kiếm */}
+      <div className="shop-head">
+        <div className="shop-title-row">
+          <div className="shop-title-left">
+            <button
+              type="button"
+              className="shop-back-btn"
+              onClick={handleBack}
+              aria-label="Quay lại"
+              title="Quay lại"
+            >
+              <span aria-hidden="true" style={{ fontSize: '18px', lineHeight: 1 }}>←</span>
+              <span className="d-none d-sm-inline">Quay lại</span>
+            </button>
+            <div className="shop-title-wrap">
+              <h2 className="shop-title">
+                <Icon name="bag" size={26} /> Cửa hàng
+              </h2>
+              <p className="shop-sub">Sắm vật phẩm giữ nhịp, trang trí phòng và phụ kiện thú cưng</p>
+            </div>
           </div>
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0"
-            style={{ width: '28px', height: '28px', fontSize: '14px' }}
+            className="shop-help-btn"
             title="Xem cách kiếm tài nguyên"
             onClick={() => setHowToEarnOpen(true)}
+            aria-label="Cách kiếm tài nguyên"
           >
             ?
           </button>
@@ -151,15 +142,14 @@ export default function ShopPage() {
       </div>
 
       {/* 2. Đúng 3 tab: 🔥 Giữ nhịp · ✨ Trang trí · 🎒 Kho đồ */}
-      <div className="d-flex gap-2 mb-3">
+      <div className="shop-tabs">
         {SHOP_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               type="button"
-              className={`btn flex-grow-1 py-2 rounded-pill fw-bold ${isActive ? 'btn-cowdi-primary' : 'btn-light border text-muted'}`}
-              style={{ fontSize: '14px', transition: 'all 0.15s ease' }}
+              className={`shop-tab-btn ${isActive ? 'on' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}

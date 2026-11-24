@@ -218,7 +218,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                 title="Bấm để xem thử lên pet"
               >
                 <div className="fs-2 my-2"><Emoji e={item.emoji} size={36} /></div>
-                <div className="small fw-bold text-truncate mb-1">{item.name}</div>
+                <div className="shop-grid-title mb-1">{item.name}</div>
                 <div className="d-flex justify-content-center gap-1 mb-1">
                   <span
                     className="badge rounded-pill"
@@ -227,7 +227,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                     {rStyle.label}
                   </span>
                 </div>
-                <div className="text-muted text-truncate" style={{ fontSize: '11px', marginBottom: '6px' }}>
+                <div className="shop-grid-sub" style={{ marginBottom: '6px' }}>
                   {item.note}
                 </div>
 

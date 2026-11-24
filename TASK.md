@@ -120,6 +120,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Làm lại UI cửa hàng theo mục Giao diện cửa hàng — 2026-11-23 · 7340b95
 - [ ] Hoàn thiện Đá nguyên tố trên giao diện
 - [x] Sửa xem trước pet trong Cửa hàng + nút Quay lại — 2026-11-24 · 67ae58f
+- [x] Đồng bộ chữ Cửa hàng + chip Đá trên HUD — 2026-11-24 · 8b0ef39
 
 **Tiêu chí xong**
 - [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
@@ -187,6 +188,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | 3 | Đồng bộ chữ Cửa hàng (phong cách sổ tay, Patrick Hand/Itim/Mali) + thêm chip Đá 💠 trên HUD mobile & desktop | 8b0ef39 | 86 test pass, build pass, screenshots |
 | 2026-11-24 | 3 | Sửa 3 lỗi Cửa hàng: PetPreview dùng PetAvatar chuẩn ảnh/rig + bộ chọn pet + nút Quay lại thông minh | 7f5a48b | 85 test pass, build pass, screenshots desktop & mobile |
 | 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |
 | 2026-11-24 | 3 | Sửa lỗi P0 crash `<BookShell>` cho user mới (`PUT /api/progress` luôn trả ví chuẩn `{ milk, gem, stone, stone_shard }`) | f8baa29 | 83/83 test pass, build pass |

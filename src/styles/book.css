@@ -1338,9 +1338,18 @@ hr {
     height: 22px;
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: 480px) {
     .book-mobile-brand span {
       display: none;
+    }
+
+    .book-mobile-stats {
+      gap: 3px;
+    }
+
+    .book-mobile-stats .book-pill {
+      font-size: .82rem;
+      padding: 2px 5px;
     }
 
     .book-mobile-stats .book-pill .book-bar {
@@ -4845,4 +4854,320 @@ canvas.dash-hero-mascot-img {
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
 }
+
+/* ============================================
+   CỬA HÀNG (SHOP) — Chuẩn thiết kế Sổ tay Open Notebook
+   Đồng bộ kiểu font (--font-display, --font-hand),
+   màu sắc (--ink, --ink-muted), thẻ (.book-card), và tab (.dex-chip).
+   ============================================ */
+
+.shop-page-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 1. Header Cửa hàng */
+.shop-head {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--paper-line);
+}
+
+.shop-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.shop-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: transform .1s, background-color .15s;
+  flex-shrink: 0;
+}
+
+.shop-back-btn:hover {
+  transform: translateY(-1px);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.shop-title-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shop-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.shop-sub {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+  color: var(--ink-muted);
+  font-family: var(--font);
+  white-space: normal;
+}
+
+.shop-help-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: transform .1s, background-color .15s;
+  flex-shrink: 0;
+}
+
+.shop-help-btn:hover {
+  transform: translateY(-1px);
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+/* 2. Tabs Cửa hàng (Đồng bộ kiểu .dex-chip) */
+.shop-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shop-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.shop-tab-btn {
+  flex: 1;
+  min-width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px solid var(--paper-line);
+  background: #fff;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-family: var(--font-hand);
+  font-size: 1.02rem;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--paper-line);
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.shop-tab-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--cowdi-primary);
+  color: var(--ink);
+}
+
+.shop-tab-btn.on {
+  background: var(--cowdi-primary);
+  border-color: var(--cowdi-primary-dark);
+  color: #fff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* 3. Dải trạng thái streak */
+.shop-streak-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--paper-2);
+  border: 2px solid var(--paper-line);
+  border-radius: var(--radius-card);
+  margin-bottom: 14px;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  color: var(--ink-muted);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.shop-streak-strip strong {
+  color: var(--ink);
+}
+
+.shop-streak-dot {
+  color: var(--paper-line);
+}
+
+/* 4. Dòng món Cửa hàng (kế thừa .book-card) */
+.shop-row {
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid var(--paper-line);
+  border-radius: var(--radius-card);
+  box-shadow: 0 3px 0 var(--paper-line), var(--shadow-paper);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color .15s ease, transform .1s;
+  cursor: pointer;
+}
+
+.shop-row:hover {
+  border-color: var(--leaf-light);
+  transform: translateY(-1px);
+}
+
+.shop-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-row-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--paper-3);
+  border: 1px solid var(--paper-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.shop-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-row-title {
+  font-family: var(--font-hand);
+  font-size: 1.3rem;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+
+.shop-row-benefit {
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--ink);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shop-row-status {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+/* Nút mua & nút trạng thái khoá mờ */
+.shop-btn-main {
+  min-height: 38px;
+  padding: 6px 14px;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.shop-btn-disabled {
+  min-height: 38px;
+  padding: 6px 14px;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  background: #fff;
+  border: 2px solid var(--paper-line);
+  color: var(--ink-muted);
+  border-radius: 10px;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* 5. Bottom Sheets — Chuẩn sổ tay */
+.shop-sheet-title {
+  font-family: var(--font-hand);
+  font-size: 1.45rem;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* 6. Ô lưới Trang trí & Kho đồ */
+.shop-grid-title {
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.shop-grid-sub {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  line-height: 1.25;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 
