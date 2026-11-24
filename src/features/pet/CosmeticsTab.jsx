@@ -13,36 +13,13 @@ import {
   checkCosmeticUnlocked,
 } from '../../../shared/cosmetics-data.js';
 import Emoji from '../../components/Emoji';
-import PetPreview from '../../components/pet/PetPreview';
 import CosmeticBuySheet from './CosmeticBuySheet';
+import CosmeticFilterSheet from './CosmeticFilterSheet';
+import PetDressingModal from './PetDressingModal';
 
 const COSMETIC_CATEGORIES = [
-  { id: 'room', label: `🖼️ Nền (${BACKGROUND_ITEMS.length} món)` },
-  { id: 'effect', label: `✨ Hào quang (${EFFECT_ITEMS.length} món)` },
-];
-
-const RARITY_FILTERS = [
-  { id: 'all', label: 'Tất cả phẩm chất' },
-  { id: 'common', label: '⚪ Thường' },
-  { id: 'rare', label: '🔵 Hiếm' },
-  { id: 'epic', label: '🟣 Sử thi' },
-  { id: 'legendary', label: '🟡 Huyền thoại' },
-  { id: 'achievement', label: '🟢 Mốc học' },
-  { id: 'season', label: '🟠 Mùa' },
-];
-
-const ELEMENT_FILTERS = [
-  { id: 'all', label: 'Tất cả hệ' },
-  { id: 'fire', label: '🔥 Hỏa' },
-  { id: 'water', label: '🌊 Thủy' },
-  { id: 'wood', label: '🎋 Mộc' },
-  { id: 'metal', label: '⚙️ Kim' },
-  { id: 'earth', label: '🪨 Thổ' },
-  { id: 'light', label: '☀️ Quang' },
-  { id: 'dark', label: '🌑 Ám' },
-  { id: 'wind', label: '🌪️ Phong' },
-  { id: 'thunder', label: '⚡ Lôi' },
-  { id: 'neutral', label: '🥋 Vô' },
+  { id: 'room', label: `🖼️ Nền (${BACKGROUND_ITEMS.length})` },
+  { id: 'effect', label: `✨ Hào quang (${EFFECT_ITEMS.length})` },
 ];
 
 export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
@@ -55,6 +32,10 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const [rarityFilter, setRarityFilter] = useState('all');
   const [elementFilter, setElementFilter] = useState('all');
   const [previewItem, setPreviewItem] = useState(null);
+
+  // Modal / Sheet states
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [dressingModalOpen, setDressingModalOpen] = useState(false);
 
   // Dữ liệu từ server
   const [serverOwnedIds, setServerOwnedIds] = useState(null);
@@ -91,6 +72,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
     : petData.activePetId || ownedPets[0]?.instanceId;
   const currentPet = petData.collection[currentPetId] || ownedPets[0];
   const species = currentPet ? PET_REGISTRY[currentPet.speciesId] : null;
+  const currentEvo = currentPet ? getEvolutionInfo(currentPet.speciesId, currentPet.evolution) : null;
 
   // Tập hợp danh sách ID đã sở hữu (kết hợp server + petData.ownedItems)
   const ownedSet = useMemo(() => {
@@ -115,6 +97,8 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
     });
   }, [rawList, rarityFilter, elementFilter, subCategory]);
 
+  const activeFilterCount = (rarityFilter !== 'all' ? 1 : 0) + (subCategory === 'room' && elementFilter !== 'all' ? 1 : 0);
+
   // Kiểm tra xem món đồ có đủ điều kiện hưởng combo không (sở hữu món khác cùng theme)
   const checkHasCombo = (item) => {
     if (!item.theme) return false;
@@ -128,6 +112,12 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const handleOpenBuy = (item, e) => {
     e?.stopPropagation();
     setBuyingItem(item);
+  };
+
+  // Xem thử món đồ (mở modal phòng thử đồ)
+  const handleItemPreview = (item) => {
+    setPreviewItem(item);
+    setDressingModalOpen(true);
   };
 
   // Xác nhận mua
@@ -180,253 +170,238 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
 
   return (
     <div className="cosmetics-tab-container">
-      {/* 1. Khung xem trước Pet với Nền & Hào quang */}
-      {currentPet && species && (
-        <div
-          className="card shadow-sm mb-3 border-0 overflow-hidden"
-          style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: previewItem ? '2px dashed #4caf50' : '1px solid #eef0f2',
-          }}
-        >
-          <div className="card-body p-3">
-            {/* Bộ chọn pet nếu sở hữu nhiều hơn 1 pet */}
-            {ownedPets.length > 1 && (
-              <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                <span className="small text-muted fw-semibold">Xem thử trên thú cưng:</span>
-                <div className="d-flex align-items-center gap-1 flex-wrap">
-                  {ownedPets.map((p) => {
-                    const sp = PET_REGISTRY[p.speciesId];
-                    const evo = getEvolutionInfo(p.speciesId, p.evolution);
-                    const isSelected = p.instanceId === currentPet.instanceId;
-                    return (
-                      <button
-                        key={p.instanceId}
-                        type="button"
-                        className={`btn btn-sm d-flex align-items-center gap-1 rounded-pill px-2 py-1 ${
-                          isSelected ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
-                        }`}
-                        style={{ fontSize: '12px' }}
-                        onClick={() => onSelectPetId && onSelectPetId(p.instanceId)}
-                        title={`${p.customName || sp?.name} (${evo?.name})`}
-                      >
-                        {evo?.image ? (
-                          <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                        ) : (
-                          <span>{evo?.emoji || sp?.emoji}</span>
-                        )}
-                        <span>{p.customName || sp?.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Khung PetPreview dùng chung */}
-            <PetPreview
-              pet={currentPet}
-              previewItem={previewItem}
-              previewType={subCategory}
-            />
-
-            {/* Dòng chữ trạng thái xem thử */}
-            <div className="small text-muted mt-2 text-center">
-              {previewItem ? (
-                <span>
-                  Đang xem thử: <strong>{previewItem.emoji} {previewItem.name}</strong> ·{' '}
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-link p-0 text-decoration-none text-danger fw-semibold"
-                    onClick={() => setPreviewItem(null)}
-                  >
-                    Bỏ xem thử
-                  </button>
-                </span>
+      {/* 1. Thanh Phòng thử đồ thú cưng gọn gàng (cao ~44px, không chiếm nửa trang) */}
+      {currentPet && (
+        <div className="shop-dressing-bar mb-3">
+          <div className="d-flex align-items-center gap-2 min-w-0">
+            <span className="shop-dressing-avatar">
+              {currentEvo?.image ? (
+                <img src={currentEvo.image} alt="" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
               ) : (
-                <span>{currentPet.customName || species.name} — Bấm vào một món bên dưới để xem thử lên pet</span>
+                <span>{currentEvo?.emoji || species?.emoji || '🐮'}</span>
+              )}
+            </span>
+            <div className="text-truncate" style={{ fontSize: '0.92rem', lineHeight: 1.2 }}>
+              <span className="fw-bold text-dark">{currentPet.customName || species?.name}</span>
+              {previewItem && (
+                <span className="badge bg-success-subtle text-success border ms-2 py-0 px-2" style={{ fontSize: '10px' }}>
+                  Đang ướm: {previewItem.name}
+                </span>
               )}
             </div>
           </div>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0"
+            style={{ fontSize: '12px' }}
+            onClick={() => setDressingModalOpen(true)}
+          >
+            <span>👗</span> Phòng thử đồ
+          </button>
         </div>
       )}
 
-      {/* 2. Chip chuyển Nền / Hào quang */}
-      <div className="d-flex justify-content-center gap-2 mb-3">
-        {COSMETIC_CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            className={`btn btn-sm rounded-pill px-3 fw-bold ${
-              subCategory === cat.id ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
-            }`}
-            onClick={() => { setSubCategory(cat.id); setPreviewItem(null); }}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 3. Bộ lọc phẩm chất */}
-      <div className="d-flex gap-1 mb-2 overflow-auto pb-1" style={{ whiteSpace: 'nowrap' }}>
-        {RARITY_FILTERS.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            className={`btn btn-xs rounded-pill px-2 py-1 small ${
-              rarityFilter === r.id ? 'btn-secondary text-white' : 'btn-light border text-muted'
-            }`}
-            style={{ fontSize: '12px' }}
-            onClick={() => setRarityFilter(r.id)}
-          >
-            {r.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 3b. Bộ lọc hệ nếu đang ở danh mục Nền */}
-      {subCategory === 'room' && (
-        <div className="d-flex gap-1 mb-3 overflow-auto pb-1" style={{ whiteSpace: 'nowrap' }}>
-          {ELEMENT_FILTERS.map((elem) => (
+      {/* 2. Thanh Danh mục (Nền / Hào quang) + Nút Lọc thu gọn trong 1 hàng */}
+      <div className="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
+        <div className="d-flex gap-1">
+          {COSMETIC_CATEGORIES.map((cat) => (
             <button
-              key={elem.id}
+              key={cat.id}
               type="button"
-              className={`btn btn-xs rounded-pill px-2 py-1 small ${
-                elementFilter === elem.id ? 'btn-dark text-white' : 'btn-light border text-muted'
+              className={`btn btn-sm rounded-pill px-3 py-1 fw-bold ${
+                subCategory === cat.id ? 'btn-cowdi-primary shadow-xs' : 'btn-light border text-muted'
               }`}
-              style={{ fontSize: '11px' }}
-              onClick={() => setElementFilter(elem.id)}
+              style={{ fontSize: '12px' }}
+              onClick={() => { setSubCategory(cat.id); }}
             >
-              {elem.label}
+              {cat.label}
             </button>
           ))}
         </div>
+
+        <div className="d-flex align-items-center gap-1">
+          <button
+            type="button"
+            className={`btn btn-sm rounded-pill px-3 py-1 d-flex align-items-center gap-1 ${
+              activeFilterCount > 0 ? 'btn-cowdi-primary fw-bold' : 'btn-light border text-muted'
+            }`}
+            style={{ fontSize: '12px' }}
+            onClick={() => setFilterSheetOpen(true)}
+          >
+            <span>🔍</span> Lọc {activeFilterCount > 0 && `(${activeFilterCount})`}
+          </button>
+
+          <span
+            className="badge rounded-pill text-primary border border-primary-subtle d-none d-sm-inline-flex"
+            style={{ backgroundColor: '#F0F9FF', fontSize: '11px', padding: '5px 9px' }}
+            title="Mua combo Nền + Hào quang cùng chủ đề giảm 20%"
+          >
+            ✨ Combo -20%
+          </span>
+        </div>
+      </div>
+
+      {/* 3. Chip bộ lọc đang hoạt động (nếu có, có thể gỡ nhanh 1 chạm) */}
+      {activeFilterCount > 0 && (
+        <div className="d-flex align-items-center gap-1 mb-2 flex-wrap" style={{ fontSize: '11px' }}>
+          <span className="text-muted small">Đang lọc:</span>
+          {rarityFilter !== 'all' && (
+            <span
+              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer"
+              onClick={() => setRarityFilter('all')}
+              style={{ cursor: 'pointer' }}
+            >
+              {rarityFilter} ✕
+            </span>
+          )}
+          {subCategory === 'room' && elementFilter !== 'all' && (
+            <span
+              className="badge bg-secondary-subtle text-dark border rounded-pill d-flex align-items-center gap-1 cursor-pointer"
+              onClick={() => setElementFilter('all')}
+              style={{ cursor: 'pointer' }}
+            >
+              Hệ {elementFilter} ✕
+            </span>
+          )}
+          <button
+            type="button"
+            className="btn btn-xs btn-link p-0 text-muted ms-1 text-decoration-none"
+            onClick={() => { setRarityFilter('all'); setElementFilter('all'); }}
+          >
+            Xoá hết
+          </button>
+        </div>
       )}
 
-      {/* 4. Banner ưu đãi combo 20% */}
-      <div
-        className="alert py-2 px-3 small d-flex align-items-center justify-content-between mb-3 rounded-3"
-        style={{ backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1' }}
-      >
-        <div>
-          ✨ <strong>Kinh tế v2:</strong> Mua Nền &amp; Hào quang cùng chủ đề được <strong>giảm ngay 20%</strong>!
-        </div>
-        <span className="badge bg-primary text-white">Đang mở bán</span>
-      </div>
+      {/* 4. Lưới sản phẩm dạng Compact (3 cột mobile, 4 cột desktop) */}
+      <div className="row g-2 mb-3">
+        {filteredList.length === 0 ? (
+          <div className="col-12 text-center py-4 text-muted small">
+            Không tìm thấy vật phẩm phù hợp với bộ lọc hiện tại.
+          </div>
+        ) : (
+          filteredList.map((item) => {
+            const isSelected = previewItem?.id === item.id;
+            const isOwned = ownedSet.has(item.id);
+            const rStyle = COSMETIC_RARITIES[item.rarity] || COSMETIC_RARITIES.common;
+            const hasCombo = checkHasCombo(item);
+            const isGem = item.priceGem > 0;
+            const priceCalc = getCosmeticPrice(item, hasCombo);
+            const finalPrice = isGem ? priceCalc.gem : priceCalc.milk;
+            const originalPrice = isGem ? item.priceGem : item.priceMilk;
+            const isMilestone = item.rarity === 'achievement';
+            const isMilestoneUnlocked = isMilestone && (isOwned || checkCosmeticUnlocked(item, userStats || {}));
 
-      {/* 5. Lưới danh mục đồ trang trí */}
-      <div className="row g-2">
-        {filteredList.map((item) => {
-          const isSelected = previewItem?.id === item.id;
-          const isOwned = ownedSet.has(item.id);
-          const rStyle = COSMETIC_RARITIES[item.rarity] || COSMETIC_RARITIES.common;
-          const hasCombo = checkHasCombo(item);
-          const isGem = item.priceGem > 0;
-          const priceCalc = getCosmeticPrice(item, hasCombo);
-          const finalPrice = isGem ? priceCalc.gem : priceCalc.milk;
-          const originalPrice = isGem ? item.priceGem : item.priceMilk;
-          const isMilestone = item.rarity === 'achievement';
-          const isMilestoneUnlocked = isMilestone && (isOwned || checkCosmeticUnlocked(item, userStats || {}));
-
-          return (
-            <div key={item.id} className="col-6 col-md-4 col-lg-3">
-              <div
-                className={`card h-100 p-2 text-center shadow-sm cursor-pointer border ${
-                  isSelected ? 'border-success border-2 shadow' : ''
-                }`}
-                style={{
-                  cursor: 'pointer',
-                  backgroundColor: isSelected ? '#F4FBF5' : '#FFFFFF',
-                  borderRadius: '12px',
-                  transition: 'all 0.15s ease',
-                }}
-                onClick={() => setPreviewItem(isSelected ? null : item)}
-                title="Bấm để xem thử lên thú cưng"
-              >
-                {/* Emoji / Biểu tượng món đồ */}
+            return (
+              <div key={item.id} className="col-4 col-md-3">
                 <div
-                  className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1 shadow-xs"
-                  style={{
-                    width: '64px',
-                    height: '64px',
-                    backgroundColor: item.bgStyle || '#F8F9FA',
-                    border: '1px solid #ECEFF1',
-                  }}
+                  className={`card h-100 p-2 text-center shadow-xs border shop-compact-card ${
+                    isSelected ? 'border-success border-2' : ''
+                  }`}
+                  onClick={() => handleItemPreview(item)}
+                  title="Bấm để thử lên thú cưng"
+                  style={{ cursor: 'pointer', borderRadius: '12px' }}
                 >
-                  <Emoji e={item.emoji} size={38} />
-                </div>
+                  {/* Badge phẩm chất trên góc */}
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <span
+                      className="badge rounded-pill px-2 py-0"
+                      style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '9px', fontWeight: 600 }}
+                    >
+                      {rStyle.label.split(' ')[1] || rStyle.label}
+                    </span>
+                    {hasCombo && !isOwned && !isMilestone && (
+                      <span className="badge bg-danger rounded-pill px-1 py-0" style={{ fontSize: '9px' }}>
+                        -20%
+                      </span>
+                    )}
+                  </div>
 
-                {/* Tên món đồ */}
-                <div className="shop-grid-title mt-1 mb-1 text-truncate" title={item.name}>
-                  {item.name}
-                </div>
-
-                {/* Phẩm chất & Hệ */}
-                <div className="d-flex justify-content-center gap-1 mb-1 flex-wrap">
-                  <span
-                    className="badge rounded-pill"
-                    style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '10px' }}
+                  {/* Icon vật phẩm */}
+                  <div
+                    className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1"
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      backgroundColor: item.bgStyle || '#F8F9FA',
+                      border: '1px solid #ECEFF1',
+                    }}
                   >
-                    {rStyle.label}
-                  </span>
-                  {hasCombo && !isOwned && !isMilestone && (
-                    <span className="badge bg-danger rounded-pill" style={{ fontSize: '10px' }}>
-                      -20%
-                    </span>
-                  )}
-                </div>
+                    <Emoji e={item.emoji} size={28} />
+                  </div>
 
-                {/* Ghi chú hoặc điều kiện */}
-                <div className="shop-grid-sub mb-2 text-truncate" style={{ fontSize: '11px' }} title={item.note || item.description}>
-                  {item.note || item.description}
-                </div>
+                  {/* Tên vật phẩm */}
+                  <div className="shop-compact-title text-truncate" title={item.name}>
+                    {item.name}
+                  </div>
 
-                {/* Phần chân card: Giá tiền & Nút Mua/Đã có */}
-                <div className="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
-                  {isOwned ? (
-                    <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-1 fw-bold">
-                      ✓ Đã có
-                    </span>
-                  ) : isMilestone ? (
-                    isMilestoneUnlocked ? (
-                      <span className="badge bg-primary-subtle text-primary border rounded-pill w-100 py-1 fw-bold">
-                        🟢 Đã mở mốc
+                  {/* Nút hành động / Giá tiền */}
+                  <div className="mt-auto pt-1">
+                    {isOwned ? (
+                      <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-1" style={{ fontSize: '10px' }}>
+                        ✓ Đã có
+                      </span>
+                    ) : isMilestone ? (
+                      <span className={`badge rounded-pill w-100 py-1 ${isMilestoneUnlocked ? 'bg-primary-subtle text-primary border' : 'bg-light text-muted border'}`} style={{ fontSize: '10px' }}>
+                        {isMilestoneUnlocked ? '🟢 Mở mốc' : '🔒 Đạt mốc'}
+                      </span>
+                    ) : item.rarity === 'season' ? (
+                      <span className="badge bg-warning-subtle text-dark border rounded-pill w-100 py-1" style={{ fontSize: '10px' }}>
+                        Thẻ Mùa
                       </span>
                     ) : (
-                      <span className="badge bg-light text-muted border rounded-pill w-100 py-1">
-                        🔒 Đạt mốc học
-                      </span>
-                    )
-                  ) : item.rarity === 'season' ? (
-                    <span className="badge bg-warning-subtle text-dark border rounded-pill w-100 py-1">
-                      Thẻ Mùa
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-cowdi-primary w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shadow-xs"
-                      style={{ fontSize: '12px' }}
-                      onClick={(e) => handleOpenBuy(item, e)}
-                    >
-                      {hasCombo && (
-                        <span className="text-decoration-line-through opacity-75" style={{ fontSize: '10px' }}>
-                          {originalPrice}
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-cowdi-primary w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shadow-xs"
+                        style={{ fontSize: '11px' }}
+                        onClick={(e) => handleOpenBuy(item, e)}
+                        title="Bấm để mua"
+                      >
+                        {hasCombo && (
+                          <span className="text-decoration-line-through opacity-75" style={{ fontSize: '9px' }}>
+                            {originalPrice}
+                          </span>
+                        )}
+                        <span>
+                          {finalPrice.toLocaleString('vi-VN')} {isGem ? '💎' : '🥛'}
                         </span>
-                      )}
-                      <span>
-                        {finalPrice.toLocaleString('vi-VN')} {isGem ? '💎' : '🥛'}
-                      </span>
-                    </button>
-                  )}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
-      {/* 6. Sheet Mua đồ trang trí */}
+      {/* 5. Popup Bộ lọc Phẩm chất & Hệ */}
+      <CosmeticFilterSheet
+        open={filterSheetOpen}
+        onClose={() => setFilterSheetOpen(false)}
+        subCategory={subCategory}
+        rarityFilter={rarityFilter}
+        onSelectRarity={setRarityFilter}
+        elementFilter={elementFilter}
+        onSelectElement={setElementFilter}
+        onReset={() => { setRarityFilter('all'); setElementFilter('all'); }}
+      />
+
+      {/* 6. Modal Phòng thử đồ thú cưng */}
+      <PetDressingModal
+        open={dressingModalOpen}
+        onClose={() => setDressingModalOpen(false)}
+        currentPet={currentPet}
+        species={species}
+        ownedPets={ownedPets}
+        onSelectPetId={onSelectPetId}
+        previewItem={previewItem}
+        previewType={subCategory}
+        onClearPreview={() => setPreviewItem(null)}
+      />
+
+      {/* 7. Bottom Sheet: Mua vật phẩm */}
       <CosmeticBuySheet
         open={Boolean(buyingItem)}
         item={buyingItem}

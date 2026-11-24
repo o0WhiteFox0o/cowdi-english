@@ -216,6 +216,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | 4 / UI | Tối ưu UI/UX Cửa hàng siêu gọn gàng: thu gọn PetPreview thành Popup phòng thử đồ `PetDressingModal`, gộp 18 nút lọc thành `CosmeticFilterSheet`, card món đồ compact RPG hạn chế cuộn chuột | a346d80 | 120/120 test pass, build pass |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Sửa lỗi không cộng thưởng Sữa sau khi học / đấu trường (`useUser.jsx` đồng bộ `wallet.milk` tức thì + tự flush progress trước `refreshWallet`) & xoay mặt bò bên trái sang phải (`pet.css` `scaleX(-1)`) | f38de8a | 120/120 test pass, build pass |
 | 2026-11-24 | 4 | Mở bán Đồ trang trí thật (19 Nền, 15 Hào quang, 10 nền hệ), bảng owned_cosmetics, ledger mua Sữa/Gem, combo -20%, trang bị/tháo mượt mà | 1276060 | 120/120 test pass, build pass |

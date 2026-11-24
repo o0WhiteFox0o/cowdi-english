@@ -1,19 +1,19 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { usePet } from '../../hooks/usePet';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, SHOP_ITEMS, getEvolutionInfo } from '../../data/pets';
 import { ALL_COSMETIC_ITEMS, COSMETIC_MAP } from '../../../shared/cosmetics-data.js';
-import PetPreview from '../../components/pet/PetPreview';
 import Emoji from '../../components/Emoji';
+import PetDressingModal from './PetDressingModal';
 
 const INVENTORY_FILTERS = [
   { id: 'all', label: 'Tất cả' },
-  { id: 'hat', label: '🎩 Mũ' },
-  { id: 'outfit', label: '👔 Trang phục' },
   { id: 'room', label: '🖼️ Nền' },
   { id: 'effect', label: '✨ Hào quang' },
+  { id: 'hat', label: '🎩 Mũ' },
+  { id: 'outfit', label: '👔 Áo' },
 ];
 
 export default function InventoryTab({ selectedPetId, onSelectPetId }) {
@@ -22,6 +22,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
   const showToast = useToast();
   const { play } = useSound();
   const [filterType, setFilterType] = useState('all');
+  const [dressingModalOpen, setDressingModalOpen] = useState(false);
 
   const ownedPets = useMemo(() => Object.values(petData.collection || {}), [petData.collection]);
   const currentPetId = selectedPetId && petData.collection[selectedPetId]
@@ -29,6 +30,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
     : petData.activePetId || ownedPets[0]?.instanceId;
   const currentPet = petData.collection[currentPetId] || ownedPets[0];
   const species = currentPet ? PET_REGISTRY[currentPet.speciesId] : null;
+  const currentEvo = currentPet ? getEvolutionInfo(currentPet.speciesId, currentPet.evolution) : null;
 
   // Hợp nhất danh mục từ shared/cosmetics-data và SHOP_ITEMS
   const combinedCatalog = useMemo(() => {
@@ -91,65 +93,44 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
 
   return (
     <div className="inventory-tab-container">
-      {/* 1. Khung xem trước Pet với đồ đang trang bị */}
-      {currentPet && species && (
-        <div
-          className="card shadow-sm mb-3 border-0 overflow-hidden"
-          style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #eef0f2' }}
-        >
-          <div className="card-body p-3">
-            {/* Bộ chọn pet nếu sở hữu nhiều hơn 1 pet */}
-            {ownedPets.length > 1 && (
-              <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                <span className="small text-muted fw-semibold">Chọn pet trang bị:</span>
-                <div className="d-flex align-items-center gap-1 flex-wrap">
-                  {ownedPets.map((p) => {
-                    const sp = PET_REGISTRY[p.speciesId];
-                    const evo = getEvolutionInfo(p.speciesId, p.evolution);
-                    const isSelected = p.instanceId === currentPet.instanceId;
-                    return (
-                      <button
-                        key={p.instanceId}
-                        type="button"
-                        className={`btn btn-sm d-flex align-items-center gap-1 rounded-pill px-2 py-1 ${
-                          isSelected ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
-                        }`}
-                        style={{ fontSize: '12px' }}
-                        onClick={() => onSelectPetId && onSelectPetId(p.instanceId)}
-                        title={`${p.customName || sp?.name} (${evo?.name})`}
-                      >
-                        {evo?.image ? (
-                          <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                        ) : (
-                          <span>{evo?.emoji || sp?.emoji}</span>
-                        )}
-                        <span>{p.customName || sp?.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Khung PetPreview dùng chung */}
-            <PetPreview pet={currentPet} />
-
-            <div className="small text-muted mt-2 text-center">
-              {currentPet.customName || species.name} — Trang bị hiện tại
+      {/* 1. Thanh Phòng thử đồ thú cưng gọn gàng (cao ~44px, thay thế card 300px) */}
+      {currentPet && (
+        <div className="shop-dressing-bar mb-3">
+          <div className="d-flex align-items-center gap-2 min-w-0">
+            <span className="shop-dressing-avatar">
+              {currentEvo?.image ? (
+                <img src={currentEvo.image} alt="" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+              ) : (
+                <span>{currentEvo?.emoji || species?.emoji || '🐮'}</span>
+              )}
+            </span>
+            <div className="text-truncate" style={{ fontSize: '0.92rem', lineHeight: 1.2 }}>
+              <span className="fw-bold text-dark">{currentPet.customName || species?.name}</span>
+              <span className="text-muted ms-2 small">({ownedItems.length} món đã có)</span>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0"
+            style={{ fontSize: '12px' }}
+            onClick={() => setDressingModalOpen(true)}
+          >
+            <span>👗</span> Xem thử lên pet
+          </button>
         </div>
       )}
 
-      {/* 2. Chip lọc loại đồ trong kho */}
-      <div className="d-flex justify-content-center gap-1 mb-3 flex-wrap">
+      {/* 2. Chip lọc loại đồ trong kho (ngang gọn gàng) */}
+      <div className="d-flex gap-1 mb-3 overflow-auto pb-1" style={{ whiteSpace: 'nowrap' }}>
         {INVENTORY_FILTERS.map((cat) => (
           <button
             key={cat.id}
             type="button"
-            className={`btn btn-sm rounded-pill px-3 fw-bold ${
-              filterType === cat.id ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
+            className={`btn btn-sm rounded-pill px-3 py-1 fw-semibold ${
+              filterType === cat.id ? 'btn-cowdi-primary shadow-xs' : 'btn-light border text-muted'
             }`}
+            style={{ fontSize: '12px' }}
             onClick={() => setFilterType(cat.id)}
           >
             {cat.label}
@@ -157,7 +138,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
         ))}
       </div>
 
-      {/* 3. Lưới các món sở hữu */}
+      {/* 3. Lưới các món sở hữu dạng Compact RPG túi đồ (3 cột mobile, 4 cột desktop) */}
       {filteredItems.length === 0 ? (
         <div className="card border-dashed p-4 text-center text-muted small my-3" style={{ backgroundColor: '#fafbfc', borderRadius: '12px' }}>
           <div className="fs-2 mb-2">🎒</div>
@@ -165,59 +146,87 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
           <div className="text-muted mt-1">Hãy ghé tab Trang trí để sắm Nền và Hào quang mới cho thú cưng nhé!</div>
         </div>
       ) : (
-        <div className="row g-2">
+        <div className="row g-2 mb-3">
           {filteredItems.map((item) => {
             const isEquipped = currentPet?.cosmetics?.[item.category] === item.id;
 
             return (
-              <div key={item.id} className="col-6 col-md-4 col-lg-3">
+              <div key={item.id} className="col-4 col-md-3">
                 <div
-                  className={`card h-100 shadow-sm text-center p-2 border ${
+                  className={`card h-100 p-2 text-center shadow-xs border shop-compact-card ${
                     isEquipped ? 'border-success border-2' : ''
                   }`}
                   style={{
                     backgroundColor: isEquipped ? '#f4fbf5' : '#fff',
                     borderRadius: '12px',
-                    transition: 'all 0.15s ease',
+                    cursor: 'pointer',
                   }}
+                  onClick={() => handleEquip(item)}
+                  title={isEquipped ? 'Bấm để tháo ra' : 'Bấm để trang bị'}
                 >
-                  <div className="my-2"><Emoji e={item.emoji} size={36} /></div>
-                  <div
-                    className="shop-grid-title mb-1"
-                    style={{
-                      fontFamily: 'var(--font-hand, cursive)',
-                      fontSize: '1.05rem',
-                      color: 'var(--ink, #1f2937)',
-                    }}
-                  >
-                    {item.name}
-                  </div>
-                  <div className="shop-grid-sub text-muted small mb-2 text-capitalize" style={{ fontSize: '11px' }}>
-                    {item.category === 'room'
-                      ? 'Nền'
-                      : item.category === 'effect'
-                      ? 'Hào quang'
-                      : item.category === 'hat'
-                      ? 'Mũ'
-                      : 'Trang phục'}
+                  {/* Trạng thái trang bị góc trên */}
+                  <div className="d-flex justify-content-end mb-1">
+                    {isEquipped ? (
+                      <span className="badge bg-success rounded-pill px-2 py-0" style={{ fontSize: '9px' }}>
+                        ✓ Đang mặc
+                      </span>
+                    ) : (
+                      <span className="badge bg-light text-muted border rounded-pill px-1 py-0" style={{ fontSize: '9px' }}>
+                        Trong túi
+                      </span>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    className={`btn btn-sm w-100 mt-auto rounded-pill py-1 fw-bold ${
-                      isEquipped ? 'btn-outline-danger' : 'btn-cowdi-primary'
-                    }`}
-                    style={{ fontSize: '12px' }}
-                    onClick={() => handleEquip(item)}
+                  {/* Icon */}
+                  <div
+                    className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1"
+                    style={{
+                      width: '46px',
+                      height: '46px',
+                      backgroundColor: item.bgStyle || '#F8F9FA',
+                      border: '1px solid #ECEFF1',
+                    }}
                   >
-                    {isEquipped ? 'Tháo ra' : 'Trang bị'}
-                  </button>
+                    <Emoji e={item.emoji} size={28} />
+                  </div>
+
+                  {/* Tên */}
+                  <div className="shop-compact-title text-truncate" title={item.name}>
+                    {item.name}
+                  </div>
+
+                  {/* Nút tháo/mặc */}
+                  <div className="mt-auto pt-1">
+                    <button
+                      type="button"
+                      className={`btn btn-xs w-100 py-1 rounded-pill fw-bold ${
+                        isEquipped ? 'btn-outline-danger' : 'btn-cowdi-primary shadow-xs'
+                      }`}
+                      style={{ fontSize: '11px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEquip(item);
+                      }}
+                    >
+                      {isEquipped ? 'Tháo ra' : 'Trang bị'}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* 4. Modal phòng thử đồ */}
+      <PetDressingModal
+        open={dressingModalOpen}
+        onClose={() => setDressingModalOpen(false)}
+        currentPet={currentPet}
+        species={species}
+        ownedPets={ownedPets}
+        onSelectPetId={onSelectPetId}
+      />
     </div>
   );
 }
