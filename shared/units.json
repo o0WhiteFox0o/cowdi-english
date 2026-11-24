@@ -278,6 +278,19 @@
     "pathIds": [
       "ielts"
     ],
+    "unitId": "ielts-unit-reading-v2",
+    "lessons": [
+      "ielts-read-rooftop-farms",
+      "ielts-read-urban-trees",
+      "ielts-read-sleep-memory"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-3",
     "lessons": [
       "ielts-writing",
