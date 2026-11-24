@@ -102,11 +102,14 @@ export class PetRig {
       mode: 'home',
       reducedMotion:
         typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches,
+      timeScale: 1, // >1 chỉ dùng ở tab "Xem trước khi học" (vd 10× để thử sleepy/sleep)
       onClip: null,
+      onDiagnostic: null, // callback tuỳ chọn ghi nhật ký sự kiện & clip bị bỏ qua vì chưa duyệt
       ...opts,
     };
 
     this.motion = this.o.motion || {};
+    this._loggedMissingAuto = new Set();
     this.img = {};
     this.emojiImgCache = {};
     this.fx = [];
@@ -229,22 +232,53 @@ export class PetRig {
   }
 
   setMode(mode) {
+    const prevMode = this.o.mode;
     this.o.mode = mode;
-    if (this.hasApprovedStage()) this._enterBaseClip(true);
+    this._loggedMissingAuto.clear();
+    if (this.hasApprovedStage()) {
+      this._enterBaseClip(true, prevMode !== mode ? `mode_${mode}` : null);
+    }
+  }
+
+  setTimeScale(scale) {
+    this.o.timeScale = Math.max(0.1, Number(scale) || 1);
+    const now = performance.now();
+    this.nextLook = now + (6000 + Math.random() * 5000) / this.o.timeScale;
+    this.nextFidget = now + 14000 / this.o.timeScale;
+  }
+
+  _reportEvent(eventName, requestedClip, playedClip, extra = {}) {
+    if (!this.o.onDiagnostic) return;
+    this.o.onDiagnostic({
+      event: eventName,
+      requested: requestedClip,
+      played: playedClip,
+      fallback: Boolean(playedClip && requestedClip && playedClip !== requestedClip),
+      skipped: Boolean(requestedClip && !playedClip),
+      currentClip: this.cur ? this.cur.name : null,
+      ...extra,
+    });
   }
 
   setBond(points) {
+    const prevDesired = this._desiredBaseName();
     this.o.bond = points;
     if (!this.hasApprovedStage()) return;
+    const nextDesired = this._desiredBaseName();
     if (!this.cur || (this._meta(this.cur.name).pr === 0 && !['sleep', 'sleepy'].includes(this.cur.name))) {
-      this._enterBaseClip(true);
+      this._enterBaseClip(true, prevDesired !== nextDesired ? 'bond_milestone' : null);
     }
   }
 
   setTopSkill(skill) {
+    const prevDesired = this._desiredBaseName();
     this.o.topSkill = skill;
     this.doodle = [];
-    this.setBond(this.o.bond);
+    if (!this.hasApprovedStage()) return;
+    const nextDesired = this._desiredBaseName();
+    if (!this.cur || (this._meta(this.cur.name).pr === 0 && !['sleep', 'sleepy'].includes(this.cur.name))) {
+      this._enterBaseClip(true, prevDesired !== nextDesired ? 'top_skill' : null);
+    }
   }
 
   setMicLevel(v) {
@@ -293,30 +327,56 @@ export class PetRig {
     return resolveApprovedClipName(this._desiredBaseName(), this._approvedClips());
   }
 
-  _enterBaseClip(force = false) {
-    const baseName = this._base();
+  _enterBaseClip(force = false, eventName = null) {
+    const desired = this._desiredBaseName();
+    const baseName = resolveApprovedClipName(desired, this._approvedClips());
     if (!baseName) {
       this.prev = this.cur ? { ch: this.lastCh } : null;
       this.blendT = performance.now();
       this.cur = null; // tư thế nghỉ đứng yên
+      if (eventName) {
+        this._reportEvent(eventName, desired, null, { reason: 'unapproved' });
+      }
       return false;
     }
-    return this.play(baseName, force);
+    const ok = this.play(baseName, force);
+    if (eventName) {
+      this._reportEvent(eventName, desired, ok ? baseName : null, ok ? {} : { reason: 'unapproved' });
+    }
+    return ok;
   }
 
   /**
    * Phát clip theo tên. Nếu clip chưa duyệt (sau khi áp dụng quy tắc thay thế cho clip nền)
    * thì KHÔNG phát và trả về false, giữ nguyên clip đang chạy.
    */
-  play(name, force = false) {
-    if (!this.hasApprovedStage()) return false;
+  play(name, force = false, eventName = null) {
+    if (!this.hasApprovedStage()) {
+      if (eventName) {
+        this._reportEvent(eventName, name, null, { skipped: true, reason: 'unapproved_rig' });
+      }
+      return false;
+    }
     const resolvedName = resolveApprovedClipName(name, this._approvedClips());
-    if (!resolvedName) return false;
+    if (!resolvedName) {
+      if (eventName) {
+        this._reportEvent(eventName, name, null, { reason: 'unapproved' });
+      }
+      return false;
+    }
 
     const c = this._clip(resolvedName);
-    if (!c) return false;
+    if (!c) {
+      if (eventName) {
+        this._reportEvent(eventName, name, null, { reason: 'unapproved' });
+      }
+      return false;
+    }
 
-    if (this.cur && !force && this.cur.name === resolvedName && c.loop) return true;
+    if (this.cur && !force && this.cur.name === resolvedName && c.loop) {
+      if (eventName) this._reportEvent(eventName, name, resolvedName);
+      return true;
+    }
     const curClip = this.cur ? this._clip(this.cur.name) : null;
     if (
       this.cur &&
@@ -326,74 +386,89 @@ export class PetRig {
       this._meta(resolvedName).pr < this._meta(this.cur.name).pr
     ) {
       this.queue = resolvedName;
+      if (eventName) this._reportEvent(eventName, name, resolvedName, { queued: true });
       return true;
     }
     this.prev = this.cur ? { ch: this.lastCh } : null;
     this.blendT = performance.now();
     this.cur = { name: resolvedName, t0: performance.now() };
+    if (eventName) this._reportEvent(eventName, name, resolvedName);
     return true;
   }
 
   // ── Sự kiện học tập ─────────────────────────────────────────────
   emit(event, data = {}) {
-    if (!this.hasApprovedStage()) return;
+    if (!this.hasApprovedStage()) {
+      this._reportEvent(event, null, null, { skipped: true, reason: 'unapproved_rig' });
+      return;
+    }
     const b = this.o.bond;
     const pos = this._fxPos();
     this.lastEvt = performance.now();
+    this._loggedMissingAuto.clear();
 
     switch (event) {
       case 'app_open':
         if ((data.daysAway || 0) >= 1 && b >= 200) {
-          this.play('greet_return', true);
+          this.play('greet_return', true, 'app_open');
           this.say(data.text || 'Nhớ bạn quá!');
         } else if (b >= 60) {
-          this.play('wave', true);
+          this.play('wave', true, 'app_open');
+        } else {
+          this._reportEvent('app_open', null, null, {
+            note: 'Gắn bó < 60 (cần ≥ 60 cho wave, ≥ 200 + vắng ≥ 1 ngày cho greet_return)',
+          });
         }
         break;
       case 'lesson_start':
         this.o.mode = 'lesson';
         this.waitingAnswer = true;
-        this._enterBaseClip(true);
+        this._enterBaseClip(true, 'lesson_start');
         break;
       case 'question_shown':
         this.waitingAnswer = true;
         this.lastEvt = performance.now();
+        this._reportEvent('question_shown', null, this.cur ? this.cur.name : null, {
+          note: 'Bắt đầu đếm 8s chờ think',
+        });
         break;
       case 'answer_correct':
         this.waitingAnswer = false;
-        if (this.play('cheer_small', true)) {
+        if (this.play('cheer_small', true, 'answer_correct')) {
           this.queue = 'attentive';
         }
         this._burst('spark', 5, pos);
         break;
       case 'streak':
         this.waitingAnswer = false;
-        if (this.play('cheer_big', true)) {
+        if (this.play('cheer_big', true, 'streak')) {
           this.queue = 'attentive';
         }
         this._burst('confetti', 24, pos);
         break;
       case 'answer_wrong':
         this.waitingAnswer = false;
-        if (this.play('encourage', true)) {
+        if (this.play('encourage', true, 'answer_wrong')) {
           this.queue = 'attentive';
         }
         this.say(data.text || 'Thử lại nhé, mình tin bạn!', 1300);
         break;
-      case 'lesson_done':
+      case 'lesson_done': {
         this.o.mode = 'home';
         this.waitingAnswer = false;
-        if (!this.play(b >= 1200 ? 'dance' : 'cheer_big', true)) {
+        const doneClip = b >= 1200 ? 'dance' : 'cheer_big';
+        if (!this.play(doneClip, true, 'lesson_done')) {
           this._enterBaseClip(true);
         }
         this._burst('confetti', 40, pos);
         if (data.text) this.say(data.text, 1800);
         break;
+      }
       case 'skill_level_up':
-        this.play('proud', true);
+        this.play('proud', true, 'skill_level_up');
         break;
       case 'evolve_ok':
-        this.play('evolve', true);
+        this.play('evolve', true, 'evolve_ok');
         clearTimeout(this._evolveTimer);
         this._evolveTimer = setTimeout(() => {
           if (data.stage) this.setStage(data.stage);
@@ -402,48 +477,48 @@ export class PetRig {
         break;
       case 'mic_start':
         this.micOn = true;
-        this.play('listen', true);
+        this.play('listen', true, 'mic_start');
         break;
       case 'mic_end':
         this.micOn = false;
-        this._enterBaseClip(true);
+        this._enterBaseClip(true, 'mic_end');
         break;
       case 'pet_speak_start':
         this.speaking = true;
-        this.play('talk', true);
+        this.play('talk', true, 'pet_speak_start');
         if (data.text) this.say(data.text, data.ms || 1500);
         break;
       case 'pet_speak_end':
         this.speaking = false;
-        this._enterBaseClip(true);
+        this._enterBaseClip(true, 'pet_speak_end');
         break;
       case 'feed':
-        this.play('eat', true);
+        this.play('eat', true, 'feed');
         break;
       case 'battle_start':
         this.o.mode = 'battle';
-        this._enterBaseClip(true);
+        this._enterBaseClip(true, 'battle_start');
         break;
       case 'battle_attack':
-        this.play('attack', true);
+        this.play('attack', true, 'battle_attack');
         break;
       case 'battle_crit':
-        this.play('crit', true);
+        this.play('crit', true, 'battle_crit');
         break;
       case 'battle_dodge':
-        this.play('dodge', true);
+        this.play('dodge', true, 'battle_dodge');
         break;
       case 'battle_hit':
-        this.play('hit', true);
+        this.play('hit', true, 'battle_hit');
         break;
       case 'battle_win':
-        this.play('win', true);
+        this.play('win', true, 'battle_win');
         break;
       case 'battle_lose':
-        this.play('lose_proud', true);
+        this.play('lose_proud', true, 'battle_lose');
         break;
       default:
-        if (this._clip(event)) this.play(event, true);
+        this.play(event, true, event);
     }
 
     if (this.o.onClip) this.o.onClip(event, this.cur ? this.cur.name : null);
@@ -597,26 +672,37 @@ export class PetRig {
     const o = this.o;
 
     // Hẹn giờ tự động (chỉ phát nếu clip tương ứng đã duyệt; sleepy/sleep chưa duyệt sẽ tự bỏ qua)
-    const idleSec = (now - this.lastEvt) / 1000;
+    const ts = Math.max(0.1, o.timeScale || 1);
+    const idleSec = ((now - this.lastEvt) / 1000) * ts;
     const cn = this.cur?.name || null;
     const curLoop = !this.cur || Boolean(this._clip(cn)?.loop);
+    const tryAuto = (clipName, eventLabel, forcePlay = false) => {
+      const ok = this.play(clipName, forcePlay);
+      if (ok) {
+        this._loggedMissingAuto.delete(clipName);
+        this._reportEvent(eventLabel, clipName, clipName);
+      } else if (!this._loggedMissingAuto.has(clipName)) {
+        this._loggedMissingAuto.add(clipName);
+        this._reportEvent(eventLabel, clipName, null, { reason: 'unapproved' });
+      }
+    };
     if (o.mode === 'home' && !this.drag) {
       if (idleSec > 120 && cn !== 'sleep' && curLoop) {
-        this.play('sleep');
+        tryAuto('sleep', 'auto_sleep');
       } else if (idleSec > 60 && idleSec <= 120 && !['sleepy', 'sleep'].includes(cn) && curLoop) {
-        this.play('sleepy');
+        tryAuto('sleepy', 'auto_sleepy');
       } else if (idleSec < 60 && curLoop && now > this.nextLook) {
         if (o.bond >= 200 && now > this.nextFidget) {
-          this.play('fidget', true);
-          this.nextFidget = now + 14000;
+          tryAuto('fidget', 'auto_fidget', true);
+          this.nextFidget = now + 14000 / ts;
         } else if (Math.random() < 0.6) {
-          this.play('look_around', true);
+          tryAuto('look_around', 'auto_look_around', true);
         }
-        this.nextLook = now + 6000 + Math.random() * 5000;
+        this.nextLook = now + (6000 + Math.random() * 5000) / ts;
       }
     }
     if (o.mode === 'lesson' && this.waitingAnswer && idleSec > 8 && (cn === 'attentive' || cn === 'idle' || cn === null)) {
-      this.play('think');
+      tryAuto('think', 'auto_think');
     }
 
     if (!this.micOn) this.mic *= 0.85;
@@ -1076,8 +1162,9 @@ export class PetRig {
       ) {
         this.drag = { ...this.pointer };
         cv.setPointerCapture?.(e.pointerId);
-        this.play('drag', true);
+        this.play('drag', true, 'drag');
         this.lastEvt = performance.now();
+        this._loggedMissingAuto.clear();
       }
       if (this.drag) this.drag = { ...this.pointer };
     };
@@ -1092,27 +1179,28 @@ export class PetRig {
     const up = (e) => {
       const now = performance.now();
       this.lastEvt = now;
+      this._loggedMissingAuto.clear();
       if (this.drag) {
         const p = loc(e);
         this.drag = null;
         this.fall = { x: p.x - CX, y: p.y - GY + (this.screen?.h || 200) * 0.35, t0: now };
-        this.play('wave', true);
+        this.play('wave', true, 'drop');
       } else if (this.down) {
         const cn = this.cur?.name;
         if (['sleep', 'sleepy'].includes(cn)) {
-          this.play('wake_up', true);
+          this.play('wake_up', true, 'tap_wake');
         } else if (this.o.mode === 'home' && now >= this.tapLock) {
           this.taps = this.taps.filter((t) => now - t < 3000);
           this.taps.push(now);
           if (this.taps.length > 5) {
             this.taps = [];
             this.tapLock = now + 5000;
-            this.play('dizzy', true);
+            this.play('dizzy', true, 'tap_rapid');
           } else if (this.down.h === 'head') {
-            this.play('tap_head', true);
+            this.play('tap_head', true, 'tap_head');
             this._burst('heart', 3, this._fxPos());
           } else {
-            this.play('tap_body', true);
+            this.play('tap_body', true, 'tap_body');
           }
           if (this.o.onClip) this.o.onClip('tap', this.cur ? this.cur.name : null);
         }

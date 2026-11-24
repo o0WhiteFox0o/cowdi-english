@@ -133,6 +133,18 @@ Trong tab **⚙️ Cài đặt** → **Emoji biểu cảm**:
    - Hộp thoại liệt kê mọi pet-cấp đang duyệt động tác đó và cho chọn **Chuyển về chờ duyệt lại (mặc định)** hoặc **Giữ nguyên trạng thái duyệt**.
 4. Bấm **Xem như người học** trên thanh công cụ trên cùng để kiểm tra chính xác những gì học sinh sẽ thấy từ API công khai `GET /api/pet-motion/:petId`.
 
+### 8.1. Tab **🧪 Xem trước khi học** (chỉ quản trị viên, chỉ đọc)
+
+Bấm nút **🧪 Xem trước khi học** (từ màn hình Tổng quan hoặc thanh công cụ Bàn chỉnh) để mở phòng kiểm thử dùng chung runtime `PetRig` thật với app người học:
+
+- **Chọn pet, cấp & công tắc nguồn dữ liệu**: chuyển đổi giữa **👁 Bản người học thấy** (`GET /api/pet-motion/:petId`, chỉ phát động tác đã duyệt theo đúng quy tắc fallback) và **📝 Bản nháp** (dữ liệu đang chỉnh).
+- **3 chế độ ngữ cảnh**:
+  - **🏠 Ở nhà**: chạm đầu/thân, kéo thả, chạm 6 lần liên tục (chóng mặt) trực tiếp trên pet; nút **Cho ăn**, **Vắng 1 ngày rồi mở app**, **Tiến hoá** và công tắc **⏩ Tua nhanh ×10** để kiểm tra `sleepy` (6s) / `sleep` (12s).
+  - **📚 Bài học**: quiz mẫu 8 câu từ vựng phát đúng chuỗi sự kiện thật (`lesson_start`, `question_shown`, `answer_correct`, `answer_wrong`, `streak`, `lesson_done`), nút **🎤 Giữ để nói** giả lập micro và nút **🔊 Pet đọc mẫu** (`speechSynthesis`).
+  - **⚔️ Trận đấu**: nút phát đủ 7 sự kiện Đấu trường (`battle_start` → `battle_lose`).
+- **Thanh Gắn bó (0–1500) & Kỹ năng mạnh nhất**: xem trước cử chỉ theo mốc (`60 / 200 / 500 / 1200`) và đạo cụ `prop_<kỹ năng>`.
+- **📋 Nhật ký sự kiện**: hiển thị `sự kiện → clip đã phát`, **đánh dấu đỏ** các clip bị bỏ qua vì chưa duyệt kèm phím tắt mở thẳng bàn chỉnh cho clip còn thiếu. Tab hoàn toàn **chỉ đọc**, không ghi gì lên server.
+
 ---
 
 ## 9. Cài đặt & vận hành trên server (dành cho kỹ thuật)

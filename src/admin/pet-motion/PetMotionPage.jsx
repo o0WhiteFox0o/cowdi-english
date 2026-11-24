@@ -19,6 +19,7 @@ import {
 } from './api';
 import { initEditor } from './editor';
 import PartPaintModal from './PartPaintModal';
+import StudyPreviewTab from './StudyPreviewTab';
 import { invalidatePetMotionCache } from '../../pet-rig/motionCache';
 import './pet-motion.css';
 
@@ -204,7 +205,10 @@ export default function PetMotionPage() {
 
   const selectedPetId = searchParams.get('pet') || '';
   const selectedStageNum = Number(searchParams.get('stage')) || 0;
-  const isEditorView = Boolean(selectedPetId && PET_REGISTRY[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
+  const isPreviewView = searchParams.get('view') === 'preview';
+  const isEditorView =
+    !isPreviewView &&
+    Boolean(selectedPetId && PET_REGISTRY[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
 
   const [overview, setOverview] = useState(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
@@ -275,10 +279,10 @@ export default function PetMotionPage() {
   }, [api]);
 
   useEffect(() => {
-    if (!isEditorView) {
+    if (!isEditorView && !isPreviewView) {
       loadOverview();
     }
-  }, [isEditorView, loadOverview]);
+  }, [isEditorView, isPreviewView, loadOverview]);
 
   // ── Tải chi tiết pet-cấp ──
   const loadDetail = useCallback(async (petId, stage) => {
@@ -461,12 +465,41 @@ export default function PetMotionPage() {
   };
 
   // Mở pet-cấp từ thẻ tổng quan hoặc dropdown (focus: 'rig' | 'motion')
-  const openPetStage = async (petId, stage, focus = '') => {
+  const openPetStage = async (petId, stage, focus = '', clipName = '') => {
     await editorCtrlRef.current?.flushAll();
     const next = { pet: petId, stage: String(stage) };
     if (focus) next.focus = focus;
+    if (clipName && CLIPS[clipName]) next.clip = clipName;
     setSearchParams(next);
   };
+
+  // Mở tab Xem trước khi học (mục 5.8)
+  const openStudyPreview = async (petId = '', stage = 1) => {
+    await editorCtrlRef.current?.flushAll();
+    const next = { view: 'preview' };
+    if (petId && PET_REGISTRY[petId]) next.pet = petId;
+    if (stage >= 1 && stage <= 5) next.stage = String(stage);
+    setSearchParams(next);
+  };
+
+  const syncPreviewParams = useCallback(
+    (petId, stage) => {
+      setSearchParams(
+        (prev) => {
+          if (
+            prev.get('view') === 'preview' &&
+            prev.get('pet') === petId &&
+            prev.get('stage') === String(stage)
+          ) {
+            return prev;
+          }
+          return { view: 'preview', pet: petId, stage: String(stage) };
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
   // Bổ sung / thay ảnh avatar tĩnh trực tiếp từ thẻ tổng quan
   const handleUploadStageAvatar = async (petId, stageNum, file) => {
@@ -692,8 +725,9 @@ export default function PetMotionPage() {
     }
   };
 
-  // Tự chọn tab Hình bộ phận nếu mở từ nút Rig
+  // Tự chọn tab Hình bộ phận nếu mở từ nút Rig, hoặc nhảy tới đúng clip từ Xem trước khi học
   const focusParam = searchParams.get('focus');
+  const clipParam = searchParams.get('clip');
   useEffect(() => {
     if (isEditorView && hasRig) {
       if (focusParam === 'rig') {
@@ -702,8 +736,28 @@ export default function PetMotionPage() {
       } else if (focusParam === 'motion') {
         setSideTab('clips');
       }
+      if (clipParam && CLIPS[clipParam]) {
+        setClip(clipParam);
+        editorCtrlRef.current?.setClip(clipParam);
+      }
     }
-  }, [isEditorView, hasRig, focusParam, selectedPetId, selectedStageNum]);
+  }, [isEditorView, hasRig, focusParam, clipParam, selectedPetId, selectedStageNum]);
+
+  // ── Render 0: Tab "Xem trước khi học" (chỉ quản trị viên, chỉ đọc) ──
+  if (isPreviewView) {
+    return (
+      <StudyPreviewTab
+        api={api}
+        initialPetId={selectedPetId}
+        initialStage={selectedStageNum || 1}
+        onBackToOverview={backToOverview}
+        onOpenEditor={(pId, st, clipName) =>
+          openPetStage(pId, st, clipName ? 'motion' : 'motion', clipName || '')
+        }
+        onSyncParams={syncPreviewParams}
+      />
+    );
+  }
 
   // ── Render 1: Trang Tổng quan dạng thẻ Avatar 5 cấp + nút Rig & Motion bên dưới ──
   if (!isEditorView) {
@@ -754,6 +808,14 @@ export default function PetMotionPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            <button
+              type="button"
+              className="pm-btn primary"
+              onClick={() => openStudyPreview('bamboo_spirit', 1)}
+              title="Mở phòng thử nghiệm ở nhà, bài học và trận đấu bằng PetRig thật"
+            >
+              🧪 Xem trước khi học
+            </button>
             <button type="button" className="pm-btn" onClick={loadOverview} disabled={overviewLoading}>
               Tải lại
             </button>
@@ -1021,6 +1083,15 @@ export default function PetMotionPage() {
         </div>
 
         <div className="pm-row">
+          <button
+            type="button"
+            className="pm-btn"
+            onClick={() => openStudyPreview(selectedPetId, selectedStageNum)}
+            title="Kiểm thử pet này trong ngữ cảnh Ở nhà, Bài học, Trận đấu (chỉ đọc)"
+          >
+            🧪 Xem trước khi học
+          </button>
+
           <button
             type="button"
             className={`pm-btn ${learnerPreview ? 'primary' : ''}`}

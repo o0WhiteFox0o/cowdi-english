@@ -249,4 +249,50 @@ describe('Bước 4 — Runtime người học: quy tắc fallback clip, trạng
     assert.ok(rig._scale() > 0.65);
     rig.destroy();
   });
+
+  it('Mục 5.8 (Nghiệm thu): Bamboo C3 chỉ duyệt idle + cheer_small → đúng nhảy cheer_small, sai báo encourage chưa duyệt và giữ idle', async () => {
+    const events = [];
+    const rig = new PetRig(createStubCanvas(), {
+      petId: 'bamboo',
+      stage: 3,
+      group: 'farm',
+      mode: 'lesson',
+      motion: {
+        c3: {
+          rig: SAMPLE_RIG,
+          images: {},
+          clips: { idle: CLIPS.idle, cheer_small: CLIPS.cheer_small },
+        },
+      },
+      onDiagnostic: (d) => events.push(d),
+    });
+    await rig.load();
+
+    // mode='lesson' muốn attentive nhưng chưa duyệt -> fallback sang idle
+    assert.equal(rig.cur?.name, 'idle');
+
+    // Trả lời đúng -> phát cheer_small, không bị bỏ qua
+    rig.emit('answer_correct');
+    assert.equal(rig.cur?.name, 'cheer_small');
+    const correctLog = events.find((e) => e.event === 'answer_correct');
+    assert.equal(correctLog?.requested, 'cheer_small');
+    assert.equal(correctLog?.played, 'cheer_small');
+    assert.equal(correctLog?.skipped, false);
+
+    // Trở về idle rồi trả lời sai -> encourage chưa duyệt -> báo đỏ (skipped: true) và giữ dáng idle
+    rig.play('idle', true);
+    rig.emit('answer_wrong');
+    assert.equal(rig.cur?.name, 'idle');
+    const wrongLog = events.find((e) => e.event === 'answer_wrong');
+    assert.equal(wrongLog?.requested, 'encourage');
+    assert.equal(wrongLog?.played, null);
+    assert.equal(wrongLog?.skipped, true);
+    assert.equal(wrongLog?.reason, 'unapproved');
+
+    // Kiểm tra timeScale ×10
+    rig.setTimeScale(10);
+    assert.equal(rig.o.timeScale, 10);
+
+    rig.destroy();
+  });
 });

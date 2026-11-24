@@ -11,7 +11,7 @@ Mọi pet dùng chung 34 động tác (`shared/pet-motion.js`) và một bộ n�
 | `src/pet-rig/PetRig.js` | Runtime canvas cho người học (chỉ phát dữ liệu đã duyệt từ server). |
 | `src/pet-rig/PetAvatar.jsx` | Component React + `topSkillOf`, `bondOf` (tự fallback ảnh tĩnh nếu chưa duyệt rig). |
 | `src/pet-rig/motionCache.js` | Cache trong bộ nhớ theo `petId` cho `GET /api/pet-motion/:petId`. |
-| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (tổng quan 23 pet × 5 cấp, bàn chỉnh keyframe, trình vẽ bộ phận `PartPaintModal.jsx`). |
+| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (tổng quan 23 pet × 5 cấp, bàn chỉnh keyframe, trình vẽ bộ phận `PartPaintModal.jsx`, tab chỉ-đọc `StudyPreviewTab.jsx` "Xem trước khi học"). |
 | `server/routes/petMotionAdmin.js` | API quản trị (`requireAuth + requireAdmin`) lưu nháp, upload ảnh, duyệt rig/clip, emoji tự thiết kế. |
 | `server/routes/petMotionPublic.js` | API công khai cho người học (`GET /api/pet-motion/:petId` + ảnh đã xuất bản). |
 | `server/db/migrate-pet-motion.sql` | Migration 4 bảng DB (`pet_motion_clips`, `pet_motion_approvals`, `pet_rigs`, `pet_motion_history`). |
@@ -66,7 +66,7 @@ Xem hướng dẫn thao tác đầy đủ tại [`docs/HUONG-DAN-CHINH-DONG-TAC-
 2. Chọn pet và cấp tiến hoá (tạo rig mới hoặc chỉnh rig có sẵn, chỉnh thứ tự lớp `z`, vẽ sửa trực tiếp PNG qua nút `✏️ Sửa`).
 3. Bấm **Duyệt bộ phận** khi bộ phận đã chuẩn.
 4. Chỉnh keyframe & emoji biểu cảm cho từng động tác (tự động lưu nháp lên server), sau đó bấm **Đánh dấu hoàn thiện** để xuất bản cho người học.
-5. Bật **Xem như người học** để kiểm tra đúng kết quả người học sẽ thấy.
+5. Bật **Xem như người học** hoặc mở tab **🧪 Xem trước khi học** (`/admin/pet-motion?view=preview`) để kiểm thử đầy đủ 3 chế độ (Ở nhà, Bài học 8 câu + mic + đọc mẫu, Trận đấu), thanh Gắn bó 0–1500, Kỹ năng mạnh nhất và Nhật ký sự kiện đánh dấu đỏ các clip chưa duyệt (chỉ đọc, dùng chung `PetRig` với app người học).
 
 ## Thêm pet mới
 
