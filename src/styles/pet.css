@@ -687,6 +687,10 @@ canvas.cowdi-chat-img {
   top: 5%;
   right: 6%;
 }
+.battle-pet-mine img,
+.battle-pet-mine canvas {
+  transform: scaleX(-1);
+}
 .battle-pet-opponent img,
 .battle-pet-opponent canvas {
   transform: scaleX(-1);
