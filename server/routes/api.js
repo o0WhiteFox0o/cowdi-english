@@ -658,12 +658,17 @@ router.post('/duel', requireAuth, async (req, res) => {
         expiresAt,
       ]
     );
-    // Award league points for creating duel
+    // Award league points and Sữa for creating duel
+    const milkEarned = Math.max(0, score * 5);
     await pool.execute(
-      'UPDATE user_progress SET league_points = COALESCE(league_points, 0) + 5 WHERE user_id = ?',
-      [req.user.id]
+      `UPDATE user_progress
+       SET league_points = COALESCE(league_points, 0) + 5,
+           total_xp = COALESCE(total_xp, 0) + ?
+       WHERE user_id = ?`,
+      [milkEarned, req.user.id]
     );
-    res.json({ ok: true, challengeId: result.insertId, score });
+    const wallet = await getWallet(req.user.id);
+    res.json({ ok: true, challengeId: result.insertId, score, milkEarned, wallet });
   } catch (err) {
     console.error('POST /api/duel error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
@@ -909,34 +914,78 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       ]
     );
 
-    // Update league points + duel stats for both players
-    if (winnerId === req.user.id) {
+    // D4: Thưởng Sữa cho trận đấu Đấu trường
+    // Người thắng: 8 Sữa · Hòa: 5 Sữa · Thua: 2 Sữa; cộng thêm 5 Sữa / câu đúng
+    const isOppWin = winnerId === req.user.id;
+    const isChWin = winnerId === challenge.challenger_id;
+    const isDraw = !winnerId;
+
+    const oppBonus = isOppWin ? 8 : (isDraw ? 5 : 2);
+    const chBonus = isChWin ? 8 : (isDraw ? 5 : 2);
+
+    const opponentMilk = (opponentScore * 5) + oppBonus;
+    const challengerMilk = (Number(challenge.challenger_score || 0) * 5) + chBonus;
+
+    // Update league points + duel stats + Sữa (total_xp) for both players
+    if (isOppWin) {
       // Opponent wins
       await pool.execute(
-        'UPDATE user_progress SET duel_wins = COALESCE(duel_wins,0) + 1, duel_streak = COALESCE(duel_streak,0) + 1, league_points = COALESCE(league_points,0) + 30 WHERE user_id = ?',
-        [req.user.id]
+        `UPDATE user_progress
+         SET duel_wins = COALESCE(duel_wins,0) + 1,
+             duel_streak = COALESCE(duel_streak,0) + 1,
+             league_points = COALESCE(league_points,0) + 30,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [opponentMilk, req.user.id]
       );
       await pool.execute(
-        'UPDATE user_progress SET duel_losses = COALESCE(duel_losses,0) + 1, duel_streak = 0, league_points = COALESCE(league_points,0) + 5 WHERE user_id = ?',
-        [challenge.challenger_id]
+        `UPDATE user_progress
+         SET duel_losses = COALESCE(duel_losses,0) + 1,
+             duel_streak = 0,
+             league_points = COALESCE(league_points,0) + 5,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [challengerMilk, challenge.challenger_id]
       );
-    } else if (winnerId === challenge.challenger_id) {
+    } else if (isChWin) {
       // Challenger wins
       await pool.execute(
-        'UPDATE user_progress SET duel_wins = COALESCE(duel_wins,0) + 1, duel_streak = COALESCE(duel_streak,0) + 1, league_points = COALESCE(league_points,0) + 30 WHERE user_id = ?',
-        [challenge.challenger_id]
+        `UPDATE user_progress
+         SET duel_wins = COALESCE(duel_wins,0) + 1,
+             duel_streak = COALESCE(duel_streak,0) + 1,
+             league_points = COALESCE(league_points,0) + 30,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [challengerMilk, challenge.challenger_id]
       );
       await pool.execute(
-        'UPDATE user_progress SET duel_losses = COALESCE(duel_losses,0) + 1, duel_streak = 0, league_points = COALESCE(league_points,0) + 5 WHERE user_id = ?',
-        [req.user.id]
+        `UPDATE user_progress
+         SET duel_losses = COALESCE(duel_losses,0) + 1,
+             duel_streak = 0,
+             league_points = COALESCE(league_points,0) + 5,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [opponentMilk, req.user.id]
       );
     } else {
       // Draw
       await pool.execute(
-        'UPDATE user_progress SET league_points = COALESCE(league_points,0) + 15 WHERE user_id IN (?, ?)',
-        [req.user.id, challenge.challenger_id]
+        `UPDATE user_progress
+         SET league_points = COALESCE(league_points,0) + 15,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [opponentMilk, req.user.id]
+      );
+      await pool.execute(
+        `UPDATE user_progress
+         SET league_points = COALESCE(league_points,0) + 15,
+             total_xp = COALESCE(total_xp,0) + ?
+         WHERE user_id = ?`,
+        [challengerMilk, challenge.challenger_id]
       );
     }
+
+    const wallet = await getWallet(req.user.id);
 
     res.json({
       ok: true,
@@ -952,6 +1001,8 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       winnerId,
       challengerPet: challengerPetSnap,
       opponentPet: opponentPetSnap,
+      wallet,
+      milkEarned: opponentMilk,
     });
 
     // ── Push notification cho challenger biết duel của họ đã có người chơi ──

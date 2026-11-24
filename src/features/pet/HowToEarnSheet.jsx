@@ -25,7 +25,7 @@ export default function HowToEarnSheet({ open, onClose }) {
         <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
           <div className="d-flex align-items-center gap-2">
             <span className="fs-4">💡</span>
-            <h5 className="fw-bold mb-0">Cách kiếm tài nguyên</h5>
+            <h3 className="shop-sheet-title mb-0">Cách kiếm tài nguyên</h3>
           </div>
           <button
             type="button"

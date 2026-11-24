@@ -26,7 +26,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
 | 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
 | 3 | Cửa hàng Giữ nhịp | `[x]` | `feat/shop-streak` | 2026-11-23 |
-| 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
+| 4 | Đồ trang trí | `[x]` | `feat/cosmetics-v2` | 2026-11-24 |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
 | 7 | Gacha đầy đủ | `[ ]` | `feat/gacha-full` | |
@@ -52,6 +52,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | D11 | Hoàn thành 100% unit: toàn bộ bài học trong unit trọn điểm + kiểm tra cuối unit 100% (thưởng thêm 2 Gem) | 23/11/2026 |
 | D12 | Bỏ Coins hoàn toàn khỏi giao diện và kinh tế. Coins hiện có đổi 1 lần sang Sữa (1 coin = 3 Sữa, ledger reason 'coin_migration', an toàn chạy lại). Mọi thưởng coins chuyển sang Sữa (×3: nhiệm vụ ngày 30/75, perfect quiz 45, streak 60/150, thành tựu 90, nhiệm vụ tuần ×3). Duel bỏ thưởng coins, giữ Sữa điểm trận. Cửa hàng: giữ đồ đã mua, tạm ngừng bán mũ/áo/phòng/hiệu ứng/đồ ăn chờ GĐ3/GĐ4; bỏ 5 đồ ăn; bỏ gift_egg thay bằng nút Mời bạn miễn phí (InviteSheet). | 23/11/2026 |
 | D13 | Tặng 1 Khăn giữ lửa miễn phí khi đạt các mốc streak 7, 30, 100 ngày nếu số khăn trong kho chưa đủ 2 (tối đa 2 khăn). | 23/11/2026 |
+| D14 | Đồ trang trí GĐ4: Bậc Thường (800 Sữa) và Hiếm (2 000 Sữa) bán bằng Sữa; Bậc Sử thi (40 Gem) và Huyền thoại (90 Gem) bán bằng Gem; Mốc học miễn phí theo thành tích; Mua cùng chủ đề giảm 20%. | 24/11/2026 |
 
 > Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
 
@@ -61,7 +62,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1 — chốt D11)
 - [x] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3 — chốt D13: có tặng nếu kho < 2)
 - [x] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3 — chốt D12)
-- [ ] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4)
+- [x] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4 — chốt D14: Thường 800 Sữa, Hiếm 2 000 Sữa, Sử thi 40 Gem, Huyền thoại 90 Gem)
 - [ ] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5)
 - [ ] Tỉ lệ pet giới hạn 3% hay 5%? (GĐ7)
 - [ ] Pet giới hạn đầu tiên: tên, hệ, nhóm, 8 mức điểm kỹ năng, 5 ảnh (GĐ7)
@@ -118,19 +119,23 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Trang cửa hàng mới (tab Giữ nhịp) — 2026-11-23 · 6adecd0
 - [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
 - [x] Làm lại UI cửa hàng theo mục Giao diện cửa hàng — 2026-11-23 · 7340b95
+- [ ] Hoàn thiện Đá nguyên tố trên giao diện
+- [x] Sửa xem trước pet trong Cửa hàng + nút Quay lại — 2026-11-24 · 67ae58f
+- [x] Đồng bộ chữ Cửa hàng + chip Đá trên HUD — 2026-11-24 · 8b0ef39
+- [x] Đấu trường game: Sửa HUD máu trực quan + bỏ giới hạn từ, đấu sinh tử tới khi KO — 2026-11-24 · fa30e85
 
 **Tiêu chí xong**
 - [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
 
 ## GĐ4 — Đồ trang trí
-- [ ] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua
-- [ ] Đồ mốc học tự cấp: Lửa streak, 4 hào quang kỹ năng, Toàn năng, Phòng học theo trình độ
-- [ ] Nền và hào quang mới (10 nền hệ, đồ Gem)
-- [ ] Khung avatar, danh hiệu
-- [ ] Hiển thị ở trang pet, Đấu trường, bảng xếp hạng, thẻ chia sẻ
+- [x] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua — 2026-11-24 · 284d9a5
+- [x] Đồ mốc học tự cấp: Lửa streak, 4 hào quang kỹ năng, Toàn năng, Phòng học theo trình độ — 2026-11-24 · 284d9a5
+- [x] Nền và hào quang mới (10 nền hệ, đồ Gem) — 2026-11-24 · 284d9a5
+- [-] Khung avatar, danh hiệu — Chuyển sang GĐ5 Đấu trường (phần thưởng bậc xếp hạng Đồng → Cao thủ theo thiết kế)
+- [x] Hiển thị ở trang pet, Đấu trường, bảng xếp hạng, thẻ chia sẻ — 2026-11-24 · 284d9a5
 
 **Tiêu chí xong**
-- [ ] Trang bị/tháo được ở mọi nơi hiển thị; đồ mốc học tự mở khi đạt điều kiện
+- [x] Trang bị/tháo được ở mọi nơi hiển thị; đồ mốc học tự mở khi đạt điều kiện
 
 ## GĐ5 — Đấu trường
 - [ ] Vé đấu gắn với học (D4)
@@ -211,12 +216,19 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |
+| 2026-11-24 | 4 / UI | Sửa lỗi không cộng thưởng Sữa sau khi học / đấu trường (`useUser.jsx` đồng bộ `wallet.milk` tức thì + tự flush progress trước `refreshWallet`) & xoay mặt bò bên trái sang phải (`pet.css` `scaleX(-1)`) | f38de8a | 120/120 test pass, build pass |
+| 2026-11-24 | 4 | Mở bán Đồ trang trí thật (19 Nền, 15 Hào quang, 10 nền hệ), bảng owned_cosmetics, ledger mua Sữa/Gem, combo -20%, trang bị/tháo mượt mà | 1276060 | 120/120 test pass, build pass |
+| 2026-11-24 | 4 | Chốt quyết định D14: Giá đồ trang trí GĐ4 (Thường 800 Sữa, Hiếm 2 000 Sữa, Sử thi 40 Gem, Huyền thoại 90 Gem, giảm 20% combo) | 00be7f2 | Cập nhật TASK.md và chuẩn bị GĐ4 |
 | 2026-11-24 | Nội dung `int-u6..u10` | Hoàn tất cuốn chiếu 5 unit cuối (`int-u6` 5 bài, `int-u7` 4 bài, `int-u8` 3 bài, `int-u9` 3 bài, `int-u10` 3 bài — 18 bài) lên `contentVersion: 2`, khép lại **100% trọn bộ lộ trình Trung bình `int-u1..u10` (39/39 bài, 0 lỗi, 0 cảnh báo)** | `300f79f`, `0987478`, `e44ff26`, `b53adb2` + `int-u10` | 221 bài / 54 unit / 54 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
 | 2026-11-24 | Nội dung `int-u4`, `int-u5` | Nâng cấp trọn 5 bài `int-u4` (`pronouns`, `articles`, `prepositions-place`, `wh-questions`, `numbers-basic`) và 4 bài `int-u5` (`daily-phrases`, `time-and-date`, `directions`, `money-prices`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo) — hoàn tất nửa đầu lộ trình Trung bình `int-u1..u5` | `38b0042`, `ed078ea` | 221 bài / 54 unit / 36 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
 | 2026-11-24 | Nội dung v2 Đợt 2 | Hoàn tất tuần tự theo Plan trên `feat/content-v2-wave2`: nâng cấp `int-u2` (4 bài) + `int-u3` (4 bài), mở mới Starter `s1-u2` & `s1-u3` (8 bài `picture`), và đưa unit `ielts-unit-reading-v2` (3 bài IELTS Academic Reading phủ đủ 6 dạng đề) vào lộ trình `ielts` | `33cebea`, `af76a96`, `7a55d0c`, `ab82bd8` | 221 bài / 54 unit / 27 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
 | 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a`, `30369fa` | Gộp `main` (`558cd7c`) & push `origin/main` |
 | 2026-11-24 | 3-nhóm A–E | Hoàn thành toàn bộ Lộ trình 3 nhóm + Chuẩn nội dung UI v2 (`groups.js`, Unit S1 Starter, `path.js`, 0 bài mồ côi, migration MySQL 5.6+ & `guard-unit-gems.mjs`, `PictureLesson`, `LessonDetailPage` U1–U7/U10, `GroupPicker`, `PlacementTest`, `LearningPathPage`, di trú user cũ) | `feat/learning-groups` | 109/109 test pass, 210 bài / 51 unit, 0 lỗi validator, build pass |
 | 2026-11-24 | 3-nhóm B0 | Tích hợp bộ chuẩn nội dung v1.0, SRS 3 cấp, SDD Lộ trình 3 nhóm v2.0, SPMP hợp nhất; vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ, gắn `validate-lessons` vào `prebuild` | — | 92/92 test pass, 0 lỗi validator, build pass |
+| 2026-11-24 | 3 | Đấu trường game: Sửa HUD máu trực quan (Tôi bên trái, Bot bên phải) + bỏ giới hạn từ, chuyển sang đấu sinh tử tới khi KO | fa30e85 | 86 test pass, build pass |
+| 2026-11-24 | 3 | Đồng bộ chữ Cửa hàng (phong cách sổ tay, Patrick Hand/Itim/Mali) + thêm chip Đá 💠 trên HUD mobile & desktop | a732841 | 86 test pass, build pass, screenshots |
+| 2026-11-24 | 3 | Sửa 3 lỗi Cửa hàng: PetPreview dùng PetAvatar chuẩn ảnh/rig + bộ chọn pet + nút Quay lại thông minh | 7f5a48b | 85 test pass, build pass, screenshots desktop & mobile |
 | 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |
 | 2026-11-24 | 3 | Sửa lỗi P0 crash `<BookShell>` cho user mới (`PUT /api/progress` luôn trả ví chuẩn `{ milk, gem, stone, stone_shard }`) | f8baa29 | 83/83 test pass, build pass |
 | 2026-11-24 | 1–3 | Gộp `origin/feat/shop-streak` (toàn bộ GĐ1–3) vào `main`, sửa tương thích MySQL 5.6 cho `run-v2-migration.js` / SQL & sửa glob `npm test` | e432864, d57f593, ea9903b | 0 xung đột, 83/83 test pass |

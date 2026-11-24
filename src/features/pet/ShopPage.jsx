@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { useUser } from '../../hooks/useUser';
 import { useAuth } from '../../hooks/useAuth';
+import { usePet } from '../../hooks/usePet';
 import Icon from '../../components/Icon';
 import StreakTab from './StreakTab';
 import CosmeticsTab from './CosmeticsTab';
@@ -21,6 +22,8 @@ export default function ShopPage() {
   const { userData, setUserData } = useUser();
   const { authFetch, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { petData } = usePet();
 
   const [activeTab, setActiveTab] = useState('streak');
   const [howToEarnOpen, setHowToEarnOpen] = useState(false);
@@ -31,6 +34,37 @@ export default function ShopPage() {
     gem: 0,
     stone: 0,
     stone_shard: 0,
+  };
+
+  // Xác định pet đang xem thử từ query param "pet", fallback về activePetId
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const petQuery = searchParams.get('pet');
+  const selectedPetId = petQuery && petData.collection?.[petQuery]
+    ? petQuery
+    : (petData.activePetId || Object.keys(petData.collection || {})[0]);
+
+  const handleSelectPet = (newPetId) => {
+    const params = new URLSearchParams(location.search);
+    params.set('pet', newPetId);
+    navigate({ search: params.toString() }, { replace: true });
+  };
+
+  // Xử lý nút Quay lại thông minh
+  const handleBack = () => {
+    const fromParam = searchParams.get('from');
+    // Nếu vào từ trang khác trong app (location.key !== 'default' hoặc có state.from)
+    if (location.key !== 'default' || location.state?.from) {
+      navigate(-1);
+      return;
+    }
+    // Nếu mở trực tiếp bằng link thì về trang nguồn theo query "from", mặc định về /pet
+    if (fromParam === 'dex') {
+      navigate('/collection');
+    } else if (fromParam === 'pet') {
+      navigate('/pet');
+    } else {
+      navigate('/pet');
+    }
   };
 
   // Mở tab hoặc modal từ query param hoặc hash
@@ -72,33 +106,35 @@ export default function ShopPage() {
   }, [user]);
 
   return (
-    <div className="fade-in shop-page-container pb-4" style={{ maxWidth: '780px', margin: '0 auto' }}>
-      {/* 1. Một dòng tiêu đề: Cửa hàng + số dư 🥛 · 💎 · 💠 + nút (?) mở "Cách kiếm" */}
-      <div className="d-flex align-items-center justify-content-between py-2 mb-3 border-bottom flex-wrap gap-2">
-        <h2 className="fw-bold mb-0 d-flex align-items-center gap-2">
-          <Icon name="bag" size={26} /> Cửa hàng
-        </h2>
-
-        {/* Số dư 3 tài nguyên + nút (?) */}
-        <div className="d-flex align-items-center gap-2 flex-wrap">
-          <div
-            className="d-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border"
-            style={{ fontSize: '0.88rem', whiteSpace: 'nowrap' }}
-          >
-            <span title="Sữa">🥛 <strong>{(wallet.milk || 0).toLocaleString('vi-VN')}</strong></span>
-            <span className="text-muted">·</span>
-            <span title="Gem">💎 <strong>{(wallet.gem || 0).toLocaleString('vi-VN')}</strong></span>
-            <span className="text-muted">·</span>
-            <span title="Đá nguyên tố">💠 <strong>{(wallet.stone || 0).toLocaleString('vi-VN')}</strong></span>
+    <div className="fade-in shop-page-wrap">
+      {/* 1. Header: Nút Quay lại + Tiêu đề Cửa hàng + nút (?) Cách kiếm */}
+      <div className="shop-head">
+        <div className="shop-title-row">
+          <div className="shop-title-left">
+            <button
+              type="button"
+              className="shop-back-btn"
+              onClick={handleBack}
+              aria-label="Quay lại"
+              title="Quay lại"
+            >
+              <span aria-hidden="true" style={{ fontSize: '18px', lineHeight: 1 }}>←</span>
+              <span className="d-none d-sm-inline">Quay lại</span>
+            </button>
+            <div className="shop-title-wrap">
+              <h2 className="shop-title">
+                <Icon name="bag" size={26} /> Cửa hàng
+              </h2>
+              <p className="shop-sub">Sắm vật phẩm giữ nhịp, trang trí phòng và phụ kiện thú cưng</p>
+            </div>
           </div>
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0"
-            style={{ width: '36px', height: '36px', fontSize: '0.9rem', flexShrink: 0 }}
-            aria-label="Xem cách kiếm tài nguyên"
+            className="shop-help-btn"
             title="Xem cách kiếm tài nguyên"
             onClick={() => setHowToEarnOpen(true)}
+            aria-label="Cách kiếm tài nguyên"
           >
             ?
           </button>
@@ -106,15 +142,14 @@ export default function ShopPage() {
       </div>
 
       {/* 2. Đúng 3 tab: 🔥 Giữ nhịp · ✨ Trang trí · 🎒 Kho đồ */}
-      <div className="d-flex gap-2 mb-3 flex-wrap">
+      <div className="shop-tabs">
         {SHOP_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               type="button"
-              className={`btn flex-grow-1 py-2 rounded-pill fw-bold ${isActive ? 'btn-cowdi-primary' : 'btn-light border text-muted'}`}
-              style={{ fontSize: '0.92rem', minWidth: '108px', transition: 'all 0.15s ease' }}
+              className={`shop-tab-btn ${isActive ? 'on' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}
@@ -129,11 +164,17 @@ export default function ShopPage() {
       )}
 
       {activeTab === 'cosmetics' && (
-        <CosmeticsTab />
+        <CosmeticsTab
+          selectedPetId={selectedPetId}
+          onSelectPetId={handleSelectPet}
+        />
       )}
 
       {activeTab === 'inventory' && (
-        <InventoryTab />
+        <InventoryTab
+          selectedPetId={selectedPetId}
+          onSelectPetId={handleSelectPet}
+        />
       )}
 
       {/* 4. Bottom Sheet: Cách kiếm Sữa, Gem, Đá */}

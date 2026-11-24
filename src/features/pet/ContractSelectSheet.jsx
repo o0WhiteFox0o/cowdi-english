@@ -49,8 +49,8 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
               📜
             </span>
             <div>
-              <h5 className="fw-bold mb-0">Khế ước 7 ngày</h5>
-              <div className="small text-muted">Cam kết học tập nhận hoàn ×1.5 Sữa</div>
+              <h3 className="shop-sheet-title mb-0">Khế ước 7 ngày</h3>
+              <div className="shop-row-benefit">Cam kết học tập nhận hoàn ×1.5 Sữa</div>
             </div>
           </div>
           <button

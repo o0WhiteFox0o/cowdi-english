@@ -100,8 +100,10 @@ export default function BookShell({ children }) {
   };
   const prevMilkRef = useRef(wallet.milk);
   const prevGemRef = useRef(wallet.gem);
+  const prevStoneRef = useRef(wallet.stone);
   const [milkDelta, setMilkDelta] = useState(null);
   const [gemDelta, setGemDelta] = useState(null);
+  const [stoneDelta, setStoneDelta] = useState(null);
 
   useEffect(() => {
     if (prevMilkRef.current !== undefined && wallet.milk > prevMilkRef.current) {
@@ -120,6 +122,15 @@ export default function BookShell({ children }) {
     }
     prevGemRef.current = wallet.gem;
   }, [wallet.gem]);
+
+  useEffect(() => {
+    if (prevStoneRef.current !== undefined && wallet.stone > prevStoneRef.current) {
+      setStoneDelta(wallet.stone - prevStoneRef.current);
+      const t = setTimeout(() => setStoneDelta(null), 1800);
+      return () => clearTimeout(t);
+    }
+    prevStoneRef.current = wallet.stone;
+  }, [wallet.stone]);
 
   const level = getUserLevel(userData.totalXP);
   const activePet = getActivePetWithDecay();
@@ -191,9 +202,13 @@ export default function BookShell({ children }) {
             <span>🥛</span>{formatCompact(wallet.milk)}
             {milkDelta && <span className="resource-float-delta text-primary">+{milkDelta}</span>}
           </Link>
-          <Link to="/shop?help=earn" className={`book-pill position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem} · Bấm để xem cách kiếm`}>
+          <Link to="/shop?help=earn" className={`book-pill book-hud-resource position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem} · Bấm để xem cách kiếm`}>
             <span>💎</span>{formatCompact(wallet.gem)}
             {gemDelta && <span className="resource-float-delta text-info">+{gemDelta}</span>}
+          </Link>
+          <Link to="/shop?help=earn" className={`book-pill book-hud-resource position-relative ${stoneDelta ? 'pulse-pop' : ''}`} title={`Đá nguyên tố: ${wallet.stone} · Bấm để xem cách kiếm`}>
+            <span>💠</span>{formatCompact(wallet.stone)}
+            {stoneDelta && <span className="resource-float-delta text-info">+{stoneDelta}</span>}
           </Link>
           <Link to="/pet" className="book-pill book-mobile-pet-pill" title={`${petName} · ${petPct}%`}>
             <img src={petImg} alt="" className="book-pill-pet" />
@@ -319,6 +334,16 @@ export default function BookShell({ children }) {
                 <span>💎</span><span>{formatCompact(wallet.gem)}</span>
                 {gemDelta && (
                   <span className="resource-float-delta text-info">+{gemDelta}</span>
+                )}
+              </Link>
+              <Link
+                to="/shop?help=earn"
+                className={`book-pill book-hud-resource position-relative ${stoneDelta ? 'pulse-pop' : ''}`}
+                title={`Đá nguyên tố: ${wallet.stone.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
+              >
+                <span>💠</span><span>{formatCompact(wallet.stone)}</span>
+                {stoneDelta && (
+                  <span className="resource-float-delta text-info">+{stoneDelta}</span>
                 )}
               </Link>
               <Link to="/pet" className="book-pill" title={`${petName} · ${evo?.name || ''} · ${petPct}% tới cấp tiếp theo`}>

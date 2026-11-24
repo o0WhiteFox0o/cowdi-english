@@ -12,6 +12,17 @@ import {
   buyClock,
   setClockHour,
 } from '../utils/streak-manager.js';
+import {
+  getUserCosmetics,
+  getCosmeticsCatalog,
+  buyCosmetic,
+  equipCosmetic,
+} from '../utils/cosmetics-manager.js';
+import {
+  BACKGROUND_ITEMS,
+  EFFECT_ITEMS,
+  COSMETIC_RARITIES,
+} from '../../shared/cosmetics-data.js';
 import { getWallet } from '../utils/wallet.js';
 
 const router = express.Router();
@@ -108,6 +119,65 @@ router.post('/set-clock', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('POST /api/shop/set-clock error:', err);
     res.status(500).json({ error: 'Lỗi server khi đổi giờ học.' });
+  }
+});
+
+// ── GET /api/shop/cosmetics – Lấy danh mục đồ trang trí & trạng thái sở hữu ──
+router.get('/cosmetics', requireAuth, async (req, res) => {
+  try {
+    const userCosmetics = await getUserCosmetics(req.user.id);
+    const wallet = await getWallet(req.user.id);
+    res.json({
+      ok: true,
+      backgrounds: BACKGROUND_ITEMS,
+      effects: EFFECT_ITEMS,
+      rarities: COSMETIC_RARITIES,
+      ownedIds: userCosmetics.ownedIds,
+      userStats: userCosmetics.userStats,
+      wallet,
+    });
+  } catch (err) {
+    console.error('GET /api/shop/cosmetics error:', err);
+    res.status(500).json({ error: 'Lỗi server khi tải danh mục đồ trang trí.' });
+  }
+});
+
+// ── POST /api/shop/buy-cosmetic – Mua Nền hoặc Hào quang qua ledger ─────────
+router.post('/buy-cosmetic', requireAuth, async (req, res) => {
+  try {
+    const { cosmeticId, petId, equipToPetId, combo, applyComboDiscount } = req.body || {};
+    if (!cosmeticId) {
+      return res.status(400).json({ error: 'Thiếu mã vật phẩm cosmeticId.' });
+    }
+    const targetPet = equipToPetId || petId;
+    const isCombo = combo ?? applyComboDiscount;
+    const result = await buyCosmetic(req.user.id, cosmeticId, { petId: targetPet, applyComboDiscount: isCombo });
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/shop/buy-cosmetic error:', err);
+    res.status(500).json({ error: 'Lỗi server khi mua đồ trang trí.' });
+  }
+});
+
+// ── POST /api/shop/equip-cosmetic – Trang bị / Tháo đồ trang trí ────────────
+router.post('/equip-cosmetic', requireAuth, async (req, res) => {
+  try {
+    const { petId, petInstanceId, slot, cosmeticId } = req.body || {};
+    const targetPet = petInstanceId || petId;
+    if (!targetPet || !slot) {
+      return res.status(400).json({ error: 'Thiếu petId hoặc slot trang bị.' });
+    }
+    const result = await equipCosmetic(req.user.id, targetPet, slot, cosmeticId || null);
+    if (!result.ok) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/shop/equip-cosmetic error:', err);
+    res.status(500).json({ error: 'Lỗi server khi trang bị đồ trang trí.' });
   }
 });
 
