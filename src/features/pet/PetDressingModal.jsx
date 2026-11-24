@@ -53,16 +53,18 @@ export default function PetDressingModal({
             {ownedPets.map((p) => {
               const sp = PET_REGISTRY[p.speciesId];
               const evo = getEvolutionInfo(p.speciesId, p.evolution);
-              const isSelected = p.instanceId === currentPet.instanceId;
+              const pId = p.instanceId || p.speciesId;
+              const curId = currentPet.instanceId || currentPet.speciesId;
+              const isSelected = pId === curId;
               return (
                 <button
-                  key={p.instanceId}
+                  key={pId}
                   type="button"
                   className={`btn rounded-pill px-3 py-1 ${
                     isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-dark'
                   }`}
                   style={{ fontSize: '0.92rem', minHeight: '34px' }}
-                  onClick={() => onSelectPetId?.(p.instanceId)}
+                  onClick={() => onSelectPetId?.(pId)}
                 >
                   {evo?.image ? (
                     <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} className="me-1" />

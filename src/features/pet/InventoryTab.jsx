@@ -31,11 +31,16 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
     setPage(1);
   }, [filterType]);
 
-  const ownedPets = useMemo(() => Object.values(petData.collection || {}), [petData.collection]);
+  const ownedPets = useMemo(
+    () => Object.entries(petData.collection || {}).map(([id, p]) => ({ instanceId: p.instanceId || id, ...p })),
+    [petData.collection]
+  );
   const currentPetId = selectedPetId && petData.collection[selectedPetId]
     ? selectedPetId
-    : petData.activePetId || ownedPets[0]?.instanceId;
-  const currentPet = petData.collection[currentPetId] || ownedPets[0];
+    : petData.activePetId || ownedPets[0]?.instanceId || 'cowdi_1';
+  const currentPet = petData.collection[currentPetId]
+    ? { instanceId: currentPetId, ...petData.collection[currentPetId] }
+    : ownedPets[0];
   const species = currentPet ? PET_REGISTRY[currentPet.speciesId] : null;
   const currentEvo = currentPet ? getEvolutionInfo(currentPet.speciesId, currentPet.evolution) : null;
 
@@ -77,30 +82,39 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
   }, [filteredItems, page]);
 
   const handleEquip = async (item) => {
-    if (!currentPet) return;
+    const targetPetId = currentPet?.instanceId || currentPetId || petData.activePetId || 'cowdi_1';
+    if (!targetPetId) return;
     const slot = item.category;
-    const isEquipped = currentPet.cosmetics?.[slot] === item.id;
+    const isEquipped = currentPet?.cosmetics?.[slot] === item.id;
     const newId = isEquipped ? null : item.id;
 
-    equipItem(currentPet.instanceId, slot, newId);
+    equipItem(targetPetId, slot, newId);
     play('equip');
-    showToast(
-      isEquipped ? `Đã tháo ${item.name}` : `Đã trang bị ${item.name}! ${item.emoji}`,
-      isEquipped ? 'info' : 'success'
-    );
 
     // Đồng bộ lên server
     try {
-      await authFetch('/api/shop/equip-cosmetic', {
+      const res = await authFetch('/api/shop/equip-cosmetic', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          petInstanceId: currentPet.instanceId,
+          petId: targetPetId,
+          petInstanceId: targetPetId,
           slot,
           cosmeticId: newId,
         }),
       });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showToast(data.error || 'Chưa thể trang bị vật phẩm.', 'error');
+        return;
+      }
+      showToast(
+        isEquipped ? `Đã tháo ${item.name}` : `Đã trang bị ${item.name}! ${item.emoji}`,
+        isEquipped ? 'info' : 'success'
+      );
     } catch (err) {
       console.warn('Lỗi đồng bộ trang bị server:', err);
+      showToast('Lỗi khi đồng bộ trang bị lên server.', 'error');
     }
   };
 

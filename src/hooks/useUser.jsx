@@ -475,10 +475,9 @@ export function UserProvider({ children }) {
               let updatedWallet = null;
               setUserData((prev) => {
                 const hasValidWallet = res.wallet && typeof res.wallet.milk === 'number';
-                const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
                 const nextWallet = hasValidWallet
                   ? {
-                      milk: Math.max(Number(res.wallet.milk) || 0, Number(curMilk) || 0),
+                      milk: Math.max(0, Number(res.wallet.milk) || 0),
                       gem: Number(res.wallet.gem) || 0,
                       stone: Number(res.wallet.stone) || 0,
                       stone_shard: Number(res.wallet.stone_shard) || 0,
@@ -930,25 +929,26 @@ export function UserProvider({ children }) {
   }, []);
 
   // Refresh wallet từ server
-  // Đồng bộ ví từ kết quả server API (ví dụ Đấu trường, Cửa hàng)
+  // Đồng bộ ví từ kết quả server API (ví dụ Đấu trường, Cửa hàng mua đồ)
   const syncWallet = useCallback((newWallet) => {
     if (!newWallet) return;
+    const milk = Math.max(0, Number(newWallet.milk) || 0);
+    const nextWallet = {
+      milk,
+      gem: Number(newWallet.gem) || 0,
+      stone: Number(newWallet.stone) || 0,
+      stone_shard: Number(newWallet.stone_shard) || 0,
+    };
     setUserData((prev) => {
-      const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
-      const safeMilk = Math.max(Number(newWallet.milk) || 0, Number(curMilk) || 0);
-      const nextWallet = {
-        ...newWallet,
-        milk: safeMilk,
-      };
       const next = {
         ...prev,
         wallet: nextWallet,
-        availableXP: safeMilk,
+        availableXP: milk,
       };
       userDataRef.current = next;
       return next;
     });
-    window.dispatchEvent(new CustomEvent('wallet-updated', { detail: newWallet }));
+    window.dispatchEvent(new CustomEvent('wallet-updated', { detail: nextWallet }));
   }, []);
 
   // Refresh wallet từ server
@@ -964,18 +964,20 @@ export function UserProvider({ children }) {
       const res = await authFetch('/api/wallet');
       if (res.ok) {
         const w = await res.json();
+        const milk = Math.max(0, Number(w.milk) || 0);
+        const nextWallet = {
+          milk,
+          gem: Number(w.gem) || 0,
+          stone: Number(w.stone) || 0,
+          stone_shard: Number(w.stone_shard) || 0,
+        };
         setUserData((prev) => {
-          const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
-          const safeMilk = Math.max(Number(w.milk) || 0, Number(curMilk) || 0);
-          const nextWallet = {
-            ...w,
-            milk: safeMilk,
-          };
-          const next = { ...prev, wallet: nextWallet, availableXP: safeMilk };
+          const next = { ...prev, wallet: nextWallet, availableXP: milk };
           userDataRef.current = next;
           return next;
         });
-        return w;
+        window.dispatchEvent(new CustomEvent('wallet-updated', { detail: nextWallet }));
+        return nextWallet;
       }
     } catch {}
     return null;

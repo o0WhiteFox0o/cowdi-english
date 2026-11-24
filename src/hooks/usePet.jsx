@@ -37,7 +37,7 @@ function migratePetCollection(collection) {
   if (!collection) return {};
   const migrated = {};
   for (const [id, pet] of Object.entries(collection)) {
-    migrated[id] = { ...pet, skills: migrateSkills(pet.skills) };
+    migrated[id] = { instanceId: pet.instanceId || id, ...pet, skills: migrateSkills(pet.skills) };
   }
   return migrated;
 }
@@ -83,6 +83,7 @@ function mergePetData(local, remote) {
     const skills = { listening: 0, speaking: 0, reading: 0, writing: 0 };
     for (const k of Object.keys(skills)) skills[k] = Math.max(a.skills?.[k] || 0, b.skills?.[k] || 0);
     collection[id] = {
+      instanceId: id,
       ...newer,
       skills,
       totalXpEarned: Math.max(a.totalXpEarned || 0, b.totalXpEarned || 0),
@@ -103,12 +104,18 @@ function mergePetData(local, remote) {
 
 // ── Đảm bảo luôn có pet khởi tạo (Cowdi) ──────────────────────────────────
 function ensureInitialPet(data) {
-  if (Object.keys(data.collection).length > 0) return data;
+  if (data?.collection && Object.keys(data.collection).length > 0) {
+    for (const [id, pet] of Object.entries(data.collection)) {
+      if (pet && !pet.instanceId) pet.instanceId = id;
+    }
+    return data;
+  }
   return {
     ...data,
     activePetId: 'cowdi_1',
     collection: {
       cowdi_1: {
+        instanceId: 'cowdi_1',
         speciesId: 'cowdi',
         customName: 'Cowdi',
         evolution: 0,
@@ -444,20 +451,26 @@ export function PetProvider({ children }) {
   // ── Equip/unequip item ───────────────────────────────────────────────────
   const equipItem = useCallback((instanceId, slot, itemId) => {
     setPetData((prev) => {
-      const pet = prev.collection[instanceId];
+      const targetId = instanceId || prev.activePetId || Object.keys(prev.collection || {})[0];
+      const pet = prev.collection?.[targetId];
       if (!pet) return prev;
-      return {
+      const updatedPet = {
+        ...pet,
+        instanceId: targetId,
+        cosmetics: { ...(pet.cosmetics || { hat: null, outfit: null, room: null, effect: null }), [slot]: itemId || null },
+        needsUpdatedAt: new Date().toISOString(),
+      };
+      const updated = {
         ...prev,
         collection: {
           ...prev.collection,
-          [instanceId]: {
-            ...pet,
-            cosmetics: { ...pet.cosmetics, [slot]: itemId },
-          },
+          [targetId]: updatedPet,
         },
       };
+      savePetData(updated, user?.id || null);
+      return updated;
     });
-  }, []);
+  }, [user]);
 
   // ── Use food item ────────────────────────────────────────────────────────
   const useFood = useCallback((itemId) => {

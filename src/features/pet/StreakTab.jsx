@@ -10,7 +10,7 @@ import ContractSelectSheet from './ContractSelectSheet';
 
 export default function StreakTab({ streakState, onRefreshState }) {
   const { authFetch, user } = useAuth();
-  const { userData, setUserData } = useUser();
+  const { userData, syncWallet } = useUser();
   const showToast = useToast();
   const { play } = useSound();
   const { isSubscribed, subscribe } = usePush();
@@ -48,6 +48,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       if (!res.ok) {
         showToast(data.error || 'Không thể mua Khăn giữ lửa', 'error');
       } else {
+        if (data.wallet) syncWallet(data.wallet);
         play('levelUp');
         showToast('Đã mua 1 Khăn giữ lửa! Chuỗi của bạn sẽ được bảo vệ khi lỡ 1 ngày.', 'success');
         setActiveDetailItem(null);
@@ -70,6 +71,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       if (!res.ok) {
         showToast(data.error || 'Không thể dùng Vé quay lại', 'error');
       } else {
+        if (data.wallet) syncWallet(data.wallet);
         play('levelUp');
         showToast('Đã kích hoạt Vé quay lại! Hoàn thành 2 bài học trong 24h để khôi phục 50% streak.', 'success');
         setActiveDetailItem(null);
@@ -95,6 +97,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       if (!res.ok) {
         showToast(data.error || 'Không thể ký khế ước', 'error');
       } else {
+        if (data.wallet) syncWallet(data.wallet);
         play('levelUp');
         showToast('Đã ký Khế ước 7 ngày thành công! Chúc bạn giữ vững mục tiêu.', 'success');
         setContractSheetOpen(false);
@@ -121,6 +124,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       if (!res.ok) {
         showToast(data.error || 'Không thể mua Đồng hồ Cowdi', 'error');
       } else {
+        if (data.wallet) syncWallet(data.wallet);
         play('levelUp');
         showToast(`Đã sở hữu Đồng hồ Cowdi! Khung giờ vàng nhận +10% Sữa: ${selectedClockHour - 1}:00 - ${selectedClockHour + 1}:00.`, 'success');
         setActiveDetailItem(null);

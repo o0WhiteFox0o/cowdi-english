@@ -29,7 +29,7 @@ const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
 export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: propWallet }) {
   const { authFetch } = useAuth();
   const { petData, equipItem } = usePet();
-  const { userData, updateUserData } = useUser();
+  const { userData, syncWallet } = useUser();
   const showToast = useToast();
   const { play } = useSound();
 
@@ -169,13 +169,15 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
 
   // Trang bị đồ mốc học
   const handleEquipMilestone = async (item) => {
-    if (!currentPet) return;
+    const targetPetId = currentPet?.instanceId || currentPetId || petData.activePetId;
+    if (!targetPetId) return;
     try {
       const res = await authFetch('/api/shop/equip-cosmetic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          petId: currentPet.instanceId,
+          petId: targetPetId,
+          petInstanceId: targetPetId,
           slot: item.category,
           cosmeticId: item.id,
         }),
@@ -185,7 +187,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
         showToast(data.error || 'Chưa thể trang bị vật phẩm này.', 'error');
         return;
       }
-      equipItem(currentPet.instanceId, item.category, item.id);
+      equipItem(targetPetId, item.category, item.id);
       play?.('pop');
       showToast(`Đã trang bị ${item.name} cho thú cưng!`, 'success');
     } catch {
@@ -202,6 +204,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
   // Xác nhận mua
   const handleConfirmBuy = async (itemId, isCombo, equipNow) => {
     setLoadingBuy(true);
+    const targetPetId = currentPet?.instanceId || currentPetId || petData.activePetId;
     try {
       const res = await authFetch('/api/shop/buy-cosmetic', {
         method: 'POST',
@@ -209,7 +212,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
         body: JSON.stringify({
           cosmeticId: itemId,
           combo: isCombo,
-          petId: equipNow && currentPet ? currentPet.instanceId : undefined,
+          petId: equipNow && targetPetId ? targetPetId : undefined,
         }),
       });
 
@@ -225,18 +228,17 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
       // Cập nhật serverOwnedIds
       setServerOwnedIds(data.ownedIds || [...Array.from(ownedSet), itemId]);
 
-      // Bắn sự kiện cập nhật ví trên HUD & cập nhật local userData
+      // Đồng bộ ví trên HUD & state
       if (data.wallet) {
         setServerWallet(data.wallet);
-        updateUserData?.({ wallet: data.wallet, availableXP: data.wallet.milk });
-        window.dispatchEvent(new CustomEvent('wallet-updated', { detail: data.wallet }));
+        syncWallet(data.wallet);
       }
 
       // Trang bị ngay nếu người dùng chọn
-      if (equipNow && currentPet) {
+      if (equipNow && targetPetId) {
         const item = COSMETIC_MAP[itemId];
         if (item) {
-          equipItem(currentPet.instanceId, item.category, itemId);
+          equipItem(targetPetId, item.category, itemId);
         }
       }
 

@@ -152,55 +152,61 @@ export default function PetPage() {
       {/* Pet Display Card */}
       <div className="pet-display-card mb-4">
         {/* Pet Stage with Image */}
-        <div
-          className={`pet-stage-container ${mood}`}
-          style={{
-            background: activePet.cosmetics?.room
-              ? (COSMETIC_MAP[activePet.cosmetics.room]?.bgStyle || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.room)?.bgStyle || undefined)
-              : undefined,
-            transition: 'background 0.3s ease',
-          }}
-        >
-          {/* Floating decorations */}
-          <div className="pet-floating-decor">
-            {activePet.cosmetics?.effect && (
-              <span className="pet-effect-icon">
-                <Emoji e={COSMETIC_MAP[activePet.cosmetics.effect]?.emoji || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} />
-              </span>
-            )}
-          </div>
+        {(() => {
+          const roomCosmetic = activePet?.cosmetics?.room
+            ? (COSMETIC_MAP[activePet.cosmetics.room] || SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.room))
+            : null;
+          const customBg = roomCosmetic?.bgStyle || (roomCosmetic?.id === 'room_beach' ? '#E0F7FA' : undefined);
+          return (
+            <div
+              className={`pet-stage-container ${mood} ${customBg ? 'has-custom-bg' : ''}`}
+              style={{
+                background: customBg ? customBg : undefined,
+                transition: 'background 0.3s ease',
+              }}
+            >
+              {/* Floating decorations */}
+              <div className="pet-floating-decor">
+                {activePet.cosmetics?.effect && (
+                  <span className="pet-effect-icon">
+                    <Emoji e={COSMETIC_MAP[activePet.cosmetics.effect]?.emoji || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} />
+                  </span>
+                )}
+              </div>
 
-          {/* Hat */}
-          {activePet.cosmetics?.hat && (
-            <div className="pet-hat-img"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji || ''} size={42} /></div>
-          )}
+              {/* Hat */}
+              {activePet.cosmetics?.hat && (
+                <div className="pet-hat-img"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.hat)?.emoji || ''} size={42} /></div>
+              )}
 
-          {/* Pet Avatar (live rig nếu đã duyệt, ảnh tĩnh nếu chưa duyệt) */}
-          <div className="pet-image-wrapper">
-            <PetAvatar
-              ref={petAvatarRef}
-              petId={activePet.speciesId}
-              stage={(activePet.evolution || 0) + 1}
-              group={species.group}
-              bond={bondOf(activePet.skills)}
-              topSkill={topSkillOf(activePet.skills)}
-              mode="home"
-              fallbackSrc={evolution?.image}
-              alt={evolution?.name || activePet.customName}
-              className="pet-character-img"
-            />
-          </div>
+              {/* Pet Avatar (live rig nếu đã duyệt, ảnh tĩnh nếu chưa duyệt) */}
+              <div className="pet-image-wrapper">
+                <PetAvatar
+                  ref={petAvatarRef}
+                  petId={activePet.speciesId}
+                  stage={(activePet.evolution || 0) + 1}
+                  group={species.group}
+                  bond={bondOf(activePet.skills)}
+                  topSkill={topSkillOf(activePet.skills)}
+                  mode="home"
+                  fallbackSrc={evolution?.image}
+                  alt={evolution?.name || activePet.customName}
+                  className="pet-character-img"
+                />
+              </div>
 
-          {/* Outfit */}
-          {activePet.cosmetics?.outfit && (
-            <div className="pet-outfit-badge"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji || ''} size={28} /></div>
-          )}
+              {/* Outfit */}
+              {activePet.cosmetics?.outfit && (
+                <div className="pet-outfit-badge"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.outfit)?.emoji || ''} size={28} /></div>
+              )}
 
-          {/* Mood indicator */}
-          <div className="pet-mood-indicator">
-            <Icon name={mood === 'happy' ? 'smile' : mood === 'sad' ? 'sad' : 'sick'} size={26} />
-          </div>
-        </div>
+              {/* Mood indicator */}
+              <div className="pet-mood-indicator">
+                <Icon name={mood === 'happy' ? 'smile' : mood === 'sad' ? 'sad' : 'sick'} size={26} />
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Pet Info Section */}
         <div className="pet-info-section">
