@@ -11,6 +11,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [SCMP-COWDI-v1.0.md](SCMP-COWDI-v1.0.md) — **Kế hoạch quản lý cấu hình, Git, SemVer, MySQL 5.6+, Backup (IEEE 828)**
 - [QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md](QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md) — Quy trình & thứ tự triển khai 9 giai đoạn Kinh tế v2
 - [PROMPT-CLAUDE-CODE-KINH-TE-V2.md](PROMPT-CLAUDE-CODE-KINH-TE-V2.md) — Hướng dẫn vận hành cùng trợ lý AI (Claude Code & Antigravity)
+- [SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) — **Kế hoạch hợp nhất Nâng cấp Lộ trình 3 Nhóm & Chuẩn Nội dung v2**
 - [SPMP-ECONOMY-PET-v1.0.md](SPMP-ECONOMY-PET-v1.0.md) — Kế hoạch triển khai Kinh tế & Nuôi pet v1.0
 - [STRAT-GROWTH-v1.0.md](STRAT-GROWTH-v1.0.md) — Chiến lược tăng trưởng người dùng qua chia sẻ
 - [STRAT-SHARE-TACTICS-v1.0.md](STRAT-SHARE-TACTICS-v1.0.md) — Chiến thuật khuyến khích chia sẻ
