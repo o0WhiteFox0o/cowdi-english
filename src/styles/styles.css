@@ -65,11 +65,10 @@
   --bs-body-font-family: var(--font);
 
   /* ── Typography scale ──
-     Root 24px (≈150% so với Bootstrap default 16px) để toàn bộ rem-based
-     scale đều. Các heading & badge cũng to theo. Trên màn hình rất nhỏ
-     giảm nhẹ để tránh tràn bố cục. */
-  --cowdi-font-base: 24px;
-  --cowdi-line-height: 1.55;
+     Root 17px trên desktop (gọn, hiển thị trọn màn hình không phải cuộn thừa),
+     giảm nhẹ theo màn hình nhỏ. */
+  --cowdi-font-base: 17px;
+  --cowdi-line-height: 1.48;
 }
 
 * { box-sizing: border-box; }
@@ -131,13 +130,13 @@ h1, h2, h3 {
 .btn-sm         { font-size: 0.92rem; }
 .btn-lg         { font-size: 1.15rem; }
 
-/* Heading scale — giữ hierarchy rõ ràng */
-h1, .h1 { font-size: 2.1rem; }
-h2, .h2 { font-size: 1.75rem; }
-h3, .h3 { font-size: 1.45rem; }
-h4, .h4 { font-size: 1.2rem; }
-h5, .h5 { font-size: 1.08rem; }
-h6, .h6 { font-size: 1rem; }
+/* Heading scale — gọn, giữ hierarchy rõ ràng, không chiếm quá nhiều chiều cao */
+h1, .h1 { font-size: 1.75rem; }
+h2, .h2 { font-size: 1.45rem; }
+h3, .h3 { font-size: 1.25rem; }
+h4, .h4 { font-size: 1.12rem; }
+h5, .h5 { font-size: 1.02rem; }
+h6, .h6 { font-size: 0.96rem; }
 
 /* Table: dữ liệu cần dễ đọc */
 .table { font-size: 1rem; }
@@ -150,16 +149,15 @@ h6, .h6 { font-size: 1rem; }
 /* Modal title rõ ràng hơn */
 .modal-title { font-size: 1.25rem; font-weight: 700; }
 
-/* Responsive: giảm dần base font theo bề rộng để cân đối trên mobile.
-   Mục tiêu: tablet/desktop ~24px (150%), mobile ~21px (~131%), siu nhỏ ~19px (~119%). */
+/* Responsive: giữ chữ dễ đọc nhưng gọn khung trên tablet & mobile */
 @media (max-width: 991.98px) {
-  :root { --cowdi-font-base: 21px; }
+  :root { --cowdi-font-base: 16px; }
 }
 @media (max-width: 575.98px) {
-  :root { --cowdi-font-base: 20px; }
+  :root { --cowdi-font-base: 15.5px; }
 }
 @media (max-width: 400px) {
-  :root { --cowdi-font-base: 19px; }
+  :root { --cowdi-font-base: 15px; }
 }
 
 /* ============================================

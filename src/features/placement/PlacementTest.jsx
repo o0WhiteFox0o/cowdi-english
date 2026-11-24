@@ -287,8 +287,8 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   if (!q) return null;
 
   return (
-    <div className="fade-in py-3" style={{ maxWidth: 680, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+    <div className="fade-in quiz-viewport-stage">
+      <div className="quiz-top-bar">
         <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleSkipOrBack}>
           {isNewUserOnboarding || !userData.learnerGroup ? '✕ Bỏ qua & chọn nhóm' : '✕ Thoát'}
         </button>
@@ -296,18 +296,18 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
         <span className="text-muted small fw-bold">Câu {qIdx + 1}/{questions.length}</span>
       </div>
 
-      <div className="progress mb-4" style={{ height: 8 }}>
+      <div className="progress" style={{ height: 6 }}>
         <div
           className="progress-bar progress-bar-cowdi"
           style={{ width: `${((qIdx + 1) / questions.length) * 100}%` }}
         />
       </div>
 
-      <div className="card shadow-sm mb-3">
-        <div className="card-body py-4 text-center">
+      <div className="card shadow-sm quiz-question-card">
+        <div className="card-body text-center">
           {q.promptWord && q.kind !== 'listen-pick-image' && (
-            <div className="mb-2" style={{ fontSize: '3.2rem' }}>
-              <Emoji e={q.promptWord.emoji || '🖼️'} size={56} />
+            <div className="mb-1" style={{ fontSize: '2.4rem' }}>
+              <Emoji e={q.promptWord.emoji || '🖼️'} size={44} />
             </div>
           )}
           <p className="fs-5 fw-bold mb-2">{q.question}</p>
@@ -328,7 +328,7 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
           <div className="col-12 col-sm-6" key={idx}>
             <button
               type="button"
-              className="btn btn-outline-primary w-100 py-3 fw-bold text-start"
+              className="btn btn-outline-primary w-100 quiz-option-btn fw-bold text-start"
               onClick={() => handlePick(idx)}
             >
               <span className="me-2 text-muted">{String.fromCharCode(65 + idx)}.</span>

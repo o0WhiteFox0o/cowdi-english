@@ -257,41 +257,40 @@ export default function LearningPathPage() {
   if (testUnit && !testFinished) {
     const q = testQuestions[testIdx];
     return (
-      <div className="fade-in position-relative" style={{ maxWidth: 700, margin: '0 auto' }}>
-        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div className="fade-in position-relative quiz-viewport-stage">
+        <div className="quiz-top-bar">
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setTestExitModal(true)}>
             ✕ Thoát
           </button>
-          <span className="fw-bold" style={{ color: testUnit.color }}>
-            <Emoji e={testUnit.icon} size={18} /> {testUnit.checkpoint.title}
+          <span className="fw-bold small" style={{ color: testUnit.color }}>
+            <Emoji e={testUnit.icon} size={16} /> {testUnit.checkpoint.title}
           </span>
           <div className="d-flex align-items-center gap-2">
             {secPerQ && timeLeft !== null && (
-              <span className={`badge fs-6 ${timeLeft <= 10 ? 'bg-danger' : 'bg-info text-dark'}`}>
+              <span className={`badge ${timeLeft <= 10 ? 'bg-danger' : 'bg-info text-dark'}`}>
                 ⏱ {timeLeft}s
               </span>
             )}
-            <span className="badge bg-warning text-dark fs-6">
-              <Icon name="star" size={16} /> {testScore}/{testQuestions.length}
+            <span className="badge bg-warning text-dark">
+              <Icon name="star" size={14} /> {testScore}/{testQuestions.length}
             </span>
           </div>
         </div>
-        <div className="progress mb-4" style={{ height: '6px' }}>
+        <div className="progress" style={{ height: '6px' }}>
           <div className="progress-bar" style={{ width: `${((testIdx + 1) / testQuestions.length) * 100}%`, backgroundColor: testUnit.color }}></div>
         </div>
 
-        {(q.speak || q.audioText) && (
-          <div className="text-center mb-3">
-            <button type="button" className="btn btn-cowdi-primary" onClick={() => speakWord(q.audioText || q.speak)}>
-              <Icon name="sound" size={18} /> Nghe phát âm
-            </button>
-          </div>
-        )}
-
-        <div className="card shadow-sm mb-4">
+        <div className="card shadow-sm quiz-question-card">
           <div className="card-body">
-            <span className="text-muted small">Câu {testIdx + 1}/{testQuestions.length}</span>
-            <p className="fs-5 fw-bold mb-0 mt-1">{q.question}</p>
+            <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-1">
+              <span className="text-muted small">Câu {testIdx + 1}/{testQuestions.length}</span>
+              {(q.speak || q.audioText) && (
+                <button type="button" className="btn btn-sm btn-cowdi-primary" onClick={() => speakWord(q.audioText || q.speak)}>
+                  <Icon name="sound" size={15} /> Nghe phát âm
+                </button>
+              )}
+            </div>
+            <p className="fs-5 fw-bold mb-0">{q.question}</p>
           </div>
         </div>
 
@@ -314,12 +313,12 @@ export default function LearningPathPage() {
         </div>
 
         {testAnswered !== null && testAnswered !== q.correct && (
-          <div className="mt-3 fade-in">
-            <div className="alert alert-danger py-2 px-3 mb-2">
+          <div className="quiz-sticky-action-bar is-wrong fade-in">
+            <div className="quiz-sticky-feedback text-danger">
               <strong>{testAnswered === -1 ? 'Hết giờ!' : 'Chưa đúng.'}</strong> Đáp án đúng: <b>{q.options[q.correct]}</b>
-              {q.explanation && <div className="small mt-1">{q.explanation}</div>}
+              {q.explanation && <div className="small text-dark mt-1">{q.explanation}</div>}
             </div>
-            <div className="text-center">
+            <div className="quiz-sticky-actions">
               <button type="button" className="btn btn-cowdi-primary px-4" onClick={() => advanceCheckpoint(testScore)}>
                 {testIdx + 1 < testQuestions.length ? 'Tiếp →' : 'Xem kết quả →'}
               </button>

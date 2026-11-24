@@ -423,6 +423,7 @@ export default function LessonDetailPage() {
 
   // Steps: vocab → flashcard → grammar → reading → listen → speak → quiz
   const [tab, setTab] = useState('vocab');
+  const [lessonInfoOpen, setLessonInfoOpen] = useState(false);
   const [stepDone, setStepDone] = useState(() => loadStepDone(id));
   const [quizMode, setQuizMode] = useState(false);
   const [qIndex, setQIndex] = useState(0);
@@ -1230,31 +1231,32 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     QUIZ IN PROGRESS (U3 explanation + U6 audioText)
+     QUIZ IN PROGRESS (Zero-scroll + Sticky Action Bar)
      ══════════════════════════════════════════ */
   if (quizMode) {
     const q = quiz[qIndex];
     const isListeningQ = Boolean(q?.audioText);
+    const isRight = answered !== null && answered === q.correct;
     return (
-      <div className="fade-in position-relative" style={{ maxWidth: 680, margin: '0 auto' }} ref={confettiRef}>
-        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div className="fade-in position-relative quiz-viewport-stage" ref={confettiRef}>
+        <div className="quiz-top-bar">
           <button className="btn btn-sm btn-outline-secondary" onClick={() => { setQuizMode(false); restartQuiz(); }}>
             <i className="fas fa-arrow-left me-1"></i>Thoát
           </button>
-          <span className="text-muted fw-bold">Câu {qIndex + 1}/{quiz.length}</span>
-          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {score}</span>
+          <span className="text-muted fw-bold small">Câu {qIndex + 1}/{quiz.length}</span>
+          <span className="badge bg-warning text-dark"><Icon name="star" size={14} /> {score}</span>
         </div>
-        <div className="progress mb-4" style={{ height: '8px' }}>
+        <div className="progress" style={{ height: '6px' }}>
           <div
             className="progress-bar progress-bar-cowdi"
             role="progressbar"
             style={{ width: `${((qIndex + 1) / quiz.length) * 100}%` }}
           ></div>
         </div>
-        <div className={`card shadow-sm mb-4 ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
-          <div className="card-body py-4 text-center">
+        <div className={`card shadow-sm quiz-question-card ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
+          <div className="card-body text-center">
             {isListeningQ && (
-              <div className="mb-2">
+              <div className="mb-1">
                 <span className="badge bg-info text-dark">🎧 Câu hỏi nghe</span>
               </div>
             )}
@@ -1305,21 +1307,23 @@ export default function LessonDetailPage() {
           })}
         </div>
         {answered !== null && (
-          <div className="mt-3 fade-in">
-            <div className={`text-center fw-bold fs-5 ${answered === q.correct ? 'text-success' : 'text-danger'}`}>
-              {answered === q.correct ? <><Icon name="check" size={18} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.options[q.correct]}</>}
-            </div>
-            {q.explanation && (
-              <div className="alert alert-info mt-2 mb-2 py-2 px-3 small">
-                <strong>Giải thích:</strong> {q.explanation}
+          <div className={`quiz-sticky-action-bar fade-in ${isRight ? 'is-correct' : 'is-wrong'}`}>
+            <div className="quiz-sticky-feedback">
+              <div className={`fw-bold ${isRight ? 'text-success' : 'text-danger'}`}>
+                {isRight ? <><Icon name="check" size={16} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={16} /> Đáp án đúng: {q.options[q.correct]}</>}
               </div>
-            )}
-            {(q.explanation || answered !== q.correct) && (
-              <div className="text-center mt-2">
+              {q.explanation && (
+                <div className="small text-dark mt-1">
+                  <strong>Giải thích:</strong> {q.explanation}
+                </div>
+              )}
+            </div>
+            {(q.explanation || !isRight) && (
+              <div className="quiz-sticky-actions">
                 <button
                   type="button"
                   className="btn btn-cowdi-primary px-4"
-                  onClick={() => goToNextQuestion(answered === q.correct)}
+                  onClick={() => goToNextQuestion(isRight)}
                 >
                   {qIndex + 1 < quiz.length ? 'Câu tiếp theo →' : 'Xem kết quả →'}
                 </button>
@@ -1332,65 +1336,94 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     MAIN LESSON VIEW
+     MAIN LESSON VIEW (Compact 1-row header + info popup)
      ══════════════════════════════════════════ */
   return (
     <div className="fade-in position-relative" ref={confettiRef}>
-      {/* Header */}
-      <div className="card shadow-sm mb-4">
+      {/* Compact Header — mô tả & mục tiêu đưa vào popup để tránh cuộn */}
+      <div className="card shadow-sm mb-2">
         <div className={`card-header-level ${lesson.level}`}></div>
-        <div className="card-body">
-          <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
-            <i className="fas fa-arrow-left me-1"></i>Lộ trình
-          </button>
-          <div className="d-flex align-items-center gap-3 flex-wrap">
-            <span style={{ fontSize: '2.5rem' }} className="emoji-big"><Emoji e={lesson.icon} size={48} /></span>
-            <div>
-              <h2 className="fw-bold mb-1">{lesson.title}</h2>
-              <p className="text-muted mb-1">{lesson.description}</p>
-              <div className="d-flex flex-wrap gap-1 align-items-center">
-                <span className={`badge badge-level-${lesson.level}`}>
-                  {lesson.level === 'starter'
-                    ? '🌱 Mới học'
-                    : lesson.level === 'beginner'
-                      ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
-                      : lesson.level === 'intermediate'
-                        ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
-                        : <><Icon name="dotRed" size={12} /> Nâng cao</>}
-                </span>
-                <span className="badge bg-light text-dark border">{group.title}</span>
-                {userData.completedLessons.includes(lesson.id) && (
-                  <span className="badge bg-success"><Icon name="check" size={12} /> Đã hoàn thành</span>
-                )}
-              </div>
-              {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
-                <ul className="small text-muted mb-0 mt-2 ps-3">
-                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
-                </ul>
+        <div className="card-body py-2 px-3">
+          <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <div className="d-flex align-items-center gap-2 flex-wrap" style={{ minWidth: 0 }}>
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
+                <i className="fas fa-arrow-left me-1"></i>Lộ trình
+              </button>
+              <span className="d-inline-flex align-items-center"><Emoji e={lesson.icon} size={26} /></span>
+              <h2 className="fw-bold mb-0 fs-5">{lesson.title}</h2>
+              <span className={`badge badge-level-${lesson.level}`}>
+                {lesson.level === 'starter'
+                  ? '🌱 Mới học'
+                  : lesson.level === 'beginner'
+                    ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
+                    : lesson.level === 'intermediate'
+                      ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
+                      : <><Icon name="dotRed" size={12} /> Nâng cao</>}
+              </span>
+              {userData.completedLessons.includes(lesson.id) && (
+                <span className="badge bg-success"><Icon name="check" size={12} /> Đã xong</span>
               )}
             </div>
-          </div>
 
-          {/* Pretest "Làm thử trước" cho nhóm Luyện thi (SDD §4.3) */}
-          {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
-            <div className="alert alert-light border mt-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <div className="small">
-                <strong>Chế độ Luyện thi:</strong> Đã nắm chắc kiến thức bài này? Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
-              </div>
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
+              {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-warning fw-bold"
+                  onClick={() => { setQuizMode(true); restartQuiz(); }}
+                  title={`Làm thử quiz đạt ≥${Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay`}
+                >
+                  ⚡ Làm thử
+                </button>
+              )}
               <button
                 type="button"
-                className="btn btn-sm btn-warning fw-bold"
-                onClick={() => { setQuizMode(true); restartQuiz(); }}
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setLessonInfoOpen(true)}
+                title="Xem mô tả & mục tiêu bài học"
               >
-                ⚡ Làm thử quiz (vượt bài)
+                <Icon name="info" size={14} /> Chi tiết
               </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
+      {/* Popup thông tin & mục tiêu bài học */}
+      {lessonInfoOpen && (
+        <div className="cowdi-mini-modal-backdrop" onClick={() => setLessonInfoOpen(false)}>
+          <div className="cowdi-mini-modal" role="dialog" aria-label="Thông tin bài học" onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex align-items-center justify-content-between gap-2 pb-2 mb-2 border-bottom">
+              <div className="d-flex align-items-center gap-2">
+                <Emoji e={lesson.icon} size={28} />
+                <h5 className="fw-bold mb-0">{lesson.title}</h5>
+              </div>
+              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setLessonInfoOpen(false)} aria-label="Đóng">✕</button>
+            </div>
+            <div className="d-flex flex-wrap gap-1 mb-2">
+              <span className="badge bg-light text-dark border">{group.title}</span>
+              <span className={`badge badge-level-${lesson.level}`}>{lesson.level}</span>
+            </div>
+            {lesson.description && <p className="text-muted small mb-2">{lesson.description}</p>}
+            {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
+              <div className="mb-2">
+                <div className="small fw-bold mb-1">Mục tiêu sau bài học:</div>
+                <ul className="small text-muted mb-0 ps-3">
+                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
+                </ul>
+              </div>
+            )}
+            {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+              <div className="alert alert-light border mt-2 mb-0 py-2 px-3 small">
+                <strong>Chế độ Luyện thi:</strong> Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
-      <div className="lesson-steps mb-4">
+      <div className="lesson-steps mb-3">
         <div className="lesson-steps-bar">
           <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
           <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
@@ -1975,19 +2008,16 @@ export default function LessonDetailPage() {
                       />
                     </div>
 
-                    {/* Audio area */}
+                    {/* Audio area — compact để nhìn trọn cả 4 đáp án không phải cuộn */}
                     <div
-                      className="text-center text-white py-4 px-3 mb-3"
+                      className="text-center text-white py-2 px-3 mb-2"
                       style={{
                         background: 'linear-gradient(135deg, #FF6B9D 0%, #A29BFE 100%)',
-                        borderRadius: 16,
-                        boxShadow: '0 6px 20px rgba(255,107,157,.25)',
+                        borderRadius: 14,
+                        boxShadow: '0 4px 14px rgba(255,107,157,.2)',
                       }}
                     >
-                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }} className="emoji-big">
-                        <Icon name="sound" size={56} />
-                      </div>
-                      <p className="mb-2 opacity-90 small">Nghe câu sau và chọn nghĩa đúng</p>
+                      <p className="mb-1 opacity-90 small">🎧 Nghe câu sau và chọn nghĩa đúng</p>
                       <div className="d-flex gap-2 justify-content-center flex-wrap">
                         <button
                           type="button"
@@ -1997,7 +2027,7 @@ export default function LessonDetailPage() {
                             border: '1px solid rgba(255,255,255,.4)',
                             color: '#fff',
                             borderRadius: 999,
-                            padding: '6px 16px',
+                            padding: '5px 14px',
                             fontWeight: 600,
                             cursor: 'pointer',
                           }}
@@ -2012,7 +2042,7 @@ export default function LessonDetailPage() {
                             border: '1px solid rgba(255,255,255,.4)',
                             color: '#fff',
                             borderRadius: 999,
-                            padding: '6px 16px',
+                            padding: '5px 14px',
                             fontWeight: 600,
                             cursor: 'pointer',
                           }}
@@ -2020,33 +2050,30 @@ export default function LessonDetailPage() {
                           <Icon name="turtle" size={16} /> Chậm
                         </button>
                         {listenPicked !== null && (
-                          <button
-                            type="button"
-                            onClick={() => { /* reveal text already shown */ }}
+                          <span
                             style={{
                               background: '#fff',
                               color: '#E0527E',
-                              border: 'none',
                               borderRadius: 999,
-                              padding: '6px 16px',
+                              padding: '5px 14px',
                               fontWeight: 600,
-                              cursor: 'default',
+                              fontSize: '0.88rem',
                             }}
                           >
-                            <Icon name="note" size={16} /> {q.sentence}
-                          </button>
+                            <Icon name="note" size={14} /> {q.sentence}
+                          </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Options */}
+                    {/* Options — lưới 2×2 trên desktop để không phải cuộn */}
                     <div className="row g-2">
                       {q.options.map((opt, i) => {
                         const picked = listenPicked === i;
                         const isCorrect = i === q.correct;
                         const showResult = listenPicked !== null;
-                        let cls = 'btn w-100 text-start py-2 px-3';
-                        let extraStyle = { borderRadius: 12, fontSize: '.95rem' };
+                        let cls = 'btn w-100 text-start py-2 px-3 quiz-option-btn';
+                        let extraStyle = { borderRadius: 12, fontSize: '.92rem' };
                         if (showResult) {
                           if (isCorrect) cls += ' btn-success';
                           else if (picked) cls += ' btn-danger';
@@ -2055,7 +2082,7 @@ export default function LessonDetailPage() {
                           cls += ' btn-outline-cowdi';
                         }
                         return (
-                          <div className="col-12" key={i}>
+                          <div className="col-12 col-md-6" key={i}>
                             <button
                               className={cls}
                               style={extraStyle}
@@ -2072,28 +2099,25 @@ export default function LessonDetailPage() {
                       })}
                     </div>
 
-                    {/* Feedback + next */}
+                    {/* Sticky Feedback + Next bar */}
                     {listenPicked !== null && (
-                      <div className="mt-3">
-                        {listenPicked === q.correct ? (
-                          <div
-                            className="alert mb-2 py-2"
-                            style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: 12 }}
-                          >
-                            <Icon name="check" size={16} /> <strong>Chính xác!</strong> Câu nghe: <em>"{q.sentence}"</em>
-                          </div>
-                        ) : (
-                          <div
-                            className="alert mb-2 py-2"
-                            style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: 12 }}
-                          >
-                            <Icon name="x" size={16} /> <strong>Chưa đúng.</strong> Đáp án: <em>"{q.options[q.correct]}"</em>
-                            <div className="small mt-1 text-muted">Câu nghe: "{q.sentence}"</div>
-                          </div>
-                        )}
-                        <button className="btn btn-cowdi-primary w-100" onClick={handleListenNext}>
-                          {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : <><Icon name="checkered" size={16} /> Hoàn thành</>}
-                        </button>
+                      <div className={`quiz-sticky-action-bar mt-2 fade-in ${listenPicked === q.correct ? 'is-correct' : 'is-wrong'}`}>
+                        <div className="quiz-sticky-feedback">
+                          {listenPicked === q.correct ? (
+                            <span className="text-success fw-bold">
+                              <Icon name="check" size={16} /> Chính xác! <em>"{q.sentence}"</em>
+                            </span>
+                          ) : (
+                            <span className="text-danger fw-bold">
+                              <Icon name="x" size={16} /> Đáp án: <em>"{q.options[q.correct]}"</em>
+                            </span>
+                          )}
+                        </div>
+                        <div className="quiz-sticky-actions">
+                          <button className="btn btn-cowdi-primary px-4" onClick={handleListenNext}>
+                            {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : <><Icon name="checkered" size={16} /> Hoàn thành</>}
+                          </button>
+                        </div>
                       </div>
                     )}
 

@@ -380,11 +380,10 @@ export default function PictureLesson({
               );
             })}
           </div>
-          <div className="text-center mt-4">
+          <div className="quiz-sticky-action-bar mt-3 justify-content-center">
             <button
               type="button"
-              className="btn btn-cowdi-primary btn-lg px-4"
-              style={{ minHeight: 56 }}
+              className="btn btn-cowdi-primary px-4"
               disabled={!allHeard}
               onClick={() => setStepIdx(1)}
             >
@@ -515,11 +514,10 @@ export default function PictureLesson({
               </div>
             </div>
           </div>
-          <div className="text-center mt-4">
+          <div className="quiz-sticky-action-bar mt-3 justify-content-center">
             <button
               type="button"
-              className="btn btn-cowdi-primary btn-lg px-4"
-              style={{ minHeight: 56 }}
+              className="btn btn-cowdi-primary px-4"
               disabled={matchedSet.size < words.length}
               onClick={() => setStepIdx(3)}
             >
@@ -568,11 +566,10 @@ export default function PictureLesson({
               </div>
             ))}
           </div>
-          <div className="mt-4">
+          <div className="quiz-sticky-action-bar mt-3 justify-content-center">
             <button
               type="button"
-              className="btn btn-cowdi-primary btn-lg px-4"
-              style={{ minHeight: 56 }}
+              className="btn btn-cowdi-primary px-4"
               disabled={patternTried.size === 0}
               onClick={() => { setRepeatIdx(0); setRepeatCheered(false); setStepIdx(4); }}
             >

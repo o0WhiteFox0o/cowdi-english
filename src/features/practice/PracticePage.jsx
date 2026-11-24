@@ -1573,22 +1573,24 @@ export default function PracticePage() {
         </div>
 
         {dictChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${dictChecked ? 'text-success' : 'text-danger'}`}>
-            {dictChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.word}</>}
+          <div className={`quiz-sticky-action-bar fade-in ${dictChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${dictChecked ? 'text-success' : 'text-danger'}`}>
+              {dictChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextDictation}>
+                {dictIdx + 1 < dictQuestions.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
           </div>
         )}
-
-        <div className="text-center">
-          {dictChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkDictation} disabled={!dictInput.trim()}>
+        {dictChecked === null && (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkDictation} disabled={!dictInput.trim()}>
               Kiểm tra
             </button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextDictation}>
-              {dictIdx + 1 < dictQuestions.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1695,22 +1697,23 @@ export default function PracticePage() {
           />
         </div>
 
-        {fillChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${fillChecked ? 'text-success' : 'text-danger'}`}>
-            {fillChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {q.answer}</>}
-            {!fillChecked && <p className="text-muted small mt-1">{q.original}</p>}
+        {fillChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${fillChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${fillChecked ? 'text-success' : 'text-danger'}`}>
+              {fillChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {q.answer}</>}
+              {!fillChecked && <div className="text-muted small fw-normal mt-1">{q.original}</div>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextFillIn}>
+                {fillIdx + 1 < fillQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkFillIn} disabled={!fillInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {fillChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkFillIn} disabled={!fillInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextFillIn}>
-              {fillIdx + 1 < fillQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -1769,21 +1772,22 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {reorderChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-6 fade-in ${reorderChecked ? 'text-success' : 'text-danger'}`}>
-            {reorderChecked ? <><Icon name="check" size={16} /> Chính xác!</> : <><Icon name="x" size={16} /> Đáp án: {q.correctOrder.join(' ')}</>}
+        {reorderChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${reorderChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${reorderChecked ? 'text-success' : 'text-danger'}`}>
+              {reorderChecked ? <><Icon name="check" size={16} /> Chính xác!</> : <><Icon name="x" size={16} /> Đáp án: {q.correctOrder.join(' ')}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextReorder}>
+                {reorderIdx + 1 < reorderQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkReorder} disabled={reorderPool.length > 0}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {reorderChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkReorder} disabled={reorderPool.length > 0}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextReorder}>
-              {reorderIdx + 1 < reorderQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -1902,21 +1906,22 @@ export default function PracticePage() {
           />
         </div>
 
-        {wgChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wgChecked ? 'text-success' : 'text-danger'}`}>
-            {wgChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {wq.word}</>}
+        {wgChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${wgChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${wgChecked ? 'text-success' : 'text-danger'}`}>
+              {wgChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {wq.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextWordGuess}>
+                {wgIdx + 1 < wgQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkWordGuess} disabled={!wgInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {wgChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkWordGuess} disabled={!wgInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextWordGuess}>
-              {wgIdx + 1 < wgQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -2020,21 +2025,22 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {wbChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wbChecked ? 'text-success' : 'text-danger'}`}>
-            {wbChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {bq.word}</>}
+        {wbChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${wbChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${wbChecked ? 'text-success' : 'text-danger'}`}>
+              {wbChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {bq.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextWordBuild}>
+                {wbIdx + 1 < wbQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkWordBuild} disabled={wbPool.length > 0}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {wbChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkWordBuild} disabled={wbPool.length > 0}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextWordBuild}>
-              {wbIdx + 1 < wbQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -2076,21 +2082,22 @@ export default function PracticePage() {
           />
         </div>
 
-        {twChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${twChecked ? 'text-success' : 'text-danger'}`}>
-            {twChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {tq.original}</>}
+        {twChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${twChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${twChecked ? 'text-success' : 'text-danger'}`}>
+              {twChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {tq.original}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextTranslateWrite}>
+                {twIdx + 1 < twQs.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkTranslateWrite} disabled={!twInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {twChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkTranslateWrite} disabled={!twInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextTranslateWrite}>
-              {twIdx + 1 < twQs.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
