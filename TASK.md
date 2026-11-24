@@ -118,6 +118,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Trang cửa hàng mới (tab Giữ nhịp) — 2026-11-23 · 6adecd0
 - [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
 - [x] Làm lại UI cửa hàng theo mục Giao diện cửa hàng — 2026-11-23 · 7340b95
+- [ ] Hoàn thiện Đá nguyên tố trên giao diện
+- [x] Sửa xem trước pet trong Cửa hàng + nút Quay lại — 2026-11-24 · 67ae58f
 
 **Tiêu chí xong**
 - [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
@@ -185,6 +187,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | 3 | Sửa 3 lỗi Cửa hàng: PetPreview dùng PetAvatar chuẩn ảnh/rig + bộ chọn pet + nút Quay lại thông minh | 67ae58f | 85 test pass, build pass, screenshots desktop & mobile |
 | 2026-11-23 | 3 | Tích hợp bộ icon pet WebP (Attack, Defense, HP, Speed, 4 kỹ năng) cho Chỉ số chiến đấu & Chỉ số gốc | cd17746 | 62 test pass, build pass, screenshots |
 | 2026-11-23 | 3 | Thêm nút Shop cạnh icon điện trên thẻ pet & bổ sung 19 nền + 15 hào quang vào tab Trang trí | 39f76ba | 62 test pass, build pass, screenshots |
 | 2026-11-23 | 3 | Làm lại UI Cửa hàng theo chuẩn: 3 tab (Giữ nhịp, Trang trí, Kho đồ), danh sách phẳng, 3 bottom sheet (Cách kiếm, Chi tiết, Khế ước), HUD link | 7340b95 | 62 test pass, build pass, screenshots |

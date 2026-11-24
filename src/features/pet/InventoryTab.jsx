@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import { usePet } from '../../hooks/usePet';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
-import { PET_REGISTRY, SHOP_ITEMS } from '../../data/pets';
-import Emoji from '../../components/Emoji';
+import { PET_REGISTRY, SHOP_ITEMS, getEvolutionInfo } from '../../data/pets';
+import PetPreview from '../../components/pet/PetPreview';
 
 const INVENTORY_FILTERS = [
   { id: 'all', label: 'Tất cả' },
@@ -13,14 +13,18 @@ const INVENTORY_FILTERS = [
   { id: 'effect', label: '✨ Hào quang' },
 ];
 
-export default function InventoryTab() {
+export default function InventoryTab({ selectedPetId, onSelectPetId }) {
   const { petData, equipItem } = usePet();
   const showToast = useToast();
   const { play } = useSound();
   const [filterType, setFilterType] = useState('all');
 
-  const activePet = petData.collection[petData.activePetId];
-  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const ownedPets = useMemo(() => Object.values(petData.collection || {}), [petData.collection]);
+  const currentPetId = selectedPetId && petData.collection[selectedPetId]
+    ? selectedPetId
+    : petData.activePetId || ownedPets[0]?.instanceId;
+  const currentPet = petData.collection[currentPetId] || ownedPets[0];
+  const species = currentPet ? PET_REGISTRY[currentPet.speciesId] : null;
 
   // Lấy danh sách đồ đã sở hữu (loại trừ food)
   const ownedItems = useMemo(() => {
@@ -35,16 +39,16 @@ export default function InventoryTab() {
   }, [ownedItems, filterType]);
 
   const handleEquip = (item) => {
-    if (!petData.activePetId) return;
+    if (!currentPet) return;
     const slot = item.category;
-    const isEquipped = activePet?.cosmetics?.[slot] === item.id;
+    const isEquipped = currentPet.cosmetics?.[slot] === item.id;
 
     if (isEquipped) {
-      equipItem(petData.activePetId, slot, null);
+      equipItem(currentPet.instanceId, slot, null);
       play('equip');
       showToast(`Đã tháo ${item.name}`, 'info');
     } else {
-      equipItem(petData.activePetId, slot, item.id);
+      equipItem(currentPet.instanceId, slot, item.id);
       play('equip');
       showToast(`Đã trang bị ${item.name}! ${item.emoji}`, 'success');
     }
@@ -53,22 +57,48 @@ export default function InventoryTab() {
   return (
     <div className="inventory-tab-container">
       {/* 1. Khung xem trước Pet với đồ đang trang bị */}
-      {activePet && species && (
-        <div className="card shadow-sm mb-3 text-center border-0" style={{ backgroundColor: '#f8f9fa' }}>
-          <div className="card-body py-3">
-            <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-              {activePet.cosmetics?.hat && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.hat)?.emoji} size={24} /></span>
-              )}
-              <span className="fs-1 emoji-big"><Emoji e={species.emoji} size={48} /></span>
-              {activePet.cosmetics?.outfit && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.outfit)?.emoji} size={24} /></span>
-              )}
-              {activePet.cosmetics?.effect && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.effect)?.emoji} size={24} /></span>
-              )}
+      {currentPet && species && (
+        <div className="card shadow-sm mb-3 border-0 overflow-hidden" style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #eef0f2' }}>
+          <div className="card-body p-3">
+            {/* Bộ chọn pet nếu sở hữu nhiều hơn 1 pet */}
+            {ownedPets.length > 1 && (
+              <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                <span className="small text-muted fw-semibold">Chọn pet trang bị:</span>
+                <div className="d-flex align-items-center gap-1 flex-wrap">
+                  {ownedPets.map((p) => {
+                    const sp = PET_REGISTRY[p.speciesId];
+                    const evo = getEvolutionInfo(p.speciesId, p.evolution);
+                    const isSelected = p.instanceId === currentPet.instanceId;
+                    return (
+                      <button
+                        key={p.instanceId}
+                        type="button"
+                        className={`btn btn-sm d-flex align-items-center gap-1 rounded-pill px-2 py-1 ${
+                          isSelected ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
+                        }`}
+                        style={{ fontSize: '12px' }}
+                        onClick={() => onSelectPetId && onSelectPetId(p.instanceId)}
+                        title={`${p.customName || sp?.name} (${evo?.name})`}
+                      >
+                        {evo?.image ? (
+                          <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                        ) : (
+                          <span>{evo?.emoji || sp?.emoji}</span>
+                        )}
+                        <span>{p.customName || sp?.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Khung PetPreview dùng chung */}
+            <PetPreview pet={currentPet} />
+
+            <div className="small text-muted mt-2 text-center">
+              {currentPet.customName || species.name} — Trang bị hiện tại
             </div>
-            <div className="small text-muted mt-1">{activePet.customName} — Trang bị hiện tại</div>
           </div>
         </div>
       )}
@@ -97,7 +127,7 @@ export default function InventoryTab() {
       ) : (
         <div className="row g-2">
           {filteredItems.map((item) => {
-            const isEquipped = activePet?.cosmetics?.[item.category] === item.id;
+            const isEquipped = currentPet?.cosmetics?.[item.category] === item.id;
 
             return (
               <div key={item.id} className="col-6 col-md-4 col-lg-3">

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { useUser } from '../../hooks/useUser';
 import { useAuth } from '../../hooks/useAuth';
+import { usePet } from '../../hooks/usePet';
 import Icon from '../../components/Icon';
 import StreakTab from './StreakTab';
 import CosmeticsTab from './CosmeticsTab';
@@ -21,6 +22,8 @@ export default function ShopPage() {
   const { userData, setUserData } = useUser();
   const { authFetch, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { petData } = usePet();
 
   const [activeTab, setActiveTab] = useState('streak');
   const [howToEarnOpen, setHowToEarnOpen] = useState(false);
@@ -31,6 +34,37 @@ export default function ShopPage() {
     gem: 0,
     stone: 0,
     stone_shard: 0,
+  };
+
+  // Xác định pet đang xem thử từ query param "pet", fallback về activePetId
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const petQuery = searchParams.get('pet');
+  const selectedPetId = petQuery && petData.collection?.[petQuery]
+    ? petQuery
+    : (petData.activePetId || Object.keys(petData.collection || {})[0]);
+
+  const handleSelectPet = (newPetId) => {
+    const params = new URLSearchParams(location.search);
+    params.set('pet', newPetId);
+    navigate({ search: params.toString() }, { replace: true });
+  };
+
+  // Xử lý nút Quay lại thông minh
+  const handleBack = () => {
+    const fromParam = searchParams.get('from');
+    // Nếu vào từ trang khác trong app (location.key !== 'default' hoặc có state.from)
+    if (location.key !== 'default' || location.state?.from) {
+      navigate(-1);
+      return;
+    }
+    // Nếu mở trực tiếp bằng link thì về trang nguồn theo query "from", mặc định về /pet
+    if (fromParam === 'dex') {
+      navigate('/collection');
+    } else if (fromParam === 'pet') {
+      navigate('/pet');
+    } else {
+      navigate('/pet');
+    }
   };
 
   // Mở tab hoặc modal từ query param hoặc hash
@@ -73,11 +107,23 @@ export default function ShopPage() {
 
   return (
     <div className="fade-in shop-page-container pb-4" style={{ maxWidth: '640px', margin: '0 auto' }}>
-      {/* 1. Một dòng tiêu đề: Cửa hàng + số dư 🥛 · 💎 · 💠 + nút (?) mở "Cách kiếm" */}
+      {/* 1. Một dòng tiêu đề: Nút Quay lại + Cửa hàng + số dư 🥛 · 💎 · 💠 + nút (?) mở "Cách kiếm" */}
       <div className="d-flex align-items-center justify-content-between py-2 mb-3 border-bottom flex-wrap gap-2">
-        <h2 className="fw-bold mb-0 fs-4 d-flex align-items-center gap-2">
-          <Icon name="bag" size={24} /> Cửa hàng
-        </h2>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 px-2 py-1"
+            onClick={handleBack}
+            aria-label="Quay lại"
+            title="Quay lại"
+          >
+            <span aria-hidden="true" style={{ fontSize: '15px', fontWeight: 'bold' }}>←</span>
+            <span className="d-none d-sm-inline small fw-semibold">Quay lại</span>
+          </button>
+          <h2 className="fw-bold mb-0 fs-4 d-flex align-items-center gap-2">
+            <Icon name="bag" size={24} /> Cửa hàng
+          </h2>
+        </div>
 
         {/* Số dư 3 tài nguyên + nút (?) */}
         <div className="d-flex align-items-center gap-2">
@@ -128,11 +174,17 @@ export default function ShopPage() {
       )}
 
       {activeTab === 'cosmetics' && (
-        <CosmeticsTab />
+        <CosmeticsTab
+          selectedPetId={selectedPetId}
+          onSelectPetId={handleSelectPet}
+        />
       )}
 
       {activeTab === 'inventory' && (
-        <InventoryTab />
+        <InventoryTab
+          selectedPetId={selectedPetId}
+          onSelectPetId={handleSelectPet}
+        />
       )}
 
       {/* 4. Bottom Sheet: Cách kiếm Sữa, Gem, Đá */}

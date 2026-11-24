@@ -195,13 +195,15 @@ export default function CollectionPage() {
                   <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
                 </span>
                 {selOwned && <span className="dex-badge power"><Icon name="bolt" size={14} /> {computePowerScore(selOwned)}</span>}
-                <Link
-                  to="/shop?tab=cosmetics"
-                  className="dex-badge dex-badge-shop"
-                  title="Đến Cửa hàng sắm đồ trang trí cho pet"
-                >
-                  <Icon name="bag" size={13} /> Shop
-                </Link>
+                {selOwned && (
+                  <Link
+                    to={`/shop?tab=cosmetics&pet=${selOwned.instanceId}&from=dex`}
+                    className="dex-badge dex-badge-shop"
+                    title="Đến Cửa hàng sắm đồ trang trí cho pet"
+                  >
+                    <Icon name="bag" size={13} /> Shop
+                  </Link>
+                )}
               </div>
 
               <p className="dex-desc">{sel.description}</p>

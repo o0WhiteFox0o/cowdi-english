@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { usePet } from '../../hooks/usePet';
-import { PET_REGISTRY, SHOP_ITEMS } from '../../data/pets';
+import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
 import Emoji from '../../components/Emoji';
+import PetPreview from '../../components/pet/PetPreview';
 
 const COSMETIC_CATEGORIES = [
   { id: 'room', label: '🖼️ Nền (19 món)' },
@@ -67,14 +68,18 @@ const RARITY_BADGE_STYLE = {
   season: { bg: '#ffe5d0', color: '#8f3d00', label: '🟠 Mùa' },
 };
 
-export default function CosmeticsTab() {
+export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const { petData } = usePet();
   const [subCategory, setSubCategory] = useState('room');
   const [rarityFilter, setRarityFilter] = useState('all');
   const [previewItem, setPreviewItem] = useState(null);
 
-  const activePet = petData.collection[petData.activePetId];
-  const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
+  const ownedPets = useMemo(() => Object.values(petData.collection || {}), [petData.collection]);
+  const currentPetId = selectedPetId && petData.collection[selectedPetId]
+    ? selectedPetId
+    : petData.activePetId || ownedPets[0]?.instanceId;
+  const currentPet = petData.collection[currentPetId] || ownedPets[0];
+  const species = currentPet ? PET_REGISTRY[currentPet.speciesId] : null;
 
   const rawList = subCategory === 'room' ? PLANNED_BACKGROUNDS : PLANNED_AURAS;
 
@@ -86,36 +91,58 @@ export default function CosmeticsTab() {
   return (
     <div className="cosmetics-tab-container">
       {/* 1. Khung xem trước Pet với Nền & Hào quang thử nghiệm */}
-      {activePet && species && (
+      {currentPet && species && (
         <div
-          className="card shadow-sm mb-3 text-center border-0"
+          className="card shadow-sm mb-3 border-0 overflow-hidden"
           style={{
-            backgroundColor: previewItem?.bgStyle || '#f8f9fa',
-            transition: 'background-color 0.3s ease',
+            backgroundColor: '#ffffff',
             borderRadius: '16px',
-            border: previewItem ? '2px dashed #4caf50' : 'none',
+            border: previewItem ? '2px dashed #4caf50' : '1px solid #eef0f2',
           }}
         >
-          <div className="card-body py-3">
-            <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap position-relative">
-              {/* Preview aura / effect nếu đang xem thử hào quang */}
-              {previewItem && subCategory === 'effect' && (
-                <span className="fs-3 position-absolute top-0 start-50 translate-middle-x" style={{ zIndex: 2 }}>
-                  <Emoji e={previewItem.emoji} size={28} />
-                </span>
-              )}
-              {activePet.cosmetics?.hat && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.hat)?.emoji} size={24} /></span>
-              )}
-              <span className="fs-1 emoji-big"><Emoji e={species.emoji} size={54} /></span>
-              {activePet.cosmetics?.outfit && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.outfit)?.emoji} size={24} /></span>
-              )}
-              {activePet.cosmetics?.effect && !previewItem && (
-                <span className="fs-4"><Emoji e={SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.effect)?.emoji} size={24} /></span>
-              )}
-            </div>
-            <div className="small text-muted mt-2">
+          <div className="card-body p-3">
+            {/* Bộ chọn pet nếu sở hữu nhiều hơn 1 pet */}
+            {ownedPets.length > 1 && (
+              <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                <span className="small text-muted fw-semibold">Xem thử trên pet:</span>
+                <div className="d-flex align-items-center gap-1 flex-wrap">
+                  {ownedPets.map((p) => {
+                    const sp = PET_REGISTRY[p.speciesId];
+                    const evo = getEvolutionInfo(p.speciesId, p.evolution);
+                    const isSelected = p.instanceId === currentPet.instanceId;
+                    return (
+                      <button
+                        key={p.instanceId}
+                        type="button"
+                        className={`btn btn-sm d-flex align-items-center gap-1 rounded-pill px-2 py-1 ${
+                          isSelected ? 'btn-cowdi-primary shadow-sm' : 'btn-light border text-muted'
+                        }`}
+                        style={{ fontSize: '12px' }}
+                        onClick={() => onSelectPetId && onSelectPetId(p.instanceId)}
+                        title={`${p.customName || sp?.name} (${evo?.name})`}
+                      >
+                        {evo?.image ? (
+                          <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                        ) : (
+                          <span>{evo?.emoji || sp?.emoji}</span>
+                        )}
+                        <span>{p.customName || sp?.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Khung PetPreview dùng chung */}
+            <PetPreview
+              pet={currentPet}
+              previewItem={previewItem}
+              previewType={subCategory}
+            />
+
+            {/* Dòng chữ dưới khung */}
+            <div className="small text-muted mt-2 text-center">
               {previewItem ? (
                 <span>
                   Đang xem thử: <strong>{previewItem.emoji} {previewItem.name}</strong> ·{' '}
@@ -128,7 +155,7 @@ export default function CosmeticsTab() {
                   </button>
                 </span>
               ) : (
-                <span>{activePet.customName} — Bấm vào một món bên dưới để xem thử lên pet</span>
+                <span>{currentPet.customName || species.name} — bấm một món để xem thử</span>
               )}
             </div>
           </div>
