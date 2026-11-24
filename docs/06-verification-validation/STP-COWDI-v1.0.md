@@ -8,6 +8,7 @@
 | 0.1 | 2026-11-23 | Khung nháp rỗng | Claude Code |
 | 1.0 | 2026-11-24 | Hoàn thiện chiến lược kiểm thử 4 tầng, danh mục 83 test tự động, tiêu chí Go/No-Go, bảng SLA phân loại lỗi | Production Director / PM |
 | 1.0.1 | 2026-11-24 | Bổ sung bộ test schema nội dung bài học (`shared/lesson-schema.test.js`, +8 test → 91 test) & công cụ `validate-lessons.mjs` / `check-lesson-ui-compat.mjs` | AI Assistant |
+| 1.0.2 | 2026-11-24 | Bổ sung test Lộ trình 3 nhóm (`shared/learning-path.test.js`), test Server Wallet/Migration/Guard (`server/tests/learning-groups.test.mjs`) & test hồi quy `withReading` → **109 test tự động** | AI Assistant |
 
 ---
 
@@ -28,7 +29,7 @@
 
 ---
 
-## 3. Danh mục Bộ Test Tự động Hiện hành (`npm test` — 91 tests)
+## 3. Danh mục Bộ Test Tự động Hiện hành (`npm test` — 109 tests)
 
 Lệnh chạy chuẩn cross-platform:
 ```bash
@@ -38,7 +39,9 @@ npm test
 
 | File test | Phân hệ | Trọng tâm kiểm chứng |
 |---|---|---|
-| `shared/lesson-schema.test.js` | Chuẩn nội dung bài học v2 | 3 bài golden đạt chuẩn 0 lỗi 0 cảnh báo, `toLegacyShape`, bắt lỗi `evidence.quote`, `maxWords`, thiếu `explanation`/quiz ngắn, bài cũ chỉ cảnh báo trừ lỗi cấu trúc, starter cấm trùng từ/IPA, chuyển TFNG → MCQ |
+| `shared/lesson-schema.test.js` | Chuẩn nội dung bài học v2 | 3 bài golden đạt chuẩn 0 lỗi 0 cảnh báo, `toLegacyShape`, `withReading` giữ trường v2, bắt lỗi `evidence.quote`, `maxWords`, thiếu `explanation`/quiz ngắn, bài cũ chỉ cảnh báo trừ lỗi cấu trúc, starter cấm trùng từ/IPA, chuyển TFNG → MCQ |
+| `shared/learning-path.test.js` | Lộ trình 3 nhóm & Quiz Gen | 5 kịch bản mở khoá 3 nhóm (`beginner`/`intermediate`/`exam`/`placed`/`getLessonAccess`), 4 bài Unit S1 chuẩn v2, 0 bài mồ côi, `estimateLessonMilk`, `migrateLegacyProgress`, `buildCheckpointQuestions` (`int-u4` không dính bài ngoài), `generateQuizFromLesson` v2 |
+| `server/tests/learning-groups.test.mjs` | Server Lộ trình 3 nhóm & Ví Gem | Quy tắc L6 (`unit_complete` chỉ cấp khi qua checkpoint thật, chặn `placement`/`legacy`), `unit_perfect` (15/15 vs 14/15), `mergeLessonScores` lấy max, `guard-unit-gems.mjs` idempotent 2 lần, tương thích MySQL 5.6+ |
 | `shared/battle-engine.test.js` | Kinh tế & Chiến đấu v2 (GĐ1–2) | Chỉ số Leafy C4 / Cowdi C1 / Storm C5, tiến hoá C1→C5, vòng khắc 10 hệ, né/crit tương đối, kỹ năng 7 nhóm, replay RNG seed, 3 kịch bản biên |
 | `shared/pets-data.test.js` | Danh mục 23 pet | Toàn vẹn `PET_BATTLE_DATA`, nhóm, hệ, độ hiếm, ngưỡng kỹ năng tiến hoá |
 | `shared/wallet-coins-migration.test.js` | Di trú Coins → Sữa (D12) | Chuyển đổi 1 coin = 3 Sữa, quy đổi thưởng nhiệm vụ ngày/tuần, không cộng âm |

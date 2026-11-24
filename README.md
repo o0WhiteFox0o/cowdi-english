@@ -33,7 +33,7 @@ Nền tảng học tiếng Anh tương tác (PWA) tích hợp hệ thống nuôi
 | **Kinh tế & Chiến đấu v2** | **Hoàn thành GĐ0–GĐ3** (đã merge `main` & deploy): Ledger 4 loại (`milk`, `gem`, `stone`, `stone_shard`), bỏ Coins (`×3` Sữa), Battle Engine server-side có seed, Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi), Streak v2 theo múi giờ |
 | **Chỉnh động tác & Rig Pet** | **Hoàn thành 100%** (`/admin/pet-motion`): Kho 23×5, Bàn chỉnh keyframe 15 kênh, Trình vẽ PNG Studio đa Layer, quy trình duyệt xuất bản, Tab **Xem trước khi học (5.8)**, gợi ý kích thước + nén WebP tại trình duyệt |
 | **Kiến trúc Backend** | 7 nhóm router Express (`auth`, `api`, `shop`, `invites`, `admin`, `petMotionAdmin`, `petMotionPublic`) · 16 file SQL/migration |
-| **Chất lượng & Kiểm thử** | **91/91 test tự động đạt** (`npm test`: `shared/`, `server/tests/`, `src/pet-rig/`) · `npm run build` & `npm run build:prod` xanh |
+| **Chất lượng & Kiểm thử** | **109/109 test tự động đạt** (`npm test`: `shared/`, `server/tests/`, `src/pet-rig/`) · `npm run build` & `validate:lessons` (0 lỗi) xanh |
 | **Giai đoạn kế tiếp** | **GĐ4 — Đồ trang trí (`feat/cosmetics`)** · cần chốt giá đồ Thường/Hiếm (Sữa hay Gem) |
 
 ---
@@ -103,7 +103,7 @@ npm run dev
 | Lệnh | Mục đích |
 |---|---|
 | `npm run dev` | Chạy frontend dev server tại `http://localhost:5173` |
-| `npm test` | Chạy toàn bộ **91 test tự động** (`shared/`, `server/tests/`, `src/pet-rig/`) |
+| `npm test` | Chạy toàn bộ **109 test tự động** (`shared/`, `server/tests/`, `src/pet-rig/`) |
 | `node scripts/validate-lessons.mjs` | Kiểm tra chuẩn nội dung toàn bộ kho bài học theo `schema.js` |
 | `npm run build` | Chạy `prebuild` (cập nhật `lesson-ids.json` & `units.json`) + build `dist/` |
 | `npm run build:prod` | Build production + PWA Service Worker ra `dist-prod/` |

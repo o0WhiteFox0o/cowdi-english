@@ -11,6 +11,7 @@ import Emoji from '../components/Emoji';
 
 // ── Level & Skill Configurations ────────────────────────────────────────────
 const LEVEL_CONFIG = {
+  starter:              { label: 'Mới học', icon: 'sprout', color: '#7DBE4B' },
   beginner:             { label: 'Cơ bản', icon: 'sprout', color: '#4CAF50' },
   elementary:           { label: 'Sơ cấp', icon: 'sprout', color: '#8BC34A' },
   intermediate:         { label: 'Trung cấp', icon: 'leaf', color: '#FF9800' },
@@ -40,16 +41,28 @@ function getPrimarySkill(l) {
 // ── Master Category Definitions (Dynamic lesson filters) ────────────────────
 const MASTER_CATEGORIES = [
   {
-    id: 'general',
-    title: 'Chủ đề tổng hợp',
+    id: 'starter',
+    groupId: 'beginner',
+    title: 'Mới học (Starter)',
     icon: '🌱',
-    target: 'A1 – B1 (Cơ bản)',
+    target: 'Pre-A1 – A1',
     color: '#7DBE4B',
+    desc: 'Bài học định dạng hình ảnh & âm thanh cho người bắt đầu từ con số 0',
+    filter: (l) => l.track === 'starter' || l.format === 'picture',
+  },
+  {
+    id: 'general',
+    groupId: 'intermediate',
+    title: 'Chủ đề tổng hợp',
+    icon: '🌳',
+    target: 'A2 – B1 (Trung bình)',
+    color: '#4EA8E8',
     desc: 'Từ vựng thông dụng, phát âm chuẩn và giao tiếp đời sống hàng ngày',
     filter: (l) => (l.track || 'general') === 'general',
   },
   {
     id: 'ielts',
+    groupId: 'exam',
     title: 'Luyện thi IELTS',
     icon: '🎓',
     target: 'Band 3.0 – 7.5+',
@@ -59,6 +72,7 @@ const MASTER_CATEGORIES = [
   },
   {
     id: 'toeic',
+    groupId: 'exam',
     title: 'Luyện thi TOEIC',
     icon: '💼',
     target: 'Điểm 10 – 990',
@@ -68,6 +82,7 @@ const MASTER_CATEGORIES = [
   },
   {
     id: 'vstep',
+    groupId: 'exam',
     title: 'Luyện thi VSTEP',
     icon: '🇻🇳',
     target: 'Bậc 3 – Bậc 5 (B1–C1)',
@@ -77,6 +92,7 @@ const MASTER_CATEGORIES = [
   },
   {
     id: 'cambridge',
+    groupId: 'exam',
     title: 'Chứng chỉ Cambridge',
     icon: '🇬🇧',
     target: 'B1 Preliminary & B2 First',
@@ -86,6 +102,7 @@ const MASTER_CATEGORIES = [
   },
   {
     id: 'advanced',
+    groupId: 'intermediate',
     title: 'Tiếng Anh Nâng cao C1–C2',
     icon: '🏆',
     target: 'C1 – C2 (Cao cấp)',
@@ -123,10 +140,14 @@ export default function LessonsPage() {
 // ============================================================================
 function CategoryOverviewView({ userData }) {
   const navigate = useNavigate();
+  const [groupFilter, setGroupFilter] = useState(userData.learnerGroup || 'all');
 
-  // Compute stats for each category
+  // Compute stats for each category (lọc theo nhóm người học — SDD §5.5)
   const categoriesWithStats = useMemo(() => {
-    return MASTER_CATEGORIES.map((cat) => {
+    const base = groupFilter === 'all'
+      ? MASTER_CATEGORIES
+      : MASTER_CATEGORIES.filter((c) => c.groupId === groupFilter);
+    return base.map((cat) => {
       const lessons = ALL_LESSONS.filter(cat.filter);
       const total = lessons.length;
       const completed = lessons.filter((l) => userData.completedLessons?.includes(l.id)).length;
@@ -138,7 +159,7 @@ function CategoryOverviewView({ userData }) {
         pct,
       };
     });
-  }, [userData.completedLessons]);
+  }, [userData.completedLessons, groupFilter]);
 
   // Overall completed count
   const totalCompleted = useMemo(
@@ -182,7 +203,7 @@ function CategoryOverviewView({ userData }) {
         <div className="lib-header-stats">
           <div className="lib-header-stat-chip">
             <Emoji e="📚" size={16} />
-            <span>206 bài học</span>
+            <span>{ALL_LESSONS.length} bài học</span>
           </div>
           <div className="lib-header-stat-chip" style={{ color: 'var(--leaf-dark)' }}>
             <Icon name="check" size={15} />
@@ -257,11 +278,27 @@ function CategoryOverviewView({ userData }) {
       )}
 
       {/* ── Category Cards Grid (No long lesson list!) ── */}
-      <div className="d-flex align-items-center justify-content-between mb-3">
+      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <h4 className="fw-bold mb-0 text-ink" style={{ fontSize: '1.2rem' }}>
           <Icon name="books" size={20} /> Chọn chương trình học tập
         </h4>
-        <small className="text-muted">Nhấp vào danh mục để khám phá danh sách bài học và bộ lọc</small>
+        <div className="d-flex gap-1 flex-wrap">
+          {[
+            { id: 'all', label: 'Tất cả' },
+            { id: 'beginner', label: '🌱 Mới học' },
+            { id: 'intermediate', label: '🌳 Trung bình' },
+            { id: 'exam', label: '🏅 Luyện thi' },
+          ].map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              className={`btn btn-sm ${groupFilter === g.id ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+              onClick={() => setGroupFilter(g.id)}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="lib-cat-grid">
