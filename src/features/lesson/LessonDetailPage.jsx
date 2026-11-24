@@ -729,6 +729,32 @@ export default function LessonDetailPage() {
     prevSkillLvlsRef.current = cur;
   }, [activePet?.skills]);
 
+  const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson?.quiz || []);
+
+  /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
+  useEffect(() => {
+    if (!lesson || access.locked || tab !== 'listen' || listenQs.length === 0 || listenDone) return;
+    const q = listenQs[listenIdx];
+    if (!q) return;
+    const t = setTimeout(() => speakWord(q.sentence, 0.85), 300);
+    return () => clearTimeout(t);
+  }, [lesson, access.locked, tab, listenIdx, listenQs, listenDone, speakWord]);
+
+  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới (U6: nếu có audioText thì đọc audioText tiếng Anh) */
+  useEffect(() => {
+    if (!lesson || access.locked || !quizMode || finished) return;
+    const q = quiz[qIndex];
+    if (!q) return;
+    const t = setTimeout(() => {
+      if (q.audioText) speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' });
+      else speakWord(q.question, defaultTtsRate);
+    }, 250);
+    return () => {
+      clearTimeout(t);
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    };
+  }, [lesson, access.locked, quizMode, qIndex, finished, quiz, speakWord, defaultTtsRate]);
+
   if (!lesson) {
     return (
       <div className="text-center py-5">
@@ -772,7 +798,6 @@ export default function LessonDetailPage() {
     );
   }
 
-  const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson.quiz || []);
   const vocab = lesson.vocabulary || [];
   const batchSize = rules.vocabBatchSize && vocab.length > rules.vocabBatchSize ? rules.vocabBatchSize : vocab.length;
   const totalBatches = batchSize > 0 ? Math.ceil(vocab.length / batchSize) : 1;
@@ -925,30 +950,6 @@ export default function LessonDetailPage() {
     setSpeakResult(null);
     setRecError('');
   }
-
-  /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
-  useEffect(() => {
-    if (tab !== 'listen' || listenQs.length === 0 || listenDone) return;
-    const q = listenQs[listenIdx];
-    if (!q) return;
-    const t = setTimeout(() => speakWord(q.sentence, 0.85), 300);
-    return () => clearTimeout(t);
-  }, [tab, listenIdx, listenQs, listenDone, speakWord]);
-
-  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới (U6: nếu có audioText thì đọc audioText tiếng Anh) */
-  useEffect(() => {
-    if (!quizMode || finished) return;
-    const q = quiz[qIndex];
-    if (!q) return;
-    const t = setTimeout(() => {
-      if (q.audioText) speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' });
-      else speakWord(q.question, defaultTtsRate);
-    }, 250);
-    return () => {
-      clearTimeout(t);
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
-    };
-  }, [quizMode, qIndex, finished, quiz, speakWord, defaultTtsRate]);
 
   /* ── Quiz answer handler (U3 + H4) ── */
   async function handleAnswer(idx) {

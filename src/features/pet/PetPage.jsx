@@ -462,7 +462,7 @@ export default function PetPage() {
           <div className="pet-action-label">Bộ sưu tập</div>
           <div className="pet-action-hint">{Object.keys(petData.collection).length}/{Object.keys(PET_REGISTRY).length} pet</div>
         </Link>
-        <Link to={`/shop?from=pet&pet=${activePetId}`} className="pet-action-card">
+        <Link to={`/shop?from=pet&pet=${petData.activePetId || ''}`} className="pet-action-card">
           <div className="pet-action-icon"><Icon name="bag" size={36} /></div>
           <div className="pet-action-label">Cửa hàng</div>
           <div className="pet-action-hint">🥛 {(userData.wallet?.milk || userData.availableXP || 0).toLocaleString('vi-VN')}</div>

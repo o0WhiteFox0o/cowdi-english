@@ -369,20 +369,6 @@ function CategoryDetailView({ category, categoryId, userData }) {
   const navigate = useNavigate();
   const listTopRef = useRef(null);
 
-  // Fallback if invalid category
-  if (!category) {
-    return (
-      <div className="fade-in lib-page text-center py-5">
-        <div className="emoji-big mb-3" style={{ fontSize: '3rem' }}>❓</div>
-        <h3 className="fw-bold text-ink">Không tìm thấy danh mục bài học</h3>
-        <p className="text-muted mb-4">Danh mục "{categoryId}" không tồn tại hoặc đã được di chuyển.</p>
-        <button type="button" className="btn btn-cowdi-primary px-4" onClick={() => navigate('/lessons')}>
-          ← Quay lại Thư viện bài học
-        </button>
-      </div>
-    );
-  }
-
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState('all');
@@ -394,6 +380,7 @@ function CategoryDetailView({ category, categoryId, userData }) {
 
   // All lessons belonging to this category
   const categoryLessons = useMemo(() => {
+    if (!category) return [];
     return ALL_LESSONS.filter(category.filter);
   }, [category]);
 
@@ -443,12 +430,13 @@ function CategoryDetailView({ category, categoryId, userData }) {
   // Dynamically collect levels/bands that actually exist in this category
   const availableLevels = useMemo(() => {
     const levelsMap = new Map();
+    const catId = category?.id;
     categoryLessons.forEach((l) => {
-      if (category.id === 'ielts' && l.ieltsBand) {
+      if (catId === 'ielts' && l.ieltsBand) {
         levelsMap.set(l.ieltsBand, `Band ${l.ieltsBand}`);
-      } else if (category.id === 'toeic' && l.toeicBand) {
+      } else if (catId === 'toeic' && l.toeicBand) {
         levelsMap.set(l.toeicBand, `TOEIC ${l.toeicBand}`);
-      } else if (category.id === 'vstep' && l.standards?.vstep) {
+      } else if (catId === 'vstep' && l.standards?.vstep) {
         levelsMap.set(l.standards.vstep, `VSTEP ${l.standards.vstep}`);
       } else if (l.level) {
         const meta = LEVEL_CONFIG[l.level];
@@ -456,7 +444,7 @@ function CategoryDetailView({ category, categoryId, userData }) {
       }
     });
     return Array.from(levelsMap.entries()).map(([value, label]) => ({ value, label }));
-  }, [categoryLessons, category.id]);
+  }, [categoryLessons, category?.id]);
 
   // Status counts in this category
   const statusCounts = useMemo(() => {
@@ -503,10 +491,11 @@ function CategoryDetailView({ category, categoryId, userData }) {
 
       // 4. Level Filter
       if (selectedLevel !== 'all') {
-        if (category.id === 'ielts' && l.ieltsBand !== selectedLevel) return false;
-        else if (category.id === 'toeic' && l.toeicBand !== selectedLevel) return false;
-        else if (category.id === 'vstep' && l.standards?.vstep !== selectedLevel) return false;
-        else if (category.id !== 'ielts' && category.id !== 'toeic' && category.id !== 'vstep' && l.level !== selectedLevel) return false;
+        const catId = category?.id;
+        if (catId === 'ielts' && l.ieltsBand !== selectedLevel) return false;
+        else if (catId === 'toeic' && l.toeicBand !== selectedLevel) return false;
+        else if (catId === 'vstep' && l.standards?.vstep !== selectedLevel) return false;
+        else if (catId !== 'ielts' && catId !== 'toeic' && catId !== 'vstep' && l.level !== selectedLevel) return false;
       }
 
       return true;
@@ -552,6 +541,20 @@ function CategoryDetailView({ category, categoryId, userData }) {
     setSortBy('default');
     setPage(1);
   };
+
+  // Fallback if invalid category (đặt sau toàn bộ Hook để không bao giờ gây React #310)
+  if (!category) {
+    return (
+      <div className="fade-in lib-page text-center py-5">
+        <div className="emoji-big mb-3" style={{ fontSize: '3rem' }}>❓</div>
+        <h3 className="fw-bold text-ink">Không tìm thấy danh mục bài học</h3>
+        <p className="text-muted mb-4">Danh mục "{categoryId}" không tồn tại hoặc đã được di chuyển.</p>
+        <button type="button" className="btn btn-cowdi-primary px-4" onClick={() => navigate('/lessons')}>
+          ← Quay lại Thư viện bài học
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="fade-in lib-page">
