@@ -14,6 +14,7 @@ import {
 } from '../utils/streak-manager.js';
 import {
   getUserCosmetics,
+  getCosmeticsCatalog,
   buyCosmetic,
   equipCosmetic,
 } from '../utils/cosmetics-manager.js';
@@ -23,11 +24,6 @@ import {
   COSMETIC_RARITIES,
 } from '../../shared/cosmetics-data.js';
 import { getWallet } from '../utils/wallet.js';
-import {
-  getCosmeticsCatalog,
-  buyCosmetic,
-  equipCosmetic,
-} from '../utils/cosmetics-manager.js';
 
 const router = express.Router();
 
@@ -149,11 +145,13 @@ router.get('/cosmetics', requireAuth, async (req, res) => {
 // ── POST /api/shop/buy-cosmetic – Mua Nền hoặc Hào quang qua ledger ─────────
 router.post('/buy-cosmetic', requireAuth, async (req, res) => {
   try {
-    const { cosmeticId, petId, applyComboDiscount } = req.body || {};
+    const { cosmeticId, petId, equipToPetId, combo, applyComboDiscount } = req.body || {};
     if (!cosmeticId) {
       return res.status(400).json({ error: 'Thiếu mã vật phẩm cosmeticId.' });
     }
-    const result = await buyCosmetic(req.user.id, cosmeticId, { petId, applyComboDiscount });
+    const targetPet = equipToPetId || petId;
+    const isCombo = combo ?? applyComboDiscount;
+    const result = await buyCosmetic(req.user.id, cosmeticId, { petId: targetPet, applyComboDiscount: isCombo });
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
@@ -167,11 +165,12 @@ router.post('/buy-cosmetic', requireAuth, async (req, res) => {
 // ── POST /api/shop/equip-cosmetic – Trang bị / Tháo đồ trang trí ────────────
 router.post('/equip-cosmetic', requireAuth, async (req, res) => {
   try {
-    const { petId, slot, cosmeticId } = req.body || {};
-    if (!petId || !slot) {
+    const { petId, petInstanceId, slot, cosmeticId } = req.body || {};
+    const targetPet = petInstanceId || petId;
+    if (!targetPet || !slot) {
       return res.status(400).json({ error: 'Thiếu petId hoặc slot trang bị.' });
     }
-    const result = await equipCosmetic(req.user.id, petId, slot, cosmeticId || null);
+    const result = await equipCosmetic(req.user.id, targetPet, slot, cosmeticId || null);
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
