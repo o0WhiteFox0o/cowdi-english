@@ -60,13 +60,14 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
   };
 
   const effectiveWallet = useMemo(() => {
+    const src = serverWallet || baseWallet;
     return {
-      milk: Math.max(Number(serverWallet?.milk) || 0, Number(baseWallet.milk) || 0),
-      gem: Math.max(Number(serverWallet?.gem) || 0, Number(baseWallet.gem) || 0),
-      stone: Math.max(Number(serverWallet?.stone) || 0, Number(baseWallet.stone) || 0),
-      stone_shard: Math.max(Number(serverWallet?.stone_shard) || 0, Number(baseWallet.stone_shard) || 0),
+      milk: Number(src.milk) || 0,
+      gem: Number(src.gem) || 0,
+      stone: Number(src.stone) || 0,
+      stone_shard: Number(src.stone_shard) || 0,
     };
-  }, [serverWallet, baseWallet.milk, baseWallet.gem, baseWallet.stone, baseWallet.stone_shard]);
+  }, [serverWallet, baseWallet]);
 
   // Lắng nghe sự kiện ví thay đổi từ HUD hoặc bài học
   useEffect(() => {
@@ -218,6 +219,10 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
 
       const data = await res.json();
       if (!res.ok || !data.ok) {
+        if (data.wallet) {
+          setServerWallet(data.wallet);
+          syncWallet(data.wallet);
+        }
         showToast(data.error || 'Lỗi khi mua vật phẩm.', 'error');
         return;
       }

@@ -50,7 +50,8 @@ router.post('/buy-freeze', requireAuth, async (req, res) => {
     const tz = getTz(req);
     const result = await buyFreeze(req.user.id, tz);
     if (!result.ok) {
-      return res.status(400).json({ error: result.error });
+      const wallet = await getWallet(req.user.id);
+      return res.status(400).json({ error: result.error, wallet });
     }
     res.json(result);
   } catch (err) {
@@ -65,7 +66,8 @@ router.post('/buy-return-ticket', requireAuth, async (req, res) => {
     const tz = getTz(req);
     const result = await buyReturnTicket(req.user.id, tz);
     if (!result.ok) {
-      return res.status(400).json({ error: result.error });
+      const wallet = await getWallet(req.user.id);
+      return res.status(400).json({ error: result.error, wallet });
     }
     res.json(result);
   } catch (err) {
@@ -81,7 +83,8 @@ router.post('/sign-contract', requireAuth, async (req, res) => {
     const tz = getTz(req);
     const result = await signContract(req.user.id, tier, tz);
     if (!result.ok) {
-      return res.status(400).json({ error: result.error });
+      const wallet = await getWallet(req.user.id);
+      return res.status(400).json({ error: result.error, wallet });
     }
     res.json(result);
   } catch (err) {
@@ -97,7 +100,8 @@ router.post('/buy-clock', requireAuth, async (req, res) => {
     const tz = getTz(req);
     const result = await buyClock(req.user.id, { hour: Number(hour) || 20, minute: Number(minute) || 0 }, tz);
     if (!result.ok) {
-      return res.status(400).json({ error: result.error });
+      const wallet = await getWallet(req.user.id);
+      return res.status(400).json({ error: result.error, wallet });
     }
     res.json(result);
   } catch (err) {
@@ -153,7 +157,8 @@ router.post('/buy-cosmetic', requireAuth, async (req, res) => {
     const isCombo = combo ?? applyComboDiscount;
     const result = await buyCosmetic(req.user.id, cosmeticId, { petId: targetPet, applyComboDiscount: isCombo });
     if (!result.ok) {
-      return res.status(400).json({ error: result.error });
+      const wallet = await getWallet(req.user.id);
+      return res.status(400).json({ error: result.error, wallet });
     }
     res.json(result);
   } catch (err) {

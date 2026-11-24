@@ -46,6 +46,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       const res = await authFetch('/api/shop/buy-freeze', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) {
+        if (data.wallet) syncWallet(data.wallet);
         showToast(data.error || 'Không thể mua Khăn giữ lửa', 'error');
       } else {
         if (data.wallet) syncWallet(data.wallet);
@@ -69,6 +70,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       const res = await authFetch('/api/shop/buy-return-ticket', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) {
+        if (data.wallet) syncWallet(data.wallet);
         showToast(data.error || 'Không thể dùng Vé quay lại', 'error');
       } else {
         if (data.wallet) syncWallet(data.wallet);
@@ -95,6 +97,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.wallet) syncWallet(data.wallet);
         showToast(data.error || 'Không thể ký khế ước', 'error');
       } else {
         if (data.wallet) syncWallet(data.wallet);
@@ -122,6 +125,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.wallet) syncWallet(data.wallet);
         showToast(data.error || 'Không thể mua Đồng hồ Cowdi', 'error');
       } else {
         if (data.wallet) syncWallet(data.wallet);

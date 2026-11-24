@@ -19,7 +19,7 @@ const SHOP_TABS = [
 
 export default function ShopPage() {
   useSEO(SEO_CONFIGS['/shop']);
-  const { userData, setUserData } = useUser();
+  const { userData, setUserData, syncWallet } = useUser();
   const { authFetch, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,13 +87,15 @@ export default function ShopPage() {
         const data = await res.json();
         if (data.streakState) {
           setStreakState(data.streakState);
-          setUserData((prev) => ({
-            ...prev,
-            wallet: data.wallet || prev.wallet,
-            availableXP: data.wallet ? data.wallet.milk : prev.availableXP,
-            streak: data.streakState.currentStreak,
-            streakState: data.streakState,
-          }));
+          if (data.wallet) {
+            syncWallet(data.wallet);
+          } else {
+            setUserData((prev) => ({
+              ...prev,
+              streak: data.streakState.currentStreak,
+              streakState: data.streakState,
+            }));
+          }
         }
       }
     } catch (err) {
