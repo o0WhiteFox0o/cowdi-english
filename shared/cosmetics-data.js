@@ -592,3 +592,81 @@ export function checkCosmeticUnlocked(item, userStats = {}) {
   }
 }
 
+/**
+ * Lấy chi tiết tiến độ mốc học tập của người dùng.
+ * @param {object} item Vật phẩm từ ALL_COSMETIC_ITEMS
+ * @param {object} userStats { streak, skills, lessonsCompleted, unitsCompleted }
+ */
+export function getMilestoneProgress(item, userStats = {}) {
+  if (!item || !item.unlockCondition) {
+    return { current: 1, target: 1, percent: 100, label: 'Mốc học', unit: '', isUnlocked: true };
+  }
+  const { type, value } = item.unlockCondition;
+  const streak = Number(userStats.streak || 0);
+  const skills = userStats.skills || userStats.skillXP || {};
+  const listening = Number(skills.listening || 0);
+  const speaking = Number(skills.speaking || 0);
+  const reading = Number(skills.reading || 0);
+  const writing = Number(skills.writing || 0);
+
+  let current = 0;
+  let label = '';
+  let unit = '';
+
+  switch (type) {
+    case 'streak':
+      current = streak;
+      label = 'Chuỗi học liên tục (Streak)';
+      unit = 'ngày';
+      break;
+    case 'skill_listening':
+      current = listening;
+      label = 'Điểm kỹ năng Nghe';
+      unit = 'điểm';
+      break;
+    case 'skill_speaking':
+      current = speaking;
+      label = 'Điểm kỹ năng Nói';
+      unit = 'điểm';
+      break;
+    case 'skill_reading':
+      current = reading;
+      label = 'Điểm kỹ năng Đọc';
+      unit = 'điểm';
+      break;
+    case 'skill_writing':
+      current = writing;
+      label = 'Điểm kỹ năng Viết';
+      unit = 'điểm';
+      break;
+    case 'all_skills':
+      current = Math.min(listening, speaking, reading, writing);
+      label = 'Cả 4 kỹ năng (mức thấp nhất hiện tại)';
+      unit = 'điểm';
+      break;
+    case 'level_or_unit':
+      current = Number(userStats.unitsCompleted || userStats.lessonsCompleted || 1);
+      label = 'Bài học trên lộ trình';
+      unit = 'bài';
+      break;
+    default:
+      current = 1;
+      label = 'Tiến độ học';
+      unit = '';
+  }
+
+  const percent = Math.min(100, Math.round((current / value) * 100));
+  const isUnlocked = current >= value;
+
+  return {
+    current,
+    target: value,
+    percent,
+    label,
+    unit,
+    isUnlocked,
+    note: item.note || '',
+    description: item.description || '',
+  };
+}
+

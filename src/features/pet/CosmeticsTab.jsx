@@ -16,6 +16,7 @@ import Emoji from '../../components/Emoji';
 import CosmeticBuySheet from './CosmeticBuySheet';
 import CosmeticFilterSheet from './CosmeticFilterSheet';
 import PetDressingModal from './PetDressingModal';
+import CosmeticMilestoneModal from './CosmeticMilestoneModal';
 
 const COSMETIC_CATEGORIES = [
   { id: 'room', label: `🖼️ Nền (${BACKGROUND_ITEMS.length})` },
@@ -39,6 +40,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   // Modal / Sheet states
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [dressingModalOpen, setDressingModalOpen] = useState(false);
+  const [milestoneModalItem, setMilestoneModalItem] = useState(null);
 
   // Dữ liệu từ server
   const [serverOwnedIds, setServerOwnedIds] = useState(null);
@@ -127,6 +129,38 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const handleOpenBuy = (item, e) => {
     e?.stopPropagation();
     setBuyingItem(item);
+  };
+
+  // Mở modal mốc học
+  const handleOpenMilestone = (item, e) => {
+    e?.stopPropagation();
+    setMilestoneModalItem(item);
+  };
+
+  // Trang bị đồ mốc học
+  const handleEquipMilestone = async (item) => {
+    if (!currentPet) return;
+    try {
+      const res = await authFetch('/api/shop/equip-cosmetic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          petId: currentPet.instanceId,
+          slot: item.category,
+          cosmeticId: item.id,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showToast(data.error || 'Chưa thể trang bị vật phẩm này.', 'error');
+        return;
+      }
+      equipItem(currentPet.instanceId, item.category, item.id);
+      play?.('pop');
+      showToast(`Đã trang bị ${item.name} cho thú cưng!`, 'success');
+    } catch {
+      showToast('Lỗi khi trang bị vật phẩm.', 'error');
+    }
   };
 
   // Xem thử món đồ (mở modal phòng thử đồ)
@@ -344,20 +378,44 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                     {item.name}
                   </div>
 
-                  {/* Nút hành động / Giá tiền (SỐ TO, DỄ ĐỌC) */}
+                  {/* Nút hành động / Giá tiền (SỐ TO, DỄ ĐỌC, ĐỒNG BỘ 100% CHIỀU CAO 36px) */}
                   <div className="mt-auto pt-1">
                     {isOwned ? (
-                      <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-2" style={{ fontSize: '13px', fontWeight: 700 }}>
+                      <span
+                        className="badge bg-success-subtle text-success border border-success-subtle rounded-pill w-100 py-1 shop-compact-btn d-flex align-items-center justify-content-center"
+                        style={{ fontSize: '13px', fontWeight: 700, minHeight: '36px' }}
+                      >
                         ✓ Đã có
                       </span>
                     ) : isMilestone ? (
-                      <span className={`badge rounded-pill w-100 py-2 ${isMilestoneUnlocked ? 'bg-primary-subtle text-primary border' : 'bg-light text-muted border'}`} style={{ fontSize: '12px', fontWeight: 600 }}>
-                        {isMilestoneUnlocked ? '🟢 Mở mốc' : '🔒 Đạt mốc'}
-                      </span>
+                      <button
+                        type="button"
+                        className={`btn w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shadow-xs shop-compact-btn ${
+                          isMilestoneUnlocked ? 'btn-success text-white' : 'btn-light border text-dark'
+                        }`}
+                        style={{ minHeight: '36px', fontSize: '0.88rem' }}
+                        onClick={(e) => handleOpenMilestone(item, e)}
+                        title="Bấm để xem chi tiết điều kiện mở khoá & tiến độ"
+                      >
+                        {isMilestoneUnlocked ? (
+                          <span>🟢 Mặc ngay</span>
+                        ) : (
+                          <span className="text-truncate">🔒 {item.note || 'Mốc học'}</span>
+                        )}
+                      </button>
                     ) : item.rarity === 'season' ? (
-                      <span className="badge bg-warning-subtle text-dark border rounded-pill w-100 py-2" style={{ fontSize: '12px' }}>
-                        Thẻ Mùa
-                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-warning-subtle text-dark border border-warning w-100 py-1 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-1 shop-compact-btn"
+                        style={{ minHeight: '36px', fontSize: '0.88rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          showToast('Vật phẩm thuộc Thẻ Mùa (Season Pass)!', 'info');
+                        }}
+                        title="Vật phẩm nhận qua Thẻ Mùa"
+                      >
+                        🎫 Thẻ Mùa
+                      </button>
                     ) : (
                       <button
                         type="button"
@@ -458,6 +516,16 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
         onConfirm={handleConfirmBuy}
         onClose={() => setBuyingItem(null)}
         loading={loadingBuy}
+      />
+
+      {/* 9. Modal Chi tiết Mốc học tập */}
+      <CosmeticMilestoneModal
+        open={Boolean(milestoneModalItem)}
+        item={milestoneModalItem}
+        userStats={userStats || {}}
+        currentPet={currentPet}
+        onClose={() => setMilestoneModalItem(null)}
+        onEquip={handleEquipMilestone}
       />
     </div>
   );
