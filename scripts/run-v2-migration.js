@@ -28,7 +28,21 @@ async function runMigration() {
   await pool.query(createTableSql);
   console.log('✓ Bảng wallet_ledger đã sẵn sàng.');
 
-  // 2. Di trú legacy_spent Sữa
+  // 2. Đảm bảo cột available_xp tồn tại trên user_progress rồi di trú legacy_spent Sữa
+  const [availCol] = await pool.query(
+    `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_progress' AND COLUMN_NAME = 'available_xp'`
+  );
+  if (availCol.length === 0) {
+    await pool.query(
+      `ALTER TABLE user_progress ADD COLUMN available_xp INT UNSIGNED NOT NULL DEFAULT 0 AFTER total_xp`
+    );
+    await pool.query(
+      `UPDATE user_progress SET available_xp = total_xp WHERE available_xp = 0 AND total_xp > 0`
+    );
+    console.log('✓ Đã bổ sung cột available_xp vào user_progress.');
+  }
+
   const legacySpentSql = `
     INSERT IGNORE INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
     SELECT
@@ -96,7 +110,15 @@ async function runMigration() {
   }
 
   // 3. Cấp hồi tố Gem và Đá cho tất cả người dùng hiện có theo completed_lessons & unit (D2, D11)
-  const [users] = await pool.query('SELECT user_id, completed_lessons, checkpoint_scores FROM user_progress');
+  const [cpCol] = await pool.query(
+    `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_progress' AND COLUMN_NAME = 'checkpoint_scores'`
+  );
+  const selectSql =
+    cpCol.length > 0
+      ? 'SELECT user_id, completed_lessons, checkpoint_scores FROM user_progress'
+      : 'SELECT user_id, completed_lessons, NULL AS checkpoint_scores FROM user_progress';
+  const [users] = await pool.query(selectSql);
   console.log(`Đang quét ${users.length} người dùng để cấp Gem & Đá hồi tố...`);
 
   let countMigrated = 0;
