@@ -1,3 +1,3 @@
-# SCMP — Cowdi English
+# SCMP — Cowdi English (v0.1 — Superseded)
 
-> Bản nháp. Nhánh Git, quy tắc đặt tag/phiên bản, kiểm soát thay đổi (IEEE 828).
+> **Trạng thái:** Superseded (2026-11-24). Vui lòng xem bản chính thức đã phê duyệt tại **[SCMP-COWDI-v1.0.md](SCMP-COWDI-v1.0.md)**.
