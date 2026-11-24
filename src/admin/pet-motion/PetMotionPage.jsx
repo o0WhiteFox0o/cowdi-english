@@ -12,10 +12,14 @@ import {
   getDefaultClipEmoji,
 } from '../../../shared/pet-motion-labels.js';
 import {
+  MAX_PET_IMAGE_BYTES,
   PET_MOTION_API_BASE,
   buildDefaultRigFromFiles,
   createPetMotionApi,
+  getStageImageSpec,
   inferPartNameFromFile,
+  optimizePartImageFile,
+  readImageDimensions,
 } from './api';
 import { initEditor } from './editor';
 import PartPaintModal from './PartPaintModal';
@@ -45,12 +49,21 @@ function downloadJsonFile(filename, content) {
 function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
   const [items, setItems] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   const [err, setErr] = useState('');
 
-  const handleFiles = (e) => {
+  const spec = getStageImageSpec(stage);
+
+  const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []);
+    e.target.value = '';
     if (!files.length) return;
     setErr('');
+
+    const dimsList = await Promise.all(
+      files.map((f) => readImageDimensions(f).catch(() => ({ width: 0, height: 0 })))
+    );
+
     setItems((prev) => {
       const hasBodyAlready = prev.some((x) => x.part === 'body');
       const next = files.map((file, idx) => {
@@ -62,11 +75,12 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
           id: `${file.name}-${file.size}-${Math.random()}`,
           file,
           part: inferred || '',
+          width: dimsList[idx].width,
+          height: dimsList[idx].height,
         };
       });
       return [...prev, ...next];
     });
-    e.target.value = '';
   };
 
   const updatePart = (id, part) => {
@@ -77,6 +91,38 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
     setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
+  const hasOversizeBytes = items.some((it) => it.file.size > MAX_PET_IMAGE_BYTES);
+  const hasOversizeDims = items.some((it) => Math.max(it.width || 0, it.height || 0) > spec.maxEdge);
+  const bodyRef = items.find((it) => it.part === 'body') || items[0] || null;
+  const hasMismatchedCanvas = Boolean(
+    bodyRef?.width &&
+      items.some((it) => it.width && (it.width !== bodyRef.width || it.height !== bodyRef.height))
+  );
+
+  const handleOptimizeAll = async () => {
+    if (!items.length || optimizing) return;
+    setOptimizing(true);
+    setErr('');
+    try {
+      const next = [];
+      for (const it of items) {
+        const res = await optimizePartImageFile(it.file, spec.recommended, 0.92);
+        next.push({
+          ...it,
+          file: res.file,
+          width: res.width,
+          height: res.height,
+        });
+      }
+      setItems(next);
+      onToast(`Đã tối ưu ${next.length} ảnh về chuẩn ≤ ${spec.recommended}px (WebP nền trong suốt).`);
+    } catch (e) {
+      setErr(e.message || 'Không tối ưu được ảnh.');
+    } finally {
+      setOptimizing(false);
+    }
+  };
+
   const handleCreate = async () => {
     if (!items.length) {
       setErr('Vui lòng chọn ít nhất 1 ảnh PNG/WebP (nên có body.png).');
@@ -85,6 +131,13 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
     const invalid = items.find((it) => !/^[a-z][a-zA-Z0-9_]{0,30}$/.test(it.part));
     if (invalid) {
       setErr(`Tên bộ phận không hợp lệ cho file "${invalid.file.name}". Dùng: body, head, crown, armL, armR, front, fx, aura, eye0, eye1…`);
+      return;
+    }
+    const tooBig = items.find((it) => it.file.size > MAX_PET_IMAGE_BYTES);
+    if (tooBig) {
+      setErr(
+        `File "${tooBig.file.name}" (${(tooBig.file.size / 1024).toFixed(0)} KB) vượt quá giới hạn 2 MB. Hãy bấm "Thu gọn về chuẩn ≤ ${spec.recommended}px (WebP)" bên trên trước khi tải lên.`
+      );
       return;
     }
 
@@ -108,23 +161,64 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
   return (
     <div className="pm-card my-3">
       <h5 className="fw-bold mb-1">Tạo rig từ ảnh tách lớp · {pet.name} C{stage}</h5>
-      <p className="pm-sub mb-3">
+      <p className="pm-sub mb-2">
         Cấp này chưa có rig. Chọn nhiều file PNG/WebP tách lớp cùng lúc — hệ thống tự nhận bộ phận theo tên file
         (<code>body, head, crown, armL, armR, front, fx, aura, eye0, eye1</code>), tự tính kích thước, mặt đất,
         hộp mắt và điểm xoay mặc định.
       </p>
 
+      {/* Gợi ý kích thước ảnh chuẩn theo thiết kế PetRig (420×460 @ 2× DPR) */}
+      <div className="pm-spec-box mb-3">
+        <div className="fw-bold small mb-1">
+          📐 Gợi ý kích thước ảnh chuẩn cho {spec.name} (khung hiển thị 420×460 @ 2× Retina)
+        </div>
+        <div className="pm-spec-grid">
+          <span>
+            <strong>Kích thước khuyến nghị:</strong>{' '}
+            <code>{spec.recommended} × {spec.recommended} px</code>{' '}
+            <span className="text-muted">(tối thiểu {spec.minEdge}px · nên ≤ {spec.maxEdge}px)</span>
+          </span>
+          <span>
+            <strong>Định dạng &amp; nền:</strong> <code>WebP</code> (ưu tiên, nhẹ ~80%) hoặc <code>PNG</code> nền trong suốt
+          </span>
+          <span>
+            <strong>Dung lượng tối đa:</strong> <code>≤ 2 MB / file</code>{' '}
+            <span className="text-muted">(khuyến nghị 50–250 KB/lớp)</span>
+          </span>
+          <span>
+            <strong>Đồng bộ khung:</strong> mọi lớp cùng cấp (<code>body</code>, <code>head</code>, <code>armL</code>…) nên xuất <strong>cùng kích thước W×H</strong> để tự khớp toạ độ
+          </span>
+        </div>
+      </div>
+
       <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
         <label className="pm-btn primary" style={{ display: 'inline-flex', alignItems: 'center' }}>
           + Chọn nhiều ảnh PNG / WebP
-          <input type="file" multiple accept="image/png,image/webp" hidden onChange={handleFiles} disabled={busy} />
+          <input type="file" multiple accept="image/png,image/webp" hidden onChange={handleFiles} disabled={busy || optimizing} />
         </label>
+        {(hasOversizeBytes || hasOversizeDims) && (
+          <button
+            type="button"
+            className="pm-btn warn"
+            onClick={handleOptimizeAll}
+            disabled={busy || optimizing}
+            title={`Thu gọn toàn bộ danh sách về cạnh dài ≤ ${spec.recommended}px dạng WebP nền trong suốt`}
+          >
+            {optimizing ? 'Đang thu gọn…' : `✨ Thu gọn về chuẩn ≤ ${spec.recommended}px (WebP)`}
+          </button>
+        )}
         {items.length > 0 && (
-          <button type="button" className="pm-btn" onClick={() => setItems([])} disabled={busy}>
+          <button type="button" className="pm-btn" onClick={() => setItems([])} disabled={busy || optimizing}>
             Xoá danh sách
           </button>
         )}
       </div>
+
+      {hasMismatchedCanvas && (
+        <div className="alert alert-warning py-2 small mb-2">
+          ⚠️ Các lớp ảnh đang có kích thước khung <code>W×H</code> khác nhau — nên xuất cùng kích thước khung để các bộ phận tự khớp đúng vị trí.
+        </div>
+      )}
 
       {items.length > 0 && (
         <div className="table-responsive mb-3">
@@ -132,55 +226,72 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
             <thead>
               <tr>
                 <th>Tên file</th>
-                <th>Dung lượng</th>
+                <th>Kích thước · Dung lượng</th>
                 <th>Bộ phận nhận diện</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {items.map((it) => (
-                <tr key={it.id}>
-                  <td className="small fw-semibold">{it.file.name}</td>
-                  <td className="small text-muted">{(it.file.size / 1024).toFixed(1)} KB</td>
-                  <td>
-                    <div className="d-flex gap-1 align-items-center">
-                      <select
-                        className="form-select form-select-sm"
-                        style={{ maxWidth: 140 }}
-                        value={['body', 'head', 'crown', 'armL', 'armR', 'front', 'fx', 'aura', 'eye0', 'eye1'].includes(it.part) ? it.part : ''}
-                        onChange={(e) => { if (e.target.value) updatePart(it.id, e.target.value); }}
-                        disabled={busy}
-                      >
-                        <option value="">Chọn bộ phận…</option>
-                        <option value="body">body (Thân)</option>
-                        <option value="head">head (Đầu)</option>
-                        <option value="crown">crown (Chỏm)</option>
-                        <option value="armL">armL (Tay trái)</option>
-                        <option value="armR">armR (Tay phải)</option>
-                        <option value="front">front (Lớp trước)</option>
-                        <option value="fx">fx (Hiệu ứng)</option>
-                        <option value="aura">aura (Hào quang)</option>
-                        <option value="eye0">eye0 (Mắt 1)</option>
-                        <option value="eye1">eye1 (Mắt 2)</option>
-                      </select>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        style={{ maxWidth: 120 }}
-                        value={it.part}
-                        placeholder="hoặc tên khác"
-                        onChange={(e) => updatePart(it.id, e.target.value.trim())}
-                        disabled={busy}
-                      />
-                    </div>
-                  </td>
-                  <td className="text-end">
-                    <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItem(it.id)} disabled={busy}>
-                      Bỏ
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {items.map((it) => {
+                const overBytes = it.file.size > MAX_PET_IMAGE_BYTES;
+                const overDims = Math.max(it.width || 0, it.height || 0) > spec.maxEdge;
+                return (
+                  <tr key={it.id}>
+                    <td className="small fw-semibold">{it.file.name}</td>
+                    <td className="small">
+                      <div className="d-flex flex-wrap align-items-center gap-1">
+                        {it.width > 0 && (
+                          <span className={overDims ? 'text-warning-emphasis fw-bold' : 'text-muted'}>
+                            {it.width}×{it.height} px ·
+                          </span>
+                        )}
+                        <span className={overBytes ? 'text-danger fw-bold' : 'text-muted'}>
+                          {(it.file.size / 1024).toFixed(1)} KB
+                        </span>
+                        {overBytes && <span className="pm-badge warn" style={{ background: '#fee2e2', color: '#b91c1c' }}>Vượt 2 MB</span>}
+                        {!overBytes && overDims && <span className="pm-badge draft">Nên ≤ {spec.maxEdge}px</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="d-flex gap-1 align-items-center">
+                        <select
+                          className="form-select form-select-sm"
+                          style={{ minWidth: 165, maxWidth: 195 }}
+                          value={['body', 'head', 'crown', 'armL', 'armR', 'front', 'fx', 'aura', 'eye0', 'eye1'].includes(it.part) ? it.part : ''}
+                          onChange={(e) => { if (e.target.value) updatePart(it.id, e.target.value); }}
+                          disabled={busy || optimizing}
+                        >
+                          <option value="">Chọn bộ phận…</option>
+                          <option value="body">body (Thân)</option>
+                          <option value="head">head (Đầu)</option>
+                          <option value="crown">crown (Chỏm)</option>
+                          <option value="armL">armL (Tay trái)</option>
+                          <option value="armR">armR (Tay phải)</option>
+                          <option value="front">front (Lớp trước)</option>
+                          <option value="fx">fx (Hiệu ứng)</option>
+                          <option value="aura">aura (Hào quang)</option>
+                          <option value="eye0">eye0 (Mắt 1)</option>
+                          <option value="eye1">eye1 (Mắt 2)</option>
+                        </select>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          style={{ maxWidth: 115 }}
+                          value={it.part}
+                          placeholder="hoặc tên khác"
+                          onChange={(e) => updatePart(it.id, e.target.value.trim())}
+                          disabled={busy || optimizing}
+                        />
+                      </div>
+                    </td>
+                    <td className="text-end">
+                      <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItem(it.id)} disabled={busy || optimizing}>
+                        Bỏ
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -188,7 +299,7 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
 
       {err && <div className="alert alert-danger py-2 small mb-3">{err}</div>}
 
-      <button type="button" className="pm-btn primary" onClick={handleCreate} disabled={busy || items.length === 0}>
+      <button type="button" className="pm-btn primary" onClick={handleCreate} disabled={busy || optimizing || items.length === 0}>
         {busy ? 'Đang tải ảnh và dựng rig…' : `Tải lên ${items.length} ảnh & Tạo rig nháp`}
       </button>
     </div>
@@ -974,7 +1085,7 @@ export default function PetMotionPage() {
                             <label
                               className={`pm-avatar-upload-pill ${isBroken ? 'always' : ''}`}
                               onClick={(e) => e.stopPropagation()}
-                              title="Tải ảnh PNG/WebP bổ sung làm avatar mặc định"
+                              title="Avatar chuẩn: 512×512 px (tỷ lệ 1:1), WebP/PNG nền trong suốt, khuyến nghị ≤ 150 KB (tối đa 2 MB)"
                             >
                               {isBroken ? '+ Bổ sung ảnh' : 'Đổi ảnh'}
                               <input
@@ -1421,6 +1532,14 @@ export default function PetMotionPage() {
                           }}
                         />
                       </label>
+                      <div className="w-100 small text-muted" style={{ fontSize: '0.72rem' }}>
+                        📐 Khung rig hiện tại:{' '}
+                        <code>
+                          {detail?.rig?.draftRig?.size?.[0] || getStageImageSpec(selectedStageNum).recommended}×
+                          {detail?.rig?.draftRig?.size?.[1] || getStageImageSpec(selectedStageNum).recommended} px
+                        </code>{' '}
+                        · WebP/PNG nền trong suốt · ≤ 2 MB/file.
+                      </div>
                     </div>
                   )}
                   <div className="pm-nums" data-pm="nums" />
@@ -1584,7 +1703,7 @@ export default function PetMotionPage() {
 
                         {/* Kho Emoji tự thiết kế (PNG/WebP) */}
                         <div className="mt-2 pt-2 border-top">
-                          <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+                          <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
                             <span className="small fw-bold text-muted">Emoji tự thiết kế (PNG/WebP)</span>
                             <label className="pm-file-btn" style={{ minHeight: 26, fontSize: '0.74rem', background: '#2f9e4f', color: '#fff', borderColor: '#2f9e4f' }}>
                               {uploadingEmoji ? 'Đang tải…' : '+ Thêm ảnh'}
@@ -1600,6 +1719,9 @@ export default function PetMotionPage() {
                                 }}
                               />
                             </label>
+                          </div>
+                          <div className="small text-muted mb-2" style={{ fontSize: '0.72rem' }}>
+                            📐 Gợi ý: <code>128×128</code> – <code>256×256 px</code> (1:1), nền trong suốt, ≤ 2 MB.
                           </div>
                           {customEmojis.length > 0 ? (
                             <div className="pm-custom-emoji-grid">

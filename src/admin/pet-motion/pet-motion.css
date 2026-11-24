@@ -2015,3 +2015,20 @@
 .pm-log-sub {
   opacity: 0.85;
 }
+
+/* ── Gợi ý kích thước ảnh chuẩn theo thiết kế ── */
+.pm-spec-box {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f4faf6;
+  border: 1px solid #cce6d4;
+  color: var(--pm-ink);
+}
+
+.pm-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 4px 14px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
