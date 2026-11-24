@@ -273,3 +273,47 @@ export function buildCheckpointQuestions(unit, count, allLessons = [], groupId =
 
   return shuffleArray(picked).slice(0, Math.min(count, picked.length));
 }
+
+/** Đếm số từ trong câu trả lời điền từ (sentence-completion — U8). */
+export function countAnswerWords(text) {
+  return (String(text || '').trim().match(/[A-Za-z0-9'’-]+/g) || []).length;
+}
+
+/** Chuẩn hoá chuỗi so khớp đáp án điền từ (không phân biệt hoa/thường, bỏ thừa dấu/khoảng trắng). */
+function normalizeCompletion(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[.,!?;:"()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Chấm 1 câu hỏi trong `reading.examQuestions` (hỗ trợ đủ 6 dạng EXAM_Q_TYPES — U8).
+ * Trả về { answered, isCorrect, overWordLimit }.
+ */
+export function gradeExamAnswer(q, rawAnswer) {
+  if (rawAnswer === undefined || rawAnswer === null || rawAnswer === '') {
+    return { answered: false, isCorrect: false, overWordLimit: false };
+  }
+  if (q.type === 'sentence-completion') {
+    const str = String(rawAnswer).trim();
+    if (!str) return { answered: false, isCorrect: false, overWordLimit: false };
+    const wc = countAnswerWords(str);
+    const overWordLimit = Number.isInteger(q.maxWords) && wc > q.maxWords;
+    const accepted = Array.isArray(q.answer) ? q.answer : [q.answer];
+    const normUser = normalizeCompletion(str);
+    const isCorrect = !overWordLimit && accepted.some((a) => normalizeCompletion(a) === normUser);
+    return { answered: true, isCorrect, overWordLimit };
+  }
+  if (q.type === 'mcq' || q.type === 'heading') {
+    return { answered: true, isCorrect: Number(rawAnswer) === Number(q.answer), overWordLimit: false };
+  }
+  // tfng, ynng, matching-info
+  return {
+    answered: true,
+    isCorrect: String(rawAnswer).trim().toUpperCase() === String(q.answer).trim().toUpperCase(),
+    overWordLimit: false,
+  };
+}
+

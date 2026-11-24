@@ -4,6 +4,7 @@ import { ALL_LESSONS, getGroup, getGroupOfPath } from '../../data/lessons';
 import { getLessonAccess, getNextPathLesson } from '../../data/path';
 import { generateQuizFromLesson } from '../../utils/quiz-gen';
 import PictureLesson from './PictureLesson';
+import ExamReading from './ExamReading';
 import Icon from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 
@@ -1635,16 +1636,27 @@ export default function LessonDetailPage() {
         </div>
       )}
 
-      {/* ── READING PASSAGE TAB ── */}
+      {/* ── READING PASSAGE TAB (U8: dùng ExamReading nếu có examQuestions[]) ── */}
       {tab === 'reading' && (
-        <ReadingPassage
-          lesson={lesson}
-          onSpeak={speakWord}
-          onSpeakSlow={speakSlow}
-          addXP={addXP}
-          showToast={showToast}
-          play={play}
-        />
+        Array.isArray(lesson.reading?.examQuestions) && lesson.reading.examQuestions.length > 0 ? (
+          <ExamReading
+            lesson={lesson}
+            onSpeak={speakWord}
+            onSpeakSlow={speakSlow}
+            addXP={addXP}
+            showToast={showToast}
+            play={play}
+          />
+        ) : (
+          <ReadingPassage
+            lesson={lesson}
+            onSpeak={speakWord}
+            onSpeakSlow={speakSlow}
+            addXP={addXP}
+            showToast={showToast}
+            play={play}
+          />
+        )
       )}
 
       {/* ── SPEAK ALONG TAB ── */}

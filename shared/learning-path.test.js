@@ -18,7 +18,7 @@ import {
 import { ALL_LESSONS } from '../src/data/lessons/index.js';
 import { validateLesson } from '../src/data/lessons/schema.js';
 import { GOLDEN_LESSONS } from '../src/data/lessons/_golden/index.js';
-import { buildCheckpointQuestions, generateQuizFromLesson } from '../src/utils/quiz-gen.js';
+import { buildCheckpointQuestions, generateQuizFromLesson, gradeExamAnswer, countAnswerWords } from '../src/utils/quiz-gen.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const emptyUser = { completedLessons: [], checkpointScores: {}, learnerGroup: null, activePath: null };
@@ -173,4 +173,22 @@ test('GĐ C (U2): generateQuizFromLesson cho bài contentVersion 2 dùng toàn b
   const authoredCount = qs.filter((q) => q._type === 'original').length;
   assert.equal(authoredCount, greetingsV2.quiz.length);
   assert.ok(qs.length >= 10);
+});
+
+test('U8 (ExamReading): gradeExamAnswer chấm đúng TFNG, heading và sentence-completion (kể cả giới hạn maxWords)', () => {
+  const ieltsGolden = GOLDEN_LESSONS.find((l) => l.id === 'ielts-read-rooftop-farms');
+  const tfngQ = ieltsGolden.reading.examQuestions.find((q) => q.type === 'tfng');
+  const headingQ = ieltsGolden.reading.examQuestions.find((q) => q.type === 'heading');
+  const compQ = ieltsGolden.reading.examQuestions.find((q) => q.type === 'sentence-completion' && q.answer === 'social value');
+
+  assert.equal(gradeExamAnswer(tfngQ, tfngQ.answer).isCorrect, true);
+  assert.equal(gradeExamAnswer(tfngQ, 'NOT GIVEN').isCorrect, false);
+
+  assert.equal(gradeExamAnswer(headingQ, headingQ.answer).isCorrect, true);
+  assert.equal(gradeExamAnswer(headingQ, (headingQ.answer + 1) % headingQ.options.length).isCorrect, false);
+
+  assert.equal(countAnswerWords('social value'), 2);
+  assert.equal(gradeExamAnswer(compQ, '  Social Value. ').isCorrect, true);
+  assert.equal(gradeExamAnswer(compQ, 'the social value').overWordLimit, true);
+  assert.equal(gradeExamAnswer(compQ, 'the social value').isCorrect, false);
 });
