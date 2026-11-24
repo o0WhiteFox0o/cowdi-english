@@ -44,23 +44,30 @@ async function runMigration() {
   const [resSpent] = await pool.query(legacySpentSql);
   console.log('✓ Di trú legacy_spent Sữa:', resSpent.affectedRows, 'hàng bị ảnh hưởng.');
 
-  // 3. Di trú Coins → Sữa (1 coin = 3 Sữa, D12)
-  const coinsSql = `
-    INSERT IGNORE INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
-    SELECT
-      user_id,
-      'milk',
-      CAST(JSON_UNQUOTE(JSON_EXTRACT(pet_data, '$.coins')) AS SIGNED) * 3,
-      'coin_migration',
-      'v2_drop_coins'
-    FROM user_progress
-    WHERE pet_data IS NOT NULL
-      AND JSON_VALID(pet_data)
-      AND JSON_EXTRACT(pet_data, '$.coins') IS NOT NULL
-      AND CAST(JSON_UNQUOTE(JSON_EXTRACT(pet_data, '$.coins')) AS SIGNED) > 0;
-  `;
-  const [resCoins] = await pool.query(coinsSql);
-  console.log('✓ Di trú Coins → Sữa (x3):', resCoins.affectedRows, 'hàng bị ảnh hưởng.');
+  // 3. Di trú Coins → Sữa (1 coin = 3 Sữa, D12) — parse JSON bằng Node để tương thích cả MySQL 5.6+
+  const [petRows] = await pool.query(
+    'SELECT user_id, pet_data FROM user_progress WHERE pet_data IS NOT NULL'
+  );
+  let coinsMigrated = 0;
+  for (const row of petRows) {
+    let petData = null;
+    try {
+      petData = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;
+      if (typeof petData === 'string') petData = JSON.parse(petData);
+    } catch {
+      petData = null;
+    }
+    const coins = Math.floor(Number(petData?.coins) || 0);
+    if (coins > 0) {
+      const [resCoins] = await pool.query(
+        `INSERT IGNORE INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+         VALUES (?, 'milk', ?, 'coin_migration', 'v2_drop_coins')`,
+        [row.user_id, coins * 3]
+      );
+      coinsMigrated += resCoins.affectedRows || 0;
+    }
+  }
+  console.log('✓ Di trú Coins → Sữa (x3):', coinsMigrated, 'hàng bị ảnh hưởng.');
 
   // 2. Thêm các cột cho Duel v2 nếu bảng challenges chưa có
   const duelCols = [
