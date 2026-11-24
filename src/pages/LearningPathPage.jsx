@@ -553,15 +553,15 @@ export default function LearningPathPage() {
                     {isPerfect100 ? (
                       <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận 💎 3</span>
                     ) : allLessonsDone && cpRealPassed ? (
-                      <span className="badge bg-success-subtle text-success">✓ Đã nhận 💎 1</span>
+                      <span className="badge bg-light text-success">✓ Đã nhận 💎 1</span>
                     ) : (
-                      <small className="text-muted">💎 +1 khi xong bài và qua kiểm tra</small>
+                      <small className="path-unit-gem-hint">💎 +1 khi xong bài và qua kiểm tra</small>
                     )}
                   </div>
                   <b>{unit.title}</b>
                   <span>{unit.subtitle}</span>
                   {cpPlaced && (
-                    <div className="small text-primary mt-1">
+                    <div className="path-unit-placed-note">
                       Bạn đã vượt unit này qua kiểm tra đầu vào / tiến độ cũ. Làm bài kiểm tra unit để nhận 💎.
                     </div>
                   )}

@@ -188,8 +188,8 @@ export default function StudentRankingPage() {
                 { icon: '🏅', label: 'Thành tích', value: `${myStats.achievementCount}/${ACHIEVEMENTS.length}`, color: '#E91E63' },
                 { icon: '📅', label: 'Ngày học', value: myStats.activeDaysCount, color: '#00BCD4' },
               ].map((s, i) => (
-                <div className="col-3" key={i}>
-                  <div className="text-center p-2 rounded" style={{ background: s.color + '12' }}>
+                <div className="col-6 col-sm-3" key={i}>
+                  <div className="text-center p-2 rounded h-100" style={{ background: s.color + '12' }}>
                     <div><Emoji e={s.icon} size={18} /></div>
                     <div className="fw-bold small" style={{ color: s.color }}>{s.value}</div>
                     <div className="text-muted" style={{ fontSize: '0.6rem' }}>{s.label}</div>
@@ -243,7 +243,7 @@ export default function StudentRankingPage() {
                 { label: 'Ngày học',     weight: '× 8',   icon: '📅', note: 'đều đặn' },
                 { label: 'Thành tích',   weight: '× 120', icon: '🏅', note: 'cột mốc lớn' },
               ].map((row, idx) => (
-                <div className="col-6" key={idx}>
+                <div className="col-12 col-sm-6" key={idx}>
                   <div className="d-flex align-items-center gap-1 py-1 border-bottom" style={{ borderColor: '#eee' }}>
                     <span><Emoji e={row.icon} size={14} /></span>
                     <span className="flex-grow-1 text-muted">{row.label}</span>
@@ -285,13 +285,13 @@ export default function StudentRankingPage() {
                         ? <img src={avatar.image} alt="pet" width="36" height="36" style={{ objectFit: 'contain' }} />
                         : <span className="fs-4"><Emoji e={avatar.emoji} size={24} /></span>}
                     </div>
-                    <div className="flex-grow-1">
-                      <div className="fw-bold small">{entry.nickname}</div>
-                      <div style={{ fontSize: '0.7rem' }} className="text-muted">
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <div className="fw-bold small text-truncate">{entry.nickname}</div>
+                      <div style={{ fontSize: '0.7rem' }} className="text-muted text-truncate">
                         Lv.{level.level} · {entry.lessonsCompleted} bài · {entry.wordsLearned} từ · <Icon name="fire" size={12} /> {entry.bestStreak ?? entry.streak}
                       </div>
                     </div>
-                    <div className="text-end">
+                    <div className="text-end flex-shrink-0">
                       <div className="fw-bold" style={{ color: isTop3 ? '#E91E63' : '#333' }}>
                         <Emoji e={stat.icon} size={16} /> {stat.value.toLocaleString?.() ?? stat.value}
                       </div>

@@ -241,28 +241,28 @@ export default function PetPage() {
             <span className="badge bg-primary ms-auto">Lực chiến: {power}</span>
           </div>
           <div className="row g-2 text-center">
-            <div className="col-3">
+            <div className="col-6 col-sm-3">
               <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
                 <img src={BATTLE_STAT_ICONS.hp} alt="HP" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">HP</div>
                 <div className="fs-5 fw-bold text-success">{battleStats.hp}</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-6 col-sm-3">
               <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
                 <img src={BATTLE_STAT_ICONS.atk} alt="ATK" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">ATK</div>
                 <div className="fs-5 fw-bold text-danger">{battleStats.atk}</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-6 col-sm-3">
               <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
                 <img src={BATTLE_STAT_ICONS.def} alt="DEF" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">DEF</div>
                 <div className="fs-5 fw-bold text-primary">{battleStats.def.toFixed(1)}</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-6 col-sm-3">
               <div className="p-2 border rounded bg-light d-flex flex-column align-items-center">
                 <img src={BATTLE_STAT_ICONS.agi} alt="AGI" style={{ width: 24, height: 24, objectFit: 'contain' }} className="mb-1" />
                 <div className="small text-muted fw-bold">AGI</div>

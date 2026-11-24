@@ -29,9 +29,9 @@ const TAB_GROUPS = [
     { to: '/mini-games',    icon: 'gamepad', label: 'Đấu trường game', color: '#F48FB1' },
   ]},
   { label: 'Hệ thống Pet', items: [
-    // { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
+    { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
     { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
-    // { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
+    { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
   { label: 'Sổ tay tổng quát', items: [
     { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
@@ -186,7 +186,7 @@ export default function BookShell({ children }) {
         </Link>
         <div className="book-mobile-stats">
           <span className="book-pill" title="Chuỗi ngày học"><Icon name="fire" size={20} />{userData.streak}</span>
-          <span className="book-pill" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
+          <span className="book-pill book-mobile-lvl" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
           <Link to="/shop?help=earn" className={`book-pill position-relative ${milkDelta ? 'pulse-pop' : ''}`} title={`Sữa: ${wallet.milk} · Bấm để xem cách kiếm`}>
             <span>🥛</span>{formatCompact(wallet.milk)}
             {milkDelta && <span className="resource-float-delta text-primary">+{milkDelta}</span>}
@@ -195,23 +195,24 @@ export default function BookShell({ children }) {
             <span>💎</span>{formatCompact(wallet.gem)}
             {gemDelta && <span className="resource-float-delta text-info">+{gemDelta}</span>}
           </Link>
-          <Link to="/pet" className="book-pill" title={`${petName} · ${petPct}%`}>
+          <Link to="/pet" className="book-pill book-mobile-pet-pill" title={`${petName} · ${petPct}%`}>
             <img src={petImg} alt="" className="book-pill-pet" />
             <span className="book-bar"><i style={{ width: `${petPct}%` }} /></span>
           </Link>
           <button type="button" className="book-sound" onClick={toggleMute}
+            aria-label={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}
             title={muted ? 'Bật âm thanh' : 'Tắt âm thanh'}>
             <Icon name={muted ? 'mute' : 'sound'} size={18} />
           </button>
           {user ? (
-            <NavLink to="/account">
+            <NavLink to="/account" aria-label={`Tài khoản ${displayName}`}>
               {avatarUrl
                 ? <img src={avatarUrl} className="book-mobile-avatar" alt={displayName} referrerPolicy="no-referrer" />
                 : <Icon name="user" size={26} />}
             </NavLink>
           ) : (
-            <button type="button" className="book-login-btn btn-sm" onClick={loginWithGoogle} style={{ padding: '3px 10px', fontSize: '.85rem' }}>
-              <i className="fab fa-google" />
+            <button type="button" className="book-login-btn btn-sm" onClick={loginWithGoogle} aria-label="Đăng nhập với Google" style={{ padding: '3px 10px', fontSize: '.85rem' }}>
+              <i className="fab fa-google" aria-hidden="true" />
             </button>
           )}
         </div>

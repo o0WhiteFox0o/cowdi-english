@@ -5,6 +5,7 @@ import App from './App';
 import { AuthProvider } from './hooks/useAuth';
 import { UserProvider } from './hooks/useUser';
 import { PetProvider } from './hooks/usePet';
+import './styles/cowdi-tokens.css';
 import './styles/styles.css';
 import './styles/components.css';
 import './styles/pages.css';

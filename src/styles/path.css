@@ -66,9 +66,26 @@
 }
 .path-unit-lock { margin-left: auto; display: flex; }
 .path-unit-txt { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
-.path-unit-txt small { font-size: .75rem; opacity: .85; letter-spacing: .06em; text-transform: uppercase; }
+.path-unit-txt small { font-size: .75rem; opacity: .9; letter-spacing: .04em; text-transform: uppercase; }
+.path-unit-txt .path-unit-gem-hint {
+  font-size: .78rem;
+  color: rgba(255, 255, 255, 0.94);
+  background: rgba(0, 0, 0, 0.16);
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.path-unit-txt .path-unit-placed-note {
+  font-size: .78rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-top: 4px;
+}
 .path-unit-txt b { font-family: var(--font-hand); font-size: 1.35rem; font-weight: 400; }
-.path-unit-txt span { font-size: .8rem; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.path-unit-txt span { font-size: .82rem; opacity: .92; }
 
 
 .path-nodes {
@@ -183,12 +200,15 @@
   background: #fff;
   color: var(--u, var(--leaf));
   font-family: var(--font-hand);
-  font-size: 1rem;
-  letter-spacing: .08em;
+  font-size: .95rem;
+  letter-spacing: .04em;
   padding: 5px 12px;
   border-radius: 10px;
   border: 2px solid var(--u, var(--leaf));
   white-space: nowrap;
+  max-width: min(280px, 84vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
   animation: pathBob 1.2s ease-in-out infinite;
   z-index: 2;
 }
@@ -262,9 +282,13 @@
 .path-fab .btn { pointer-events: auto; box-shadow: 0 4px 0 rgba(0,0,0,0.18), 0 10px 20px rgba(40,60,90,0.25); }
 
 @media (max-width: 575.98px) {
-  .path-nodes { --wig: .6; }
-  .path-mascot { width: 72px; height: 72px; }
-  .path-mascot.left  { right: calc(100% + 8px); }
-  .path-mascot.right { left: calc(100% + 8px); }
-  .path-fab { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .path-head { align-items: stretch; }
+  .path-picker { width: 100%; }
+  .path-picker .form-select { min-width: 0; flex: 1; }
+  .path-nodes { --wig: .48; }
+  .path-mascot { width: 68px; height: 68px; }
+  .path-mascot.left  { right: calc(100% + 6px); }
+  .path-mascot.right { left: calc(100% + 6px); }
+  .path-node-tip { font-size: .84rem; padding: 4px 10px; }
+  .path-fab { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
 }

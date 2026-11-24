@@ -72,18 +72,18 @@ export default function ShopPage() {
   }, [user]);
 
   return (
-    <div className="fade-in shop-page-container pb-4" style={{ maxWidth: '640px', margin: '0 auto' }}>
+    <div className="fade-in shop-page-container pb-4" style={{ maxWidth: '780px', margin: '0 auto' }}>
       {/* 1. Một dòng tiêu đề: Cửa hàng + số dư 🥛 · 💎 · 💠 + nút (?) mở "Cách kiếm" */}
       <div className="d-flex align-items-center justify-content-between py-2 mb-3 border-bottom flex-wrap gap-2">
-        <h2 className="fw-bold mb-0 fs-4 d-flex align-items-center gap-2">
-          <Icon name="bag" size={24} /> Cửa hàng
+        <h2 className="fw-bold mb-0 d-flex align-items-center gap-2">
+          <Icon name="bag" size={26} /> Cửa hàng
         </h2>
 
         {/* Số dư 3 tài nguyên + nút (?) */}
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-2 flex-wrap">
           <div
-            className="d-flex align-items-center gap-2 px-2 py-1 rounded bg-light border"
-            style={{ fontSize: '13px', whiteSpace: 'nowrap' }}
+            className="d-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border"
+            style={{ fontSize: '0.88rem', whiteSpace: 'nowrap' }}
           >
             <span title="Sữa">🥛 <strong>{(wallet.milk || 0).toLocaleString('vi-VN')}</strong></span>
             <span className="text-muted">·</span>
@@ -95,7 +95,8 @@ export default function ShopPage() {
           <button
             type="button"
             className="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0"
-            style={{ width: '28px', height: '28px', fontSize: '14px' }}
+            style={{ width: '36px', height: '36px', fontSize: '0.9rem', flexShrink: 0 }}
+            aria-label="Xem cách kiếm tài nguyên"
             title="Xem cách kiếm tài nguyên"
             onClick={() => setHowToEarnOpen(true)}
           >
@@ -105,7 +106,7 @@ export default function ShopPage() {
       </div>
 
       {/* 2. Đúng 3 tab: 🔥 Giữ nhịp · ✨ Trang trí · 🎒 Kho đồ */}
-      <div className="d-flex gap-2 mb-3">
+      <div className="d-flex gap-2 mb-3 flex-wrap">
         {SHOP_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -113,7 +114,7 @@ export default function ShopPage() {
               key={tab.id}
               type="button"
               className={`btn flex-grow-1 py-2 rounded-pill fw-bold ${isActive ? 'btn-cowdi-primary' : 'btn-light border text-muted'}`}
-              style={{ fontSize: '14px', transition: 'all 0.15s ease' }}
+              style={{ fontSize: '0.92rem', minWidth: '108px', transition: 'all 0.15s ease' }}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}

@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    COWDI ENGLISH - Theme Variables & Overrides
    ============================================ */
 
@@ -85,8 +85,17 @@ body {
   background-color: var(--cowdi-bg);
   font-size: 1rem;
   line-height: var(--cowdi-line-height);
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+img, video {
+  max-inline-size: 100%;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
 }
 
 /* ============================================

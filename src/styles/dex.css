@@ -282,7 +282,9 @@
   flex-direction: column;
   gap: 10px;
   max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
 }
 
@@ -401,7 +403,7 @@
   display: flex;
   gap: 5px;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
 }
 
@@ -453,7 +455,7 @@
 /* Combat stats grid */
 .dex-combat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 5px;
   background: #f8f9fa;
   border: 1px solid #e9ecef;
@@ -687,6 +689,7 @@
     width: 100%;
     max-width: 560px;
     max-height: 88vh;
+    max-height: 88dvh;
     border-radius: 22px 22px 0 0;
     padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     animation: dexUp .25s ease-out;
@@ -718,5 +721,9 @@
 
   .dex-counter {
     min-width: 0;
+  }
+
+  .dex-combat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

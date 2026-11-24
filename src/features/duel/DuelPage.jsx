@@ -23,17 +23,18 @@ const LEAGUES = {
 
 // ── Element theming ──────────────────────────────────────────
 // Tên hệ lấy từ shared/game-config.js (qua ELEMENT_COLORS); ở đây chỉ giữ màu/emoji/tên chiêu.
+// Màu hệ đồng bộ 10 hệ nguyên tố chuẩn tại STD-ART-STYLE-v1.1 (art-spec.json / cowdi-tokens.css).
 const ELEMENT_FX = {
-  metal:   { color: '#78909C', emoji: '⚙️', skillName: 'Steel Strike' },
-  wood:    { color: '#2ECC71', emoji: '🌿', skillName: 'Leaf Storm' },
-  water:   { color: '#0096FF', emoji: '💧', skillName: 'Aqua Blast' },
-  fire:    { color: '#FF6B35', emoji: '🔥', skillName: 'Fireball' },
-  earth:   { color: '#8B5A2B', emoji: '🪨', skillName: 'Rock Smash' },
-  dark:    { color: '#5B3F8C', emoji: '🌑', skillName: 'Shadow Bite' },
-  light:   { color: '#F1C40F', emoji: '✨', skillName: 'Holy Ray' },
-  neutral: { color: '#95A5A6', emoji: '⚪', skillName: 'Tackle' },
-  wind:    { color: '#1ABC9C', emoji: '🌪️', skillName: 'Gale Slash' },
-  thunder: { color: '#F39C12', emoji: '⚡', skillName: 'Thunder Bolt' },
+  metal:   { color: '#E8C46A', emoji: '⚙️', skillName: 'Steel Strike' },
+  wood:    { color: '#7FB05A', emoji: '🌿', skillName: 'Leaf Storm' },
+  water:   { color: '#6FB3D9', emoji: '💧', skillName: 'Aqua Blast' },
+  fire:    { color: '#F08A5D', emoji: '🔥', skillName: 'Fireball' },
+  earth:   { color: '#B98D5E', emoji: '🪨', skillName: 'Rock Smash' },
+  dark:    { color: '#6B6BAA', emoji: '🌑', skillName: 'Shadow Bite' },
+  light:   { color: '#F5D97A', emoji: '✨', skillName: 'Holy Ray' },
+  neutral: { color: '#D9CFC4', emoji: '⚪', skillName: 'Tackle' },
+  wind:    { color: '#8FD1C4', emoji: '🌪️', skillName: 'Gale Slash' },
+  thunder: { color: '#9B8CE0', emoji: '⚡', skillName: 'Thunder Bolt' },
 };
 const ELEMENT_THEME = Object.fromEntries(
   Object.entries(ELEMENT_FX).map(([k, fx]) => [k, { ...fx, label: `${fx.emoji} ${ELEMENT_COLORS[k]?.name || k}` }]),
