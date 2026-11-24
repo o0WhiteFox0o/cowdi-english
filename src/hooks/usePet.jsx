@@ -45,8 +45,6 @@ function migratePetCollection(collection) {
 const DEFAULT_PET_DATA = {
   activePetId: null,
   nickname: '',
-  coins: 0,
-  totalCoinsEarned: 0,
   collection: {},
   ownedItems: [],
   dailyQuests: { date: null, completed: [] },
@@ -88,19 +86,15 @@ function mergePetData(local, remote) {
       ...newer,
       skills,
       totalXpEarned: Math.max(a.totalXpEarned || 0, b.totalXpEarned || 0),
-      evolution: Math.max(a.evolution || 0, b.evolution || 0),
+      // Server là nguồn sự thật cho cấp tiến hoá
+      evolution: (b.evolution !== undefined && b.evolution !== null) ? b.evolution : (a.evolution || 0),
     };
   }
-  const totalCoinsEarned = Math.max(l.totalCoinsEarned || 0, r.totalCoinsEarned || 0);
-  const spentOf = (d) => Math.max(0, (d.totalCoinsEarned || 0) - (d.coins || 0));
-  const coins = Math.max(0, totalCoinsEarned - Math.max(spentOf(l), spentOf(r)));
   const latestTouch = (d) => Object.values(d.collection || {}).reduce((m, p) => (p.needsUpdatedAt || '') > m ? p.needsUpdatedAt : m, '');
   const newerRoot = latestTouch(l) >= latestTouch(r) ? l : r;
   return {
     ...newerRoot,
     collection,
-    coins,
-    totalCoinsEarned,
     ownedItems: [...new Set([...(l.ownedItems || []), ...(r.ownedItems || [])])],
     petAchievements: [...new Set([...(l.petAchievements || []), ...(r.petAchievements || [])])],
     activePetId: collection[newerRoot.activePetId] ? newerRoot.activePetId : (Object.keys(collection)[0] || null),
@@ -133,7 +127,7 @@ const PetContext = createContext(null);
 
 export function PetProvider({ children }) {
   const { user, authFetch } = useAuth();
-  const { userData } = useUser();
+  const { userData, addXP } = useUser();
   const [petData, setPetData] = useState(() => ensureInitialPet(loadPetData(user?.id || null)));
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
@@ -261,11 +255,13 @@ export function PetProvider({ children }) {
 
   // ── Add skill points to active pet ───────────────────────────────────────
   const addSkillPoints = useCallback((quizCategory, correct, total) => {
+    if (correct <= 0) return;
     const skill = QUIZ_TO_SKILL[quizCategory];
-    const isPerfect = correct === total;
+    const isPerfect = total > 0 && correct === total;
+    // v2: +1 điểm kỹ năng mỗi câu đúng; nếu trọn điểm (100%) thưởng thêm +5 điểm
     const points = isPerfect ? correct + 5 : correct;
     if (skill === null || skill === undefined) {
-      // mixed → distribute evenly across 4 skills
+      // mixed → chia đều cho 4 kỹ năng
       const each = Math.max(1, Math.floor(points / 4));
       updateActivePet((pet) => ({
         ...pet,
@@ -275,7 +271,6 @@ export function PetProvider({ children }) {
           reading: (pet.skills.reading || 0) + each,
           writing: (pet.skills.writing || 0) + each,
         },
-        totalXpEarned: pet.totalXpEarned + correct * 10 + (isPerfect ? 20 : 0),
         needsUpdatedAt: new Date().toISOString(),
       }));
       return;
@@ -283,12 +278,11 @@ export function PetProvider({ children }) {
     updateActivePet((pet) => ({
       ...pet,
       skills: { ...pet.skills, [skill]: (pet.skills[skill] || 0) + points },
-      totalXpEarned: pet.totalXpEarned + correct * 10 + (isPerfect ? 20 : 0),
       needsUpdatedAt: new Date().toISOString(),
     }));
   }, [updateActivePet]);
 
-  // ── Add all skills (lesson complete) ─────────────────────────────────────
+  // ── Add all skills (legacy / manual) ──────────────────────────────────────
   const addAllSkillPoints = useCallback((amount) => {
     updateActivePet((pet) => ({
       ...pet,
@@ -298,7 +292,6 @@ export function PetProvider({ children }) {
         reading: (pet.skills.reading || 0) + amount,
         writing: (pet.skills.writing || 0) + amount,
       },
-      totalXpEarned: pet.totalXpEarned + amount * 10,
       needs: {
         ...pet.needs,
         energy: Math.min(100, (pet.needs?.energy ?? 80) + 30),
@@ -322,34 +315,63 @@ export function PetProvider({ children }) {
   // ── On quiz complete → feed happiness ────────────────────────────────────
   const onQuizComplete = useCallback((quizCategory, correct, total) => {
     addSkillPoints(quizCategory, correct, total);
-    const isPerfect = correct === total;
+    const isPerfect = total > 0 && correct === total;
     feedPet('happiness', isPerfect ? 40 : 20);
   }, [addSkillPoints, feedPet]);
 
-  // ── On lesson complete → feed energy + all skills ────────────────────────
+  // ── On lesson complete → feed energy (bỏ tự cộng +5 cả 4 kỹ năng) ─────────
   const onLessonComplete = useCallback(() => {
-    addAllSkillPoints(5);
-  }, [addAllSkillPoints]);
+    feedPet('energy', 30);
+  }, [feedPet]);
+
+  // ── Evolve pet via server API (transaction) ──────────────────────────────
+  const evolvePet = useCallback(async (instanceId) => {
+    if (!user) return { ok: false, error: 'Cần đăng nhập để tiến hoá pet.' };
+    try {
+      const res = await authFetch(`/api/pets/${instanceId}/evolve`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        return { ok: false, error: data.error || 'Tiến hoá thất bại.', checks: data.checks };
+      }
+      setPetData((prev) => {
+        const currentPet = prev.collection?.[instanceId];
+        if (!currentPet) return prev;
+        return {
+          ...prev,
+          collection: {
+            ...prev.collection,
+            [instanceId]: {
+              ...currentPet,
+              evolution: data.evolution,
+              needsUpdatedAt: new Date().toISOString(),
+            },
+          },
+        };
+      });
+      return { ok: true, pet: data.pet, evolution: data.evolution, wallet: data.wallet };
+    } catch (err) {
+      return { ok: false, error: err.message || 'Lỗi mạng khi tiến hoá.' };
+    }
+  }, [user, authFetch]);
 
   // ── On vocab review → feed knowledge ─────────────────────────────────────
   const onVocabReview = useCallback(() => {
     feedPet('knowledge', 25);
   }, [feedPet]);
 
-  // ── Coins ────────────────────────────────────────────────────────────────
+  // ── Sữa thay thế Coins (D12) ─────────────────────────────────────────────
   const addCoins = useCallback((amount) => {
-    setPetData((prev) => ({
-      ...prev,
-      coins: prev.coins + amount,
-      totalCoinsEarned: (prev.totalCoinsEarned || 0) + amount,
-    }));
-  }, []);
+    // Tự động quy đổi sang Sữa tỉ lệ ×3
+    if (typeof addXP === 'function') addXP(amount * 3);
+  }, [addXP]);
 
-  const spendCoins = useCallback((amount) => {
-    if (petData.coins < amount) return false;
-    setPetData((prev) => ({ ...prev, coins: prev.coins - amount }));
-    return true;
-  }, [petData.coins]);
+  const addMilk = useCallback((amount) => {
+    if (typeof addXP === 'function') addXP(amount);
+  }, [addXP]);
+
+  const spendCoins = useCallback(() => false, []);
 
   // ── Switch active pet ────────────────────────────────────────────────────
   const switchActivePet = useCallback((instanceId) => {
@@ -416,17 +438,8 @@ export function PetProvider({ children }) {
     setPetData((prev) => ({ ...prev, nickname: name.slice(0, 20) }));
   }, []);
 
-  // ── Buy item ─────────────────────────────────────────────────────────────
-  const buyItem = useCallback((itemId, price) => {
-    if (petData.coins < price) return false;
-    if (petData.ownedItems.includes(itemId)) return false;
-    setPetData((prev) => ({
-      ...prev,
-      coins: prev.coins - price,
-      ownedItems: [...prev.ownedItems, itemId],
-    }));
-    return true;
-  }, [petData.coins, petData.ownedItems]);
+  // ── Buy item (D12: tạm ngừng bán đồ cũ bằng coins) ───────────────────────
+  const buyItem = useCallback(() => false, []);
 
   // ── Equip/unequip item ───────────────────────────────────────────────────
   const equipItem = useCallback((instanceId, slot, itemId) => {
@@ -474,38 +487,37 @@ export function PetProvider({ children }) {
       const quest = DAILY_QUESTS.find((q) => q.id === questId);
       if (!quest || !quest.check(userData)) return prev;
       const completed = [...prev.dailyQuests.completed, questId];
-      const bonus = completed.length === DAILY_QUESTS.length ? 25 : 0; // all daily complete bonus
+      const bonus = completed.length === DAILY_QUESTS.length ? 75 : 0; // hoàn thành cả 3 nhiệm vụ ngày = 75 Sữa (D12)
+      const milkReward = (quest.reward || 30) + bonus;
+      if (typeof addXP === 'function') addXP(milkReward);
       return {
         ...prev,
-        coins: prev.coins + quest.reward + bonus,
-        totalCoinsEarned: (prev.totalCoinsEarned || 0) + quest.reward + bonus,
         dailyQuests: { ...prev.dailyQuests, completed },
       };
     });
-  }, [userData]);
+  }, [userData, addXP]);
 
   // ── Check pet achievements ───────────────────────────────────────────────
   const checkPetAchievements = useCallback(() => {
     setPetData((prev) => {
       const newAch = [...prev.petAchievements];
       let changed = false;
-      let coinsToAdd = 0;
+      let milkToAdd = 0;
       for (const ach of PET_ACHIEVEMENTS) {
         if (!newAch.includes(ach.id) && ach.check(userData, prev)) {
           newAch.push(ach.id);
-          coinsToAdd += 30;
+          milkToAdd += 90; // 90 Sữa per achievement (D12)
           changed = true;
         }
       }
       if (!changed) return prev;
+      if (milkToAdd > 0 && typeof addXP === 'function') addXP(milkToAdd);
       return {
         ...prev,
         petAchievements: newAch,
-        coins: prev.coins + coinsToAdd,
-        totalCoinsEarned: (prev.totalCoinsEarned || 0) + coinsToAdd,
       };
     });
-  }, [userData]);
+  }, [userData, addXP]);
 
   // Check achievements on data changes
   useEffect(() => {
@@ -523,6 +535,7 @@ export function PetProvider({ children }) {
     onLessonComplete,
     onVocabReview,
     addCoins,
+    addMilk,
     spendCoins,
     switchActivePet,
     unlockPet,
@@ -532,6 +545,7 @@ export function PetProvider({ children }) {
     equipItem,
     useFood,
     completeDailyQuest,
+    evolvePet,
   };
 
   return <PetContext.Provider value={value}>{children}</PetContext.Provider>;

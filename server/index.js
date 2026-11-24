@@ -5,6 +5,7 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import authRouter from './routes/auth.js';
 import apiRouter from './routes/api.js';
+import shopRouter from './routes/shop.js';
 import adminRouter from './routes/admin.js';
 import { createPetMotionAdminRouter } from './routes/petMotionAdmin.js';
 import { createPetMotionPublicRouter } from './routes/petMotionPublic.js';
@@ -53,6 +54,7 @@ const petMotionPublicRouter = createPetMotionPublicRouter({ motionCache: petMoti
 
 app.use('/auth', authRouter);
 app.use('/api/invites', invitesRouter);
+app.use('/api/shop', shopRouter);
 app.use('/api/admin/pet-motion', petMotionAdminRouter);
 app.use('/api/pet-motion', petMotionPublicRouter);
 app.use('/api/admin', adminRouter);

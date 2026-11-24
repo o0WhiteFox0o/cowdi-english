@@ -18,7 +18,8 @@ const VALID_WORDS = new Set([
 
 const DEFAULT_DATA = {
   totalXP: 0,        // Lifetime XP (KHÔNG bao giờ giảm) – dùng cho cấp độ user & leaderboard
-  availableXP: 0,    // Ví XP có thể tiêu để nuôi/tiến hóa Pet. Giảm khi spendXP().
+  availableXP: 0,    // Ví XP có thể tiêu để nuôi/tiến hóa Pet (Sữa trong Kinh tế v2)
+  wallet: { milk: 0, gem: 0, stone: 0, stone_shard: 0 }, // Ví Kinh tế v2
   streak: 0,
   lastActiveDate: null,
   lessonsCompleted: 0,
@@ -176,6 +177,15 @@ function sanitizeData(data) {
     sanitized.availableXP = sanitized.totalXP || 0;
   }
 
+  // ── Khởi tạo ví Kinh tế v2 ──────────────────────────────
+  const w = sanitized.wallet || {};
+  sanitized.wallet = {
+    milk: typeof w.milk === 'number' && w.milk > 0 ? w.milk : (sanitized.availableXP || 0),
+    gem: typeof w.gem === 'number' ? w.gem : 0,
+    stone: typeof w.stone === 'number' ? w.stone : 0,
+    stone_shard: typeof w.stone_shard === 'number' ? w.stone_shard : 0,
+  };
+
   // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
   if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
     const clean = {};
@@ -298,6 +308,10 @@ function mergeProgress(local, remote) {
   // nên lấy max(spent) của 2 bên là an toàn bất kể timestamp/cache cũ.
   const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
   merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
+  merged.wallet = remote.wallet || local.wallet || { milk: merged.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+  if (remote.wallet?.milk !== undefined) {
+    merged.availableXP = remote.wallet.milk;
+  }
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
   const mergedSrs = { ...(local.srsData || {}) };
@@ -415,8 +429,23 @@ export function UserProvider({ children }) {
       body: JSON.stringify(payload),
       keepalive,
     })
-      .then((r) => {
-        if (r.ok) { clearSyncDirty(user.id); pendingSyncRef.current = false; return; }
+      .then(async (r) => {
+        if (r.ok) {
+          clearSyncDirty(user.id);
+          pendingSyncRef.current = false;
+          try {
+            const res = await r.json();
+            if (res.wallet || res.streak != null || res.streakState) {
+              setUserData((prev) => ({
+                ...prev,
+                ...(res.wallet ? { wallet: res.wallet, availableXP: res.wallet.milk } : {}),
+                ...(res.streak != null ? { streak: res.streak } : {}),
+                ...(res.streakState ? { streakState: res.streakState } : {}),
+              }));
+            }
+          } catch {}
+          return;
+        }
         // 413 = payload quá lớn → gửi chỉ wordStatus (nhẹ, <50KB)
         if (r.status === 413) {
           return authFetch('/api/word-status', {
@@ -475,7 +504,13 @@ export function UserProvider({ children }) {
             final.dailyDate = today;
           }
         }
-        final.streak = calculateStreak(final.activeDays);
+        // Server streak ưu tiên nếu đăng nhập (GĐ3)
+        if (remote?.streak != null) {
+          final.streak = remote.streak;
+          if (remote.streakState) final.streakState = remote.streakState;
+        } else {
+          final.streak = calculateStreak(final.activeDays);
+        }
         setUserData(checkAchievements(final));
         readyRef.current = true;
       })
@@ -744,10 +779,25 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Refresh wallet từ server
+  const refreshWallet = useCallback(async () => {
+    if (!user) return null;
+    try {
+      const res = await authFetch('/api/wallet');
+      if (res.ok) {
+        const w = await res.json();
+        setUserData((prev) => ({ ...prev, wallet: w, availableXP: w.milk }));
+        return w;
+      }
+    } catch {}
+    return null;
+  }, [user, authFetch]);
+
   const value = {
     userData,
     addXP,
     spendXP,
+    refreshWallet,
     gameXpRemainingToday,
     addSkillXP,
     markLessonCompleted,

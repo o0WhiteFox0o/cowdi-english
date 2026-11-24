@@ -4,7 +4,9 @@ import { requireAuth } from '../middleware/auth.js';
 import { sendPushToUser, getPublicKey, isPushReady } from '../config/push.js';
 import { pickPetIcon } from '../utils/pet-icon.js';
 import { PET_BATTLE_DATA } from '../../shared/game-config.js';
-import { computePowerScore } from '../../shared/battle-engine.js';
+import { computePowerScore, canEvolve, simulateBattle, canMatch, resolveSnapshot } from '../../shared/battle-engine.js';
+import { getWallet, grantLessonAndUnitRewards, exchangeStone, combineShards } from '../utils/wallet.js';
+import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 
 const router = express.Router();
 
@@ -45,11 +47,20 @@ router.get('/progress', requireAuth, async (req, res) => {
       try { return JSON.parse(val); } catch { return fallback; }
     };
 
+    // Lấy số dư ví server v2 (Sữa tính từ total_xp trừ ledger, Gem, Đá, Mảnh đá)
+    const wallet = await getWallet(req.user.id);
+
+    // Lấy trạng thái Giữ nhịp & streak server-side (GĐ3)
+    const tz = req.headers['x-timezone'] || 'Asia/Ho_Chi_Minh';
+    const streakState = await getUserStreakState(req.user.id, tz);
+
     // Chuyển về camelCase để khớp với frontend userData
     res.json({
       totalXP:          row.total_xp,
-      availableXP:      row.available_xp ?? row.total_xp ?? 0,
-      streak:           row.streak,
+      availableXP:      wallet.milk,
+      wallet,
+      streak:           streakState ? streakState.currentStreak : row.streak,
+      streakState,
       lastActiveDate:   row.last_active_date,
       lessonsCompleted: row.lessons_completed,
       quizzesCompleted: row.quizzes_completed,
@@ -73,39 +84,161 @@ router.get('/progress', requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/wallet – Lấy số dư ví Kinh tế v2 ───────────────────────────────
+router.get('/wallet', requireAuth, async (req, res) => {
+  try {
+    const wallet = await getWallet(req.user.id);
+    res.json(wallet);
+  } catch (err) {
+    console.error('GET /api/wallet error:', err);
+    res.status(500).json({ error: 'Lỗi server khi lấy ví.' });
+  }
+});
+
+// ── POST /api/wallet/exchange-stone – Đổi 15 Gem lấy 1 Đá (tối đa 1/tuần) ──
+router.post('/wallet/exchange-stone', requireAuth, async (req, res) => {
+  try {
+    const result = await exchangeStone(req.user.id);
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/wallet/exchange-stone error:', err);
+    res.status(500).json({ error: 'Lỗi server khi đổi đá.' });
+  }
+});
+
+// ── POST /api/wallet/combine-shards – Ghép 10 mảnh thành 1 Đá ──────────────
+router.post('/wallet/combine-shards', requireAuth, async (req, res) => {
+  try {
+    const result = await combineShards(req.user.id);
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/wallet/combine-shards error:', err);
+    res.status(500).json({ error: 'Lỗi server khi ghép mảnh đá.' });
+  }
+});
+
+// ── POST /api/pets/:instanceId/evolve – Tiến hoá pet qua server ─────────────
+router.post('/pets/:instanceId/evolve', requireAuth, async (req, res) => {
+  const { instanceId } = req.params;
+  try {
+    const [[pRow]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    if (!pRow || !pRow.pet_data) {
+      return res.status(404).json({ error: 'Chưa có dữ liệu pet.' });
+    }
+    const petData = typeof pRow.pet_data === 'string' ? JSON.parse(pRow.pet_data) : pRow.pet_data;
+    const pet = petData.collection?.[instanceId];
+    if (!pet) {
+      return res.status(404).json({ error: 'Không tìm thấy pet trong bộ sưu tập.' });
+    }
+
+    const currentStage = Math.max(0, Math.floor(Number(pet.evolution) || 0));
+    if (currentStage >= 4) {
+      return res.status(400).json({ error: 'Pet đã đạt cấp tối đa (C5).' });
+    }
+
+    const wallet = await getWallet(req.user.id);
+    const check = canEvolve(pet, wallet);
+    if (!check.ok) {
+      const reasonMsg = check.reason === 'insufficient'
+        ? 'Chưa đủ điều kiện tài nguyên hoặc điểm kỹ năng để tiến hoá.'
+        : 'Không thể tiến hoá lúc này.';
+      return res.status(400).json({ error: reasonMsg, checks: check.checks });
+    }
+
+    const cost = check.cost;
+    const evolveRef = `${instanceId}:${check.to}`;
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+
+      if (cost.milk > 0) {
+        await conn.execute(
+          `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+           VALUES (?, 'milk', ?, 'evolve', ?)`,
+          [req.user.id, -cost.milk, evolveRef]
+        );
+      }
+      if (cost.gem > 0) {
+        await conn.execute(
+          `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+           VALUES (?, 'gem', ?, 'evolve', ?)`,
+          [req.user.id, -cost.gem, evolveRef]
+        );
+      }
+      if (cost.stone > 0) {
+        await conn.execute(
+          `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+           VALUES (?, 'stone', ?, 'evolve', ?)`,
+          [req.user.id, -cost.stone, evolveRef]
+        );
+      }
+
+      pet.evolution = check.to;
+      pet.needsUpdatedAt = new Date().toISOString();
+      petData.collection[instanceId] = pet;
+
+      await conn.execute(
+        'UPDATE user_progress SET pet_data = ? WHERE user_id = ?',
+        [JSON.stringify(petData), req.user.id]
+      );
+
+      await conn.commit();
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+
+    const updatedWallet = await getWallet(req.user.id);
+    res.json({ ok: true, pet, evolution: pet.evolution, wallet: updatedWallet });
+  } catch (err) {
+    console.error('POST /api/pets/:instanceId/evolve error:', err);
+    res.status(500).json({ error: 'Lỗi server khi tiến hoá pet.' });
+  }
+});
+
 // ── PUT /api/progress – lưu toàn bộ tiến trình ──────────────────────────────
 router.put('/progress', requireAuth, async (req, res) => {
   const d = req.body;
-  // Whitelist fields – không cho phép inject tuỳ ý
+  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist (mục 0.5.4)
   const allowed = [
-    'totalXP','availableXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
+    'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
     'activeDays','achievements','dailyTasks','dailyDate',
-    'srsData','checkpointScores','skillXP','dailyJournal'
+    'srsData','checkpointScores','dailyJournal'
   ];
   for (const key of Object.keys(d)) {
     if (!allowed.includes(key)) delete d[key];
   }
 
+  const rawCompleted = Array.isArray(d.completedLessons) ? d.completedLessons : [];
+  const rawCheckpointScores = typeof d.checkpointScores === 'object' && d.checkpointScores !== null ? d.checkpointScores : {};
+
   const params = [
     req.user.id,
     d.totalXP          ?? 0,
-    d.availableXP      ?? (d.totalXP ?? 0),
+    d.totalXP          ?? 0,
     d.streak           ?? 0,
     d.lastActiveDate   ?? null,
     d.lessonsCompleted ?? 0,
     d.quizzesCompleted ?? 0,
     d.perfectQuizzes   ?? 0,
     d.wordsLearned     ?? 0,
-    JSON.stringify(d.completedLessons ?? []),
+    JSON.stringify(rawCompleted),
     JSON.stringify(d.wordStatus       ?? {}),
     JSON.stringify(d.activeDays       ?? []),
     JSON.stringify(d.achievements     ?? []),
     JSON.stringify(d.dailyTasks       ?? { lessonDone: false, vocabDone: false }),
     d.dailyDate        ?? null,
     JSON.stringify(d.srsData          ?? {}),
-    JSON.stringify(d.checkpointScores ?? {}),
-    JSON.stringify(d.skillXP          ?? { listening: 0, speaking: 0, reading: 0, writing: 0 }),
+    JSON.stringify(rawCheckpointScores),
+    JSON.stringify({ listening: 0, speaking: 0, reading: 0, writing: 0 }),
     JSON.stringify(d.dailyJournal     ?? {}),
   ];
 
@@ -138,12 +271,46 @@ router.put('/progress', requireAuth, async (req, res) => {
          daily_date        = VALUES(daily_date),
          srs_data          = VALUES(srs_data),
          checkpoint_scores = VALUES(checkpoint_scores),
-         skill_xp          = VALUES(skill_xp),
          daily_journal     = VALUES(daily_journal),
          updated_at        = CURRENT_TIMESTAMP`,
       params
     );
-    res.json({ ok: true });
+
+    // Cấp Gem và Đá nguyên tố theo mốc bài học và theo unit (D2, D11)
+    let wallet = await grantLessonAndUnitRewards(
+      req.user.id,
+      rawCompleted,
+      rawCheckpointScores,
+      d.lessonScores || {}
+    );
+
+    // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày
+    const tz = req.headers['x-timezone'] || d.timezone || 'Asia/Ho_Chi_Minh';
+    const isLesson = (d.lessonsCompleted > 0) || (rawCompleted.length > 0);
+    const accuracy = Number(d.lastAccuracy) || 100;
+    const baseMilk = Number(d.lastMilkEarned) || 0;
+
+    const streakResult = await recordActivity(req.user.id, {
+      timezone: tz,
+      isLesson,
+      accuracy,
+      baseMilkEarned: baseMilk,
+    });
+
+    // Lấy lại ví mới nhất nếu có thưởng từ Đồng hồ hoặc Khế ước
+    if (streakResult.clockBonusMilk > 0 || streakResult.contractProgress?.status === 'completed') {
+      wallet = await getWallet(req.user.id);
+    }
+
+    const streakState = await getUserStreakState(req.user.id, tz);
+
+    res.json({
+      ok: true,
+      wallet,
+      streak: streakResult.currentStreak,
+      streakState,
+      streakResult,
+    });
   } catch (err) {
     console.error('PUT /api/progress error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
@@ -188,13 +355,39 @@ router.get('/pet-data', requireAuth, async (req, res) => {
 // ── PUT /api/pet-data – lưu dữ liệu pet ─────────────────────────────────────
 router.put('/pet-data', requireAuth, async (req, res) => {
   const d = req.body;
-  // Whitelist top-level fields
-  const allowed = ['activePetId', 'nickname', 'coins', 'totalCoinsEarned', 'collection', 'ownedItems', 'dailyQuests', 'weeklyQuests', 'petAchievements'];
+  // Whitelist top-level fields (D12: bỏ coins và totalCoinsEarned)
+  const allowed = ['activePetId', 'nickname', 'collection', 'ownedItems', 'dailyQuests', 'weeklyQuests', 'petAchievements'];
   const clean = {};
   for (const key of allowed) {
     if (d[key] !== undefined) clean[key] = d[key];
   }
   try {
+    // Bảo vệ cấp pet & điểm kỹ năng: đọc pet_data cũ từ DB (mục 0.5.2 & 6.2)
+    const [[oldRow]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    let oldData = null;
+    if (oldRow?.pet_data) {
+      oldData = typeof oldRow.pet_data === 'string' ? JSON.parse(oldRow.pet_data) : oldRow.pet_data;
+    }
+
+    if (clean.collection && typeof clean.collection === 'object') {
+      for (const [id, pet] of Object.entries(clean.collection)) {
+        if (!pet || typeof pet !== 'object') continue;
+        const oldPet = oldData?.collection?.[id];
+        if (oldPet) {
+          // Cấp tiến hoá do server quản lý qua POST /api/pets/:instanceId/evolve
+          pet.evolution = oldPet.evolution ?? 0;
+          // Kẹp điểm kỹ năng không bao giờ giảm
+          pet.skills = pet.skills || {};
+          for (const k of ['listening', 'speaking', 'reading', 'writing']) {
+            pet.skills[k] = Math.max(Number(oldPet?.skills?.[k]) || 0, Number(pet.skills?.[k]) || 0);
+          }
+        }
+      }
+    }
+
     await pool.execute(
       `INSERT INTO user_progress (user_id, pet_data)
        VALUES (?, ?)
@@ -308,6 +501,9 @@ const DUEL_VALID_CATEGORIES = ['all', 'vocabulary', 'grammar', 'sentences', 'lis
 const DUEL_VALID_COUNTS = [10, 20, 30];
 
 function formatDuelRow(row) {
+  const challengerPetSnap = row.challenger_pet_snapshot ? safeParse(row.challenger_pet_snapshot, null) : parsePetSummary(row.challenger_pet);
+  const opponentPetSnap = row.opponent_pet_snapshot ? safeParse(row.opponent_pet_snapshot, null) : parsePetSummary(row.opponent_pet);
+
   return {
     id: row.id,
     challengerId: row.challenger_id,
@@ -322,8 +518,11 @@ function formatDuelRow(row) {
     expiresAt: row.expires_at,
     challengerNick: row.challenger_nick || 'Ẩn danh',
     opponentNick: row.opponent_nick || null,
-    challengerPet: parsePetSummary(row.challenger_pet),
-    opponentPet: parsePetSummary(row.opponent_pet),
+    challengerPet: challengerPetSnap,
+    opponentPet: opponentPetSnap,
+    challengerHpPct: row.challenger_hp_pct != null ? Number(row.challenger_hp_pct) : null,
+    opponentHpPct: row.opponent_hp_pct != null ? Number(row.opponent_hp_pct) : null,
+    battleLog: safeParse(row.battle_log, null),
     category: row.category || 'all',
     message: row.message || null,
     questionCount: (() => { try { const q = typeof row.quiz_data === 'string' ? JSON.parse(row.quiz_data) : row.quiz_data; return Array.isArray(q) ? q.length : 0; } catch { return 0; } })(),
@@ -354,7 +553,7 @@ router.get('/my-stats', requireAuth, async (req, res) => {
 
 // ── POST /api/duel – Tạo thách đấu mới ──────────────────────────────────────
 router.post('/duel', requireAuth, async (req, res) => {
-  const { quizData, answers, time } = req.body;
+  const { quizData, answers, time, questionTimes, category, message } = req.body;
   if (!Array.isArray(quizData) || quizData.length < 5 || quizData.length > 30) {
     return res.status(400).json({ error: 'Quiz data không hợp lệ.' });
   }
@@ -372,13 +571,47 @@ router.post('/duel', requireAuth, async (req, res) => {
   // Score challenger's answers
   const score = answers.reduce((s, a, i) => s + (parseInt(a) === cleanQuiz[i].correct ? 1 : 0), 0);
   const safeTime = Math.max(0, Math.min(parseInt(time) || 0, 600));
+  const cleanQTimes = Array.isArray(questionTimes) && questionTimes.length === cleanQuiz.length
+    ? questionTimes.map(t => Math.max(0, Math.min(parseFloat(t) || 0, 300)))
+    : new Array(cleanQuiz.length).fill(0);
+  const safeCategory = DUEL_VALID_CATEGORIES.includes(category) ? category : 'all';
+  const safeMessage = typeof message === 'string' ? message.slice(0, 100) : null;
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
   try {
+    // Lấy pet active của challenger để lưu snapshot trận đấu v2
+    const [[pRow]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    let petSnapshot = null;
+    if (pRow?.pet_data) {
+      const pData = typeof pRow.pet_data === 'string' ? JSON.parse(pRow.pet_data) : pRow.pet_data;
+      if (pData?.activePetId && pData?.collection?.[pData.activePetId]) {
+        petSnapshot = resolveSnapshot(pData.collection[pData.activePetId]);
+      }
+    }
+    if (!petSnapshot) {
+      petSnapshot = resolveSnapshot({ speciesId: 'cowdi', evolution: 0 });
+    }
+
     const [result] = await pool.execute(
-      `INSERT INTO challenges (challenger_id, status, quiz_data, challenger_answers, challenger_score, challenger_time, expires_at)
-       VALUES (?, 'pending', ?, ?, ?, ?, ?)`,
-      [req.user.id, JSON.stringify(cleanQuiz), JSON.stringify(answers.map(a => parseInt(a) || 0)), score, safeTime, expiresAt]
+      `INSERT INTO challenges
+         (challenger_id, status, quiz_data, challenger_answers, challenger_score, challenger_time,
+          challenger_question_times, challenger_pet_snapshot, category, message, expires_at)
+       VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        req.user.id,
+        JSON.stringify(cleanQuiz),
+        JSON.stringify(answers.map(a => parseInt(a) || 0)),
+        score,
+        safeTime,
+        JSON.stringify(cleanQTimes),
+        JSON.stringify(petSnapshot),
+        safeCategory,
+        safeMessage,
+        expiresAt,
+      ]
     );
     // Award league points for creating duel
     await pool.execute(
@@ -400,6 +633,20 @@ router.get('/duel/open', requireAuth, async (req, res) => {
     await pool.execute(
       "UPDATE challenges SET status = 'expired' WHERE status = 'pending' AND expires_at < NOW()"
     );
+
+    // Lấy cấp pet hiện tại của người dùng để ghép trận (chênh tối đa 1 cấp)
+    const [[userRow]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    let userStage = 0;
+    if (userRow?.pet_data) {
+      const uData = typeof userRow.pet_data === 'string' ? JSON.parse(userRow.pet_data) : userRow.pet_data;
+      if (uData?.activePetId && uData?.collection?.[uData.activePetId]) {
+        userStage = Math.max(0, Math.floor(Number(uData.collection[uData.activePetId].evolution) || 0));
+      }
+    }
+
     const [rows] = await pool.execute(
       `SELECT c.*,
               p1.pet_data AS challenger_pet,
@@ -411,10 +658,24 @@ router.get('/duel/open', requireAuth, async (req, res) => {
          AND c.challenger_id != ?
          AND c.expires_at > NOW()
        ORDER BY c.created_at DESC
-       LIMIT 20`,
+       LIMIT 50`,
       [req.user.id]
     );
-    res.json(rows.map(formatDuelRow));
+
+    // Lọc theo canMatch (chênh tối đa 1 cấp)
+    const matched = rows.filter(r => {
+      let chStage = 0;
+      if (r.challenger_pet_snapshot) {
+        const snap = safeParse(r.challenger_pet_snapshot, null);
+        chStage = snap?.evolution ?? 0;
+      } else if (r.challenger_pet) {
+        const chSummary = parsePetSummary(r.challenger_pet);
+        chStage = chSummary?.evolution ?? 0;
+      }
+      return canMatch(chStage, userStage);
+    }).slice(0, 20);
+
+    res.json(matched.map(formatDuelRow));
   } catch (err) {
     console.error('GET /api/duel/open error:', err);
     res.json([]);
@@ -479,12 +740,16 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
       time: typeof challengerQTimes[i] === 'number' ? challengerQTimes[i] : null,
     }));
 
+    const challengerPet = row.challenger_pet_snapshot
+      ? safeParse(row.challenger_pet_snapshot, null)
+      : parsePetSummary(row.challenger_pet);
+
     res.json({
       id: row.id,
       challengerId: row.challenger_id,
       status: row.status,
       challengerNick: row.challenger_nick || 'Ẩn danh',
-      challengerPet: parsePetSummary(row.challenger_pet),
+      challengerPet,
       challengerResults,
       challengerTime: row.challenger_time,
       category: row.category || 'all',
@@ -521,45 +786,68 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
     const challengerScore = challenge.challenger_score;
     const challengerTime = challenge.challenger_time;
 
-    // Normalize opponent per-question times
+    // Normalize per-question times (đơn vị: giây, ví dụ 1.2s -> chuyển sang ms cho battle-engine)
     const cleanOppQTimes = Array.isArray(questionTimes) && questionTimes.length === quizData.length
       ? questionTimes.map(t => Math.max(0, Math.min(parseFloat(t) || 0, 300)))
       : new Array(quizData.length).fill(0);
     const challengerQTimes = safeParse(challenge.challenger_question_times, new Array(quizData.length).fill(0));
     const challengerAnswers = safeParse(challenge.challenger_answers, []);
 
-    // Per-question duel points:
-    //   - both correct -> faster gets +1 (tie: both +1)
-    //   - only one correct -> that side gets +1
-    //   - both wrong -> 0 for both
-    let challengerPoints = 0, opponentPoints = 0;
-    const breakdown = quizData.map((q, i) => {
-      const cOk = parseInt(challengerAnswers[i]) === q.correct;
-      const oOk = parseInt(answers[i]) === q.correct;
-      const cT = Number(challengerQTimes[i]) || 0;
-      const oT = Number(cleanOppQTimes[i]) || 0;
-      let winner = null;
-      if (cOk && oOk) {
-        if (cT < oT) { challengerPoints += 1; winner = 'challenger'; }
-        else if (oT < cT) { opponentPoints += 1; winner = 'opponent'; }
-        else { challengerPoints += 1; opponentPoints += 1; winner = 'tie'; }
-      } else if (cOk) { challengerPoints += 1; winner = 'challenger'; }
-      else if (oOk) { opponentPoints += 1; winner = 'opponent'; }
-      return { challengerCorrect: cOk, opponentCorrect: oOk, challengerTime: cT, opponentTime: oT, winner };
-    });
+    // ── Lấy pet snapshot 2 bên cho battle engine v2 ──
+    let challengerPetSnap = challenge.challenger_pet_snapshot
+      ? safeParse(challenge.challenger_pet_snapshot, null)
+      : null;
+    if (!challengerPetSnap) {
+      const [[chProgRow]] = await pool.execute(
+        'SELECT pet_data FROM user_progress WHERE user_id = ?',
+        [challenge.challenger_id]
+      );
+      const chData = safeParse(chProgRow?.pet_data, null);
+      const chPet = chData?.activePetId ? chData.collection?.[chData.activePetId] : null;
+      challengerPetSnap = resolveSnapshot(chPet || { speciesId: 'cowdi', evolution: 0 });
+    }
 
-    // Winner: nhiều points hơn; bằng -> tổng thời gian ít hơn
+    const [[oppProgRow]] = await pool.execute(
+      'SELECT pet_data FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    const oppData = safeParse(oppProgRow?.pet_data, null);
+    const oppPet = oppData?.activePetId ? oppData.collection?.[oppData.activePetId] : null;
+    const opponentPetSnap = resolveSnapshot(oppPet || { speciesId: 'cowdi', evolution: 0 });
+
+    // Chuẩn bị mảng answers cho simulateBattle
+    const answersA = quizData.map((q, i) => ({
+      correct: parseInt(challengerAnswers[i]) === q.correct,
+      timeMs: Math.round((Number(challengerQTimes[i]) || 0) * 1000),
+    }));
+    const answersB = quizData.map((q, i) => ({
+      correct: parseInt(answers[i]) === q.correct,
+      timeMs: Math.round((Number(cleanOppQTimes[i]) || 0) * 1000),
+    }));
+
+    // Chạy engine trận đấu thuần túy trên server (D9: đánh đủ 10 câu, stopAtZero = false)
+    const battleRes = simulateBattle(
+      challengerPetSnap,
+      opponentPetSnap,
+      answersA,
+      answersB,
+      String(challengeId),
+      { stopAtZero: false }
+    );
+
     let winnerId = null;
-    if (opponentPoints > challengerPoints) winnerId = req.user.id;
-    else if (opponentPoints < challengerPoints) winnerId = challenge.challenger_id;
-    else if (safeTime < challengerTime) winnerId = req.user.id;
-    else if (safeTime > challengerTime) winnerId = challenge.challenger_id;
+    if (battleRes.winner === 'opponent') winnerId = req.user.id;
+    else if (battleRes.winner === 'challenger') winnerId = challenge.challenger_id;
+
+    const challengerHpPct = Math.round(battleRes.challenger.hpPct * 100);
+    const opponentHpPct = Math.round(battleRes.opponent.hpPct * 100);
 
     // Update challenge
     await pool.execute(
       `UPDATE challenges SET
          opponent_id = ?, opponent_answers = ?, opponent_score = ?, opponent_time = ?,
-         opponent_question_times = ?, winner_id = ?, status = 'completed'
+         opponent_question_times = ?, opponent_pet_snapshot = ?, battle_log = ?,
+         challenger_hp_pct = ?, opponent_hp_pct = ?, winner_id = ?, status = 'completed'
        WHERE id = ?`,
       [
         req.user.id,
@@ -567,6 +855,10 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
         opponentScore,
         safeTime,
         JSON.stringify(cleanOppQTimes),
+        JSON.stringify(opponentPetSnap),
+        JSON.stringify(battleRes.log),
+        challengerHpPct,
+        opponentHpPct,
         winnerId,
         challengeId,
       ]
@@ -607,10 +899,14 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       challengerScore,
       opponentTime: safeTime,
       challengerTime,
-      opponentPoints,
-      challengerPoints,
-      breakdown,
+      opponentPoints: opponentHpPct,
+      challengerPoints: challengerHpPct,
+      opponentHpPct,
+      challengerHpPct,
+      battleLog: battleRes.log,
       winnerId,
+      challengerPet: challengerPetSnap,
+      opponentPet: opponentPetSnap,
     });
 
     // ── Push notification cho challenger biết duel của họ đã có người chơi ──
@@ -632,7 +928,7 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       const body = isDraw
         ? `${opponentName} vừa hoà với bạn ${challengerScore}-${opponentScore}.`
         : isWin
-          ? `${opponentName} đã thua ${opponentScore}-${challengerScore}. Vào nhận coin nào!`
+          ? `${opponentName} đã thua ${opponentScore}-${challengerScore}. Vào nhận Sữa và vinh quang nào!`
           : `${opponentName} đã thắng ${opponentScore}-${challengerScore}. Phục thù ngay!`;
 
       sendPushToUser(challenge.challenger_id, {

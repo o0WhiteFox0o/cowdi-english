@@ -34,7 +34,6 @@ DEPLOY-AAPANEL.html
 database/
 *.sql
 !server/db/*.sql
-
 # Server uploaded media (NEVER commit or overwrite on deploy)
 server/storage/
 

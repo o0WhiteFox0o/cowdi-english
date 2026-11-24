@@ -51,26 +51,82 @@ export const STAT_FORMULA = deepFreeze({
 
 // ---------- Tiền tệ & vật phẩm (mục 2) ----------
 export const CURRENCIES = deepFreeze({
-  milk:  { labelVi: 'Sữa',          icon: '🥛' },
-  gem:   { labelVi: 'Gem',          icon: '💎' },
-  stone: { labelVi: 'Đá nguyên tố', icon: '🪨' },
+  milk:        { labelVi: 'Sữa',               icon: '🥛' },
+  gem:         { labelVi: 'Gem',               icon: '💎' },
+  stone:       { labelVi: 'Đá nguyên tố',      icon: '🪨' },
+  stone_shard: { labelVi: 'Mảnh đá nguyên tố', icon: '🧩' },
 });
 
 export const ECONOMY = deepFreeze({
-  // [MỞ] 2.2 — 1 Gem mỗi 2 bài học hoàn thành lần đầu.
+  // 2.2 — 1 Gem mỗi 2 bài học hoàn thành lần đầu.
   GEM_PER_NEW_LESSONS: 2,
+  // 2.2, D2 — Thưởng Gem theo unit (mỗi unit nhận 1 lần).
+  GEM_PER_UNIT: 1,
+  GEM_PER_UNIT_PERFECT: 2,
   // 2.3 — 1 Đá mỗi 10 bài học hoàn thành lần đầu.
   STONE_PER_NEW_LESSONS: 10,
-  // [MỞ] 2.3 — Đá dùng chung 1 loại (chưa tách theo 10 hệ).
+  // 2.3, D10 — Đá dùng chung 1 loại (chưa tách theo 10 hệ).
   STONE_PER_ELEMENT: false,
-  // [MỞ] 2.3 — Gem nạp tiền KHÔNG được thay Đá.
+  // 2.3 — Gem nạp tiền KHÔNG được thay Đá trực tiếp.
   GEM_CAN_REPLACE_STONE: false,
+  // 2.3, D3 — Đổi Gem lấy đá (tối đa 1 lần/tuần, reset thứ Hai).
+  GEM_PER_STONE: 15,
+  STONE_EXCHANGE_PER_WEEK: 1,
+  // 2.3 — Ghép mảnh đá thành đá nguyên tố (10 mảnh = 1 đá).
+  SHARDS_PER_STONE: 10,
 });
 
 // Lý do ghi ledger (6.1). `purchase` có sẵn dù chưa làm nạp tiền.
 export const LEDGER_REASONS = deepFreeze([
-  'lesson_first', 'lesson_milestone', 'evolve', 'purchase', 'migration', 'admin',
+  'lesson_first', 'lesson_milestone', 'unit_complete', 'unit_perfect',
+  'stone_exchange', 'shard_combine', 'evolve', 'purchase', 'migration', 'coin_migration', 'admin',
+  'shop_freeze', 'shop_return_ticket', 'contract_deposit', 'contract_payout', 'shop_clock', 'clock_bonus',
 ]);
+
+// ---------- Vật phẩm Giữ nhịp (GĐ3, D1) ----------
+export const KEEP_RHYTHM_ITEMS = deepFreeze({
+  freeze: {
+    id: 'streak_freeze',
+    nameVi: 'Khăn giữ lửa',
+    priceMilk: 400,
+    maxInventory: 2,
+    maxBuyPerWeek: 2,
+    milestoneGifts: [7, 30, 100], // Mốc streak tặng 1 khăn nếu kho < 2 (D13)
+  },
+  returnTicket: {
+    id: 'return_ticket',
+    nameVi: 'Vé quay lại',
+    priceMilk: 300,
+    cooldownDays: 30,
+    minBrokenStreak: 7,
+    minInactiveDays: 2,
+    maxInactiveDays: 14,
+    requiredLessons: 2,
+    requiredHours: 24,
+    restoreRatio: 0.5, // Khôi phục 50% streak cũ
+  },
+  contract: {
+    id: 'streak_contract_7d',
+    nameVi: 'Khế ước 7 ngày',
+    durationDays: 7,
+    rewardMultiplier: 1.5,
+    minAccuracy: 70, // Bài làm lại cần >= 70% để tính
+    tiers: {
+      starter: { id: 'starter', labelVi: 'Khởi động', deposit: 300, lessonsPerDay: 1, payout: 450, profit: 150 },
+      diligent: { id: 'diligent', labelVi: 'Chăm chỉ', deposit: 700, lessonsPerDay: 2, payout: 1050, profit: 350 },
+      breakthrough: { id: 'breakthrough', labelVi: 'Bứt phá', deposit: 1500, lessonsPerDay: 3, payout: 2250, profit: 750 },
+    },
+  },
+  clock: {
+    id: 'cowdi_clock',
+    nameVi: 'Đồng hồ Cowdi',
+    priceMilk: 1000,
+    bonusMilkPercent: 0.10, // +10% Sữa
+    maxBonusLessonsPerDay: 3,
+    windowMinutes: 60, // ±1 giờ (trong khoảng 60 phút trước và sau giờ đã chọn)
+    freeChangePerWeek: 1,
+  },
+});
 
 // ---------- Tiến hoá (mục 3, 4.2) ----------
 // stage = pet.evolution (0–4) ↔ C1–C5.

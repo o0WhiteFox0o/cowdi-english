@@ -399,22 +399,46 @@
 
 .dex-badges {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .dex-badge {
   font-family: var(--font-hand);
-  font-size: .9rem;
-  padding: 3px 10px;
+  font-size: .82rem;
+  padding: 3px 8px;
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.2;
 }
 
 .dex-badge.power {
   background: #fff;
   color: var(--orange-dark);
+}
+
+.dex-badge-shop {
+  background: #fff;
+  color: var(--leaf);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.dex-badge-shop:hover {
+  background: var(--leaf-pale, #e8f5e9);
+  color: var(--leaf);
+  transform: translateY(-1px);
+  border-color: var(--leaf);
 }
 
 .dex-desc {
@@ -424,6 +448,74 @@
   padding: 8px 10px;
   font-size: .85rem;
   color: var(--ink-soft);
+}
+
+/* Combat stats grid */
+.dex-combat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 6px 4px;
+}
+
+.dex-combat-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 2px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dex-combat-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dex-combat-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.dex-combat-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #6c757d;
+}
+
+.dex-combat-val {
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dex-stat-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dex-stat-img-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dex-skill-img-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  margin-bottom: 2px;
 }
 
 .dex-section {

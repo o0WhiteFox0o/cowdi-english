@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { usePet } from '../../hooks/usePet';
@@ -7,6 +8,7 @@ import {
   PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
   checkUnlockCondition, SKILL_META, ELEMENT_COLORS, RARITY_COLORS, getGroupInfo,
 } from '../../data/pets';
+import { computeStats, computePowerScore } from '../../../shared/battle-engine.js';
 import Icon, { ELEMENT_ICON, SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 
@@ -17,6 +19,20 @@ const elName = (el) => (el?.name || '').replace(' 🌱', '');
 const Stars = ({ n }) => (
   <span className="dex-stars">{Array.from({ length: n }, (_, i) => <Icon key={i} name="star" size={12} />)}</span>
 );
+
+export const BATTLE_STAT_ICONS = {
+  hp: '/image/icon_pet/HP.webp',
+  atk: '/image/icon_pet/Attack.webp',
+  def: '/image/icon_pet/Defense.webp',
+  agi: '/image/icon_pet/Speed.webp',
+};
+
+export const SKILL_IMAGE_ICONS = {
+  listening: '/image/icon_pet/Listening.webp',
+  speaking: '/image/icon_pet/Speaking.webp',
+  reading: '/image/icon_pet/Reading.webp',
+  writing: '/image/icon_pet/Writing.webp',
+};
 
 /* Image with emoji fallback (some species have no artwork yet) */
 function PetArt({ src, emoji, alt, className, silhouette }) {
@@ -173,12 +189,19 @@ export default function CollectionPage() {
 
               <div className="dex-badges">
                 <span className="dex-badge" style={{ background: ELEMENT_COLORS[sel.element]?.bg, color: ELEMENT_COLORS[sel.element]?.text }}>
-                  <Icon name={ELEMENT_ICON[sel.element]} size={16} /> {elName(ELEMENT_COLORS[sel.element])}
+                  <Icon name={ELEMENT_ICON[sel.element]} size={14} /> {elName(ELEMENT_COLORS[sel.element])}
                 </span>
                 <span className="dex-badge" style={{ background: RARITY_COLORS[sel.rarity]?.bg, color: RARITY_COLORS[sel.rarity]?.text }}>
                   <Stars n={RARITY_STARS[sel.rarity] || 1} /> {RARITY_COLORS[sel.rarity]?.name.replace(/^[⭐🎃 ]+/, '')}
                 </span>
-                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={16} /> {calculatePowerScore(selOwned, sel)}</span>}
+                {selOwned && <span className="dex-badge power"><Icon name="bolt" size={14} /> {computePowerScore(selOwned)}</span>}
+                <Link
+                  to="/shop?tab=cosmetics"
+                  className="dex-badge dex-badge-shop"
+                  title="Đến Cửa hàng sắm đồ trang trí cho pet"
+                >
+                  <Icon name="bag" size={13} /> Shop
+                </Link>
               </div>
 
               <p className="dex-desc">{sel.description}</p>
@@ -198,13 +221,57 @@ export default function CollectionPage() {
                 )}
               </div>
 
+              {/* Chỉ số chiến đấu thực tế (v2) */}
+              {selOwned && (
+                <div className="dex-section">
+                  <div className="dex-section-title">Chỉ số chiến đấu hiện tại</div>
+                  {(() => {
+                    const st = computeStats(selOwned);
+                    return (
+                      <div className="dex-combat-grid">
+                        <div className="dex-combat-cell" title="HP (Máu)">
+                          <img src={BATTLE_STAT_ICONS.hp} alt="HP" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">HP</span>
+                            <b className="dex-combat-val">{st.hp}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="ATK (Tấn công)">
+                          <img src={BATTLE_STAT_ICONS.atk} alt="ATK" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">ATK</span>
+                            <b className="dex-combat-val">{st.atk}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="DEF (Phòng thủ)">
+                          <img src={BATTLE_STAT_ICONS.def} alt="DEF" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">DEF</span>
+                            <b className="dex-combat-val">{st.def.toFixed(1)}</b>
+                          </div>
+                        </div>
+                        <div className="dex-combat-cell" title="AGI (Tốc độ)">
+                          <img src={BATTLE_STAT_ICONS.agi} alt="AGI" className="dex-combat-img" />
+                          <div className="dex-combat-info">
+                            <span className="dex-combat-name">AGI</span>
+                            <b className="dex-combat-val">{st.agi.toFixed(1)}</b>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Base stats */}
               <div className="dex-section">
                 <div className="dex-section-title">Chỉ số gốc</div>
                 <div className="dex-stats">
                   {Object.entries(SKILL_META).map(([key, meta]) => (
                     <div className="dex-stat" key={key}>
-                      <span className="dex-stat-name"><Icon name={SKILL_ICON[key]} size={16} /> {meta.name}</span>
+                      <span className="dex-stat-name">
+                        <img src={SKILL_IMAGE_ICONS[key]} alt={meta.name} className="dex-stat-img-icon" /> {meta.name}
+                      </span>
                       <div className="book-bar"><i style={{ width: `${(sel.baseStats[key] / MAX_STAT) * 100}%`, background: meta.color }} /></div>
                       <span className="dex-stat-val">{sel.baseStats[key]}</span>
                     </div>
@@ -218,7 +285,7 @@ export default function CollectionPage() {
                   <div className="dex-skills">
                     {Object.entries(SKILL_META).map(([key, meta]) => (
                       <div className="dex-skill" key={key} style={{ '--c': meta.color }}>
-                        <span><Icon name={SKILL_ICON[key]} size={22} /></span>
+                        <img src={SKILL_IMAGE_ICONS[key]} alt={meta.name} className="dex-skill-img-icon" />
                         <b>Lv.{getSkillLevel(selOwned.skills?.[key] || 0)}</b>
                         <small>{selOwned.skills?.[key] || 0} pts</small>
                       </div>

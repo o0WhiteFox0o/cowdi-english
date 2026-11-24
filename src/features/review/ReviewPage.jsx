@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { LESSONS } from '../../data/lessons';
 import { VOCAB_TOPICS } from '../../data/vocab-topics';
 import { useUser } from '../../hooks/useUser';
+import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import StudyJournalCard from './StudyJournalCard';
@@ -162,6 +163,8 @@ function checkClozeAnswer(input, expected) {
 export default function ReviewPage() {
   useSEO(SEO_CONFIGS['/review']);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const learnUrl = user?.is_admin ? '/lessons' : '/';
   const { userData, reviewWord, getWordsForReview, addXP } = useUser();
   const showToast = useToast();
   const { play } = useSound();
@@ -254,7 +257,7 @@ export default function ReviewPage() {
         </div>
         <div className="d-flex gap-3 justify-content-center flex-wrap">
           <button className="btn btn-cowdi-primary" onClick={() => navigate(0)}>Ôn tiếp</button>
-          <button className="btn btn-outline-secondary" onClick={() => navigate('/lessons')}>Học bài mới</button>
+          <button className="btn btn-outline-secondary" onClick={() => navigate(learnUrl)}>Học bài mới</button>
         </div>
       </div>
     );
@@ -745,7 +748,7 @@ export default function ReviewPage() {
             ) : (
               <p className="text-muted mb-3">Chưa có lịch ôn tiếp — hãy học thêm bài mới để thêm từ vào kho.</p>
             )}
-            <button className="btn btn-outline-cowdi" onClick={() => navigate('/lessons')}>
+            <button className="btn btn-outline-cowdi" onClick={() => navigate(learnUrl)}>
               <Icon name="books" size={16} /> Học bài mới để có thêm từ ôn
             </button>
           </div>
@@ -762,7 +765,7 @@ export default function ReviewPage() {
               Kho ôn tập sẽ <strong>tự động</strong> được nạp khi bạn học bài hoặc đánh dấu từ là "đã thuộc".
               Cowdi tự lo phần xếp lịch — bạn chỉ cần học và ôn thôi! <Icon name="muscle" size={14} />
             </p>
-            <button className="btn btn-cowdi-primary btn-lg w-100" onClick={() => navigate('/lessons')}>
+            <button className="btn btn-cowdi-primary btn-lg w-100" onClick={() => navigate(learnUrl)}>
               <Icon name="books" size={18} /> Vào học bài đầu tiên
             </button>
           </div>

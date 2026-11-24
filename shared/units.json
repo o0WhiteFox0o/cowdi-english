@@ -1,0 +1,481 @@
+[
+  {
+    "pathId": "general",
+    "unitId": "unit-1",
+    "lessons": [
+      "numbers-basic",
+      "pronouns",
+      "articles",
+      "prepositions-place",
+      "wh-questions"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-2",
+    "lessons": [
+      "daily-phrases",
+      "time-and-date",
+      "directions",
+      "money-prices",
+      "at-restaurant",
+      "at-airport"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-3",
+    "lessons": [
+      "greetings",
+      "family",
+      "colors",
+      "numbers"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-4",
+    "lessons": [
+      "daily-routine",
+      "food",
+      "travel",
+      "tenses"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-5",
+    "lessons": [
+      "school",
+      "weather",
+      "jobs",
+      "body"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-6",
+    "lessons": [
+      "clothing",
+      "house",
+      "emotions",
+      "hobbies"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-7",
+    "lessons": [
+      "nature",
+      "technology",
+      "shopping",
+      "health",
+      "comparisons"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-8",
+    "lessons": [
+      "environment",
+      "media",
+      "culture",
+      "business",
+      "science",
+      "education"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "general",
+    "unitId": "unit-9",
+    "lessons": [
+      "exam-strategies",
+      "communication-skills",
+      "test-practice"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-foundation",
+    "lessons": [
+      "ielts-foundation-vocab",
+      "ielts-foundation-grammar",
+      "ielts-foundation-reading",
+      "ielts-foundation-writing",
+      "ielts-foundation-listening",
+      "ielts-foundation-speaking",
+      "ielts-foundation-pronunciation",
+      "ielts-foundation-numbers"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-pre",
+    "lessons": [
+      "ielts-pre-vocab",
+      "ielts-pre-grammar",
+      "ielts-pre-reading",
+      "ielts-pre-listening",
+      "ielts-pre-speaking",
+      "ielts-pre-writing",
+      "ielts-pre-task1-bar",
+      "ielts-pre-task2-opinion"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-1",
+    "lessons": [
+      "ielts-listening",
+      "ielts-listening-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-2",
+    "lessons": [
+      "ielts-reading",
+      "ielts-reading-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-3",
+    "lessons": [
+      "ielts-writing",
+      "ielts-task1-practice",
+      "ielts-task2-essays"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-4",
+    "lessons": [
+      "ielts-speaking",
+      "ielts-speaking-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "unitId": "ielts-unit-5",
+    "lessons": [
+      "ielts-academic-vocab",
+      "ielts-vocab-environment",
+      "ielts-vocab-education",
+      "ielts-vocab-health",
+      "ielts-grammar-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b1",
+    "unitId": "b1-unit-1",
+    "lessons": [
+      "b1-everyday",
+      "b1-travel-services"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b1",
+    "unitId": "b1-unit-2",
+    "lessons": [
+      "b1-reading-writing",
+      "b1-work-study"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b1",
+    "unitId": "b1-unit-3",
+    "lessons": [
+      "b1-listening-1",
+      "b1-listening-2"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b1",
+    "unitId": "b1-unit-4",
+    "lessons": [
+      "b1-speaking-1",
+      "b1-speaking-2"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b1",
+    "unitId": "b1-unit-5",
+    "lessons": [
+      "b1-grammar-essentials",
+      "b1-vocab-daily-life"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b2",
+    "unitId": "b2-unit-1",
+    "lessons": [
+      "b2-reading-comprehension",
+      "b2-use-of-english"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b2",
+    "unitId": "b2-unit-2",
+    "lessons": [
+      "b2-listening-skills"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b2",
+    "unitId": "b2-unit-3",
+    "lessons": [
+      "b2-formal-writing",
+      "b2-writing-essay",
+      "b2-writing-review-report"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b2",
+    "unitId": "b2-unit-4",
+    "lessons": [
+      "b2-speaking-part1",
+      "b2-speaking-part34"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "b2",
+    "unitId": "b2-unit-5",
+    "lessons": [
+      "b2-advanced-topics",
+      "b2-advanced-grammar",
+      "b2-vocab-collocations"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-basics",
+    "lessons": [
+      "toeic-basics-office",
+      "toeic-basics-daily",
+      "toeic-vocab-office-equipment"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-elementary",
+    "lessons": [
+      "toeic-elementary-convo",
+      "toeic-elementary-emails",
+      "toeic-vocab-telephoning"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-daily-work",
+    "lessons": [
+      "toeic-vocab-schedules",
+      "toeic-vocab-retail",
+      "toeic-vocab-customer-service",
+      "toeic-vocab-hr-finance",
+      "toeic-business-comm"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-business-comm",
+    "lessons": [
+      "toeic-vocab-emails-business",
+      "toeic-vocab-meetings",
+      "toeic-vocab-interview",
+      "toeic-vocab-performance-review",
+      "toeic-vocab-training"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-travel-finance",
+    "lessons": [
+      "toeic-vocab-business-travel",
+      "toeic-vocab-hotel",
+      "toeic-vocab-banking",
+      "toeic-vocab-invoicing",
+      "toeic-vocab-shipping"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-industries",
+    "lessons": [
+      "toeic-vocab-healthcare",
+      "toeic-vocab-technology",
+      "toeic-vocab-manufacturing",
+      "toeic-vocab-real-estate",
+      "toeic-vocab-marketing-logistics",
+      "toeic-vocab-corporate-events"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-advanced-vocab",
+    "lessons": [
+      "toeic-vocab-contracts",
+      "toeic-vocab-advertising",
+      "toeic-vocab-business-news",
+      "toeic-vocab-negotiations",
+      "toeic-vocab-csr"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-listening",
+    "lessons": [
+      "toeic-listening-reading",
+      "toeic-part1-photos",
+      "toeic-part2-qa",
+      "toeic-listening-part12",
+      "toeic-listening-part34",
+      "toeic-part3-conversations-advanced",
+      "toeic-part4-talks-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-reading",
+    "lessons": [
+      "toeic-reading-part5",
+      "toeic-part5-tenses",
+      "toeic-part5-prepositions",
+      "toeic-reading-part6",
+      "toeic-part6-text-completion-advanced"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-reading-advanced",
+    "lessons": [
+      "toeic-reading-part7",
+      "toeic-part7-double-passages",
+      "toeic-part7-triple-passages"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-grammar",
+    "lessons": [
+      "toeic-grammar-passive",
+      "toeic-grammar-gerund-infinitive",
+      "toeic-grammar-conditionals",
+      "toeic-grammar-relative-clauses"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "toeic",
+    "unitId": "toeic-unit-advanced",
+    "lessons": [
+      "toeic-advanced-meetings",
+      "toeic-advanced-reports"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c1-foundations",
+    "lessons": [
+      "adv-c1-academic-vocab",
+      "adv-c1-collocations",
+      "adv-c1-phrasal-verbs",
+      "adv-c1-register"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c1-skills",
+    "lessons": [
+      "adv-c1-writing-essays",
+      "adv-c1-listening",
+      "adv-c1-presentations",
+      "adv-c1-paraphrasing",
+      "adv-c1-summarizing"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c1-academic",
+    "lessons": [
+      "adv-c1-critical-thinking",
+      "adv-c1-research-paper",
+      "adv-c1-abstract-topics",
+      "adv-c1-complex-grammar"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c2-style",
+    "lessons": [
+      "adv-c2-idioms",
+      "adv-c2-advanced-idioms",
+      "adv-c2-literary",
+      "adv-c2-cultural-refs"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c2-rhetoric",
+    "lessons": [
+      "adv-c2-debate",
+      "adv-c2-rhetoric",
+      "adv-c2-satire-irony",
+      "adv-c2-public-speaking"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "advanced",
+    "unitId": "adv-unit-c2-mastery",
+    "lessons": [
+      "adv-c2-fluency",
+      "adv-c2-etymology",
+      "adv-c2-philosophy",
+      "adv-c2-academic-publishing",
+      "adv-c2-mastery-grammar"
+    ],
+    "hasCheckpoint": true
+  }
+]

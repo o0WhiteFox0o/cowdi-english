@@ -138,28 +138,28 @@ export default function HomePage() {
       {
         id: 'lesson',
         title: 'Hoàn thành 1 bài học',
-        reward: '+15 XP',
+        reward: '+30 🥛',
         done: !!userData.dailyTasks?.lessonDone,
         icon: 'book',
       },
       {
         id: 'vocab',
         title: 'Ôn tập từ vựng',
-        reward: '+10 Xu',
+        reward: '+30 🥛',
         done: !!userData.dailyTasks?.vocabDone,
         icon: 'cards',
       },
       {
         id: 'quiz',
         title: 'Thực hiện bài Quiz',
-        reward: '+10 XP',
+        reward: '+30 🥛',
         done: (userData.quizzesCompleted || 0) > 0,
         icon: 'target',
       },
       {
         id: 'streak',
         title: 'Giữ vững chuỗi Streak',
-        reward: '+5 Xu',
+        reward: '+15 🥛',
         done: (userData.streak || 0) > 0,
         icon: 'fire',
       },
@@ -197,9 +197,12 @@ export default function HomePage() {
           <span className="dash-stat-pill leaf" title="Điểm kinh nghiệm">
             <Icon name="star" size={18} /> {userData.totalXP || 0} XP
           </span>
-          <span className="dash-stat-pill" title="Ví Coins">
-            <Icon name="coin" size={18} /> {petData.coins || 0} xu
-          </span>
+          <Link to="/account#wallet" className="dash-stat-pill text-decoration-none" title="Ví Sữa">
+            <span className="me-1">🥛</span> {(userData.wallet?.milk || userData.availableXP || 0).toLocaleString('vi-VN')} Sữa
+          </Link>
+          <Link to="/account#wallet" className="dash-stat-pill text-decoration-none" title="Ví Gem">
+            <span className="me-1">💎</span> {(userData.wallet?.gem || 0).toLocaleString('vi-VN')} Gem
+          </Link>
           <button
             type="button"
             className="btn btn-outline-cowdi btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3"

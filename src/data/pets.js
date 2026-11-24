@@ -1092,15 +1092,15 @@ export const SHOP_ITEMS = [
 
 // ── Quest Templates ──────────────────────────────────────────────────────────
 export const DAILY_QUESTS = [
-  { id: 'daily_lesson', title: '🐮 Cho pet ăn sáng', desc: 'Hoàn thành 1 bài học', reward: 10, check: (u) => u.dailyTasks?.lessonDone },
-  { id: 'daily_quiz', title: '🎮 Chơi cùng pet', desc: 'Hoàn thành 1 quiz', reward: 10, check: (u) => u.quizzesCompleted > 0 },
-  { id: 'daily_vocab', title: '📖 Kể chuyện cho pet', desc: 'Ôn 5 từ vựng', reward: 10, check: (u) => u.dailyTasks?.vocabDone },
+  { id: 'daily_lesson', title: '🐮 Cho pet ăn sáng', desc: 'Hoàn thành 1 bài học', reward: 30, check: (u) => u.dailyTasks?.lessonDone },
+  { id: 'daily_quiz', title: '🎮 Chơi cùng pet', desc: 'Hoàn thành 1 quiz', reward: 30, check: (u) => u.quizzesCompleted > 0 },
+  { id: 'daily_vocab', title: '📖 Kể chuyện cho pet', desc: 'Ôn 5 từ vựng', reward: 30, check: (u) => u.dailyTasks?.vocabDone },
 ];
 
 export const WEEKLY_QUESTS = [
-  { id: 'weekly_lessons', title: '📚 Tuần học chăm', desc: 'Hoàn thành 3 bài học trong tuần', reward: 50, target: 3 },
-  { id: 'weekly_streak', title: '🔥 Streak bền bỉ', desc: 'Duy trì streak 7 ngày', reward: 100, check: (u) => u.streak >= 7 },
-  { id: 'weekly_perfect', title: '💯 Quiz Master', desc: 'Đạt 3 perfect quiz trong tuần', reward: 80, target: 3 },
+  { id: 'weekly_lessons', title: '📚 Tuần học chăm', desc: 'Hoàn thành 3 bài học trong tuần', reward: 150, target: 3 },
+  { id: 'weekly_streak', title: '🔥 Streak bền bỉ', desc: 'Duy trì streak 7 ngày', reward: 300, check: (u) => u.streak >= 7 },
+  { id: 'weekly_perfect', title: '💯 Quiz Master', desc: 'Đạt 3 perfect quiz trong tuần', reward: 240, target: 3 },
 ];
 
 // ── Element Colors (10 hệ v2 — tên lấy từ shared/game-config.js) ────────────
@@ -1347,5 +1347,5 @@ export const PET_ACHIEVEMENTS = [
     }
     return false;
   }},
-  { id: 'pet_coins_500', icon: '💰', title: 'Triệu phú', desc: 'Tích lũy 500 coins', check: (_, p) => (p.totalCoinsEarned || 0) >= 500 },
+  { id: 'pet_milk_1500', icon: '🥛', title: 'Triệu phú Sữa', desc: 'Tích lũy 1 500 Sữa từ học tập', check: (u) => (u.totalXP || 0) >= 1500 },
 ];

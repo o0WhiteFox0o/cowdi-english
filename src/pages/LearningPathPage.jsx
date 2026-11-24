@@ -69,7 +69,7 @@ function buildCheckpointQuestions(unit, count) {
 export default function LearningPathPage() {
   useSEO(SEO_CONFIGS['/learning-path']);
   const { userData, addXP, incrementQuizzes, saveCheckpointScore } = useUser();
-  const { addCoins, getActivePetWithDecay } = usePet();
+  const { getActivePetWithDecay } = usePet();
   const showToast = useToast();
 
   // Checkpoint test state
@@ -169,16 +169,15 @@ export default function LearningPathPage() {
         const total = testQuestions.length;
         const pct = finalScore / total;
         const passed = pct >= testUnit.checkpoint.passRate;
-        // Thưởng "vượt mốc" chỉ nhận 1 lần; làm lại checkpoint đã đạt → 1/3 XP, không coin thưởng
+        // Thưởng "vượt mốc" chỉ nhận 1 lần; làm lại checkpoint đã đạt → 1/3 XP (D12)
         const alreadyPassed = !!userData.checkpointScores?.[testUnit.id]?.passed;
         saveCheckpointScore(testUnit.id, finalScore, total);
         const base = finalScore * 10 + (passed && !alreadyPassed ? 80 : 0) + (pct >= 1 ? 20 : 0);
         const xp = alreadyPassed ? Math.max(5, Math.round(base / 3)) : base;
         addXP(xp);
         incrementQuizzes(pct >= 1);
-        addCoins(passed && !alreadyPassed ? 40 : passed ? 10 : 5);
         setTestFinished(true);
-        showToast(passed ? `Vượt qua! +${xp} XP 🎉` : `Chưa đạt – cần ≥70%. Cố gắng thêm! 💪`, passed ? 'success' : 'warning');
+        showToast(passed ? `Vượt qua! +${xp} Sữa 🥛 🎉` : `Chưa đạt – cần ≥70%. Cố gắng thêm! 💪`, passed ? 'success' : 'warning');
       }
     }, 1000);
   }
@@ -294,6 +293,11 @@ export default function LearningPathPage() {
         <div className="book-bar"><i style={{ width: `${pct}%`, background: activePath.color }} /></div>
         <span>{doneCount}/{nodes.length} · {pct}%</span>
       </div>
+      <div className="d-flex justify-content-center gap-3 text-muted small mt-1 mb-3 flex-wrap">
+        <span>💎 Gem kế tiếp: <b>{(userData.completedLessons?.length || 0) % 2}/2</b> bài mới</span>
+        <span>·</span>
+        <span>💠 Đá kế tiếp: <b>{(userData.completedLessons?.length || 0) % 10}/10</b> bài mới</span>
+      </div>
 
       {activePath.id !== 'general' && (
         <div className="path-exam-note" style={{ '--u': activePath.color }}>
@@ -311,12 +315,36 @@ export default function LearningPathPage() {
           const unitNodes = nodes.filter((n) => n.unitIndex === uIdx);
           const unitDone = unitNodes.filter((n) => n.status === 'done').length;
           const unitLocked = unitNodes.length > 0 && unitNodes[0].status === 'locked';
+          const cpScore = userData.checkpointScores?.[unit.id];
+          const cpPassed = !!cpScore?.passed || (cpScore && (cpScore.score / cpScore.total >= 0.7));
+          const allLessonsDone = unit.lessons.every((lid) => userData.completedLessons?.includes(lid));
+          const isPerfect100 = allLessonsDone && cpScore && cpScore.score === cpScore.total && cpScore.total > 0;
+
           return (
-            <section key={unit.id} className={`path-unit ${unitLocked ? 'locked' : ''}`} style={{ '--u': unit.color }}>
+            <section
+              key={unit.id}
+              className={`path-unit ${unitLocked ? 'locked' : ''} ${isPerfect100 ? 'unit-perfect' : ''}`}
+              style={{
+                '--u': unit.color,
+                border: isPerfect100 ? '2px solid #F59E0B' : undefined,
+                boxShadow: isPerfect100 ? '0 0 12px rgba(245, 158, 11, 0.25)' : undefined,
+              }}
+            >
               <header className="path-unit-head">
-                <div className="path-unit-ico"><Icon name={UNIT_ICONS[uIdx % UNIT_ICONS.length]} size={30} /></div>
+                <div className="path-unit-ico">
+                  {isPerfect100 ? <Icon name="star" size={30} /> : <Icon name={UNIT_ICONS[uIdx % UNIT_ICONS.length]} size={30} />}
+                </div>
                 <div className="path-unit-txt">
-                  <small>Unit {uIdx + 1} · {unitDone}/{unitNodes.length}</small>
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <small>Unit {uIdx + 1} · {unitDone}/{unitNodes.length} · Nền tảng</small>
+                    {isPerfect100 ? (
+                      <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận 💎 3</span>
+                    ) : cpPassed ? (
+                      <span className="badge bg-success-subtle text-success">✓ Đã nhận 💎 1</span>
+                    ) : (
+                      <small className="text-muted">💎 +1 khi xong unit · +2 nữa nếu đạt 100%</small>
+                    )}
+                  </div>
                   <b>{unit.title}</b>
                   <span>{unit.subtitle}</span>
                 </div>
@@ -332,9 +360,25 @@ export default function LearningPathPage() {
                   const cls = `path-node ${node.type} ${node.status}`;
                   const score = node.type === 'checkpoint' ? userData.checkpointScores?.[unit.id] : null;
 
+                  const isDone = node.type === 'lesson' && userData.completedLessons?.includes(node.lessonId);
+                  const newLessonCount = (userData.completedLessons?.length || 0) + 1;
+                  const willGiveGem = !isDone && (newLessonCount % 2 === 0);
+                  const willGiveStone = !isDone && (newLessonCount % 10 === 0);
+                  const rewardHint = isDone ? '🥛 ~+57 (làm lại 1/3)' : '🥛 ~+170 Sữa';
+
                   const inner = (
                     <>
-                      {isCur && <span className="path-node-tip">{node.type === 'lesson' ? 'BẮT ĐẦU' : 'KIỂM TRA'}</span>}
+                      {isCur && (
+                        <span className="path-node-tip">
+                          {node.type === 'lesson' ? (
+                            <>
+                              BẮT ĐẦU · {rewardHint}
+                              {willGiveGem && ' +💎'}
+                              {willGiveStone && ' +💠'}
+                            </>
+                          ) : 'KIỂM TRA'}
+                        </span>
+                      )}
                       <span className="path-node-btn"><span>{nodeFace(node, lesson)}</span></span>
                       <span className="path-node-label">
                         {label}
@@ -377,7 +421,9 @@ export default function LearningPathPage() {
         <div className="path-fab">
           {currentNode.type === 'lesson' ? (
             <Link to={`/lessons/${currentNode.lessonId}`} className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2">
-              <Icon name="play" size={20} /> Học tiếp: {lessonMap[currentNode.lessonId]?.title}
+              <Icon name="play" size={20} />
+              <span>Học tiếp: {lessonMap[currentNode.lessonId]?.title}</span>
+              <span className="badge bg-warning text-dark ms-1">🥛 ~+170</span>
             </Link>
           ) : (
             <button type="button" className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={() => startCheckpoint(currentNode.unit)}>

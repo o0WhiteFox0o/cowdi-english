@@ -702,6 +702,30 @@ h5,
   border-color: var(--blue);
 }
 
+@keyframes resourceFloatUp {
+  0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -24px) scale(1.15); }
+}
+@keyframes pulsePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.pulse-pop {
+  animation: pulsePop 0.4s ease-in-out;
+}
+.resource-float-delta {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  pointer-events: none;
+  font-size: 0.85rem;
+  font-weight: 800;
+  animation: resourceFloatUp 1.6s ease-out forwards;
+  z-index: 10;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
 .book-pill-ico {
   font-size: 1.15rem;
   line-height: 1;

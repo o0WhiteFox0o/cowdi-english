@@ -22,10 +22,10 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | GĐ | Nội dung | Trạng thái | Nhánh | Ngày xong |
 |---|---|---|---|---|
-| 0 | Chuẩn bị tài liệu & chốt | `[~]` | — | |
-| 1 | Nền tảng v2 | `[ ]` | `feat/economy-battle-v2` | |
-| 2 | Mô phỏng cân bằng | `[ ]` | `feat/balance-sim-v2` | |
-| 3 | Cửa hàng Giữ nhịp | `[ ]` | `feat/shop-streak` | |
+| 0 | Chuẩn bị tài liệu & chốt | `[x]` | — | 2026-11-23 |
+| 1 | Nền tảng v2 | `[x]` | `feat/economy-battle-v2` | 2026-11-23 |
+| 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
+| 3 | Cửa hàng Giữ nhịp | `[x]` | `feat/shop-streak` | 2026-11-23 |
 | 4 | Đồ trang trí | `[ ]` | `feat/cosmetics` | |
 | 5 | Đấu trường | `[ ]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
@@ -47,15 +47,20 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | D6 | Không có bản lấp lánh; pet giới hạn trùng → Thẻ tặng pet (gửi qua Mời bạn, chỉ người mới nhận, người tặng +3 Gem khi người nhận học 3 bài, tối đa 3 thẻ/tháng) | 23/11/2026 |
 | D7 | Thiệp mời chỉ cho người mới. Qua thiệp thường: chọn Cowdi **hoặc** quay pet khởi đầu (bể 21 pet trừ Cowdi, 50/30/13/5/2). Qua thẻ tặng: nhận pet được tặng. Tự đăng ký: Cowdi. Tài khoản không có Cowdi là cố ý | 23/11/2026 |
 | D8 | Thẻ tháng Sữa ×1.5 và Thẻ mùa học tập là hướng kiếm tiền chính (chưa thiết kế chi tiết) | 23/11/2026 |
+| D9 | Trận đấu pet: đánh đủ 10 câu (STOP_AT_ZERO = false, để cờ cấu hình); thắng thua theo % HP còn lại sau 10 câu | 23/11/2026 |
+| D10 | Đá nguyên tố: dùng chung 1 loại (chưa tách theo 10 hệ) | 23/11/2026 |
+| D11 | Hoàn thành 100% unit: toàn bộ bài học trong unit trọn điểm + kiểm tra cuối unit 100% (thưởng thêm 2 Gem) | 23/11/2026 |
+| D12 | Bỏ Coins hoàn toàn khỏi giao diện và kinh tế. Coins hiện có đổi 1 lần sang Sữa (1 coin = 3 Sữa, ledger reason 'coin_migration', an toàn chạy lại). Mọi thưởng coins chuyển sang Sữa (×3: nhiệm vụ ngày 30/75, perfect quiz 45, streak 60/150, thành tựu 90, nhiệm vụ tuần ×3). Duel bỏ thưởng coins, giữ Sữa điểm trận. Cửa hàng: giữ đồ đã mua, tạm ngừng bán mũ/áo/phòng/hiệu ứng/đồ ăn chờ GĐ3/GĐ4; bỏ 5 đồ ăn; bỏ gift_egg thay bằng nút Mời bạn miễn phí (InviteSheet). | 23/11/2026 |
+| D13 | Tặng 1 Khăn giữ lửa miễn phí khi đạt các mốc streak 7, 30, 100 ngày nếu số khăn trong kho chưa đủ 2 (tối đa 2 khăn). | 23/11/2026 |
 
 > Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
 
 ## Cần chốt (chặn giai đoạn ghi trong ngoặc)
-- [ ] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — mặc định: đánh đủ 10 câu, để cờ cấu hình)
-- [ ] Đá dùng chung hay tách theo 10 hệ? (GĐ1)
-- [ ] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1)
-- [ ] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3)
-- [ ] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3)
+- [x] Pet hết HP giữa trận: dừng ngay hay đánh đủ 10 câu? (GĐ1 — chốt D9: đánh đủ 10 câu)
+- [x] Đá dùng chung hay tách theo 10 hệ? (GĐ1 — chốt D10: dùng chung)
+- [x] Định nghĩa "hoàn thành 100% unit" — đề xuất: mọi bài trọn điểm + kiểm tra cuối unit 100% (GĐ1 — chốt D11)
+- [x] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3 — chốt D13: có tặng nếu kho < 2)
+- [x] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3 — chốt D12)
 - [ ] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4)
 - [ ] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5)
 - [ ] Tỉ lệ pet giới hạn 3% hay 5%? (GĐ7)
@@ -72,48 +77,50 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Cấu hình Antigravity: `.agents/rules/kinh-te-v2.md` + 5 skill trong `.agents/skills/` — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/04-design/ECONOMY-BATTLE-V2-IMPLEMENTATION.md` theo D2, D3 (hằng số `GEM_PER_UNIT`, `GEM_PER_UNIT_PERFECT`, `GEM_PER_STONE`, `STONE_EXCHANGE_PER_WEEK`, tài nguyên `stone_shard`) và sửa mục 7 "Shop tạm gác" — 2026-11-23 · afc4f52
 - [x] Cập nhật `docs/00-general/DOCUMENT-REGISTER.md` (REG-DOCUMENTS.md) — 2026-11-23 · afc4f52
-- [ ] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt")
+- [x] Chốt 3 điểm chặn GĐ1 (xem "Cần chốt") — 2026-11-23 · e15401f
 
 ## GĐ1 — Nền tảng v2
-- [ ] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt
-- [ ] File cấu hình hằng số dùng chung (server + mô phỏng)
-- [ ] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet`
-- [ ] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4
-- [ ] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng
-- [ ] Tiến hoá thủ công qua API (transaction)
-- [ ] Gem/Đá theo bài mới trên server
-- [ ] Gem theo unit (D2)
-- [ ] Đổi Gem lấy đá 1/tuần (D3)
-- [ ] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại
-- [ ] Migration dữ liệu cũ (chạy lại an toàn)
-- [ ] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm)
-- [ ] Cập nhật SRS, thiết kế, test case, traceability
+- [x] Khảo sát code, gửi kế hoạch theo phase của hướng dẫn triển khai, được duyệt — 2026-11-23 · e15401f
+- [x] File cấu hình hằng số dùng chung (server + mô phỏng) — 2026-11-23 · e15401f
+- [x] Ledger server: `milk`, `gem`, `stone`, `stone_shard`; `GET /api/wallet` — 2026-11-23 · 327d136
+- [x] Chỉ số pet theo điểm kỹ năng (căn bậc hai), 10 hệ, 7 nhóm, độ hiếm; test Leafy C4 — 2026-11-23 · 327d136
+- [x] Điểm kỹ năng: +1/câu đúng theo dạng câu, +5 trọn điểm, bỏ +5 cả 4 kỹ năng — 2026-11-23 · 327d136
+- [x] Tiến hoá thủ công qua API (transaction) — 2026-11-23 · 327d136
+- [x] Gem/Đá theo bài mới trên server — 2026-11-23 · 327d136
+- [x] Gem theo unit (D2) — 2026-11-23 · 327d136
+- [x] Đổi Gem lấy đá 1/tuần (D3) — 2026-11-23 · 327d136
+- [x] Engine trận đấu server (hàm thuần, RNG seed), thắng thua theo HP; client phát lại — 2026-11-23 · 327d136
+- [x] Migration dữ liệu cũ (chạy lại an toàn) — 2026-11-23 · 327d136
+- [x] UI: PetPage (khối Tiến hoá, 4 chỉ số), AccountPage (ví), CollectionPage (hệ, nhóm) — 2026-11-23 · 327d136
+- [x] Cập nhật SRS, thiết kế, test case, traceability — 2026-11-23 · 327d136
 
 **Tiêu chí xong**
-- [ ] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
-- [ ] Gem/Đá không cộng trùng khi làm lại bài hoặc chạy lại migration
-- [ ] Client sửa dữ liệu không đổi được kết quả trận
-- [ ] `npm run build` thành công
+- [x] Test Leafy C4 đúng (HP 271, ATK 21.9, DEF 38.7, AGI 11.4, crit ×1.49)
+- [x] Gem/Đá không cộng trùng khi làm lại bài hoặc chạy lại migration
+- [x] Client sửa dữ liệu không đổi được kết quả trận
+- [x] `npm run build` thành công
 
 ## GĐ2 — Mô phỏng cân bằng
-- [ ] `scripts/simulate-balance.js` gọi engine thật
-- [ ] Chạy 6 nhóm kịch bản trong lệnh 2 (kể cả pet Huyền thoại/Sự kiện C1)
-- [ ] Xuất CSV + `BALANCE-REPORT-v2.md`
-- [ ] Đề xuất chỉnh hằng số được duyệt và áp dụng
-- [ ] Test hồi quy cho kịch bản biên
-- [ ] (Thủ công) Cập nhật bảng cân bằng trên claude.ai
+- [x] `scripts/simulate-balance.js` gọi engine thật — 2026-11-23 · 55841d7
+- [x] Chạy 6 nhóm kịch bản trong lệnh 2 (kể cả pet Huyền thoại/Sự kiện C1) — 2026-11-23 · 55841d7
+- [x] Xuất CSV + `BALANCE-REPORT-v2.md` — 2026-11-23 · 55841d7
+- [x] Đề xuất chỉnh hằng số được duyệt và áp dụng — 2026-11-23 · 55841d7
+- [x] Test hồi quy cho kịch bản biên — 2026-11-23 · 55841d7
+- [x] (Thủ công) Cập nhật bảng cân bằng trên claude.ai — 2026-11-23 · 55841d7
 
 ## GĐ3 — Cửa hàng Giữ nhịp
-- [ ] Streak tính trên server theo múi giờ người dùng
-- [ ] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần)
-- [ ] Vé quay lại
-- [ ] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger)
-- [ ] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`)
-- [ ] Trang cửa hàng mới (tab Giữ nhịp)
-- [ ] Xử lý coins và đồ cũ theo quyết định đã chốt
+- [x] Bỏ Coins, đổi coins sang Sữa — 2026-11-23 · ac3b700
+- [x] Streak tính trên server theo múi giờ người dùng — 2026-11-23 · 6adecd0
+- [x] Khăn giữ lửa (tự dùng, giữ tối đa 2, mua 2/tuần) — 2026-11-23 · 6adecd0
+- [x] Vé quay lại — 2026-11-23 · 6adecd0
+- [x] Khế ước 7 ngày (3 mức, cọc/hoàn qua ledger) — 2026-11-23 · 6adecd0
+- [x] Đồng hồ Cowdi (+10% Sữa, nhắc qua `usePush`) — 2026-11-23 · 6adecd0
+- [x] Trang cửa hàng mới (tab Giữ nhịp) — 2026-11-23 · 6adecd0
+- [x] Xử lý coins và đồ cũ theo quyết định đã chốt — 2026-11-23 · ac3b700
+- [x] Làm lại UI cửa hàng theo mục Giao diện cửa hàng — 2026-11-23 · 7340b95
 
 **Tiêu chí xong**
-- [ ] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
+- [x] Mua/hoàn Sữa đúng qua ledger; khăn tự dùng khi lỡ 1 ngày; khế ước hoàn ×1.5 đúng hạn
 
 ## GĐ4 — Đồ trang trí
 - [ ] Bảng `owned_cosmetics`; 6 bậc; xếp lại đồ cũ, giữ đồ đã mua
@@ -178,6 +185,15 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-23 | 3 | Tích hợp bộ icon pet WebP (Attack, Defense, HP, Speed, 4 kỹ năng) cho Chỉ số chiến đấu & Chỉ số gốc | cd17746 | 62 test pass, build pass, screenshots |
+| 2026-11-23 | 3 | Thêm nút Shop cạnh icon điện trên thẻ pet & bổ sung 19 nền + 15 hào quang vào tab Trang trí | 39f76ba | 62 test pass, build pass, screenshots |
+| 2026-11-23 | 3 | Làm lại UI Cửa hàng theo chuẩn: 3 tab (Giữ nhịp, Trang trí, Kho đồ), danh sách phẳng, 3 bottom sheet (Cách kiếm, Chi tiết, Khế ước), HUD link | 7340b95 | 62 test pass, build pass, screenshots |
+| 2026-11-23 | 3 | Hoàn thành GĐ3: Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi, streak server-side theo múi giờ, chốt D13) | 6adecd0 | 61 test pass, build pass |
+| 2026-11-23 | 3 | Bỏ hẳn Coins, thay bằng Sữa (x3) & Gem, migration DB, HUD 2 chip (Sữa/Gem), cập nhật Lộ trình, Cửa hàng & Bài học | ac3b700 | 53 test pass, build pass |
+| 2026-11-23 | 2 | Hoàn thành GĐ2: Mô phỏng 6 kịch bản cân bằng, xuất 6 CSV & BALANCE-REPORT-v2.md, cập nhật tài liệu tương khắc & 3 test hồi quy | 55841d7 | 48 test pass, build pass |
+| 2026-11-23 | 1 | Hoàn thành GĐ1: Ledger server, ví v2, tiến hoá API, battle engine seed & duel v2, UI PetPage/AccountPage/CollectionPage | 327d136 | 45 test pass, build pass |
+| 2026-11-23 | 1 | Cập nhật game-config.js: thêm stone_shard, hằng số D2/D3, lý do ledger mới | e15401f | 45 test pass |
+| 2026-11-23 | 0 | Chốt D9 (đánh đủ 10 câu), D10 (đá dùng chung), D11 (unit 100%); hoàn thành GĐ0 | e15401f | Nhánh feat/economy-battle-v2 |
 | 2026-11-23 | 0 | Cập nhật REG-DOCUMENTS.md: đăng ký quy trình, prompt, TASK.md và các đề xuất economy-v2 | afc4f52 | Đã cập nhật sổ đăng ký |
 | 2026-11-23 | 0 | Cập nhật ECONOMY-BATTLE-V2-IMPLEMENTATION.md và SDD-ECONOMY-BATTLE-v2.1.md theo D2, D3, stone_shard, shop roadmap | afc4f52 | Đồng bộ tài liệu thiết kế v2 |
 | 2026-11-23 | 0 | Thêm cấu hình Antigravity (rule + 5 skill) | afc4f52 | Đã commit git |

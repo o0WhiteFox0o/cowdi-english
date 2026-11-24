@@ -5,8 +5,12 @@ import assert from 'node:assert/strict';
 import {
   computeStats, canEvolve, getCounterMultiplier, getCritChance, getDodgeChance,
   computeDamage, simulateBattle, createRng, isGroupSkillUnlocked, normalizeRarity, canMatch,
+  resolveSnapshot,
 } from './battle-engine.js';
-import { ELEMENTS, GROUPS, GROUP_SKILLS, PET_BATTLE_DATA, EVOLUTION_COSTS, SKILL_KEYS } from './game-config.js';
+import {
+  ELEMENTS, GROUPS, GROUP_SKILLS, PET_BATTLE_DATA, EVOLUTION_COSTS, SKILL_KEYS,
+  CURRENCIES, ECONOMY, LEDGER_REASONS,
+} from './game-config.js';
 
 const sk = (l, s, r, w) => ({ listening: l, speaking: s, reading: r, writing: w });
 const near = (actual, expected, tol = 0.1, msg) =>
@@ -383,5 +387,60 @@ describe('dữ liệu config', () => {
     for (const t of [ELEMENTS, GROUPS, GROUP_SKILLS]) {
       for (const [k, v] of Object.entries(t)) assert.ok(v.labelVi, k);
     }
+  });
+
+  test('tiền tệ & hằng số kinh tế v2 (D2, D3, stone_shard)', () => {
+    assert.deepEqual(Object.keys(CURRENCIES), ['milk', 'gem', 'stone', 'stone_shard']);
+    assert.equal(CURRENCIES.stone_shard.labelVi, 'Mảnh đá nguyên tố');
+    assert.equal(ECONOMY.GEM_PER_UNIT, 1);
+    assert.equal(ECONOMY.GEM_PER_UNIT_PERFECT, 2);
+    assert.equal(ECONOMY.GEM_PER_STONE, 15);
+    assert.equal(ECONOMY.STONE_EXCHANGE_PER_WEEK, 1);
+    assert.equal(ECONOMY.SHARDS_PER_STONE, 10);
+    assert.equal(ECONOMY.STONE_PER_ELEMENT, false);
+    assert.ok(LEDGER_REASONS.includes('unit_complete'));
+    assert.ok(LEDGER_REASONS.includes('unit_perfect'));
+    assert.ok(LEDGER_REASONS.includes('stone_exchange'));
+    assert.ok(LEDGER_REASONS.includes('shard_combine'));
+  });
+});
+
+describe('GĐ2 — Test hồi quy các kịch bản biên & tái lập mô phỏng', () => {
+  test('kịch bản biên: Leo (Kim/Thú săn) vs Leafy (Mộc) có seed cố định', () => {
+    const leo = resolveSnapshot({ speciesId: 'leo', evolution: 2, skills: { listening: 600, speaking: 600, reading: 600, writing: 600 } });
+    const leafy = resolveSnapshot({ speciesId: 'leafy', evolution: 2, skills: { listening: 600, speaking: 600, reading: 600, writing: 600 } });
+    const ans = new Array(10).fill({ correct: true, timeMs: 4000 });
+
+    const res1 = simulateBattle(leo, leafy, ans, ans, 'fixed-seed-leo-leafy-1');
+    const res2 = simulateBattle(leo, leafy, ans, ans, 'fixed-seed-leo-leafy-1');
+
+    // Tính tất định: cùng seed -> cùng kết quả 100%
+    assert.equal(res1.winner, res2.winner);
+    assert.equal(res1.challenger.hp, res2.challenger.hp);
+    assert.equal(res1.opponent.hp, res2.opponent.hp);
+    // Leo khắc Leafy -> Leo thắng
+    assert.equal(res1.winner, 'challenger');
+  });
+
+  test('kịch bản biên: Aurelius (Huyền thoại) C1 thua Cowdi (Thường) đã lên C2', () => {
+    const aurC1 = resolveSnapshot({ speciesId: 'aurelius', evolution: 0, skills: { listening: 0, speaking: 0, reading: 0, writing: 0 } });
+    const cowdiC2 = resolveSnapshot({ speciesId: 'cowdi', evolution: 1, skills: { listening: 15, speaking: 15, reading: 15, writing: 15 } });
+    const ans = new Array(10).fill({ correct: true, timeMs: 4000 });
+
+    const res = simulateBattle(aurC1, cowdiC2, ans, ans, 'fixed-seed-aur-vs-c2');
+    // Cowdi C2 có base stat cao hơn hẳn C1 -> thắng
+    assert.equal(res.winner, 'opponent');
+  });
+
+  test('kịch bản biên: Storm C5 dồn Nói hạ đối thủ trước 10 câu khi đối thủ trả lời sai và stopAtZero', () => {
+    const storm = resolveSnapshot({ speciesId: 'storm', evolution: 4, skills: { listening: 200, speaking: 1800, reading: 200, writing: 200 } });
+    const target = resolveSnapshot({ speciesId: 'cowdi', evolution: 4, skills: { listening: 800, speaking: 200, reading: 500, writing: 200 } });
+    const ansA = new Array(10).fill({ correct: true, timeMs: 2000 }); // Storm trả lời nhanh
+    const ansB = new Array(10).fill({ correct: false, timeMs: 5000 });
+
+    const res = simulateBattle(storm, target, ansA, ansB, 'fixed-seed-storm-say', { stopAtZero: true });
+    assert.equal(res.winner, 'challenger');
+    const lastQuestion = res.log[res.log.length - 1].q;
+    assert.ok(lastQuestion <= 8, `Storm dồn Nói hạ đối thủ ở câu thứ ${lastQuestion} <= 8 khi đối thủ trả lời sai`);
   });
 });

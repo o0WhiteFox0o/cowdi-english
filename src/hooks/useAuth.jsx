@@ -55,17 +55,21 @@ export function AuthProvider({ children }) {
     window.location.href = `${API}/auth/google`;
   }, []);
 
-  /** Gọi API backend có kèm JWT */
+  /** Gọi API backend có kèm JWT & múi giờ IANA */
   const authFetch = useCallback(
-    (url, options = {}) =>
-      fetch(`${API}${url}`, {
+    (url, options = {}) => {
+      let tz = 'Asia/Ho_Chi_Minh';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch {}
+      return fetch(`${API}${url}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
+          'X-Timezone': tz,
           ...(options.headers || {}),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      }),
+      });
+    },
     [token]
   );
 
