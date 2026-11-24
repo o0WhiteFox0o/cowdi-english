@@ -15,13 +15,55 @@ const sharedDir = path.resolve(__dirname, '../../shared');
 // Tải danh sách bài học và unit hợp lệ để chống gian lận
 let validLessonIdsSet = new Set();
 let validUnitsList = [];
+let validPathIdsSet = new Set();
+const VALID_LEARNER_GROUPS = new Set(['beginner', 'intermediate', 'exam']);
+
 try {
   const lessonIdsRaw = fs.readFileSync(path.join(sharedDir, 'lesson-ids.json'), 'utf8');
   validLessonIdsSet = new Set(JSON.parse(lessonIdsRaw));
   const unitsRaw = fs.readFileSync(path.join(sharedDir, 'units.json'), 'utf8');
   validUnitsList = JSON.parse(unitsRaw);
+  for (const u of validUnitsList) {
+    if (u.pathId) validPathIdsSet.add(u.pathId);
+    if (Array.isArray(u.pathIds)) {
+      for (const pid of u.pathIds) validPathIdsSet.add(pid);
+    }
+  }
 } catch (err) {
   console.warn('[wallet] Could not load lesson-ids.json or units.json:', err.message);
+}
+
+export function sanitizeLearnerGroup(val) {
+  return typeof val === 'string' && VALID_LEARNER_GROUPS.has(val) ? val : null;
+}
+
+export function sanitizeActivePath(val) {
+  return typeof val === 'string' && validPathIdsSet.has(val) ? val : null;
+}
+
+/**
+ * Gộp lessonScores mới với lessonScores cũ trong DB:
+ * - Chỉ giữ lessonId hợp lệ trong lesson-ids.json
+ * - Giá trị làm tròn nguyên và kẹp [0, 100]
+ * - Lấy MAX theo từng khoá để client cũ không bao giờ làm tụt điểm.
+ */
+export function mergeLessonScores(existingScores = {}, incomingScores = {}, validIds = validLessonIdsSet) {
+  const merged = {};
+  const apply = (src) => {
+    if (!src || typeof src !== 'object') return;
+    for (const [k, raw] of Object.entries(src)) {
+      if (validIds && validIds.size > 0 && !validIds.has(k)) continue;
+      const n = Number(raw);
+      if (!Number.isFinite(n)) continue;
+      const clamped = Math.max(0, Math.min(100, Math.round(n)));
+      if (merged[k] === undefined || clamped > merged[k]) {
+        merged[k] = clamped;
+      }
+    }
+  };
+  apply(existingScores);
+  apply(incomingScores);
+  return merged;
 }
 
 /**
@@ -114,13 +156,19 @@ export async function grantLessonAndUnitRewards(userId, completedLessons = [], c
     );
   }
 
-  // 2. Thưởng Gem theo unit (D2, D11)
+  // 2. Thưởng Gem theo unit (D2, D11, L6 — sửa H6 & H7)
+  // Chỉ cấp khi: xong hết bài + qua kiểm tra unit thật (source === 'checkpoint' hoặc bản ghi cũ chưa có source).
+  // Unit vượt qua nhờ placement / legacy KHÔNG được Gem.
   for (const unit of validUnitsList) {
     const allLessonsDone = Array.isArray(unit.lessons) &&
       unit.lessons.length > 0 &&
       unit.lessons.every((id) => completedSet.has(id));
 
     if (!allLessonsDone) continue;
+
+    const cp = checkpointScores?.[unit.unitId];
+    const cpReal = Boolean(cp && cp.passed && (cp.source ?? 'checkpoint') === 'checkpoint');
+    if (unit.hasCheckpoint && !cpReal) continue;
 
     // a) Hoàn thành unit -> +1 Gem
     await db.execute(
@@ -130,22 +178,21 @@ export async function grantLessonAndUnitRewards(userId, completedLessons = [], c
     );
 
     // b) Hoàn thành 100% unit -> thêm +2 Gem
-    // Điều kiện: mọi bài học trong unit đều có điểm tuyệt đối (score >= 100 hoặc 1.0)
-    // và bài checkpoint (nếu có) đạt 100% hoặc passed
+    // Điều kiện: mọi bài học trong unit có lessonScores[id] >= 100
+    // và (không có checkpoint hoặc cp.total > 0 && cp.score === cp.total)
     let isPerfect = true;
     for (const lessonId of unit.lessons) {
-      const score = lessonScores[lessonId];
-      if (score === undefined || score < 100) {
-        // Nếu không có thông tin chi tiết quiz score thì không tính 100%
+      const score = Number(lessonScores?.[lessonId]);
+      if (!Number.isFinite(score) || score < 100) {
         isPerfect = false;
         break;
       }
     }
 
     if (isPerfect && unit.hasCheckpoint) {
-      const cp = checkpointScores[unit.unitId];
-      const cpScore = cp?.score;
-      if (!cp || (cpScore !== undefined && cpScore < 100 && cpScore < 1.0) || !cp.passed) {
+      const cpTotal = Number(cp?.total);
+      const cpScore = Number(cp?.score);
+      if (!Number.isFinite(cpTotal) || cpTotal <= 0 || cpScore !== cpTotal) {
         isPerfect = false;
       }
     }
@@ -160,6 +207,22 @@ export async function grantLessonAndUnitRewards(userId, completedLessons = [], c
   }
 
   return getWallet(userId, db);
+}
+
+/**
+ * Lấy lịch sử giao dịch ví (luôn lọc bỏ dòng amount = 0 dùng làm khoá chặn guard-unit-gems).
+ */
+export async function getWalletHistory(userId, limit = 50, db = pool) {
+  const safeLimit = Math.max(1, Math.min(200, Number(limit) || 50));
+  const [rows] = await db.execute(
+    `SELECT id, currency, amount, reason, ref_id, created_at
+     FROM wallet_ledger
+     WHERE user_id = ? AND amount <> 0
+     ORDER BY id DESC
+     LIMIT ?`,
+    [userId, safeLimit]
+  );
+  return rows;
 }
 
 /**
