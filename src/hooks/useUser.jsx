@@ -186,7 +186,7 @@ function sanitizeData(data) {
   // ── Khởi tạo ví Kinh tế v2 ──────────────────────────────
   const w = sanitized.wallet || {};
   sanitized.wallet = {
-    milk: typeof w.milk === 'number' && w.milk > 0 ? w.milk : (sanitized.availableXP || 0),
+    milk: typeof w.milk === 'number' ? w.milk : (sanitized.availableXP || 0),
     gem: typeof w.gem === 'number' ? w.gem : 0,
     stone: typeof w.stone === 'number' ? w.stone : 0,
     stone_shard: typeof w.stone_shard === 'number' ? w.stone_shard : 0,
@@ -321,8 +321,11 @@ function mergeProgress(local, remote) {
     stone: Number(rawWallet.stone ?? 0) || 0,
     stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
   };
-  if (typeof remote.wallet?.milk === 'number') {
+  if (typeof remote.wallet?.milk === 'number' && (remote.totalXP || 0) >= (local.totalXP || 0)) {
     merged.availableXP = remote.wallet.milk;
+    merged.wallet.milk = remote.wallet.milk;
+  } else {
+    merged.wallet.milk = merged.availableXP;
   }
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
@@ -471,23 +474,32 @@ export function UserProvider({ children }) {
           try {
             const res = await r.json();
             if (res.wallet || res.streak != null || res.streakState) {
+              let updatedWallet = null;
               setUserData((prev) => {
                 const hasValidWallet = res.wallet && typeof res.wallet.milk === 'number';
+                const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
                 const nextWallet = hasValidWallet
                   ? {
-                      milk: Number(res.wallet.milk) || 0,
+                      milk: Math.max(Number(res.wallet.milk) || 0, Number(curMilk) || 0),
                       gem: Number(res.wallet.gem) || 0,
                       stone: Number(res.wallet.stone) || 0,
                       stone_shard: Number(res.wallet.stone_shard) || 0,
                     }
                   : null;
-                return {
+                updatedWallet = nextWallet;
+                const next = {
                   ...prev,
                   ...(nextWallet ? { wallet: nextWallet, availableXP: nextWallet.milk } : {}),
                   ...(res.streak != null ? { streak: res.streak } : {}),
                   ...(res.streakState ? { streakState: res.streakState } : {}),
                 };
+                userDataRef.current = next;
+                return next;
               });
+              if (updatedWallet) {
+                window.dispatchEvent(new CustomEvent('wallet-updated', { detail: updatedWallet }));
+              }
+              return updatedWallet;
             }
           } catch {}
           return;
@@ -646,20 +658,31 @@ export function UserProvider({ children }) {
       granted = full + overflow;
     }
     if (granted <= 0) return 0;
-    setUserData((prev) => {
-      let dailyJournal = bumpJournal(prev, 'xp', granted);
-      if (source === 'game') dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'gameXp', granted);
-      // Cộng cả lifetime (totalXP) và ví có thể tiêu (availableXP)
-      const next = {
-        ...prev,
-        totalXP: (prev.totalXP || 0) + granted,
-        availableXP: (prev.availableXP || 0) + granted,
-        dailyJournal,
-      };
-      return checkAchievements(next);
-    });
+
+    // Cập nhật userDataRef.current ĐỒNG BỘ NGAY LẬP TỨC để các lệnh gọi sau (refreshWallet, pushProgress) không bị stale
+    const prev = userDataRef.current || {};
+    let dailyJournal = bumpJournal(prev, 'xp', granted);
+    if (source === 'game') dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'gameXp', granted);
+    const currentMilk = prev.wallet?.milk != null ? prev.wallet.milk : (prev.availableXP || 0);
+    const nextMilk = currentMilk + granted;
+    const nextTotalXp = (prev.totalXP || 0) + granted;
+    const next = {
+      ...prev,
+      totalXP: nextTotalXp,
+      availableXP: nextMilk,
+      wallet: {
+        ...(prev.wallet || { gem: 0, stone: 0, stone_shard: 0 }),
+        milk: nextMilk,
+      },
+      dailyJournal,
+    };
+    userDataRef.current = next;
+    pendingSyncRef.current = true;
+    if (user) markSyncDirty(user.id);
+
+    setUserData(checkAchievements(next));
     return granted;
-  }, []);
+  }, [user]);
 
   // XP mini-game còn có thể nhận đủ 100% hôm nay (để UI hiển thị)
   const gameXpRemainingToday = Math.max(0, GAME_XP_DAILY_CAP - (userData.dailyJournal?.[todayKey()]?.gameXp || 0));
@@ -669,12 +692,25 @@ export function UserProvider({ children }) {
   // Kiểm tra qua ref (đồng bộ) thay vì dựa vào side-effect trong updater của React.
   const spendXP = useCallback((amount) => {
     if (!amount || amount <= 0) return false;
-    if ((userDataRef.current?.availableXP || 0) < amount) return false;
-    userDataRef.current = { ...userDataRef.current, availableXP: (userDataRef.current.availableXP || 0) - amount };
+    const currentMilk = userDataRef.current?.wallet?.milk != null
+      ? userDataRef.current.wallet.milk
+      : (userDataRef.current?.availableXP || 0);
+    if (currentMilk < amount) return false;
+
     setUserData((prev) => {
-      const have = prev.availableXP || 0;
+      const have = prev.wallet?.milk != null ? prev.wallet.milk : (prev.availableXP || 0);
       if (have < amount) return prev;
-      return { ...prev, availableXP: have - amount };
+      const nextMilk = have - amount;
+      const next = {
+        ...prev,
+        availableXP: nextMilk,
+        wallet: {
+          ...(prev.wallet || { gem: 0, stone: 0, stone_shard: 0 }),
+          milk: nextMilk,
+        },
+      };
+      userDataRef.current = next;
+      return next;
     });
     return true;
   }, []);
@@ -720,6 +756,7 @@ export function UserProvider({ children }) {
         dailyJournal,
         srsData,
       };
+      userDataRef.current = next;
       return checkAchievements(next);
     });
   }, []);
@@ -736,6 +773,7 @@ export function UserProvider({ children }) {
         perfectQuizzes: isPerfect ? prev.perfectQuizzes + 1 : prev.perfectQuizzes,
         dailyJournal,
       };
+      userDataRef.current = next;
       return checkAchievements(next);
     });
   }, []);
@@ -820,10 +858,12 @@ export function UserProvider({ children }) {
     setUserData((prev) => {
       const cur = prev.lessonScores?.[lessonId];
       if (cur != null && cur >= score) return prev;
-      return {
+      const next = {
         ...prev,
         lessonScores: { ...(prev.lessonScores || {}), [lessonId]: score },
       };
+      userDataRef.current = next;
+      return next;
     });
   }, []);
 
@@ -892,23 +932,62 @@ export function UserProvider({ children }) {
   }, []);
 
   // Refresh wallet từ server
+  // Đồng bộ ví từ kết quả server API (ví dụ Đấu trường, Cửa hàng)
+  const syncWallet = useCallback((newWallet) => {
+    if (!newWallet) return;
+    setUserData((prev) => {
+      const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
+      const safeMilk = Math.max(Number(newWallet.milk) || 0, Number(curMilk) || 0);
+      const nextWallet = {
+        ...newWallet,
+        milk: safeMilk,
+      };
+      const next = {
+        ...prev,
+        wallet: nextWallet,
+        availableXP: safeMilk,
+      };
+      userDataRef.current = next;
+      return next;
+    });
+    window.dispatchEvent(new CustomEvent('wallet-updated', { detail: newWallet }));
+  }, []);
+
+  // Refresh wallet từ server
   const refreshWallet = useCallback(async () => {
     if (!user) return null;
     try {
+      // Nếu có tiến độ chưa sync lên server, đẩy lên ngay để server cập nhật totalXP/bài học trước khi tính ví
+      if (pendingSyncRef.current) {
+        clearTimeout(syncTimerRef.current);
+        const w = await pushProgress(userDataRef.current);
+        if (w) return w;
+      }
       const res = await authFetch('/api/wallet');
       if (res.ok) {
         const w = await res.json();
-        setUserData((prev) => ({ ...prev, wallet: w, availableXP: w.milk }));
+        setUserData((prev) => {
+          const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
+          const safeMilk = Math.max(Number(w.milk) || 0, Number(curMilk) || 0);
+          const nextWallet = {
+            ...w,
+            milk: safeMilk,
+          };
+          const next = { ...prev, wallet: nextWallet, availableXP: safeMilk };
+          userDataRef.current = next;
+          return next;
+        });
         return w;
       }
     } catch {}
     return null;
-  }, [user, authFetch]);
+  }, [user, authFetch, pushProgress]);
 
   const value = {
     userData,
     addXP,
     spendXP,
+    syncWallet,
     refreshWallet,
     gameXpRemainingToday,
     addSkillXP,

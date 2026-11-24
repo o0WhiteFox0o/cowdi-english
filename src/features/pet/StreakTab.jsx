@@ -163,7 +163,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     id: 'freeze',
     icon: '🧣',
     name: 'Khăn giữ lửa',
-    shortBenefit: 'Bảo vệ chuỗi khi lỡ 1 ngày học',
+    shortBenefit: 'Giữ chuỗi khi lỡ 1 ngày',
     description: 'Tự động kích hoạt khi bạn bỏ lỡ một ngày học để giữ nguyên chuỗi streak. Mỗi khăn che chở cho đúng 1 ngày nghỉ.',
     rules: [
       'Sở hữu tối đa 2 khăn cùng lúc trong kho.',
@@ -171,7 +171,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
       'Được tặng miễn phí 1 khăn khi đạt các mốc streak 7, 30, 100 ngày (nếu kho chưa đầy 2 khăn).',
     ],
     price: KEEP_RHYTHM_ITEMS.freeze.priceMilk,
-    statusSubtitle: `Số lượng: ${state.freezeCount}/2 · Đã mua tuần này: ${state.freezesBoughtThisWeek}/2`,
+    statusSubtitle: `Có ${state.freezeCount}/2 · tuần này mua ${state.freezesBoughtThisWeek}/2`,
     buttonState: (() => {
       if (state.freezeCount >= KEEP_RHYTHM_ITEMS.freeze.maxInventory) {
         return { disabled: true, label: 'Đủ 2/2 khăn' };
@@ -190,7 +190,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     id: 'return_ticket',
     icon: '🔁',
     name: 'Vé quay lại',
-    shortBenefit: 'Khôi phục 50% streak cũ sau khi nghỉ',
+    shortBenefit: 'Khôi phục 50% chuỗi cũ',
     description: 'Dành cho những người học không may bị đứt chuỗi và đã nghỉ từ 2 đến 14 ngày. Sau khi kích hoạt, hoàn thành 2 bài học trong vòng 24 giờ để khôi phục 50% chuỗi streak cũ!',
     rules: [
       'Điều kiện: Chuỗi streak cũ trước khi đứt phải đạt từ 7 ngày trở lên.',
@@ -222,7 +222,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     id: 'contract',
     icon: '📜',
     name: 'Khế ước 7 ngày',
-    shortBenefit: 'Cam kết học đủ 7 ngày liên tiếp nhận hoàn ×1.5 Sữa',
+    shortBenefit: 'Học đủ 7 ngày, nhận lại ×1,5 Sữa đã cọc',
     description: 'Đặt cọc Sữa và cam kết hoàn thành mục tiêu học tập mỗi ngày trong 7 ngày liên tiếp. Khi hoàn thành, bạn nhận lại toàn bộ tiền cọc kèm 50% lợi nhuận (tổng ×1.5 Sữa)!',
     rules: [
       '3 mức cọc: Khởi động (300 🥛, 1 bài/ngày), Chăm chỉ (700 🥛, 2 bài/ngày), Bứt phá (1 500 🥛, 3 bài/ngày).',
@@ -233,7 +233,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     price: 0,
     statusSubtitle: state.contract
       ? `Tiến độ: ${'●'.repeat(state.contract.daysCompleted)}${'○'.repeat(7 - state.contract.daysCompleted)} ${state.contract.daysCompleted}/7 ngày · Hôm nay: ${state.contract.todayLessonsDone}/${state.contract.targetLessonsPerDay} bài`
-      : 'Thử thách 7 ngày: Khởi động 300 🥛 · Chăm chỉ 700 🥛 · Bứt phá 1 500 🥛',
+      : '',
     buttonState: (() => {
       if (state.contract) {
         return { disabled: false, isProgress: true, label: `${state.contract.daysCompleted}/7 ngày (còn ${7 - state.contract.daysCompleted} ngày)` };
@@ -246,7 +246,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     id: 'clock',
     icon: '⏰',
     name: 'Đồng hồ Cowdi',
-    shortBenefit: 'Giờ vàng học tập cố định +10% Sữa mỗi ngày',
+    shortBenefit: '+10% Sữa khi học đúng giờ vàng',
     description: 'Chọn một khung giờ học cố định mỗi ngày. Mọi bài học bắt đầu trong khoảng ±1 giờ quanh giờ này được thưởng thêm +10% Sữa (tối đa 3 bài/ngày). Mua một lần dùng mãi mãi!',
     rules: [
       'Giá 1 000 🥛 Sữa, mua một lần dùng vĩnh viễn.',
@@ -257,7 +257,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
     price: KEEP_RHYTHM_ITEMS.clock.priceMilk,
     statusSubtitle: state.hasClock
       ? `Giờ vàng: ${String(state.clockHour ?? 20).padStart(2, '0')}:00 hàng ngày (±1 giờ) · ${state.clockCanChangeThisWeek ? 'Được đổi giờ' : 'Đã đổi tuần này'}`
-      : 'Mua vĩnh viễn · Thưởng +10% Sữa cho tối đa 3 bài/ngày quanh giờ đã chọn',
+      : 'Mua vĩnh viễn · Thưởng +10% Sữa cho tối đa 3 bài/ngày',
     buttonState: (() => {
       if (state.hasClock) {
         return { disabled: false, isClockManage: true, label: `Giờ vàng ${String(state.clockHour ?? 20).padStart(2, '0')}:00 · Đổi giờ` };
@@ -274,31 +274,28 @@ export default function StreakTab({ streakState, onRefreshState }) {
   return (
     <div className="streak-tab-container">
       {/* Dải trạng thái 1 dòng */}
-      <div
-        className="d-flex align-items-center justify-content-between p-2 px-3 rounded mb-3"
-        style={{ backgroundColor: '#f8f9fa', border: '1px solid #e8eaed', fontSize: '13px', flexWrap: 'wrap', gap: '8px' }}
-      >
+      <div className="shop-streak-strip">
         <span title="Chuỗi ngày học liên tục">
           🔥 <strong>{state.currentStreak || 0}</strong> ngày streak
         </span>
-        <span className="text-muted">·</span>
+        <span className="shop-streak-dot">·</span>
         <span title="Số Khăn giữ lửa sở hữu">
           🧣 <strong>{state.freezeCount}</strong>/2 khăn
         </span>
-        <span className="text-muted">·</span>
+        <span className="shop-streak-dot">·</span>
         <span title="Trạng thái Khế ước 7 ngày">
           📜 {state.contract ? (
             <span><strong>{state.contract.daysCompleted}</strong>/7 ngày</span>
           ) : (
-            <span className="text-muted">Chưa có khế ước</span>
+            <span>Chưa có khế ước</span>
           )}
         </span>
-        <span className="text-muted">·</span>
+        <span className="shop-streak-dot">·</span>
         <span title="Giờ vàng Đồng hồ Cowdi">
           ⏰ {state.hasClock ? (
             <span><strong>{String(state.clockHour ?? 20).padStart(2, '0')}:00</strong></span>
           ) : (
-            <span className="text-muted">Chưa đặt giờ</span>
+            <span>Chưa đặt giờ</span>
           )}
         </span>
       </div>
@@ -311,12 +308,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
           return (
             <div
               key={item.id}
-              className="d-flex align-items-center justify-content-between p-3 rounded bg-white"
-              style={{
-                border: '1px solid #e0e0e0',
-                transition: 'border-color 0.15s ease',
-                cursor: 'pointer',
-              }}
+              className="shop-row"
               onClick={() => {
                 if (item.id === 'contract' && !state.contract) {
                   setContractSheetOpen(true);
@@ -327,29 +319,23 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 }
               }}
             >
-              {/* Bên trái: Icon 36px nền xám nhạt + Nội dung */}
-              <div className="d-flex align-items-center gap-3 pe-2 flex-grow-1" style={{ minWidth: 0 }}>
-                <div
-                  className="d-flex align-items-center justify-content-center flex-shrink-0 rounded"
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    backgroundColor: '#f1f3f4',
-                    fontSize: '20px',
-                  }}
-                >
+              {/* Bên trái: Icon + Nội dung */}
+              <div className="shop-row-left">
+                <div className="shop-row-icon">
                   {item.icon}
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <div className="fw-bold text-dark text-truncate" style={{ fontSize: '15px' }}>
+                <div className="shop-row-body">
+                  <div className="shop-row-title">
                     {item.name}
                   </div>
-                  <div className="text-dark small text-truncate" style={{ fontSize: '13px' }}>
+                  <div className="shop-row-benefit">
                     {item.shortBenefit}
                   </div>
-                  <div className="text-muted text-truncate" style={{ fontSize: '12px', marginTop: '2px' }}>
-                    {item.statusSubtitle}
-                  </div>
+                  {item.statusSubtitle && (
+                    <div className="shop-row-status">
+                      {item.statusSubtitle}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -358,8 +344,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 {btn.disabled ? (
                   <button
                     type="button"
-                    className="btn btn-sm btn-light border text-muted"
-                    style={{ minWidth: '100px', fontSize: '13px' }}
+                    className="shop-btn-disabled"
                     onClick={() => setActiveDetailItem(item)}
                   >
                     {btn.label}
@@ -367,8 +352,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 ) : btn.isContractSelect ? (
                   <button
                     type="button"
-                    className="btn btn-sm btn-cowdi-primary text-nowrap"
-                    style={{ minWidth: '100px', fontSize: '13px' }}
+                    className="btn btn-cowdi-primary shop-btn-main text-nowrap"
                     onClick={() => setContractSheetOpen(true)}
                   >
                     {btn.label}
@@ -376,8 +360,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 ) : btn.isProgress ? (
                   <button
                     type="button"
-                    className="btn btn-sm btn-outline-success text-nowrap"
-                    style={{ minWidth: '100px', fontSize: '13px' }}
+                    className="btn btn-outline-success shop-btn-main text-nowrap"
                     onClick={() => setActiveDetailItem(item)}
                   >
                     {btn.label}
@@ -385,8 +368,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 ) : btn.isClockManage ? (
                   <button
                     type="button"
-                    className="btn btn-sm btn-outline-secondary text-nowrap"
-                    style={{ minWidth: '100px', fontSize: '13px' }}
+                    className="btn btn-outline-secondary shop-btn-main text-nowrap"
                     onClick={() => setClockPickerOpen(true)}
                   >
                     {btn.label}
@@ -394,8 +376,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
                 ) : (
                   <button
                     type="button"
-                    className="btn btn-sm btn-cowdi-primary text-nowrap"
-                    style={{ minWidth: '100px', fontSize: '13px' }}
+                    className="btn btn-cowdi-primary shop-btn-main text-nowrap"
                     onClick={() => setActiveDetailItem(item)}
                   >
                     {btn.label}
@@ -425,7 +406,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="fw-bold mb-0">⏰ Đổi giờ học Đồng hồ Cowdi</h5>
+              <h3 className="shop-sheet-title mb-0">⏰ Đổi giờ học Đồng hồ Cowdi</h3>
               <button
                 type="button"
                 className="btn btn-sm btn-light rounded-circle"

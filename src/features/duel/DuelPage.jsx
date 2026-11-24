@@ -120,7 +120,7 @@ export default function DuelPage() {
   useSEO(SEO_CONFIGS['/duel']);
   const { user, authFetch } = useAuth();
   const { petData } = usePet();
-  const { addXP } = useUser();
+  const { addXP, syncWallet } = useUser();
 
   // Mode: lobby | setup | creating | playing | result
   const [mode, setMode] = useState('lobby');
@@ -491,7 +491,11 @@ export default function DuelPage() {
         if (data.ok) {
           setResult({ mode: 'created', score, total: questions.length, time, challengeId: data.challengeId });
           setMode('result');
-          addXP(score * 5);
+          const milk = data.milkEarned ?? (score * 5);
+          addXP(milk);
+          if (data.wallet && typeof syncWallet === 'function') {
+            syncWallet(data.wallet);
+          }
           play('celebration');
         } else {
           showToast(data.error || 'Lỗi tạo thách đấu.', 'danger');
@@ -533,7 +537,11 @@ export default function DuelPage() {
             total: questions.length,
           });
           setMode('result');
-          addXP(data.opponentScore * 5);
+          const milk = data.milkEarned ?? (data.opponentScore * 5);
+          addXP(milk);
+          if (data.wallet && typeof syncWallet === 'function') {
+            syncWallet(data.wallet);
+          }
           play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
         } else {
           showToast(data.error || 'Lỗi nộp bài.', 'danger');

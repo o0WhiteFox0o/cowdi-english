@@ -12,6 +12,7 @@ import {
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
 import { CURRENCIES } from '../../../shared/game-config.js';
+import { COSMETIC_MAP } from '../../../shared/cosmetics-data.js';
 import { computeStats, computePowerScore, canEvolve } from '../../../shared/battle-engine.js';
 import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import EvolutionAnimation from './EvolutionAnimation';
@@ -150,11 +151,21 @@ export default function PetPage() {
       {/* Pet Display Card */}
       <div className="pet-display-card mb-4">
         {/* Pet Stage with Image */}
-        <div className={`pet-stage-container ${mood}`}>
+        <div
+          className={`pet-stage-container ${mood}`}
+          style={{
+            background: activePet.cosmetics?.room
+              ? (COSMETIC_MAP[activePet.cosmetics.room]?.bgStyle || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.room)?.bgStyle || undefined)
+              : undefined,
+            transition: 'background 0.3s ease',
+          }}
+        >
           {/* Floating decorations */}
           <div className="pet-floating-decor">
             {activePet.cosmetics?.effect && (
-              <span className="pet-effect-icon"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} /></span>
+              <span className="pet-effect-icon">
+                <Emoji e={COSMETIC_MAP[activePet.cosmetics.effect]?.emoji || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} />
+              </span>
             )}
           </div>
 
@@ -451,7 +462,7 @@ export default function PetPage() {
           <div className="pet-action-label">Bộ sưu tập</div>
           <div className="pet-action-hint">{Object.keys(petData.collection).length}/{Object.keys(PET_REGISTRY).length} pet</div>
         </Link>
-        <Link to="/shop" className="pet-action-card">
+        <Link to={`/shop?from=pet&pet=${activePetId}`} className="pet-action-card">
           <div className="pet-action-icon"><Icon name="bag" size={36} /></div>
           <div className="pet-action-label">Cửa hàng</div>
           <div className="pet-action-hint">🥛 {(userData.wallet?.milk || userData.availableXP || 0).toLocaleString('vi-VN')}</div>
