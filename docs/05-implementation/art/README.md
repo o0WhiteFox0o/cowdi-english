@@ -13,6 +13,8 @@ Bộ file mẫu và công cụ dùng chung đi kèm **Cowdi English — Art Bibl
 | Thư mục / file | Vai trò | Đối tượng dùng |
 |---|---|---|
 | [STD-ART-STYLE-v1.1.md](STD-ART-STYLE-v1.1.md) | **Quy chuẩn Mỹ thuật & Nhận diện Hình ảnh toàn dự án** (`Q1–Q7`, canvas, nét, ánh sáng, 55 màu, Face Kit, C1–C5, 13 layer `PetRig`, QC) | Toàn đội (PO, Họa sĩ, Dev, AI) |
+| [GDE-ART-WORKFLOW-v1.1.md](GDE-ART-WORKFLOW-v1.1.md) | **Hướng dẫn sử dụng thực hành từng bước** cho 5 tình huống (AI tạo ảnh, Họa sĩ 13 layer, QC tự động, Nén WebP/Rig, Dev CSS token & mở rộng Pet mới) | PO, Họa sĩ, Người vận hành AI, Dev |
+| [CHK-ART-UI-AUDIT.md](CHK-ART-UI-AUDIT.md) | **Danh sách đầu việc thay thế hình ảnh (`ART-01..ART-08`) & kết quả rà soát khung UI/UX** | PO, Họa sĩ, Dev Frontend |
 | [art-spec.json](art-spec.json) | Toàn bộ thông số máy đọc được (Single Source of Truth cho canvas, nét, màu, face kit, cấp C1–C5, 10 hệ, layer, QC) | Dev, AI, script |
 | [prompts/AI_PROMPT_BLOCKS.md](prompts/AI_PROMPT_BLOCKS.md) | `STYLE BLOCK`, `NEGATIVE BLOCK`, Character DNA 6 nhân vật, 6 mẫu prompt (`A–F`), bảng 12 biểu cảm (`E00–E11`) | Người vận hành AI |
 | `templates/canvas_2160_template.svg`, `templates/canvas_1080_template.svg` | Khung vẽ có sẵn trục `x`, baseline `y=800`, vùng an toàn, vạch chiều cao `C1–C5`, bóng đất `C3` và đủ 13 layer theo `PetRig` | Họa sĩ |

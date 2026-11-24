@@ -7,7 +7,7 @@ Hướng dẫn cài đặt, build, PWA, tài nguyên hình ảnh, nội dung t�
 Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md).
 
 - [STD-CODING-v1.0.md](STD-CODING-v1.0.md)
-- [art/README.md](art/README.md) — **Bộ Quy chuẩn Mỹ thuật & Art Kit v1.1** ([STD-ART-STYLE-v1.1.md](art/STD-ART-STYLE-v1.1.md), `art-spec.json`, `prompts/AI_PROMPT_BLOCKS.md`, `palettes/`, `templates/`, `face_kit/`, `ground_shadow/`, `tools/qc_check.py`, `tools/palette_lock.py`)
+- [art/README.md](art/README.md) — **Bộ Quy chuẩn Mỹ thuật & Art Kit v1.1** ([STD-ART-STYLE-v1.1.md](art/STD-ART-STYLE-v1.1.md), [GDE-ART-WORKFLOW-v1.1.md](art/GDE-ART-WORKFLOW-v1.1.md), `art-spec.json`, `prompts/AI_PROMPT_BLOCKS.md`, `palettes/`, `templates/`, `face_kit/`, `ground_shadow/`, `tools/qc_check.py`, `tools/palette_lock.py`)
 - [content/README.md](content/README.md) — **Bộ chuẩn nội dung bài học v1.0** (`STD-LESSON-CONTENT-v1.0`, `MAP-CURRENT-UI`, `PROMPT-GEMINI-CONTENT`, `CHK-LESSON-REVIEW`, `TPL-*`, `briefs/int-u1`)
 - [REG-IMAGE-CATALOG.md](REG-IMAGE-CATALOG.md)
 - [REG-UI-ICONS.md](REG-UI-ICONS.md) · [REG-UI-ICONS-PROMPTS.csv](REG-UI-ICONS-PROMPTS.csv)

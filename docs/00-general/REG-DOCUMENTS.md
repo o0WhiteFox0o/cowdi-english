@@ -73,7 +73,7 @@
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | STD | Quy ước lập trình | [STD-CODING-v1.0.md](../05-implementation/STD-CODING-v1.0.md) | 1.0 | Approved | CODING-STANDARDS.md |
-| STD | **Quy chuẩn Mỹ thuật & Nhận diện Hình ảnh Toàn dự án (Art Bible v1.1 + Art Kit)** | [STD-ART-STYLE-v1.1.md](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [art/README.md](../05-implementation/art/README.md) · [art-spec.json](../05-implementation/art/art-spec.json) · [AI_PROMPT_BLOCKS](../05-implementation/art/prompts/AI_PROMPT_BLOCKS.md) | 1.1 | Approved | (mới 2026-11-24 — thay phần phong cách & màu hệ của `GDE-PET-IMAGES`) |
+| STD | **Quy chuẩn Mỹ thuật & Nhận diện Hình ảnh Toàn dự án (Art Bible v1.1 + Art Kit)** | [STD-ART-STYLE-v1.1.md](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [GDE-ART-WORKFLOW-v1.1](../05-implementation/art/GDE-ART-WORKFLOW-v1.1.md) · [CHK-ART-UI-AUDIT](../05-implementation/art/CHK-ART-UI-AUDIT.md) · [art/README.md](../05-implementation/art/README.md) · [art-spec.json](../05-implementation/art/art-spec.json) · [AI_PROMPT_BLOCKS](../05-implementation/art/prompts/AI_PROMPT_BLOCKS.md) | 1.1 | Approved | (mới 2026-11-24 — thay phần phong cách & màu hệ của `GDE-PET-IMAGES`) |
 | GDE | Hướng dẫn build | [GDE-BUILD-v1.0.md](../05-implementation/GDE-BUILD-v1.0.md) | 1.0 | Approved | BUILD.md |
 | GDE | Thiết lập Google OAuth + MySQL | [GDE-SETUP-v1.0.md](../05-implementation/GDE-SETUP-v1.0.md) | 1.0 | Approved | SETUP.md |
 | GDE | Triển khai & sử dụng PWA | [GDE-PWA-v1.0.md](../05-implementation/GDE-PWA-v1.0.md) | 1.0 | Approved | PWA-GUIDE.md |
