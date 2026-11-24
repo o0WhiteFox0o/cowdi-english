@@ -12,6 +12,7 @@ import {
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
 import { CURRENCIES } from '../../../shared/game-config.js';
+import { COSMETIC_MAP } from '../../../shared/cosmetics-data.js';
 import { computeStats, computePowerScore, canEvolve } from '../../../shared/battle-engine.js';
 import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import EvolutionAnimation from './EvolutionAnimation';
@@ -150,11 +151,21 @@ export default function PetPage() {
       {/* Pet Display Card */}
       <div className="pet-display-card mb-4">
         {/* Pet Stage with Image */}
-        <div className={`pet-stage-container ${mood}`}>
+        <div
+          className={`pet-stage-container ${mood}`}
+          style={{
+            background: activePet.cosmetics?.room
+              ? (COSMETIC_MAP[activePet.cosmetics.room]?.bgStyle || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.room)?.bgStyle || undefined)
+              : undefined,
+            transition: 'background 0.3s ease',
+          }}
+        >
           {/* Floating decorations */}
           <div className="pet-floating-decor">
             {activePet.cosmetics?.effect && (
-              <span className="pet-effect-icon"><Emoji e={SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} /></span>
+              <span className="pet-effect-icon">
+                <Emoji e={COSMETIC_MAP[activePet.cosmetics.effect]?.emoji || SHOP_ITEMS.find(i => i.id === activePet.cosmetics.effect)?.emoji || ''} size={30} />
+              </span>
             )}
           </div>
 
