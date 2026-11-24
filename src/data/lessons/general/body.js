@@ -1,156 +1,202 @@
-// Auto-generated — chỉnh sửa bài học bằng cách sửa trực tiếp file này.
-// Track: general — Cơ thể người
+// Track: general — Unit int-u2 · Cơ thể người (contentVersion 2)
+// Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
+
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
 
 export const BODY_LESSON = {
-  id: "body",
-  title: "Cơ thể người",
-  description: "Từ vựng về các bộ phận cơ thể",
-  level: "beginner",
-  icon: "🦴",
-  vocabulary: [
-    {
-      word: "Head",
-      phonetic: "/hɛd/",
-      meaning: "Đầu",
-      example: "I have a headache.",
-      illustration: "🗣️"
-    },
-    {
-      word: "Eye",
-      phonetic: "/aɪ/",
-      meaning: "Mắt",
-      example: "She has beautiful eyes.",
-      illustration: "👁️"
-    },
-    {
-      word: "Ear",
-      phonetic: "/ɪr/",
-      meaning: "Tai",
-      example: "I hear with my ears.",
-      illustration: "👂"
-    },
-    {
-      word: "Mouth",
-      phonetic: "/maʊθ/",
-      meaning: "Miệng",
-      example: "Open your mouth, please.",
-      illustration: "👄"
-    },
-    {
-      word: "Hand",
-      phonetic: "/hænd/",
-      meaning: "Bàn tay",
-      example: "Wash your hands before eating.",
-      illustration: "🤚"
-    },
-    {
-      word: "Foot",
-      phonetic: "/fʊt/",
-      meaning: "Bàn chân",
-      example: "My foot hurts.",
-      illustration: "🦶"
-    },
-    {
-      word: "Heart",
-      phonetic: "/hɑːrt/",
-      meaning: "Tim",
-      example: "Your heart beats fast.",
-      illustration: "❤️"
-    },
-    {
-      word: "Stomach",
-      phonetic: "/ˈstʌmək/",
-      meaning: "Bụng / Dạ dày",
-      example: "I have a stomachache.",
-      illustration: "🫃"
-    },
-    {
-      word: "Arm",
-      phonetic: "/ɑːrm/",
-      meaning: "Cánh tay",
-      example: "He broke his arm.",
-      illustration: "💪"
-    },
-    {
-      word: "Leg",
-      phonetic: "/lɛɡ/",
-      meaning: "Chân",
-      example: "She has long legs.",
-      illustration: "🦵"
-    }
+  id: 'body',
+  contentVersion: 2,
+  track: 'general',
+  level: 'beginner',
+  cefrLevel: 'A1',
+  unit: 'int-u2',
+  title: 'Cơ thể người',
+  description: 'Gọi tên các bộ phận cơ thể, số ít – số nhiều và cách chăm sóc sức khoẻ cơ bản',
+  icon: '🦴',
+  objectives: [
+    'Gọi tên đúng các bộ phận cơ thể thường dùng hằng ngày',
+    'Chuyển đúng danh từ số ít sang số nhiều, gồm cả dạng bất quy tắc (foot → feet, tooth → teeth)',
+    'Hiểu và nói các câu hướng dẫn vận động, giữ vệ sinh và báo đau nhức đơn giản',
   ],
+
+  vocabulary: [
+    v('Head', '/hed/', 'noun', 'Cái đầu', 'Put a hat on your head.', 'Đội mũ lên đầu của bạn đi.', '🗣️'),
+    v('Eye', '/aɪ/', 'noun', 'Mắt', 'She has bright brown eyes.', 'Cô ấy có đôi mắt nâu sáng.', '👁️'),
+    v('Ear', '/ɪr/', 'noun', 'Tai', 'We listen carefully with our ears.', 'Chúng ta lắng nghe cẩn thận bằng đôi tai.', '👂'),
+    v('Nose', '/noʊz/', 'noun', 'Mũi', 'Touch your nose during the game.', 'Chạm vào mũi của bạn trong trò chơi.', '👃'),
+    v('Mouth', '/maʊθ/', 'noun', 'Miệng', 'Open your mouth and say "ah".', 'Há miệng ra và nói "a" nào.', '👄'),
+    v('Tooth', '/tuːθ/', 'noun', 'Cái răng (số nhiều: teeth)', 'Brush every tooth twice a day.', 'Đánh sạch từng chiếc răng hai lần mỗi ngày.', '🦷'),
+    v('Hand', '/hænd/', 'noun', 'Bàn tay', 'Wash your hands before every meal.', 'Rửa tay trước mỗi bữa ăn nhé.', '🤚'),
+    v('Arm', '/ɑːrm/', 'noun', 'Cánh tay', 'Raise your right arm high.', 'Giơ cao cánh tay phải của bạn lên.', '💪'),
+    v('Leg', '/leɡ/', 'noun', 'Cẳng chân', 'Running makes your legs strong.', 'Chạy bộ giúp đôi chân bạn khoẻ mạnh.', '🦵'),
+    v('Foot', '/fʊt/', 'noun', 'Bàn chân (số nhiều: feet)', 'My left foot hurts after soccer.', 'Bàn chân trái của mình đau sau khi đá bóng.', '🦶'),
+    v('Heart', '/hɑːrt/', 'noun', 'Trái tim', 'Your heart beats faster when you run.', 'Tim bạn đập nhanh hơn khi chạy.', '❤️'),
+    v('Stomach', '/ˈstʌmək/', 'noun', 'Bụng, dạ dày', 'My stomach feels full after lunch.', 'Bụng mình thấy no sau bữa trưa.', '🫃'),
+  ],
+
   grammar: [
     {
-      title: "Danh từ số ít và số nhiều",
-      explanation: "Hầu hết danh từ thêm -s cho số nhiều. Một số bất quy tắc: foot→feet, tooth→teeth.",
+      title: 'Danh từ số ít và số nhiều (quy tắc & bất quy tắc)',
+      explanation: 'Phần lớn danh từ thêm "-s" ở số nhiều (eye → eyes, hand → hands, leg → legs). Một số bộ phận cơ thể đổi nguyên âm bất quy tắc: foot → feet, tooth → teeth.',
       examples: [
-        {
-          en: "I have two eyes.",
-          vi: "Tôi có hai mắt."
-        },
-        {
-          en: "She has small feet.",
-          vi: "Cô ấy có bàn chân nhỏ."
-        },
-        {
-          en: "My teeth are white.",
-          vi: "Răng tôi trắng."
-        }
-      ]
-    }
+        { en: 'I have two eyes and two ears.', vi: 'Mình có hai mắt và hai tai.' },
+        { en: 'Mai brushes her teeth every night.', vi: 'Mai đánh răng mỗi tối.' },
+        { en: 'Wash both hands with soap.', vi: 'Rửa cả hai bàn tay bằng xà phòng.' },
+        { en: 'My feet are tired after walking.', vi: 'Đôi bàn chân của mình mỏi sau khi đi bộ.' },
+      ],
+      mistakes: [
+        { wrong: 'I have two foots.', right: 'I have two feet.', note: '"Foot" là danh từ bất quy tắc, số nhiều là "feet" (không thêm -s).' },
+        { wrong: 'Brush your tooths before bed.', right: 'Brush your teeth before bed.', note: 'Số nhiều của "tooth" là "teeth", không phải "tooths".' },
+      ],
+    },
+    {
+      title: 'Câu mệnh lệnh giữ sức khoẻ và cấu trúc hurt / hurts',
+      explanation: 'Dùng động từ nguyên mẫu đứng đầu câu để hướng dẫn (Wash your hands, Stretch your arms). Khi nói bị đau: 1 bộ phận dùng "hurts" (My arm hurts), 2 bộ phận dùng "hurt" (My legs hurt).',
+      examples: [
+        { en: 'Raise both arms above your head.', vi: 'Giơ cả hai cánh tay lên trên đầu.' },
+        { en: 'Wash your hands before lunch.', vi: 'Rửa tay trước bữa trưa.' },
+        { en: 'My left foot hurts a little.', vi: 'Bàn chân trái của mình hơi đau.' },
+        { en: 'My legs hurt after the race.', vi: 'Hai chân của mình đau sau cuộc chạy đua.' },
+      ],
+      mistakes: [
+        { wrong: 'My head hurt today.', right: 'My head hurts today.', note: '"My head" là số ít nên động từ "hurt" phải thêm "-s": "hurts".' },
+        { wrong: 'My feet hurts.', right: 'My feet hurt.', note: '"My feet" là số nhiều nên dùng "hurt" không thêm "-s".' },
+      ],
+    },
   ],
+
+  reading: {
+    title: 'Giờ thể dục cùng thầy Tom',
+    passage: [
+      'Mr. Tom: Good morning, class! Before we run, let us warm up our body.',
+      'Lan: What should we move first, Mr. Tom?',
+      'Mr. Tom: Turn your head slowly, then raise each arm and stretch your legs.',
+      'Minh: My heart is already beating fast! My right foot hurts a little.',
+      'Mr. Tom: Rest for a minute, Minh. Close your eyes and take a deep breath through your nose and mouth.',
+      'Lan: After class, my stomach is always hungry.',
+      'Mr. Tom: Wash your hands well before eating, and remember to brush every tooth tonight!',
+    ].join('\n'),
+    translation: [
+      'Thầy Tom: Chào buổi sáng cả lớp! Trước khi chạy, chúng ta cùng khởi động cơ thể nhé.',
+      'Lan: Thưa thầy Tom, chúng em nên cử động phần nào trước ạ?',
+      'Thầy Tom: Xoay đầu chậm rãi, rồi giơ từng cánh tay và giãn cơ chân.',
+      'Minh: Tim em đã đập nhanh rồi! Bàn chân phải của em hơi đau một chút.',
+      'Thầy Tom: Nghỉ một phút nhé Minh. Hít thở sâu bằng mũi và miệng nào.',
+      'Lan: Sau giờ học, bụng em lúc nào cũng thấy đói.',
+      'Thầy Tom: Nhớ rửa tay thật sạch trước khi ăn, và tối nay nhớ đánh sạch từng chiếc răng nhé!',
+    ].join('\n'),
+    highlights: ['Head', 'Arm', 'Leg', 'Heart', 'Foot', 'Eye', 'Nose', 'Mouth', 'Stomach', 'Hand', 'Tooth'],
+    questions: [
+      {
+        question: 'Thầy Tom bảo cả lớp làm gì trước khi chạy?',
+        options: ['Đọc sách trong thư viện', 'Khởi động cơ thể', 'Đi ăn trưa ngay', 'Ngồi yên tại chỗ'],
+        correct: 1,
+        explanation: 'Thầy Tom nói: "Before we run, let us warm up our body."',
+      },
+      {
+        question: 'Bộ phận nào của Minh hơi bị đau?',
+        options: ['Cánh tay trái', 'Bàn chân phải', 'Cái đầu', 'Cái bụng'],
+        correct: 1,
+        explanation: 'Minh nói: "My right foot hurts a little."',
+      },
+      {
+        question: 'Thầy Tom khuyên Minh làm gì khi bị đau chân?',
+        options: ['Chạy nhanh hơn', 'Nghỉ một phút và hít thở sâu', 'Về nhà ngay lập tức', 'Uống nước lạnh'],
+        correct: 1,
+        explanation: 'Thầy Tom bảo Minh: "Rest for a minute, Minh… take a deep breath through your nose and mouth."',
+      },
+      {
+        question: 'Thầy Tom nhắc học sinh làm gì trước khi ăn?',
+        options: ['Đội mũ lên đầu', 'Rửa tay thật sạch', 'Chạy thêm một vòng', 'Đóng cửa sổ'],
+        correct: 1,
+        explanation: 'Thầy dặn: "Wash your hands well before eating".',
+      },
+    ],
+  },
+
   quiz: [
     {
-      question: "\"Eye\" nghĩa là:",
-      options: [
-        "Tai",
-        "Mắt",
-        "Mũi",
-        "Miệng"
-      ],
-      correct: 1
+      skill: 'vocab',
+      question: 'Bộ phận nào giúp chúng ta nghe âm thanh?',
+      options: ['Eye', 'Nose', 'Ear', 'Mouth'],
+      correct: 2,
+      explanation: '"Ear" (tai) là bộ phận dùng để nghe.',
     },
     {
-      question: "Số nhiều của \"foot\" là:",
-      options: [
-        "foots",
-        "feets",
-        "feet",
-        "foot"
-      ],
-      correct: 2
+      skill: 'vocab',
+      question: '"Stomach" nghĩa là gì?',
+      options: ['Trái tim', 'Cánh tay', 'Bụng / dạ dày', 'Bàn chân'],
+      correct: 2,
+      explanation: '"Stomach" = bụng, dạ dày.',
     },
     {
-      question: "\"Stomach\" nghĩa là:",
-      options: [
-        "Tim",
-        "Phổi",
-        "Bụng",
-        "Não"
-      ],
-      correct: 2
+      skill: 'grammar',
+      question: 'Số nhiều đúng của "foot" là:',
+      options: ['foots', 'feets', 'feet', 'footes'],
+      correct: 2,
+      explanation: '"Foot" là danh từ số nhiều bất quy tắc → "feet".',
     },
     {
-      question: "\"I have two ___.\" (tay)",
-      options: [
-        "arm",
-        "arms",
-        "armes",
-        "arming"
-      ],
-      correct: 1
+      skill: 'grammar',
+      question: 'Điền vào chỗ trống: "Mai brushes her ___ every night."',
+      options: ['tooth', 'tooths', 'teeth', 'teeths'],
+      correct: 2,
+      explanation: 'Khi đánh răng ta nói "brush one\'s teeth" ("teeth" là số nhiều của "tooth").',
     },
     {
-      question: "\"Heart\" nghĩa là:",
+      skill: 'grammar',
+      question: 'Chọn câu đúng khi bạn bị đau một cánh tay:',
       options: [
-        "Tim",
-        "Gan",
-        "Phổi",
-        "Thận"
+        'My arm hurt.',
+        'My arm hurts.',
+        'My arms hurts.',
+        'My arm are hurt.',
       ],
-      correct: 0
-    }
-  ]
+      correct: 1,
+      explanation: '"My arm" là số ít nên động từ thêm "-s": "My arm hurts."',
+    },
+    {
+      skill: 'usage',
+      question: 'Trước giờ ăn trưa, cô giáo nhắc cả lớp:',
+      options: [
+        'Wash your hands before lunch.',
+        'Open your book to page ten.',
+        'Wear a coat in winter.',
+        'Turn your head slowly.',
+      ],
+      correct: 0,
+      explanation: '"Wash your hands before lunch" = Rửa tay trước bữa trưa.',
+    },
+    {
+      skill: 'listening',
+      audioText: 'Your heart beats fast when you run.',
+      question: 'Nghe và chọn bộ phận cơ thể được nhắc đến:',
+      options: ['Bàn tay', 'Trái tim', 'Cái mũi', 'Cái răng'],
+      correct: 1,
+      explanation: 'Câu nghe nhắc đến "heart" (trái tim).',
+    },
+    {
+      skill: 'listening',
+      audioText: 'My legs hurt after the race.',
+      question: 'Nghe và chọn tình huống đúng:',
+      options: [
+        'Bạn ấy bị đau chân sau cuộc chạy đua.',
+        'Bạn ấy đang rửa tay.',
+        'Bạn ấy đội mũ lên đầu.',
+        'Bạn ấy thấy đói bụng.',
+      ],
+      correct: 0,
+      explanation: '"My legs hurt after the race" = Hai chân mình đau sau cuộc chạy đua.',
+    },
+    {
+      skill: 'grammar',
+      question: 'Điền vào chỗ trống: "My two ___ are tired."',
+      options: ['foot', 'foots', 'feet', 'feets'],
+      correct: 2,
+      explanation: 'Sau số đếm "two" cần danh từ số nhiều bất quy tắc "feet".',
+    },
+  ],
 };
 
 export default BODY_LESSON;
