@@ -29,7 +29,7 @@
 
 ---
 
-## 3. Danh mục Bộ Test Tự động Hiện hành (`npm test` — 109 tests)
+## 3. Danh mục Bộ Test Tự động Hiện hành (`npm test` — 110 tests)
 
 Lệnh chạy chuẩn cross-platform:
 ```bash

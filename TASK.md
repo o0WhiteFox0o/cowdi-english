@@ -1,4 +1,4 @@
-# TASK — Triển khai Kinh tế v2 (Cowdi English)
+    # TASK — Triển khai Kinh tế v2 (Cowdi English)
 
 > File theo dõi tiến độ cho `docs/01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`.
 > **Claude Code đọc file này đầu mỗi phiên và cập nhật ngay khi xong mỗi việc.**
@@ -185,6 +185,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] GĐ C — Trải nghiệm bài học 3 nhóm (`PictureLesson.jsx`, `LessonDetailPage` + `U1–U7`, `U10`, `quiz-gen.js` & `buildCheckpointQuestions` mới, `useUser.jsx`) — 2026-11-24
 - [x] GĐ D — `GroupPicker.jsx`, `PlacementTest.jsx` (`/placement`), `LearningPathPage`, `HomePage`, `BookShell`, `LessonsPage`, `AccountPage` — 2026-11-24
 - [x] GĐ E — Chuyển đổi người dùng cũ (`migrateLegacyProgress`, gợi ý nhóm, `guard-unit-gems.mjs`), E2E & xác minh toàn bộ test/build — 2026-11-24
+- [x] UI U8 — Màn hình `ExamReading.jsx` (chia đôi màn hình, cột từ `glossary`, đồng hồ `timeLimitMin`, đủ 6 dạng đề thi gồm `sentence-completion` + `maxWords`, tô `evidence.quote` & bảng `paraphrasePairs`) — 2026-11-24 · b19057a
+- [x] Nội dung `int-u1` v2 — Nâng cấp toàn bộ 4 bài (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo theo `briefs/int-u1.md` — 2026-11-24
 
 ---
 
@@ -198,6 +200,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a` | 110/110 test pass, build pass |
 | 2026-11-24 | 3-nhóm A–E | Hoàn thành toàn bộ Lộ trình 3 nhóm + Chuẩn nội dung UI v2 (`groups.js`, Unit S1 Starter, `path.js`, 0 bài mồ côi, migration MySQL 5.6+ & `guard-unit-gems.mjs`, `PictureLesson`, `LessonDetailPage` U1–U7/U10, `GroupPicker`, `PlacementTest`, `LearningPathPage`, di trú user cũ) | `feat/learning-groups` | 109/109 test pass, 210 bài / 51 unit, 0 lỗi validator, build pass |
 | 2026-11-24 | 3-nhóm B0 | Tích hợp bộ chuẩn nội dung v1.0, SRS 3 cấp, SDD Lộ trình 3 nhóm v2.0, SPMP hợp nhất; vá `reading.js` giữ trường v2, sửa 2 lỗi dữ liệu cũ, gắn `validate-lessons` vào `prebuild` | — | 92/92 test pass, 0 lỗi validator, build pass |
 | 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |

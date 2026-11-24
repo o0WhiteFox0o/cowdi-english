@@ -26,12 +26,12 @@
 | WS-2 | **Hệ thống Chỉnh động tác & Rig Pet** (`/admin/pet-motion`) | [PET-MOTION](../PET-MOTION.md) · [Hướng dẫn](../HUONG-DAN-CHINH-DONG-TAC-PET.md) | 🚀 Hoàn thành | **100%** | Duyệt dần rig & động tác cho 23 loài pet trên production |
 | WS-3 | **Hạ tầng, MySQL 5.6 & Deploy Production** | [GDE-DEPLOY-PRODUCTION v1.0](../07-deployment-operations/GDE-DEPLOY-PRODUCTION-v1.0.md) | 🚀 Ổn định | **100%** | Thiết lập lịch backup tự động `server/storage/` + DB |
 | WS-4 | **Chuẩn hoá Quản trị Dự án & Tài liệu IEEE** | [DOCP v1.1](../00-general/DOCP-COWDI-v1.1.md) · [SCMP v1.0](SCMP-COWDI-v1.0.md) · [STP v1.0](../06-verification-validation/STP-COWDI-v1.0.md) | ✅ Hoàn thành | **100%** | Duy trì cập nhật RTM, CR, Release Notes cho từng GĐ |
-| WS-5 | **Lộ trình 3 Nhóm & Chuẩn hoá Nội dung v2** | [SPMP v1.0](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS 3 Cấp](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD 3 Nhóm v2.0](../04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD v1.0](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 🟡 Xong `feat/learning-groups` (B0 + A–E) | **Nền tảng 100%** | Duyệt PR `feat/learning-groups` → chạy migration & `guard-unit-gems` → cuốn chiếu nội dung `int-u1..10` & `ExamReading` (`U8`) |
+| WS-5 | **Lộ trình 3 Nhóm & Chuẩn hoá Nội dung v2** | [SPMP v1.0](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS 3 Cấp](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD 3 Nhóm v2.0](../04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD v1.0](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 🟡 Xong Nền tảng + U1–U10 + `int-u1` | **Nền tảng + UI 100%** | Cuốn chiếu nội dung `int-u2`, `int-u3` · thêm đợt bài IELTS Reading v2 · tạo media S1–S3 |
 
 ### Chỉ số sức khoẻ kỹ thuật hiện tại (2026-11-24)
-- **Automated Tests (`npm test`)**: **109 / 109 PASS** (13 suites + top-level tests: Kinh tế v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm & Server Wallet/Guard, Pet Motion API & RBAC, PetRig Runtime & Study Preview 5.8).
-- **Build Production (`npm run build:prod`)**: PASS · `prebuild` tự động sinh `lesson-ids.json` / `units.json` (0 bài mồ côi) và chạy `validate-lessons.mjs` (0 lỗi).
-- **Nội dung & Dữ liệu**: `210` bài học (`4` bài Starter S1 v2 + `206` bài hiện có, **0 lỗi cấu trúc**) + `3` bài mẫu golden v2 · `51` unit duy nhất (0 bài mồ côi) · `23` loài pet × `5` cấp (`115` pet-cấp) · `34` clip động tác.
+- **Automated Tests (`npm test`)**: **110 / 110 PASS** (13 suites + top-level tests: Kinh tế v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm, `ExamReading` U8 & Server Wallet/Guard, Pet Motion API & RBAC, PetRig Runtime & Study Preview 5.8).
+- **Build Production (`npm run build:prod`)**: PASS · `prebuild` tự động sinh `lesson-ids.json` / `units.json` (0 bài mồ côi) và chạy `validate-lessons.mjs` (0 lỗi) · `check-lesson-ui-compat.mjs` đạt **100% ✓** trên cả 3 bài golden.
+- **Nội dung & Dữ liệu**: `210` bài học (`4` bài Starter S1 v2 + `4` bài Intermediate `int-u1` v2 đạt 0 cảnh báo + `202` bài cũ chờ cuốn chiếu, **0 lỗi cấu trúc**) · `51` unit duy nhất (0 bài mồ côi) · `23` loài pet × `5` cấp (`115` pet-cấp) · `34` clip động tác.
 
 ---
 
@@ -91,6 +91,7 @@
 
 | Ngày | Mảng | Nội dung chính | Commit / Tag | Người thực hiện |
 |---|---|---|---|---|
+| **2026-11-24** | UI U8 + Nội dung `int-u1` | Hoàn thành `ExamReading.jsx` (`U8`, khép lại toàn bộ `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn 4 bài `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên chuẩn `contentVersion: 2` (0 lỗi, 0 cảnh báo), cập nhật luồng người mới hiện Kiểm tra đầu vào trước (`110/110` test PASS) | `1744823`, `b19057a` | Sonny + AI |
 | **2026-11-24** | Lộ trình 3 Nhóm & Nội dung v2 | Hoàn thành toàn bộ Bước 0 + GĐ A–E trên nhánh `feat/learning-groups`: 3 nhóm học, Unit S1 Starter, `PictureLesson`, `LessonDetailPage` UI v2 (`U1–U7`, `U10`), `GroupPicker`, `PlacementTest`, migration MySQL 5.6+ & `guard-unit-gems.mjs`; 109/109 test PASS, 0 lỗi validator, build xanh | `fa41934` → `feat/learning-groups` | Sonny + AI |
 | **2026-11-24** | Lộ trình 3 Nhóm & Nội dung v2 | Bổ sung `SRS-LESSON-3-LEVELS-v1.0.md`, `SDD-LEARNING-GROUPS-v2.0.md`, lập Kế hoạch hợp nhất `SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md`; PO chốt tái cấu trúc lộ trình 3 nhóm kèm migration + bài Starter tính mốc Gem/Đá như bài thường; cập nhật `REG-DOCUMENTS` & các mục lục `docs/` | — | Sonny + AI |
 | **2026-11-24** | Nội dung v2 | Tích hợp Bộ chuẩn nội dung bài học v1.0 (`STD-LESSON-CONTENT-v1.0`, `MAP-CURRENT-UI`, `TPL-*`, `CHK-LESSON-REVIEW`, `PROMPT-GEMINI-CONTENT`, brief `int-u1`, `schema.js`, 3 bài `_golden`, validator + compat script, 8 test → 91/91 PASS, báo cáo kiểm tra 206 bài `RPT-LESSON-CONTENT-2026-11-24.md`) | — | Sonny + AI |
