@@ -22,7 +22,7 @@ const COSMETIC_CATEGORIES = [
   { id: 'effect', label: `✨ Hào quang (${EFFECT_ITEMS.length})` },
 ];
 
-const PAGE_SIZE = 8; // 8 món mỗi trang = 2 hàng x 4 cột vừa khít 1 màn hình
+const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
 
 export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const { authFetch } = useAuth();
@@ -196,10 +196,10 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                 <span>{currentEvo?.emoji || species?.emoji || '🐮'}</span>
               )}
             </span>
-            <div className="text-truncate" style={{ fontSize: '0.95rem', lineHeight: 1.2 }}>
+            <div className="text-truncate" style={{ fontSize: '1rem', lineHeight: 1.2 }}>
               <span className="fw-bold text-dark">{currentPet.customName || species?.name}</span>
               {previewItem && (
-                <span className="badge bg-success-subtle text-success border ms-2 py-0 px-2" style={{ fontSize: '11px' }}>
+                <span className="badge bg-success-subtle text-success border ms-2 py-1 px-2" style={{ fontSize: '12px' }}>
                   Đang ướm: {previewItem.name}
                 </span>
               )}
@@ -208,11 +208,11 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0 fw-bold"
-            style={{ fontSize: '13px' }}
+            className="btn btn-outline-cowdi rounded-pill px-3 d-flex align-items-center gap-2 flex-shrink-0 fw-bold"
+            style={{ fontSize: '0.95rem', height: '36px', lineHeight: 1 }}
             onClick={() => setDressingModalOpen(true)}
           >
-            <span>👗</span> Phòng thử đồ
+            <span style={{ fontSize: '1.1rem' }}>👗</span> Phòng thử đồ
           </button>
         </div>
       )}
@@ -311,13 +311,13 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
                   title="Bấm để thử lên thú cưng"
                   style={{ cursor: 'pointer', borderRadius: '12px' }}
                 >
-                  {/* Badge phẩm chất trên góc (RÕ RÀNG, CHỮ TO HƠN) */}
+                  {/* Badge phẩm chất trên góc trái (RÕ RÀNG, CHỮ TO ĐẦY ĐỦ) */}
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <span
                       className="badge rounded-pill px-2 py-1"
                       style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '12px', fontWeight: 700 }}
                     >
-                      {rStyle.label.split(' ')[1] || rStyle.label}
+                      {rStyle.label}
                     </span>
                     {hasCombo && !isOwned && !isMilestone && (
                       <span className="badge bg-danger rounded-pill px-2 py-1" style={{ fontSize: '11px', fontWeight: 700 }}>

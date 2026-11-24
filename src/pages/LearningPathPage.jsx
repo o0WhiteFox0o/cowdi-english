@@ -107,6 +107,62 @@ export default function LearningPathPage() {
   const pct = nodes.length ? Math.round((doneCount / nodes.length) * 100) : 0;
   const currentNode = nodes.find((n) => n.status === 'current');
 
+  // Quản lý trạng thái thu gọn các Unit (lưu theo từng lộ trình vào localStorage)
+  const storageKey = `cowdi_collapsed_${activePath.id}`;
+  const [collapsedUnits, setCollapsedUnits] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) return new Set(JSON.parse(saved));
+    } catch (_) {}
+    return new Set();
+  });
+
+  // Khi đổi lộ trình, nạp lại trạng thái đã lưu
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`cowdi_collapsed_${activePath.id}`);
+      if (saved) {
+        setCollapsedUnits(new Set(JSON.parse(saved)));
+      } else {
+        setCollapsedUnits(new Set());
+      }
+    } catch (_) {
+      setCollapsedUnits(new Set());
+    }
+  }, [activePath.id]);
+
+  const toggleUnitCollapse = useCallback((unitId) => {
+    setCollapsedUnits((prev) => {
+      const next = new Set(prev);
+      if (next.has(unitId)) {
+        next.delete(unitId);
+      } else {
+        next.add(unitId);
+      }
+      try {
+        localStorage.setItem(`cowdi_collapsed_${activePath.id}`, JSON.stringify(Array.from(next)));
+      } catch (_) {}
+      return next;
+    });
+  }, [activePath.id]);
+
+  const collapseAllUnits = useCallback(() => {
+    const allIds = activePath.units.filter((u) => !u.comingSoon && u.lessons?.length).map((u) => u.id);
+    const next = new Set(allIds);
+    setCollapsedUnits(next);
+    try {
+      localStorage.setItem(`cowdi_collapsed_${activePath.id}`, JSON.stringify(Array.from(next)));
+    } catch (_) {}
+  }, [activePath]);
+
+  const expandAllUnits = useCallback(() => {
+    const next = new Set();
+    setCollapsedUnits(next);
+    try {
+      localStorage.setItem(`cowdi_collapsed_${activePath.id}`, JSON.stringify([]));
+    } catch (_) {}
+  }, [activePath.id]);
+
   // Mascot next to the current node
   const activePet = getActivePetWithDecay();
   const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
@@ -504,6 +560,33 @@ export default function LearningPathPage() {
         <span>💠 Đá kế tiếp: <b>{(userData.completedLessons?.length || 0) % 10}/10</b> bài mới</span>
       </div>
 
+      {/* Thanh tiện ích Thu gọn / Mở rộng các Unit */}
+      <div className="path-collapse-bar">
+        <div className="path-collapse-bar-stats">
+          <span>📚 {activePath.units.filter((u) => !u.comingSoon && u.lessons?.length).length} Unit</span>
+          <span className="text-muted">·</span>
+          <span>{collapsedUnits.size > 0 ? `Đang thu gọn ${collapsedUnits.size} unit` : 'Đang mở tất cả bài học'}</span>
+        </div>
+        <div className="path-collapse-bar-actions">
+          <button
+            type="button"
+            className="path-collapse-btn"
+            onClick={collapseAllUnits}
+            title="Thu gọn tất cả để xem danh sách Unit gọn gàng"
+          >
+            Thu gọn tất cả
+          </button>
+          <button
+            type="button"
+            className="path-collapse-btn"
+            onClick={expandAllUnits}
+            title="Mở rộng tất cả các bài học"
+          >
+            Mở rộng tất cả
+          </button>
+        </div>
+      </div>
+
       {/* Trail */}
       <div className="path-trail">
         {activePath.units.map((unit, uIdx) => {
@@ -535,18 +618,33 @@ export default function LearningPathPage() {
           const allLessonsDone = unit.lessons.every((lid) => userData.completedLessons?.includes(lid));
           const allLessons100 = unit.lessons.every((lid) => (userData.lessonScores?.[lid] || 0) >= 100);
           const isPerfect100 = allLessonsDone && allLessons100 && cpRealPassed && cpScore.total > 0 && cpScore.score === cpScore.total;
+          const isCollapsed = collapsedUnits.has(unit.id);
+          const hasCurrentNode = unitNodes.some((n) => n.status === 'current');
 
           return (
             <section
               key={unit.id}
-              className={`path-unit ${unitLocked ? 'locked' : ''} ${isPerfect100 ? 'unit-perfect' : ''}`}
+              className={`path-unit ${unitLocked ? 'locked' : ''} ${isPerfect100 ? 'unit-perfect' : ''} ${isCollapsed ? 'collapsed' : ''}`}
               style={{
                 '--u': unit.color,
                 border: isPerfect100 ? '2px solid #F59E0B' : undefined,
                 boxShadow: isPerfect100 ? '0 0 12px rgba(245, 158, 11, 0.25)' : undefined,
               }}
             >
-              <header className="path-unit-head">
+              <header
+                className="path-unit-head is-clickable"
+                onClick={() => toggleUnitCollapse(unit.id)}
+                role="button"
+                tabIndex={0}
+                aria-expanded={!isCollapsed}
+                title={isCollapsed ? `Nhấp để mở rộng các bài học của ${unit.title}` : `Nhấp để thu gọn ${unit.title}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleUnitCollapse(unit.id);
+                  }
+                }}
+              >
                 <div className="path-unit-ico">
                   {isPerfect100 ? <Icon name="star" size={30} /> : <Icon name={UNIT_ICONS[uIdx % UNIT_ICONS.length]} size={30} />}
                 </div>
@@ -569,7 +667,42 @@ export default function LearningPathPage() {
                     </div>
                   )}
                 </div>
-                {unitLocked && <span className="path-unit-lock"><Icon name="lock" size={26} /></span>}
+
+                <div className="path-unit-actions">
+                  {isCollapsed && hasCurrentNode && (
+                    <span className="path-unit-cur-badge" title="Bài học tiếp theo của bạn ở đây">
+                      🐾 Đang học
+                    </span>
+                  )}
+                  {unitLocked && (
+                    <span className="path-unit-lock" title="Chưa mở">
+                      <Icon name="lock" size={24} />
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className={`path-unit-toggle-btn ${isCollapsed ? 'is-collapsed' : 'is-expanded'}`}
+                    aria-label={isCollapsed ? `Mở rộng ${unit.title}` : `Thu gọn ${unit.title}`}
+                    title={isCollapsed ? 'Bấm để mở rộng bài học' : 'Bấm để thu gọn bài học'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleUnitCollapse(unit.id);
+                    }}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
+                </div>
               </header>
 
               <ol className="path-nodes">

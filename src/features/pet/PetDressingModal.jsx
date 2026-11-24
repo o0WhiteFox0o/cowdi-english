@@ -30,17 +30,17 @@ export default function PetDressingModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+        <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
           <div className="d-flex align-items-center gap-2">
-            <span style={{ fontSize: '1.25rem' }}>👗</span>
-            <h4 className="mb-0 fw-bold" style={{ fontSize: '1.15rem' }}>Phòng thử đồ thú cưng</h4>
+            <span style={{ fontSize: '1.35rem' }}>👗</span>
+            <h4 className="mb-0 fw-bold" style={{ fontSize: '1.25rem' }}>Phòng thử đồ thú cưng</h4>
           </div>
           <button
             type="button"
             className="btn btn-sm btn-light rounded-circle"
             onClick={onClose}
             aria-label="Đóng"
-            style={{ width: '32px', height: '32px', padding: 0 }}
+            style={{ width: '34px', height: '34px', padding: 0, fontSize: '1rem' }}
           >
             ✕
           </button>
@@ -48,8 +48,8 @@ export default function PetDressingModal({
 
         {/* Bộ chọn pet nếu sở hữu > 1 pet */}
         {ownedPets.length > 1 && (
-          <div className="d-flex align-items-center gap-1 mb-3 overflow-auto pb-1" style={{ whiteSpace: 'nowrap' }}>
-            <span className="small text-muted me-1 flex-shrink-0">Thử trên:</span>
+          <div className="d-flex align-items-center gap-2 mb-3 overflow-auto pb-1" style={{ whiteSpace: 'nowrap' }}>
+            <span className="fw-semibold text-muted me-1 flex-shrink-0" style={{ fontSize: '0.95rem' }}>Thử trên:</span>
             {ownedPets.map((p) => {
               const sp = PET_REGISTRY[p.speciesId];
               const evo = getEvolutionInfo(p.speciesId, p.evolution);
@@ -58,14 +58,14 @@ export default function PetDressingModal({
                 <button
                   key={p.instanceId}
                   type="button"
-                  className={`btn btn-xs rounded-pill px-2 py-1 ${
-                    isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-muted'
+                  className={`btn rounded-pill px-3 py-1 ${
+                    isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-dark'
                   }`}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: '0.92rem', minHeight: '34px' }}
                   onClick={() => onSelectPetId?.(p.instanceId)}
                 >
                   {evo?.image ? (
-                    <img src={evo.image} alt="" style={{ width: '14px', height: '14px', objectFit: 'contain' }} className="me-1" />
+                    <img src={evo.image} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} className="me-1" />
                   ) : (
                     <span className="me-1">{evo?.emoji || sp?.emoji}</span>
                   )}
@@ -77,7 +77,7 @@ export default function PetDressingModal({
         )}
 
         {/* Pet preview canvas */}
-        <div className="p-2 rounded-3 mb-2" style={{ backgroundColor: '#FAFBFB', border: '1px solid #ECEFF1' }}>
+        <div className="p-2 rounded-3 mb-3" style={{ backgroundColor: '#FAFBFB', border: '1px solid #ECEFF1' }}>
           <PetPreview
             pet={currentPet}
             previewItem={previewItem}
@@ -86,14 +86,15 @@ export default function PetDressingModal({
         </div>
 
         {/* Trạng thái xem thử */}
-        <div className="small text-center text-muted mb-3">
+        <div className="text-center text-muted mb-3" style={{ fontSize: '0.95rem', lineHeight: 1.4 }}>
           {previewItem ? (
             <div>
-              Đang ướm thử: <strong>{previewItem.emoji} {previewItem.name}</strong>
-              <div className="mt-1">
+              Đang ướm thử: <strong className="text-dark">{previewItem.emoji} {previewItem.name}</strong>
+              <div className="mt-2">
                 <button
                   type="button"
-                  className="btn btn-xs btn-outline-danger rounded-pill px-3 py-1"
+                  className="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-bold"
+                  style={{ fontSize: '0.92rem' }}
                   onClick={onClearPreview}
                 >
                   ✕ Bỏ ướm thử
@@ -101,13 +102,14 @@ export default function PetDressingModal({
               </div>
             </div>
           ) : (
-            <span>{currentPet.customName || species?.name} đang hiển thị đồ hiện có. Bấm một món đồ trong shop để xem thử lên pet.</span>
+            <span><strong className="text-dark">{currentPet.customName || species?.name}</strong> đang hiển thị đồ hiện có. Bấm một món đồ trong shop để xem thử lên pet.</span>
           )}
         </div>
 
         <button
           type="button"
           className="btn btn-cowdi-primary w-100 py-2 rounded-pill fw-bold"
+          style={{ fontSize: '1.05rem', minHeight: '42px' }}
           onClick={onClose}
         >
           Xong

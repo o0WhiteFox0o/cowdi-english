@@ -58,15 +58,15 @@ export default function CosmeticFilterSheet({
       >
         <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
           <div className="d-flex align-items-center gap-2">
-            <span style={{ fontSize: '1.2rem' }}>🔍</span>
-            <h4 className="mb-0 fw-bold" style={{ fontSize: '1.15rem' }}>Bộ lọc & Phân loại</h4>
+            <span style={{ fontSize: '1.35rem' }}>🔍</span>
+            <h4 className="mb-0 fw-bold" style={{ fontSize: '1.25rem' }}>Bộ lọc & Phân loại</h4>
           </div>
           <button
             type="button"
             className="btn btn-sm btn-light rounded-circle"
             onClick={onClose}
             aria-label="Đóng"
-            style={{ width: '32px', height: '32px', padding: 0 }}
+            style={{ width: '34px', height: '34px', padding: 0, fontSize: '1rem' }}
           >
             ✕
           </button>
@@ -74,18 +74,18 @@ export default function CosmeticFilterSheet({
 
         {/* Lọc phẩm chất */}
         <div className="mb-3">
-          <div className="small fw-bold text-muted mb-2">Phẩm chất vật phẩm</div>
-          <div className="d-flex flex-wrap gap-1">
+          <div className="fw-bold text-dark mb-2" style={{ fontSize: '1rem' }}>Phẩm chất vật phẩm</div>
+          <div className="d-flex flex-wrap gap-2">
             {RARITY_OPTIONS.map((r) => {
               const isSelected = rarityFilter === r.id;
               return (
                 <button
                   key={r.id}
                   type="button"
-                  className={`btn btn-sm rounded-pill px-3 py-1 ${
-                    isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-muted'
+                  className={`btn rounded-pill px-3 py-1 ${
+                    isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-dark'
                   }`}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: '0.95rem', minHeight: '36px', lineHeight: 1 }}
                   onClick={() => onSelectRarity(r.id)}
                 >
                   {r.label}
@@ -98,18 +98,18 @@ export default function CosmeticFilterSheet({
         {/* Lọc hệ (chỉ khi xem Nền) */}
         {subCategory === 'room' && (
           <div className="mb-4">
-            <div className="small fw-bold text-muted mb-2">Hệ nguyên tố (10 hệ)</div>
-            <div className="d-flex flex-wrap gap-1">
+            <div className="fw-bold text-dark mb-2" style={{ fontSize: '1rem' }}>Hệ nguyên tố (10 hệ)</div>
+            <div className="d-flex flex-wrap gap-2">
               {ELEMENT_OPTIONS.map((elem) => {
                 const isSelected = elementFilter === elem.id;
                 return (
                   <button
                     key={elem.id}
                     type="button"
-                    className={`btn btn-sm rounded-pill px-3 py-1 ${
-                      isSelected ? 'btn-dark fw-bold shadow-xs' : 'btn-light border text-muted'
+                    className={`btn rounded-pill px-3 py-1 ${
+                      isSelected ? 'btn-dark fw-bold shadow-xs' : 'btn-light border text-dark'
                     }`}
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: '0.95rem', minHeight: '36px', lineHeight: 1 }}
                     onClick={() => onSelectElement(elem.id)}
                   >
                     {elem.label}
@@ -125,7 +125,8 @@ export default function CosmeticFilterSheet({
           {hasFilter && (
             <button
               type="button"
-              className="btn btn-outline-secondary flex-grow-1 rounded-pill py-2"
+              className="btn btn-outline-secondary flex-grow-1 rounded-pill py-2 fw-semibold"
+              style={{ fontSize: '1rem', minHeight: '40px' }}
               onClick={onReset}
             >
               Đặt lại bộ lọc
@@ -134,6 +135,7 @@ export default function CosmeticFilterSheet({
           <button
             type="button"
             className="btn btn-cowdi-primary flex-grow-1 rounded-pill py-2 fw-bold"
+            style={{ fontSize: '1.05rem', minHeight: '40px' }}
             onClick={onClose}
           >
             Xem kết quả

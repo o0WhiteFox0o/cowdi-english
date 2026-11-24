@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, SHOP_ITEMS, getEvolutionInfo } from '../../data/pets';
-import { ALL_COSMETIC_ITEMS, COSMETIC_MAP } from '../../../shared/cosmetics-data.js';
+import { ALL_COSMETIC_ITEMS, COSMETIC_MAP, COSMETIC_RARITIES } from '../../../shared/cosmetics-data.js';
 import Emoji from '../../components/Emoji';
 import PetDressingModal from './PetDressingModal';
 
@@ -16,7 +16,7 @@ const INVENTORY_FILTERS = [
   { id: 'outfit', label: '👔 Áo' },
 ];
 
-const PAGE_SIZE = 8; // 8 món mỗi trang = 2 hàng x 4 cột
+const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
 
 export default function InventoryTab({ selectedPetId, onSelectPetId }) {
   const { petData, equipItem } = usePet();
@@ -117,7 +117,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
                 <span>{currentEvo?.emoji || species?.emoji || '🐮'}</span>
               )}
             </span>
-            <div className="text-truncate" style={{ fontSize: '0.95rem', lineHeight: 1.2 }}>
+            <div className="text-truncate" style={{ fontSize: '1rem', lineHeight: 1.2 }}>
               <span className="fw-bold text-dark">{currentPet.customName || species?.name}</span>
               <span className="text-muted ms-2 small">({ownedItems.length} món đã có)</span>
             </div>
@@ -125,11 +125,11 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
 
           <button
             type="button"
-            className="btn btn-sm btn-outline-cowdi rounded-pill px-3 py-1 d-flex align-items-center gap-1 flex-shrink-0 fw-bold"
-            style={{ fontSize: '13px' }}
+            className="btn btn-outline-cowdi rounded-pill px-3 d-flex align-items-center gap-2 flex-shrink-0 fw-bold"
+            style={{ fontSize: '0.95rem', height: '36px', lineHeight: 1 }}
             onClick={() => setDressingModalOpen(true)}
           >
-            <span>👗</span> Xem thử lên pet
+            <span style={{ fontSize: '1.1rem' }}>👗</span> Xem thử lên pet
           </button>
         </div>
       )}
@@ -159,6 +159,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
         <div className="row g-2 mb-2">
           {paginatedItems.map((item) => {
             const isEquipped = currentPet?.cosmetics?.[item.category] === item.id;
+            const rStyle = COSMETIC_RARITIES[item.rarity] || COSMETIC_RARITIES.common;
 
             return (
               <div key={item.id} className="col-4 col-md-3">
@@ -174,8 +175,14 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
                   onClick={() => handleEquip(item)}
                   title={isEquipped ? 'Bấm để tháo ra' : 'Bấm để trang bị'}
                 >
-                  {/* Trạng thái trang bị góc trên */}
-                  <div className="d-flex justify-content-end mb-1">
+                  {/* Trạng thái & phẩm chất góc trên (bên trái là phẩm chất, bên phải là trạng thái) */}
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <span
+                      className="badge rounded-pill px-2 py-1"
+                      style={{ backgroundColor: rStyle.bg, color: rStyle.color, fontSize: '12px', fontWeight: 700 }}
+                    >
+                      {rStyle.label}
+                    </span>
                     {isEquipped ? (
                       <span className="badge bg-success rounded-pill px-2 py-1" style={{ fontSize: '11px', fontWeight: 700 }}>
                         ✓ Đang mặc

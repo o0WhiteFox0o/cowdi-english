@@ -216,6 +216,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | Lộ trình / UI | Tinh chỉnh Card ngang cha của Unit cho phép thu gọn/mở rộng nút bài học (accordion), nhớ trạng thái localStorage, thêm thanh tiện ích Thu gọn/Mở rộng tất cả | 873afbc | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Đồng bộ font thanh lọc Cửa hàng chuẩn website, tăng kích thước chữ/số card sản phẩm và kho đồ, thêm phân trang sổ tay 8 món/trang | bccef00 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Tối ưu UI/UX Cửa hàng siêu gọn gàng: thu gọn PetPreview thành Popup phòng thử đồ `PetDressingModal`, gộp 18 nút lọc thành `CosmeticFilterSheet`, card món đồ compact RPG hạn chế cuộn chuột | 2e01b80 | 120/120 test pass, build pass |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |

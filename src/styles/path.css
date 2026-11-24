@@ -45,7 +45,7 @@
 /* ── Trail ── */
 .path-trail { position: relative; padding-bottom: 80px; }
 
-.path-unit { margin-bottom: 10px; }
+.path-unit { margin-bottom: 10px; transition: margin 0.25s ease; }
 .path-unit-head {
   display: flex; align-items: center; gap: 12px;
   background: var(--u, var(--leaf));
@@ -56,15 +56,80 @@
   box-shadow: 0 4px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000), 0 6px 14px rgba(40,60,90,0.15);
   position: relative;
   z-index: 1;
+  transition: margin 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease, box-shadow 0.15s ease;
+}
+.path-unit-head.is-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+.path-unit-head.is-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000), 0 8px 18px rgba(40,60,90,0.2);
+}
+.path-unit-head.is-clickable:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000);
+}
+.path-unit.collapsed .path-unit-head {
+  margin: 8px 0 12px;
+}
+.path-unit.collapsed .path-nodes {
+  display: none !important;
 }
 .path-unit.locked .path-unit-head { background: #B9C4D0; box-shadow: 0 4px 0 #8f9cab; }
+.path-unit.locked .path-unit-head.is-clickable:hover {
+  box-shadow: 0 6px 0 #7e8b9b, 0 8px 18px rgba(40,60,90,0.15);
+}
 .path-unit-ico {
   width: 44px; height: 44px; border-radius: 50%;
   background: rgba(255,255,255,0.85);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.5rem; flex-shrink: 0;
 }
-.path-unit-lock { margin-left: auto; display: flex; }
+.path-unit-lock { display: flex; margin-right: 2px; }
+.path-unit-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.path-unit-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+.path-unit-head:hover .path-unit-toggle-btn {
+  background: rgba(255, 255, 255, 0.35);
+}
+.path-unit-toggle-btn.is-collapsed {
+  transform: rotate(-90deg);
+}
+.path-unit-toggle-btn.is-expanded {
+  transform: rotate(0deg);
+}
+.path-unit-cur-badge {
+  background: #FFE28A;
+  color: #7A4B00;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
 .path-unit-txt { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 .path-unit-txt small { font-size: .75rem; opacity: .9; letter-spacing: .04em; text-transform: uppercase; }
 .path-unit-txt .path-unit-gem-hint {
@@ -86,6 +151,52 @@
 }
 .path-unit-txt b { font-family: var(--font-hand); font-size: 1.35rem; font-weight: 400; }
 .path-unit-txt span { font-size: .82rem; opacity: .92; }
+
+/* ── Thanh điều khiển thu gọn nhanh ── */
+.path-collapse-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px dashed var(--paper-line, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  font-family: var(--font-hand);
+  color: var(--ink-soft);
+}
+.path-collapse-bar-stats {
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.path-collapse-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.path-collapse-btn {
+  background: #fff;
+  border: 1px solid var(--paper-line, rgba(0, 0, 0, 0.15));
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  font-family: var(--font-hand);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.path-collapse-btn:hover {
+  background: var(--paper-hover, #f5f5f5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.path-collapse-btn:active {
+  transform: translateY(0);
+}
 
 
 .path-nodes {
