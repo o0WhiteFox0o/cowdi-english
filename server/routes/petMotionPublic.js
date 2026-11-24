@@ -7,6 +7,8 @@ import {
   EMOJI_FILE_RE,
   HASHED_IMAGE_FILE_RE,
   createMotionCache,
+  isValidPetIdFormat,
+  parseJsonCol,
   parseStage,
   resolveApprovedPetMotion,
   resolveSafeStoragePath,
@@ -52,11 +54,67 @@ export function createPetMotionPublicRouter({
     }
   });
 
+  // ── GET /api/pet-motion/catalog ────────────────────────────────
+  // Danh mục pet bổ sung/chỉnh sửa từ admin (pet_catalog) + avatar đã tải lên
+  router.get('/catalog', async (_req, res) => {
+    try {
+      let catalogRows = [];
+      try {
+        const [rows] = await db.execute(
+          `SELECT pet_id, name, species, emoji, element, pet_group, rarity, description,
+                  evolutions_json, unlock_json, is_custom, is_active
+             FROM pet_catalog
+            WHERE is_active = 1
+            ORDER BY created_at ASC, pet_id ASC`
+        );
+        catalogRows = Array.isArray(rows) ? rows : [];
+      } catch {
+        catalogRows = [];
+      }
+
+      let avatarRows = [];
+      try {
+        const [rows] = await db.execute(
+          `SELECT pet_stage, avatar_path FROM pet_rigs WHERE avatar_path IS NOT NULL`
+        );
+        avatarRows = Array.isArray(rows) ? rows : [];
+      } catch {
+        avatarRows = [];
+      }
+
+      const avatars = {};
+      for (const r of avatarRows) {
+        if (r.pet_stage && r.avatar_path) {
+          avatars[r.pet_stage] = `/api/pet-motion/assets/${r.avatar_path}`;
+        }
+      }
+
+      const pets = catalogRows.map((c) => ({
+        id: c.pet_id,
+        name: c.name,
+        species: c.species,
+        emoji: c.emoji,
+        element: c.element,
+        group: c.pet_group,
+        rarity: c.rarity,
+        description: c.description || '',
+        evolutions: parseJsonCol(c.evolutions_json, []),
+        unlockCondition: parseJsonCol(c.unlock_json, null),
+        isCustom: Boolean(c.is_custom),
+      }));
+
+      res.json({ pets, avatars });
+    } catch (err) {
+      console.error('GET /api/pet-motion/catalog error:', err);
+      res.status(500).json({ error: 'Lỗi tải danh mục pet.' });
+    }
+  });
+
   // ── GET /api/pet-motion/assets/avatars/:petId/:file ────────────
   // Phục vụ ảnh avatar tĩnh đã bổ sung từ trang quản trị (immutable 1 năm)
   router.get('/assets/avatars/:petId/:file', async (req, res) => {
     const { petId, file } = req.params;
-    if (!validatePetId(petId) || !/^c[1-5]-[0-9a-f]{8}\.(png|webp)$/.test(file)) {
+    if (!(validatePetId(petId) || isValidPetIdFormat(petId)) || !/^c[1-5]-[0-9a-f]{8}\.(png|webp)$/.test(file)) {
       return res.status(400).json({ error: 'Đường dẫn ảnh không hợp lệ.' });
     }
     const absPath = resolveSafeStoragePath(storageDir, 'avatars', petId, file);
@@ -84,7 +142,7 @@ export function createPetMotionPublicRouter({
   router.get('/assets/published/:petId/:stage/:file', async (req, res) => {
     const { petId, stage, file } = req.params;
     const stageNum = parseStage(stage);
-    if (!validatePetId(petId) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {
+    if (!(validatePetId(petId) || isValidPetIdFormat(petId)) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {
       return res.status(400).json({ error: 'Đường dẫn ảnh không hợp lệ.' });
     }
 
@@ -113,7 +171,7 @@ export function createPetMotionPublicRouter({
   // Cấp chưa duyệt rig thì KHÔNG có trong kết quả.
   router.get('/:petId', authMiddleware, async (req, res) => {
     const { petId } = req.params;
-    if (!validatePetId(petId)) {
+    if (!(validatePetId(petId) || isValidPetIdFormat(petId))) {
       return res.status(400).json({ error: 'petId không hợp lệ.' });
     }
 

@@ -1328,8 +1328,74 @@ export function getPetMood(needs) {
 export function getPetMessage(speciesId, mood) {
   const species = PET_REGISTRY[speciesId];
   if (!species) return 'Moo~';
-  const msgs = species.chatMessages[mood] || species.chatMessages.happy;
+  const msgs = species.chatMessages?.[mood] || species.chatMessages?.happy || ['Học tiếng Anh cùng nhau nhé!'];
   return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+/**
+ * Hợp nhất danh mục pet động (do Admin thêm/sửa trên /admin/pet-motion) và ảnh avatar mới tải lên
+ * vào PET_REGISTRY ở runtime mà không phá dữ liệu 23 pet gốc.
+ */
+export function mergeDynamicPetCatalog(payload, apiBase = '') {
+  if (!payload || typeof payload !== 'object') return false;
+  let changed = false;
+  const base = String(apiBase || '').replace(/\/$/, '');
+
+  const pets = Array.isArray(payload.pets) ? payload.pets : [];
+  for (const p of pets) {
+    if (!p?.id) continue;
+    const existing = PET_REGISTRY[p.id];
+    const defaultEvos = [0, 1, 2, 3, 4].map((stage) => {
+      const src = p.evolutions?.[stage] || existing?.evolutions?.[stage] || {};
+      const prefix = ['Trứng', 'Baby', 'Junior', 'Super', 'Legendary'][stage];
+      return {
+        stage,
+        name: src.name || `${prefix} ${p.name || p.id}`,
+        xp: src.xp ?? [0, 100, 500, 1200, 2500][stage],
+        emoji: src.emoji || (stage === 0 ? '🥚' : (p.emoji || existing?.emoji || '🐾')),
+        image: src.image || existing?.evolutions?.[stage]?.image || null,
+      };
+    });
+
+    PET_REGISTRY[p.id] = {
+      ...(existing || {}),
+      id: p.id,
+      name: p.name || existing?.name || p.id,
+      species: p.species || existing?.species || p.name || p.id,
+      emoji: p.emoji || existing?.emoji || '🐾',
+      element: p.element || existing?.element || 'neutral',
+      group: p.group || existing?.group || 'farm',
+      rarity: p.rarity || existing?.rarity || 'common',
+      description: p.description ?? existing?.description ?? '',
+      evolutions: defaultEvos,
+      baseStats: existing?.baseStats || { listening: 5, speaking: 5, reading: 5, writing: 5 },
+      unlockCondition: p.unlockCondition || existing?.unlockCondition || { type: 'lessons', value: 1, text: 'Mở khoá qua sự kiện / quản trị' },
+      chatMessages: existing?.chatMessages || {
+        happy: [`Chào bạn! ${p.name || 'Mình'} rất vui được học cùng bạn!`],
+        sad: [`Học thêm 1 bài cùng ${p.name || 'mình'} nhé!`],
+        sick: [`${p.name || 'Mình'} hơi mệt rồi, vào học để tiếp năng lượng nha!`],
+      },
+      isCustom: Boolean(p.isCustom ?? !existing),
+    };
+    changed = true;
+  }
+
+  const avatars = payload.avatars && typeof payload.avatars === 'object' ? payload.avatars : {};
+  for (const [petStage, relUrl] of Object.entries(avatars)) {
+    const match = String(petStage).match(/^([a-z0-9_]+)\/c([1-5])$/);
+    if (!match || !relUrl) continue;
+    const [, pid, stageStr] = match;
+    const stageIdx = Number(stageStr) - 1;
+    const sp = PET_REGISTRY[pid];
+    if (!sp?.evolutions?.[stageIdx]) continue;
+    const fullUrl = relUrl.startsWith('http') ? relUrl : `${base}${relUrl}`;
+    if (sp.evolutions[stageIdx].image !== fullUrl) {
+      sp.evolutions[stageIdx] = { ...sp.evolutions[stageIdx], image: fullUrl };
+      changed = true;
+    }
+  }
+
+  return changed;
 }
 
 // ── New Pet Achievements ─────────────────────────────────────────────────────

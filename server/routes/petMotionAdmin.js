@@ -14,6 +14,7 @@ import {
   MAX_IMAGE_BYTES,
   buildImageUrls,
   detectImageType,
+  isValidPetIdFormat,
   parseJsonCol,
   parseScopePetId,
   parseStage,
@@ -24,6 +25,7 @@ import {
   validateClipData,
   validateClipName,
   validatePartName,
+  validatePetCatalogPayload,
   validatePetId,
   validateRigData,
   validateScopeKey,
@@ -91,12 +93,51 @@ export function createPetMotionAdminRouter({
     }
   };
 
+  async function loadCatalogRowsSafe() {
+    try {
+      const [rows] = await db.execute(
+        `SELECT pet_id, name, species, emoji, element, pet_group, rarity, description,
+                evolutions_json, unlock_json, is_custom, is_active, created_at, updated_at
+           FROM pet_catalog
+          ORDER BY created_at DESC, pet_id ASC`
+      );
+      return Array.isArray(rows) ? rows : [];
+    } catch (err) {
+      if (err?.code === 'ER_NO_SUCH_TABLE' || /pet_catalog/i.test(err?.message || '')) {
+        return [];
+      }
+      return [];
+    }
+  }
+
+  async function isKnownPetId(petId) {
+    if (validatePetId(petId)) return true;
+    if (!isValidPetIdFormat(petId)) return false;
+    try {
+      const [[row]] = await db.execute(
+        'SELECT pet_id FROM pet_catalog WHERE pet_id = ?',
+        [petId]
+      );
+      return Boolean(row);
+    } catch {
+      return false;
+    }
+  }
+
+  async function isKnownScopeKey(scopeKey) {
+    if (validateScopeKey(scopeKey)) return true;
+    if (typeof scopeKey !== 'string') return false;
+    const match = scopeKey.match(/^([a-z][a-z0-9_]{1,31})\/c([1-5])$/);
+    if (!match) return false;
+    return isKnownPetId(match[1]);
+  }
+
   // ── GET /api/admin/pet-motion/assets/draft/:petId/:stage/:file ──
   // Phục vụ ảnh nháp CHỈ cho admin (chặn mọi user chưa đăng nhập / user thường)
   router.get('/assets/draft/:petId/:stage/:file', async (req, res) => {
     const { petId, stage, file } = req.params;
     const stageNum = parseStage(stage);
-    if (!validatePetId(petId) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {
+    if (!(await isKnownPetId(petId)) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {
       return res.status(400).json({ error: 'Đường dẫn ảnh nháp không hợp lệ.' });
     }
 
@@ -227,7 +268,7 @@ export function createPetMotionAdminRouter({
   });
 
   // ── GET /api/admin/pet-motion/overview ─────────────────────────
-  // Ma trận pet × 5 cấp: có rig chưa, trạng thái rig, số động tác đã duyệt / 34, avatar bổ sung
+  // Ma trận pet × 5 cấp (gộp 23 pet gốc + pet tự thêm/sửa trong pet_catalog)
   router.get('/overview', async (_req, res) => {
     try {
       const [rigRows] = await db.execute(
@@ -239,13 +280,24 @@ export function createPetMotionAdminRouter({
           WHERE approved = 1
           GROUP BY pet_stage`
       );
+      const catalogRows = await loadCatalogRowsSafe();
 
       const rigMap = new Map(rigRows.map((r) => [r.pet_stage, r]));
       const approvalMap = new Map(
         approvalRows.map((r) => [r.pet_stage, Number(r.approved_count || 0)])
       );
+      const catalogMap = new Map(catalogRows.map((c) => [c.pet_id, c]));
 
-      const pets = ALL_PET_IDS.map((petId) => {
+      const allOrderedIds = [...ALL_PET_IDS];
+      for (const c of catalogRows) {
+        if (!allOrderedIds.includes(c.pet_id)) {
+          allOrderedIds.push(c.pet_id);
+        }
+      }
+
+      const pets = allOrderedIds.map((petId) => {
+        const base = PET_BATTLE_DATA[petId] || null;
+        const cat = catalogMap.get(petId) || null;
         const stages = {};
         for (let s = 1; s <= 5; s++) {
           const key = `${petId}/c${s}`;
@@ -265,21 +317,184 @@ export function createPetMotionAdminRouter({
         }
         return {
           petId,
-          group: PET_BATTLE_DATA[petId].group,
-          element: PET_BATTLE_DATA[petId].element,
-          rarity: PET_BATTLE_DATA[petId].rarity,
+          group: cat?.pet_group || base?.group || 'farm',
+          element: cat?.element || base?.element || 'neutral',
+          rarity: cat?.rarity || base?.rarity || 'common',
+          name: cat?.name || null,
+          species: cat?.species || null,
+          emoji: cat?.emoji || null,
+          description: cat?.description || null,
+          evolutions: cat ? parseJsonCol(cat.evolutions_json, null) : null,
+          unlock: cat ? parseJsonCol(cat.unlock_json, null) : null,
+          isCustom: cat ? Boolean(cat.is_custom) : false,
+          isActive: cat ? Boolean(cat.is_active) : true,
           stages,
         };
       });
 
       res.json({
-        totalPets: ALL_PET_IDS.length,
+        totalPets: allOrderedIds.length,
         totalClips: TOTAL_CLIPS,
         pets,
       });
     } catch (err) {
       console.error('GET /api/admin/pet-motion/overview error:', err);
-      res.status(500).json({ error: 'Lỗi tải tổng quan động tác pet.' });
+      res.status(500).json({ error: 'Lỗi tải tổng quan quản lý pet.' });
+    }
+  });
+
+  // ── POST /api/admin/pet-motion/pets ────────────────────────────
+  // Admin tạo loài Pet mới vào bảng pet_catalog
+  router.post('/pets', async (req, res) => {
+    const parsed = validatePetCatalogPayload(req.body, { isCreate: true });
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+    const d = parsed.data;
+    if (validatePetId(d.petId)) {
+      return res.status(409).json({ error: `Mã pet "${d.petId}" đã tồn tại trong danh sách pet gốc.` });
+    }
+    try {
+      const [[dup]] = await db.execute('SELECT pet_id FROM pet_catalog WHERE pet_id = ?', [d.petId]);
+      if (dup) {
+        return res.status(409).json({ error: `Mã pet "${d.petId}" đã tồn tại.` });
+      }
+      const userId = req.user?.id ?? null;
+      await db.execute(
+        `INSERT INTO pet_catalog
+           (pet_id, name, species, emoji, element, pet_group, rarity, description,
+            evolutions_json, unlock_json, is_custom, is_active, created_by, updated_by, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, NOW())`,
+        [
+          d.petId,
+          d.name,
+          d.species,
+          d.emoji,
+          d.element,
+          d.group,
+          d.rarity,
+          d.description,
+          JSON.stringify(d.evolutions),
+          JSON.stringify(d.unlock),
+          d.isActive ? 1 : 0,
+          userId,
+          userId,
+        ]
+      );
+      await logHistory(db, 'rig', `catalog:${d.petId}`, { action: 'create_pet', pet: d }, userId);
+      motionCache?.invalidateAll();
+      res.status(201).json({ ok: true, pet: { ...d, isCustom: true } });
+    } catch (err) {
+      console.error('POST /api/admin/pet-motion/pets error:', err);
+      res.status(500).json({ error: 'Lỗi tạo pet mới. Hãy đảm bảo đã chạy migration pet_catalog.' });
+    }
+  });
+
+  // ── PUT /api/admin/pet-motion/pets/:petId ──────────────────────
+  // Admin chỉnh sửa thông tin Pet (pet mới hoặc cập nhật metadata pet gốc)
+  router.put('/pets/:petId', async (req, res) => {
+    const { petId } = req.params;
+    if (!(await isKnownPetId(petId))) {
+      return res.status(404).json({ error: 'Không tìm thấy pet để cập nhật.' });
+    }
+    const parsed = validatePetCatalogPayload(req.body, { isCreate: false });
+    if (parsed.error) {
+      return res.status(400).json({ error: parsed.error });
+    }
+    const d = parsed.data;
+    const isBuiltIn = validatePetId(petId);
+    const userId = req.user?.id ?? null;
+
+    try {
+      const [[existing]] = await db.execute('SELECT pet_id, is_custom FROM pet_catalog WHERE pet_id = ?', [petId]);
+      if (existing) {
+        await db.execute(
+          `UPDATE pet_catalog
+              SET name = ?, species = ?, emoji = ?, element = ?, pet_group = ?, rarity = ?,
+                  description = ?, evolutions_json = ?, unlock_json = ?, is_active = ?, updated_by = ?
+            WHERE pet_id = ?`,
+          [
+            d.name,
+            d.species,
+            d.emoji,
+            d.element,
+            d.group,
+            d.rarity,
+            d.description,
+            JSON.stringify(d.evolutions),
+            JSON.stringify(d.unlock),
+            d.isActive ? 1 : 0,
+            userId,
+            petId,
+          ]
+        );
+      } else {
+        await db.execute(
+          `INSERT INTO pet_catalog
+             (pet_id, name, species, emoji, element, pet_group, rarity, description,
+              evolutions_json, unlock_json, is_custom, is_active, created_by, updated_by, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+          [
+            petId,
+            d.name,
+            d.species,
+            d.emoji,
+            d.element,
+            d.group,
+            d.rarity,
+            d.description,
+            JSON.stringify(d.evolutions),
+            JSON.stringify(d.unlock),
+            isBuiltIn ? 0 : 1,
+            d.isActive ? 1 : 0,
+            userId,
+            userId,
+          ]
+        );
+      }
+      await logHistory(db, 'rig', `catalog:${petId}`, { action: 'update_pet', pet: { ...d, petId } }, userId);
+      motionCache?.invalidate(petId);
+      res.json({ ok: true, pet: { ...d, petId, isCustom: existing ? Boolean(existing.is_custom) : !isBuiltIn } });
+    } catch (err) {
+      console.error('PUT /api/admin/pet-motion/pets/:petId error:', err);
+      res.status(500).json({ error: 'Lỗi cập nhật thông tin pet.' });
+    }
+  });
+
+  // ── DELETE /api/admin/pet-motion/pets/:petId ───────────────────
+  // Admin xoá Pet tự thêm (bảo vệ 23 pet gốc không cho xoá)
+  router.delete('/pets/:petId', async (req, res) => {
+    const { petId } = req.params;
+    if (validatePetId(petId)) {
+      return res.status(400).json({ error: 'Không thể xoá pet gốc của hệ thống.' });
+    }
+    if (!isValidPetIdFormat(petId)) {
+      return res.status(400).json({ error: 'petId không hợp lệ.' });
+    }
+    try {
+      const [[existing]] = await db.execute('SELECT pet_id, is_custom FROM pet_catalog WHERE pet_id = ?', [petId]);
+      if (!existing || !existing.is_custom) {
+        return res.status(404).json({ error: 'Không tìm thấy pet tự thêm để xoá.' });
+      }
+      const stageKeys = [1, 2, 3, 4, 5].map((s) => `${petId}/c${s}`);
+      const placeholders = stageKeys.map(() => '?').join(',');
+      await db.execute(`DELETE FROM pet_motion_approvals WHERE pet_stage IN (${placeholders})`, stageKeys);
+      await db.execute(`DELETE FROM pet_motion_clips WHERE scope_key IN (${placeholders})`, stageKeys);
+      await db.execute(`DELETE FROM pet_rigs WHERE pet_stage IN (${placeholders})`, stageKeys);
+      await db.execute('DELETE FROM pet_catalog WHERE pet_id = ?', [petId]);
+
+      for (const bucket of ['avatars', 'draft', 'published']) {
+        const dirPath = resolveSafeStoragePath(storageDir, bucket, petId);
+        if (dirPath) {
+          await fs.rm(dirPath, { recursive: true, force: true }).catch(() => {});
+        }
+      }
+      await logHistory(db, 'rig', `catalog:${petId}`, { action: 'delete_pet', petId }, req.user?.id ?? null);
+      motionCache?.invalidate(petId);
+      res.json({ ok: true, deleted: petId });
+    } catch (err) {
+      console.error('DELETE /api/admin/pet-motion/pets/:petId error:', err);
+      res.status(500).json({ error: 'Lỗi xoá pet.' });
     }
   });
 
@@ -288,7 +503,7 @@ export function createPetMotionAdminRouter({
   router.post('/:petId/:stage/avatar', async (req, res) => {
     const { petId } = req.params;
     const stageNum = parseStage(req.params.stage);
-    if (!validatePetId(petId) || !stageNum) {
+    if (!(await isKnownPetId(petId)) || !stageNum) {
       return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
     }
 
@@ -397,7 +612,7 @@ export function createPetMotionAdminRouter({
   router.put('/clip', async (req, res) => {
     const { scope_key, clip, data, expected_updated_at } = req.body || {};
 
-    if (!validateScopeKey(scope_key)) {
+    if (!(await isKnownScopeKey(scope_key))) {
       return res.status(400).json({ error: 'scope_key không hợp lệ.' });
     }
     if (!validateClipName(clip)) {
@@ -474,7 +689,7 @@ export function createPetMotionAdminRouter({
     const scope_key = req.body?.scope_key ?? req.query?.scope_key;
     const clip = req.body?.clip ?? req.query?.clip;
 
-    if (!validateScopeKey(scope_key)) {
+    if (!(await isKnownScopeKey(scope_key))) {
       return res.status(400).json({ error: 'scope_key không hợp lệ.' });
     }
     if (!validateClipName(clip)) {
@@ -520,7 +735,7 @@ export function createPetMotionAdminRouter({
   router.post('/clip/publish', async (req, res) => {
     const { scope_key, clip, resetApprovals = true } = req.body || {};
 
-    if (!validateScopeKey(scope_key)) {
+    if (!(await isKnownScopeKey(scope_key))) {
       return res.status(400).json({ error: 'scope_key không hợp lệ.' });
     }
     if (!validateClipName(clip)) {
@@ -608,7 +823,7 @@ export function createPetMotionAdminRouter({
   router.get('/:petId/:stage', async (req, res) => {
     const { petId } = req.params;
     const stageNum = parseStage(req.params.stage);
-    if (!validatePetId(petId) || !stageNum) {
+    if (!(await isKnownPetId(petId)) || !stageNum) {
       return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
     }
 
@@ -718,7 +933,7 @@ export function createPetMotionAdminRouter({
   router.put('/:petId/:stage/rig', async (req, res) => {
     const { petId } = req.params;
     const stageNum = parseStage(req.params.stage);
-    if (!validatePetId(petId) || !stageNum) {
+    if (!(await isKnownPetId(petId)) || !stageNum) {
       return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
     }
 
@@ -787,7 +1002,7 @@ export function createPetMotionAdminRouter({
     const { petId, part } = req.params;
     const stageNum = parseStage(req.params.stage);
 
-    if (!validatePetId(petId)) {
+    if (!(await isKnownPetId(petId))) {
       return res.status(400).json({ error: 'petId không tồn tại trong danh sách pet.' });
     }
     if (!stageNum) {
@@ -891,7 +1106,7 @@ export function createPetMotionAdminRouter({
   router.post('/:petId/:stage/approve-rig', async (req, res) => {
     const { petId } = req.params;
     const stageNum = parseStage(req.params.stage);
-    if (!validatePetId(petId) || !stageNum) {
+    if (!(await isKnownPetId(petId)) || !stageNum) {
       return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
     }
 
@@ -986,7 +1201,7 @@ export function createPetMotionAdminRouter({
     const stageNum = parseStage(req.params.stage);
     const { clip, approved } = req.body || {};
 
-    if (!validatePetId(petId) || !stageNum) {
+    if (!(await isKnownPetId(petId)) || !stageNum) {
       return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
     }
     if (!validateClipName(clip)) {

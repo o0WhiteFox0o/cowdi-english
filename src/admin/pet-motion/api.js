@@ -37,6 +37,23 @@ export function createPetMotionApi(token) {
     getOverview() {
       return requestJson('/api/admin/pet-motion/overview');
     },
+    createPet(payload) {
+      return requestJson('/api/admin/pet-motion/pets', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+    updatePet(petId, payload) {
+      return requestJson(`/api/admin/pet-motion/pets/${encodeURIComponent(petId)}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    },
+    deletePet(petId) {
+      return requestJson(`/api/admin/pet-motion/pets/${encodeURIComponent(petId)}`, {
+        method: 'DELETE',
+      });
+    },
     getDetail(petId, stage) {
       return requestJson(`/api/admin/pet-motion/${encodeURIComponent(petId)}/${stage}`);
     },

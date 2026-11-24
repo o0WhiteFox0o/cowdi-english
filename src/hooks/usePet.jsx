@@ -2,9 +2,11 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 import { useAuth } from './useAuth';
 import { useUser } from './useUser';
 import {
-  PET_REGISTRY, checkUnlockCondition,
+  PET_REGISTRY, checkUnlockCondition, mergeDynamicPetCatalog,
   QUIZ_TO_SKILL, DAILY_QUESTS, WEEKLY_QUESTS, PET_ACHIEVEMENTS,
 } from '../data/pets';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const PET_STORAGE_PREFIX = 'cowdi_pet_data';
 
@@ -129,6 +131,22 @@ export function PetProvider({ children }) {
   const { user, authFetch } = useAuth();
   const { userData, addXP } = useUser();
   const [petData, setPetData] = useState(() => ensureInitialPet(loadPetData(user?.id || null)));
+  const [, setCatalogVersion] = useState(0);
+
+  // Đồng bộ danh mục pet mới & avatar bổ sung từ Admin (/api/pet-motion/catalog)
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API_BASE}/api/pet-motion/catalog`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!alive || !data) return;
+        if (mergeDynamicPetCatalog(data, API_BASE)) {
+          setCatalogVersion((v) => v + 1);
+        }
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
   // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại

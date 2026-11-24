@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useSEO } from '../../hooks/useSEO';
-import { PET_REGISTRY, ELEMENT_COLORS } from '../../data/pets';
+import { PET_REGISTRY, ELEMENT_COLORS, mergeDynamicPetCatalog } from '../../data/pets';
 import { GROUPS, RARITIES, RARITY_ALIASES } from '../../../shared/game-config.js';
 import { CLIPS } from '../../../shared/pet-motion.js';
 import {
@@ -23,6 +23,7 @@ import {
 } from './api';
 import { initEditor } from './editor';
 import PartPaintModal from './PartPaintModal';
+import PetFormModal from './PetFormModal';
 import StudyPreviewTab from './StudyPreviewTab';
 import { invalidatePetMotionCache } from '../../pet-rig/motionCache';
 import './pet-motion.css';
@@ -308,18 +309,11 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
 
 // ── Trang chính /admin/pet-motion ────────────────────────────────────────────
 export default function PetMotionPage() {
-  useSEO({ title: 'Chỉnh động tác pet (Admin) — Cowdi English' });
+  useSEO({ title: 'Quản lý Pet & Chuyển động (Admin) — Cowdi English' });
   const { token } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const api = useMemo(() => createPetMotionApi(token), [token]);
-
-  const selectedPetId = searchParams.get('pet') || '';
-  const selectedStageNum = Number(searchParams.get('stage')) || 0;
-  const isPreviewView = searchParams.get('view') === 'preview';
-  const isEditorView =
-    !isPreviewView &&
-    Boolean(selectedPetId && PET_REGISTRY[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
 
   const [overview, setOverview] = useState(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
@@ -329,6 +323,61 @@ export default function PetMotionPage() {
   const [rigFilter, setRigFilter] = useState('all'); // 'all' | 'has_rig' | 'no_rig'
   const [brokenImgs, setBrokenImgs] = useState({});
   const [uploadingAvatar, setUploadingAvatar] = useState({});
+  const [petModal, setPetModal] = useState({ open: false, mode: 'create', pet: null });
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deletingPet, setDeletingPet] = useState(false);
+
+  // Danh sách pet động (gộp PET_REGISTRY gốc + pet mới/sửa từ API overview)
+  const dynamicPetList = useMemo(() => {
+    const map = new Map();
+    for (const p of Object.values(PET_REGISTRY)) {
+      map.set(p.id, p);
+    }
+    for (const row of overview?.pets || []) {
+      const base = map.get(row.petId);
+      const evos = Array.isArray(row.evolutions) && row.evolutions.length === 5
+        ? row.evolutions.map((ev, idx) => ({
+            ...ev,
+            image: row.stages?.[`c${idx + 1}`]?.avatarUrl
+              ? `${PET_MOTION_API_BASE}${row.stages[`c${idx + 1}`].avatarUrl}`
+              : (ev.image || base?.evolutions?.[idx]?.image || null),
+          }))
+        : (base?.evolutions || [0, 1, 2, 3, 4].map((stage) => ({
+            stage,
+            name: `Cấp ${stage + 1}`,
+            emoji: stage === 0 ? '🥚' : (row.emoji || '🐾'),
+            image: row.stages?.[`c${stage + 1}`]?.avatarUrl
+              ? `${PET_MOTION_API_BASE}${row.stages[`c${stage + 1}`].avatarUrl}`
+              : null,
+          })));
+      map.set(row.petId, {
+        ...(base || {}),
+        id: row.petId,
+        name: row.name || base?.name || row.petId,
+        species: row.species || base?.species || row.name || row.petId,
+        emoji: row.emoji || base?.emoji || '🐾',
+        element: row.element || base?.element || 'neutral',
+        group: row.group || base?.group || 'farm',
+        rarity: row.rarity || base?.rarity || 'common',
+        description: row.description ?? base?.description ?? '',
+        evolutions: evos,
+        isCustom: Boolean(row.isCustom),
+      });
+    }
+    return Array.from(map.values());
+  }, [overview]);
+
+  const dynamicPetMap = useMemo(
+    () => Object.fromEntries(dynamicPetList.map((p) => [p.id, p])),
+    [dynamicPetList]
+  );
+
+  const selectedPetId = searchParams.get('pet') || '';
+  const selectedStageNum = Number(searchParams.get('stage')) || 0;
+  const isPreviewView = searchParams.get('view') === 'preview';
+  const isEditorView =
+    !isPreviewView &&
+    Boolean(selectedPetId && dynamicPetMap[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
 
   // Editor state
   const [detail, setDetail] = useState(null);
@@ -375,12 +424,37 @@ export default function PetMotionPage() {
 
   useEffect(() => () => clearTimeout(toastTimerRef.current), []);
 
-  // ── Tải tổng quan 22 pet × 5 cấp ──
+  // ── Tải tổng quan toàn bộ pet × 5 cấp ──
   const loadOverview = useCallback(async () => {
     setOverviewLoading(true);
     setOverviewError('');
     try {
       const json = await api.getOverview();
+      if (Array.isArray(json?.pets)) {
+        const dynamicPets = json.pets
+          .filter((p) => p.name || p.isCustom)
+          .map((p) => ({
+            id: p.petId,
+            name: p.name,
+            species: p.species,
+            emoji: p.emoji,
+            element: p.element,
+            group: p.group,
+            rarity: p.rarity,
+            description: p.description,
+            evolutions: p.evolutions,
+            unlockCondition: p.unlock,
+            isCustom: p.isCustom,
+          }));
+        const avatars = {};
+        for (const p of json.pets) {
+          for (let s = 1; s <= 5; s++) {
+            const url = p.stages?.[`c${s}`]?.avatarUrl;
+            if (url) avatars[`${p.petId}/c${s}`] = url;
+          }
+        }
+        mergeDynamicPetCatalog({ pets: dynamicPets, avatars }, PET_MOTION_API_BASE);
+      }
       setOverview(json);
     } catch (err) {
       setOverviewError(err.message || 'Không tải được tổng quan.');
@@ -891,7 +965,7 @@ export default function PetMotionPage() {
       if (rigFilter === 'has_rig' && !petHasAnyRig) return false;
       if (rigFilter === 'no_rig' && petHasAnyRig) return false;
       if (!searchQuery.trim()) return true;
-      const reg = PET_REGISTRY[p.petId];
+      const reg = dynamicPetMap[p.petId] || PET_REGISTRY[p.petId];
       const q = searchQuery.toLowerCase();
       return (
         p.petId.includes(q) ||
@@ -901,20 +975,36 @@ export default function PetMotionPage() {
       );
     });
 
+    const handleConfirmDeletePet = async () => {
+      if (!deleteTarget || deletingPet) return;
+      setDeletingPet(true);
+      try {
+        await api.deletePet(deleteTarget.petId);
+        delete PET_REGISTRY[deleteTarget.petId];
+        showToast(`Đã xoá pet "${deleteTarget.name || deleteTarget.petId}".`);
+        setDeleteTarget(null);
+        await loadOverview();
+      } catch (err) {
+        showToast(err.message || 'Không xoá được pet.');
+      } finally {
+        setDeletingPet(false);
+      }
+    };
+
     return (
       <div className="pm-admin fade-in">
         <div className="pm-header">
           <div>
-            <h1>Kho Pet · Rig &amp; Động tác</h1>
+            <h1>Quản lý Pet · Rig &amp; Động tác</h1>
             <p className="pm-sub">
-              Hiển thị ảnh mặc định của toàn bộ {overview?.totalPets || PET_LIST.length} loài pet × 5 cấp. Bạn có thể bổ sung ảnh trực tiếp trên từng thẻ và bấm <strong>Rig</strong> hoặc <strong>Motion</strong> ngay bên dưới ảnh.
+              Quản lý toàn bộ {overview?.totalPets || dynamicPetList.length} loài pet × 5 cấp: thêm pet mới, sửa thông tin, tải ảnh 5 cấp và chỉnh <strong>Rig</strong> / <strong>Motion</strong> trực tiếp.
             </p>
           </div>
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-2 align-items-center flex-wrap">
             <input
               type="search"
               className="form-control form-control-sm"
-              style={{ width: 220 }}
+              style={{ width: 200 }}
               placeholder="Tìm tên pet, loài…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -922,10 +1012,18 @@ export default function PetMotionPage() {
             <button
               type="button"
               className="pm-btn primary"
+              onClick={() => setPetModal({ open: true, mode: 'create', pet: null })}
+              title="Tạo loài pet mới và tải lên ảnh 5 cấp"
+            >
+              + Thêm Pet mới
+            </button>
+            <button
+              type="button"
+              className="pm-btn"
               onClick={() => openStudyPreview('bamboo_spirit', 1)}
               title="Mở phòng thử nghiệm ở nhà, bài học và trận đấu bằng PetRig thật"
             >
-              🧪 Xem trước khi học
+              🧪 Xem trước
             </button>
             <button type="button" className="pm-btn" onClick={loadOverview} disabled={overviewLoading}>
               Tải lại
@@ -984,7 +1082,7 @@ export default function PetMotionPage() {
         ) : (
           <div className="pm-deck-list">
             {filteredPets.map((row) => {
-              const reg = PET_REGISTRY[row.petId];
+              const reg = dynamicPetMap[row.petId] || PET_REGISTRY[row.petId];
               const grpLabel = GROUPS[row.group]?.labelVi || row.group;
               const elem = ELEMENT_COLORS[row.element];
               const rarityKey = RARITY_ALIASES[row.rarity] || row.rarity;
@@ -998,7 +1096,8 @@ export default function PetMotionPage() {
                     <div className="pm-pet-deck-title">
                       <span style={{ fontSize: '1.25rem' }}>{reg?.emoji || '🐾'}</span>
                       <h3>{reg?.name || row.petId}</h3>
-                      <span className="small text-muted">({reg?.species})</span>
+                      <span className="small text-muted">({reg?.species || row.petId})</span>
+                      {row.isCustom && <span className="pm-badge ok">Mới</span>}
                       {elem && (
                         <span
                           className="pm-badge"
@@ -1010,8 +1109,28 @@ export default function PetMotionPage() {
                       <span className="pm-badge none">{grpLabel}</span>
                       <span className="pm-badge none">{rarityLabel}</span>
                     </div>
-                    <div className="small text-muted fw-semibold">
-                      Rig: <strong>{rigCount}/5</strong> · Động tác duyệt: <strong>{clipSum}</strong>
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <span className="small text-muted fw-semibold">
+                        Rig: <strong>{rigCount}/5</strong> · Duyệt: <strong>{clipSum}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        className="pm-btn pm-btn-sm"
+                        onClick={() => setPetModal({ open: true, mode: 'edit', pet: reg || { id: row.petId, ...row } })}
+                        title="Sửa tên, hệ, mô tả và tải lên ảnh 5 cấp"
+                      >
+                        ✏️ Sửa
+                      </button>
+                      {row.isCustom && (
+                        <button
+                          type="button"
+                          className="pm-btn pm-btn-sm text-danger"
+                          onClick={() => setDeleteTarget({ petId: row.petId, name: reg?.name || row.petId })}
+                          title="Xoá pet tự thêm này"
+                        >
+                          🗑️ Xoá
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -1137,14 +1256,46 @@ export default function PetMotionPage() {
           </div>
         )}
 
+        <PetFormModal
+          open={petModal.open}
+          mode={petModal.mode}
+          initialPet={petModal.pet}
+          api={api}
+          onClose={() => setPetModal({ open: false, mode: 'create', pet: null })}
+          onSaved={() => {
+            setBrokenImgs({});
+            loadOverview();
+          }}
+          onToast={showToast}
+        />
+
+        {deleteTarget && (
+          <div className="cowdi-mini-modal-backdrop" onClick={() => !deletingPet && setDeleteTarget(null)}>
+            <div className="cowdi-mini-modal" style={{ maxWidth: 420 }} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+              <h5 className="fw-bold mb-2 text-danger">Xoá pet &ldquo;{deleteTarget.name}&rdquo;?</h5>
+              <p className="small text-muted mb-3">
+                Thao tác này sẽ xoá thông tin pet <code>{deleteTarget.petId}</code> cùng toàn bộ ảnh avatar, rig và động tác nháp/duyệt của pet này. Không thể hoàn tác.
+              </p>
+              <div className="d-flex justify-content-end gap-2">
+                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setDeleteTarget(null)} disabled={deletingPet}>
+                  Huỷ
+                </button>
+                <button type="button" className="btn btn-sm btn-danger" onClick={handleConfirmDeletePet} disabled={deletingPet}>
+                  {deletingPet ? 'Đang xoá…' : 'Xác nhận xoá'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {toastMsg && <div className="pm-toast" role="status">{toastMsg}</div>}
       </div>
     );
   }
 
   // ── Render 2: Bàn dựng + Duyệt cho pet-cấp đang chọn ──
-  const petObj = PET_REGISTRY[selectedPetId];
-  const stageEvo = petObj.evolutions[selectedStageNum - 1];
+  const petObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+  const stageEvo = petObj?.evolutions?.[selectedStageNum - 1];
   const isClipApproved = Boolean(detail?.approvals?.[clip]?.approved);
   const approvedCount = Object.values(detail?.approvals || {}).filter((a) => a.approved).length;
   const sharedClipEntry = detail?.clips?.shared?.[clip];
@@ -1165,7 +1316,7 @@ export default function PetMotionPage() {
       <div className="pm-toolbar">
         <div className="pm-row">
           <button type="button" className="pm-btn" onClick={backToOverview}>
-            ← Tổng quan {PET_LIST.length} pet
+            ← Quản lý {dynamicPetList.length} pet
           </button>
           <select
             className="pm-select"
@@ -1173,7 +1324,7 @@ export default function PetMotionPage() {
             value={selectedPetId}
             onChange={(e) => openPetStage(e.target.value, selectedStageNum)}
           >
-            {PET_LIST.map((p) => (
+            {dynamicPetList.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} ({p.species})
               </option>
