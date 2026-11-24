@@ -191,6 +191,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Nội dung `int-u3` v2 — Tạo `briefs/int-u3.md` & nâng cấp 4 bài (`clothing`, `house`, `emotions`, `hobbies`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · af76a96
 - [x] Nội dung Starter `s1-u2` & `s1-u3` v2 — Tạo 2 brief + 8 bài `picture` (`s1-color-1..s1-size`, `s1-pets..s1-water`) & mở khoá 2 unit trong `units.js` (0 lỗi, 0 cảnh báo) — 2026-11-24 · 7a55d0c
 - [x] Nội dung IELTS Reading v2 (Đợt 1) — Đưa `ielts-read-rooftop-farms` vào lộ trình + viết 2 bài học thuật mới (`ielts-read-urban-trees`, `ielts-read-sleep-memory`), phủ đủ 6 dạng `ExamReading` (`ielts-unit-reading-v2`, 0 lỗi 0 cảnh báo) — 2026-11-24 · ab82bd8
+- [x] Nội dung `int-u4` v2 — Tạo `briefs/int-u4.md` & nâng cấp 5 bài (`pronouns`, `articles`, `prepositions-place`, `wh-questions`, `numbers-basic`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24 · 38b0042
+- [x] Nội dung `int-u5` v2 — Tạo `briefs/int-u5.md` & nâng cấp 4 bài (`daily-phrases`, `time-and-date`, `directions`, `money-prices`) lên `contentVersion: 2` đạt 0 lỗi 0 cảnh báo — 2026-11-24
 
 ---
 
@@ -204,6 +206,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-24 | Nội dung `int-u4`, `int-u5` | Nâng cấp trọn 5 bài `int-u4` (`pronouns`, `articles`, `prepositions-place`, `wh-questions`, `numbers-basic`) và 4 bài `int-u5` (`daily-phrases`, `time-and-date`, `directions`, `money-prices`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo) — hoàn tất nửa đầu lộ trình Trung bình `int-u1..u5` | `38b0042` + `int-u5` | 221 bài / 54 unit / 36 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
 | 2026-11-24 | Nội dung v2 Đợt 2 | Hoàn tất tuần tự theo Plan trên `feat/content-v2-wave2`: nâng cấp `int-u2` (4 bài) + `int-u3` (4 bài), mở mới Starter `s1-u2` & `s1-u3` (8 bài `picture`), và đưa unit `ielts-unit-reading-v2` (3 bài IELTS Academic Reading phủ đủ 6 dạng đề) vào lộ trình `ielts` | `33cebea`, `af76a96`, `7a55d0c`, `ab82bd8` | 221 bài / 54 unit / 27 bài đạt chuẩn v2 (0 lỗi), 110/110 test pass, build pass |
 | 2026-11-24 | U8 + int-u1 | Xây `ExamReading.jsx` (hoàn tất 10/10 hạng mục UI `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn unit `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên `contentVersion: 2` (0 lỗi, 0 cảnh báo), điều chỉnh onboarding người mới hiện kiểm tra đầu vào trước | `1744823`, `b19057a`, `30369fa` | Gộp `main` (`558cd7c`) & push `origin/main` |
 | 2026-11-24 | 3-nhóm A–E | Hoàn thành toàn bộ Lộ trình 3 nhóm + Chuẩn nội dung UI v2 (`groups.js`, Unit S1 Starter, `path.js`, 0 bài mồ côi, migration MySQL 5.6+ & `guard-unit-gems.mjs`, `PictureLesson`, `LessonDetailPage` U1–U7/U10, `GroupPicker`, `PlacementTest`, `LearningPathPage`, di trú user cũ) | `feat/learning-groups` | 109/109 test pass, 210 bài / 51 unit, 0 lỗi validator, build pass |
