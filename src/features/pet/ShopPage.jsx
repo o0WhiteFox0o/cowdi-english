@@ -167,6 +167,7 @@ export default function ShopPage() {
         <CosmeticsTab
           selectedPetId={selectedPetId}
           onSelectPetId={handleSelectPet}
+          wallet={wallet}
         />
       )}
 

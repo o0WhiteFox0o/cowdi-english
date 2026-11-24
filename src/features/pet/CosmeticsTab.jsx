@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePet } from '../../hooks/usePet';
 import { useAuth } from '../../hooks/useAuth';
+import { useUser } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
@@ -25,9 +26,10 @@ const COSMETIC_CATEGORIES = [
 
 const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
 
-export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
+export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: propWallet }) {
   const { authFetch } = useAuth();
   const { petData, equipItem } = usePet();
+  const { userData, updateUserData } = useUser();
   const showToast = useToast();
   const { play } = useSound();
 
@@ -48,6 +50,34 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
   const [userStats, setUserStats] = useState(null);
   const [buyingItem, setBuyingItem] = useState(null);
   const [loadingBuy, setLoadingBuy] = useState(false);
+
+  // Ví người dùng tổng hợp (ưu tiên giá trị cao hơn giữa serverWallet, propWallet và useUser)
+  const baseWallet = propWallet || userData?.wallet || {
+    milk: userData?.availableXP || 0,
+    gem: 0,
+    stone: 0,
+    stone_shard: 0,
+  };
+
+  const effectiveWallet = useMemo(() => {
+    return {
+      milk: Math.max(Number(serverWallet?.milk) || 0, Number(baseWallet.milk) || 0),
+      gem: Math.max(Number(serverWallet?.gem) || 0, Number(baseWallet.gem) || 0),
+      stone: Math.max(Number(serverWallet?.stone) || 0, Number(baseWallet.stone) || 0),
+      stone_shard: Math.max(Number(serverWallet?.stone_shard) || 0, Number(baseWallet.stone_shard) || 0),
+    };
+  }, [serverWallet, baseWallet.milk, baseWallet.gem, baseWallet.stone, baseWallet.stone_shard]);
+
+  // Lắng nghe sự kiện ví thay đổi từ HUD hoặc bài học
+  useEffect(() => {
+    const handleWalletUpdated = (e) => {
+      if (e.detail) {
+        setServerWallet(e.detail);
+      }
+    };
+    window.addEventListener('wallet-updated', handleWalletUpdated);
+    return () => window.removeEventListener('wallet-updated', handleWalletUpdated);
+  }, []);
 
   // Reset trang về 1 khi đổi danh mục hoặc bộ lọc
   useEffect(() => {
@@ -195,9 +225,10 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
       // Cập nhật serverOwnedIds
       setServerOwnedIds(data.ownedIds || [...Array.from(ownedSet), itemId]);
 
-      // Bắn sự kiện cập nhật ví trên HUD
+      // Bắn sự kiện cập nhật ví trên HUD & cập nhật local userData
       if (data.wallet) {
         setServerWallet(data.wallet);
+        updateUserData?.({ wallet: data.wallet, availableXP: data.wallet.milk });
         window.dispatchEvent(new CustomEvent('wallet-updated', { detail: data.wallet }));
       }
 
@@ -511,7 +542,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId }) {
       <CosmeticBuySheet
         open={Boolean(buyingItem)}
         item={buyingItem}
-        wallet={serverWallet || { milk: 0, gem: 0 }}
+        wallet={effectiveWallet}
         hasSameTheme={buyingItem ? checkHasCombo(buyingItem) : false}
         onConfirm={handleConfirmBuy}
         onClose={() => setBuyingItem(null)}

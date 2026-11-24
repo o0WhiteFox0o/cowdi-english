@@ -172,25 +172,23 @@ function sanitizeData(data) {
   const sanitized = { ...data };
 
   // ── Di trú XP wallet ─────────────────────────────────────
-  // User cũ chưa có availableXP → khởi tạo bằng totalXP để họ có thể tiêu ngay
-  // toàn bộ XP đã tích lũy. Sau lần lưu đầu tiên field sẽ tồn tại và logic sẽ
-  // hoạt động bình thường.
-  if (typeof sanitized.availableXP !== 'number' || sanitized.availableXP < 0) {
-    sanitized.availableXP = Math.max(0, sanitized.totalXP || 0);
-  }
-  // Bảo vệ: ví không được vượt quá lifetime XP (chống lỗi dữ liệu)
-  if (sanitized.availableXP > (sanitized.totalXP || 0)) {
-    sanitized.availableXP = sanitized.totalXP || 0;
-  }
-
   // ── Khởi tạo ví Kinh tế v2 ──────────────────────────────
   const w = sanitized.wallet || {};
+  const walletMilk = typeof w.milk === 'number' ? w.milk : (sanitized.availableXP || 0);
   sanitized.wallet = {
-    milk: typeof w.milk === 'number' ? w.milk : (sanitized.availableXP || 0),
+    milk: walletMilk,
     gem: typeof w.gem === 'number' ? w.gem : 0,
     stone: typeof w.stone === 'number' ? w.stone : 0,
     stone_shard: typeof w.stone_shard === 'number' ? w.stone_shard : 0,
   };
+
+  // Đảm bảo lifetime XP (totalXP) luôn >= số Sữa hiện có trong ví
+  if ((sanitized.totalXP || 0) < walletMilk) {
+    sanitized.totalXP = walletMilk;
+  }
+  if (typeof sanitized.availableXP !== 'number' || sanitized.availableXP < 0) {
+    sanitized.availableXP = walletMilk;
+  }
 
   // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
   if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
@@ -595,7 +593,7 @@ export function UserProvider({ children }) {
       markSyncDirty(user.id); // Đánh dấu có thay đổi chưa sync
       pendingSyncRef.current = true;
       clearTimeout(syncTimerRef.current);
-      syncTimerRef.current = setTimeout(() => pushProgress(userData), 3000);
+      syncTimerRef.current = setTimeout(() => pushProgress(userDataRef.current), 3000);
     }
   }, [userData]);
 
