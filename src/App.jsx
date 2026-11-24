@@ -1,6 +1,7 @@
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
 import BookShell from './components/layout/BookShell';
+import ErrorBoundary from './components/layout/ErrorBoundary';
 import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
@@ -66,7 +67,8 @@ export default function App() {
     <ToastProvider>
       <BookShell>
         <main className="book-main">
-          <Suspense fallback={<PageFallback />}>
+          <ErrorBoundary>
+            <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<LearningPathPage />} />
             <Route path="/learning-path" element={<LearningPathPage />} />
@@ -96,6 +98,7 @@ export default function App() {
             <Route path="*" element={<LearningPathPage />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
         </main>
       </BookShell>
       <CowdiChat />

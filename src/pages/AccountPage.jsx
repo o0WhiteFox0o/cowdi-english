@@ -141,7 +141,9 @@ export default function AccountPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [ready, setReady] = useState(false);
   const [walletActionLoading, setWalletActionLoading] = useState(false);
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
 
+  const currentGroup = userData.learnerGroup ? getGroup(userData.learnerGroup) : null;
   const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
 
   useEffect(() => {
@@ -530,9 +532,6 @@ export default function AccountPage() {
       </div>
     );
   }
-
-  const [showGroupPicker, setShowGroupPicker] = useState(false);
-  const currentGroup = userData.learnerGroup ? getGroup(userData.learnerGroup) : null;
 
   // ── Đã đăng nhập ─────────────────────────────────────────────────────────
   return (

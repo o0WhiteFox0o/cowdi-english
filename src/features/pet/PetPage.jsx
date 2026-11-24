@@ -39,6 +39,7 @@ export default function PetPage() {
   const [sharePrefill, setSharePrefill] = useState('');
 
   const activePet = getActivePetWithDecay();
+  const activePetId = petData.activePetId || activePet?.instanceId || 'cowdi_1';
   const species = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const evolution = activePet && species ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const nextEvo = species && evolution ? species.evolutions[evolution.stage + 1] || null : null;

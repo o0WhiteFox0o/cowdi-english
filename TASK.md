@@ -216,7 +216,8 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-24 | 4 / Fix | Sửa lỗi không nhận đủ số dư Sữa trong cửa hàng: chạy migration owned_cosmetics, đồng bộ effectiveWallet useUser và chống lệch total_xp | ed9b624 | 120/120 test pass, build pass |
+| 2026-11-25 | Fix | Sửa lỗi trắng trang tại /pet (ReferenceError activePetId) và /account (vi phạm thứ tự React Hook), thêm ErrorBoundary bảo vệ giao diện | 2299cf3 | 120/120 test pass, build pass |
+| 2026-11-24 | 4 / Fix | Sửa lỗi không nhận đủ số dư Sữa trong cửa hàng: chạy migration owned_cosmetics, đồng bộ effectiveWallet useUser và chống lệch total_xp | 414d3fe | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Đồng bộ chiều cao nút Mốc học (36px), hiện rõ điều kiện mở và thêm Modal chi tiết mốc học & tiến độ người dùng | 151261f | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Tăng cỡ chữ bộ lọc & phòng thử đồ, hiện đầy đủ nhãn phẩm chất góc trái card (Thường, Hiếm, Sử thi, Mốc học...), nâng phân trang lên 12 card/trang | f8ba703 | 120/120 test pass, build pass |
 | 2026-11-24 | Lộ trình / UI | Tinh chỉnh Card ngang cha của Unit cho phép thu gọn/mở rộng nút bài học (accordion), nhớ trạng thái localStorage, thêm thanh tiện ích Thu gọn/Mở rộng tất cả | 873afbc | 120/120 test pass, build pass |
