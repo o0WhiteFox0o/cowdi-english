@@ -23,6 +23,7 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
 import GroupPicker from '../features/onboarding/GroupPicker';
+import PlacementTest from '../features/placement/PlacementTest';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -38,6 +39,7 @@ export default function LearningPathPage() {
   const showToast = useToast();
 
   const [showGroupPicker, setShowGroupPicker] = useState(false);
+  const [skippedPlacement, setSkippedPlacement] = useState(false);
 
   // Checkpoint test state
   const [testUnit, setTestUnit] = useState(null);
@@ -213,9 +215,29 @@ export default function LearningPathPage() {
     // Trả lời sai: giữ màn để người học xem đáp án đúng + explanation rồi bấm "Tiếp"
   }
 
-  // ── Màn chọn nhóm khi learnerGroup === null (hoặc người dùng bấm Đổi nhóm học) ──
-  const shouldForcePicker = !userData.learnerGroup && !searchParams.get('tab');
-  if (shouldForcePicker || showGroupPicker) {
+  // ── Luồng onboarding cho người chưa chọn nhóm:
+  //    • Người mới hoàn toàn (0 bài đã học, chưa làm placement) → hiện Kiểm tra đầu vào trước;
+  //      nếu bỏ qua kiểm tra (hoặc ?pickGroup=1) → chuyển sang màn chọn nhóm học (GroupPicker).
+  //    • Người dùng cũ đã có tiến độ → hiện GroupPicker (kèm thẻ "Gợi ý cho bạn").
+  const wantsPickerFromUrl = searchParams.get('pickGroup') === '1';
+  const isFreshNewUser = !userData.learnerGroup
+    && !userData.placement
+    && (userData.completedLessons?.length || 0) === 0;
+  const shouldForceOnboarding = !userData.learnerGroup && !searchParams.get('tab');
+
+  if (shouldForceOnboarding && isFreshNewUser && !skippedPlacement && !wantsPickerFromUrl && !showGroupPicker) {
+    return (
+      <PlacementTest
+        isNewUserOnboarding
+        onSkip={() => {
+          setSkippedPlacement(true);
+          setShowGroupPicker(true);
+        }}
+      />
+    );
+  }
+
+  if (shouldForceOnboarding || showGroupPicker || wantsPickerFromUrl) {
     return (
       <GroupPicker
         onDone={(gid, pid) => {
@@ -223,6 +245,8 @@ export default function LearningPathPage() {
           if (pid) {
             setPathTab(pid);
             setSearchParams({ tab: pid }, { replace: true });
+          } else if (wantsPickerFromUrl) {
+            setSearchParams({}, { replace: true });
           }
         }}
       />

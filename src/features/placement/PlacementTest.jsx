@@ -81,9 +81,9 @@ function sampleTierQuestions(tierId) {
   return shuffleArray(picked).slice(0, 6);
 }
 
-export default function PlacementTest() {
+export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   const navigate = useNavigate();
-  const { savePlacementResult, setLearningGroup } = useUser();
+  const { userData, savePlacementResult, setLearningGroup } = useUser();
 
   const [started, setStarted] = useState(false);
   const [tierIdx, setTierIdx] = useState(0);
@@ -92,6 +92,16 @@ export default function PlacementTest() {
   const [tierCorrect, setTierCorrect] = useState(0);
   const [tierScores, setTierScores] = useState({ A: 0, B: 0, C: 0 });
   const [result, setResult] = useState(null);
+
+  const handleSkipOrBack = () => {
+    if (onSkip) {
+      onSkip();
+    } else if (!userData.learnerGroup) {
+      navigate('/learning-path?pickGroup=1');
+    } else {
+      navigate('/learning-path');
+    }
+  };
 
   const speak = useCallback((text) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window) || !text) return;
@@ -185,24 +195,27 @@ export default function PlacementTest() {
 
   // ── Màn giới thiệu ──
   if (!started) {
+    const showSkipToPicker = isNewUserOnboarding || !userData.learnerGroup;
     return (
       <div className="fade-in py-4 text-center" style={{ maxWidth: 640, margin: '0 auto' }}>
         <div className="card shadow-sm p-4" style={{ borderRadius: 18 }}>
           <div style={{ fontSize: '3.5rem' }}>🧭</div>
-          <h2 className="fw-bold mt-2">Kiểm tra đầu vào (5 phút)</h2>
+          <h2 className="fw-bold mt-2">
+            {showSkipToPicker ? 'Chào mừng bạn đến Cowdi! Kiểm tra đầu vào nhé' : 'Kiểm tra đầu vào (5 phút)'}
+          </h2>
           <p className="text-muted">
-            Gồm tối đa 3 tầng (6 câu/tầng). Đạt ≥5/6 câu ở mỗi tầng sẽ tự động lên tầng tiếp theo để xếp bạn vào đúng điểm xuất phát.
+            Chỉ mất khoảng 5 phút (tối đa 3 tầng × 6 câu) để Cowdi xếp đúng lộ trình phù hợp nhất với trình độ của bạn. Đạt ≥5/6 câu sẽ tự động lên tầng tiếp theo.
           </p>
           <ul className="list-unstyled small text-muted mb-4">
-            <li>• Không trừ điểm, không tính thưởng Sữa/Gem</li>
-            <li>• Làm lại bất cứ lúc nào — chỉ mở thêm unit, không khoá lại tiến độ đã có</li>
+            <li>• Không trừ điểm, không áp lực — phù hợp cả người mới bắt đầu</li>
+            <li>• Làm lại bất cứ lúc nào — chỉ mở thêm bài, không khoá lại tiến độ đã có</li>
           </ul>
           <div className="d-flex gap-2 justify-content-center flex-wrap">
             <button type="button" className="btn btn-cowdi-primary btn-lg px-4" onClick={startTest}>
-              Bắt đầu kiểm tra →
+              Bắt đầu kiểm tra (5 phút) →
             </button>
-            <button type="button" className="btn btn-outline-secondary btn-lg" onClick={() => navigate('/learning-path')}>
-              Quay lại
+            <button type="button" className="btn btn-outline-secondary btn-lg" onClick={handleSkipOrBack}>
+              {showSkipToPicker ? 'Bỏ qua, tự chọn nhóm học →' : 'Quay lại'}
             </button>
           </div>
         </div>
@@ -276,8 +289,8 @@ export default function PlacementTest() {
   return (
     <div className="fade-in py-3" style={{ maxWidth: 680, margin: '0 auto' }}>
       <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => navigate('/learning-path')}>
-          ✕ Thoát
+        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleSkipOrBack}>
+          {isNewUserOnboarding || !userData.learnerGroup ? '✕ Bỏ qua & chọn nhóm' : '✕ Thoát'}
         </button>
         <span className="badge bg-primary-subtle text-primary">{tier.label}</span>
         <span className="text-muted small fw-bold">Câu {qIdx + 1}/{questions.length}</span>

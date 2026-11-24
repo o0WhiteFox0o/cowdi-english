@@ -325,12 +325,13 @@ Thêm hàm `estimateLessonMilk(lesson, { isRepeat })` trong `src/data/path.js` d
 
 ## 5. Luồng chọn nhóm, kiểm tra đầu vào, lộ trình
 
-### 5.1 Màn chọn nhóm — `src/features/onboarding/GroupPicker.jsx`
+### 5.1 Luồng onboarding: Kiểm tra đầu vào trước → Bỏ qua thì chọn nhóm (`GroupPicker.jsx`)
 
-- Hiện khi vào `/` hoặc `/learning-path` mà `learnerGroup === null`, và từ nút "Đổi nhóm học" (đầu trang Lộ trình và trang Tài khoản).
+- **Người dùng mới hoàn toàn** (`learnerGroup === null`, `completedLessons` rỗng, chưa làm `placement`) khi vào `/` hoặc `/learning-path`: hiện **Kiểm tra đầu vào 5 phút** (`PlacementTest`) trước. Nếu bấm **"Bỏ qua, tự chọn nhóm học →"** (hoặc thoát giữa chừng) thì chuyển sang màn chọn nhóm (`GroupPicker`).
+- **Người dùng cũ có tiến độ** (`learnerGroup === null`, đã xong ≥1 bài): hiện trực tiếp `GroupPicker` kèm nhãn **"Gợi ý cho bạn"** theo mục 6.2 (vẫn có nút làm bài kiểm tra 5 phút nếu muốn).
+- Nút **"Đổi nhóm học"** ở đầu trang Lộ trình và trang Tài khoản luôn mở `GroupPicker`.
 - 3 thẻ (tên, phụ đề, 1 dòng ví dụ bài đầu tiên, số bài) và nút phụ **"Chưa chắc? Làm bài kiểm tra 5 phút"** → `/placement`.
 - Chọn Luyện thi thì hiện tiếp 4 thẻ kỳ thi để chọn `activePath`.
-- Người dùng đã có tiến độ cũ: đánh dấu thẻ "Gợi ý cho bạn" theo 6.2.
 - Đổi nhóm không xoá dữ liệu, chỉ đổi `learnerGroup` + `activePath`.
 
 ### 5.2 Kiểm tra đầu vào — route `/placement`, `src/features/placement/PlacementTest.jsx`
