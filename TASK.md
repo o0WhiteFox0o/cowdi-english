@@ -216,6 +216,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-25 | 4 / Wallet & Sync | Khắc phục triệt để lỗi lệch số dư ví (Nav hiện 961 Sữa, server báo 131 Sữa): chạy an toàn migration bổ sung 4 cột thiếu (`learner_group`, `active_path`, `lesson_scores`, `placement`) trong bảng `user_progress` giải quyết dứt điểm lỗi 500 của API `/api/progress`, gỡ `Math.max` trong `CosmeticsTab`, đồng bộ ví server tức thì khi mua bị từ chối và khi tải Cửa hàng | 5e0057f | 120/120 test pass, build pass |
 | 2026-11-25 | 4 / Wallet & Pet | Sửa lỗi thanh toán không trừ Sữa (bỏ Math.max đè ví server, syncWallet chuẩn), sửa lỗi trang bị không lưu (chuẩn hóa instanceId cowdi_1 và đồng bộ DB equip-cosmetic, xóa background-image gradient đè nền pet) | e3ec995 | 120/120 test pass, build pass |
 | 2026-11-25 | Fix | Sửa lỗi trắng trang tại /pet (ReferenceError activePetId) và /account (vi phạm thứ tự React Hook), thêm ErrorBoundary bảo vệ giao diện | 2299cf3 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / Fix | Sửa lỗi không nhận đủ số dư Sữa trong cửa hàng: chạy migration owned_cosmetics, đồng bộ effectiveWallet useUser và chống lệch total_xp | 414d3fe | 120/120 test pass, build pass |
