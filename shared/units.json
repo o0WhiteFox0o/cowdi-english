@@ -1,32 +1,24 @@
 [
   {
-    "pathId": "general",
-    "unitId": "unit-1",
+    "pathId": "beginner",
+    "pathIds": [
+      "beginner"
+    ],
+    "unitId": "s1-u1",
     "lessons": [
-      "numbers-basic",
-      "pronouns",
-      "articles",
-      "prepositions-place",
-      "wh-questions"
+      "s1-hello",
+      "s1-me",
+      "s1-num-1",
+      "s1-num-2"
     ],
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-2",
-    "lessons": [
-      "daily-phrases",
-      "time-and-date",
-      "directions",
-      "money-prices",
-      "at-restaurant",
-      "at-airport"
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
     ],
-    "hasCheckpoint": true
-  },
-  {
-    "pathId": "general",
-    "unitId": "unit-3",
+    "unitId": "int-u1",
     "lessons": [
       "greetings",
       "family",
@@ -36,19 +28,11 @@
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-4",
-    "lessons": [
-      "daily-routine",
-      "food",
-      "travel",
-      "tenses"
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
     ],
-    "hasCheckpoint": true
-  },
-  {
-    "pathId": "general",
-    "unitId": "unit-5",
+    "unitId": "int-u2",
     "lessons": [
       "school",
       "weather",
@@ -58,8 +42,11 @@
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-6",
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u3",
     "lessons": [
       "clothing",
       "house",
@@ -69,24 +56,96 @@
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-7",
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u4",
     "lessons": [
-      "nature",
-      "technology",
-      "shopping",
-      "health",
-      "comparisons"
+      "pronouns",
+      "articles",
+      "prepositions-place",
+      "wh-questions",
+      "numbers-basic"
     ],
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-8",
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u5",
+    "lessons": [
+      "daily-phrases",
+      "time-and-date",
+      "directions",
+      "money-prices"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u6",
+    "lessons": [
+      "at-restaurant",
+      "at-airport",
+      "daily-routine",
+      "food",
+      "travel"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u7",
+    "lessons": [
+      "nature",
+      "technology",
+      "shopping",
+      "health"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u8",
+    "lessons": [
+      "tenses",
+      "comparisons",
+      "communication-skills"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u9",
     "lessons": [
       "environment",
       "media",
-      "culture",
+      "culture"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "intermediate",
+    "pathIds": [
+      "intermediate"
+    ],
+    "unitId": "int-u10",
+    "lessons": [
       "business",
       "science",
       "education"
@@ -94,17 +153,43 @@
     "hasCheckpoint": true
   },
   {
-    "pathId": "general",
-    "unitId": "unit-9",
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts",
+      "b1",
+      "b2",
+      "toeic"
+    ],
+    "unitId": "exam-intro",
     "lessons": [
       "exam-strategies",
-      "communication-skills",
       "test-practice"
     ],
     "hasCheckpoint": true
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts",
+      "b1",
+      "b2",
+      "toeic"
+    ],
+    "unitId": "exam-pron",
+    "lessons": [
+      "alphabet",
+      "pronunciation-vowels",
+      "pronunciation-consonants",
+      "pronunciation-tricky",
+      "pronunciation-stress"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-foundation",
     "lessons": [
       "ielts-foundation-vocab",
@@ -120,6 +205,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-pre",
     "lessons": [
       "ielts-pre-vocab",
@@ -135,6 +223,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-1",
     "lessons": [
       "ielts-listening",
@@ -144,6 +235,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-2",
     "lessons": [
       "ielts-reading",
@@ -153,6 +247,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-3",
     "lessons": [
       "ielts-writing",
@@ -163,6 +260,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-4",
     "lessons": [
       "ielts-speaking",
@@ -172,6 +272,9 @@
   },
   {
     "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
     "unitId": "ielts-unit-5",
     "lessons": [
       "ielts-academic-vocab",
@@ -183,7 +286,70 @@
     "hasCheckpoint": true
   },
   {
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
+    "unitId": "ielts-unit-topics-1",
+    "lessons": [
+      "ielts-vocab-technology",
+      "ielts-vocab-media",
+      "ielts-vocab-tourism",
+      "ielts-vocab-globalization",
+      "ielts-vocab-crime",
+      "ielts-vocab-economy",
+      "ielts-vocab-family",
+      "ielts-vocab-culture",
+      "ielts-vocab-transport",
+      "ielts-vocab-urbanization"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
+    "unitId": "ielts-unit-topics-2",
+    "lessons": [
+      "ielts-vocab-employment",
+      "ielts-vocab-art",
+      "ielts-vocab-food",
+      "ielts-vocab-government",
+      "ielts-vocab-science",
+      "ielts-vocab-language",
+      "ielts-vocab-sports",
+      "ielts-vocab-history",
+      "ielts-vocab-architecture",
+      "ielts-vocab-agriculture"
+    ],
+    "hasCheckpoint": true
+  },
+  {
+    "pathId": "ielts",
+    "pathIds": [
+      "ielts"
+    ],
+    "unitId": "ielts-unit-topics-3",
+    "lessons": [
+      "ielts-vocab-energy",
+      "ielts-vocab-shopping",
+      "ielts-vocab-childhood",
+      "ielts-vocab-aging",
+      "ielts-grammar-conditionals",
+      "ielts-grammar-passive",
+      "ielts-writing-task1-maps",
+      "ielts-writing-task1-process",
+      "ielts-speaking-part2-cue",
+      "ielts-speaking-part3-discussion"
+    ],
+    "hasCheckpoint": true
+  },
+  {
     "pathId": "b1",
+    "pathIds": [
+      "b1"
+    ],
     "unitId": "b1-unit-1",
     "lessons": [
       "b1-everyday",
@@ -193,6 +359,9 @@
   },
   {
     "pathId": "b1",
+    "pathIds": [
+      "b1"
+    ],
     "unitId": "b1-unit-2",
     "lessons": [
       "b1-reading-writing",
@@ -202,6 +371,9 @@
   },
   {
     "pathId": "b1",
+    "pathIds": [
+      "b1"
+    ],
     "unitId": "b1-unit-3",
     "lessons": [
       "b1-listening-1",
@@ -211,6 +383,9 @@
   },
   {
     "pathId": "b1",
+    "pathIds": [
+      "b1"
+    ],
     "unitId": "b1-unit-4",
     "lessons": [
       "b1-speaking-1",
@@ -220,6 +395,9 @@
   },
   {
     "pathId": "b1",
+    "pathIds": [
+      "b1"
+    ],
     "unitId": "b1-unit-5",
     "lessons": [
       "b1-grammar-essentials",
@@ -229,6 +407,9 @@
   },
   {
     "pathId": "b2",
+    "pathIds": [
+      "b2"
+    ],
     "unitId": "b2-unit-1",
     "lessons": [
       "b2-reading-comprehension",
@@ -238,6 +419,9 @@
   },
   {
     "pathId": "b2",
+    "pathIds": [
+      "b2"
+    ],
     "unitId": "b2-unit-2",
     "lessons": [
       "b2-listening-skills"
@@ -246,6 +430,9 @@
   },
   {
     "pathId": "b2",
+    "pathIds": [
+      "b2"
+    ],
     "unitId": "b2-unit-3",
     "lessons": [
       "b2-formal-writing",
@@ -256,6 +443,9 @@
   },
   {
     "pathId": "b2",
+    "pathIds": [
+      "b2"
+    ],
     "unitId": "b2-unit-4",
     "lessons": [
       "b2-speaking-part1",
@@ -265,6 +455,9 @@
   },
   {
     "pathId": "b2",
+    "pathIds": [
+      "b2"
+    ],
     "unitId": "b2-unit-5",
     "lessons": [
       "b2-advanced-topics",
@@ -275,6 +468,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-basics",
     "lessons": [
       "toeic-basics-office",
@@ -285,6 +481,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-elementary",
     "lessons": [
       "toeic-elementary-convo",
@@ -295,6 +494,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-daily-work",
     "lessons": [
       "toeic-vocab-schedules",
@@ -307,6 +509,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-business-comm",
     "lessons": [
       "toeic-vocab-emails-business",
@@ -319,6 +524,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-travel-finance",
     "lessons": [
       "toeic-vocab-business-travel",
@@ -331,6 +539,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-industries",
     "lessons": [
       "toeic-vocab-healthcare",
@@ -344,6 +555,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-advanced-vocab",
     "lessons": [
       "toeic-vocab-contracts",
@@ -356,6 +570,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-listening",
     "lessons": [
       "toeic-listening-reading",
@@ -370,6 +587,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-reading",
     "lessons": [
       "toeic-reading-part5",
@@ -382,6 +602,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-reading-advanced",
     "lessons": [
       "toeic-reading-part7",
@@ -392,6 +615,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-grammar",
     "lessons": [
       "toeic-grammar-passive",
@@ -403,6 +629,9 @@
   },
   {
     "pathId": "toeic",
+    "pathIds": [
+      "toeic"
+    ],
     "unitId": "toeic-unit-advanced",
     "lessons": [
       "toeic-advanced-meetings",
@@ -412,6 +641,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c1-foundations",
     "lessons": [
       "adv-c1-academic-vocab",
@@ -423,6 +655,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c1-skills",
     "lessons": [
       "adv-c1-writing-essays",
@@ -435,6 +670,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c1-academic",
     "lessons": [
       "adv-c1-critical-thinking",
@@ -446,6 +684,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c2-style",
     "lessons": [
       "adv-c2-idioms",
@@ -457,6 +698,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c2-rhetoric",
     "lessons": [
       "adv-c2-debate",
@@ -468,6 +712,9 @@
   },
   {
     "pathId": "advanced",
+    "pathIds": [
+      "advanced"
+    ],
     "unitId": "adv-unit-c2-mastery",
     "lessons": [
       "adv-c2-fluency",

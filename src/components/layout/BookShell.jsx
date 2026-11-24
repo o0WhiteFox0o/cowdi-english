@@ -12,7 +12,7 @@ import Icon from '../Icon';
 import { EmojiText } from '../Emoji';
 
 /* ── Route groups for highlighting the active tab/section ── */
-const LEARN_PATHS    = ['/', '/learning-path', '/lessons', '/vocabulary'];
+const LEARN_PATHS    = ['/', '/learning-path', '/placement', '/lessons', '/vocabulary'];
 const PRACTICE_PATHS = ['/practice', '/review', '/mini-games', '/duel', '/typing'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
 const ME_PATHS       = ['/overview', '/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
@@ -41,34 +41,36 @@ const TAB_GROUPS = [
   ]},
 ];
 
-/* Mobile popup sub-menus */
-const MOBILE_MENUS = {
-  learn: [
-    { icon: 'road',    label: 'Lộ trình học',    path: '/' },
-    { icon: 'target',  label: 'Ôn tập & Bài tập', path: '/practice' },
-    { icon: 'map',     label: 'Từ vựng',         path: '/vocabulary' },
-    { icon: 'book',    label: 'Thư viện bài',    path: '/lessons' },
-    { icon: 'medal',   label: 'Luyện thi IELTS', path: '/?tab=ielts' },
-    { icon: 'flag',    label: 'Luyện thi TOEIC', path: '/?tab=toeic' },
-  ],
-  practice: [
-    { icon: 'gamepad', label: 'Đấu trường game', path: '/mini-games' },
-    { icon: 'PET',     label: 'Đánh máy',        path: '/typing' },
-    { icon: 'swords',  label: 'Đấu bạn bè',      path: '/duel' },
-    { icon: 'brain',   label: 'Ôn nhanh',        path: '/review' },
-  ],
-  pet: [
-    { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
-    { icon: 'redbook', label: 'Cowdi Dex',   path: '/collection' },
-    { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
-  ],
-  me: [
-    { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
-    { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
-    { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },
-    { icon: 'gift',    label: 'Mời bạn học',    action: 'invite' },
-    { icon: 'user',    label: 'Tài khoản',      path: '/account' },
-  ],
+/* Mobile popup sub-menus (SDD §5.5: gom 2 mục Luyện thi IELTS/TOEIC thành 1 mục Luyện thi) */
+const buildMobileMenus = (activePath) => {
+  const examTab = ['ielts', 'toeic', 'b1', 'b2'].includes(activePath) ? activePath : 'ielts';
+  return {
+    learn: [
+      { icon: 'road',    label: 'Lộ trình học',    path: '/' },
+      { icon: 'target',  label: 'Ôn tập & Bài tập', path: '/practice' },
+      { icon: 'map',     label: 'Từ vựng',         path: '/vocabulary' },
+      { icon: 'book',    label: 'Thư viện bài',    path: '/lessons' },
+      { icon: 'medal',   label: 'Luyện thi',       path: `/?tab=${examTab}` },
+    ],
+    practice: [
+      { icon: 'gamepad', label: 'Đấu trường game', path: '/mini-games' },
+      { icon: 'PET',     label: 'Đánh máy',        path: '/typing' },
+      { icon: 'swords',  label: 'Đấu bạn bè',      path: '/duel' },
+      { icon: 'brain',   label: 'Ôn nhanh',        path: '/review' },
+    ],
+    pet: [
+      { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
+      { icon: 'redbook', label: 'Cowdi Dex',   path: '/collection' },
+      { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
+    ],
+    me: [
+      { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
+      { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
+      { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },
+      { icon: 'gift',    label: 'Mời bạn học',    action: 'invite' },
+      { icon: 'user',    label: 'Tài khoản',      path: '/account' },
+    ],
+  };
 };
 
 function formatCompact(num) {
@@ -87,6 +89,7 @@ export default function BookShell({ children }) {
   const { muted, toggleMute } = useSound();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const mobileMenus = useMemo(() => buildMobileMenus(userData.activePath), [userData.activePath]);
 
   const rawWallet = userData.wallet || {};
   const wallet = {
@@ -378,10 +381,10 @@ export default function BookShell({ children }) {
 
       {/* ═══════════ Mobile bottom tabs (< 992px) ═══════════ */}
       <nav className="book-bottom-nav" aria-label="Điều hướng di động" ref={popupRef}>
-        {openTab && MOBILE_MENUS[openTab] && (
+        {openTab && mobileMenus[openTab] && (
           <div className="bottom-popup-menu">
             {[
-              ...MOBILE_MENUS[openTab].filter((item) => item.path !== '/lessons' || isAdmin),
+              ...mobileMenus[openTab].filter((item) => item.path !== '/lessons' || isAdmin),
               ...(openTab === 'me' && isAdmin
                 ? [
                     { icon: 'wrench', label: 'Quản trị', path: '/admin' },

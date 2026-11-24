@@ -5,7 +5,8 @@ import { useUser } from '../hooks/useUser';
 import { usePet } from '../hooks/usePet';
 import { usePush } from '../hooks/usePush';
 import { useSchedule } from '../hooks/useSchedule';
-import { LEVELS, ACHIEVEMENTS } from '../data/lessons';
+import { LEVELS, ACHIEVEMENTS, getGroup } from '../data/lessons';
+import GroupPicker from '../features/onboarding/GroupPicker';
 import {
   PET_REGISTRY,
   calculatePowerScore,
@@ -530,9 +531,22 @@ export default function AccountPage() {
     );
   }
 
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
+  const currentGroup = userData.learnerGroup ? getGroup(userData.learnerGroup) : null;
+
   // ── Đã đăng nhập ─────────────────────────────────────────────────────────
   return (
     <div className="fade-in acc-v2">
+      {showGroupPicker && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+          style={{ background: 'rgba(0,0,0,0.45)', zIndex: 1080, overflowY: 'auto' }}
+        >
+          <div className="card shadow p-3 p-md-4 w-100" style={{ maxWidth: 880, maxHeight: '92vh', overflowY: 'auto', borderRadius: 18 }}>
+            <GroupPicker compact onDone={() => setShowGroupPicker(false)} />
+          </div>
+        </div>
+      )}
       {/* ── Page Header ── */}
       <div className="acc-header">
         <div className="acc-header-left">
@@ -543,6 +557,16 @@ export default function AccountPage() {
             <h2 className="acc-header-title">Hồ sơ & Tài khoản</h2>
             <p className="acc-header-sub">Quản lý hồ sơ, thành tựu thú cưng và cài đặt tài khoản</p>
           </div>
+        </div>
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          {currentGroup && (
+            <span className="badge rounded-pill px-3 py-2 text-white" style={{ background: currentGroup.color }}>
+              Nhóm: {currentGroup.title}
+            </span>
+          )}
+          <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => setShowGroupPicker(true)}>
+            Đổi nhóm học
+          </button>
         </div>
       </div>
 

@@ -45,7 +45,7 @@ export const IELTS_PRE_WRITING_LESSON = {
     { question: "\"Moreover\" có nghĩa gần với:",                      options: ["Tuy nhiên", "Hơn nữa", "Nhưng", "Vì"],                     correct: 1 },
     { question: "Mở bài Task 1 nên bắt đầu bằng:",                     options: ["I think...", "The chart shows...", "In conclusion...", "Firstly..."], correct: 1 },
     { question: "\"Overall\" thường đứng ở:",                          options: ["Thân bài", "Mở bài", "Câu kết / Overview", "Trong ví dụ"], correct: 2 },
-    { question: "\"A large ___ of students use phones.\" (tỉ lệ)",      options: ["trend", "proportion", "paragraph", "paragraph"],           correct: 1 },
+    { question: "\"A large ___ of students use phones.\" (tỉ lệ)",      options: ["trend", "proportion", "paragraph", "conclusion"],          correct: 1 },
     { question: "Từ nào dùng để đưa ví dụ?",                           options: ["However", "Moreover", "For example", "Overall"],           correct: 2 },
   ],
 };

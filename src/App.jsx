@@ -30,6 +30,7 @@ const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage')
 const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
+const PlacementTest       = lazy(() => import('./features/placement/PlacementTest'));
 
 function PageFallback() {
   return (
@@ -69,6 +70,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LearningPathPage />} />
             <Route path="/learning-path" element={<LearningPathPage />} />
+            <Route path="/placement" element={<PlacementTest />} />
             <Route path="/overview" element={<HomePage />} />
             <Route path="/lessons" element={<LessonsPage />} />
             <Route path="/lessons/category/:categoryId" element={<LessonsPage />} />

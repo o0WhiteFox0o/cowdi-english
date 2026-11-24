@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 import { useAuth } from '../hooks/useAuth';
 import { usePet } from '../hooks/usePet';
-import { LESSONS, LEVELS, UNITS } from '../data/lessons';
+import { ALL_LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
 import { PET_REGISTRY, getEvolutionInfo, getPetMood } from '../data/pets';
 import { PetAvatar, bondOf, topSkillOf } from '../pet-rig/PetAvatar';
@@ -73,12 +73,13 @@ export default function HomePage() {
   }, [activePet?.speciesId, activePet?.needsUpdatedAt, userData.lastActiveDate]);
 
   const completed = userData.completedLessons || [];
-  const pathInfo = getPathProgress(getPathById('general'), userData);
+  const activePathObj = getPathById(userData.activePath || 'intermediate');
+  const pathInfo = getPathProgress(activePathObj, userData);
   const currentNode = pathInfo.nodes.find((n) => n.status === 'current');
-  const nextLesson = (currentNode?.type === 'lesson' && LESSONS.find((l) => l.id === currentNode.lessonId))
-    || LESSONS.find((l) => !completed.includes(l.id)) || LESSONS[0];
+  const nextLesson = (currentNode?.type === 'lesson' && ALL_LESSONS.find((l) => l.id === currentNode.lessonId))
+    || ALL_LESSONS.find((l) => !completed.includes(l.id)) || ALL_LESSONS[0];
   const nextIsCheckpoint = currentNode?.type === 'checkpoint';
-  const nextHref = nextIsCheckpoint ? '/learning-path' : `/lessons/${nextLesson.id}`;
+  const nextHref = nextIsCheckpoint ? `/learning-path?tab=${activePathObj.id}` : `/lessons/${nextLesson.id}`;
   const nextLabel = nextIsCheckpoint ? currentNode.unit.checkpoint.title : nextLesson.title;
   const nextIcon = nextIsCheckpoint ? 'trophy' : 'play';
 

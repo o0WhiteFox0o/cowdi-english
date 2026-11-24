@@ -25,6 +25,7 @@
 | SCMP | **Kế hoạch quản lý cấu hình & phát hành (IEEE 828)** | [SCMP-COWDI-v1.0.md](../01-project-management/SCMP-COWDI-v1.0.md) | 1.0 | Approved | SCMP-COWDI-v0.1.md |
 | PROC | Quy trình & thứ tự triển khai Kinh tế v2 | [QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md](../01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md) | sống | Approved | — |
 | PROMP | Hướng dẫn prompt Kinh tế v2 (Claude Code & Antigravity) | [PROMPT-CLAUDE-CODE-KINH-TE-V2.md](../01-project-management/PROMPT-CLAUDE-CODE-KINH-TE-V2.md) | sống | Approved | — |
+| SPMP | **Kế hoạch hợp nhất Nâng cấp Lộ trình 3 Nhóm & Chuẩn Nội dung v2** | [SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md](../01-project-management/SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
 | SPMP | Kế hoạch triển khai Kinh tế & Nuôi pet | [SPMP-ECONOMY-PET-v1.0.md](../01-project-management/SPMP-ECONOMY-PET-v1.0.md) | 1.0 | Superseded một phần bởi SDD-v2.1 & QUY-TRINH | IMPLEMENT-COWDI-PLAN-V1.0.md |
 | STRAT | Chiến lược tăng người dùng qua chia sẻ | [STRAT-GROWTH-v1.0.md](../01-project-management/STRAT-GROWTH-v1.0.md) | 1.0 | Approved | GROWTH-STRATEGY-2026-05.md |
 | STRAT | Chiến thuật khuyến khích share | [STRAT-SHARE-TACTICS-v1.0.md](../01-project-management/STRAT-SHARE-TACTICS-v1.0.md) | 1.0 | Approved | SHARE-TACTICS-2026-05.md |
@@ -33,6 +34,7 @@
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | SRS | Đặc tả yêu cầu phần mềm | [SRS-COWDI-v1.0.docx](../02-requirements/SRS-COWDI-v1.0.docx) | 1.0 | Approved | Cowdi_SRS_v1.0.docx |
+| SRS | **Nhu cầu xây dựng bài học theo 3 cấp (Starter / Intermediate / Exam)** | [SRS-LESSON-3-LEVELS-v1.0.md](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) | 1.0 | Approved | LESSON-REQUIREMENTS-3-LEVELS.md |
 | RTM | **Ma trận truy vết yêu cầu (End-to-End)** | [RTM-COWDI.md](../02-requirements/RTM-COWDI.md) | sống | Approved | TRACEABILITY-MATRIX.md |
 
 ## 03 — Kiến trúc (ISO/IEC/IEEE 42010)
@@ -49,6 +51,7 @@
 | SDD | **Kinh tế & Chiến đấu v2.1 — nguồn sự thật hiện hành** | [SDD-ECONOMY-BATTLE-v2.1.md](../04-design/SDD-ECONOMY-BATTLE-v2.1.md) | 2.1 | Approved | ECONOMY-BATTLE-V2-IMPLEMENTATION.md |
 | SDD | Đặc tả chiến đấu pet v2 (tài liệu nguồn) | [SDD-PET-BATTLE-SPEC-v2.0.docx](../04-design/SDD-PET-BATTLE-SPEC-v2.0.docx) | 2.0 | Superseded bởi v2.1 khi mâu thuẫn | docs/Dac-ta-chien-dau-pet-Cowdi-v2.docx |
 | SDD | Nhận xét & tinh chỉnh hệ thống tương khắc (GĐ2) | [nhan-xet-he-thong-tuong-khac.md](../04-design/nhan-xet-he-thong-tuong-khac.md) | sống | Approved | (mới 2026-11-23) |
+| SDD | **Tách lộ trình học thành 3 nhóm người học (Mới học · Trung bình · Luyện thi)** | [SDD-LEARNING-GROUPS-v2.0.md](../04-design/SDD-LEARNING-GROUPS-v2.0.md) | 2.0 | Approved | GEMINI-LEARNING-GROUPS.md (Bản 2) |
 | SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (mới 2026-11-24) |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
 | ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
@@ -77,11 +80,18 @@
 | GDE | **Hướng dẫn sử dụng `/admin/pet-motion` (Rig, vẽ PNG, 5.8)** | [HUONG-DAN-CHINH-DONG-TAC-PET.md](../HUONG-DAN-CHINH-DONG-TAC-PET.md) | sống | Approved | (mới 2026-11-24) |
 | GDE | Hệ thống từ vựng | [GDE-VOCABULARY-v1.0.md](../05-implementation/GDE-VOCABULARY-v1.0.md) | 1.0 | Approved | VOCABULARY.md |
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |
+| REG | **Danh mục & bàn giao tạo bộ Icon UI thay thế Emoji (+ CSV prompt batch)** | [REG-UI-ICONS.md](../05-implementation/REG-UI-ICONS.md) · [CSV](../05-implementation/REG-UI-ICONS-PROMPTS.csv) | sống | Ready to Assign | (mới 2026-11-24) |
+| STD | **Chuẩn nội dung bài học 3 cấp (Starter / Intermediate / Exam)** | [STD-LESSON-CONTENT-v1.0.md](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
+| GDE | **Đối chiếu bài học v2 với UI hiện tại & 10 đầu việc sửa UI (`U1–U10`)** | [MAP-CURRENT-UI.md](../05-implementation/content/MAP-CURRENT-UI.md) | sống | Approved | (mới 2026-11-24) |
+| PROMP | Hướng dẫn prompt soạn/nâng cấp nội dung bài học (Gemini) | [PROMPT-GEMINI-CONTENT.md](../05-implementation/content/PROMPT-GEMINI-CONTENT.md) | sống | Approved | (mới 2026-11-24) |
+| CHK | Danh sách kiểm tra chất lượng khi duyệt bài học | [CHK-LESSON-REVIEW.md](../05-implementation/content/CHK-LESSON-REVIEW.md) | sống | Approved | (mới 2026-11-24) |
+| TPL | Bộ mẫu brief & khung dữ liệu bài học 3 cấp (+ brief mẫu `int-u1`) | [content/README.md](../05-implementation/content/README.md) · [STARTER](../05-implementation/content/TPL-STARTER.md) · [INTERMEDIATE](../05-implementation/content/TPL-INTERMEDIATE.md) · [EXAM](../05-implementation/content/TPL-EXAM.md) · [int-u1](../05-implementation/content/briefs/int-u1.md) | 1.0 | Approved | (mới 2026-11-24) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | STP | **Kế hoạch kiểm thử tổng thể (IEEE 29119-3)** | [STP-COWDI-v1.0.md](../06-verification-validation/STP-COWDI-v1.0.md) | 1.0 | Approved | STP-COWDI-v0.1.md |
+| RPT | **Báo cáo kiểm tra nội dung 206 bài học hiện có (+ 3 bài golden v2)** | [RPT-LESSON-CONTENT-2026-11-24.md](../06-verification-validation/RPT-LESSON-CONTENT-2026-11-24.md) | — | Approved | (mới 2026-11-24) |
 | RPT | **Báo cáo mô phỏng cân bằng Chiến đấu v2 (6 CSV)** | [BALANCE-REPORT-v2.md](../06-verification-validation/balance-v2/BALANCE-REPORT-v2.md) | — | Approved | (mới 2026-11-23) |
 | RPT | Đánh giá dự án (24/04/2026) | [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) | — | Approved | EVALUATION-2026-04.md |
 | RPT | Cơ chế tính điểm (23/04/2026) | [RPT-SCORING-2026-04-23.md](../06-verification-validation/RPT-SCORING-2026-04-23.md) | — | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | SCORING-REPORT.md |

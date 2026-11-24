@@ -26,11 +26,12 @@
 | WS-2 | **Hệ thống Chỉnh động tác & Rig Pet** (`/admin/pet-motion`) | [PET-MOTION](../PET-MOTION.md) · [Hướng dẫn](../HUONG-DAN-CHINH-DONG-TAC-PET.md) | 🚀 Hoàn thành | **100%** | Duyệt dần rig & động tác cho 23 loài pet trên production |
 | WS-3 | **Hạ tầng, MySQL 5.6 & Deploy Production** | [GDE-DEPLOY-PRODUCTION v1.0](../07-deployment-operations/GDE-DEPLOY-PRODUCTION-v1.0.md) | 🚀 Ổn định | **100%** | Thiết lập lịch backup tự động `server/storage/` + DB |
 | WS-4 | **Chuẩn hoá Quản trị Dự án & Tài liệu IEEE** | [DOCP v1.1](../00-general/DOCP-COWDI-v1.1.md) · [SCMP v1.0](SCMP-COWDI-v1.0.md) · [STP v1.0](../06-verification-validation/STP-COWDI-v1.0.md) | ✅ Hoàn thành | **100%** | Duy trì cập nhật RTM, CR, Release Notes cho từng GĐ |
+| WS-5 | **Lộ trình 3 Nhóm & Chuẩn hoá Nội dung v2** | [SPMP v1.0](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS 3 Cấp](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD 3 Nhóm v2.0](../04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD v1.0](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 🟡 Xong Nền tảng + U1–U10 + `int-u1` | **Nền tảng + UI 100%** | Cuốn chiếu nội dung `int-u2`, `int-u3` · thêm đợt bài IELTS Reading v2 · tạo media S1–S3 |
 
 ### Chỉ số sức khoẻ kỹ thuật hiện tại (2026-11-24)
-- **Automated Tests (`npm test`)**: **83 / 83 PASS** (12 suites: Kinh tế v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Pet Motion API & RBAC, PetRig Runtime & Study Preview 5.8).
-- **Build Production (`npm run build:prod`)**: PASS · PWA precache `293 entries` · gói `deploy.zip` (`39 MB`, không chứa `.env` & `storage/`).
-- **Nội dung & Dữ liệu**: `206` bài học · `44` unit · `23` loài pet × `5` cấp (`115` pet-cấp) · `34` clip động tác.
+- **Automated Tests (`npm test`)**: **110 / 110 PASS** (13 suites + top-level tests: Kinh tế v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm, `ExamReading` U8 & Server Wallet/Guard, Pet Motion API & RBAC, PetRig Runtime & Study Preview 5.8).
+- **Build Production (`npm run build:prod`)**: PASS · `prebuild` tự động sinh `lesson-ids.json` / `units.json` (0 bài mồ côi) và chạy `validate-lessons.mjs` (0 lỗi) · `check-lesson-ui-compat.mjs` đạt **100% ✓** trên cả 3 bài golden.
+- **Nội dung & Dữ liệu**: `210` bài học (`4` bài Starter S1 v2 + `4` bài Intermediate `int-u1` v2 đạt 0 cảnh báo + `202` bài cũ chờ cuốn chiếu, **0 lỗi cấu trúc**) · `51` unit duy nhất (0 bài mồ côi) · `23` loài pet × `5` cấp (`115` pet-cấp) · `34` clip động tác.
 
 ---
 
@@ -80,6 +81,9 @@
 | RK-006 | Vận hành | Thư mục ảnh upload của admin (`server/storage/pets/`) nằm trên đĩa server, không nằm trong Git | **Cao** | Đã loại trừ khỏi `deploy.zip` để tránh ghi đè; **cần bật cron sao lưu định kỳ hàng ngày** trên aaPanel cùng DB | 🟡 Cần cấu hình cron |
 | RK-007 | Lỗi | `PUT /api/progress` trả `{ grantedGem: 0, grantedStone: 0 }` thay vì ví chuẩn khi user mới chưa xong bài nào → crash `<BookShell>` | **Nghiêm trọng (P0)** | Đã sửa triệt để cả backend & frontend (`wallet.js`, `api.js`, `useUser.jsx`, `BookShell.jsx`) | ✅ Đã đóng (`f8baa29`, 2026-11-24) |
 | RK-008 | Hạ tầng | `deploy.ps1` chưa copy thư mục `scripts/` (`run-v2-*.js`, `scripts/package.json`) | Thấp | Cần bổ sung copy `scripts/` vào `deploy.ps1` để lần đóng gói trên Windows đồng bộ với Mac | 🟡 Mở |
+| RK-009 | Lỗi | Flashcard trong `LessonDetailPage.jsx` gọi `translateEnToVi(example)` chưa định nghĩa/import → lật thẻ ném lỗi, không hiện dịch | Trung bình | Đã xoá `translateEnToVi` và hiển thị `exampleVi` (`U1`) trên `feat/learning-groups` | ✅ Đã đóng (`455ebf7`, 2026-11-24) |
+| RK-010 | Dữ liệu | 2 bài cũ lỗi cấu trúc validator bắt được: `ielts-pre-grammar` trùng từ `"Whose"`, `ielts-pre-writing` `quiz[4]` trùng lựa chọn `"paragraph"` | Thấp | Đã sửa cả 2 bài và gắn `validate-lessons.mjs` vào `prebuild` | ✅ Đã đóng (`fa41934`, 2026-11-24) |
+| RK-011 | Lỗi | `buildPassage()` trong `src/data/lessons/reading.js` không spread `...r` nên xoá sạch `paragraphs`, `glossary`, `paraphrasePairs`, `examQuestions`, `timeLimitMin` của bài v2 | **Cao (P0 với v2)** | Đã vá `return { ...r, ... }` + thêm test hồi quy | ✅ Đã đóng (`fa41934`, 2026-11-24) |
 
 ---
 
@@ -87,6 +91,10 @@
 
 | Ngày | Mảng | Nội dung chính | Commit / Tag | Người thực hiện |
 |---|---|---|---|---|
+| **2026-11-24** | UI U8 + Nội dung `int-u1` | Hoàn thành `ExamReading.jsx` (`U8`, khép lại toàn bộ `U1–U10` — 100% ✓ `check-lesson-ui-compat`), nâng cấp trọn 4 bài `int-u1` (`greetings`, `family`, `colors`, `numbers`) lên chuẩn `contentVersion: 2` (0 lỗi, 0 cảnh báo), cập nhật luồng người mới hiện Kiểm tra đầu vào trước (`110/110` test PASS) | `1744823`, `b19057a` | Sonny + AI |
+| **2026-11-24** | Lộ trình 3 Nhóm & Nội dung v2 | Hoàn thành toàn bộ Bước 0 + GĐ A–E trên nhánh `feat/learning-groups`: 3 nhóm học, Unit S1 Starter, `PictureLesson`, `LessonDetailPage` UI v2 (`U1–U7`, `U10`), `GroupPicker`, `PlacementTest`, migration MySQL 5.6+ & `guard-unit-gems.mjs`; 109/109 test PASS, 0 lỗi validator, build xanh | `fa41934` → `feat/learning-groups` | Sonny + AI |
+| **2026-11-24** | Lộ trình 3 Nhóm & Nội dung v2 | Bổ sung `SRS-LESSON-3-LEVELS-v1.0.md`, `SDD-LEARNING-GROUPS-v2.0.md`, lập Kế hoạch hợp nhất `SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md`; PO chốt tái cấu trúc lộ trình 3 nhóm kèm migration + bài Starter tính mốc Gem/Đá như bài thường; cập nhật `REG-DOCUMENTS` & các mục lục `docs/` | — | Sonny + AI |
+| **2026-11-24** | Nội dung v2 | Tích hợp Bộ chuẩn nội dung bài học v1.0 (`STD-LESSON-CONTENT-v1.0`, `MAP-CURRENT-UI`, `TPL-*`, `CHK-LESSON-REVIEW`, `PROMPT-GEMINI-CONTENT`, brief `int-u1`, `schema.js`, 3 bài `_golden`, validator + compat script, 8 test → 91/91 PASS, báo cáo kiểm tra 206 bài `RPT-LESSON-CONTENT-2026-11-24.md`) | — | Sonny + AI |
 | **2026-11-24** | Governance / IEEE | Chuẩn hoá toàn diện tài liệu quản trị theo IEEE: tạo `README.md` gốc, cập nhật `LOG-PROGRESS.md`, nâng cấp `SCMP v1.0`, `RTM`, `STP v1.0`, viết Sổ tay Deploy Production + Release Notes `v2.1`, bổ sung 5 biểu mẫu PM/QA | — | Production Director / PM (AI) |
 | **2026-11-24** | Deploy / Ops | Đóng gói `deploy.zip` (`39 MB`), chạy thành công migration Kinh tế v2 + GĐ3 trên Production (`cowdi.net`); sửa lỗi MySQL < 5.6.5 (`created_at DATETIME`) & thêm `scripts/package.json` | `e3f3c36` | Sonny + AI |
 | **2026-11-24** | Pet Motion | Bổ sung hộp gợi ý kích thước ảnh chuẩn theo thiết kế (C1–C3 `512×512`, C4–C5 `640×640`) và công cụ nén WebP nền trong suốt ngay trên trình duyệt | `a6e87a7` | Sonny + AI |

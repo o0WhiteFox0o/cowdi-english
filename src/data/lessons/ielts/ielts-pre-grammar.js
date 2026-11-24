@@ -16,7 +16,7 @@ export const IELTS_PRE_GRAMMAR_LESSON = {
     { word: "Recently",    phonetic: "/ˈriːsntli/",     meaning: "Gần đây",         example: "I have recently moved house.",            illustration: "🆕" },
     { word: "Whose",       phonetic: "/huːz/",          meaning: "Của ai",          example: "The girl whose bag is red is my friend.", illustration: "👜" },
     { word: "Whom",        phonetic: "/huːm/",          meaning: "Người mà",        example: "The man whom I met is a doctor.",         illustration: "👨" },
-    { word: "Whose",       phonetic: "/huːz/",          meaning: "Mà của",          example: "The boy whose dog is missing cried.",     illustration: "🐶" },
+    { word: "Which",       phonetic: "/wɪtʃ/",          meaning: "Cái mà (vật)",    example: "The book which I bought is interesting.", illustration: "📘" },
     { word: "Possible",    phonetic: "/ˈpɒsəbl/",       meaning: "Có thể",          example: "It is possible to learn English fast.",   illustration: "💡" },
     { word: "Likely",      phonetic: "/ˈlaɪkli/",       meaning: "Có khả năng",     example: "It is likely to rain tomorrow.",          illustration: "🌧️" },
     { word: "Cause",       phonetic: "/kɔːz/",          meaning: "Gây ra",          example: "Pollution causes health problems.",       illustration: "💥" },

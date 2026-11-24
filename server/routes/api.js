@@ -5,7 +5,15 @@ import { sendPushToUser, getPublicKey, isPushReady } from '../config/push.js';
 import { pickPetIcon } from '../utils/pet-icon.js';
 import { PET_BATTLE_DATA } from '../../shared/game-config.js';
 import { computePowerScore, canEvolve, simulateBattle, canMatch, resolveSnapshot } from '../../shared/battle-engine.js';
-import { getWallet, grantLessonAndUnitRewards, exchangeStone, combineShards } from '../utils/wallet.js';
+import {
+  getWallet,
+  grantLessonAndUnitRewards,
+  exchangeStone,
+  combineShards,
+  mergeLessonScores,
+  sanitizeLearnerGroup,
+  sanitizeActivePath,
+} from '../utils/wallet.js';
 import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 
 const router = express.Router();
@@ -34,7 +42,8 @@ router.get('/progress', requireAuth, async (req, res) => {
               completed_lessons, word_status, active_days,
               achievements, daily_tasks, daily_date,
               srs_data, checkpoint_scores, skill_xp,
-              daily_journal, updated_at
+              daily_journal, learner_group, active_path,
+              lesson_scores, placement, updated_at
        FROM user_progress WHERE user_id = ?`,
       [req.user.id]
     );
@@ -76,6 +85,10 @@ router.get('/progress', requireAuth, async (req, res) => {
       checkpointScores: parseJSON(row.checkpoint_scores, {}),
       skillXP:          parseJSON(row.skill_xp, { listening: 0, speaking: 0, reading: 0, writing: 0 }),
       dailyJournal:     parseJSON(row.daily_journal, {}),
+      learnerGroup:     row.learner_group || null,
+      activePath:       row.active_path || null,
+      lessonScores:     parseJSON(row.lesson_scores, {}),
+      placement:        parseJSON(row.placement, null),
       updatedAt:        row.updated_at,
     });
   } catch (err) {
@@ -205,13 +218,15 @@ router.post('/pets/:instanceId/evolve', requireAuth, async (req, res) => {
 
 // ── PUT /api/progress – lưu toàn bộ tiến trình ──────────────────────────────
 router.put('/progress', requireAuth, async (req, res) => {
-  const d = req.body;
-  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist (mục 0.5.4)
+  const d = { ...(req.body || {}) };
+  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist; thêm 4 trường Lộ trình 3 nhóm
   const allowed = [
     'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
     'activeDays','achievements','dailyTasks','dailyDate',
-    'srsData','checkpointScores','dailyJournal'
+    'srsData','checkpointScores','dailyJournal',
+    'learnerGroup','activePath','lessonScores','placement',
+    'timezone','lastAccuracy','lastMilkEarned'
   ];
   for (const key of Object.keys(d)) {
     if (!allowed.includes(key)) delete d[key];
@@ -220,37 +235,65 @@ router.put('/progress', requireAuth, async (req, res) => {
   const rawCompleted = Array.isArray(d.completedLessons) ? d.completedLessons : [];
   const rawCheckpointScores = typeof d.checkpointScores === 'object' && d.checkpointScores !== null ? d.checkpointScores : {};
 
-  const params = [
-    req.user.id,
-    d.totalXP          ?? 0,
-    d.totalXP          ?? 0,
-    d.streak           ?? 0,
-    d.lastActiveDate   ?? null,
-    d.lessonsCompleted ?? 0,
-    d.quizzesCompleted ?? 0,
-    d.perfectQuizzes   ?? 0,
-    d.wordsLearned     ?? 0,
-    JSON.stringify(rawCompleted),
-    JSON.stringify(d.wordStatus       ?? {}),
-    JSON.stringify(d.activeDays       ?? []),
-    JSON.stringify(d.achievements     ?? []),
-    JSON.stringify(d.dailyTasks       ?? { lessonDone: false, vocabDone: false }),
-    d.dailyDate        ?? null,
-    JSON.stringify(d.srsData          ?? {}),
-    JSON.stringify(rawCheckpointScores),
-    JSON.stringify({ listening: 0, speaking: 0, reading: 0, writing: 0 }),
-    JSON.stringify(d.dailyJournal     ?? {}),
-  ];
-
   try {
+    // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX và tránh client cũ ghi đè null
+    const [[existing]] = await pool.execute(
+      'SELECT learner_group, active_path, lesson_scores, placement FROM user_progress WHERE user_id = ?',
+      [req.user.id]
+    );
+    const parseJSON = (val, fallback) => {
+      if (val == null) return fallback;
+      if (typeof val === 'object') return val;
+      try { return JSON.parse(val); } catch { return fallback; }
+    };
+
+    const existingLessonScores = parseJSON(existing?.lesson_scores, {});
+    const mergedLessonScores = mergeLessonScores(existingLessonScores, d.lessonScores);
+
+    const nextLearnerGroup = 'learnerGroup' in d
+      ? sanitizeLearnerGroup(d.learnerGroup)
+      : (existing?.learner_group || null);
+    const nextActivePath = 'activePath' in d
+      ? sanitizeActivePath(d.activePath)
+      : (existing?.active_path || null);
+    const nextPlacement = 'placement' in d
+      ? (d.placement && typeof d.placement === 'object' ? d.placement : null)
+      : parseJSON(existing?.placement, null);
+
+    const params = [
+      req.user.id,
+      d.totalXP          ?? 0,
+      d.totalXP          ?? 0,
+      d.streak           ?? 0,
+      d.lastActiveDate   ?? null,
+      d.lessonsCompleted ?? 0,
+      d.quizzesCompleted ?? 0,
+      d.perfectQuizzes   ?? 0,
+      d.wordsLearned     ?? 0,
+      JSON.stringify(rawCompleted),
+      JSON.stringify(d.wordStatus       ?? {}),
+      JSON.stringify(d.activeDays       ?? []),
+      JSON.stringify(d.achievements     ?? []),
+      JSON.stringify(d.dailyTasks       ?? { lessonDone: false, vocabDone: false }),
+      d.dailyDate        ?? null,
+      JSON.stringify(d.srsData          ?? {}),
+      JSON.stringify(rawCheckpointScores),
+      JSON.stringify({ listening: 0, speaking: 0, reading: 0, writing: 0 }),
+      JSON.stringify(d.dailyJournal     ?? {}),
+      nextLearnerGroup,
+      nextActivePath,
+      JSON.stringify(mergedLessonScores),
+      nextPlacement ? JSON.stringify(nextPlacement) : null,
+    ];
+
     await pool.execute(
       `INSERT INTO user_progress
          (user_id, total_xp, available_xp, streak, last_active_date,
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
           completed_lessons, word_status, active_days, achievements,
           daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
-          daily_journal)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          daily_journal, learner_group, active_path, lesson_scores, placement)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          -- XP lifetime chỉ tăng; XP đã tiêu (total - available) chỉ tăng → client cũ/stale không thể "hồi" ví
          available_xp      = GREATEST(0, CAST(GREATEST(total_xp, VALUES(total_xp)) AS SIGNED)
@@ -272,16 +315,20 @@ router.put('/progress', requireAuth, async (req, res) => {
          srs_data          = VALUES(srs_data),
          checkpoint_scores = VALUES(checkpoint_scores),
          daily_journal     = VALUES(daily_journal),
+         learner_group     = VALUES(learner_group),
+         active_path       = VALUES(active_path),
+         lesson_scores     = VALUES(lesson_scores),
+         placement         = VALUES(placement),
          updated_at        = CURRENT_TIMESTAMP`,
       params
     );
 
-    // Cấp Gem và Đá nguyên tố theo mốc bài học và theo unit (D2, D11)
+    // Cấp Gem và Đá nguyên tố theo mốc bài học và theo unit (D2, D11, L6)
     await grantLessonAndUnitRewards(
       req.user.id,
       rawCompleted,
       rawCheckpointScores,
-      d.lessonScores || {}
+      mergedLessonScores
     );
 
     // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày
