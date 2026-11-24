@@ -34,7 +34,7 @@ const UNIT_ICONS = ['blocks', 'chat', 'sprout', 'leaf', 'tree', 'clover', 'star'
 export default function LearningPathPage() {
   useSEO(SEO_CONFIGS['/learning-path']);
   const navigate = useNavigate();
-  const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup } = useUser();
+  const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, refreshWallet } = useUser();
   const { getActivePetWithDecay } = usePet();
   const showToast = useToast();
 
@@ -180,6 +180,9 @@ export default function LearningPathPage() {
       addXP(xp);
       incrementQuizzes(ratio >= 1);
       setTestFinished(true);
+      if (typeof refreshWallet === 'function') {
+        refreshWallet();
+      }
       const passPct = Math.round(cpRules.passRate * 100);
       showToast(
         passed ? `Vượt qua! +${xp} Sữa 🥛 🎉` : `Chưa đạt – cần ≥${passPct}%. Cố gắng thêm! 💪`,

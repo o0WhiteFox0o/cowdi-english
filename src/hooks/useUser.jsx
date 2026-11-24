@@ -477,9 +477,10 @@ export function UserProvider({ children }) {
               let updatedWallet = null;
               setUserData((prev) => {
                 const hasValidWallet = res.wallet && typeof res.wallet.milk === 'number';
+                const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
                 const nextWallet = hasValidWallet
                   ? {
-                      milk: Number(res.wallet.milk) || 0,
+                      milk: Math.max(Number(res.wallet.milk) || 0, Number(curMilk) || 0),
                       gem: Number(res.wallet.gem) || 0,
                       stone: Number(res.wallet.stone) || 0,
                       stone_shard: Number(res.wallet.stone_shard) || 0,
@@ -495,6 +496,9 @@ export function UserProvider({ children }) {
                 userDataRef.current = next;
                 return next;
               });
+              if (updatedWallet) {
+                window.dispatchEvent(new CustomEvent('wallet-updated', { detail: updatedWallet }));
+              }
               return updatedWallet;
             }
           } catch {}
@@ -654,27 +658,31 @@ export function UserProvider({ children }) {
       granted = full + overflow;
     }
     if (granted <= 0) return 0;
-    setUserData((prev) => {
-      let dailyJournal = bumpJournal(prev, 'xp', granted);
-      if (source === 'game') dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'gameXp', granted);
-      // Cộng cả lifetime (totalXP) và ví có thể tiêu (availableXP / wallet.milk)
-      const currentMilk = prev.wallet?.milk != null ? prev.wallet.milk : (prev.availableXP || 0);
-      const nextMilk = currentMilk + granted;
-      const next = {
-        ...prev,
-        totalXP: (prev.totalXP || 0) + granted,
-        availableXP: nextMilk,
-        wallet: {
-          ...(prev.wallet || { gem: 0, stone: 0, stone_shard: 0 }),
-          milk: nextMilk,
-        },
-        dailyJournal,
-      };
-      userDataRef.current = next;
-      return checkAchievements(next);
-    });
+
+    // Cập nhật userDataRef.current ĐỒNG BỘ NGAY LẬP TỨC để các lệnh gọi sau (refreshWallet, pushProgress) không bị stale
+    const prev = userDataRef.current || {};
+    let dailyJournal = bumpJournal(prev, 'xp', granted);
+    if (source === 'game') dailyJournal = bumpJournal({ ...prev, dailyJournal }, 'gameXp', granted);
+    const currentMilk = prev.wallet?.milk != null ? prev.wallet.milk : (prev.availableXP || 0);
+    const nextMilk = currentMilk + granted;
+    const nextTotalXp = (prev.totalXP || 0) + granted;
+    const next = {
+      ...prev,
+      totalXP: nextTotalXp,
+      availableXP: nextMilk,
+      wallet: {
+        ...(prev.wallet || { gem: 0, stone: 0, stone_shard: 0 }),
+        milk: nextMilk,
+      },
+      dailyJournal,
+    };
+    userDataRef.current = next;
+    pendingSyncRef.current = true;
+    if (user) markSyncDirty(user.id);
+
+    setUserData(checkAchievements(next));
     return granted;
-  }, []);
+  }, [user]);
 
   // XP mini-game còn có thể nhận đủ 100% hôm nay (để UI hiển thị)
   const gameXpRemainingToday = Math.max(0, GAME_XP_DAILY_CAP - (userData.dailyJournal?.[todayKey()]?.gameXp || 0));
@@ -924,6 +932,28 @@ export function UserProvider({ children }) {
   }, []);
 
   // Refresh wallet từ server
+  // Đồng bộ ví từ kết quả server API (ví dụ Đấu trường, Cửa hàng)
+  const syncWallet = useCallback((newWallet) => {
+    if (!newWallet) return;
+    setUserData((prev) => {
+      const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
+      const safeMilk = Math.max(Number(newWallet.milk) || 0, Number(curMilk) || 0);
+      const nextWallet = {
+        ...newWallet,
+        milk: safeMilk,
+      };
+      const next = {
+        ...prev,
+        wallet: nextWallet,
+        availableXP: safeMilk,
+      };
+      userDataRef.current = next;
+      return next;
+    });
+    window.dispatchEvent(new CustomEvent('wallet-updated', { detail: newWallet }));
+  }, []);
+
+  // Refresh wallet từ server
   const refreshWallet = useCallback(async () => {
     if (!user) return null;
     try {
@@ -937,7 +967,13 @@ export function UserProvider({ children }) {
       if (res.ok) {
         const w = await res.json();
         setUserData((prev) => {
-          const next = { ...prev, wallet: w, availableXP: w.milk };
+          const curMilk = prev.wallet?.milk ?? prev.availableXP ?? 0;
+          const safeMilk = Math.max(Number(w.milk) || 0, Number(curMilk) || 0);
+          const nextWallet = {
+            ...w,
+            milk: safeMilk,
+          };
+          const next = { ...prev, wallet: nextWallet, availableXP: safeMilk };
           userDataRef.current = next;
           return next;
         });
@@ -951,6 +987,7 @@ export function UserProvider({ children }) {
     userData,
     addXP,
     spendXP,
+    syncWallet,
     refreshWallet,
     gameXpRemainingToday,
     addSkillXP,
