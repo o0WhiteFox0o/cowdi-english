@@ -308,8 +308,14 @@ function mergeProgress(local, remote) {
   // nên lấy max(spent) của 2 bên là an toàn bất kể timestamp/cache cũ.
   const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
   merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
-  merged.wallet = remote.wallet || local.wallet || { milk: merged.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
-  if (remote.wallet?.milk !== undefined) {
+  const rawWallet = remote.wallet || local.wallet || {};
+  merged.wallet = {
+    milk: Number(rawWallet.milk ?? merged.availableXP ?? 0) || 0,
+    gem: Number(rawWallet.gem ?? 0) || 0,
+    stone: Number(rawWallet.stone ?? 0) || 0,
+    stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
+  };
+  if (typeof remote.wallet?.milk === 'number') {
     merged.availableXP = remote.wallet.milk;
   }
 
@@ -436,12 +442,23 @@ export function UserProvider({ children }) {
           try {
             const res = await r.json();
             if (res.wallet || res.streak != null || res.streakState) {
-              setUserData((prev) => ({
-                ...prev,
-                ...(res.wallet ? { wallet: res.wallet, availableXP: res.wallet.milk } : {}),
-                ...(res.streak != null ? { streak: res.streak } : {}),
-                ...(res.streakState ? { streakState: res.streakState } : {}),
-              }));
+              setUserData((prev) => {
+                const hasValidWallet = res.wallet && typeof res.wallet.milk === 'number';
+                const nextWallet = hasValidWallet
+                  ? {
+                      milk: Number(res.wallet.milk) || 0,
+                      gem: Number(res.wallet.gem) || 0,
+                      stone: Number(res.wallet.stone) || 0,
+                      stone_shard: Number(res.wallet.stone_shard) || 0,
+                    }
+                  : null;
+                return {
+                  ...prev,
+                  ...(nextWallet ? { wallet: nextWallet, availableXP: nextWallet.milk } : {}),
+                  ...(res.streak != null ? { streak: res.streak } : {}),
+                  ...(res.streakState ? { streakState: res.streakState } : {}),
+                };
+              });
             }
           } catch {}
           return;

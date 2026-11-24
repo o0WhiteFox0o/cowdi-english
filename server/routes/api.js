@@ -277,7 +277,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     );
 
     // Cấp Gem và Đá nguyên tố theo mốc bài học và theo unit (D2, D11)
-    let wallet = await grantLessonAndUnitRewards(
+    await grantLessonAndUnitRewards(
       req.user.id,
       rawCompleted,
       rawCheckpointScores,
@@ -297,10 +297,8 @@ router.put('/progress', requireAuth, async (req, res) => {
       baseMilkEarned: baseMilk,
     });
 
-    // Lấy lại ví mới nhất nếu có thưởng từ Đồng hồ hoặc Khế ước
-    if (streakResult.clockBonusMilk > 0 || streakResult.contractProgress?.status === 'completed') {
-      wallet = await getWallet(req.user.id);
-    }
+    // Luôn trả về ví chuẩn { milk, gem, stone, stone_shard } mới nhất từ server
+    const wallet = await getWallet(req.user.id);
 
     const streakState = await getUserStreakState(req.user.id, tz);
 

@@ -88,7 +88,13 @@ export default function BookShell({ children }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const wallet = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0, stone_shard: 0 };
+  const rawWallet = userData.wallet || {};
+  const wallet = {
+    milk: Number(rawWallet.milk ?? userData.availableXP ?? 0) || 0,
+    gem: Number(rawWallet.gem ?? 0) || 0,
+    stone: Number(rawWallet.stone ?? 0) || 0,
+    stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
+  };
   const prevMilkRef = useRef(wallet.milk);
   const prevGemRef = useRef(wallet.gem);
   const [milkDelta, setMilkDelta] = useState(null);
