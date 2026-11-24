@@ -28,7 +28,7 @@ Nền tảng học tiếng Anh tương tác (PWA) tích hợp hệ thống nuôi
 
 | Hạng mục | Thực tế hiện tại |
 |---|---|
-| **Nội dung học tập** | **206 bài học** · **44 unit** lộ trình (`shared/lesson-ids.json`, `shared/units.json`) · SRS SM-2 · 7 mini-game (gồm TyperShark) |
+| **Nội dung học tập** | **221 bài học** · **54 unit** lộ trình 3 nhóm (`shared/lesson-ids.json`, `shared/units.json`, **27 bài chuẩn v2**: 12 Starter S1–S3, 12 Intermediate `int-u1..u3`, 3 IELTS Reading v2) · SRS SM-2 · 7 mini-game (gồm TyperShark) |
 | **Hệ thống Pet** | **23 loài pet × 5 cấp (`115` pet-cấp)** · 10 hệ tương khắc · 7 nhóm kỹ năng · 5 độ hiếm · 34 động tác `PetRig` |
 | **Kinh tế & Chiến đấu v2** | **Hoàn thành GĐ0–GĐ3** (đã merge `main` & deploy): Ledger 4 loại (`milk`, `gem`, `stone`, `stone_shard`), bỏ Coins (`×3` Sữa), Battle Engine server-side có seed, Cửa hàng Giữ nhịp (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày, Đồng hồ Cowdi), Streak v2 theo múi giờ |
 | **Chỉnh động tác & Rig Pet** | **Hoàn thành 100%** (`/admin/pet-motion`): Kho 23×5, Bàn chỉnh keyframe 15 kênh, Trình vẽ PNG Studio đa Layer, quy trình duyệt xuất bản, Tab **Xem trước khi học (5.8)**, gợi ý kích thước + nén WebP tại trình duyệt |
@@ -51,7 +51,7 @@ cowdi-english/
 │   ├── game-config.js        # Hằng số cân bằng, kinh tế, 23 pet, 10 hệ, 7 nhóm
 │   ├── battle-engine.js      # Engine tính trận thuần tuý (deterministic RNG seed)
 │   ├── pet-motion.js         # 34 clip động tác gốc
-│   └── lesson-ids.json       # Danh sách 206 bài & 44 unit (tự sinh khi build)
+│   └── lesson-ids.json       # Danh sách 221 bài & 54 unit (tự sinh khi build)
 ├── scripts/                  # Build helpers, migration runners, balance simulator
 ├── docs/                     # Kho tài liệu chuẩn IEEE (00 → 09, templates/, _archive/)
 ├── TASK.md                   # Checklist triển khai chi tiết Kinh tế v2 (GĐ0 → GĐ9)
