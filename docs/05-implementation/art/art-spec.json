@@ -1,0 +1,315 @@
+{
+  "spec": "cowdi-art-standard",
+  "version": "1.1",
+  "date": "2026-11-24",
+  "canvas": {
+    "size": 1080,
+    "master_size": 2160,
+    "center_x": 540,
+    "baseline_y": 800,
+    "safe_area": [
+      160,
+      160,
+      920,
+      880
+    ],
+    "background": "transparent|#FFFFFF",
+    "baseline_note": "Original 6 sprites vary: shadow centre y 763-840. New/re-exported sprites must sit on y=800."
+  },
+  "line": {
+    "color": "#000000",
+    "contour_px": 6,
+    "structure_px": 6,
+    "detail_px": 4,
+    "cap": "round",
+    "join": "round",
+    "min_px_small_export": 2
+  },
+  "light": {
+    "direction": "top-right",
+    "shade_tones": 1,
+    "shade_shape": "crescent-left-bottom",
+    "shade_area_pct": [
+      10,
+      20
+    ],
+    "gradient": false
+  },
+  "shade_formula": {
+    "value_mult": [
+      0.7,
+      0.8
+    ],
+    "sat_add": [
+      3,
+      10
+    ],
+    "hue_shift_max": 5,
+    "white_shade": "#C2B8CA",
+    "base_sat_max": 50
+  },
+  "system_colors": {
+    "line": "#000000",
+    "eye_highlight": "#FFFFFF",
+    "blush": "#FF86A8",
+    "ground_shadow": "#A297AB",
+    "white_body": "#FFFFFF",
+    "white_shade": "#C2B8CA",
+    "mouth_inside": "#3A2A30"
+  },
+  "face_kit": {
+    "eye_near": [
+      40,
+      43
+    ],
+    "eye_far": [
+      35,
+      43
+    ],
+    "highlight_diameter": 19,
+    "highlight_offset": [
+      5,
+      -4.5
+    ],
+    "blush_near": [
+      41,
+      28
+    ],
+    "blush_far": [
+      31,
+      28
+    ],
+    "blush_offset_y": 64,
+    "blush_offset_x_out": 22,
+    "eye_spacing": {
+      "narrow_body": 95,
+      "round_body": 133
+    },
+    "eye_line_pct_of_body": [
+      45,
+      55
+    ],
+    "idle_mouth": false,
+    "idle_brows": false,
+    "turn": "3/4-right",
+    "min_eye_height_pct": 7
+  },
+  "ground_shadow": {
+    "shape": "ellipse",
+    "ratio": 3,
+    "color": "#A297AB",
+    "blur": 0,
+    "by_stage": {
+      "c1": [
+        150,
+        50
+      ],
+      "c2": [
+        200,
+        66
+      ],
+      "c3": [
+        272,
+        90
+      ],
+      "c4": [
+        320,
+        106
+      ],
+      "c5": [
+        380,
+        126
+      ]
+    }
+  },
+  "stages": {
+    "c1": {
+      "name": "Egg/Seed",
+      "height_px": 280,
+      "width_vs_c3": 0.6,
+      "face_scale": 0.7
+    },
+    "c2": {
+      "name": "Baby",
+      "height_px": 400,
+      "width_vs_c3": 0.8,
+      "face_scale": 0.85
+    },
+    "c3": {
+      "name": "Junior",
+      "height_px": 560,
+      "width_vs_c3": 1.0,
+      "face_scale": 1.0
+    },
+    "c4": {
+      "name": "Super",
+      "height_px": 610,
+      "width_vs_c3": 1.15,
+      "face_scale": 1.05
+    },
+    "c5": {
+      "name": "Legendary",
+      "height_px": 640,
+      "width_vs_c3": 1.3,
+      "face_scale": 1.1
+    }
+  },
+  "characters": {
+    "cowdi": {
+      "display_name": "Cowdi",
+      "base": "#FFFFFF",
+      "shade": "#C2B8CA",
+      "extra": {
+        "patch": [
+          "#564447",
+          "#392A32"
+        ],
+        "horn": [
+          "#D6A78A",
+          "#B97E5F"
+        ],
+        "belly": [
+          "#FF86A8",
+          "#BF5E7A"
+        ]
+      }
+    },
+    "bun": {
+      "display_name": "Bé Bột",
+      "base": "#FFFFFF",
+      "shade": "#C2B8CA",
+      "extra": {},
+      "height_c3_px": 390
+    },
+    "radish": {
+      "display_name": "Củ Cải",
+      "base": "#FFFFFF",
+      "shade": "#C2B8CA",
+      "extra": {
+        "leaf": [
+          "#81A95C",
+          "#5D7A44"
+        ]
+      }
+    },
+    "bamboo": {
+      "display_name": "Bamboo",
+      "base": "#9CC166",
+      "shade": "#66883D",
+      "extra": {}
+    },
+    "paddy": {
+      "display_name": "Ricy",
+      "base": "#EECF8A",
+      "shade": "#BD9B62",
+      "extra": {}
+    },
+    "ginseng": {
+      "display_name": "Nhân sâm",
+      "base": "#EED767",
+      "shade": "#B8A04A",
+      "extra": {
+        "leaf": [
+          "#7FB05A",
+          "#5E8A40"
+        ],
+        "berry": [
+          "#D9605A",
+          "#A3473F"
+        ]
+      }
+    },
+    "draco_comic": {
+      "display_name": "Draco (comic, hệ Hỏa)",
+      "base": "#F2A27A",
+      "shade": "#B5714F",
+      "extra": {
+        "belly": [
+          "#FFE3C2",
+          "#C9AE8F"
+        ]
+      }
+    }
+  },
+  "elements": {
+    "kim": {
+      "label": "Kim",
+      "accent": "#E8C46A",
+      "glow": "#FFF1B8"
+    },
+    "moc": {
+      "label": "Mộc",
+      "accent": "#7FB05A",
+      "glow": "#D4F0B0"
+    },
+    "thuy": {
+      "label": "Thủy",
+      "accent": "#6FB3D9",
+      "glow": "#CDEBFA"
+    },
+    "hoa": {
+      "label": "Hỏa",
+      "accent": "#F08A5D",
+      "glow": "#FFD2B0"
+    },
+    "tho": {
+      "label": "Thổ",
+      "accent": "#B98D5E",
+      "glow": "#EBD3B0"
+    },
+    "bong_toi": {
+      "label": "Bóng tối",
+      "accent": "#6B6BAA",
+      "glow": "#C9C3F0"
+    },
+    "anh_sang": {
+      "label": "Ánh sáng",
+      "accent": "#F5D97A",
+      "glow": "#FFFBE0"
+    },
+    "vo": {
+      "label": "Vô",
+      "accent": "#D9CFC4",
+      "glow": "#FFFFFF"
+    },
+    "phong": {
+      "label": "Phong",
+      "accent": "#8FD1C4",
+      "glow": "#DDF6F0"
+    },
+    "loi": {
+      "label": "Lôi",
+      "accent": "#9B8CE0",
+      "glow": "#E3DCFF"
+    }
+  },
+  "layers": [
+    "aura",
+    "shadow_ground",
+    "arm_l",
+    "body",
+    "head",
+    "crown",
+    "eye_0",
+    "eye_1",
+    "mouth_*",
+    "arm_r",
+    "prop_*",
+    "fx",
+    "pivot_*"
+  ],
+  "file_name": "cowdi_{petId}_c{1-5}_{pose}_{E-code}_v{NN}.{ext}",
+  "qc": {
+    "pass_tier_a": 90,
+    "pass_tier_bc": 80
+  },
+  "decisions": {
+    "Q1": "flat vector is the pet standard",
+    "Q2": "comic name = display name; sprout becomes bean sprout",
+    "Q3": "ginseng keeps idle brows",
+    "Q4": "C1 egg has eyes",
+    "Q5": "element & ginseng colors approved",
+    "Q6": "target age 4-12",
+    "Q7": "comic Draco recolored to Fire"
+  }
+}

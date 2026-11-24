@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="700" height="720" viewBox="0 0 700 720">
+  <title>Cowdi expression parts (mouths 8px detail line, eye arcs 12px), master 2160 scale</title>
+  <g id="mouth_E01_smile" transform="translate(150,150)"><path d="M-28,-6 Q0,26 28,-6" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="mouth_E02_open_D" transform="translate(350,150)"><path d="M-34,-14 L34,-14 Q34,34 0,34 Q-34,34 -34,-14 Z" fill="#3A2A30" stroke="#000" stroke-width="8" stroke-linejoin="round"/><ellipse cx="0" cy="22" rx="18" ry="9" fill="#FF86A8"/></g>
+  <g id="mouth_E05_o" transform="translate(550,150)"><ellipse cx="0" cy="0" rx="14" ry="18" fill="#3A2A30" stroke="#000" stroke-width="8"/></g>
+  <g id="mouth_E07_wavy" transform="translate(150,330)"><path d="M-34,0 Q-17,-14 0,0 T34,0" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="mouth_E08_sad" transform="translate(350,330)"><path d="M-26,10 Q0,-18 26,10" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="mouth_E09_flat" transform="translate(550,330)"><path d="M-24,0 L24,0" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="brow_E07_worried" transform="translate(150,500)"><path d="M-40,10 L40,-10" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="brow_E09_determined" transform="translate(350,500)"><path d="M-40,-10 L40,10" stroke="#000" stroke-width="8" stroke-linecap="round"/></g>
+  <g id="eye_E02_happy_arc" transform="translate(550,500)"><path d="M-40,14 Q0,-34 40,14" fill="none" stroke="#000" stroke-width="12" stroke-linecap="round"/></g>
+  <g id="eye_E11_dizzy" transform="translate(150,640)"><path d="M-30,-24 L24,0 L-30,24" fill="none" stroke="#000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

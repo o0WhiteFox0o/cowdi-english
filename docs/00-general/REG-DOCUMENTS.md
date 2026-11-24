@@ -73,10 +73,11 @@
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | STD | Quy ước lập trình | [STD-CODING-v1.0.md](../05-implementation/STD-CODING-v1.0.md) | 1.0 | Approved | CODING-STANDARDS.md |
+| STD | **Quy chuẩn Mỹ thuật & Nhận diện Hình ảnh Toàn dự án (Art Bible v1.1 + Art Kit)** | [STD-ART-STYLE-v1.1.md](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [art/README.md](../05-implementation/art/README.md) · [art-spec.json](../05-implementation/art/art-spec.json) · [AI_PROMPT_BLOCKS](../05-implementation/art/prompts/AI_PROMPT_BLOCKS.md) | 1.1 | Approved | (mới 2026-11-24 — thay phần phong cách & màu hệ của `GDE-PET-IMAGES`) |
 | GDE | Hướng dẫn build | [GDE-BUILD-v1.0.md](../05-implementation/GDE-BUILD-v1.0.md) | 1.0 | Approved | BUILD.md |
 | GDE | Thiết lập Google OAuth + MySQL | [GDE-SETUP-v1.0.md](../05-implementation/GDE-SETUP-v1.0.md) | 1.0 | Approved | SETUP.md |
 | GDE | Triển khai & sử dụng PWA | [GDE-PWA-v1.0.md](../05-implementation/GDE-PWA-v1.0.md) | 1.0 | Approved | PWA-GUIDE.md |
-| GDE | Thiết kế & quản lý hình ảnh pet | [GDE-PET-IMAGES-v1.0.md](../05-implementation/GDE-PET-IMAGES-v1.0.md) | 1.0 | Approved | PET-IMAGE-GUIDE.md |
+| GDE | Thiết kế & quản lý hình ảnh pet (cấu trúc WebP & danh mục 22 pet) | [GDE-PET-IMAGES-v1.0.md](../05-implementation/GDE-PET-IMAGES-v1.0.md) | 1.0 | Superseded một phần bởi `STD-ART-STYLE-v1.1` (phong cách & màu hệ) | PET-IMAGE-GUIDE.md |
 | GDE | **Hướng dẫn sử dụng `/admin/pet-motion` (Rig, vẽ PNG, 5.8)** | [HUONG-DAN-CHINH-DONG-TAC-PET.md](../HUONG-DAN-CHINH-DONG-TAC-PET.md) | sống | Approved | (mới 2026-11-24) |
 | GDE | Hệ thống từ vựng | [GDE-VOCABULARY-v1.0.md](../05-implementation/GDE-VOCABULARY-v1.0.md) | 1.0 | Approved | VOCABULARY.md |
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |

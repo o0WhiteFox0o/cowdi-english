@@ -2,6 +2,10 @@
 
 Tài liệu này lưu trữ toàn bộ quy chuẩn thiết kế, danh mục đường dẫn file ảnh, trạng thái và quy tắc tổ chức thư mục hình ảnh trong ứng dụng **Cowdi English**.
 
+> 🎨 **Quy chuẩn Mỹ thuật Toàn dự án:** Mọi tài sản hình ảnh mới liên quan tới Pet, biểu cảm, Comic, minh họa bài học Starter (`sceneBrief`) và bảng màu 10 hệ bắt buộc tuân thủ **[STD-ART-STYLE-v1.1.md](art/STD-ART-STYLE-v1.1.md)** & bộ [Art Kit v1.1](art/README.md). Phần §1 bên dưới chỉ mô tả phong cách lịch sử của bộ thẻ chủ đề cũ (`topics/`, `subtopics/`, `practice/`).
+>
+> 🎨 **Lưu ý cho đội Mỹ thuật / Frontend:** Danh mục rà soát & hướng dẫn tạo đồng loạt **bộ Icon UI thay thế Emoji** (tiền tệ, Cửa hàng Giữ nhịp, 10 hệ nguyên tố, đồ trang trí GĐ4) được tách quản lý riêng tại [REG-UI-ICONS.md](REG-UI-ICONS.md) kèm file prompt batch [REG-UI-ICONS-PROMPTS.csv](REG-UI-ICONS-PROMPTS.csv).
+
 ---
 
 ## 🎨 1. Quy chuẩn thiết kế (Art & Design System)

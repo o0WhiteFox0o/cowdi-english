@@ -19,6 +19,7 @@ Nền tảng học tiếng Anh tương tác (PWA) tích hợp hệ thống nuôi
 | **Chiến lược kiểm thử & tiêu chí ra bản (Go/No-Go)** | [STP-COWDI-v1.0.md](docs/06-verification-validation/STP-COWDI-v1.0.md) | ISO/IEC/IEEE 29119 |
 | **Hướng dẫn triển khai Production (aaPanel + MySQL)** | [GDE-DEPLOY-PRODUCTION-v1.0.md](docs/07-deployment-operations/GDE-DEPLOY-PRODUCTION-v1.0.md) | ISO/IEC/IEEE 12207 |
 | **Hướng dẫn vận hành `/admin/pet-motion`** | [HUONG-DAN-CHINH-DONG-TAC-PET.md](docs/HUONG-DAN-CHINH-DONG-TAC-PET.md) | ISO/IEC/IEEE 26514 |
+| **Chuẩn Mỹ thuật & Art Kit toàn dự án (Pet, màu 10 hệ, AI Prompt, QC)** | [STD-ART-STYLE-v1.1.md](docs/05-implementation/art/STD-ART-STYLE-v1.1.md) · [Art Kit](docs/05-implementation/art/README.md) | ISO/IEC/IEEE 12207 |
 | **Chuẩn nội dung bài học 3 cấp & kiểm tra kho bài** | [STD-LESSON-CONTENT-v1.0.md](docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md) · [MAP-CURRENT-UI.md](docs/05-implementation/content/MAP-CURRENT-UI.md) | ISO/IEC/IEEE 12207 |
 | **Lấy biểu mẫu chuẩn IEEE (CR, Sprint, RAID, Bug, Release)** | [docs/templates/README.md](docs/templates/README.md) | Bộ chuẩn IEEE |
 

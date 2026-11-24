@@ -1,0 +1,59 @@
+GIMP Palette
+Name: Cowdi Art Standard v1.1
+Columns: 8
+#
+  0   0   0	sys/line
+255 255 255	sys/eye_highlight
+255 134 168	sys/blush
+162 151 171	sys/ground_shadow
+255 255 255	sys/white_body
+194 184 202	sys/white_shade
+ 58  42  48	sys/mouth_inside
+255 255 255	cowdi/base
+194 184 202	cowdi/shade
+ 86  68  71	cowdi/patch_base
+ 57  42  50	cowdi/patch_shade
+214 167 138	cowdi/horn_base
+185 126  95	cowdi/horn_shade
+255 134 168	cowdi/belly_base
+191  94 122	cowdi/belly_shade
+255 255 255	bun/base
+194 184 202	bun/shade
+255 255 255	radish/base
+194 184 202	radish/shade
+129 169  92	radish/leaf_base
+ 93 122  68	radish/leaf_shade
+156 193 102	bamboo/base
+102 136  61	bamboo/shade
+238 207 138	paddy/base
+189 155  98	paddy/shade
+238 215 103	ginseng/base
+184 160  74	ginseng/shade
+127 176  90	ginseng/leaf_base
+ 94 138  64	ginseng/leaf_shade
+217  96  90	ginseng/berry_base
+163  71  63	ginseng/berry_shade
+242 162 122	draco_comic/base
+181 113  79	draco_comic/shade
+255 227 194	draco_comic/belly_base
+201 174 143	draco_comic/belly_shade
+232 196 106	elem/kim_accent
+255 241 184	elem/kim_glow
+127 176  90	elem/moc_accent
+212 240 176	elem/moc_glow
+111 179 217	elem/thuy_accent
+205 235 250	elem/thuy_glow
+240 138  93	elem/hoa_accent
+255 210 176	elem/hoa_glow
+185 141  94	elem/tho_accent
+235 211 176	elem/tho_glow
+107 107 170	elem/bong_toi_accent
+201 195 240	elem/bong_toi_glow
+245 217 122	elem/anh_sang_accent
+255 251 224	elem/anh_sang_glow
+217 207 196	elem/vo_accent
+255 255 255	elem/vo_glow
+143 209 196	elem/phong_accent
+221 246 240	elem/phong_glow
+155 140 224	elem/loi_accent
+227 220 255	elem/loi_glow

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="2160" height="2160" viewBox="0 0 2160 2160">
+  <title>Cowdi canvas template 2160px (C3 ground shadow placed)</title>
+  <g id="GUIDES_hide_before_export" inkscape:groupmode="layer" inkscape:label="GUIDES (hide before export)">
+    <line x1="1080.0" y1="0" x2="1080.0" y2="2160" stroke="#00A3FF" stroke-width="3.0" stroke-dasharray="16.0 16.0"/>
+    <line x1="0" y1="1600.0" x2="2160" y2="1600.0" stroke="#00A3FF" stroke-width="3.0"/>
+    <rect x="320.0" y="320.0" width="1520.0" height="1440.0" fill="none" stroke="#FF3B30" stroke-width="3.0" stroke-dasharray="24.0 12.0"/>
+    <line x1="640.0" y1="1040.0" x2="1520.0" y2="1040.0" stroke="#34C759" stroke-width="2.0" stroke-dasharray="8.0 8.0"/><text x="1536.0" y="1050.0" font-family="sans-serif" font-size="28.0" fill="#34C759">C1 top (280px)</text>
+    <line x1="640.0" y1="800.0" x2="1520.0" y2="800.0" stroke="#34C759" stroke-width="2.0" stroke-dasharray="8.0 8.0"/><text x="1536.0" y="810.0" font-family="sans-serif" font-size="28.0" fill="#34C759">C2 top (400px)</text>
+    <line x1="640.0" y1="480.0" x2="1520.0" y2="480.0" stroke="#34C759" stroke-width="2.0" stroke-dasharray="8.0 8.0"/><text x="1536.0" y="490.0" font-family="sans-serif" font-size="28.0" fill="#34C759">C3 top (560px)</text>
+    <line x1="640.0" y1="380.0" x2="1520.0" y2="380.0" stroke="#34C759" stroke-width="2.0" stroke-dasharray="8.0 8.0"/><text x="1536.0" y="390.0" font-family="sans-serif" font-size="28.0" fill="#34C759">C4 top (610px)</text>
+    <line x1="640.0" y1="320.0" x2="1520.0" y2="320.0" stroke="#34C759" stroke-width="2.0" stroke-dasharray="8.0 8.0"/><text x="1536.0" y="330.0" font-family="sans-serif" font-size="28.0" fill="#34C759">C5 top (640px)</text>
+    <text x="336.0" y="360.0" font-family="sans-serif" font-size="28.0" fill="#FF3B30">safe area</text><text x="16.0" y="1588.0" font-family="sans-serif" font-size="28.0" fill="#00A3FF">baseline y=1600</text>
+  </g>
+  <g id="aura" inkscape:groupmode="layer" inkscape:label="aura"></g>
+  <g id="shadow_ground" inkscape:groupmode="layer" inkscape:label="shadow_ground"><ellipse cx="1080.0" cy="1600.0" rx="272.0" ry="90.0" fill="#A297AB"/></g>
+  <g id="arm_l" inkscape:groupmode="layer" inkscape:label="arm_l"></g>
+  <g id="body" inkscape:groupmode="layer" inkscape:label="body"></g>
+  <g id="head" inkscape:groupmode="layer" inkscape:label="head"></g>
+  <g id="crown" inkscape:groupmode="layer" inkscape:label="crown"></g>
+  <g id="eye_0" inkscape:groupmode="layer" inkscape:label="eye_0"></g>
+  <g id="eye_1" inkscape:groupmode="layer" inkscape:label="eye_1"></g>
+  <g id="mouth" inkscape:groupmode="layer" inkscape:label="mouth"></g>
+  <g id="arm_r" inkscape:groupmode="layer" inkscape:label="arm_r"></g>
+  <g id="prop" inkscape:groupmode="layer" inkscape:label="prop"></g>
+  <g id="fx" inkscape:groupmode="layer" inkscape:label="fx"></g>
+  <g id="pivot" inkscape:groupmode="layer" inkscape:label="pivot"></g>
+
+</svg>

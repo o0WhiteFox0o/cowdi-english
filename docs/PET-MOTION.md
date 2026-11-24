@@ -70,7 +70,7 @@ Xem hướng dẫn thao tác đầy đủ tại [`docs/HUONG-DAN-CHINH-DONG-TAC-
 
 ## Thêm pet mới
 
-1. Họa sĩ xuất file tách lớp theo bảng "Quy cách file tách lớp" trong tài liệu thiết kế (body, head, arm_l, arm_r, crown, eye_*, fx_*, aura_*, pivot_*).
+1. Họa sĩ mở template chuẩn [`docs/05-implementation/art/templates/canvas_2160_template.svg`](05-implementation/art/templates/canvas_2160_template.svg), tuân thủ toàn bộ quy chuẩn tại [`STD-ART-STYLE-v1.1.md`](05-implementation/art/STD-ART-STYLE-v1.1.md) (13 layer chuẩn: `aura`, `shadow_ground`, `arm_l`, `body`, `head`, `crown`, `eye_0`, `eye_1`, `mouth_*`, `arm_r`, `prop_*`, `fx`, `pivot_*`) và chạy `qc_check.py` trước khi bàn giao.
 2. Đặt PNG vào `public/pets/<id>/c1..c5/` (tên: `body, head, crown, armL, armR, fx, aura, eye0, eye1`) và viết `rig.json` theo mẫu `public/pets/bamboo/rig.json`.
 3. Thêm một dòng vào `public/pets/index.json`.
 4. Chưa có file tách lớp: dùng `tools/rig-from-image/prep_pet_template.py` (Python, Pillow, numpy, scipy, opencv) với toạ độ bộ phận khai báo ở đầu file.

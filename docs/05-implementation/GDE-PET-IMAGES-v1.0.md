@@ -1,6 +1,10 @@
 # 🎨 Hướng dẫn thiết kế & quản lý hình ảnh Pet — Cowdi English
 
-> Tài liệu dành cho đội thiết kế & developer. Cập nhật: 14/05/2026
+> [!IMPORTANT]
+> **Cập nhật nguyên tắc toàn dự án (2026-11-24):** Toàn bộ quy chuẩn phong cách vẽ (flat vector, nét `#000000`, đổ bóng 1 tông, Face Kit, bóng đất `#A297AB`, 5 cấp C1–C5, bảng màu 10 hệ nguyên tố, Prompt AI và script `qc_check.py`) nay áp dụng thống nhất theo **[STD-ART-STYLE-v1.1.md](art/STD-ART-STYLE-v1.1.md)** và **[art/art-spec.json](art/art-spec.json)**.
+> Tài liệu này giữ lại để tra cứu **cấu trúc thư mục WebP**, **ngoại lệ tên file legacy trong `src/data/pets.js`**, lệnh nén WebP và mô tả ý tưởng 22 pet ban đầu.
+
+> Tài liệu dành cho đội thiết kế & developer. Cập nhật: 14/05/2026 (bổ sung liên kết `STD-ART-STYLE-v1.1`: 24/11/2026)
 > Đồng bộ với `src/data/pets.js` và thư mục `public/assets/images/pets/`.
 
 ---
@@ -673,7 +677,10 @@ Evolution không có `image` → app fallback sang emoji.
 
 ---
 
-## 8. Nguyên tắc thiết kế
+## 8. Nguyên tắc thiết kế *(đã thay thế bởi `STD-ART-STYLE-v1.1.md`)*
+
+> [!NOTE]
+> Phần phong cách và bảng màu nguyên tố 6 hệ bên dưới là bản v1.0 cũ (05/2026). **Từ 24/11/2026, bắt buộc áp dụng [STD-ART-STYLE-v1.1.md](art/STD-ART-STYLE-v1.1.md)** (chuẩn flat vector 1080/2160 px, Face Kit, bóng đất `#A297AB` và bảng màu 10 hệ nguyên tố tại [art/palettes/cowdi_tokens.css](art/palettes/cowdi_tokens.css)).
 
 ### Phong cách
 

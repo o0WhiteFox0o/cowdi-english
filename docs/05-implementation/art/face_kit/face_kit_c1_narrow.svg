@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="800" height="700" viewBox="0 0 800 700">
+  <title>Cowdi face kit c1 narrow body, master 2160 scale, face scale 0.7</title>
+  <g id="eye_0_open" inkscape:groupmode="layer" inkscape:label="eye_0_open" transform="translate(400,200)">
+    <ellipse id="eye_near" cx="-66.5" cy="0" rx="28.0" ry="30.1" fill="#000000"/>
+    <circle id="eye_near_highlight" cx="-59.5" cy="-6.3" r="13.3" fill="#FFFFFF"/>
+    <ellipse id="blush_near" cx="-97.3" cy="89.6" rx="28.7" ry="19.6" fill="#FF86A8"/>
+    <ellipse id="eye_far" cx="66.5" cy="0" rx="24.5" ry="30.1" fill="#000000"/>
+    <circle id="eye_far_highlight" cx="73.5" cy="-6.3" r="13.3" fill="#FFFFFF"/>
+    <ellipse id="blush_far" cx="97.3" cy="89.6" rx="21.7" ry="19.6" fill="#FF86A8"/>
+  </g>
+  <g id="eye_1_closed" inkscape:groupmode="layer" inkscape:label="eye_1_closed" transform="translate(400,500)">
+    <path id="eye_near_closed" d="M-94.5,-2.8 Q-66.5,14.0 -38.5,-2.8" fill="none" stroke="#000000" stroke-width="5.6" stroke-linecap="round"/>
+    <ellipse id="blush_near" cx="-97.3" cy="89.6" rx="28.7" ry="19.6" fill="#FF86A8"/>
+    <path id="eye_far_closed" d="M42.0,-2.8 Q66.5,14.0 91.0,-2.8" fill="none" stroke="#000000" stroke-width="5.6" stroke-linecap="round"/>
+    <ellipse id="blush_far" cx="97.3" cy="89.6" rx="21.7" ry="19.6" fill="#FF86A8"/>
+  </g>
+
+</svg>
