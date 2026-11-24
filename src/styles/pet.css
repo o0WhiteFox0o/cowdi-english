@@ -751,6 +751,77 @@ canvas.cowdi-chat-img {
   top: 4%;
   left: 4%;
 }
+
+/* ── Minigame Battle Arena (HP bars on top, pets on ground) ── */
+.minigame-battle-arena {
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 2px solid var(--paper-line, #e2dbd2);
+}
+
+.minigame-battle-arena .battle-hud-mine {
+  top: 10px;
+  left: 10px;
+  bottom: auto;
+  right: auto;
+  min-width: 145px;
+}
+
+.minigame-battle-arena .battle-hud-opponent {
+  top: 10px;
+  right: 10px;
+  bottom: auto;
+  left: auto;
+  min-width: 145px;
+}
+
+.minigame-battle-arena .battle-pet-mine {
+  bottom: 8%;
+  left: 10%;
+  top: auto;
+}
+
+.minigame-battle-arena .battle-pet-opponent {
+  bottom: 8%;
+  right: 10%;
+  top: auto;
+}
+
+.minigame-battle-arena .damage-number-mine {
+  bottom: 48%;
+  left: 14%;
+  top: auto;
+}
+
+.minigame-battle-arena .damage-number-opponent {
+  bottom: 48%;
+  right: 14%;
+  top: auto;
+}
+
+@media (max-width: 576px) {
+  .minigame-battle-arena {
+    min-height: 190px;
+  }
+  .minigame-battle-arena .battle-hud {
+    min-width: 125px;
+    padding: 6px 10px;
+  }
+  .minigame-battle-arena .battle-pet {
+    width: 80px;
+    height: 80px;
+  }
+  .minigame-battle-arena .battle-pet-mine {
+    bottom: 6%;
+    left: 6%;
+  }
+  .minigame-battle-arena .battle-pet-opponent {
+    bottom: 6%;
+    right: 6%;
+  }
+}
 .hp-bar {
   height: 10px;
   background: #ddd;

@@ -34,34 +34,48 @@ function hpColor(hp) {
 }
 
 // ── Compact Battle Arena ─────────────────────────────────────────────────────
-function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg, myPetEmoji }) {
+function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg, myPetEmoji, myPetName }) {
   return (
-    <div className="battle-arena mb-3" style={{ minHeight: 200 }}>
+    <div className="battle-arena minigame-battle-arena mb-3">
       <div className="battle-ground-line"></div>
 
-      {/* Opponent HUD */}
-      <div className="battle-hud battle-hud-opponent">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span className="fw-bold" style={{ fontSize: '0.75rem' }}>Cowdi Jr.</span>
-          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{opponentHp}/100</span>
-        </div>
-        <div className="hp-bar">
-          <div className="hp-bar-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
-        </div>
-      </div>
-
-      {/* Player HUD */}
+      {/* Player HUD (Top-Left, above Player Pet) */}
       <div className="battle-hud battle-hud-mine">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span className="fw-bold" style={{ fontSize: '0.75rem' }}>Tôi</span>
-          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{playerHp}/100</span>
+        <div className="d-flex justify-content-between align-items-center mb-1 gap-2">
+          <div className="d-flex align-items-center gap-1 text-truncate">
+            {myPetImg ? (
+              <img src={myPetImg} alt="" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+            ) : (
+              <span style={{ fontSize: '0.9rem' }}>{myPetEmoji || '🐮'}</span>
+            )}
+            <span className="fw-bold text-truncate" style={{ fontSize: '0.78rem' }}>{myPetName || 'Tôi'}</span>
+          </div>
+          <span className="fw-bold" style={{ fontSize: '0.75rem', color: hpColor(playerHp) }}>
+            {playerHp}/100
+          </span>
         </div>
         <div className="hp-bar">
           <div className="hp-bar-fill" style={{ width: `${playerHp}%`, backgroundColor: hpColor(playerHp) }}></div>
         </div>
       </div>
 
-      {/* My Pet */}
+      {/* Opponent HUD (Top-Right, above Opponent Pet) */}
+      <div className="battle-hud battle-hud-opponent">
+        <div className="d-flex justify-content-between align-items-center mb-1 gap-2">
+          <span className="fw-bold" style={{ fontSize: '0.75rem', color: hpColor(opponentHp) }}>
+            {opponentHp}/100
+          </span>
+          <div className="d-flex align-items-center gap-1 text-truncate">
+            <span className="fw-bold text-truncate" style={{ fontSize: '0.78rem' }}>Cowdi Jr.</span>
+            <img src={COWDI_JUNIOR_IMG} alt="" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+          </div>
+        </div>
+        <div className="hp-bar">
+          <div className="hp-bar-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
+        </div>
+      </div>
+
+      {/* My Pet (Bottom-Left) */}
       <div className={`battle-pet battle-pet-mine ${
         battleAnim === 'attack-mine' ? 'anim-attack-mine' :
         battleAnim === 'damage-mine' ? 'anim-damage' :
@@ -74,7 +88,7 @@ function MiniGameArena({ playerHp, opponentHp, battleAnim, damagePopup, myPetImg
         )}
       </div>
 
-      {/* Opponent: Cowdi Junior */}
+      {/* Opponent: Cowdi Junior (Bottom-Right) */}
       <div className={`battle-pet battle-pet-opponent ${
         battleAnim === 'attack-opponent' ? 'anim-attack-opponent' :
         battleAnim === 'damage-opponent' ? 'anim-damage' :
@@ -216,28 +230,86 @@ const GAMES = [
   },
 ];
 
+function MiniGameResultCard({ matchResult, score, rounds, onRestart, onExit }) {
+  const isWin = matchResult === 'victory';
+
+  return (
+    <div
+      className={`card shadow-sm p-4 text-center my-3 border-2 ${isWin ? 'border-success' : 'border-danger'}`}
+      style={{
+        backgroundColor: isWin ? '#f4fbf5' : '#fff5f5',
+        borderRadius: '16px',
+        animation: 'cowdiSlideUp 0.25s ease-out',
+        maxWidth: 500,
+        margin: '0 auto',
+      }}
+    >
+      <div style={{ fontSize: '4.2rem' }} className="emoji-big">
+        {isWin ? '🏆' : '💔'}
+      </div>
+      <h3 className={`fw-bold mt-2 ${isWin ? 'text-success' : 'text-danger'}`}>
+        {isWin ? 'CHIẾN THẮNG K.O!' : 'BẠN ĐÃ BỊ HẠ GỤC!'}
+      </h3>
+      <p className="text-muted mb-3" style={{ fontSize: '0.95rem' }}>
+        {isWin
+          ? `Xuất sắc! Bạn đã hạ gục Cowdi Jr. sau ${rounds} lượt đấu!`
+          : `Cowdi Jr. đã giành phần thắng sau ${rounds} lượt. Đừng nản lòng, hãy phục thù nhé!`}
+      </p>
+
+      <div className="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+        <div className="p-2 px-3 rounded bg-white border shadow-sm" style={{ minWidth: 120 }}>
+          <span className="text-muted small d-block">Số câu đúng</span>
+          <strong className="fs-5 text-dark">{score} câu</strong>
+        </div>
+        <div className="p-2 px-3 rounded bg-white border shadow-sm" style={{ minWidth: 120 }}>
+          <span className="text-muted small d-block">{isWin ? 'Phần thưởng' : 'Điểm tích luỹ'}</span>
+          <strong className={`fs-5 ${isWin ? 'text-warning' : 'text-primary'}`}>
+            +{isWin ? score * 6 : Math.max(5, score * 3)} XP {isWin ? '· +20 🥛' : ''}
+          </strong>
+        </div>
+      </div>
+
+      <div className="d-flex justify-content-center gap-2">
+        <button type="button" className="btn btn-cowdi-primary px-4 py-2 fw-bold" onClick={onRestart}>
+          <Icon name="rocket" size={18} /> {isWin ? 'Đấu tiếp' : 'Thử lại ngay'}
+        </button>
+        <button type="button" className="btn btn-outline-secondary px-3 py-2" onClick={onExit}>
+          Chọn game khác
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MiniGamePage() {
   useSEO(SEO_CONFIGS['/mini-games']);
   const [game, setGame] = useState(null);
-  const { petData } = usePet();
-  const { gameXpRemainingToday } = useUser();
+  const [gameKey, setGameKey] = useState(0);
+  const { petData, onQuizComplete, addCoins } = usePet();
+  const { gameXpRemainingToday, addXP } = useUser();
+  const showToast = useToast();
+  const { play } = useSound();
 
   // Battle state
   const [playerHp, setPlayerHp] = useState(100);
   const [opponentHp, setOpponentHp] = useState(100);
   const [battleAnim, setBattleAnim] = useState(null);
   const [damagePopup, setDamagePopup] = useState(null);
+  const [matchResult, setMatchResult] = useState(null); // 'victory' | 'defeat' | null
+  const [matchScore, setMatchScore] = useState(0);      // số câu đúng
+  const [matchRounds, setMatchRounds] = useState(0);    // tổng số câu
   const battleAnimRef = useRef(null);
 
   const myPetInfo = useMemo(() => {
     const pet = petData?.collection?.[petData?.activePetId];
-    if (!pet) return { emoji: '🐮', speciesId: null, evolution: 0 };
+    if (!pet) return { emoji: '🐮', speciesId: null, evolution: 0, name: 'Tôi' };
     const species = PET_REGISTRY[pet.speciesId];
     const evo = getEvolutionInfo(pet.speciesId, pet.evolution);
     return {
       emoji: evo?.emoji || species?.emoji || '🐮',
       speciesId: pet.speciesId,
       evolution: pet.evolution || 0,
+      name: pet.customName || evo?.name || species?.name || 'Tôi',
     };
   }, [petData]);
 
@@ -248,30 +320,80 @@ export default function MiniGamePage() {
     setOpponentHp(100);
     setBattleAnim(null);
     setDamagePopup(null);
+    setMatchResult(null);
+    setMatchScore(0);
+    setMatchRounds(0);
+    setGameKey((k) => k + 1);
   }
 
   function handleCorrect() {
+    if (matchResult) return;
     clearTimeout(battleAnimRef.current);
     setBattleAnim('attack-mine');
-    const dmg = Math.floor(Math.random() * 6) + 8; // 8-13
+    setMatchScore((s) => s + 1);
+    setMatchRounds((r) => r + 1);
+    const dmg = Math.floor(Math.random() * 5) + 16; // 16-20 dmg
     setDamagePopup({ target: 'opponent', amount: dmg, isCritical: false });
-    setOpponentHp((h) => Math.max(5, h - dmg));
+
+    setTimeout(() => {
+      setBattleAnim('damage-opponent');
+    }, 250);
+
     battleAnimRef.current = setTimeout(() => {
       setBattleAnim(null);
       setDamagePopup(null);
     }, 700);
+
+    setOpponentHp((h) => {
+      const nextHp = Math.max(0, h - dmg);
+      if (nextHp <= 0) {
+        setTimeout(() => triggerMatchEnd('victory', matchScore + 1, matchRounds + 1), 750);
+      }
+      return nextHp;
+    });
   }
 
   function handleWrong() {
+    if (matchResult) return;
     clearTimeout(battleAnimRef.current);
     setBattleAnim('attack-opponent');
-    const dmg = Math.floor(Math.random() * 5) + 6; // 6-10
+    setMatchRounds((r) => r + 1);
+    const dmg = Math.floor(Math.random() * 5) + 16; // 16-20 dmg
     setDamagePopup({ target: 'mine', amount: dmg, isCritical: false });
-    setPlayerHp((h) => Math.max(5, h - dmg));
+
+    setTimeout(() => {
+      setBattleAnim('damage-mine');
+    }, 250);
+
     battleAnimRef.current = setTimeout(() => {
       setBattleAnim(null);
       setDamagePopup(null);
     }, 700);
+
+    setPlayerHp((h) => {
+      const nextHp = Math.max(0, h - dmg);
+      if (nextHp <= 0) {
+        setTimeout(() => triggerMatchEnd('defeat', matchScore, matchRounds + 1), 750);
+      }
+      return nextHp;
+    });
+  }
+
+  function triggerMatchEnd(result, finalScore, finalRounds) {
+    setMatchResult(result);
+    if (result === 'victory') {
+      play('perfect');
+      const raw = Math.max(15, finalScore * 6);
+      const xp = addXP(raw, 'game');
+      onQuizComplete('vocab', finalScore, finalRounds);
+      addCoins(20);
+      showToast(gameXpMsg(xp, raw, '🏆 HẠ GỤC ĐỐI THỦ! +20 🥛'), 'success');
+    } else {
+      play('wrong');
+      const raw = Math.max(5, finalScore * 3);
+      const xp = addXP(raw, 'game');
+      showToast(gameXpMsg(xp, raw, '💔 Bạn đã bị hạ gục!'), 'info');
+    }
   }
 
   function startGame(id) {
@@ -358,32 +480,40 @@ export default function MiniGamePage() {
         damagePopup={damagePopup}
         myPetImg={myPetImg}
         myPetEmoji={myPetInfo.emoji}
+        myPetName={myPetInfo.name}
       />
 
-      {game === 'word-catch' && <WordCatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
-      {game === 'sentence-puzzle' && <SentencePuzzleGame onCorrect={handleCorrect} onWrong={handleWrong} />}
-      {game === 'memory-match' && <MemoryMatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
-      {game === 'spelling-bee' && <SpellingBeeGame onCorrect={handleCorrect} onWrong={handleWrong} />}
-      {game === 'speed-match' && <SpeedMatchGame onCorrect={handleCorrect} onWrong={handleWrong} />}
-      {game === 'word-scramble' && <WordScrambleGame onCorrect={handleCorrect} onWrong={handleWrong} />}
+      {matchResult ? (
+        <MiniGameResultCard
+          matchResult={matchResult}
+          score={matchScore}
+          rounds={matchRounds}
+          onRestart={resetBattle}
+          onExit={() => setGame(null)}
+        />
+      ) : (
+        <>
+          {game === 'word-catch' && <WordCatchGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+          {game === 'sentence-puzzle' && <SentencePuzzleGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+          {game === 'memory-match' && <MemoryMatchGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+          {game === 'spelling-bee' && <SpellingBeeGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+          {game === 'speed-match' && <SpeedMatchGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+          {game === 'word-scramble' && <WordScrambleGame key={gameKey} onCorrect={handleCorrect} onWrong={handleWrong} />}
+        </>
+      )}
     </div>
   );
 }
 
 // ── Word Catch Game ──────────────────────────────────────────────────────────
 function WordCatchGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
-  const [total] = useState(10);
   const [current, setCurrent] = useState(null);
   const [options, setOptions] = useState([]);
   const [answered, setAnswered] = useState(null);
-  const [finished, setFinished] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef(null);
 
@@ -404,7 +534,7 @@ function WordCatchGame({ onCorrect, onWrong }) {
   useEffect(() => { if (current) speakText(current.word); }, [current]);
 
   useEffect(() => {
-    if (finished || answered !== null || !current) return;
+    if (answered !== null || !current) return;
     if (timeLeft > 0) {
       if (timeLeft <= 3) play('tickUrgent'); else play('tick');
       timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
@@ -415,7 +545,7 @@ function WordCatchGame({ onCorrect, onWrong }) {
     onWrong?.();
     setAnswered(-1);
     setTimeout(() => nextRound(), 1200);
-  }, [timeLeft, finished, answered, current]);
+  }, [timeLeft, answered, current]);
 
   function handleAnswer(meaning) {
     if (answered !== null) return;
@@ -427,47 +557,18 @@ function WordCatchGame({ onCorrect, onWrong }) {
   }
 
   function nextRound() {
-    if (round + 1 >= total) {
-      setFinished(true);
-      const raw = score * 3;
-      const xp = addXP(raw, 'game');
-      onQuizComplete('vocab', score, total);
-      if (score >= 8) addCoins(15);
-      score >= 8 ? play('perfect') : play('celebration');
-      showToast(gameXpMsg(xp, raw, `${score >= 8 ? '+15🪙' : ''} 🎮`), 'success');
-    } else {
-      setRound((r) => r + 1);
-      generateRound();
-    }
-  }
-
-  if (finished) {
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 8 ? 'trophy' : score >= 5 ? 'thumb' : 'muscle'} size={72} /></div>
-        <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 5} XP</div>
-        <div>
-          <button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>
-            Chơi lại
-          </button>
-        </div>
-      </div>
-    );
+    setRound((r) => r + 1);
+    generateRound();
   }
 
   if (!current) return null;
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
-        <span className="text-muted small">Câu {round + 1}/{total}</span>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="text-muted small fw-semibold">Câu {round + 1}</span>
         <span className="badge bg-warning text-dark">Điểm: {score}</span>
         <span className={`badge ${timeLeft <= 3 ? 'bg-danger' : 'bg-secondary'}`}><Icon name="timer" size={12} /> {timeLeft}s</span>
-      </div>
-
-      <div className="progress mb-3" style={{ height: 6 }}>
-        <div className="progress-bar progress-bar-cowdi" style={{ width: `${((round + 1) / total) * 100}%` }}></div>
       </div>
 
       {/* Falling word */}
@@ -505,19 +606,14 @@ function WordCatchGame({ onCorrect, onWrong }) {
 
 // ── Sentence Puzzle Game ─────────────────────────────────────────────────────
 function SentencePuzzleGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
-  const [total] = useState(8);
   const [current, setCurrent] = useState(null);
   const [shuffledWords, setShuffledWords] = useState([]);
   const [selected, setSelected] = useState([]);
   const [result, setResult] = useState(null);
-  const [finished, setFinished] = useState(false);
 
   const generateRound = useCallback(() => {
     const sentence = shuffle(ALL_SENTENCES)[0];
@@ -548,35 +644,9 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
     if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
     else { play('wrong'); onWrong?.(); }
     setTimeout(() => {
-      if (round + 1 >= total) {
-        setFinished(true);
-        const finalScore = correct ? score + 1 : score;
-        const raw = finalScore * 5;
-        const xp = addXP(raw, 'game');
-        onQuizComplete('sentences', finalScore, total);
-        if (finalScore >= 6) addCoins(15);
-        finalScore >= 6 ? play('perfect') : play('celebration');
-        showToast(gameXpMsg(xp, raw, '🧩'), 'success');
-      } else {
-        setRound((r) => r + 1);
-        generateRound();
-      }
+      setRound((r) => r + 1);
+      generateRound();
     }, 1500);
-  }
-
-  if (finished) {
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 6 ? 'trophy' : score >= 4 ? 'thumb' : 'muscle'} size={72} /></div>
-        <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 8} XP</div>
-        <div>
-          <button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>
-            Chơi lại
-          </button>
-        </div>
-      </div>
-    );
   }
 
   if (!current) return <div className="text-center text-muted">Đang tải...</div>;
@@ -585,13 +655,9 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
-        <span className="text-muted small">Câu {round + 1}/{total}</span>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="text-muted small fw-semibold">Câu {round + 1}</span>
         <span className="badge bg-warning text-dark">Điểm: {score}</span>
-      </div>
-
-      <div className="progress mb-3" style={{ height: 6 }}>
-        <div className="progress-bar progress-bar-cowdi" style={{ width: `${((round + 1) / total) * 100}%` }}></div>
       </div>
 
       {/* Vietnamese hint */}
@@ -654,16 +720,12 @@ function SentencePuzzleGame({ onCorrect, onWrong }) {
 
 // ── Memory Match Game ────────────────────────────────────────────────────────
 function MemoryMatchGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
   const [matched, setMatched] = useState(new Set());
   const [moves, setMoves] = useState(0);
-  const [finished, setFinished] = useState(false);
   const [lockBoard, setLockBoard] = useState(false);
   const pairCount = 6;
 
@@ -679,7 +741,6 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
     setFlipped([]);
     setMatched(new Set());
     setMoves(0);
-    setFinished(false);
     setLockBoard(false);
   }
 
@@ -705,15 +766,9 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
         setLockBoard(false);
         if (newMatched.size === pairCount) {
           setTimeout(() => {
-            setFinished(true);
-            const stars = moves <= pairCount * 2 ? 3 : moves <= pairCount * 3 ? 2 : 1;
-            const raw = stars * 10;
-            const xp = addXP(raw, 'game');
-            onQuizComplete('vocab', pairCount, pairCount);
-            if (stars >= 2) addCoins(10);
             play('celebration');
-            showToast(gameXpMsg(xp, raw, `${stars >= 2 ? '+10🪙' : ''} 🃏`), 'success');
-          }, 400);
+            initGame();
+          }, 800);
         }
       } else {
         play('wrong');
@@ -723,25 +778,11 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
     }
   }
 
-  if (finished) {
-    const stars = moves <= pairCount * 2 ? 3 : moves <= pairCount * 3 ? 2 : 1;
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={stars === 3 ? 'star' : stars === 2 ? 'star' : 'thumb'} size={72} /></div>
-        <h3 className="fw-bold mt-2">Hoàn thành!</h3>
-        <p className="text-muted">{moves} lượt lật · {stars} sao</p>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{stars * 15} XP</div>
-        <div><button className="btn btn-cowdi-primary mt-3" onClick={initGame}>Chơi lại</button></div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
-        <span className="text-muted small">Ghép {pairCount} cặp</span>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="text-muted small fw-semibold">Đã ghép: {matched.size}/{pairCount} cặp</span>
         <span className="badge bg-secondary">Lượt: {moves}</span>
-        <span className="badge bg-success">{matched.size}/{pairCount} cặp</span>
       </div>
       <div className="row g-2">
         {cards.map((card, i) => {
@@ -779,18 +820,13 @@ function MemoryMatchGame({ onCorrect, onWrong }) {
 
 // ── Spelling Bee Game ────────────────────────────────────────────────────────
 function SpellingBeeGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
-  const [total] = useState(10);
   const [current, setCurrent] = useState(null);
   const [input, setInput] = useState('');
   const [result, setResult] = useState(null); // true/false/null
-  const [finished, setFinished] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const inputRef = useRef(null);
 
@@ -841,44 +877,18 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
       onWrong?.();
     }
     setTimeout(() => {
-      if (round + 1 >= total) {
-        setFinished(true);
-        const finalScore = isCorrect ? score + 1 : score;
-        const raw = finalScore * 5;
-        const xp = addXP(raw, 'game');
-        onQuizComplete('vocab', finalScore, total);
-        if (finalScore >= 7) addCoins(15);
-        finalScore >= 7 ? play('perfect') : play('celebration');
-        showToast(gameXpMsg(xp, raw, `${finalScore >= 7 ? '+15🪙' : ''} 🐝`), 'success');
-      } else {
-        setRound((r) => r + 1);
-        generateRound();
-      }
+      setRound((r) => r + 1);
+      generateRound();
     }, 1500);
-  }
-
-  if (finished) {
-    const finalScore = score;
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={finalScore >= 8 ? 'trophy' : finalScore >= 5 ? 'bee' : 'muscle'} size={72} /></div>
-        <h3 className="fw-bold mt-2">Kết quả: {finalScore}/{total}</h3>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{finalScore * 8} XP</div>
-        <div><button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>Chơi lại</button></div>
-      </div>
-    );
   }
 
   if (!current) return null;
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
-        <span className="text-muted small">Từ {round + 1}/{total}</span>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="text-muted small fw-semibold">Từ {round + 1}</span>
         <span className="badge bg-warning text-dark">Điểm: {score}</span>
-      </div>
-      <div className="progress mb-3" style={{ height: 6 }}>
-        <div className="progress-bar progress-bar-cowdi" style={{ width: `${((round + 1) / total) * 100}%` }}></div>
       </div>
 
       <div className="card shadow-sm mb-3">
@@ -930,23 +940,18 @@ function SpellingBeeGame({ onCorrect, onWrong }) {
 
 // ── Speed Match Game ─────────────────────────────────────────────────────────
 function SpeedMatchGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
-  const [phase, setPhase] = useState('ready'); // ready | playing | finished
+  const [phase, setPhase] = useState('ready'); // ready | playing
   const [current, setCurrent] = useState(null);   // { word, meaning, ... }
   const [choices, setChoices] = useState([]);      // 4 options
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [total, setTotal] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);   // global timer
   const [qTimer, setQTimer] = useState(5);         // per-question countdown
   const [flash, setFlash] = useState(null);        // null | 'correct' | 'wrong'
   const [frozen, setFrozen] = useState(false);     // 400ms button lock after new question
   const [selected, setSelected] = useState(null);  // index of tapped choice
-  const globalRef = useRef(null);
   const qRef = useRef(null);
 
   function generateQuestion() {
@@ -968,27 +973,8 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
     setScore(0);
     setStreak(0);
     setTotal(0);
-    setTimeLeft(60);
     generateQuestion();
   }
-
-  // Global 60s countdown
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    if (timeLeft <= 0) {
-      setPhase('finished');
-      const raw = score * 2;
-      const xp = addXP(raw, 'game');
-      onQuizComplete('vocab', score, Math.max(total, score));
-      if (score >= 15) addCoins(20);
-      else if (score >= 8) addCoins(10);
-      play('celebration');
-      showToast(gameXpMsg(xp, raw, '⚡'), 'success');
-      return;
-    }
-    globalRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
-    return () => clearTimeout(globalRef.current);
-  }, [timeLeft, phase]);
 
   // Per-question 5s countdown → auto-skip on timeout
   useEffect(() => {
@@ -1032,21 +1018,8 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
         <div className="fs-1 mb-3 emoji-big"><Icon name="bolt" size={44} /></div>
         <h4 className="fw-bold">Tốc độ ánh sáng</h4>
         <p className="text-muted mb-1">Từ tiếng Anh hiện lên — chọn <strong>nghĩa đúng</strong> trong 4 đáp án.</p>
-        <p className="text-muted">Mỗi câu có <strong>5 giây</strong>. Tổng thời gian <strong>60 giây</strong>!</p>
+        <p className="text-muted">Mỗi câu có <strong>5 giây</strong>. Đấu sinh tử tới khi K.O!</p>
         <button className="btn btn-cowdi-primary btn-lg" onClick={startGame}><Icon name="rocket" size={20} /> Bắt đầu!</button>
-      </div>
-    );
-  }
-
-  if (phase === 'finished') {
-    const acc = total > 0 ? Math.round((score / total) * 100) : 0;
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 20 ? 'trophy' : score >= 12 ? 'bolt' : 'muscle'} size={72} /></div>
-        <h3 className="fw-bold mt-2">{score} câu đúng / {total} câu</h3>
-        <div className="text-muted mb-2">Độ chính xác: {acc}%</div>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 4} XP</div>
-        <div><button className="btn btn-cowdi-primary mt-3" onClick={startGame}>Chơi lại</button></div>
       </div>
     );
   }
@@ -1058,7 +1031,7 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
       {/* Header bar */}
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <span className={`badge ${timeLeft <= 10 ? 'bg-danger' : 'bg-secondary'} fs-6`}><Icon name="timer" size={14} /> {timeLeft}s</span>
+        <span className="text-muted small fw-semibold">Câu {total + 1}</span>
         <span className="badge bg-warning text-dark fs-6"><Icon name="check" size={14} /> {score}</span>
         {streak >= 3 && <span className="badge bg-danger fs-6"><Icon name="fire" size={14} /> {streak}</span>}
       </div>
@@ -1121,19 +1094,14 @@ function SpeedMatchGame({ onCorrect, onWrong }) {
 
 // ── Word Scramble Game ───────────────────────────────────────────────────────
 function WordScrambleGame({ onCorrect, onWrong }) {
-  const { addXP } = useUser();
-  const { onQuizComplete, addCoins } = usePet();
-  const showToast = useToast();
   const { play } = useSound();
 
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
-  const [total] = useState(10);
   const [current, setCurrent] = useState(null);
   const [scrambled, setScrambled] = useState([]);
   const [selected, setSelected] = useState([]);
   const [result, setResult] = useState(null);
-  const [finished, setFinished] = useState(false);
 
   const generateRound = useCallback(() => {
     const pool = ALL_VOCAB.filter((w) => w.word.length >= 4 && w.word.length <= 10 && /^[a-zA-Z]+$/.test(w.word));
@@ -1169,33 +1137,11 @@ function WordScrambleGame({ onCorrect, onWrong }) {
         if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
         else { play('wrong'); onWrong?.(); }
         setTimeout(() => {
-          if (round + 1 >= total) {
-            setFinished(true);
-            const finalScore = correct ? score + 1 : score;
-            const raw = finalScore * 4;
-            const xp = addXP(raw, 'game');
-            onQuizComplete('vocab', finalScore, total);
-            if (finalScore >= 7) addCoins(12);
-            finalScore >= 7 ? play('perfect') : play('celebration');
-            showToast(gameXpMsg(xp, raw, `${finalScore >= 7 ? '+12🪙' : ''} 🔤`), 'success');
-          } else {
-            setRound((r) => r + 1);
-            generateRound();
-          }
+          setRound((r) => r + 1);
+          generateRound();
         }, 1200);
       }
     }
-  }
-
-  if (finished) {
-    return (
-      <div className="text-center py-4">
-        <div style={{ fontSize: '4rem' }} className="emoji-big"><Icon name={score >= 8 ? 'trophy' : score >= 5 ? 'abc' : 'muscle'} size={72} /></div>
-        <h3 className="fw-bold mt-2">Kết quả: {score}/{total}</h3>
-        <div className="badge bg-warning text-dark fs-5 my-2">+{score * 6} XP</div>
-        <div><button className="btn btn-cowdi-primary mt-3" onClick={() => { setRound(0); setScore(0); setFinished(false); generateRound(); }}>Chơi lại</button></div>
-      </div>
-    );
   }
 
   if (!current) return null;
@@ -1204,12 +1150,9 @@ function WordScrambleGame({ onCorrect, onWrong }) {
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      <div className="d-flex justify-content-between mb-3">
-        <span className="text-muted small">Từ {round + 1}/{total}</span>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <span className="text-muted small fw-semibold">Từ {round + 1}</span>
         <span className="badge bg-warning text-dark">Điểm: {score}</span>
-      </div>
-      <div className="progress mb-3" style={{ height: 6 }}>
-        <div className="progress-bar progress-bar-cowdi" style={{ width: `${((round + 1) / total) * 100}%` }}></div>
       </div>
 
       <div className="card shadow-sm mb-3">
