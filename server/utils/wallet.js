@@ -85,7 +85,7 @@ export async function getWallet(userId, db = pool) {
  */
 export async function grantLessonAndUnitRewards(userId, completedLessons = [], checkpointScores = {}, lessonScores = {}, db = pool) {
   if (!Array.isArray(completedLessons) || completedLessons.length === 0) {
-    return { grantedGem: 0, grantedStone: 0 };
+    return getWallet(userId, db);
   }
 
   // 1. Lọc các bài học hợp lệ trong danh mục chính thức

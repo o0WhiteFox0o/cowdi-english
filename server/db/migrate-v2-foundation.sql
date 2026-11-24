@@ -5,7 +5,8 @@
 --  Idempotent — chạy lại an toàn, không làm mất/trùng dữ liệu.
 -- ============================================================
 
-USE cowdi_english;
+-- Chọn đúng database trước khi import trong phpMyAdmin hoặc:
+-- mysql -u root -p <ten_database> < server/db/migrate-v2-foundation.sql
 
 -- Helper: thêm cột nếu chưa có
 DROP PROCEDURE IF EXISTS cowdi_add_col_if_missing;

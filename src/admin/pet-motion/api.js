@@ -146,6 +146,66 @@ export function createPetMotionApi(token) {
   };
 }
 
+// ── Quy cách kích thước ảnh theo thiết kế PetRig (420×460 @ 2× DPR) & GDE-PET-IMAGES ──
+export const MAX_PET_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB (khớp giới hạn server)
+
+export const STAGE_IMAGE_SPECS = Object.freeze({
+  1: { stage: 1, name: 'C1 · Trứng',      recommended: 512, minEdge: 320, maxEdge: 640, targetLogicH: 255 },
+  2: { stage: 2, name: 'C2 · Baby',       recommended: 512, minEdge: 360, maxEdge: 640, targetLogicH: 285 },
+  3: { stage: 3, name: 'C3 · Junior',     recommended: 512, minEdge: 400, maxEdge: 700, targetLogicH: 315 },
+  4: { stage: 4, name: 'C4 · Super',      recommended: 640, minEdge: 480, maxEdge: 800, targetLogicH: 345 },
+  5: { stage: 5, name: 'C5 · Huyền thoại', recommended: 640, minEdge: 512, maxEdge: 800, targetLogicH: 375 },
+});
+
+export function getStageImageSpec(stage) {
+  const s = Math.max(1, Math.min(5, Number(stage) || 1));
+  return STAGE_IMAGE_SPECS[s];
+}
+
+export async function readImageDimensions(file) {
+  const img = await readImageFromFile(file);
+  return { width: img.width, height: img.height };
+}
+
+/**
+ * Thu gọn ảnh PNG/WebP quá lớn (> 2 MB hoặc quá nhiều pixel) về chuẩn WebP nền trong suốt
+ * đúng cạnh dài mục tiêu (giữ nguyên tỷ lệ, không phóng to ảnh nhỏ hơn).
+ */
+export async function optimizePartImageFile(file, maxEdge = 640, quality = 0.92) {
+  const img = await readImageFromFile(file);
+  const longest = Math.max(img.width, img.height);
+  const scale = longest > maxEdge ? maxEdge / longest : 1;
+  const targetW = Math.max(1, Math.round(img.width * scale));
+  const targetH = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = targetW;
+  canvas.height = targetH;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, targetW, targetH);
+
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (b) => {
+        if (b) return resolve(b);
+        canvas.toBlob(
+          (b2) => (b2 ? resolve(b2) : reject(new Error('Không xuất được ảnh đã tối ưu.'))),
+          'image/png'
+        );
+      },
+      'image/webp',
+      quality
+    );
+  });
+
+  const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+  const baseName = String(file.name || 'part').replace(/\.[^.]+$/, '');
+  const nextFile = new File([blob], `${baseName}.${ext}`, { type: blob.type });
+  return { file: nextFile, width: targetW, height: targetH };
+}
+
 // ── Tự nhận bộ phận + tạo rig mặc định từ nhiều ảnh PNG tách lớp ────────────
 
 const PART_ALIASES = {

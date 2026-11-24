@@ -187,7 +187,10 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
-| 2026-11-24 | 3 | Sửa 3 lỗi Cửa hàng: PetPreview dùng PetAvatar chuẩn ảnh/rig + bộ chọn pet + nút Quay lại thông minh | 67ae58f | 85 test pass, build pass, screenshots desktop & mobile |
+| 2026-11-24 | 3 | Sửa 3 lỗi Cửa hàng: PetPreview dùng PetAvatar chuẩn ảnh/rig + bộ chọn pet + nút Quay lại thông minh | 7f5a48b | 85 test pass, build pass, screenshots desktop & mobile |
+| 2026-11-24 | 1–3 | Sửa tương thích MySQL < 5.6.5 cho `run-v2-streak-migration.js` (`created_at DATETIME`) + thêm `scripts/package.json` và chạy thành công migration GĐ1–3 trên production | e3f3c36 | Production DB đã di trú xong |
+| 2026-11-24 | 3 | Sửa lỗi P0 crash `<BookShell>` cho user mới (`PUT /api/progress` luôn trả ví chuẩn `{ milk, gem, stone, stone_shard }`) | f8baa29 | 83/83 test pass, build pass |
+| 2026-11-24 | 1–3 | Gộp `origin/feat/shop-streak` (toàn bộ GĐ1–3) vào `main`, sửa tương thích MySQL 5.6 cho `run-v2-migration.js` / SQL & sửa glob `npm test` | e432864, d57f593, ea9903b | 0 xung đột, 83/83 test pass |
 | 2026-11-23 | 3 | Tích hợp bộ icon pet WebP (Attack, Defense, HP, Speed, 4 kỹ năng) cho Chỉ số chiến đấu & Chỉ số gốc | cd17746 | 62 test pass, build pass, screenshots |
 | 2026-11-23 | 3 | Thêm nút Shop cạnh icon điện trên thẻ pet & bổ sung 19 nền + 15 hào quang vào tab Trang trí | 39f76ba | 62 test pass, build pass, screenshots |
 | 2026-11-23 | 3 | Làm lại UI Cửa hàng theo chuẩn: 3 tab (Giữ nhịp, Trang trí, Kho đồ), danh sách phẳng, 3 bottom sheet (Cách kiếm, Chi tiết, Khế ước), HUD link | 7340b95 | 62 test pass, build pass, screenshots |

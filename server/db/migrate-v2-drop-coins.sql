@@ -30,15 +30,15 @@ WHERE CAST(total_xp AS SIGNED) > CAST(available_xp AS SIGNED)
   AND (CAST(total_xp AS SIGNED) - CAST(available_xp AS SIGNED)) > 0;
 
 -- ── 3. Di trú Coins → Sữa (1 coin = 3 Sữa, D12) ───────────────
+-- Dùng hàm chuỗi chuẩn để tương thích cả MySQL 5.6 (không phụ thuộc JSON_EXTRACT của MySQL 5.7+)
 INSERT IGNORE INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
 SELECT
   user_id,
   'milk',
-  CAST(JSON_UNQUOTE(JSON_EXTRACT(pet_data, '$.coins')) AS SIGNED) * 3,
+  CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(pet_data, '"coins":', -1), ',', 1), '}', 1)) AS SIGNED) * 3,
   'coin_migration',
   'v2_drop_coins'
 FROM user_progress
 WHERE pet_data IS NOT NULL
-  AND JSON_VALID(pet_data)
-  AND JSON_EXTRACT(pet_data, '$.coins') IS NOT NULL
-  AND CAST(JSON_UNQUOTE(JSON_EXTRACT(pet_data, '$.coins')) AS SIGNED) > 0;
+  AND pet_data LIKE '%"coins":%'
+  AND CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(pet_data, '"coins":', -1), ',', 1), '}', 1)) AS SIGNED) > 0;

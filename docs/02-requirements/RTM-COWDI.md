@@ -1,13 +1,65 @@
-# Ma trận Truy vết Yêu cầu (Requirements Traceability Matrix)
+# RTM-COWDI — Ma trận Truy vết Yêu cầu (Requirements Traceability Matrix)
 
-| Req ID | Mô tả | Nguồn (SRS / SDD) | Thiết kế (SDD §) | Mã nguồn | Test Case | Trạng thái |
-|---|---|---|---|---|---|---|
-| FR-001 | Đăng nhập Google OAuth | SRS §3.1 | SDD-COWDI §2 | `server/routes/auth.js` | TC-001 | Implemented |
-| FR-ECO-01 | Ledger 4 loại tài nguyên (`wallet_ledger`), server quản lý | SDD-ECONOMY-BATTLE-v2.1 §2 | SDD-v2.1 §2 | `server/utils/wallet.js`, `server/routes/api.js` | `shared/battle-engine.test.js` | Implemented |
-| FR-ECO-02 | Chỉ số chiến đấu pet theo điểm kỹ năng (căn bậc 2), 10 hệ, 7 nhóm | SDD-ECONOMY-BATTLE-v2.1 §4 | SDD-v2.1 §4 | `shared/battle-engine.js`, `src/features/pet/PetPage.jsx` | `shared/battle-engine.test.js` (Leafy C4) | Implemented |
-| FR-ECO-03 | Điểm kỹ năng pet: +1/câu đúng, +5 trọn điểm, bỏ +5 cả 4 kỹ năng | SDD-ECONOMY-BATTLE-v2.1 §3 | SDD-v2.1 §3 | `src/hooks/usePet.jsx` | Manual / UI | Implemented |
-| FR-ECO-04 | Tiến hoá thủ công qua server API có transaction | SDD-ECONOMY-BATTLE-v2.1 §3 | SDD-v2.1 §3 | `server/routes/api.js`, `src/features/pet/PetPage.jsx` | `shared/battle-engine.test.js` | Implemented |
-| FR-ECO-05 | Thưởng Gem & Đá bài mới & hoàn thành unit (D2, D11) | SDD-ECONOMY-BATTLE-v2.1 §2 | SDD-v2.1 §2 | `server/utils/wallet.js`, `server/routes/api.js` | Unit tests | Implemented |
-| FR-ECO-06 | Đổi Gem lấy đá 1 lần/tuần (D3) & ghép 10 mảnh đá | SDD-ECONOMY-BATTLE-v2.1 §2 | SDD-v2.1 §2 | `server/utils/wallet.js`, `src/pages/AccountPage.jsx` | Unit tests | Implemented |
-| FR-ECO-07 | Engine trận đấu server (hàm thuần, seed, thắng theo % HP) | SDD-ECONOMY-BATTLE-v2.1 §5 | SDD-v2.1 §5 | `shared/battle-engine.js`, `server/routes/api.js`, `src/features/duel/DuelPage.jsx` | `shared/battle-engine.test.js` (12 duel tests) | Implemented |
-| FR-ECO-08 | Migration DB an toàn không mất dữ liệu cũ | SDD-ECONOMY-BATTLE-v2.1 §6 | SDD-v2.1 §6 | `server/db/migrate-v2-foundation.sql` | Idempotent SQL | Implemented |
+> **Loại tài liệu:** Tài liệu sống · **Chuẩn tham chiếu:** ISO/IEC/IEEE 29148:2018 · **Cập nhật lần cuối:** 2026-11-24
+> Mục đích: Đảm bảo mọi yêu cầu nghiệp vụ & phi chức năng đều truy vết xuyên suốt **Yêu cầu → Thiết kế → Mã nguồn → Kiểm thử → Trạng thái triển khai**.
+
+---
+
+## 1. Phân hệ Cốt lõi & Học tập (Core Learning)
+
+| Req ID | Mô tả yêu cầu | Nguồn (SRS / SDD) | Mã nguồn chính | Kiểm thử / Nghiệm thu | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-CORE-01` | Đăng nhập Google OAuth2 + phiên JWT (kèm dev-login khoá localhost) | SRS §3.1 | `server/routes/auth.js`, `src/hooks/useAuth.jsx` | Manual + `pet-motion-step1.test.mjs` | 🚀 Production |
+| `FR-CORE-02` | Đồng bộ tiến độ học 206 bài / 44 unit, từ vựng SRS SM-2, biểu đồ học tập | SRS §3.2–3.4 | `server/routes/api.js`, `src/hooks/useUser.jsx`, `shared/lesson-ids.json` | `npm run prebuild` + Manual | 🚀 Production |
+| `FR-CORE-03` | Luyện 4 kỹ năng (Nghe, Nói, Đọc, Viết) & 7 mini-game (gồm TyperShark) | SRS §3.3 | `src/features/practice/`, `src/features/mini-games/` | Manual / UAT | 🚀 Production |
+| `FR-CORE-04` | Lời mời bạn học (Invite) & Bảng xếp hạng cộng đồng | SDD-INVITE v1.0 | `server/routes/invites.js`, `src/pages/InvitePage.jsx`, `src/pages/LeaderboardPage.jsx` | Manual / UAT | 🚀 Production |
+
+---
+
+## 2. Phân hệ Kinh tế & Chiến đấu v2 (GĐ1 → GĐ3 đã triển khai · GĐ4 → GĐ8 kế hoạch)
+
+| Req ID | Mô tả yêu cầu | Nguồn / Quyết định | Mã nguồn chính | Kiểm thử tự động | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-ECO-01` | Sổ cái tài nguyên `wallet_ledger` (4 loại: `milk`, `gem`, `stone`, `stone_shard`), chỉ server ghi | SDD-v2.1 §2 | `server/utils/wallet.js`, `server/routes/api.js` | `shared/wallet-coins-migration.test.js` | 🚀 Production |
+| `FR-ECO-02` | Chỉ số chiến đấu pet theo điểm kỹ năng (`sqrt`), 10 hệ tương khắc, 7 nhóm, 5 độ hiếm | SDD-v2.1 §4 | `shared/game-config.js`, `shared/battle-engine.js`, `src/features/pet/PetPage.jsx` | `shared/battle-engine.test.js` (Leafy C4, Cowdi C1, Storm C5) | 🚀 Production |
+| `FR-ECO-03` | Cộng điểm kỹ năng pet theo dạng câu (+1/câu đúng, +5 trọn điểm) | SDD-v2.1 §3 | `src/hooks/usePet.jsx`, `src/features/lesson/`, `src/features/practice/` | Manual / UAT | 🚀 Production |
+| `FR-ECO-04` | Tiến hoá pet thủ công C1→C5 qua API có transaction (kiểm tra Sữa/Gem/Đá + kỹ năng) | SDD-v2.1 §3 | `server/routes/api.js` (`POST /api/pet/evolve`), `src/features/pet/PetPage.jsx` | `shared/battle-engine.test.js` (6 evolution tests) | 🚀 Production |
+| `FR-ECO-05` | Thưởng Gem & Đá theo mốc bài mới và hoàn thành unit / 100% unit (chống cộng trùng) | D2, D11 | `server/utils/wallet.js`, `shared/units.json` | `shared/wallet-coins-migration.test.js` | 🚀 Production |
+| `FR-ECO-06` | Đổi 15 Gem → 1 Đá (tối đa 1/tuần) & ghép 10 mảnh đá → 1 Đá | D3 | `server/utils/wallet.js`, `src/pages/AccountPage.jsx` | `shared/battle-engine.test.js` | 🚀 Production |
+| `FR-ECO-07` | Battle Engine thuần tuý trên server (RNG seed, đánh đủ 10 câu, thắng theo % HP) | D9, SDD-v2.1 §5 | `shared/battle-engine.js`, `server/routes/api.js`, `src/features/duel/DuelPage.jsx` | `shared/battle-engine.test.js` (20+ combat tests) | 🚀 Production |
+| `FR-ECO-08` | Mô phỏng cân bằng 6 kịch bản (ma trận pet C3/C5, hệ, nhóm, độ hiếm, kịch bản biên) | GĐ2 | `scripts/simulate-balance.js`, `docs/06-verification-validation/balance-v2/` | `shared/battle-engine.test.js` (3 edge-case tests) | 🚀 Production |
+| `FR-ECO-09` | Bỏ hoàn toàn Coins; di trú Coins cũ → Sữa ×3; chuyển mọi thưởng sang Sữa & HUD 2 chip | D12 | `scripts/run-v2-migration.js`, `src/components/layout/BookShell.jsx`, `src/hooks/useUser.jsx` | `shared/wallet-coins-migration.test.js` | 🚀 Production |
+| `FR-ECO-10` | Streak tính trên server theo múi giờ; tặng Khăn giữ lửa mốc 7/30/100 ngày (tối đa 2) | D13, GĐ3 | `server/utils/streak-manager.js`, `scripts/run-v2-streak-migration.js` | `shared/streak-shop.test.js` | 🚀 Production |
+| `FR-ECO-11` | Cửa hàng Giữ nhịp 3 tab (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày cọc hoàn ×1.5, Đồng hồ Cowdi +10% Sữa) | D1, GĐ3 | `server/routes/shop.js`, `src/features/pet/ShopPage.jsx`, `StreakTab.jsx`, `ContractSelectSheet.jsx` | `shared/streak-shop.test.js` | 🚀 Production |
+| `FR-ECO-12` | Đồ trang trí 6 bậc (`owned_cosmetics`), đồ mốc học tự cấp, khung avatar, danh hiệu | GĐ4 (`DEC-01`) | `feat/cosmetics` (chưa mở) | Sẽ bổ sung ở GĐ4 | ⏳ Planned (GĐ4) |
+| `FR-ECO-13` | Đấu trường mùa 4 tuần (vé gắn học, LP 6 bậc, rương tuần, chống lạm dụng) | D4, GĐ5 (`DEC-02`) | `feat/arena` (chưa mở) | Sẽ bổ sung ở GĐ5 | ⏳ Planned (GĐ5) |
+| `FR-ECO-14` | Lõi Gacha + Thiệp mời người mới chọn Cowdi / quay pet khởi đầu + Thẻ tặng pet | D5, D6, D7, GĐ6–7 | `feat/gacha-*` (chưa mở) | Mô phỏng 100k lượt | ⏳ Planned (GĐ6–7) |
+| `FR-ECO-15` | Thanh toán (Thẻ tháng, Thẻ mùa 30 tầng, gói Gem, giới hạn chi tiêu tài khoản nhỏ tuổi) | D8, GĐ8 (`DEC-06`) | `feat/payments` (chưa mở) | Sandbox cổng thanh toán | ⏳ Planned (GĐ8) |
+
+---
+
+## 3. Phân hệ Chỉnh động tác & Rig Pet (`/admin/pet-motion` & `<PetAvatar>`)
+
+| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn chính | Kiểm thử tự động | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-MOT-01` | Phân quyền quản trị viên (`requireAuth + requireAdmin` kiểm tra DB `is_admin = 1`), chặn ảnh nháp | PET-MOTION | `server/middleware/auth.js`, `server/routes/petMotionAdmin.js` | `server/tests/pet-motion-step1.test.mjs` (5 tests) | 🚀 Production |
+| `FR-MOT-02` | Quản lý kho 23 pet × 5 cấp (tách riêng `bamboo` & `bamboo_spirit`), tải ảnh avatar & rig | PET-MOTION | `src/admin/pet-motion/PetMotionPage.jsx`, `api.js` | `server/tests/pet-motion-step2.test.mjs` | 🚀 Production |
+| `FR-MOT-03` | Upload bộ phận PNG/WebP kiểm tra magic bytes + giới hạn 2 MB, gợi ý kích thước theo cấp & nén WebP tại trình duyệt | PET-MOTION | `server/utils/petMotion.js`, `src/admin/pet-motion/api.js`, `PetMotionPage.jsx` | `server/tests/pet-motion-step2.test.mjs` | 🚀 Production |
+| `FR-MOT-04` | Bàn chỉnh keyframe 15 kênh (căn ngang 1-1), sắp thứ tự lớp `z`, emoji biểu cảm tự thiết kế | PET-MOTION | `src/admin/pet-motion/editor.js`, `shared/pet-motion-labels.js` | `server/tests/pet-motion-step2.test.mjs` | 🚀 Production |
+| `FR-MOT-05` | Trình vẽ sửa trực tiếp PNG Studio 3 cột (đa Layer, 4 vùng chọn, thước pixel, tham chiếu mờ) | PET-MOTION | `src/admin/pet-motion/PartPaintModal.jsx` | Manual / UAT | 🚀 Production |
+| `FR-MOT-06` | Quy trình duyệt rig & duyệt từng clip (chạy thử 1 vòng 1×); API công khai chỉ trả bản đã duyệt | PET-MOTION | `server/routes/petMotionAdmin.js`, `server/routes/petMotionPublic.js` | `server/tests/pet-motion-step2.test.mjs` (6 tests) | 🚀 Production |
+| `FR-MOT-07` | Runtime `<PetAvatar>` / `PetRig` cho người học trên 6 trang, tuân thủ quy tắc fallback mục 4 & cache theo `petId` | PET-MOTION | `src/pet-rig/PetRig.js`, `PetAvatar.jsx`, `motionCache.js` | `src/pet-rig/pet-rig.test.mjs` (9 tests) | 🚀 Production |
+| `FR-MOT-08` | Tab **Xem trước khi học (5.8)** chỉ đọc cho admin (Ở nhà, Quiz 8 câu + mic + đọc mẫu, Trận đấu, Gắn bó 0–1500, Nhật ký đỏ clip chưa duyệt) | Mục 5.8 | `src/admin/pet-motion/StudyPreviewTab.jsx`, `PetRig.js` | `src/pet-rig/pet-rig.test.mjs` (Nghiệm thu Bamboo C3) | 🚀 Production |
+
+---
+
+## 4. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
+
+| Req ID | Hạng mục | Yêu cầu cụ thể | Cách kiểm chứng | Trạng thái |
+|---|---|---|---|---|
+| `NFR-01` | Bảo mật & Chống gian lận | Mọi biến động ví đi qua `wallet_ledger` trên server; admin API xác thực `users.is_admin` từ DB (không tin JWT payload) | `pet-motion-step1.test.mjs`, code review | ✅ Đạt |
+| `NFR-02` | Tương thích Database | Toàn bộ migration SQL & Node runners chạy idempotent trên MySQL 5.5/5.6 → 8.0 & MariaDB (`LONGTEXT`, ≤ 1 `TIMESTAMP` auto, không `JSON_EXTRACT`) | Đã chạy thành công trên production (`cowdi.net`) & local XAMPP | ✅ Đạt |
+| `NFR-03` | An toàn dữ liệu deploy | Gói `deploy.zip` không bao giờ chứa `server/.env` hoặc `server/storage/` | Kiểm tra tự động bằng `unzip -l` khi build gói | ✅ Đạt |
+| `NFR-04` | Chất lượng hiển thị & Accessibility | `PetRig` vẽ tối thiểu `2× DPR`, tôn trọng `prefers-reduced-motion` (biên độ 40%), hỗ trợ fallback ảnh tĩnh không lỗi | `pet-rig.test.mjs` + kiểm tra trực quan | ✅ Đạt |
+| `NFR-05` | Hiệu năng PWA & Cache | `dist-prod/sw.js` precache tài nguyên chính (loại trừ nguồn seed thô `pets/**`), API `GET /api/pet-motion/:petId` cache bộ nhớ | `npm run build:prod`, `pet-rig.test.mjs` | ✅ Đạt |
+| `NFR-06` | Độ tin cậy đồng bộ | `PUT /api/progress` luôn trả ví chuẩn cho cả tài khoản mới lẫn cũ, không bao giờ gây lỗi render `<BookShell>` | `f8baa29`, kiểm thử thực tế tài khoản mới | ✅ Đạt |

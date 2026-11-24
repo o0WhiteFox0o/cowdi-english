@@ -23,7 +23,9 @@ export const PetAvatar = forwardRef(function PetAvatar(
     style,
     imgClassName,
     imgStyle,
+    timeScale = 1,
     onClip,
+    onDiagnostic,
   },
   ref
 ) {
@@ -101,7 +103,9 @@ export const PetAvatar = forwardRef(function PetAvatar(
       mode,
       motion,
       basePath,
+      timeScale,
       onClip,
+      onDiagnostic,
     });
     rigRef.current = rig;
     let active = true;
@@ -144,6 +148,15 @@ export const PetAvatar = forwardRef(function PetAvatar(
   useEffect(() => {
     rigRef.current?.setMode(mode);
   }, [mode]);
+  useEffect(() => {
+    rigRef.current?.setTimeScale(timeScale);
+  }, [timeScale]);
+  useEffect(() => {
+    if (rigRef.current) rigRef.current.o.onDiagnostic = onDiagnostic || null;
+  }, [onDiagnostic]);
+  useEffect(() => {
+    if (rigRef.current) rigRef.current.o.onClip = onClip || null;
+  }, [onClip]);
 
   useImperativeHandle(
     ref,
@@ -155,6 +168,16 @@ export const PetAvatar = forwardRef(function PetAvatar(
           // Chờ tải xong dữ liệu lần đầu rồi phát lại sự kiện mở màn (app_open, lesson_start, battle_start...)
           pendingEventsRef.current.push({ event, data, ts: Date.now() });
           if (pendingEventsRef.current.length > 4) pendingEventsRef.current.shift();
+        } else if (onDiagnostic) {
+          onDiagnostic({
+            event,
+            requested: null,
+            played: null,
+            fallback: false,
+            skipped: true,
+            reason: 'unapproved_rig',
+            currentClip: null,
+          });
         }
       },
       say: (text, ms) => {
@@ -166,9 +189,10 @@ export const PetAvatar = forwardRef(function PetAvatar(
       setVoiceLevel: (v) => {
         if (stageApproved) rigRef.current?.setVoiceLevel(v);
       },
+      getCurrentClip: () => rigRef.current?.cur?.name || null,
       hasApprovedRig: () => stageApproved,
     }),
-    [stageApproved, motion, rigFailed]
+    [stageApproved, motion, rigFailed, onDiagnostic]
   );
 
   if (!stageApproved) {

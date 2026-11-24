@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS user_streak_state (
   clock_last_changed_week VARCHAR(10) DEFAULT NULL,
   today_clock_bonus_lessons TINYINT UNSIGNED NOT NULL DEFAULT 0,
   today_clock_bonus_date DATE DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_streak_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_contracts (
   last_evaluated_date DATE DEFAULT NULL,
   status ENUM('active', 'completed', 'failed') NOT NULL DEFAULT 'active',
   payout_amount INT UNSIGNED NOT NULL DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_contracts_user_status (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

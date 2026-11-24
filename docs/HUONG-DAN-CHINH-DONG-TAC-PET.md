@@ -34,6 +34,21 @@ Truy cập từ menu thanh bên **Chỉnh động tác pet** hoặc trang **Qu�
 
 ## 3. Tạo Rig mới cho một pet-cấp chưa có rig
 
+### 3.1. Gợi ý kích thước ảnh chuẩn theo thiết kế
+
+Khung hiển thị `PetRig` có kích thước logic **420 × 460 px** (vẽ sắc nét ở **2× Retina**). Quy cách ảnh khuyến nghị:
+
+| Loại ảnh | Kích thước khuyến nghị | Giới hạn hợp lý | Định dạng & dung lượng |
+|---|---|---|---|
+| **Rig tách lớp C1–C3** (`Trứng / Baby / Junior`) | **512 × 512 px** | 320 – 700 px | **WebP** (ưu tiên) hoặc **PNG** nền trong suốt, ≤ **2 MB/file** (khuyên 50–250 KB) |
+| **Rig tách lớp C4–C5** (`Super / Huyền thoại`) | **640 × 640 px** | 480 – 800 px | **WebP** hoặc **PNG** nền trong suốt, ≤ **2 MB/file** |
+| **Avatar tĩnh mặc định** (ngoài Tổng quan) | **512 × 512 px** (1:1) | ≥ 320 px | **WebP** nền trong suốt, khuyên ≤ 150 KB (tối đa 2 MB) |
+| **Emoji tự thiết kế** | **128 × 128 – 256 × 256 px** (1:1) | ≤ 512 px | **PNG / WebP** nền trong suốt, ≤ 2 MB |
+
+> **Lưu ý quan trọng:** Tất cả các lớp bộ phận trong cùng 1 cấp (`body`, `head`, `armL`, `armR`, `crown`, `eye0`, `eye1`…) nên xuất **cùng kích thước khung W×H** để tự khớp toạ độ. Nếu lỡ chọn ảnh quá lớn (> 2 MB hoặc > 800 px), bấm nút **✨ Thu gọn về chuẩn (WebP)** ngay trong khung tạo rig để tự động thu nhỏ & nén giữ nền trong suốt.
+
+### 3.2. Các bước tạo rig
+
 Khi mở một pet-cấp chưa có rig, màn hình hiện khung **Tạo rig mới**:
 
 1. **Chọn bộ phận muốn tải**:
@@ -132,6 +147,18 @@ Trong tab **⚙️ Cài đặt** → **Emoji biểu cảm**:
    - Vào tab **⚙️ Cài đặt** → bấm **Xuất bản bản chung**.
    - Hộp thoại liệt kê mọi pet-cấp đang duyệt động tác đó và cho chọn **Chuyển về chờ duyệt lại (mặc định)** hoặc **Giữ nguyên trạng thái duyệt**.
 4. Bấm **Xem như người học** trên thanh công cụ trên cùng để kiểm tra chính xác những gì học sinh sẽ thấy từ API công khai `GET /api/pet-motion/:petId`.
+
+### 8.1. Tab **🧪 Xem trước khi học** (chỉ quản trị viên, chỉ đọc)
+
+Bấm nút **🧪 Xem trước khi học** (từ màn hình Tổng quan hoặc thanh công cụ Bàn chỉnh) để mở phòng kiểm thử dùng chung runtime `PetRig` thật với app người học:
+
+- **Chọn pet, cấp & công tắc nguồn dữ liệu**: chuyển đổi giữa **👁 Bản người học thấy** (`GET /api/pet-motion/:petId`, chỉ phát động tác đã duyệt theo đúng quy tắc fallback) và **📝 Bản nháp** (dữ liệu đang chỉnh).
+- **3 chế độ ngữ cảnh**:
+  - **🏠 Ở nhà**: chạm đầu/thân, kéo thả, chạm 6 lần liên tục (chóng mặt) trực tiếp trên pet; nút **Cho ăn**, **Vắng 1 ngày rồi mở app**, **Tiến hoá** và công tắc **⏩ Tua nhanh ×10** để kiểm tra `sleepy` (6s) / `sleep` (12s).
+  - **📚 Bài học**: quiz mẫu 8 câu từ vựng phát đúng chuỗi sự kiện thật (`lesson_start`, `question_shown`, `answer_correct`, `answer_wrong`, `streak`, `lesson_done`), nút **🎤 Giữ để nói** giả lập micro và nút **🔊 Pet đọc mẫu** (`speechSynthesis`).
+  - **⚔️ Trận đấu**: nút phát đủ 7 sự kiện Đấu trường (`battle_start` → `battle_lose`).
+- **Thanh Gắn bó (0–1500) & Kỹ năng mạnh nhất**: xem trước cử chỉ theo mốc (`60 / 200 / 500 / 1200`) và đạo cụ `prop_<kỹ năng>`.
+- **📋 Nhật ký sự kiện**: hiển thị `sự kiện → clip đã phát`, **đánh dấu đỏ** các clip bị bỏ qua vì chưa duyệt kèm phím tắt mở thẳng bàn chỉnh cho clip còn thiếu. Tab hoàn toàn **chỉ đọc**, không ghi gì lên server.
 
 ---
 
