@@ -13,8 +13,11 @@ import {
   mergeLessonScores,
   sanitizeLearnerGroup,
   sanitizeActivePath,
+  isValidLessonId,
 } from '../utils/wallet.js';
 import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
+import { processInviteActivationReward, releaseDeferredTicketsForMonth } from '../utils/invite-rewards.js';
+import { validateNickname } from '../../shared/friends.js';
 
 const router = express.Router();
 
@@ -22,13 +25,80 @@ const router = express.Router();
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const [[user]] = await pool.execute(
-      'SELECT id, email, display_name, avatar_url, created_at, last_seen_at, is_admin FROM users WHERE id = ?',
+      'SELECT id, email, display_name, avatar_url, nickname, friend_code, created_at, last_seen_at, is_admin FROM users WHERE id = ?',
       [req.user.id]
     );
     if (!user) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
     res.json({ ...user, isAdmin: Boolean(user.is_admin) });
   } catch (err) {
     console.error('GET /api/me error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── PUT /api/me/nickname – đặt/đổi biệt danh (FR-FRD-05) ────────────────────
+router.put('/me/nickname', requireAuth, async (req, res) => {
+  try {
+    const check = validateNickname(req.body?.nickname);
+    if (!check.ok) {
+      return res.status(400).json({ error: check.error, messageVi: check.error });
+    }
+    const nickname = check.value;
+    await pool.execute('UPDATE users SET nickname = ? WHERE id = ?', [nickname, req.user.id]);
+    await pool.execute(
+      `INSERT INTO user_progress (user_id, nickname)
+       VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE nickname = VALUES(nickname)`,
+      [req.user.id, nickname]
+    );
+    res.json({ ok: true, nickname });
+  } catch (err) {
+    console.error('PUT /api/me/nickname error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── GET /api/me/invite-notifications – thông báo thưởng mời 1 lần (FR-RWD-05)
+router.get('/me/invite-notifications', requireAuth, async (req, res) => {
+  try {
+    // Tiện dịp người dùng mở app: giải ngân vé dời sang tháng mới nếu có (BR-04)
+    await releaseDeferredTicketsForMonth(req.user.id).catch(() => {});
+
+    const [rows] = await pool.execute(
+      `SELECT id, kind, ref_id, payload, created_at
+         FROM invite_notifications
+        WHERE user_id = ? AND seen = 0
+        ORDER BY id ASC
+        LIMIT 20`,
+      [req.user.id]
+    );
+    const items = rows.map((r) => {
+      let data = {};
+      try { data = typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {}); } catch {}
+      return { id: r.id, kind: r.kind, refId: r.ref_id, data, createdAt: r.created_at };
+    });
+    res.json({ items });
+  } catch (err) {
+    console.error('GET /api/me/invite-notifications error:', err);
+    res.json({ items: [] });
+  }
+});
+
+// ── POST /api/me/invite-notifications/seen – đánh dấu đã xem ────────────────
+router.post('/me/invite-notifications/seen', requireAuth, async (req, res) => {
+  try {
+    const ids = Array.isArray(req.body?.ids)
+      ? req.body.ids.map((x) => Number(x)).filter((n) => Number.isInteger(n) && n > 0)
+      : [];
+    if (ids.length === 0) return res.json({ ok: true });
+    const placeholders = ids.map(() => '?').join(',');
+    await pool.execute(
+      `UPDATE invite_notifications SET seen = 1 WHERE user_id = ? AND id IN (${placeholders})`,
+      [req.user.id, ...ids]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/me/invite-notifications/seen error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
   }
 });
@@ -236,9 +306,9 @@ router.put('/progress', requireAuth, async (req, res) => {
   const rawCheckpointScores = typeof d.checkpointScores === 'object' && d.checkpointScores !== null ? d.checkpointScores : {};
 
   try {
-    // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX và tránh client cũ ghi đè null
+    // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX, phát hiện bài mới lần đầu (BR-01) và tránh client cũ ghi đè null
     const [[existing]] = await pool.execute(
-      'SELECT learner_group, active_path, lesson_scores, placement FROM user_progress WHERE user_id = ?',
+      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons FROM user_progress WHERE user_id = ?',
       [req.user.id]
     );
     const parseJSON = (val, fallback) => {
@@ -246,6 +316,11 @@ router.put('/progress', requireAuth, async (req, res) => {
       if (typeof val === 'object') return val;
       try { return JSON.parse(val); } catch { return fallback; }
     };
+
+    const existingCompleted = new Set(parseJSON(existing?.completed_lessons, []));
+    const newlyCompletedValidIds = rawCompleted.filter(
+      (id) => isValidLessonId(id) && !existingCompleted.has(id)
+    );
 
     const existingLessonScores = parseJSON(existing?.lesson_scores, {});
     const mergedLessonScores = mergeLessonScores(existingLessonScores, d.lessonScores);
@@ -331,6 +406,16 @@ router.put('/progress', requireAuth, async (req, res) => {
       mergedLessonScores
     );
 
+    // FR-RWD-02: Ghi ngày bài mới lần đầu & kiểm tra thưởng mời bạn ("học thật" BR-01..04)
+    let inviteReward = null;
+    try {
+      inviteReward = await processInviteActivationReward(req.user.id, {
+        newlyCompletedIds: newlyCompletedValidIds,
+      });
+    } catch (invErr) {
+      console.warn('processInviteActivationReward warning:', invErr.message);
+    }
+
     // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày
     const tz = req.headers['x-timezone'] || d.timezone || 'Asia/Ho_Chi_Minh';
     const isLesson = (d.lessonsCompleted > 0) || (rawCompleted.length > 0);
@@ -355,6 +440,7 @@ router.put('/progress', requireAuth, async (req, res) => {
       streak: streakResult.currentStreak,
       streakState,
       streakResult,
+      inviteReward: inviteReward?.activated ? { activated: true, receiverMilkGranted: inviteReward.receiverMilkGranted } : null,
     });
   } catch (err) {
     console.error('PUT /api/progress error:', err);

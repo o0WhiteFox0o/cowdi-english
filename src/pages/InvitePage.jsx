@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { COWDI_IMAGES } from '../data/pets';
+import { getDeviceId } from '../utils/device';
 import Icon from '../components/Icon';
 
 /**
@@ -51,12 +52,18 @@ export default function InvitePage() {
     if (invite.claimed) return;
     (async () => {
       try {
-        const res = await authFetch(`/api/invites/${code}/claim`, { method: 'POST' });
+        const deviceId = getDeviceId();
+        const res = await authFetch(`/api/invites/${code}/claim`, {
+          method: 'POST',
+          headers: deviceId ? { 'X-Device-Id': deviceId } : {},
+          body: JSON.stringify({ deviceId }),
+        });
         const data = await res.json();
         if (res.ok || data.already) {
           setClaimed(true);
           localStorage.removeItem('cowdi_pending_invite');
         } else if (data.error) {
+          localStorage.removeItem('cowdi_pending_invite');
           setError(data.error);
         }
       } catch {
@@ -105,7 +112,6 @@ export default function InvitePage() {
   }
 
   const senderName = invite.sender_name || 'Một người bạn';
-  const senderAvatar = invite.sender_avatar;
 
   return (
     <div style={{
@@ -119,14 +125,9 @@ export default function InvitePage() {
       <Sparkles />
 
       <div className="text-center" style={{ position: 'relative', zIndex: 1 }}>
-        {/* Sender */}
+        {/* Sender (NFR-03: chỉ hiển thị biệt danh, không hiện ảnh Google) */}
         <div className="d-flex justify-content-center align-items-center gap-2 mb-1">
-          {senderAvatar && (
-            <img src={senderAvatar} alt="" width="36" height="36"
-              className="rounded-circle border border-2 border-white"
-              referrerPolicy="no-referrer" />
-          )}
-          <span className="fw-bold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
+          <span className="fw-bold text-white fs-5" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
             {senderName}
           </span>
         </div>

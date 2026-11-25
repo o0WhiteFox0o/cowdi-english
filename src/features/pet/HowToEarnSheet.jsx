@@ -83,6 +83,7 @@ export default function HowToEarnSheet({ open, onClose }) {
               { label: 'Hoàn thành Unit (Checkpoint)', reward: '+1 Gem' },
               { label: 'Unit đạt 100% (toàn bộ bài trọn điểm)', reward: '+2 Gem nữa' },
               { label: 'Tặng pet qua thiệp mời (khi bạn học 3 bài)', reward: '+3 Gem' },
+              { label: 'Mốc mời bạn học thật (3 / 5 / 10 / 20 bạn)', reward: '1–2 Vé gacha + Danh hiệu' },
             ].map((item, idx) => (
               <div key={idx} className="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                 <span>{item.label}</span>

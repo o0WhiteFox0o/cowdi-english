@@ -4,6 +4,7 @@ import BookShell from './components/layout/BookShell';
 import CowdiChat from './components/layout/CowdiChat';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import InviteRewardNotice from './features/invite/InviteRewardNotice';
 import RequireAdmin from './components/RequireAdmin';
 import { SoundProvider } from './hooks/useSound';
 import LearningPathPage from './pages/LearningPathPage';
@@ -99,6 +100,7 @@ export default function App() {
         </main>
       </BookShell>
       <CowdiChat />
+      <InviteRewardNotice />
       <PWAInstallPrompt />
     </ToastProvider>
     </SoundProvider>
