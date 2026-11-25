@@ -1135,16 +1135,18 @@ export default function LessonDetailPage() {
     });
   }
 
-  /* ── Sân khấu Pet Director (giữ mount xuyên suốt bài học, quiz và kết quả; compact khi Quiz) ── */
-  const stageStepLabel = quizMode && finished
-    ? 'Tuyệt vời! Bạn vừa hoàn thành bài kiểm tra.'
+  /* ── Sân khấu Pet Director (giữ mount xuyên suốt; Desktop sticky bên cạnh, Mobile xếp dọc chuẩn V2) ── */
+  const stageHint = quizMode && finished
+    ? 'Xong bài kiểm tra rồi!'
     : quizMode
-      ? `Quiz · Câu ${Math.min(qIndex + 1, quiz.length)}/${quiz.length}`
+      ? `Câu ${Math.min(qIndex + 1, quiz.length)}/${quiz.length} · Cố lên nha!`
       : tab === 'speak'
-        ? `Bài: ${lesson.title} · Nói theo`
+        ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
         : tab === 'listen'
-          ? `Bài: ${lesson.title} · Nghe câu`
-          : `Bài: ${lesson.title} · ${LESSON_STEPS.find((s) => s.key === tab)?.label || 'Học bài'}`;
+          ? 'Nghe kỹ và chọn nghĩa đúng nha!'
+          : tab === 'flashcard'
+            ? 'Chạm thẻ để lật và nghe phát âm!'
+            : '';
 
   const petDock = activePet ? (
     <PetStage
@@ -1153,11 +1155,145 @@ export default function LessonDetailPage() {
       mode={finished ? 'home' : 'lesson'}
       compact={Boolean(quizMode && !finished)}
       streak={streakCount}
-      subtitle={stageStepLabel}
-      maxWidth={quizMode ? 680 : undefined}
+      subtitle={stageHint}
       onSpeak={(en) => speakWord(en, defaultTtsRate, { lang: 'en-US' })}
     />
   ) : null;
+
+  /* ══════════════════════════════════════════
+     TOP CHROME (Tiêu đề + Bước học — luôn ở trên cùng, không bị đẩy xuống dưới PetStage)
+     ══════════════════════════════════════════ */
+  const renderLessonTopChrome = () => (
+    <>
+      {/* Compact Header — mô tả & mục tiêu đưa vào popup để tránh cuộn */}
+      <div className="card shadow-sm mb-2">
+        <div className={`card-header-level ${lesson.level}`}></div>
+        <div className="card-body py-2 px-3">
+          <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <div className="d-flex align-items-center gap-2 flex-wrap" style={{ minWidth: 0 }}>
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
+                <i className="fas fa-arrow-left me-1"></i>Lộ trình
+              </button>
+              <span className="d-inline-flex align-items-center"><Emoji e={lesson.icon} size={26} /></span>
+              <h2 className="fw-bold mb-0 fs-5">{lesson.title}</h2>
+              <span className={`badge badge-level-${lesson.level}`}>
+                {lesson.level === 'starter'
+                  ? '🌱 Mới học'
+                  : lesson.level === 'beginner'
+                    ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
+                    : lesson.level === 'intermediate'
+                      ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
+                      : <><Icon name="dotRed" size={12} /> Nâng cao</>}
+              </span>
+              {userData.completedLessons.includes(lesson.id) && (
+                <span className="badge bg-success"><Icon name="check" size={12} /> Đã xong</span>
+              )}
+            </div>
+
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
+              {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-warning fw-bold"
+                  onClick={() => { setQuizMode(true); restartQuiz(); }}
+                  title={`Làm thử quiz đạt ≥${Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay`}
+                >
+                  ⚡ Làm thử
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setLessonInfoOpen(true)}
+                title="Xem mô tả & mục tiêu bài học"
+              >
+                <Icon name="info" size={14} /> Chi tiết
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Popup thông tin & mục tiêu bài học */}
+      {lessonInfoOpen && (
+        <div className="cowdi-mini-modal-backdrop" onClick={() => setLessonInfoOpen(false)}>
+          <div className="cowdi-mini-modal" role="dialog" aria-label="Thông tin bài học" onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex align-items-center justify-content-between gap-2 pb-2 mb-2 border-bottom">
+              <div className="d-flex align-items-center gap-2">
+                <Emoji e={lesson.icon} size={28} />
+                <h5 className="fw-bold mb-0">{lesson.title}</h5>
+              </div>
+              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setLessonInfoOpen(false)} aria-label="Đóng">✕</button>
+            </div>
+            <div className="d-flex flex-wrap gap-1 mb-2">
+              <span className="badge bg-light text-dark border">{group.title}</span>
+              <span className={`badge badge-level-${lesson.level}`}>{lesson.level}</span>
+            </div>
+            {lesson.description && <p className="text-muted small mb-2">{lesson.description}</p>}
+            {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
+              <div className="mb-2">
+                <div className="small fw-bold mb-1">Mục tiêu sau bài học:</div>
+                <ul className="small text-muted mb-0 ps-3">
+                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
+                </ul>
+              </div>
+            )}
+            {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+              <div className="alert alert-light border mt-2 mb-0 py-2 px-3 small">
+                <strong>Chế độ Luyện thi:</strong> Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
+      <div className="lesson-steps mb-3">
+        <div className="lesson-steps-bar">
+          <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
+          <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
+        </div>
+        <ol className="lesson-steps-list">
+          {requiredSteps.map((s, i) => {
+            const done = !!stepDone[s.key];
+            const locked = rules.lessonOrder === 'sequential' && !done && firstOpenIdx !== -1 && i > firstOpenIdx;
+            const cur = tab === s.key;
+            return (
+              <li key={s.key} className="lesson-step-item">
+                <button
+                  type="button"
+                  className={`lesson-step ${done ? 'done' : ''} ${cur ? 'current' : ''} ${locked ? 'locked' : ''}`}
+                  disabled={locked}
+                  onClick={() => setTab(s.key)}
+                  title={locked ? 'Hoàn thành phần trước để mở' : s.label}
+                >
+                  <span className="lesson-step-dot">
+                    {done && !cur ? <Icon name="check" size={24} /> : locked ? <Icon name="lock" size={18} /> : <Icon name={s.icon} size={24} />}
+                  </span>
+                  <span className="lesson-step-label">{i + 1}. {s.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+        {optionalSteps.length > 0 && (
+          <div className="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
+            <small className="text-muted">Tuỳ chọn:</small>
+            {optionalSteps.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                className={`btn btn-sm ${tab === s.key ? 'btn-cowdi-primary' : stepDone[s.key] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
+                onClick={() => setTab(s.key)}
+              >
+                <Icon name={s.icon} size={14} /> {s.label}{stepDone[s.key] ? ' ✓' : ''}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
 
   /* ══════════════════════════════════════════
      QUIZ RESULT / QUIZ / MAIN LESSON VIEW
@@ -1361,137 +1497,10 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     MAIN LESSON VIEW (Compact 1-row header + info popup)
+     MAIN LESSON VIEW CONTENT
      ══════════════════════════════════════════ */
   return (
-    <div className="fade-in position-relative" ref={confettiRef}>
-      {/* Compact Header — mô tả & mục tiêu đưa vào popup để tránh cuộn */}
-      <div className="card shadow-sm mb-2">
-        <div className={`card-header-level ${lesson.level}`}></div>
-        <div className="card-body py-2 px-3">
-          <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-            <div className="d-flex align-items-center gap-2 flex-wrap" style={{ minWidth: 0 }}>
-              <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
-                <i className="fas fa-arrow-left me-1"></i>Lộ trình
-              </button>
-              <span className="d-inline-flex align-items-center"><Emoji e={lesson.icon} size={26} /></span>
-              <h2 className="fw-bold mb-0 fs-5">{lesson.title}</h2>
-              <span className={`badge badge-level-${lesson.level}`}>
-                {lesson.level === 'starter'
-                  ? '🌱 Mới học'
-                  : lesson.level === 'beginner'
-                    ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
-                    : lesson.level === 'intermediate'
-                      ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
-                      : <><Icon name="dotRed" size={12} /> Nâng cao</>}
-              </span>
-              {userData.completedLessons.includes(lesson.id) && (
-                <span className="badge bg-success"><Icon name="check" size={12} /> Đã xong</span>
-              )}
-            </div>
-
-            <div className="d-flex align-items-center gap-2 flex-shrink-0">
-              {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
-                <button
-                  type="button"
-                  className="btn btn-sm btn-warning fw-bold"
-                  onClick={() => { setQuizMode(true); restartQuiz(); }}
-                  title={`Làm thử quiz đạt ≥${Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay`}
-                >
-                  ⚡ Làm thử
-                </button>
-              )}
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setLessonInfoOpen(true)}
-                title="Xem mô tả & mục tiêu bài học"
-              >
-                <Icon name="info" size={14} /> Chi tiết
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Popup thông tin & mục tiêu bài học */}
-      {lessonInfoOpen && (
-        <div className="cowdi-mini-modal-backdrop" onClick={() => setLessonInfoOpen(false)}>
-          <div className="cowdi-mini-modal" role="dialog" aria-label="Thông tin bài học" onClick={(e) => e.stopPropagation()}>
-            <div className="d-flex align-items-center justify-content-between gap-2 pb-2 mb-2 border-bottom">
-              <div className="d-flex align-items-center gap-2">
-                <Emoji e={lesson.icon} size={28} />
-                <h5 className="fw-bold mb-0">{lesson.title}</h5>
-              </div>
-              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setLessonInfoOpen(false)} aria-label="Đóng">✕</button>
-            </div>
-            <div className="d-flex flex-wrap gap-1 mb-2">
-              <span className="badge bg-light text-dark border">{group.title}</span>
-              <span className={`badge badge-level-${lesson.level}`}>{lesson.level}</span>
-            </div>
-            {lesson.description && <p className="text-muted small mb-2">{lesson.description}</p>}
-            {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
-              <div className="mb-2">
-                <div className="small fw-bold mb-1">Mục tiêu sau bài học:</div>
-                <ul className="small text-muted mb-0 ps-3">
-                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
-                </ul>
-              </div>
-            )}
-            {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
-              <div className="alert alert-light border mt-2 mb-0 py-2 px-3 small">
-                <strong>Chế độ Luyện thi:</strong> Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
-      <div className="lesson-steps mb-3">
-        <div className="lesson-steps-bar">
-          <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
-          <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
-        </div>
-        <ol className="lesson-steps-list">
-          {requiredSteps.map((s, i) => {
-            const done = !!stepDone[s.key];
-            const locked = rules.lessonOrder === 'sequential' && !done && firstOpenIdx !== -1 && i > firstOpenIdx;
-            const cur = tab === s.key;
-            return (
-              <li key={s.key} className="lesson-step-item">
-                <button
-                  type="button"
-                  className={`lesson-step ${done ? 'done' : ''} ${cur ? 'current' : ''} ${locked ? 'locked' : ''}`}
-                  disabled={locked}
-                  onClick={() => setTab(s.key)}
-                  title={locked ? 'Hoàn thành phần trước để mở' : s.label}
-                >
-                  <span className="lesson-step-dot">
-                    {done && !cur ? <Icon name="check" size={24} /> : locked ? <Icon name="lock" size={18} /> : <Icon name={s.icon} size={24} />}
-                  </span>
-                  <span className="lesson-step-label">{i + 1}. {s.label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-        {optionalSteps.length > 0 && (
-          <div className="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
-            <small className="text-muted">Tuỳ chọn:</small>
-            {optionalSteps.map((s) => (
-              <button
-                key={s.key}
-                type="button"
-                className={`btn btn-sm ${tab === s.key ? 'btn-cowdi-primary' : stepDone[s.key] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
-                onClick={() => setTab(s.key)}
-              >
-                <Icon name={s.icon} size={14} /> {s.label}{stepDone[s.key] ? ' ✓' : ''}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="fade-in position-relative">
 
       {/* ── VOCAB TAB (U7: pos, exampleVi + vocabBatchSize = 10) ── */}
       {tab === 'vocab' && (
@@ -1782,14 +1791,6 @@ export default function LessonDetailPage() {
 
       {tab === 'speak' && !speakDone && (
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
-            <div className="card-body text-center py-4">
-              <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="cow" size={56} /><Icon name="mic" size={56} /></div>
-              <h4 className="fw-bold mt-2">Nói theo Cowdi!</h4>
-              <p className="mb-0 opacity-75">Nghe → Nhấn mic → Nói → Xem điểm!</p>
-            </div>
-          </div>
-
           {/* Browser support warning */}
           {!SpeechRecognitionAPI && (
             <div className="alert alert-warning d-flex align-items-center gap-2 mb-3">
@@ -2210,10 +2211,19 @@ export default function LessonDetailPage() {
   };
 
   return (
-    <>
-      {petDock}
-      {renderLessonBody()}
-    </>
+    <div className="fade-in position-relative" ref={confettiRef}>
+      {!quizMode && lesson.format !== 'picture' && renderLessonTopChrome()}
+      <div className="pd-lesson-layout">
+        {petDock && (
+          <aside className="pd-lesson-stage-col">
+            {petDock}
+          </aside>
+        )}
+        <div className="pd-lesson-content-col">
+          {renderLessonBody()}
+        </div>
+      </div>
+    </div>
   );
 }
 

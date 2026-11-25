@@ -2268,10 +2268,16 @@ export default function PracticePage() {
   };
 
   return (
-    <>
-      {petDock}
-      {renderPracticeBody()}
-    </>
+    <div className="pd-lesson-layout">
+      {petDock && (
+        <aside className="pd-lesson-stage-col">
+          {petDock}
+        </aside>
+      )}
+      <div className="pd-lesson-content-col">
+        {renderPracticeBody()}
+      </div>
+    </div>
   );
 }
 

@@ -1,5 +1,6 @@
-// <PetStage> — Sân khấu pet trong bài học & luyện tập (thay .study-pet-dock).
-// Hỗ trợ 2 mật độ: standard (học từ/flashcard/PictureLesson) và compact (Quiz — bảo toàn Zero-Scroll Quiz).
+// <PetStage> — Sân khấu đồng hành cùng Cowdi (khớp phác thảo V2).
+// Desktop (≥ 992px): đứng gọn trong cột đồng hành sticky cạnh nội dung học (không kéo dài trống trải).
+// Mobile (< 992px): thẻ ngang ngay phía trên bài tập (Cowdi trái, bong bóng trắng phải, cỏ cong đáy).
 import { useCallback, useEffect } from 'react';
 import { PetAvatar, bondOf, topSkillOf } from '../pet-rig/PetAvatar';
 import { PET_REGISTRY, getEvolutionInfo } from '../data/pets';
@@ -14,7 +15,6 @@ export default function PetStage({
   subtitle = '',
   streak = 0,
   compact = false,
-  maxWidth,
   slot = 'lesson',
   onSpeak,
 }) {
@@ -44,11 +44,12 @@ export default function PetStage({
   const activeThought = !activeSpeech && thought && thought.slot === slot ? thought.icon : null;
 
   return (
-    <div
-      className={`pd-stage${compact ? ' pd-stage--compact' : ''}`}
-      style={maxWidth ? { maxWidth, marginInline: 'auto' } : undefined}
-    >
+    <div className={`pd-stage${compact ? ' pd-stage--compact' : ''}`}>
+      {/* Nền cỏ cong + 3 hạt trang trí nhẹ theo phác thảo V2 */}
       <div className="pd-stage-grass" aria-hidden="true" />
+      <span className="pd-stage-deco pd-stage-deco--a" aria-hidden="true" />
+      <span className="pd-stage-deco pd-stage-deco--b" aria-hidden="true" />
+      <span className="pd-stage-deco pd-stage-deco--c" aria-hidden="true" />
 
       {streak >= 2 && (
         <span className="pd-stage-streak" aria-label={`Chuỗi ${streak} câu đúng liên tiếp`}>
@@ -56,6 +57,16 @@ export default function PetStage({
         </span>
       )}
 
+      {/* Vùng thoại (trên Desktop nằm trên đầu Cowdi, trên Mobile nằm bên phải Cowdi) */}
+      <div className="pd-stage-speech-zone">
+        {activeSpeech ? (
+          <PetSpeech speech={activeSpeech} placement="right" onSpeak={onSpeak} />
+        ) : subtitle ? (
+          <div className="pd-stage-hint-pill">{subtitle}</div>
+        ) : null}
+      </div>
+
+      {/* Nhân vật Pet sống động đứng trên dải cỏ */}
       <div className="pd-stage-avatar-wrap">
         {activeThought && <PetThought icon={activeThought} className="pd-stage-thought" />}
         <PetAvatar
@@ -73,17 +84,6 @@ export default function PetStage({
           imgClassName="pd-stage-avatar pd-stage-avatar--img"
           onClip={handleClip}
         />
-      </div>
-
-      <div className="pd-stage-right">
-        {activeSpeech ? (
-          <PetSpeech speech={activeSpeech} placement="right" onSpeak={onSpeak} />
-        ) : (
-          <div className="pd-stage-idle">
-            <div className="pd-stage-name">{petName} đang học cùng bạn</div>
-            {subtitle && <div className="pd-stage-sub">{subtitle}</div>}
-          </div>
-        )}
       </div>
     </div>
   );
