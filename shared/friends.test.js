@@ -18,6 +18,8 @@ import {
   getNextMilestone,
   normalizeFriendPair,
   isValidFriendCode,
+  isValidEmail,
+  parseQrPayload,
   validateNickname,
   splitMonthlyTicketAllowance,
 } from './friends.js';
@@ -146,6 +148,15 @@ describe('Bước 1 — Cấu hình & hàm thuần Bạn bè / Thưởng mời b
     assert.equal(validateNickname('Admin Cowdi').ok, false);
     assert.equal(toVietnamDate('2026-11-25T17:30:00Z'), '2026-11-26');
     assert.equal(toVietnamMonth('2026-11-25T17:30:00Z'), '2026-11');
+
+    // Kiểm tra email & phân tích mã QR
+    assert.equal(isValidEmail('Mai@Gmail.com'), true);
+    assert.equal(isValidEmail('khong-hop-le'), false);
+    assert.deepEqual(parseQrPayload('https://cowdi.net/friends?add=ABCD2345'), { type: 'friend_code', code: 'ABCD2345' });
+    assert.deepEqual(parseQrPayload('https://cowdi.net/i/INV23456'), { type: 'invite', code: 'INV23456' });
+    assert.deepEqual(parseQrPayload('ABCD2345'), { type: 'friend_code', code: 'ABCD2345' });
+    assert.deepEqual(parseQrPayload('ban@gmail.com'), { type: 'email', email: 'ban@gmail.com' });
+    assert.equal(parseQrPayload('https://example.com/other'), null);
   });
 
   it('SQL migration server/db/migrate-friends.sql tương thích MySQL 5.5/5.6+ (không USE, không JSON)', () => {

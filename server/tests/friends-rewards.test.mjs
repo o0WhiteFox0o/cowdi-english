@@ -77,10 +77,10 @@ function createRewardsFakeDb({ users = [], invites = [] } = {}) {
         return [{ affectedRows: 1 }];
       }
 
-      if (/^SELECT nickname FROM users WHERE id = \?/i.test(q)) {
+      if (/^SELECT nickname(, display_name)? FROM users WHERE id = \?/i.test(q)) {
         const [uid] = params;
         const u = state.users.find((x) => x.id === uid);
-        return [u ? [{ nickname: u.nickname || null }] : []];
+        return [u ? [{ nickname: u.nickname || null, display_name: u.display_name || null }] : []];
       }
 
       if (/^SELECT COUNT\(\*\) AS n FROM wallet_ledger WHERE user_id = \? AND currency = 'gem' AND reason = 'invite_activated'/i.test(q)) {

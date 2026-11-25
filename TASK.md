@@ -231,6 +231,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-25 | Bạn bè UX | Bỏ form đặt biệt danh riêng (dùng thẳng tên hiển thị tài khoản), thêm tìm & kết bạn bằng email khớp chính xác (`GET /api/friends/lookup`), thêm máy quét QR trong App (`QrScannerModal` camera + chọn ảnh qua `jsqr`), giữ `?add=CODE` qua OAuth cho người chưa cài App, định dạng ngày VN `dd/mm/yyyy` | `main` | 152/152 test pass, build & deploy.zip pass |
 | 2026-11-25 | Bạn bè B1–B7 | Hoàn thiện toàn bộ Phân hệ Bạn bè & Thưởng mời bạn trên nhánh `feat/friends`: migration MySQL 5.5/5.6+, OG `/i/:code` + QR client, biệt danh + chống gian lận + thưởng +3 Gem/+500 Sữa/mốc vé gacha (trần 3/tháng), bạn bè + chặn/báo cáo, thăm pet + thách đấu giao hữu không LP, bạn bè trên bản đồ lộ trình + toast vượt qua, ghi 5 sự kiện `app_events` và kiểm định AT-02..AT-11 | `feat/friends` | 152/152 test pass, build pass |
 | 2026-11-25 | Bạn bè B0 | Bổ sung tài liệu Bạn bè & Thưởng mời bạn (`SRS-FRIENDS-v1.1`, `REFERRAL-GACHA-TICKET`, `TASK-FRIENDS`), đăng ký `REG-DOCUMENTS` và viết báo cáo khảo sát `RPT-FRIENDS-SURVEY.md` | `feat/friends` | Khảo sát 7 điểm, không sửa code |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |

@@ -11,6 +11,7 @@ import {
   getFriendsOverview,
   getFriendPetProfile,
   getFriendsPathProgress,
+  lookupFriendTarget,
   sendFriendRequest,
   acceptFriendRequest,
   declineFriendRequest,
@@ -69,11 +70,32 @@ export function createFriendsRouter({
     }
   });
 
-  // ── POST /api/friends/requests — gửi lời mời kết bạn bằng mã/QR ──────────
+  // ── GET /api/friends/lookup?q= — tìm chính xác theo mã 8 ký tự hoặc email ─
+  router.get('/lookup', authMiddleware, async (req, res) => {
+    try {
+      const result = await lookupFriendTarget(req.user.id, req.query.q, {
+        rateLimiter,
+        db,
+      });
+      if (!result.ok) {
+        return res.status(result.status || 400).json({
+          error: result.error,
+          messageVi: result.messageVi,
+        });
+      }
+      res.json(result);
+    } catch (err) {
+      console.error('GET /api/friends/lookup error:', err);
+      res.status(500).json({ error: 'SERVER_ERROR', messageVi: 'Lỗi server.' });
+    }
+  });
+
+  // ── POST /api/friends/requests — gửi lời mời kết bạn bằng mã/email/QR ────
   router.post('/requests', authMiddleware, async (req, res) => {
     try {
-      const { code, source } = req.body || {};
-      const result = await sendFriendRequest(req.user.id, code, {
+      const { code, email, query, source } = req.body || {};
+      const targetQuery = query || code || email || '';
+      const result = await sendFriendRequest(req.user.id, targetQuery, {
         source: source === 'qr' ? 'qr' : 'code',
         rateLimiter,
         db,

@@ -164,7 +164,7 @@ export default function FriendPetPage() {
           </div>
           {profile.lastActiveDate && (
             <div className="col-12 mt-2 pt-2 border-top text-muted">
-              📅 Ngày học gần nhất: <strong>{profile.lastActiveDate}</strong>
+              📅 Ngày học gần nhất: <strong>{Number.isNaN(new Date(profile.lastActiveDate).getTime()) ? profile.lastActiveDate : new Date(profile.lastActiveDate).toLocaleDateString('vi-VN')}</strong>
             </div>
           )}
         </div>

@@ -18,7 +18,7 @@ function createVisitFakeDb({ users = [], progress = [], friendships = [] } = {})
         const row = friendships.find((f) => f.user_low === low && f.user_high === high);
         return [row ? [row] : []];
       }
-      if (/^SELECT u\.id, u\.nickname, up\.pet_data, up\.learner_group, up\.active_path, up\.last_active_date/i.test(q)) {
+      if (/^SELECT u\.id, u\.nickname, u\.display_name, up\.nickname AS progress_nickname, up\.pet_data/i.test(q)) {
         const uid = params[0];
         const u = users.find((x) => x.id === uid);
         if (!u) return [[]];
@@ -26,6 +26,8 @@ function createVisitFakeDb({ users = [], progress = [], friendships = [] } = {})
         return [[{
           id: u.id,
           nickname: u.nickname,
+          display_name: u.display_name || '',
+          progress_nickname: p.nickname || null,
           pet_data: p.pet_data || null,
           learner_group: p.learner_group || null,
           active_path: p.active_path || null,

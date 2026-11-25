@@ -180,12 +180,12 @@ export async function processInviteActivationReward(
       return { activated: false, reason: 'already_rewarded' };
     }
 
-    // Lấy biệt danh người được mời cho thông báo (BR-08: không dùng tên thật Google)
+    // Lấy tên hiển thị người được mời cho thông báo
     const [[receiverRow]] = await conn.execute(
-      'SELECT nickname FROM users WHERE id = ?',
+      'SELECT nickname, display_name FROM users WHERE id = ?',
       [receiverUserId]
     );
-    const receiverNick = receiverRow?.nickname || 'Bạn mới';
+    const receiverNick = receiverRow?.nickname || receiverRow?.display_name || 'Bạn mới';
 
     // 5. Thưởng người gửi: +3 Gem (BR-02: tối đa 10 lần / tháng dương lịch)
     const [[monthGemRow]] = await conn.execute(
@@ -341,7 +341,7 @@ export async function getInviteStats(userId, now = new Date(), db = pool) {
   );
 
   const [[userRow]] = await db.execute(
-    'SELECT nickname FROM users WHERE id = ?',
+    'SELECT nickname, display_name FROM users WHERE id = ?',
     [userId]
   );
 
@@ -365,7 +365,7 @@ export async function getInviteStats(userId, now = new Date(), db = pool) {
   const nextMilestone = getNextMilestone(activatedCount);
 
   return {
-    nickname: userRow?.nickname || null,
+    nickname: userRow?.nickname || userRow?.display_name || null,
     sentCount,
     claimedCount,
     activatedCount,

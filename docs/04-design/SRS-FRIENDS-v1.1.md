@@ -117,10 +117,10 @@ Khách (chưa đăng nhập), Người dùng, Hệ thống (server), Quản tr�
 | ID | Yêu cầu | Ưu tiên |
 |---|---|---|
 | FR-FRD-01 | Nhận thiệp thành công → tự tạo quan hệ bạn bè `accepted` giữa người gửi và người nhận (`source='invite'`). | Must |
-| FR-FRD-02 | Mỗi người dùng có `friend_code` 8 ký tự (bảng chữ giống mã thiệp), cấp lười. Kết bạn với người **đã có tài khoản** bằng nhập mã hoặc quét QR của mã bạn bè. Không có tìm kiếm theo tên/email. | Must |
+| FR-FRD-02 | Mỗi người dùng có `friend_code` 8 ký tự (bảng chữ giống mã thiệp), cấp lười. Kết bạn với người **đã có tài khoản** bằng nhập mã bạn bè, nhập **email khớp chính xác** (không gợi ý/autocomplete, giới hạn 20 lần/giờ, không trả email ra response), hoặc quét QR (bằng máy quét QR trong app hỗ trợ camera + ảnh, hoặc bằng Camera điện thoại/Zalo mở `/friends?add=<code>`). | Must |
 | FR-FRD-03 | Lời mời kết bạn: chấp nhận / từ chối. Hai bên cùng gửi → tự `accepted`. | Must |
-| FR-FRD-04 | Huỷ kết bạn; chặn (không gửi lời mời được, ẩn khỏi bản đồ của nhau); bỏ chặn; báo cáo. | Must |
-| FR-FRD-05 | Biệt danh 2–20 ký tự, lọc từ cấm cơ bản; hỏi lần đầu vào trang Bạn bè hoặc lần đầu tạo thiệp. Thiệp mới dùng biệt danh cho `sender_name` thay cho tên Google. | Must |
+| FR-FRD-04 | Huỷ kết bạn; chặn (không gửi lời mời được, ẩn khỏi tìm kiếm và bản đồ của nhau); bỏ chặn; báo cáo. | Must |
+| FR-FRD-05 | **Cập nhật 25/11/2026 (PO chốt):** Bỏ bước bắt buộc đặt biệt danh riêng ở trang Bạn bè / InviteSheet; dùng thống nhất **tên hiển thị sẵn có trong Tài khoản** (`AccountPage`, đồng bộ `pet_data.nickname` → `users.nickname` → `users.display_name`). | Must |
 | FR-FRD-06 | Trang Bạn bè: tab Bạn bè (pet chính, cấp, nhóm học, ngày học gần nhất) · Lời mời · Thêm bạn (mã, QR, nút "Gửi thiệp cho người mới" mở `InviteSheet`). | Must |
 
 ### 3.4 FR-VIS — Thăm pet & thách đấu (Must)

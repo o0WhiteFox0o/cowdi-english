@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../components/layout/Toast';
 import { PET_REGISTRY, getEvolutionInfo } from '../data/pets';
+import { parseQrPayload } from '../../shared/friends';
 import { generateQrDataUrl } from '../utils/qr';
+import QrScannerModal from '../components/QrScannerModal';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon from '../components/Icon';
 
@@ -14,31 +16,39 @@ const GROUP_LABELS = {
 };
 
 const REPORT_REASONS = [
-  { id: 'inappropriate_nickname', label: 'Biệt danh không phù hợp' },
+  { id: 'inappropriate_nickname', label: 'Tên hiển thị không phù hợp' },
   { id: 'spam', label: 'Làm phiền / spam lời mời' },
   { id: 'harassment', label: 'Hành vi quấy rối' },
   { id: 'other', label: 'Lý do khác' },
 ];
 
+function formatViDate(raw) {
+  if (!raw) return '';
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return String(raw);
+  return d.toLocaleDateString('vi-VN');
+}
+
 export default function FriendsPage() {
   const { user, token, loginWithGoogle, authFetch } = useAuth();
   const showToast = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [tab, setTab] = useState('friends'); // 'friends' | 'requests' | 'add'
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
-  // Nickname setup (FR-FRD-05)
-  const [nickInput, setNickInput] = useState('');
-  const [nickSaving, setNickSaving] = useState(false);
-  const [nickError, setNickError] = useState(null);
+  // Tìm kiếm & kết bạn bằng mã 8 ký tự hoặc email chính xác
+  const [searchInput, setSearchInput] = useState('');
+  const [searchSource, setSearchSource] = useState('code'); // 'code' | 'qr'
+  const [searching, setSearching] = useState(false);
+  const [lookupResult, setLookupResult] = useState(null); // { found, user, messageVi }
+  const [sendingRequest, setSendingRequest] = useState(false);
 
-  // Add friend by code / QR
-  const [codeInput, setCodeInput] = useState('');
-  const [codeSource, setCodeSource] = useState('code');
-  const [submittingCode, setSubmittingCode] = useState(false);
+  // QR cá nhân
   const [myQrSrc, setMyQrSrc] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -48,16 +58,21 @@ export default function FriendsPage() {
   const [reportReason, setReportReason] = useState('inappropriate_nickname');
   const [busyAction, setBusyAction] = useState(false);
 
+  // Nếu người dùng chưa đăng nhập mà quét QR /friends?add=CODE -> lưu lại chờ OAuth xong quay về
+  const pendingAddCode = searchParams.get('add');
+  useEffect(() => {
+    if (!user && pendingAddCode && /^[A-Z0-9]{8}$/i.test(pendingAddCode)) {
+      localStorage.setItem('cowdi_pending_friend_add', pendingAddCode.toUpperCase());
+    }
+  }, [user, pendingAddCode]);
+
   const loadFriends = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
       const res = await authFetch('/api/friends');
       const json = await res.json();
-      if (res.ok) {
-        setData(json);
-        if (json.nickname) setNickInput(json.nickname);
-      }
+      if (res.ok) setData(json);
     } catch {
       showToast('Không tải được danh sách bạn bè.', 'danger');
     } finally {
@@ -69,19 +84,43 @@ export default function FriendsPage() {
     loadFriends();
   }, [loadFriends]);
 
-  // Hỗ trợ quét QR link /friends?add=CODE
+  const runLookup = useCallback(async (queryText, source = 'code') => {
+    const cleaned = String(queryText || '').trim();
+    if (!cleaned || !token) return;
+    setSearching(true);
+    setLookupResult(null);
+    setSearchSource(source);
+    try {
+      const res = await authFetch(`/api/friends/lookup?q=${encodeURIComponent(cleaned)}`);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLookupResult({ found: false, messageVi: json.messageVi || json.error || 'Không tìm được người dùng.' });
+        return;
+      }
+      setLookupResult(json);
+    } catch {
+      showToast('Không kết nối được máy chủ.', 'danger');
+    } finally {
+      setSearching(false);
+    }
+  }, [token, authFetch, showToast]);
+
+  // Hỗ trợ mở link từ Camera/Zalo: /friends?add=CODE (khi đã đăng nhập)
   useEffect(() => {
+    if (!user || !token) return;
     const addCode = searchParams.get('add');
     if (addCode) {
-      setCodeInput(addCode.toUpperCase());
-      setCodeSource('qr');
+      const normalized = addCode.trim().toUpperCase();
+      setSearchInput(normalized);
       setTab('add');
       searchParams.delete('add');
       setSearchParams(searchParams, { replace: true });
+      localStorage.removeItem('cowdi_pending_friend_add');
+      runLookup(normalized, 'qr');
     }
-  }, [searchParams, setSearchParams]);
+  }, [user, token, searchParams, setSearchParams, runLookup]);
 
-  // Tạo QR mã bạn bè tại client (dùng chung src/utils/qr.js)
+  // Tạo QR mã bạn bè tại client (URL đầy đủ để người chưa cài App cũng quét được bằng Camera/Zalo)
   useEffect(() => {
     let cancelled = false;
     const fc = data?.friendCode;
@@ -90,44 +129,25 @@ export default function FriendsPage() {
       return () => { cancelled = true; };
     }
     const qrUrl = `${window.location.origin}/friends?add=${fc}`;
-    generateQrDataUrl(qrUrl, 240)
+    generateQrDataUrl(qrUrl, 260)
       .then((src) => { if (!cancelled) setMyQrSrc(src); })
       .catch(() => { if (!cancelled) setMyQrSrc(''); });
     return () => { cancelled = true; };
   }, [data?.friendCode]);
 
-  async function handleSaveNickname(e) {
+  async function handleSearchSubmit(e) {
     e.preventDefault();
-    setNickSaving(true);
-    setNickError(null);
-    try {
-      const res = await authFetch('/api/me/nickname', {
-        method: 'PUT',
-        body: JSON.stringify({ nickname: nickInput }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setNickError(json.error || 'Biệt danh không hợp lệ.');
-        return;
-      }
-      showToast(`Đã đặt biệt danh "${json.nickname}"!`, 'success');
-      setData((prev) => (prev ? { ...prev, nickname: json.nickname } : prev));
-    } catch {
-      setNickError('Không lưu được biệt danh.');
-    } finally {
-      setNickSaving(false);
-    }
+    await runLookup(searchInput, 'code');
   }
 
-  async function handleSendRequest(e) {
-    e.preventDefault();
-    const cleaned = codeInput.trim().toUpperCase();
-    if (!cleaned) return;
-    setSubmittingCode(true);
+  async function handleSendRequest(targetQuery, source = searchSource) {
+    const q = String(targetQuery || searchInput).trim();
+    if (!q) return;
+    setSendingRequest(true);
     try {
       const res = await authFetch('/api/friends/requests', {
         method: 'POST',
-        body: JSON.stringify({ code: cleaned, source: codeSource }),
+        body: JSON.stringify({ query: q, source }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -138,17 +158,45 @@ export default function FriendsPage() {
         showToast(`🎉 Hai bạn đã trở thành bạn bè với ${json.friend?.nickname || 'bạn mới'}!`, 'success');
         setTab('friends');
       } else {
-        showToast(`Đã gửi lời mời kết bạn tới ${json.friend?.nickname || cleaned}!`, 'success');
+        showToast(`Đã gửi lời mời kết bạn tới ${json.friend?.nickname || q}!`, 'success');
         setTab('requests');
       }
-      setCodeInput('');
-      setCodeSource('code');
+      setSearchInput('');
+      setLookupResult(null);
+      setSearchSource('code');
       loadFriends();
     } catch {
       showToast('Không kết nối được máy chủ.', 'danger');
     } finally {
-      setSubmittingCode(false);
+      setSendingRequest(false);
     }
+  }
+
+  function handleQrDetected(rawText) {
+    setScannerOpen(false);
+    const parsed = parseQrPayload(rawText);
+    if (!parsed) {
+      showToast('Mã QR này không phải mã bạn bè hoặc thiệp mời Cowdi.', 'warning');
+      return;
+    }
+    if (parsed.type === 'invite') {
+      navigate(`/i/${parsed.code}`);
+      return;
+    }
+    const queryValue = parsed.type === 'friend_code' ? parsed.code : parsed.email;
+    setTab('add');
+    setSearchInput(queryValue);
+    runLookup(queryValue, 'qr');
+  }
+
+  function handleDownloadMyQr() {
+    if (!myQrSrc || !data?.friendCode) return;
+    const a = document.createElement('a');
+    a.href = myQrSrc;
+    a.download = `cowdi-friend-${data.friendCode}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   async function handleAccept(userId) {
@@ -160,6 +208,7 @@ export default function FriendsPage() {
         showToast(json.messageVi || json.error || 'Không chấp nhận được.', 'warning');
       } else {
         showToast('🎉 Đã chấp nhận lời mời kết bạn!', 'success');
+        setLookupResult(null);
         loadFriends();
       }
     } finally {
@@ -172,7 +221,7 @@ export default function FriendsPage() {
     try {
       const res = await authFetch(`/api/friends/requests/${userId}/decline`, { method: 'POST' });
       if (res.ok) {
-        showToast('Đã từ chối / huỷ lời mời.', 'info');
+        showToast('Đã từ chối / thu hồi lời mời.', 'info');
         loadFriends();
       }
     } finally {
@@ -248,9 +297,13 @@ export default function FriendsPage() {
       <div className="container py-5 text-center" style={{ maxWidth: 520 }}>
         <div className="card border-0 shadow-sm p-4 rounded-4">
           <div className="fs-1 mb-2">🤝</div>
-          <h4 className="fw-bold mb-2">Bạn bè &amp; Học cùng nhau</h4>
+          <h4 className="fw-bold mb-2">
+            {pendingAddCode ? `Kết bạn với mã ${pendingAddCode.toUpperCase()}` : 'Bạn bè & Học cùng nhau'}
+          </h4>
           <p className="text-muted small mb-3">
-            Đăng nhập để kết bạn, thăm pet của nhau, thách đấu và cùng đua tiến độ trên lộ trình học!
+            {pendingAddCode
+              ? 'Đăng nhập Google để tự động tìm tài khoản này và gửi lời mời kết bạn ngay!'
+              : 'Đăng nhập để kết bạn, thăm pet của nhau, thách đấu và cùng đua tiến độ trên lộ trình học!'}
           </p>
           <button className="btn btn-cowdi-primary" onClick={loginWithGoogle}>
             Đăng nhập bằng Google
@@ -264,7 +317,7 @@ export default function FriendsPage() {
   const incoming = data?.incomingRequests || [];
   const outgoing = data?.outgoingRequests || [];
   const blocked = data?.blocked || [];
-  const needsNickname = !loading && data && !data.nickname;
+  const myDisplayName = data?.nickname || user.display_name || '';
 
   return (
     <div className="container py-3" style={{ maxWidth: 760 }}>
@@ -273,41 +326,25 @@ export default function FriendsPage() {
           <h3 className="fw-bold mb-0">🤝 Bạn bè</h3>
           <div className="text-muted small">
             {friends.length}/{data?.limits?.maxFriends || 100} bạn bè
-            {data?.nickname ? ` · Biệt danh: ${data.nickname}` : ''}
+            {myDisplayName && (
+              <>
+                {' · '}Tên hiển thị: <strong>{myDisplayName}</strong>{' '}
+                (<Link to="/account" className="text-decoration-none">đổi ở Tài khoản</Link>)
+              </>
+            )}
           </div>
         </div>
-        <button className="btn btn-cowdi-primary btn-sm" onClick={() => setInviteOpen(true)}>
-          <Icon name="gift" size={16} /> Gửi thiệp cho người mới
-        </button>
+        <div className="d-flex gap-2 flex-wrap">
+          <button className="btn btn-outline-primary btn-sm" onClick={() => setScannerOpen(true)}>
+            📷 Quét mã QR
+          </button>
+          <button className="btn btn-cowdi-primary btn-sm" onClick={() => setInviteOpen(true)}>
+            <Icon name="gift" size={16} /> Gửi thiệp cho người mới
+          </button>
+        </div>
       </div>
 
-      {/* Hỏi biệt danh lần đầu vào trang Bạn bè (FR-FRD-05) */}
-      {needsNickname && (
-        <form onSubmit={handleSaveNickname} className="card border-warning bg-light p-3 rounded-4 mb-3">
-          <h6 className="fw-bold mb-1">Đặt biệt danh hiển thị với bạn bè</h6>
-          <p className="text-muted small mb-2">
-            Cowdi chỉ hiển thị biệt danh và pet của bạn — không bao giờ hiển thị tên thật hay email Google.
-          </p>
-          <div className="input-group input-group-sm" style={{ maxWidth: 420 }}>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Nhập biệt danh (2–20 ký tự)..."
-              value={nickInput}
-              minLength={2}
-              maxLength={20}
-              onChange={(e) => setNickInput(e.target.value)}
-              required
-            />
-            <button type="submit" className="btn btn-cowdi-primary" disabled={nickSaving}>
-              {nickSaving ? 'Đang lưu...' : 'Lưu biệt danh'}
-            </button>
-          </div>
-          {nickError && <div className="text-danger small mt-1">{nickError}</div>}
-        </form>
-      )}
-
-      {/* 3 Tab chính (FR-FRD-06) */}
+      {/* 3 Tab chính */}
       <ul className="nav nav-pills mb-3 gap-2">
         <li className="nav-item">
           <button
@@ -354,14 +391,14 @@ export default function FriendsPage() {
             <div className="fs-2 mb-2">🥚</div>
             <h6 className="fw-bold">Chưa có bạn bè nào</h6>
             <p className="text-muted small mb-3">
-              Mời bạn mới nhận trứng Cowdi hoặc kết bạn với người đã có tài khoản bằng mã bạn bè!
+              Tìm bạn bằng email, nhập mã bạn bè, quét mã QR hoặc gửi thiệp mời cho người mới!
             </p>
             <div className="d-flex justify-content-center gap-2 flex-wrap">
-              <button className="btn btn-cowdi-primary btn-sm" onClick={() => setInviteOpen(true)}>
-                <Icon name="gift" size={16} /> Gửi thiệp cho người mới
+              <button className="btn btn-cowdi-primary btn-sm" onClick={() => setTab('add')}>
+                🔍 Tìm bạn / Quét QR
               </button>
-              <button className="btn btn-outline-secondary btn-sm" onClick={() => setTab('add')}>
-                Nhập mã bạn bè
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => setInviteOpen(true)}>
+                <Icon name="gift" size={16} /> Gửi thiệp cho người mới
               </button>
             </div>
           </div>
@@ -391,7 +428,7 @@ export default function FriendsPage() {
                         </div>
                         <div className="text-muted small">
                           {f.learnerGroup ? `Nhóm: ${GROUP_LABELS[f.learnerGroup] || f.learnerGroup}` : 'Chưa chọn nhóm'}
-                          {f.lastActiveDate ? ` · Học gần nhất: ${f.lastActiveDate}` : ''}
+                          {f.lastActiveDate ? ` · Học gần nhất: ${formatViDate(f.lastActiveDate)}` : ''}
                         </div>
                       </div>
                     </div>
@@ -502,37 +539,100 @@ export default function FriendsPage() {
         </div>
       )}
 
-      {/* TAB 3: THÊM BẠN (MÃ BẠN BÈ, QR & GỬI THIỆP NGƯỜI MỚI) */}
+      {/* TAB 3: THÊM BẠN (TÌM EMAIL / MÃ BẠN BÈ, QUÉT QR TRONG APP & MÃ QR CÁ NHÂN) */}
       {!loading && tab === 'add' && (
         <div className="row g-3">
           <div className="col-md-6">
             <div className="card border-0 shadow-sm rounded-4 p-3 h-100">
-              <h6 className="fw-bold mb-2">Nhập mã bạn bè (người đã có tài khoản)</h6>
+              <h6 className="fw-bold mb-2">Tìm bạn đã có tài khoản</h6>
               <p className="text-muted small mb-2">
-                Nhập mã 8 ký tự của bạn bè để gửi lời mời kết bạn. Hai bên cùng gửi sẽ tự động thành bạn!
+                Nhập <strong>email chính xác</strong> hoặc <strong>mã bạn bè 8 ký tự</strong>, hoặc bấm quét mã QR.
               </p>
-              <form onSubmit={handleSendRequest}>
+
+              <form onSubmit={handleSearchSubmit} className="mb-2">
                 <div className="input-group mb-2">
                   <input
                     type="text"
-                    className="form-control text-uppercase fw-bold"
-                    placeholder="VD: ABCD2345"
-                    maxLength={8}
-                    value={codeInput}
-                    onChange={(e) => { setCodeInput(e.target.value.toUpperCase()); setCodeSource('code'); }}
+                    className="form-control"
+                    placeholder="VD: banbe@gmail.com hoặc ABCD2345"
+                    value={searchInput}
+                    onChange={(e) => { setSearchInput(e.target.value); setSearchSource('code'); }}
                     required
                   />
-                  <button type="submit" className="btn btn-cowdi-primary" disabled={submittingCode}>
-                    {submittingCode ? 'Đang gửi...' : 'Gửi lời mời'}
+                  <button type="submit" className="btn btn-cowdi-primary" disabled={searching}>
+                    {searching ? '...' : '🔍 Tìm'}
                   </button>
                 </div>
               </form>
-              <hr />
+
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm w-100 mb-3"
+                onClick={() => setScannerOpen(true)}
+              >
+                📷 Quét mã QR bằng Camera / Ảnh
+              </button>
+
+              {/* Kết quả tìm kiếm chính xác */}
+              {lookupResult && !lookupResult.found && (
+                <div className="alert alert-light border small py-2 mb-3">
+                  {lookupResult.messageVi || 'Không tìm thấy tài khoản khớp chính xác.'}
+                </div>
+              )}
+
+              {lookupResult?.found && lookupResult.user && (() => {
+                const u = lookupResult.user;
+                const evo = getEvolutionInfo(u.petId || 'cowdi', u.petEvolution || 0);
+                const species = PET_REGISTRY[u.petId] || PET_REGISTRY.cowdi;
+                return (
+                  <div className="border rounded-3 p-3 bg-light mb-3">
+                    <div className="d-flex align-items-center gap-2 mb-2">
+                      <img src={evo?.image} alt="" width="44" height="44" className="rounded-circle bg-white border p-1" style={{ objectFit: 'contain' }} />
+                      <div>
+                        <div className="fw-bold">{u.nickname}</div>
+                        <div className="small text-muted">
+                          {species?.name || 'Cowdi'} · C{(u.petEvolution || 0) + 1}
+                          {u.learnerGroup ? ` · ${GROUP_LABELS[u.learnerGroup] || u.learnerGroup}` : ''}
+                        </div>
+                      </div>
+                    </div>
+                    {u.relationStatus === 'accepted' ? (
+                      <Link to={`/friends/${u.userId}`} className="btn btn-sm btn-success w-100">
+                        ✓ Đã là bạn bè — Thăm pet
+                      </Link>
+                    ) : u.relationStatus === 'outgoing' ? (
+                      <button type="button" className="btn btn-sm btn-secondary w-100" disabled>
+                        ⏳ Đã gửi lời mời (đang chờ đồng ý)
+                      </button>
+                    ) : u.relationStatus === 'incoming' ? (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-success w-100"
+                        disabled={busyAction}
+                        onClick={() => handleAccept(u.userId)}
+                      >
+                        ✓ Bạn này đã gửi lời mời — Chấp nhận ngay
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-cowdi-primary w-100"
+                        disabled={sendingRequest}
+                        onClick={() => handleSendRequest(u.friendCode || searchInput, searchSource)}
+                      >
+                        {sendingRequest ? 'Đang gửi...' : '➕ Gửi lời mời kết bạn'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+
+              <hr className="my-2" />
               <h6 className="fw-bold mb-1">Bạn của bạn chưa có tài khoản?</h6>
               <p className="text-muted small mb-2">
-                Gửi thiệp mời tặng trứng Cowdi — hai bạn sẽ tự động kết bạn và cùng nhận thưởng!
+                Gửi thiệp mời tặng trứng Cowdi — hai bạn sẽ tự động kết bạn và cùng nhận thưởng (+3 💎 / +500 🥛)!
               </p>
-              <button className="btn btn-outline-primary btn-sm w-100" onClick={() => setInviteOpen(true)}>
+              <button className="btn btn-outline-success btn-sm w-100" onClick={() => setInviteOpen(true)}>
                 <Icon name="gift" size={16} /> Gửi thiệp cho người mới
               </button>
             </div>
@@ -540,7 +640,7 @@ export default function FriendsPage() {
 
           <div className="col-md-6">
             <div className="card border-0 shadow-sm rounded-4 p-3 h-100 text-center">
-              <h6 className="fw-bold mb-1">Mã bạn bè của bạn</h6>
+              <h6 className="fw-bold mb-1">Mã bạn bè &amp; QR của bạn</h6>
               <div className="d-flex justify-content-center align-items-center gap-2 my-2">
                 <span className="fs-4 fw-bold font-monospace px-3 py-1 bg-light border rounded-3">
                   {data?.friendCode || '--------'}
@@ -552,17 +652,24 @@ export default function FriendsPage() {
               {myQrSrc && (
                 <div className="my-2">
                   <img src={myQrSrc} alt="QR mã bạn bè" width="180" height="180" className="border rounded-3 p-1" />
+                  <div className="mt-2">
+                    <button type="button" className="btn btn-sm btn-outline-secondary" onClick={handleDownloadMyQr}>
+                      📥 Tải ảnh QR để gửi Zalo
+                    </button>
+                  </div>
                 </div>
               )}
-              <p className="text-muted small mb-0">
-                Đưa mã này cho bạn bè đã có tài khoản Cowdi để quét hoặc nhập kết bạn.
-              </p>
+              <div className="text-muted small text-start bg-light rounded-3 p-2 mt-2">
+                <div><strong>Cách quét mã QR này:</strong></div>
+                <div>• <strong>Bạn đã mở App Cowdi:</strong> vào <em>Bạn bè → 📷 Quét mã QR</em> (quét trực tiếp hoặc chọn ảnh QR).</div>
+                <div>• <strong>Bạn chưa cài App / chưa mở Cowdi:</strong> dùng <strong>Camera điện thoại hoặc Zalo</strong> quét thẳng mã này → trình duyệt tự mở Cowdi, đăng nhập và kết bạn ngay!</div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal xác nhận huỷ kết bạn / chặn (thay window.confirm) */}
+      {/* Modal xác nhận huỷ kết bạn / chặn */}
       {confirmAction && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
@@ -575,8 +682,8 @@ export default function FriendsPage() {
             </h6>
             <p className="text-muted small mb-3">
               {confirmAction.type === 'block'
-                ? 'Người bị chặn sẽ không thể gửi lời mời kết bạn, không thách đấu và sẽ ẩn khỏi lộ trình của nhau.'
-                : 'Hai bạn có thể kết bạn lại sau bằng mã bạn bè.'}
+                ? 'Người bị chặn sẽ không thể tìm thấy, gửi lời mời kết bạn, thách đấu và sẽ ẩn khỏi lộ trình của nhau.'
+                : 'Hai bạn có thể kết bạn lại sau bằng email, mã bạn bè hoặc QR.'}
             </p>
             <div className="d-flex justify-content-end gap-2">
               <button className="btn btn-sm btn-light" onClick={() => setConfirmAction(null)}>Đóng</button>
@@ -592,7 +699,7 @@ export default function FriendsPage() {
         </div>
       )}
 
-      {/* Modal báo cáo (FR-FRD-04) */}
+      {/* Modal báo cáo */}
       {reportTarget && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
@@ -625,6 +732,12 @@ export default function FriendsPage() {
           </form>
         </div>
       )}
+
+      <QrScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onDetected={handleQrDetected}
+      />
 
       <InviteSheet open={inviteOpen} onClose={() => setInviteOpen(false)} />
     </div>

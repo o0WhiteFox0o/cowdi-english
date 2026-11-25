@@ -11,6 +11,8 @@ import {
   normalizeFriendPair,
   normalizeFriendCode,
   isValidFriendCode,
+  normalizeEmail,
+  isValidEmail,
 } from '../../shared/friends.js';
 
 const REPORT_REASONS = new Set([
@@ -72,16 +74,42 @@ export function extractActivePetPublic(rawPetData) {
 }
 
 /**
+ * Lấy tên hiển thị thống nhất từ tài khoản (đồng bộ với AccountPage):
+ * Ưu tiên tên hiển thị người dùng đã đặt trong Tài khoản -> users.nickname -> display_name Google.
+ */
+export function resolveUserDisplayName({ petData, userNickname, progressNickname, displayName } = {}) {
+  let petNick = null;
+  if (petData) {
+    let pd = petData;
+    if (typeof pd === 'string') {
+      try { pd = JSON.parse(pd); } catch { pd = null; }
+    }
+    if (pd && typeof pd.nickname === 'string' && pd.nickname.trim()) {
+      petNick = pd.nickname.trim();
+    }
+  }
+  const candidates = [petNick, userNickname, progressNickname, displayName];
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim()) return c.trim().slice(0, 40);
+  }
+  return 'Người dùng Cowdi';
+}
+
+/**
  * FR-FRD-02: Cấp lười mã bạn bè 8 ký tự duy nhất cho user.
  */
 export async function ensureFriendCode(userId, db = pool) {
   const [[row]] = await db.execute(
-    'SELECT friend_code, nickname FROM users WHERE id = ?',
+    'SELECT friend_code, nickname, display_name FROM users WHERE id = ?',
     [userId]
   );
   if (!row) return null;
+  const resolvedName = resolveUserDisplayName({
+    userNickname: row.nickname,
+    displayName: row.display_name,
+  });
   if (row.friend_code) {
-    return { friendCode: row.friend_code, nickname: row.nickname || null };
+    return { friendCode: row.friend_code, nickname: resolvedName };
   }
 
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -96,11 +124,17 @@ export async function ensureFriendCode(userId, db = pool) {
       [candidate, userId]
     );
     const [[after]] = await db.execute(
-      'SELECT friend_code, nickname FROM users WHERE id = ?',
+      'SELECT friend_code, nickname, display_name FROM users WHERE id = ?',
       [userId]
     );
     if (after?.friend_code) {
-      return { friendCode: after.friend_code, nickname: after.nickname || null };
+      return {
+        friendCode: after.friend_code,
+        nickname: resolveUserDisplayName({
+          userNickname: after.nickname,
+          displayName: after.display_name,
+        }),
+      };
     }
   }
   throw new Error('Không tạo được mã bạn bè.');
@@ -189,11 +223,127 @@ export async function getFriendshipStatus(userIdA, userIdB, db = pool) {
 }
 
 /**
- * FR-FRD-02 & FR-FRD-03: Gửi lời mời kết bạn bằng friend_code (hoặc tự accepted nếu 2 bên cùng gửi).
+ * Tìm 1 người dùng khớp chính xác theo mã bạn bè 8 ký tự HOẶC email đầy đủ.
+ * Không trả danh sách gợi ý; không trả email hay ảnh Google của người tìm thấy.
+ */
+export async function lookupFriendTarget(
+  requesterId,
+  rawQuery,
+  { rateLimiter, db = pool } = {}
+) {
+  if (rateLimiter && !rateLimiter.checkAndConsume(requesterId)) {
+    return {
+      ok: false,
+      status: 429,
+      error: 'RATE_LIMITED',
+      messageVi: `Bạn đã tìm kiếm quá ${FRIEND_LIMITS.MAX_REQUESTS_PER_HOUR} lần trong 1 giờ. Thử lại sau nhé!`,
+    };
+  }
+
+  const trimmed = String(rawQuery || '').trim();
+  if (!trimmed) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'INVALID_QUERY',
+      messageVi: 'Hãy nhập mã bạn bè (8 ký tự) hoặc email chính xác của bạn.',
+    };
+  }
+
+  let target = null;
+  const isEmailQuery = trimmed.includes('@');
+
+  if (isEmailQuery) {
+    if (!isValidEmail(trimmed)) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'INVALID_EMAIL',
+        messageVi: 'Địa chỉ email không hợp lệ.',
+      };
+    }
+    const email = normalizeEmail(trimmed);
+    const [[row]] = await db.execute(
+      `SELECT u.id, u.nickname, u.display_name, u.friend_code,
+              up.nickname AS progress_nickname, up.pet_data, up.learner_group, up.active_path
+         FROM users u
+         LEFT JOIN user_progress up ON up.user_id = u.id
+        WHERE LOWER(u.email) = ?
+        LIMIT 1`,
+      [email]
+    );
+    target = row || null;
+  } else {
+    const code = normalizeFriendCode(trimmed);
+    if (!isValidFriendCode(code)) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'INVALID_CODE',
+        messageVi: 'Mã bạn bè phải gồm 8 ký tự hợp lệ hoặc nhập email đầy đủ của bạn.',
+      };
+    }
+    const [[row]] = await db.execute(
+      `SELECT u.id, u.nickname, u.display_name, u.friend_code,
+              up.nickname AS progress_nickname, up.pet_data, up.learner_group, up.active_path
+         FROM users u
+         LEFT JOIN user_progress up ON up.user_id = u.id
+        WHERE u.friend_code = ?
+        LIMIT 1`,
+      [code]
+    );
+    target = row || null;
+  }
+
+  if (!target) {
+    return { ok: true, found: false, messageVi: 'Không tìm thấy tài khoản khớp chính xác thông tin này.' };
+  }
+  if (Number(target.id) === Number(requesterId)) {
+    return { ok: false, status: 400, error: 'SELF_REQUEST', messageVi: 'Đây chính là tài khoản của bạn.' };
+  }
+
+  const rel = await getFriendshipStatus(requesterId, target.id, db);
+  if (rel?.status === 'blocked') {
+    return { ok: true, found: false, messageVi: 'Không tìm thấy tài khoản khớp chính xác thông tin này.' };
+  }
+
+  let relationStatus = 'none';
+  if (rel?.status === 'accepted') relationStatus = 'accepted';
+  else if (rel?.status === 'pending') {
+    relationStatus = Number(rel.requested_by) === Number(requesterId) ? 'outgoing' : 'incoming';
+  }
+
+  const pet = extractActivePetPublic(target.pet_data);
+  const displayName = resolveUserDisplayName({
+    petData: target.pet_data,
+    userNickname: target.nickname,
+    progressNickname: target.progress_nickname,
+    displayName: target.display_name,
+  });
+
+  return {
+    ok: true,
+    found: true,
+    user: {
+      userId: Number(target.id),
+      nickname: displayName,
+      petId: pet.petId,
+      petEvolution: pet.petEvolution,
+      learnerGroup: target.learner_group || null,
+      activePath: target.active_path || null,
+      friendCode: target.friend_code || null,
+      relationStatus,
+    },
+  };
+}
+
+/**
+ * FR-FRD-02 & FR-FRD-03: Gửi lời mời kết bạn bằng mã bạn bè (8 ký tự) HOẶC email chính xác
+ * (hoặc tự accepted nếu 2 bên cùng gửi).
  */
 export async function sendFriendRequest(
   requesterId,
-  rawCode,
+  rawQuery,
   { source = 'code', rateLimiter, db = pool } = {}
 ) {
   if (rateLimiter && !rateLimiter.checkAndConsume(requesterId)) {
@@ -205,28 +355,57 @@ export async function sendFriendRequest(
     };
   }
 
-  const code = normalizeFriendCode(rawCode);
-  if (!isValidFriendCode(code)) {
-    return {
-      ok: false,
-      status: 400,
-      error: 'INVALID_CODE',
-      messageVi: 'Mã bạn bè phải gồm 8 ký tự hợp lệ (chữ in hoa và số 2–9).',
-    };
+  const trimmed = String(rawQuery || '').trim();
+  const isEmailQuery = trimmed.includes('@');
+  let target = null;
+
+  if (isEmailQuery) {
+    if (!isValidEmail(trimmed)) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'INVALID_EMAIL',
+        messageVi: 'Địa chỉ email không hợp lệ.',
+      };
+    }
+    const email = normalizeEmail(trimmed);
+    const [[row]] = await db.execute(
+      'SELECT id, nickname, display_name FROM users WHERE LOWER(email) = ? LIMIT 1',
+      [email]
+    );
+    target = row || null;
+  } else {
+    const code = normalizeFriendCode(trimmed);
+    if (!isValidFriendCode(code)) {
+      return {
+        ok: false,
+        status: 400,
+        error: 'INVALID_CODE',
+        messageVi: 'Mã bạn bè phải gồm 8 ký tự hợp lệ hoặc nhập địa chỉ email chính xác.',
+      };
+    }
+    const [[row]] = await db.execute(
+      'SELECT id, nickname, display_name FROM users WHERE friend_code = ? LIMIT 1',
+      [code]
+    );
+    target = row || null;
   }
 
-  const [[target]] = await db.execute(
-    'SELECT id, nickname FROM users WHERE friend_code = ?',
-    [code]
-  );
   if (!target) {
     return {
       ok: false,
       status: 404,
       error: 'USER_NOT_FOUND',
-      messageVi: 'Không tìm thấy người dùng với mã bạn bè này.',
+      messageVi: isEmailQuery
+        ? 'Không tìm thấy tài khoản nào dùng email này.'
+        : 'Không tìm thấy người dùng với mã bạn bè này.',
     };
   }
+
+  const targetDisplayName = resolveUserDisplayName({
+    userNickname: target.nickname,
+    displayName: target.display_name,
+  });
 
   if (Number(target.id) === Number(requesterId)) {
     return {
@@ -299,7 +478,7 @@ export async function sendFriendRequest(
         ok: true,
         status: 'accepted',
         autoAccepted: true,
-        friend: { userId: target.id, nickname: target.nickname || 'Người bạn' },
+        friend: { userId: target.id, nickname: targetDisplayName },
       };
     }
   }
@@ -344,7 +523,7 @@ export async function sendFriendRequest(
   return {
     ok: true,
     status: 'pending',
-    friend: { userId: target.id, nickname: target.nickname || 'Người bạn' },
+    friend: { userId: target.id, nickname: targetDisplayName },
   };
 }
 
@@ -503,8 +682,8 @@ export async function getFriendsOverview(userId, db = pool) {
     `SELECT
        f.user_low, f.user_high, f.status, f.requested_by, f.blocked_by,
        f.source, f.created_at, f.accepted_at,
-       u.id AS other_id, u.nickname AS other_nickname,
-       up.pet_data, up.learner_group, up.active_path, up.last_active_date
+       u.id AS other_id, u.nickname AS other_nickname, u.display_name AS other_display_name,
+       up.nickname AS other_progress_nickname, up.pet_data, up.learner_group, up.active_path, up.last_active_date
      FROM friendships f
      JOIN users u ON u.id = IF(f.user_low = ?, f.user_high, f.user_low)
      LEFT JOIN user_progress up ON up.user_id = u.id
@@ -520,9 +699,15 @@ export async function getFriendsOverview(userId, db = pool) {
 
   for (const r of rows) {
     const pet = extractActivePetPublic(r.pet_data);
+    const displayName = resolveUserDisplayName({
+      petData: r.pet_data,
+      userNickname: r.other_nickname,
+      progressNickname: r.other_progress_nickname,
+      displayName: r.other_display_name,
+    });
     const baseItem = {
       userId: Number(r.other_id),
-      nickname: r.other_nickname || 'Người bạn',
+      nickname: displayName,
       petId: pet.petId,
       petEvolution: pet.petEvolution,
       learnerGroup: r.learner_group || null,
@@ -545,7 +730,7 @@ export async function getFriendsOverview(userId, db = pool) {
     } else if (r.status === 'blocked' && Number(r.blocked_by) === Number(userId)) {
       blocked.push({
         userId: Number(r.other_id),
-        nickname: r.other_nickname || 'Người dùng',
+        nickname: displayName,
         createdAt: r.created_at,
       });
     }
@@ -586,8 +771,8 @@ export async function getFriendPetProfile(viewerId, friendId, db = pool) {
   }
 
   const [[row]] = await db.execute(
-    `SELECT u.id, u.nickname,
-            up.pet_data, up.learner_group, up.active_path, up.last_active_date
+    `SELECT u.id, u.nickname, u.display_name,
+            up.nickname AS progress_nickname, up.pet_data, up.learner_group, up.active_path, up.last_active_date
        FROM users u
        LEFT JOIN user_progress up ON up.user_id = u.id
       WHERE u.id = ?`,
@@ -598,11 +783,17 @@ export async function getFriendPetProfile(viewerId, friendId, db = pool) {
   }
 
   const pet = extractActivePetPublic(row.pet_data);
+  const displayName = resolveUserDisplayName({
+    petData: row.pet_data,
+    userNickname: row.nickname,
+    progressNickname: row.progress_nickname,
+    displayName: row.display_name,
+  });
   return {
     ok: true,
     profile: {
       userId: Number(row.id),
-      nickname: row.nickname || 'Người bạn',
+      nickname: displayName,
       petId: pet.petId,
       petEvolution: pet.petEvolution,
       cosmetics: pet.cosmetics,
@@ -652,8 +843,8 @@ export async function getFriendsPathProgress(userId, db = pool) {
   // Truy vấn 2: lấy toàn bộ tiến độ lộ trình trong 1 câu IN (...)
   const placeholders = friendIds.map(() => '?').join(',');
   const [rows] = await db.execute(
-    `SELECT u.id, u.nickname,
-            up.pet_data, up.learner_group, up.active_path,
+    `SELECT u.id, u.nickname, u.display_name,
+            up.nickname AS progress_nickname, up.pet_data, up.learner_group, up.active_path,
             up.completed_lessons, up.checkpoint_scores
        FROM users u
        LEFT JOIN user_progress up ON up.user_id = u.id
@@ -663,6 +854,12 @@ export async function getFriendsPathProgress(userId, db = pool) {
 
   return rows.map((r) => {
     const pet = extractActivePetPublic(r.pet_data);
+    const displayName = resolveUserDisplayName({
+      petData: r.pet_data,
+      userNickname: r.nickname,
+      progressNickname: r.progress_nickname,
+      displayName: r.display_name,
+    });
 
     let completedLessons = [];
     if (r.completed_lessons) {
@@ -693,7 +890,7 @@ export async function getFriendsPathProgress(userId, db = pool) {
 
     return {
       userId: Number(r.id),
-      nickname: r.nickname || 'Người bạn',
+      nickname: displayName,
       petId: pet.petId,
       petEvolution: pet.petEvolution,
       learnerGroup: r.learner_group || null,

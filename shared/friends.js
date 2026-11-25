@@ -162,6 +162,64 @@ export function isValidFriendCode(raw) {
 }
 
 /**
+ * Chuẩn hoá và kiểm tra định dạng email hợp lệ cho tìm kiếm khớp chính xác.
+ */
+export function normalizeEmail(raw) {
+  if (typeof raw !== 'string') return '';
+  return raw.trim().toLowerCase();
+}
+
+export function isValidEmail(raw) {
+  const email = normalizeEmail(raw);
+  if (!email || email.length > 191) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+/**
+ * Phân tích nội dung quét được từ mã QR (link thiệp /i/:code, link /friends?add=:code,
+ * mã bạn bè 8 ký tự thuần, hoặc email).
+ */
+export function parseQrPayload(rawText) {
+  const text = String(rawText || '').trim();
+  if (!text) return null;
+
+  // Thử parse URL (ví dụ https://cowdi.net/friends?add=ABCD2345 hoặc https://cowdi.net/i/ABCD2345)
+  try {
+    const url = new URL(text);
+    const inviteMatch = url.pathname.match(/^\/i\/([A-Za-z0-9]{4,12})\/?$/);
+    if (inviteMatch) {
+      return { type: 'invite', code: inviteMatch[1].toUpperCase() };
+    }
+    const addCode = url.searchParams.get('add');
+    if (addCode && isValidFriendCode(addCode)) {
+      return { type: 'friend_code', code: normalizeFriendCode(addCode) };
+    }
+  } catch {
+    // Không phải URL đầy đủ — kiểm tra path tương đối hoặc chuỗi mã/email
+  }
+
+  const relInvite = text.match(/^\/?i\/([A-Za-z0-9]{4,12})\/?$/);
+  if (relInvite) {
+    return { type: 'invite', code: relInvite[1].toUpperCase() };
+  }
+
+  const relAdd = text.match(/[?&]add=([A-Za-z0-9]{8})/i);
+  if (relAdd && isValidFriendCode(relAdd[1])) {
+    return { type: 'friend_code', code: normalizeFriendCode(relAdd[1]) };
+  }
+
+  if (isValidFriendCode(text)) {
+    return { type: 'friend_code', code: normalizeFriendCode(text) };
+  }
+
+  if (isValidEmail(text)) {
+    return { type: 'email', email: normalizeEmail(text) };
+  }
+
+  return null;
+}
+
+/**
  * Kiểm tra & chuẩn hoá biệt danh 2–20 ký tự, lọc từ cấm cơ bản (FR-FRD-05).
  */
 export function validateNickname(raw) {

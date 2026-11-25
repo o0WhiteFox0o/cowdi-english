@@ -538,6 +538,12 @@ router.put('/pet-data', requireAuth, async (req, res) => {
        ON DUPLICATE KEY UPDATE pet_data = VALUES(pet_data)`,
       [req.user.id, JSON.stringify(clean)]
     );
+    // Đồng bộ tên hiển thị từ AccountPage sang users.nickname & user_progress.nickname
+    if (typeof clean.nickname === 'string' && clean.nickname.trim()) {
+      const syncedNick = clean.nickname.trim().slice(0, 32);
+      await pool.execute('UPDATE users SET nickname = ? WHERE id = ?', [syncedNick, req.user.id]).catch(() => {});
+      await pool.execute('UPDATE user_progress SET nickname = ? WHERE user_id = ?', [syncedNick.slice(0, 20), req.user.id]).catch(() => {});
+    }
     res.json({ ok: true });
   } catch (err) {
     console.error('PUT /api/pet-data error:', err);

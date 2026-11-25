@@ -69,8 +69,8 @@ describe('Bước 7 — Kiểm định bảo mật AT-11, sự kiện NFR-06 & q
             created_at: new Date().toISOString(),
           }]];
         }
-        if (/SELECT friend_code, nickname FROM users/i.test(q)) {
-          return [[{ friend_code: 'MYCD2345', nickname: 'Mình' }]];
+        if (/SELECT friend_code, nickname, display_name FROM users/i.test(q)) {
+          return [[{ friend_code: 'MYCD2345', nickname: 'Mình', display_name: 'Nguyen Van Google Real' }]];
         }
         if (/SELECT f\.user_low, f\.user_high, f\.status/i.test(q)) {
           return [[{
@@ -84,6 +84,8 @@ describe('Bước 7 — Kiểm định bảo mật AT-11, sự kiện NFR-06 & q
             accepted_at: '2026-11-25',
             other_id: 2,
             other_nickname: 'Bé Sóc',
+            other_display_name: 'Nguyen Van Google Real',
+            other_progress_nickname: null,
             email: 'canary-email@secret.vn',
             display_name: 'Nguyen Van Google Real',
             avatar_url: 'https://lh3.googleusercontent.com/canary-pic',
@@ -96,12 +98,13 @@ describe('Bước 7 — Kiểm định bảo mật AT-11, sự kiện NFR-06 & q
         if (/SELECT status, requested_by, blocked_by, source, accepted_at FROM friendships/i.test(q)) {
           return [[{ status: 'accepted', requested_by: 1, blocked_by: null, source: 'invite', accepted_at: '2026-11-25' }]];
         }
-        if (/SELECT u\.id, u\.nickname, up\.pet_data, up\.learner_group, up\.active_path, up\.last_active_date/i.test(q)) {
+        if (/SELECT u\.id, u\.nickname, u\.display_name, up\.nickname AS progress_nickname, up\.pet_data, up\.learner_group, up\.active_path, up\.last_active_date/i.test(q)) {
           return [[{
             id: 2,
             nickname: 'Bé Sóc',
-            email: 'canary-email@secret.vn',
             display_name: 'Nguyen Van Google Real',
+            progress_nickname: null,
+            email: 'canary-email@secret.vn',
             avatar_url: 'https://lh3.googleusercontent.com/canary-pic',
             pet_data: JSON.stringify({ activePetId: 'cowdi_1', collection: { cowdi_1: { speciesId: 'cowdi', evolution: 2, cosmetics: { room: 'room_forest' } } } }),
             learner_group: 'intermediate',
@@ -112,12 +115,13 @@ describe('Bước 7 — Kiểm định bảo mật AT-11, sự kiện NFR-06 & q
         if (/SELECT IF\(user_low = \?, user_high, user_low\) AS friend_id/i.test(q)) {
           return [[{ friend_id: 2 }]];
         }
-        if (/SELECT u\.id, u\.nickname, up\.pet_data, up\.learner_group, up\.active_path, up\.completed_lessons, up\.checkpoint_scores/i.test(q)) {
+        if (/SELECT u\.id, u\.nickname, u\.display_name, up\.nickname AS progress_nickname, up\.pet_data, up\.learner_group, up\.active_path, up\.completed_lessons, up\.checkpoint_scores/i.test(q)) {
           return [[{
             id: 2,
             nickname: 'Bé Sóc',
-            email: 'canary-email@secret.vn',
             display_name: 'Nguyen Van Google Real',
+            progress_nickname: null,
+            email: 'canary-email@secret.vn',
             avatar_url: 'https://lh3.googleusercontent.com/canary-pic',
             pet_data: JSON.stringify({ activePetId: 'cowdi_1', collection: { cowdi_1: { speciesId: 'cowdi', evolution: 2 } } }),
             learner_group: 'intermediate',

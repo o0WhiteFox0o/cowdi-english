@@ -16,10 +16,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   const { user, token, authFetch } = useAuth();
   const [invite, setInvite] = useState(null);   // { code, url, expires_at }
   const [stats, setStats] = useState(null);
-  const [needsNickname, setNeedsNickname] = useState(false);
-  const [nickInput, setNickInput] = useState('');
-  const [nickSaving, setNickSaving] = useState(false);
-  const [nickError, setNickError] = useState(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -69,10 +65,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        if (data.code === 'NICKNAME_REQUIRED') {
-          setNeedsNickname(true);
-          return;
-        }
         throw new Error(data.error || `Lỗi ${res.status}`);
       }
       setInvite(data);
@@ -88,22 +80,13 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
     if (open && token && !triedRef.current) {
       triedRef.current = true;
       if (prefilledMessage) setMessage(prefilledMessage);
-      (async () => {
-        const s = await loadStats();
-        if (s && !s.nickname) {
-          setNeedsNickname(true);
-          return;
-        }
-        createInvite(prefilledMessage || '');
-      })();
+      loadStats();
+      createInvite(prefilledMessage || '');
     }
     if (!open) {
       triedRef.current = false;
       setInvite(null);
       setStats(null);
-      setNeedsNickname(false);
-      setNickInput('');
-      setNickError(null);
       setMessage('');
       setError(null);
       setCopied(false);
@@ -112,30 +95,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   }, [open, token, createInvite, loadStats, prefilledMessage]);
 
   if (!open) return null;
-
-  async function handleSaveNickname(e) {
-    e.preventDefault();
-    setNickSaving(true);
-    setNickError(null);
-    try {
-      const res = await authFetch('/api/me/nickname', {
-        method: 'PUT',
-        body: JSON.stringify({ nickname: nickInput }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setNickError(data.error || 'Biệt danh không hợp lệ.');
-        return;
-      }
-      setNeedsNickname(false);
-      setStats((prev) => (prev ? { ...prev, nickname: data.nickname } : prev));
-      createInvite(message || prefilledMessage || '');
-    } catch {
-      setNickError('Không lưu được biệt danh. Thử lại nhé!');
-    } finally {
-      setNickSaving(false);
-    }
-  }
 
   async function handleShare() {
     if (!invite) return;
@@ -225,32 +184,7 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
               💡 Mời bạn cùng lớp hoặc cùng mục tiêu học để gặp nhau trên lộ trình.
             </div>
 
-            {needsNickname ? (
-              <form onSubmit={handleSaveNickname} className="border rounded-3 p-3 bg-light mb-3">
-                <h6 className="fw-bold mb-1">Đặt biệt danh của bạn trước nhé!</h6>
-                <p className="text-muted small mb-2">
-                  Biệt danh (2–20 ký tự) sẽ hiện trên thiệp mời và danh sách bạn bè thay cho tên Google.
-                </p>
-                <div className="input-group input-group-sm mb-2">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ví dụ: Bé Mai, Minh Anh..."
-                    value={nickInput}
-                    minLength={2}
-                    maxLength={20}
-                    onChange={(e) => setNickInput(e.target.value)}
-                    required
-                  />
-                  <button type="submit" className="btn btn-cowdi-primary" disabled={nickSaving}>
-                    {nickSaving ? 'Đang lưu...' : 'Lưu & tạo thiệp'}
-                  </button>
-                </div>
-                {nickError && <div className="text-danger small">{nickError}</div>}
-              </form>
-            ) : (
-              <>
-                {/* Pet preview */}
+            {/* Pet preview */}
                 <div className="text-center mb-2">
                   <img src={petImage} alt="Cowdi egg"
                     style={{ width: 96, height: 96, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }} />
@@ -338,8 +272,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
                     </div>
                   </div>
                 </div>
-              </>
-            )}
 
             {/* FR-RWD-06: Thống kê mời bạn & tiến độ mốc */}
             {stats && (

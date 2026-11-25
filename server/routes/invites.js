@@ -9,7 +9,7 @@ import {
   isSameDeviceOrIpWithin24h,
   getInviteStats,
 } from '../utils/invite-rewards.js';
-import { createAutoFriendshipFromInvite } from '../utils/friends-manager.js';
+import { createAutoFriendshipFromInvite, resolveUserDisplayName } from '../utils/friends-manager.js';
 
 const EXPIRY_DAYS  = INVITE_REWARDS.EXPIRY_DAYS;
 const DAILY_LIMIT  = INVITE_REWARDS.DAILY_INVITE_LIMIT;
@@ -80,17 +80,20 @@ export function createInvitesRouter({ db = pool, authMiddleware = requireAuth, o
         return res.status(429).json({ error: `Bạn đã gửi đủ ${WEEKLY_LIMIT} thiệp tuần này.` });
       }
 
-      // FR-FRD-05: dùng biệt danh cho sender_name (không lộ tên thật Google & ảnh Google)
+      // Dùng tên hiển thị đã có trong tài khoản (không bắt đặt biệt danh riêng)
       const [[user]] = await db.execute(
-        'SELECT nickname FROM users WHERE id = ?',
+        `SELECT u.nickname, u.display_name, up.nickname AS progress_nickname, up.pet_data
+           FROM users u
+           LEFT JOIN user_progress up ON up.user_id = u.id
+          WHERE u.id = ?`,
         [req.user.id]
       );
-      if (!user?.nickname) {
-        return res.status(400).json({
-          code: 'NICKNAME_REQUIRED',
-          error: 'Hãy đặt biệt danh trước khi tạo thiệp mời nhé!',
-        });
-      }
+      const senderDisplayName = resolveUserDisplayName({
+        petData: user?.pet_data,
+        userNickname: user?.nickname,
+        progressNickname: user?.progress_nickname,
+        displayName: user?.display_name,
+      });
 
       const creatorIp = getClientIp(req);
       const clientDeviceId = req.headers['x-device-id'] || deviceId || '';
@@ -110,7 +113,7 @@ export function createInvitesRouter({ db = pool, authMiddleware = requireAuth, o
            (code, sender_id, sender_name, sender_avatar, pet_species, message,
             creator_ip, creator_device_hash, expires_at)
          VALUES (?, ?, ?, NULL, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))`,
-        [code, req.user.id, user.nickname, safePet, safeMsg, creatorIp, creatorDeviceHash, EXPIRY_DAYS]
+        [code, req.user.id, senderDisplayName, safePet, safeMsg, creatorIp, creatorDeviceHash, EXPIRY_DAYS]
       );
 
       const [[row]] = await db.execute(

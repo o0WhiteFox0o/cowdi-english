@@ -50,10 +50,10 @@ function createFriendsFakeDb({ users = [], progress = [], invites = [], friendsh
         return [{ affectedRows: 1 }];
       }
 
-      // users & friend_code
-      if (/^SELECT friend_code, nickname FROM users WHERE id = \?/i.test(q)) {
+      // users & friend_code & email lookup
+      if (/^SELECT friend_code, nickname, display_name FROM users WHERE id = \?/i.test(q)) {
         const u = state.users.find((x) => x.id === params[0]);
-        return [u ? [{ friend_code: u.friend_code, nickname: u.nickname }] : []];
+        return [u ? [{ friend_code: u.friend_code, nickname: u.nickname, display_name: u.display_name || '' }] : []];
       }
       if (/^SELECT 1 AS x FROM users WHERE friend_code = \?/i.test(q)) {
         const exists = state.users.some((x) => x.friend_code === params[0]);
@@ -65,14 +65,38 @@ function createFriendsFakeDb({ users = [], progress = [], invites = [], friendsh
         if (u) u.friend_code = code;
         return [{ affectedRows: u ? 1 : 0 }];
       }
-      if (/^SELECT id, nickname FROM users WHERE friend_code = \?/i.test(q)) {
+      if (/^SELECT id, nickname, display_name FROM users WHERE friend_code = \?/i.test(q)) {
         const u = state.users.find((x) => x.friend_code === params[0]);
-        return [u ? [{ id: u.id, nickname: u.nickname }] : []];
+        return [u ? [{ id: u.id, nickname: u.nickname, display_name: u.display_name || '' }] : []];
+      }
+      if (/^SELECT id, nickname, display_name FROM users WHERE LOWER\(email\) = \?/i.test(q)) {
+        const email = String(params[0] || '').toLowerCase();
+        const u = state.users.find((x) => String(x.email || '').toLowerCase() === email);
+        return [u ? [{ id: u.id, nickname: u.nickname, display_name: u.display_name || '' }] : []];
+      }
+      if (/^SELECT u\.id, u\.nickname, u\.display_name, u\.friend_code/i.test(q)) {
+        const isEmail = q.includes('LOWER(u.email)');
+        const u = isEmail
+          ? state.users.find((x) => String(x.email || '').toLowerCase() === String(params[0] || '').toLowerCase())
+          : state.users.find((x) => x.friend_code === params[0]);
+        if (!u) return [[]];
+        const p = state.progress.find((x) => x.user_id === u.id) || {};
+        return [[{
+          id: u.id,
+          nickname: u.nickname,
+          display_name: u.display_name || '',
+          friend_code: u.friend_code,
+          progress_nickname: p.nickname || null,
+          pet_data: p.pet_data || null,
+          learner_group: p.learner_group || null,
+          active_path: p.active_path || null,
+        }]];
       }
 
       // friendships
       if (/^SELECT status FROM friendships WHERE user_low = \? AND user_high = \?/i.test(q) ||
           /^SELECT status, requested_by, blocked_by FROM friendships WHERE user_low = \? AND user_high = \?/i.test(q) ||
+          /^SELECT status, requested_by, blocked_by, source, accepted_at FROM friendships WHERE user_low = \? AND user_high = \?/i.test(q) ||
           /^SELECT status, requested_by, source FROM friendships WHERE user_low = \? AND user_high = \?/i.test(q) ||
           /^SELECT status, blocked_by FROM friendships WHERE user_low = \? AND user_high = \?/i.test(q)) {
         const [low, high] = params;
@@ -156,6 +180,8 @@ function createFriendsFakeDb({ users = [], progress = [], invites = [], friendsh
               ...f,
               other_id: otherId,
               other_nickname: otherUser.nickname,
+              other_display_name: otherUser.display_name || '',
+              other_progress_nickname: otherProg.nickname || null,
               pet_data: otherProg.pet_data || null,
               learner_group: otherProg.learner_group || null,
               active_path: otherProg.active_path || null,
@@ -310,6 +336,32 @@ describe('Bước 4 — Hệ thống Bạn bè (AT-06, AT-07, BR-07, NFR-03)', (
         headers: { 'x-test-uid': '1' },
       });
       assert.equal(unblk.status, 200);
+    });
+
+    // Tìm kiếm chính xác bằng email và gửi lời mời kết bạn bằng email (không rò email trong response)
+    const dbEmail = createFriendsFakeDb({
+      users: [
+        { id: 1, display_name: 'Minh Lan', email: 'lan@cowdi.vn', friend_code: 'LAN23456' },
+        { id: 2, display_name: 'Hùng Nguyễn', email: 'hung@cowdi.vn', friend_code: 'HUNG2345' },
+      ],
+    });
+    await withApp(dbEmail, createHourlyRateLimiter(20), async (base) => {
+      const lookRes = await fetch(`${base}/api/friends/lookup?q=HUNG%40cowdi.vn`, {
+        headers: { 'x-test-uid': '1' },
+      });
+      assert.equal(lookRes.status, 200);
+      const lookJson = await lookRes.json();
+      assert.equal(lookJson.found, true);
+      assert.equal(lookJson.user.nickname, 'Hùng Nguyễn');
+      assert.equal(JSON.stringify(lookJson).includes('hung@cowdi.vn'), false, 'Không trả lại email');
+
+      const reqRes = await fetch(`${base}/api/friends/requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-test-uid': '1' },
+        body: JSON.stringify({ query: 'hung@cowdi.vn' }),
+      });
+      assert.equal(reqRes.status, 200);
+      assert.equal((await reqRes.json()).status, 'pending');
     });
 
     // Kiểm tra rate limit (giả lập giới hạn 2 lời mời/giờ)

@@ -170,7 +170,7 @@ export function createInviteLandingRouter({ db = pool, indexHtmlPath, ogDirs } =
     try {
       const [[row]] = await db.execute(
         `SELECT i.code, i.sender_name, i.pet_species, i.message, i.expires_at,
-                u.nickname AS sender_nickname
+                u.nickname AS sender_nickname, u.display_name AS sender_display_name
            FROM invites i
            LEFT JOIN users u ON u.id = i.sender_id
           WHERE i.code = ?`,
@@ -183,7 +183,7 @@ export function createInviteLandingRouter({ db = pool, indexHtmlPath, ogDirs } =
       }
 
       const siteOrigin = (process.env.FRONTEND_URL || `${req.protocol}://${req.get('host') || 'cowdi.net'}`).replace(/\/+$/, '');
-      const senderName = row.sender_nickname || row.sender_name || 'Một người bạn';
+      const senderName = row.sender_nickname || row.sender_display_name || row.sender_name || 'Một người bạn';
 
       const html = injectInviteOg(baseHtml, {
         code: row.code,
