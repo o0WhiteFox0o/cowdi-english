@@ -68,8 +68,8 @@
 | SDD | Kinh tế v2: Lộ trình kiếm tiền & gói trả phí | [lo-trinh-kiem-tien-v2.md](../04-design/economy-v2/lo-trinh-kiem-tien-v2.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất trang trí nền & hào quang | [de-xuat-trang-tri-nen-hao-quang.md](../04-design/economy-v2/de-xuat-trang-tri-nen-hao-quang.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất Đấu trường & quà tặng | [de-xuat-dau-truong-va-qua-tang.md](../04-design/economy-v2/de-xuat-dau-truong-va-qua-tang.md) | 2.0 | Approved | — |
-| SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.0 | Approved | — |
-| SDD | **Kinh tế v2: Thưởng mời bạn & điều chỉnh Gacha v2 (bỏ Bụi sao, quà trùng, Cowdi)** | [REFERRAL-GACHA-TICKET.md](../04-design/economy-v2/REFERRAL-GACHA-TICKET.md) | 0.3 | Draft / Chờ đồng bộ | (mới 2026-11-25 — bổ sung `de-xuat-gacha-v2.md`) |
+| SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.1 | Approved (đã đồng bộ v0.3 2026-11-25) | — |
+| SDD | **Kinh tế v2: Thưởng mời bạn & điều chỉnh Gacha v2 (bỏ Bụi sao, quà trùng, Cowdi)** | [REFERRAL-GACHA-TICKET.md](../04-design/economy-v2/REFERRAL-GACHA-TICKET.md) | 0.3 | Approved (đã đồng bộ vào `de-xuat-gacha-v2.md`) | (mới 2026-11-25) |
 | REF | Kinh tế v2: Phương án Bạn bè & Mời qua Zalo/FB (định hướng tham khảo) | [FRIENDS-REFERRAL-PLAN-tham-khao.md](../04-design/economy-v2/FRIENDS-REFERRAL-PLAN-tham-khao.md) | 0.1 | Reference (kỹ thuật thay bởi SRS-FRIENDS v1.1) | (mới 2026-11-25) |
 | SPEC | Kinh tế v2: Lệnh mô phỏng cân bằng hệ tương khắc | [lenh-claude-code-2-can-bang-he-tuong-khac.md](../04-design/economy-v2/lenh-claude-code-2-can-bang-he-tuong-khac.md) | 2.0 | Approved | — |
 

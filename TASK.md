@@ -150,20 +150,20 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [ ] Sữa Đấu trường ≈ 10–20% Sữa từ học trên dữ liệu thử
 
 ## GĐ6 — Lõi gacha + thiệp mời + quay khởi đầu
-- [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; rà `activePetId = 'cowdi_1'`
+- [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; ghi `source` (`starter`/`starter_pull`/`gift_card`/`event:<id>`) để sau này lấy lại Cowdi qua sự kiện không bị trùng; rà `activePetId = 'cowdi_1'`
 - [ ] Lõi gacha server: RNG an toàn, tỉ lệ theo config, lịch sử 100 lượt, công khai tỉ lệ
-- [ ] Thiệp mời chỉ cho người mới; màn chọn Cowdi / quay pet khởi đầu (D7)
+- [ ] Thiệp mời chỉ cho người mới; màn chọn Cowdi (+ phụ kiện "Khăn Bạn Đầu Tiên") / quay pet khởi đầu (D7 + `REFERRAL-GACHA-TICKET.md` v0.3)
 - [ ] Bảng `invites`: `starter_choice`, `starter_species`, `gift_card_id`
 
 **Tiêu chí xong**
 - [ ] Người mới qua thiệp nhận đúng pet theo lựa chọn; không tạo nhầm Cowdi; tài khoản cũ không nhận được thiệp
 
 ## GĐ7 — Gacha đầy đủ
-- [ ] Vé gacha 50 Gem mua lẻ; nguồn vé miễn phí
-- [ ] Bể gacha thường (D5), không bảo hiểm
-- [ ] Banner 3 tuần + pet giới hạn đầu tiên + nhiệm vụ sự kiện 15 bài
-- [ ] Thẻ tặng pet qua `InviteSheet` (D6); bảng `pet_gift_cards`
-- [ ] Bụi sao và cửa hàng Bụi sao
+- [ ] Vé gacha 50 Gem mua lẻ; nguồn vé miễn phí (dùng chung `wallet_ledger.currency = 'gacha_ticket'` đã có từ phân hệ Bạn bè)
+- [ ] Bể gacha thường (D5), không bảo hiểm; quà trùng đổi sang Gem/Sữa (`gacha_duplicate`: Thường/Hiếm đủ hết → 600 Sữa, Sử thi → +10 Gem)
+- [ ] Banner 3 tuần + pet giới hạn đầu tiên + nhiệm vụ sự kiện 15 bài (+ nhiệm vụ sự kiện lấy lại Cowdi)
+- [ ] Thẻ tặng pet qua `InviteSheet` (D6); bảng `pet_gift_cards`; hết hạn 60 ngày đổi +10 Gem (`gift_card_expired`)
+- [-] Bụi sao và cửa hàng Bụi sao — Bỏ theo quyết định Q3 trong `REFERRAL-GACHA-TICKET.md` v0.3 (đổi quà trùng thẳng sang Gem/Sữa)
 
 **Tiêu chí xong**
 - [ ] Mô phỏng 100 000 lượt ra đúng tỉ lệ; thẻ tặng chỉ người mới nhận được
