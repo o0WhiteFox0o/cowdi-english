@@ -221,6 +221,20 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ---
 
+## Pet Director V2 — Điều phối biểu đạt Pet (`feat/pet-director`)
+
+> Tài liệu nguồn: [SDD-PET-DIRECTOR-v1.1.md](docs/04-design/SDD-PET-DIRECTOR-v1.1.md) · [RPT-PET-DIRECTOR-SURVEY.md](docs/05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR.md](docs/05-implementation/TASK-PET-DIRECTOR.md) · [PET-MOTION.md](docs/PET-MOTION.md)
+
+- [x] Bước 0 — Tiếp nhận gói `cowdi-pet-director.zip`, khảo sát mã nguồn (`Pet-motion`, `PictureLesson`, `Zero-Scroll Quiz`, CSS 3 file, Lộ trình + Bạn bè), viết SDD v1.1 + Báo cáo khảo sát + Plan 5 gói A–E — 2026-11-25 · edccdaf
+- [x] GĐ1 · Gói A — Lõi `PetDirector` thuần JS (`rules.js`, `storage.js`, `lineSelector.js`, `PetDirector.js`, `common.js`, `index.js`) + `lines.test.mjs` & `pet-director.test.mjs` + thêm vào `npm test` — 2026-11-25 · 6774126
+- [x] GĐ1 · Gói B — Mở rộng `PetRig.js` & `PetAvatar.jsx` (`canvasBubble`, chuẩn hoá `tap` cho cả rig duyệt & ảnh tĩnh fallback, sửa text P3) + test `pet-rig.test.mjs` — 2026-11-25 · f7df4d7
+- [x] GĐ1 · Gói C — `DirectorContext`, `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PetSpeech>`, `<PetThought>`; tích hợp `LessonDetailPage`, `PictureLesson`, `PracticePage`, `LearningPathPage` (`app_open`); gỡ `CowdiChat` & xoá `.cowdi-chat-*` trên 3 file CSS — 2026-11-25 · c93e950
+- [x] GĐ2 · Gói E — Kho câu thoại `cowdi.js` (240+ câu đạt §5.2, chuyển `PAGE_TIPS`) + trung tính hoá `common.js` + `lines.test.mjs` — 2026-11-25 · 7b25f65
+- [x] GĐ2 · Gói D — `<PathPet>` + thẻ hành động trên `LearningPathPage`; chuyển `HomePage`, `PetPage`, `DuelPage` sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` — 2026-11-25 · ee49eba
+- [x] Tinh chỉnh UI V2 — Đưa Header/Stepper lên trên, chuyển `<PetStage>` sang bố cục đồng hành `sticky` (cân giữa cụm Flashcard/Nghe/Nói/Quiz/Practice, `.lesson-step-footer` full-width, bỏ banner thừa `"Nói theo Cowdi!"`) — 2026-11-26 · ae761cb, 5278843
+
+---
+
 ## Vấn đề đang chặn
 | Ngày | GĐ | Vấn đề | Cần ai quyết | Trạng thái |
 |---|---|---|---|---|
@@ -231,6 +245,9 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-26 | Pet Director UI | Hoàn thiện bố cục đồng hành V2 (`<PetStage>` `sticky` bên trái trên Desktop, cân giữa cụm Flashcard/Nghe/Nói/Quiz/Practice, `.lesson-step-footer` full-width, bỏ banner thừa `"Nói theo Cowdi!"`) và đồng bộ toàn bộ tài liệu SDD v1.1.1 / TASK / LOG / REG / RTM | `ae761cb`, `5278843` | 170/170 test pass, build pass, UAT local OK |
+| 2026-11-25 | Pet Director A–E | Hoàn thành trọn bộ Pet Director V2 (GĐ1–2, Gói A/B/C/E/D) trên nhánh `feat/pet-director`: lõi thuần JS + 16 test (`rules`, `storage`, `lineSelector`, `PetDirector`), mở rộng `PetRig`/`PetAvatar` (`canvasBubble` + chuẩn hoá `tap` cả ảnh tĩnh), `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PathPet>` + thẻ hành động, 240+ câu thoại `cowdi.js` + `common.js` trung tính, chuyển 7 màn hình sang Director, thêm công tắc preview Director trong `StudyPreviewTab`, gỡ hoàn toàn `CowdiChat.jsx`, `.cowdi-chat-*` (3 file CSS), `chatMessages` & `getPetMessage` | `feat/pet-director` | 170/170 test pass, build pass |
+| 2026-11-25 | Pet Director B0 | Khảo sát gói `cowdi-pet-director.zip` đối chiếu mã nguồn & hệ `Pet-motion`, soạn `SDD-PET-DIRECTOR-v1.1.md`, `RPT-PET-DIRECTOR-SURVEY.md`, `TASK-PET-DIRECTOR.md` (Plan 5 gói A–E), lưu mockups và đồng bộ `PET-MOTION.md`, `REG-DOCUMENTS.md`, `LOG-PROGRESS.md`, `RTM-COWDI.md` | — | Chờ PO duyệt Plan trước khi code |
 | 2026-11-25 | Bạn bè UX | Bỏ form đặt biệt danh riêng (dùng thẳng tên hiển thị tài khoản), thêm tìm & kết bạn bằng email khớp chính xác (`GET /api/friends/lookup`), thêm máy quét QR trong App (`QrScannerModal` camera + chọn ảnh qua `jsqr`), giữ `?add=CODE` qua OAuth cho người chưa cài App, định dạng ngày VN `dd/mm/yyyy` | `main` | 152/152 test pass, build & deploy.zip pass |
 | 2026-11-25 | Bạn bè B1–B7 | Hoàn thiện toàn bộ Phân hệ Bạn bè & Thưởng mời bạn trên nhánh `feat/friends`: migration MySQL 5.5/5.6+, OG `/i/:code` + QR client, biệt danh + chống gian lận + thưởng +3 Gem/+500 Sữa/mốc vé gacha (trần 3/tháng), bạn bè + chặn/báo cáo, thăm pet + thách đấu giao hữu không LP, bạn bè trên bản đồ lộ trình + toast vượt qua, ghi 5 sự kiện `app_events` và kiểm định AT-02..AT-11 | `feat/friends` | 152/152 test pass, build pass |
 | 2026-11-25 | Bạn bè B0 | Bổ sung tài liệu Bạn bè & Thưởng mời bạn (`SRS-FRIENDS-v1.1`, `REFERRAL-GACHA-TICKET`, `TASK-FRIENDS`), đăng ký `REG-DOCUMENTS` và viết báo cáo khảo sát `RPT-FRIENDS-SURVEY.md` | `feat/friends` | Khảo sát 7 điểm, không sửa code |

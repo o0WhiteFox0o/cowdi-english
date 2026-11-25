@@ -1,7 +1,7 @@
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
 import BookShell from './components/layout/BookShell';
-import CowdiChat from './components/layout/CowdiChat';
+import { PetDirectorProvider } from './pet-director/DirectorContext';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import InviteRewardNotice from './features/invite/InviteRewardNotice';
@@ -67,6 +67,7 @@ export default function App() {
   return (
     <SoundProvider>
     <ToastProvider>
+    <PetDirectorProvider>
       <BookShell>
         <main className="book-main">
           <Suspense fallback={<PageFallback />}>
@@ -103,9 +104,9 @@ export default function App() {
         </Suspense>
         </main>
       </BookShell>
-      <CowdiChat />
       <InviteRewardNotice />
       <PWAInstallPrompt />
+    </PetDirectorProvider>
     </ToastProvider>
     </SoundProvider>
   );

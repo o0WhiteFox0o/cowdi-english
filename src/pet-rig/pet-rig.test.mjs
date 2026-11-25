@@ -295,4 +295,70 @@ describe('Bước 4 — Runtime người học: quy tắc fallback clip, trạng
 
     rig.destroy();
   });
+
+  it('Gói B (Pet Director): canvasBubble=false chặn this.bubble nhưng vẫn phát động tác đã duyệt', async () => {
+    const rig = new PetRig(createStubCanvas(), {
+      petId: 'cowdi',
+      stage: 2,
+      group: 'farm',
+      bond: 300,
+      mode: 'lesson',
+      canvasBubble: false,
+      motion: {
+        c2: {
+          rig: SAMPLE_RIG,
+          images: {},
+          clips: {
+            idle: CLIPS.idle,
+            encourage: CLIPS.encourage,
+            cheer_big: CLIPS.cheer_big,
+            talk: CLIPS.talk,
+            greet_return: CLIPS.greet_return,
+          },
+        },
+      },
+    });
+    await rig.load();
+
+    rig.emit('answer_wrong', { text: 'Thử lại nha!' });
+    assert.equal(rig.cur?.name, 'encourage');
+    assert.equal(rig.bubble, null);
+
+    rig.emit('lesson_done', { text: 'Xong bài!' });
+    assert.equal(rig.cur?.name, 'cheer_big');
+    assert.equal(rig.bubble, null);
+
+    rig.emit('pet_speak_start', { text: 'Xin chào' });
+    assert.equal(rig.cur?.name, 'talk');
+    assert.equal(rig.bubble, null);
+
+    rig.emit('app_open', { daysAway: 2 });
+    assert.equal(rig.cur?.name, 'greet_return');
+    assert.equal(rig.bubble, null);
+
+    rig.say('Bất kỳ câu nào', 2000);
+    assert.equal(rig.bubble, null);
+
+    rig.destroy();
+  });
+
+  it('Gói B (mặc định): canvasBubble=true vẫn đặt this.bubble để giữ tương thích ngược', async () => {
+    const rig = new PetRig(createStubCanvas(), {
+      petId: 'cowdi',
+      stage: 2,
+      group: 'farm',
+      motion: {
+        c2: {
+          rig: SAMPLE_RIG,
+          images: {},
+          clips: { idle: CLIPS.idle, encourage: CLIPS.encourage },
+        },
+      },
+    });
+    await rig.load();
+
+    rig.emit('answer_wrong', { text: 'Thử lại nhé!' });
+    assert.equal(rig.bubble?.text, 'Thử lại nhé!');
+    rig.destroy();
+  });
 });

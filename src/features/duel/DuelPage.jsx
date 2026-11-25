@@ -8,6 +8,7 @@ import { useUser } from '../../hooks/useUser';
 import { generateDuelQuiz } from '../../data/quiz/duel-quiz-pool';
 import { PET_REGISTRY, getEvolutionInfo, ELEMENT_COLORS } from '../../data/pets';
 import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import Icon from '../../components/Icon';
@@ -240,20 +241,32 @@ export default function DuelPage() {
     }
   }, [mode]);
 
+  const { register, dispatch } = usePetDirector();
+
+  // Đăng ký slot 'battle' (luôn Tầng 1 — chỉ động tác, không chữ) theo pha trận / kết quả
+  useEffect(() => {
+    if (mode === 'result') {
+      return register('battle', resultMyPetRef, { opp: resultOppPetRef });
+    }
+    if (mode === 'creating' || mode === 'playing') {
+      return register('battle', myPetRef, { opp: oppPetRef });
+    }
+    return undefined;
+  }, [mode, register]);
+
   // Phát sự kiện battle_start khi vào đấu và battle_win / battle_lose khi có kết quả
   useEffect(() => {
     if (mode === 'creating' || mode === 'playing') {
-      myPetRef.current?.emit('battle_start');
-      oppPetRef.current?.emit('battle_start');
+      dispatch('battle_start', { target: 'both' });
     } else if (mode === 'result' && result) {
       if (result.mode === 'created') {
-        resultMyPetRef.current?.emit(result.score >= result.total / 2 ? 'battle_win' : 'battle_start');
+        dispatch(result.score >= result.total / 2 ? 'battle_win' : 'battle_start', { target: 'mine' });
       } else {
-        resultMyPetRef.current?.emit(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
-        resultOppPetRef.current?.emit(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
+        dispatch(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'mine' });
+        dispatch(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'opp' });
       }
     }
-  }, [mode, result]);
+  }, [mode, result, dispatch]);
 
   // ── Open setup screen to configure a new duel ──────────────
   function openSetup() {
@@ -370,11 +383,11 @@ export default function DuelPage() {
     if (myPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-mine');
-        myPetRef.current?.emit(isCritical ? 'battle_crit' : 'battle_attack');
+        dispatch(isCritical ? 'battle_crit' : 'battle_attack', { target: 'mine' });
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-opponent');
-          oppPetRef.current?.emit('battle_hit');
+          dispatch('battle_hit', { target: 'opp' });
           setEffectClass(`effect-${myElement}`);
           const dmg = isCritical ? critDmg : baseDmg;
           if (isCritical) {
@@ -398,11 +411,11 @@ export default function DuelPage() {
     if (oppPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-opponent');
-        oppPetRef.current?.emit(oppCritical ? 'battle_crit' : 'battle_attack');
+        dispatch(oppCritical ? 'battle_crit' : 'battle_attack', { target: 'opp' });
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-mine');
-          myPetRef.current?.emit('battle_hit');
+          dispatch('battle_hit', { target: 'mine' });
           setEffectClass(`effect-${oppElement}`);
           const oppDmg = oppCritical ? critDmg : baseDmg;
           if (oppCritical) {
@@ -424,8 +437,7 @@ export default function DuelPage() {
 
     // If neither attacks (both missed), emit battle_dodge before advancing
     if (sequence.length === 0) {
-      myPetRef.current?.emit('battle_dodge');
-      oppPetRef.current?.emit('battle_dodge');
+      dispatch('battle_dodge', { target: 'both' });
       callback();
       return;
     }
@@ -888,6 +900,7 @@ export default function DuelPage() {
                 bond={bondOf(myPetInfo.skills)}
                 topSkill={topSkillOf(myPetInfo.skills)}
                 mode="battle"
+                canvasBubble={false}
                 fallbackSrc={myPetImage || undefined}
                 alt={myPetInfo.name}
               />
@@ -909,6 +922,7 @@ export default function DuelPage() {
                 stage={(opponentPet.evolution || 0) + 1}
                 group={opponentPet.group}
                 mode="battle"
+                canvasBubble={false}
                 fallbackSrc={opponentPet.image || undefined}
                 alt={opponentPet.name}
               />
@@ -1018,6 +1032,7 @@ export default function DuelPage() {
                     bond={bondOf(myPetInfo.skills)}
                     topSkill={topSkillOf(myPetInfo.skills)}
                     mode="battle"
+                    canvasBubble={false}
                     fallbackSrc={myPetImage || undefined}
                     alt={myPetInfo.name}
                     style={{ width: 88, maxWidth: 88, maxHeight: 96 }}
@@ -1078,6 +1093,7 @@ export default function DuelPage() {
                   bond={bondOf(myPetInfo.skills)}
                   topSkill={topSkillOf(myPetInfo.skills)}
                   mode="battle"
+                  canvasBubble={false}
                   fallbackSrc={myPetImage || undefined}
                   alt={myPetInfo.name}
                   style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
@@ -1109,6 +1125,7 @@ export default function DuelPage() {
                   stage={(opponentPet.evolution || 0) + 1}
                   group={opponentPet.group}
                   mode="battle"
+                  canvasBubble={false}
                   fallbackSrc={opponentPet.image || undefined}
                   alt={opponentPet.name}
                   style={{ width: 82, maxWidth: 82, maxHeight: 90 }}

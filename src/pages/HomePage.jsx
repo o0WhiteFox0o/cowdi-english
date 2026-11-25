@@ -9,6 +9,8 @@ import { ALL_LESSONS, LEVELS, UNITS } from '../data/lessons';
 import { getPathById, getPathProgress } from '../data/path';
 import { PET_REGISTRY, getEvolutionInfo, getPetMood } from '../data/pets';
 import { PetAvatar, bondOf, topSkillOf } from '../pet-rig/PetAvatar';
+import { usePetDirector } from '../pet-director/DirectorContext';
+import PetSpeech from '../pet-director/PetSpeech';
 import InviteSheet from '../features/invite/InviteSheet';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
@@ -63,14 +65,17 @@ export default function HomePage() {
   const heroPetRef = useRef(null);
   const cardPetRef = useRef(null);
   const appOpenSentRef = useRef(false);
+  const { register, dispatch, speech } = usePetDirector();
+
+  useEffect(() => register('home', heroPetRef, [cardPetRef]), [register]);
 
   useEffect(() => {
     if (appOpenSentRef.current || !activePet?.speciesId) return;
     appOpenSentRef.current = true;
     const daysAway = calcDaysAway(userData.lastActiveDate || activePet.needsUpdatedAt);
-    heroPetRef.current?.emit('app_open', { daysAway });
-    cardPetRef.current?.emit('app_open', { daysAway });
-  }, [activePet?.speciesId, activePet?.needsUpdatedAt, userData.lastActiveDate]);
+    dispatch('app_open', { daysAway });
+    dispatch('screen_enter', { screen: 'home' });
+  }, [activePet?.speciesId, activePet?.needsUpdatedAt, userData.lastActiveDate, dispatch]);
 
   const completed = userData.completedLessons || [];
   const activePathObj = getPathById(userData.activePath || 'intermediate');
@@ -236,6 +241,11 @@ export default function HomePage() {
         </div>
 
         <div className="dash-hero-mascot-box">
+          {speech?.slot === 'home' && (
+            <div style={{ marginBottom: 8, maxWidth: 240 }}>
+              <PetSpeech speech={speech} placement="top" />
+            </div>
+          )}
           <PetAvatar
             ref={heroPetRef}
             petId={activePet?.speciesId}
@@ -244,9 +254,11 @@ export default function HomePage() {
             bond={bondOf(activePet?.skills)}
             topSkill={topSkillOf(activePet?.skills)}
             mode="home"
+            canvasBubble={false}
             fallbackSrc={petImg}
             alt={petName}
             className="dash-hero-mascot-img"
+            onClip={(evt) => evt === 'tap' && dispatch('pet_tap')}
           />
           <span className="dash-hero-mood-tag">
             <Emoji e={evo?.emoji || species?.emoji || '🐮'} size={14} /> {petName} {MOOD_LABEL[mood] || 'đang vui'}
@@ -366,8 +378,10 @@ export default function HomePage() {
                 bond={bondOf(activePet?.skills)}
                 topSkill={topSkillOf(activePet?.skills)}
                 mode="home"
+                canvasBubble={false}
                 fallbackSrc={petImg}
                 alt={petName}
+                onClip={(evt) => evt === 'tap' && dispatch('pet_tap')}
               />
             </div>
             <h4 className="dash-pet-name">{petName}</h4>

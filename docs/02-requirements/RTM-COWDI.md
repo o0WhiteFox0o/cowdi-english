@@ -1,6 +1,6 @@
 # RTM-COWDI — Ma trận Truy vết Yêu cầu (Requirements Traceability Matrix)
 
-> **Loại tài liệu:** Tài liệu sống · **Chuẩn tham chiếu:** ISO/IEC/IEEE 29148:2018 · **Cập nhật lần cuối:** 2026-11-25
+> **Loại tài liệu:** Tài liệu sống · **Chuẩn tham chiếu:** ISO/IEC/IEEE 29148:2018 · **Cập nhật lần cuối:** 2026-11-26
 > Mục đích: Đảm bảo mọi yêu cầu nghiệp vụ & phi chức năng đều truy vết xuyên suốt **Yêu cầu → Thiết kế → Mã nguồn → Kiểm thử → Trạng thái triển khai**.
 
 ---
@@ -66,7 +66,21 @@
 
 ---
 
-## 5. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
+## 5. Phân hệ Pet Director V2 (`SDD-PET-DIRECTOR v1.1` — Tích hợp trên nền `Pet-motion`)
+
+| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn dự kiến | Kiểm thử / Nghiệm thu | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-DIR-01` | Lõi điều phối `PetDirector` thuần JS (ưu tiên, ngắt, cooldown, giãn cách 20s, 1 lần/phiên, giờ yên 21:00–06:00, chống lặp 7 ngày, giữ chỗ GĐ3) | SDD-PET-DIRECTOR §3–4, §11 | `src/pet-director/PetDirector.js`, `rules.js`, `lineSelector.js`, `storage.js` | `src/pet-director/pet-director.test.mjs` | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-02` | Tận dụng `Pet-motion`: thêm `canvasBubble` (`false` khi dùng Director), chuẩn hoá `onClip('tap')` cho cả rig duyệt & ảnh tĩnh fallback, tuân thủ P3 | SDD-PET-DIRECTOR §2, §9 | `src/pet-rig/PetRig.js`, `src/pet-rig/PetAvatar.jsx` | `src/pet-rig/pet-rig.test.mjs` | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-03` | Sân khấu `<PetStage>` đồng hành chuẩn V2 (Desktop `sticky` 2 cột + căn giữa thẻ đơn/Flashcard + `.lesson-step-footer` full-width; Mobile xếp dọc `compact` giữ Zero-Scroll Quiz), `<PetSpeech>` (Mali + nút Nghe TTS + nhép miệng), `<PetThought>` SVG | SDD-PET-DIRECTOR §6.1, §6.3–6.4 | `src/pet-director/DirectorContext.jsx`, `PetStage.jsx`, `PetSpeech.jsx`, `PetThought.jsx`, `pet-director.css` | `170/170` test PASS, `npm run build` PASS, UAT local | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-04` | Gỡ hoàn toàn bong bóng nổi `CowdiChat` khỏi `App.jsx` & dọn `.cowdi-chat-*` trên 3 file CSS; chuyển `LessonDetailPage`, `PictureLesson`, `PracticePage` sang `dispatch` | SDD-PET-DIRECTOR §1 (P2, P7), §7 | `src/App.jsx`, `LessonDetailPage.jsx`, `PictureLesson.jsx`, `PracticePage.jsx`, `book.css`, `components.css`, `pet.css` | 0 `position: fixed` pet trên bài học | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-05` | Kho câu thoại LineDB đạt chuẩn giọng văn P3–P6 (`common.js` trung tính + `cowdi.js` 240+ câu GĐ2 + chuyển `PAGE_TIPS`, 0 từ cấm, ≤ 60 ký tự) | SDD-PET-DIRECTOR §5 | `src/data/pet-lines/index.js`, `common.js`, `cowdi.js` | `src/pet-director/lines.test.mjs` | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-06` | `<PathPet>` trên bản đồ `LearningPathPage` (kèm `<PetThought>` & thẻ hành động `Học tiếp`/`Để sau`, hài hoà với bạn bè `FR-MAP-04`) | SDD-PET-DIRECTOR §6.2 | `src/pet-director/PathPet.jsx`, `src/pages/LearningPathPage.jsx` | `npm test` + `npm run build` | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-07` | Chuyển `HomePage`, `PetPage`, `DuelPage` (luôn Tầng 1) sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` | SDD-PET-DIRECTOR §7, §10 | `HomePage.jsx`, `PetPage.jsx`, `DuelPage.jsx`, `StudyPreviewTab.jsx`, `src/data/pets.js` | `grep` 0 chuỗi cấm P3 trong kho thoại & UI pet | ✅ Done (`feat/pet-director`) |
+
+---
+
+## 6. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
 
 | Req ID | Hạng mục | Yêu cầu cụ thể | Cách kiểm chứng | Trạng thái |
 |---|---|---|---|---|

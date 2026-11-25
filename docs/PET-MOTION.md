@@ -111,3 +111,11 @@ Vì cấp C1 (Trứng) chưa có tay, mắt hay miệng tách lớp nên nhiều
 - `pos`: vị trí nổi quanh pet — `top-right` (mặc định), `top-center`, `top-left`.
 - Tên hiển thị tiếng Việt và emoji gợi ý cho cả 34 động tác đặt tại `shared/pet-motion-labels.js`.
 - Chỉ hiển thị cho người học khi động tác đó đã được quản trị viên **Đánh dấu hoàn thiện**.
+
+## Tích hợp với Pet Director V2 (`SDD-PET-DIRECTOR-v1.1.md`)
+
+Hệ thống điều phối biểu đạt **Pet Director** (xem thiết kế tại [`SDD-PET-DIRECTOR-v1.1.md`](04-design/SDD-PET-DIRECTOR-v1.1.md) và kế hoạch [`TASK-PET-DIRECTOR.md`](05-implementation/TASK-PET-DIRECTOR.md)) đứng ngay phía trên `Pet-motion` và tái sử dụng 100% 34 động tác, FX hạt, biểu cảm `emoji` đã duyệt và quy tắc fallback:
+
+- **Tách lớp chữ khỏi canvas (`canvasBubble`):** `PetRig` / `<PetAvatar>` bổ sung tuỳ chọn `canvasBubble` (mặc định `true` để tương thích ngược). Mọi màn hình dùng Pet Director truyền `canvasBubble={false}` để tắt bong bóng thô trên canvas, nhường hiển thị chữ cho `<PetSpeech>` (DOM, font `Mali`, xuống dòng chuẩn, có nút Nghe TTS).
+- **Đồng nhất tương tác chạm (`tap`):** Cả `PetRig` (canvas đã duyệt rig) lẫn nhánh fallback `<img>` (pet-cấp chưa duyệt rig) đều bắn `onClip('tap', ...)` khi bé chạm vào pet để Director xử lý `pet_tap` nhất quán.
+- **Một nguồn sự thật (P7):** Sau khi tích hợp Director, các màn hình người học gửi sự kiện qua `director.dispatch(event, payload)` thay vì gọi `petRef.current.emit(...)` trực tiếp (riêng `setMicLevel`/`setVoiceLevel` theo khung hình vẫn giữ nguyên). Không thay đổi `shared/pet-motion.js` hay API duyệt clip của `/admin/pet-motion`.

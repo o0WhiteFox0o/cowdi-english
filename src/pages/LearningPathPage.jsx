@@ -26,6 +26,8 @@ import GroupPicker from '../features/onboarding/GroupPicker';
 import PlacementTest from '../features/placement/PlacementTest';
 import { useFriendPositions } from '../features/friends/useFriendPositions';
 import { FRIEND_LIMITS } from '../../shared/game-config';
+import { usePetDirector } from '../pet-director/DirectorContext';
+import { PathPet, PathPetCard } from '../pet-director/PathPet';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -38,7 +40,16 @@ export default function LearningPathPage() {
   const navigate = useNavigate();
   const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, refreshWallet } = useUser();
   const { getActivePetWithDecay } = usePet();
+  const { register, dispatch } = usePetDirector();
   const showToast = useToast();
+  const pathPetRef = useRef(null);
+
+  useEffect(() => {
+    const unregister = register('path', pathPetRef);
+    dispatch('app_open');
+    dispatch('screen_enter', { screen: 'path' });
+    return unregister;
+  }, [register, dispatch]);
 
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [skippedPlacement, setSkippedPlacement] = useState(false);
@@ -672,16 +683,10 @@ export default function LearningPathPage() {
                   return (
                     <li key={node.key} className="path-step" style={{ '--x': `${x}px` }} ref={isCur ? currentRef : null}>
                       {isCur && (
-                        <img
-                          src={petImg}
-                          alt="Pet của bạn"
-                          className={`path-mascot ${x >= 0 ? 'left' : 'right'}`}
-                          style={{
-                            borderRadius: '50%',
-                            border: `3px solid ${activePath.color || '#7DBE4B'}`,
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
-                            background: '#fff',
-                          }}
+                        <PathPet
+                          pet={activePet}
+                          petRef={pathPetRef}
+                          side={x >= 0 ? 'left' : 'right'}
                         />
                       )}
                       {node.status === 'locked' ? (
@@ -749,6 +754,12 @@ export default function LearningPathPage() {
           </p>
         </div>
       </div>
+
+      <PathPetCard
+        petName={activePet?.customName || PET_REGISTRY[activePet?.speciesId]?.name || 'Cowdi'}
+        currentNode={currentNode}
+        onStartCheckpoint={startCheckpoint}
+      />
 
       {currentNode && (
         <div className="path-fab">
