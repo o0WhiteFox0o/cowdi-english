@@ -1848,7 +1848,52 @@ export function initEditor(rootEl, api, opts = {}) {
       if (state.learnerPreview || !state.rig || !partName || !file) return false;
       notifySave('saving', { kind: 'part', part: partName });
       try {
-        const up = await api.uploadPart(state.petId, state.stage, partName, file);
+        let uploadFile = file;
+        let precomputedEyeBBox = null;
+
+        // Nếu họa sĩ tách eye0/eye1 trực tiếp từ khung ảnh gốc lớn (vd 512×512),
+        // tự động ghi nhớ toạ độ mắt trên khung lớn rồi crop gọn file mắt trước khi tải lên
+        // để eyeDraw vẽ đúng kích thước & vị trí trên khuôn mặt.
+        if (partName === 'eye0' || partName === 'eye1') {
+          const tmpUrl = URL.createObjectURL(file);
+          try {
+            const tmpImg = await new Promise((resolve, reject) => {
+              const im = new Image();
+              im.onload = () => resolve(im);
+              im.onerror = reject;
+              im.src = tmpUrl;
+            });
+            const rawBBox = computeImageBBox(tmpImg);
+            const rigW = state.rig.size?.[0] || tmpImg.width;
+            if (tmpImg.width >= rigW * 0.75 && rawBBox.w < tmpImg.width * 0.65 && rawBBox.h < tmpImg.height * 0.65) {
+              precomputedEyeBBox = rawBBox;
+              const cropCv = document.createElement('canvas');
+              cropCv.width = Math.max(1, rawBBox.w);
+              cropCv.height = Math.max(1, rawBBox.h);
+              cropCv
+                .getContext('2d')
+                .drawImage(
+                  tmpImg,
+                  rawBBox.x0,
+                  rawBBox.y0,
+                  rawBBox.w,
+                  rawBBox.h,
+                  0,
+                  0,
+                  rawBBox.w,
+                  rawBBox.h
+                );
+              const croppedBlob = await new Promise((res) => cropCv.toBlob(res, 'image/png'));
+              if (croppedBlob) {
+                uploadFile = new File([croppedBlob], `${partName}.png`, { type: 'image/png' });
+              }
+            }
+          } finally {
+            URL.revokeObjectURL(tmpUrl);
+          }
+        }
+
+        const up = await api.uploadPart(state.petId, state.stage, partName, uploadFile);
         state.rigUpdatedAt = up.updatedAt;
         state.imageUrls[partName] = up.url;
         const { img, objectUrl } = await api.loadImage(up.url, { authenticated: true });
@@ -1856,7 +1901,7 @@ export function initEditor(rootEl, api, opts = {}) {
         state.images[partName] = img;
         delete state.alphaCache[`draft_${partName}`];
 
-        const bbox = computeImageBBox(img);
+        const bbox = precomputedEyeBBox || computeImageBBox(img);
 
         if (partName === 'eye0' || partName === 'eye1') {
           const idx = partName === 'eye0' ? 0 : 1;

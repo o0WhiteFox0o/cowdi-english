@@ -627,7 +627,7 @@ export default function PetMotionPage() {
 
   // Xuất bản bản chung modal
   const [publishDialog, setPublishDialog] = useState(null); // { clip, affected: [], resetApprovals: true }
-  const [addPartChoice, setAddPartChoice] = useState('auto'); // 'auto' hoặc tên bộ phận cụ thể
+  const [addPartChoice, setAddPartChoice] = useState('head'); // tên bộ phận cụ thể hoặc 'auto'
   const [addingPart, setAddingPart] = useState(false);
   const [emojiCfg, setEmojiCfg] = useState({ enabled: false, char: '✨', imageUrl: '', pos: 'top-right' });
   const [customEmojis, setCustomEmojis] = useState([]);
@@ -642,7 +642,6 @@ export default function PetMotionPage() {
   const [paintSaving, setPaintSaving] = useState(false);
   const [missingParts, setMissingParts] = useState([]);
   const [suggestSourceIdx, setSuggestSourceIdx] = useState(0);
-  const [suggestPartTarget, setSuggestPartTarget] = useState('body');
   const [openingStudio, setOpeningStudio] = useState(false);
   const pendingAutoOpenPartRef = useRef(null);
 
@@ -749,7 +748,28 @@ export default function PetMotionPage() {
     setSuggestSourceIdx(0);
   }, [selectedPetId, selectedStageNum]);
 
-  // Mở Studio cắt/vẽ cho một bộ phận trong Rig từ nguồn ảnh gợi ý (ảnh pet hiện có / ảnh bộ phận khác / khung trống)
+  // Gộp danh sách nguồn ảnh cho Bàn dựng Rig:
+  // Ưu tiên 1: Ảnh gốc nguyên vẹn của chính pet & cấp hiện tại (để dù body đã bị cắt gọt vẫn lấy được đầu/tay đầy đủ)
+  // Ưu tiên 2: Các lớp đang có sẵn trong rig (như body — hữu ích khi pet tự thêm chưa có ảnh tĩnh cấp đó)
+  // Ưu tiên 3: Ảnh các cấp khác C1..C5 cùng pet / phôi tham chiếu / khung trống
+  const buildOrderedEditorSources = useCallback(() => {
+    const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
+    const exactStageSource = currentPetSuggestedSources.find(
+      (s) => s.id === `self-c${selectedStageNum}`
+    );
+    const restPetSources = currentPetSuggestedSources.filter(
+      (s) => s.id !== `self-c${selectedStageNum}`
+    );
+    return [
+      ...(exactStageSource
+        ? [{ ...exactStageSource, label: `Ảnh gốc ${exactStageSource.shortLabel} (nguyên bản)` }]
+        : []),
+      ...rigPartSources,
+      ...restPetSources,
+    ];
+  }, [currentPetSuggestedSources, selectedStageNum]);
+
+  // Mở Studio cắt/vẽ cho một bộ phận trong Rig từ nguồn ảnh gợi ý (ảnh pet gốc / body / khung trống)
   const handleOpenSuggestPartStudio = useCallback(
     async ({
       partName,
@@ -758,13 +778,20 @@ export default function PetMotionPage() {
       referenceLayers = null,
       isExistingSlot = null,
     }) => {
-      if (!partName || openingStudio) return;
+      let resolvedPart = partName;
+      if (!resolvedPart || resolvedPart === 'auto') {
+        const nextMissingSlot = ['head', 'armL', 'armR', 'crown', 'eye0', 'eye1', 'front'].find(
+          (p) => !editorCtrlRef.current?.hasPartSlot?.(p)
+        );
+        resolvedPart = nextMissingSlot || 'head';
+        setAddPartChoice(resolvedPart);
+      }
+      if (openingStudio) return;
       const pObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
       if (!pObj) return;
       setOpeningStudio(true);
       try {
-        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
-        const allSources = [...rigPartSources, ...currentPetSuggestedSources];
+        const allSources = buildOrderedEditorSources();
         const chosen = sourceItem || allSources[suggestSourceIdx] || allSources[0];
         const frameSize =
           targetSize ||
@@ -774,23 +801,24 @@ export default function PetMotionPage() {
           ];
         const canvasImg = await loadAnyPetSourceToCanvas(chosen, api, frameSize);
         const refs =
-          referenceLayers ?? editorCtrlRef.current?.buildReferenceLayersFor?.(partName) ?? [];
+          referenceLayers ?? editorCtrlRef.current?.buildReferenceLayersFor?.(resolvedPart) ?? [];
         const slotExists =
-          isExistingSlot ?? Boolean(editorCtrlRef.current?.hasPartSlot?.(partName));
+          isExistingSlot ?? Boolean(editorCtrlRef.current?.hasPartSlot?.(resolvedPart));
 
         setPaintTarget({
           mode: slotExists ? 'replace_part' : 'add_part',
-          part: partName,
-          partLabel: PART_VI_LABELS[partName] || partName,
+          part: resolvedPart,
+          partLabel: PART_VI_LABELS[resolvedPart] || resolvedPart,
           petLabel: pObj.name,
           stage: selectedStageNum,
           image: canvasImg,
           referenceLayers: refs,
           initialDirty: true,
+          initialTool: chosen?.kind === 'blank' ? 'brush' : 'lasso',
           suggestedSources: allSources,
         });
       } catch (err) {
-        showToast(err.message || 'Không mở được ảnh gợi ý để cắt/vẽ.');
+        showToast(err.message || 'Không mở được ảnh gốc để cắt/vẽ.');
       } finally {
         setOpeningStudio(false);
       }
@@ -799,7 +827,7 @@ export default function PetMotionPage() {
       openingStudio,
       dynamicPetMap,
       selectedPetId,
-      currentPetSuggestedSources,
+      buildOrderedEditorSources,
       suggestSourceIdx,
       detail,
       selectedStageNum,
@@ -871,9 +899,17 @@ export default function PetMotionPage() {
         const missing = editorCtrlRef.current?.getMissingParts?.() || [];
         setMissingParts(missing);
         if (missing.length > 0) {
-          setSuggestPartTarget((prev) =>
+          setAddPartChoice((prev) =>
             missing.some((m) => m.part === prev) ? prev : missing[0].part
           );
+        } else {
+          setAddPartChoice((prev) => {
+            if (prev === 'auto' || !editorCtrlRef.current?.hasPartSlot?.(prev)) return prev;
+            const nextSlot = ['head', 'armL', 'armR', 'crown', 'eye0', 'eye1', 'front'].find(
+              (p) => !editorCtrlRef.current?.hasPartSlot?.(p)
+            );
+            return nextSlot || prev;
+          });
         }
       },
       onSuggestFromPet: (payload) => {
@@ -885,7 +921,13 @@ export default function PetMotionPage() {
           dynamicPetList,
           brokenImgs
         );
-        const allSources = [...rigPartSources, ...petSources];
+        const exactStage = petSources.find((s) => s.id === `self-c${selectedStageNum}`);
+        const restPet = petSources.filter((s) => s.id !== `self-c${selectedStageNum}`);
+        const allSources = [
+          ...(exactStage ? [{ ...exactStage, label: `Ảnh gốc ${exactStage.shortLabel} (nguyên bản)` }] : []),
+          ...rigPartSources,
+          ...restPet,
+        ];
         const firstNonBlank = allSources.find((s) => s.kind !== 'blank') || allSources[0];
         loadAnyPetSourceToCanvas(
           firstNonBlank,
@@ -905,6 +947,7 @@ export default function PetMotionPage() {
               image: canvasImg,
               referenceLayers: payload.referenceLayers || [],
               initialDirty: true,
+              initialTool: firstNonBlank?.kind === 'blank' ? 'brush' : 'lasso',
               suggestedSources: allSources,
             });
           })
@@ -1752,6 +1795,7 @@ export default function PetMotionPage() {
             image={paintTarget.image}
             referenceLayers={paintTarget.referenceLayers || []}
             initialDirty={Boolean(paintTarget.initialDirty)}
+            initialTool={paintTarget.initialTool || 'brush'}
             suggestedSources={paintTarget.suggestedSources || []}
             onLoadSuggestedSource={(srcItem) => loadAnyPetSourceToCanvas(srcItem, api)}
             saving={paintSaving}
@@ -2155,89 +2199,100 @@ export default function PetMotionPage() {
                     <button type="button" className="pm-btn pm-btn-sm" data-pm="mPivot" aria-pressed="false">Điểm xoay</button>
                   </div>
                   <div className="pm-parts" data-pm="parts" />
-                  {!learnerPreview && (
-                    <div className="pm-row mt-2 p-2 rounded-3" style={{ background: '#f6fbf7', border: '1px dashed #b9d5c0' }}>
-                      <select
-                        className="pm-select"
-                        style={{ minHeight: 30, fontSize: '0.8rem' }}
-                        aria-label="Chọn bộ phận muốn thêm"
-                        value={addPartChoice}
-                        onChange={(e) => setAddPartChoice(e.target.value)}
-                        disabled={addingPart}
-                      >
-                        <option value="auto">Tự nhận theo tên file</option>
-                        <option value="head">head (Đầu)</option>
-                        <option value="crown">crown (Chỏm/Tai)</option>
-                        <option value="armL">armL (Tay trái)</option>
-                        <option value="armR">armR (Tay phải)</option>
-                        <option value="front">front (Lớp trước)</option>
-                        <option value="fx">fx (Hiệu ứng trôi)</option>
-                        <option value="aura">aura (Hào quang)</option>
-                        <option value="eye0">eye0 (Mắt 1)</option>
-                        <option value="eye1">eye1 (Mắt 2)</option>
-                        <option value="body">body (Thân)</option>
-                      </select>
-                      <label className="pm-file-btn" style={{ minHeight: 30, fontSize: '0.78rem', background: '#2f9e4f', color: '#fff', borderColor: '#2f9e4f' }}>
-                        {addingPart ? 'Đang thêm…' : '+ Thêm bộ phận'}
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/png,image/webp"
-                          hidden
-                          disabled={addingPart}
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            handleAddPartsToRig(files);
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
-                      <div className="w-100 small text-muted" style={{ fontSize: '0.72rem' }}>
-                        📐 Khung rig hiện tại:{' '}
-                        <code>
-                          {detail?.rig?.draftRig?.size?.[0] || getStageImageSpec(selectedStageNum).recommended}×
-                          {detail?.rig?.draftRig?.size?.[1] || getStageImageSpec(selectedStageNum).recommended} px
-                        </code>{' '}
-                        · WebP/PNG nền trong suốt · ≤ 2 MB/file.
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Đề xuất lấy ảnh hiện có của pet để họa sĩ tự cắt bộ phận hoặc vẽ lại */}
-                  {!learnerPreview && (
-                    <div
-                      className="mt-2 p-2 rounded-3"
-                      style={{
-                        background: missingParts.length > 0 ? '#fffbeb' : '#f4faf6',
-                        border:
-                          missingParts.length > 0
-                            ? '1px solid #f59e0b'
-                            : '1px dashed #a7d7b5',
-                      }}
-                    >
+                  {!learnerPreview && (() => {
+                    const allEditorSources = buildOrderedEditorSources();
+                    const clampedIdx = Math.min(suggestSourceIdx, Math.max(0, allEditorSources.length - 1));
+                    const activeSource = allEditorSources[clampedIdx] || null;
+                    return (
                       <div
-                        className="small fw-bold mb-1"
+                        className="mt-2 p-2 rounded-3"
                         style={{
-                          fontSize: '0.76rem',
-                          color: missingParts.length > 0 ? '#92400e' : '#1b4332',
+                          background: missingParts.length > 0 ? '#fffbeb' : '#f6fbf7',
+                          border:
+                            missingParts.length > 0
+                              ? '1px solid #f59e0b'
+                              : '1px dashed #b9d5c0',
                         }}
                       >
-                        {missingParts.length > 0
-                          ? `✂️ Đang thiếu ảnh (${missingParts.map((m) => m.part).join(', ')}) — lấy ảnh hiện có của ${petObj.name} để tự cắt / vẽ lại:`
-                          : `✂️ Tách thêm bộ phận / vẽ lại từ ảnh hiện có của ${petObj.name}:`}
-                      </div>
-                      {(() => {
-                        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
-                        const allEditorSources = [...rigPartSources, ...currentPetSuggestedSources];
-                        const clampedIdx = Math.min(suggestSourceIdx, Math.max(0, allEditorSources.length - 1));
-                        return (
-                          <div className="d-flex flex-wrap gap-1 align-items-center">
+                        {missingParts.length > 0 && (
+                          <div
+                            className="small fw-bold mb-1"
+                            style={{ fontSize: '0.74rem', color: '#92400e' }}
+                          >
+                            ⚠️ Đang thiếu ảnh ({missingParts.map((m) => m.part).join(', ')}) — bấm &ldquo;✂️ Lấy ảnh gốc&rdquo; để cắt / vẽ bù ngay:
+                          </div>
+                        )}
+
+                        <div className="pm-row">
+                          <select
+                            className="pm-select"
+                            style={{ minHeight: 30, fontSize: '0.8rem', flex: '1 1 135px' }}
+                            aria-label="Chọn bộ phận muốn thêm"
+                            value={addPartChoice}
+                            onChange={(e) => setAddPartChoice(e.target.value)}
+                            disabled={addingPart || openingStudio}
+                          >
+                            <option value="head">head (Đầu)</option>
+                            <option value="crown">crown (Chỏm/Tai)</option>
+                            <option value="armL">armL (Tay trái)</option>
+                            <option value="armR">armR (Tay phải)</option>
+                            <option value="eye0">eye0 (Mắt 1)</option>
+                            <option value="eye1">eye1 (Mắt 2)</option>
+                            <option value="front">front (Lớp trước)</option>
+                            <option value="fx">fx (Hiệu ứng trôi)</option>
+                            <option value="aura">aura (Hào quang)</option>
+                            <option value="body">body (Thân)</option>
+                            <option value="auto">Tự nhận theo tên file</option>
+                          </select>
+
+                          <button
+                            type="button"
+                            className="pm-btn pm-btn-sm primary"
+                            style={{ minHeight: 30, fontSize: '0.78rem' }}
+                            disabled={addingPart || openingStudio}
+                            onClick={() =>
+                              handleOpenSuggestPartStudio({
+                                partName: addPartChoice,
+                                sourceItem: activeSource,
+                              })
+                            }
+                            title={`Lấy ảnh gốc / body của ${petObj.name} đưa vào Studio để khoanh cắt lấy bộ phận này (hoặc lưu nguyên bản)`}
+                          >
+                            {openingStudio ? 'Đang mở…' : '✂️ + Lấy ảnh gốc'}
+                          </button>
+
+                          <label
+                            className="pm-file-btn"
+                            style={{ minHeight: 30, fontSize: '0.78rem' }}
+                            title="Tải 1 hoặc nhiều file PNG/WebP tách lớp từ máy tính"
+                          >
+                            {addingPart ? 'Đang tải…' : '📁 + Tải file'}
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/png,image/webp"
+                              hidden
+                              disabled={addingPart || openingStudio}
+                              onChange={(e) => {
+                                const files = e.target.files;
+                                handleAddPartsToRig(files);
+                                e.target.value = '';
+                              }}
+                            />
+                          </label>
+                        </div>
+
+                        {allEditorSources.length > 0 && (
+                          <div className="d-flex align-items-center gap-1 mt-1">
+                            <span className="small text-muted" style={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
+                              Nguồn gốc:
+                            </span>
                             <select
                               className="pm-select"
-                              style={{ minHeight: 28, fontSize: '0.75rem', flex: '1 1 170px', maxWidth: '100%' }}
-                              aria-label="Chọn ảnh nguồn hiện có của pet"
+                              style={{ minHeight: 26, fontSize: '0.73rem', padding: '1px 6px', flex: '1 1 auto', minWidth: 0 }}
+                              aria-label="Chọn nguồn ảnh gốc để lấy sang bộ phận mới"
                               value={clampedIdx}
-                              disabled={openingStudio}
+                              disabled={addingPart || openingStudio}
                               onChange={(e) => setSuggestSourceIdx(Number(e.target.value))}
                             >
                               {allEditorSources.map((src, idx) => (
@@ -2246,41 +2301,20 @@ export default function PetMotionPage() {
                                 </option>
                               ))}
                             </select>
-                            <select
-                              className="pm-select"
-                              style={{ minHeight: 28, fontSize: '0.75rem' }}
-                              aria-label="Chọn bộ phận đích để cắt hoặc vẽ"
-                              value={suggestPartTarget}
-                              disabled={openingStudio}
-                              onChange={(e) => setSuggestPartTarget(e.target.value)}
-                            >
-                              {Object.entries(PART_VI_LABELS).map(([k, label]) => (
-                                <option key={k} value={k}>
-                                  → {label}
-                                  {missingParts.some((m) => m.part === k) ? ' (chưa có ảnh)' : ''}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              className={`pm-btn pm-btn-sm ${missingParts.length > 0 ? 'warn' : 'primary'}`}
-                              style={{ minHeight: 28, fontSize: '0.76rem' }}
-                              disabled={openingStudio}
-                              onClick={() =>
-                                handleOpenSuggestPartStudio({
-                                  partName: suggestPartTarget,
-                                  sourceItem: allEditorSources[clampedIdx],
-                                })
-                              }
-                              title="Mở ảnh pet hiện có trong Studio (dùng Khoanh chọn + Giữ vùng chọn để tách bộ phận hoặc làm phôi mờ vẽ lại)"
-                            >
-                              {openingStudio ? 'Đang mở…' : '✂️ Mở Studio cắt / vẽ'}
-                            </button>
                           </div>
-                        );
-                      })()}
-                    </div>
-                  )}
+                        )}
+
+                        <div className="w-100 small text-muted mt-1" style={{ fontSize: '0.71rem' }}>
+                          📐 Khung rig:{' '}
+                          <code>
+                            {detail?.rig?.draftRig?.size?.[0] || getStageImageSpec(selectedStageNum).recommended}×
+                            {detail?.rig?.draftRig?.size?.[1] || getStageImageSpec(selectedStageNum).recommended} px
+                          </code>{' '}
+                          · Bấm <b>✂️ + Lấy ảnh gốc</b> để khoanh cắt ngay trên ảnh gốc/body, hoặc <b>📁 + Tải file</b> từ máy.
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div className="pm-nums" data-pm="nums" />
                 </div>
 
@@ -2575,6 +2609,7 @@ export default function PetMotionPage() {
           image={paintTarget.image}
           referenceLayers={paintTarget.referenceLayers || []}
           initialDirty={Boolean(paintTarget.initialDirty)}
+          initialTool={paintTarget.initialTool || 'brush'}
           suggestedSources={paintTarget.suggestedSources || []}
           onLoadSuggestedSource={(srcItem) => loadAnyPetSourceToCanvas(srcItem, api)}
           saving={paintSaving}
