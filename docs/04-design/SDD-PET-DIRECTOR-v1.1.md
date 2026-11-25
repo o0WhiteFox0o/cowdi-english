@@ -3,7 +3,7 @@
 | Mục | Giá trị |
 |---|---|
 | **Mã tài liệu** | `SDD-PET-DIRECTOR` |
-| **Phiên bản** | `1.1` · **Ngày tạo:** `2026-11-25` |
+| **Phiên bản** | `1.1.1` · **Cập nhật:** `2026-11-26` |
 | **Trạng thái** | `Approved — Đã triển khai GĐ 1–2 (feat/pet-director)` |
 | **Chuẩn tham chiếu** | IEEE 1016-2009 · Quy ước tài liệu: [DOCP-COWDI-v1.1](../00-general/DOCP-COWDI-v1.1.md) |
 | **Tài liệu nguồn & liên quan** | Gói bàn giao `cowdi-pet-director.zip` (v1.1, 2026-11-25) · [PET-MOTION.md](../PET-MOTION.md) · [SDD-PET-MANAGEMENT-v1.0.md](SDD-PET-MANAGEMENT-v1.0.md) · [RPT-PET-DIRECTOR-SURVEY.md](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) |
@@ -248,17 +248,19 @@ Biến hỗ trợ: `{petName}`, `{word}`, `{meaning}`, `{lessonTitle}`, `{streak
 
 Dùng token màu & font từ `src/styles/styles.css` (`--leaf #7DBE4B`, `--leaf-dark #5E9A35`, `--leaf-light #DDF1C8`, `--leaf-pale #EEF8E4`, `--ink #3B4A5C`, `--ink-soft #5F6E80`, `--paper-line #BFDBEF`). Bong bóng và thẻ pet dùng `font-family: 'Mali', cursive` (đủ dấu tiếng Việt, không dùng `Patrick Hand`).
 
-### 6.1 `<PetStage>` — Sân khấu trong bài học & luyện tập (thay `.study-pet-dock`)
+### 6.1 `<PetStage>` & Bố cục đồng hành bài học (`.pd-lesson-layout`, thay `.study-pet-dock`)
 
-- **Chế độ `standard`** (mặc định ở bước học từ/flashcard/ngữ pháp/đọc/PictureLesson): cao `156px` mobile / `184px` desktop (tối đa `200px`), bo góc `22px`, nền `--leaf-light`, viền `2px solid #CFE8B6`, dải cỏ cong `#A9D97A` cao `44px` ở đáy.
-- **Chế độ `compact`** (tự bật khi đang ở Quiz `.quiz-viewport-stage` hoặc màn hình thấp `max-height: 760px` để **bảo toàn Zero-Scroll Quiz** theo `SDD-PET-MANAGEMENT-v1.0`): cao `112px` mobile / `128px` desktop, dải cỏ cao `30px`, avatar gọn `96–112px`.
-- Bên trái: `<PetAvatar mode={finished ? 'home' : 'lesson'} canvasBubble={false} />` đứng trên dải cỏ.
-- Bên phải (chiếm sẵn vùng rộng tối đa `60%` thẻ → **layout không nhảy (CLS = 0)** khi bong bóng xuất hiện/ẩn):
-  - Khi có `speech`: hiện `<PetSpeech placement="right" />` (đuôi chỉ về pet).
-  - Khi không có `speech`: hiện dòng phụ nhạt (tên bài + bước hiện tại, thay cho `.study-pet-hint`).
-- Góc trên phải: chip chuỗi đúng `"{n} câu liền"` khi `streak >= 2`.
-- Giữ mount xuyên suốt giữa các tab bài học, quiz và màn kết quả để `PetRig` không tải lại.
-- Không có bất kỳ phần tử `position: fixed` nào của pet trên màn bài học.
+- **Thứ tự hiển thị chuẩn V2:** Thanh tiêu đề bài học (`← Lộ trình`, tên bài, `Chi tiết`) và thanh bước học (`1. Từ vựng … 4. Quiz`) luôn nằm ở **trên cùng**. Ngay phía dưới là vùng `.pd-lesson-layout` (Cowdi học cùng nội dung bài), và cuối cùng là `.lesson-step-footer` trải đều 100% bề ngang đáy trang.
+- **Desktop (`≥ 992px`) — Cột đồng hành `sticky`:**
+  - `.pd-lesson-layout` chia 2 cột: cột trái `<PetStage>` (`236–244px`, `position: sticky; top: 14px`, `min-height: 224px`, dải cỏ cong `#A9D97A` + 3 hạt màu pastel, bong bóng `<PetSpeech>` bung phía trên đầu Cowdi, chip `"{n} câu liền"` góc trên phải) và cột phải chứa nội dung học.
+  - **Cân bằng bố cục theo loại nội dung:**
+    - Các tab lưới rộng (`vocab`, `grammar`, `reading`): `.pd-lesson-layout` trải 100% bề ngang.
+    - Các màn thẻ đơn (`listen`, `speak`, `quiz`, `quizMode`, `picture`, `PracticePage`): áp dụng `.pd-lesson-layout--centered` (`max-width: 890px`, căn giữa) để cụm `[Cowdi + Thẻ học]` cân đối, không tạo khoảng trống thừa.
+    - Riêng **Flashcard**: áp dụng `.pd-lesson-layout--flashcard` (`max-width: 780px`, `align-items: center`) căn giữa ngang và dọc.
+- **Mobile (`< 992px`) — Xếp dọc đúng phác thảo V2:**
+  - `<PetStage>` dạng thẻ ngang ngay phía trên bài tập: cao `144px` ở bước học thông thường và `112px` (`compact`) trong màn Quiz để bảo toàn Zero-Scroll Quiz; Cowdi đứng bên trái, `<PetSpeech placement="right">` bên phải.
+- **Loại bỏ thành phần thừa:** Bỏ dòng tiêu đề lặp `"Cowdi đang học cùng bạn · Bài: ..."` và xoá banner xanh lá trùng lặp `"Nói theo Cowdi!"` ở tab `speak` (chuyển hướng dẫn ngắn `"Nghe → Nhấn mic → Nói → Xem điểm!"` lên gợi ý gọn trong `<PetStage>`).
+- **Giữ mount xuyên suốt:** `<PetStage>` nằm cùng vị trí trong React tree xuyên suốt các tab bài học, Quiz, `PictureLesson` và màn kết quả để `PetRig` không bao giờ tải lại. Không có phần tử `position: fixed` nào của pet trên màn bài học.
 
 ### 6.2 `<PathPet>` — Pet trên bản đồ Lộ trình (Giai đoạn 2)
 

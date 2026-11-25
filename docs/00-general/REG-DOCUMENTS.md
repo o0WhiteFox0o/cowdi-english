@@ -1,6 +1,6 @@
 # REG-DOCUMENTS — Sổ đăng ký Tài liệu (Document Register)
 
-> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-25
+> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-26
 
 > Mọi tài liệu mới, đổi phiên bản hoặc đổi trạng thái đều phải cập nhật vào sổ này. Cột **Thay cho** giữ tên file cũ để truy cứu link lịch sử.
 
@@ -54,7 +54,7 @@
 | SDD | **Tách lộ trình học thành 3 nhóm người học (Mới học · Trung bình · Luyện thi)** | [SDD-LEARNING-GROUPS-v2.0.md](../04-design/SDD-LEARNING-GROUPS-v2.0.md) | 2.0 | Approved | GEMINI-LEARNING-GROUPS.md (Bản 2) |
 | SDD | **Quản lý Pet (từ Pet Motion) & Tối ưu UI/UX Zero-Scroll Quiz** | [SDD-PET-MANAGEMENT-v1.0.md](../04-design/SDD-PET-MANAGEMENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24 — mở rộng `PET-MOTION.md`) |
 | SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (cập nhật 2026-11-25: liên kết Pet Director V2) |
-| SDD | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet (GĐ 1–2)** | [SDD-PET-DIRECTOR-v1.1.md](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [Mockups](../04-design/pet-director-mockups/) | 1.1 | Approved (Đã triển khai GĐ 1–2) | (mới 2026-11-25 — tích hợp trên nền `Pet-motion`, thay `CowdiChat`) |
+| SDD | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet (GĐ 1–2)** | [SDD-PET-DIRECTOR-v1.1.md](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [Mockups](../04-design/pet-director-mockups/) | 1.1.1 | Approved (Đã triển khai GĐ 1–2) | (cập nhật 2026-11-26: bố cục đồng hành V2 & cân bằng đa màn hình) |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
 | ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
 | WRD | Sơ đồ quan hệ web & phân hệ | [WRD-COWDI-v1.0.md](../04-design/WRD-COWDI-v1.0.md) | 1.0 | Approved | WEB-RELATIONSHIP-DIAGRAM-v1.0.md |
