@@ -8,6 +8,7 @@ export const S1_NUM_2_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u1',
+  category: 'number',
   title: 'Số 6 đến 10',
   description: 'Đếm từ 6 đến 10 bằng tiếng Anh',
   icon: '🔟',

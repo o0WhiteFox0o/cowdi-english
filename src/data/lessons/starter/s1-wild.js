@@ -8,6 +8,7 @@ export const S1_WILD_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u3',
+  category: 'animal',
   title: 'Động vật rừng xanh',
   description: 'Khám phá tên 6 con vật hoang dã thường gặp ở sở thú',
   icon: '🦁',

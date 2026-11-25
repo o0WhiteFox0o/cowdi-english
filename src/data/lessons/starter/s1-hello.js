@@ -8,6 +8,7 @@ export const S1_HELLO_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u1',
+  category: 'greeting',
   title: 'Xin chào',
   description: 'Chào hỏi và nói cảm ơn bằng 6 từ đơn giản',
   icon: '👋',

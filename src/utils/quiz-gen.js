@@ -139,63 +139,173 @@ export function generateQuizFromLesson(lesson) {
   return shuffleArray(selected).slice(0, Math.max(10, (lesson?.quiz || []).length));
 }
 
+export const CATEGORY_PROMPTS = {
+  color: 'Màu này là gì?',
+  shape: 'Hình dạng này là gì?',
+  animal: 'Đây là con gì?',
+  number: 'Đây là số mấy?',
+  person: 'Đây là ai?',
+  adjective: 'Hình này chỉ đặc điểm nào?',
+  food: 'Đây là món gì?',
+  job: 'Đây là nghề gì?',
+  body: 'Đây là bộ phận nào?',
+  place: 'Đây là nơi nào?',
+  object: 'Đây là đồ vật gì?',
+};
+
+export const NON_DRAWABLE_CATEGORIES = new Set(['greeting']);
+
+function promptForCategory(category) {
+  return CATEGORY_PROMPTS[category] || 'Đây là gì?';
+}
+
+function balanceCorrectPositions(questions) {
+  // Tránh ≥3 câu liên tiếp cùng chỉ số correct bằng cách đảo vị trí option nếu cần
+  let streak = 1;
+  for (let i = 1; i < questions.length; i++) {
+    const prev = questions[i - 1];
+    const cur = questions[i];
+    if (cur.correct === prev.correct) {
+      streak++;
+      if (streak >= 3 && Array.isArray(cur.options) && cur.options.length > 1) {
+        const swapIdx = (cur.correct + 1) % cur.options.length;
+        const nextOpts = [...cur.options];
+        [nextOpts[cur.correct], nextOpts[swapIdx]] = [nextOpts[swapIdx], nextOpts[cur.correct]];
+        cur.options = nextOpts;
+        if (Array.isArray(cur.choiceWords) && cur.choiceWords.length === nextOpts.length) {
+          const nextCW = [...cur.choiceWords];
+          [nextCW[cur.correct], nextCW[swapIdx]] = [nextCW[swapIdx], nextCW[cur.correct]];
+          cur.choiceWords = nextCW;
+        }
+        cur.correct = swapIdx;
+        streak = 1;
+      }
+    } else {
+      streak = 1;
+    }
+  }
+  return questions;
+}
+
 /**
  * Sinh câu hỏi thử thách / kiểm tra cho bài cấp 1 (`format: 'picture'`).
  * 3 dạng: listen-pick-image, image-pick-word, pattern-fill.
+ * Tuân thủ STD-QUESTION-QUALITY v1.0:
+ * - Đáp án nhiễu lấy cùng `category` (không trộn khác nhóm).
+ * - Nhóm `greeting` không sinh dạng `image-pick-word` (dùng `listen-pick-image`).
+ * - Không chèn emoji vào lời dẫn `question` (tránh lặp emoji).
+ * - Hỗ trợ `opts.allowListening` và `opts.validator` (thử tối đa 3 lần).
  */
-export function generatePictureChallenge(words = [], pattern = null, count = 6) {
+export function generatePictureChallenge(words = [], pattern = null, count = 6, opts = {}) {
   if (!Array.isArray(words) || words.length < 2) return [];
-  const types = pattern?.en?.includes('___')
-    ? ['listen-pick-image', 'image-pick-word', 'pattern-fill']
-    : ['listen-pick-image', 'image-pick-word'];
+  const { allowListening = true, validator = null } = opts;
 
-  const pool = shuffleArray(words);
+  const hasPattern = Boolean(pattern?.en?.includes('___'));
+  const baseTypes = [];
+  if (allowListening) baseTypes.push('listen-pick-image');
+  baseTypes.push('image-pick-word');
+  if (hasPattern) baseTypes.push('pattern-fill');
+
+  const hasAnyCategory = words.some((w) => Boolean(w.category));
+  const eligible = words.filter((target) => {
+    const samePool = hasAnyCategory && target.category
+      ? words.filter((w) => w.word !== target.word && w.category === target.category)
+      : words.filter((w) => w.word !== target.word);
+    // Cần tối thiểu 2 đáp án nhiễu cùng nhóm (tổng 3 lựa chọn); trừ trường hợp mảng gốc chỉ có 2 từ
+    const minDistractors = words.length >= 3 ? 2 : 1;
+    if (samePool.length < minDistractors) return false;
+    // Nếu không có TTS và từ thuộc nhóm không vẽ được (greeting) và không có mẫu câu → bỏ
+    if (!allowListening && !hasPattern && NON_DRAWABLE_CATEGORIES.has(target.category)) return false;
+    return true;
+  });
+
+  if (eligible.length === 0) return [];
+
+  const pool = shuffleArray(eligible);
   const questions = [];
+  let cursor = 0;
+  let guard = 0;
+  const maxAttempts = Math.max(count * 6, 24);
 
-  for (let i = 0; i < count; i++) {
-    const target = pool[i % pool.length];
-    const kind = types[i % types.length];
-    const distractors = shuffleArray(words.filter((w) => w.word !== target.word)).slice(0, 3);
-    const choiceWords = shuffleArray([target, ...distractors]);
+  while (questions.length < count && guard < maxAttempts) {
+    guard++;
+    const target = pool[cursor % pool.length];
+    cursor++;
 
-    if (kind === 'listen-pick-image') {
-      questions.push({
-        kind,
-        question: 'Nghe và chọn đúng hình nhé!',
-        speak: target.word,
-        audio: target.audio || null,
-        promptWord: target,
-        choiceWords,
-        options: choiceWords.map((w) => `${w.emoji || '🖼️'} ${w.meaning}`),
-        correct: choiceWords.findIndex((w) => w.word === target.word),
-        explanation: `${target.emoji || ''} ${target.word} = ${target.meaning}.`,
-      });
-    } else if (kind === 'image-pick-word') {
-      questions.push({
-        kind,
-        question: `${target.emoji || '🖼️'} Hình này là từ tiếng Anh nào?`,
-        promptWord: target,
-        choiceWords,
-        options: choiceWords.map((w) => w.word),
-        correct: choiceWords.findIndex((w) => w.word === target.word),
-        explanation: `${target.emoji || ''} ${target.word} (${target.meaning}).`,
-      });
-    } else {
-      const sentence = pattern.en.replace('___', '______');
-      questions.push({
-        kind: 'pattern-fill',
-        question: `Điền từ cho hình ${target.emoji || ''} (${target.meaning}): "${sentence}"`,
-        speak: pattern.en.replace('___', target.word),
-        promptWord: target,
-        choiceWords,
-        options: choiceWords.map((w) => w.word),
-        correct: choiceWords.findIndex((w) => w.word === target.word),
-        explanation: `${pattern.en.replace('___', target.word)} — ${pattern.vi.replace('___', target.meaning)}.`,
-      });
+    let kind = baseTypes[questions.length % baseTypes.length];
+    if (kind === 'image-pick-word' && NON_DRAWABLE_CATEGORIES.has(target.category)) {
+      kind = allowListening ? 'listen-pick-image' : (hasPattern ? 'pattern-fill' : null);
+      if (!kind) continue;
     }
+
+    const sameCategoryPool = hasAnyCategory && target.category
+      ? words.filter((w) => w.word !== target.word && w.category === target.category)
+      : words.filter((w) => w.word !== target.word);
+
+    const distractorCount = sameCategoryPool.length >= 3 ? 3 : sameCategoryPool.length;
+    if (words.length >= 3 && distractorCount < 2) continue;
+
+    let built = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const distractors = shuffleArray(sameCategoryPool).slice(0, distractorCount);
+      const choiceWords = shuffleArray([target, ...distractors]);
+      let candidate;
+
+      if (kind === 'listen-pick-image') {
+        candidate = {
+          kind,
+          type: 'listen-pick-image',
+          answerCategory: target.category || undefined,
+          question: 'Nghe và chọn hình đúng',
+          speak: target.word,
+          audioText: target.word,
+          audio: target.audio || null,
+          promptWord: target,
+          choiceWords,
+          options: choiceWords.map((w) => (w.swatch ? w.meaning : `${w.emoji || '🖼️'} ${w.meaning}`)),
+          correct: choiceWords.findIndex((w) => w.word === target.word),
+          explanation: `"${target.word}" nghĩa là ${target.meaning}.`,
+        };
+      } else if (kind === 'image-pick-word') {
+        candidate = {
+          kind,
+          type: 'image-pick-word',
+          answerCategory: target.category || undefined,
+          question: promptForCategory(target.category),
+          promptWord: target,
+          choiceWords,
+          options: choiceWords.map((w) => w.word),
+          correct: choiceWords.findIndex((w) => w.word === target.word),
+          explanation: `Đáp án đúng là "${target.word}" (${target.meaning}).`,
+        };
+      } else {
+        const sentence = pattern.en.replace('___', '______');
+        candidate = {
+          kind: 'pattern-fill',
+          type: 'fill-blank',
+          answerCategory: target.category || undefined,
+          question: `Chọn từ điền vào câu (${target.meaning}): "${sentence}"`,
+          speak: pattern.en.replace('___', target.word),
+          promptWord: target,
+          choiceWords,
+          options: choiceWords.map((w) => w.word),
+          correct: choiceWords.findIndex((w) => w.word === target.word),
+          explanation: `${pattern.en.replace('___', target.word)} — ${pattern.vi.replace('___', target.meaning)}.`,
+        };
+      }
+
+      if (typeof validator === 'function') {
+        const check = validator(candidate);
+        if (check?.errors?.length) continue;
+      }
+      built = candidate;
+      break;
+    }
+
+    if (built) questions.push(built);
   }
 
-  return shuffleArray(questions);
+  return balanceCorrectPositions(shuffleArray(questions));
 }
 
 /**
@@ -210,7 +320,7 @@ export function buildCheckpointQuestions(unit, count, allLessons = [], groupId =
 
   if (unitLessons.length === 0) return [];
 
-  // Nhóm Mới học (Starter): sinh câu hỏi hình/âm thanh từ toàn bộ words của unit
+  // Nhóm Mới học (Starter): sinh câu hỏi hình/âm thanh từ toàn bộ words của unit (gắn category từng bài)
   if (groupId === 'beginner' || unitLessons.every((l) => l.format === 'picture')) {
     const allWords = [];
     const seenW = new Set();
@@ -219,18 +329,22 @@ export function buildCheckpointQuestions(unit, count, allLessons = [], groupId =
         const key = String(w.word || '').toLowerCase();
         if (!seenW.has(key)) {
           seenW.add(key);
-          allWords.push(w);
+          allWords.push({ ...w, category: w.category || l.category });
         }
       }
     }
-    return generatePictureChallenge(allWords, unitLessons[0]?.pattern || null, count);
+    return generatePictureChallenge(allWords, null, count);
   }
 
   // Nhóm Trung bình & Luyện thi:
-  // 1) Chuẩn bị bể câu cho từng bài (ưu tiên câu quiz gốc, rồi mới đến câu tự sinh)
+  // 1) Chuẩn bị bể câu cho từng bài (ưu tiên câu quiz gốc; câu tự sinh bỏ _type === 'grammar' — Q2.6)
   const perLessonPools = unitLessons.map((lesson) => {
     const orig = shuffleArray((lesson.quiz || []).map((q) => ({ ...q, _lessonId: lesson.id })));
-    const auto = shuffleArray(generateAutoQuestions(lesson).map((q) => ({ ...q, _lessonId: lesson.id })));
+    const auto = shuffleArray(
+      generateAutoQuestions(lesson)
+        .filter((q) => q._type !== 'grammar')
+        .map((q) => ({ ...q, _lessonId: lesson.id }))
+    );
     return { lessonId: lesson.id, orig, auto };
   });
 

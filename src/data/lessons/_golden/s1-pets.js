@@ -10,6 +10,7 @@ export const S1_PETS_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u3',
+  category: 'animal',
   title: 'Thú cưng',
   description: 'Gọi tên 6 con vật nuôi trong nhà',
   icon: '🐱',

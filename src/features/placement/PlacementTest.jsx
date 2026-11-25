@@ -408,18 +408,34 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
       </div>
 
       <div className="row g-2">
-        {q.options.map((opt, idx) => (
-          <div className="col-12 col-sm-6" key={idx}>
-            <button
-              type="button"
-              className="btn btn-outline-primary w-100 quiz-option-btn fw-bold text-start"
-              onClick={() => handlePick(idx)}
-            >
-              <span className="me-2 text-muted">{String.fromCharCode(65 + idx)}.</span>
-              {opt}
-            </button>
-          </div>
-        ))}
+        {q.options.map((opt, idx) => {
+          const cw = q.kind === 'listen-pick-image' ? q.choiceWords?.[idx] : null;
+          return (
+            <div className="col-12 col-sm-6" key={idx}>
+              <button
+                type="button"
+                className="btn btn-outline-primary w-100 quiz-option-btn fw-bold text-start d-flex align-items-center"
+                onClick={() => handlePick(idx)}
+              >
+                <span className="me-2 text-muted">{String.fromCharCode(65 + idx)}.</span>
+                {cw?.swatch && (
+                  <span
+                    className="me-2 flex-shrink-0"
+                    style={{
+                      display: 'inline-block',
+                      width: 22,
+                      height: 22,
+                      borderRadius: 6,
+                      backgroundColor: cw.swatch,
+                      border: '1.5px solid rgba(15, 23, 42, 0.2)',
+                    }}
+                  />
+                )}
+                <span>{opt}</span>
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

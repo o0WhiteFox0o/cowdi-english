@@ -8,13 +8,14 @@ export const S1_SHAPE_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u2',
+  category: 'shape',
   title: 'Hình khối',
   description: 'Gọi tên 6 hình khối cơ bản dễ nhận biết',
   icon: '🔷',
 
   words: [
     { word: 'circle',    meaning: 'hình tròn',     emoji: '⭕', image: null, audio: null },
-    { word: 'square',    meaning: 'hình vuông',    emoji: '🟦', image: null, audio: null },
+    { word: 'square',    meaning: 'hình vuông',    emoji: '🔲', image: null, audio: null },
     { word: 'triangle',  meaning: 'hình tam giác', emoji: '🔺', image: null, audio: null },
     { word: 'star',      meaning: 'hình ngôi sao', emoji: '⭐', image: null, audio: null },
     { word: 'heart',     meaning: 'hình trái tim', emoji: '❤️', image: null, audio: null },
