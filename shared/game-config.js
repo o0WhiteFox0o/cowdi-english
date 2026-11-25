@@ -81,7 +81,42 @@ export const LEDGER_REASONS = deepFreeze([
   'lesson_first', 'lesson_milestone', 'unit_complete', 'unit_perfect',
   'stone_exchange', 'shard_combine', 'evolve', 'purchase', 'migration', 'coin_migration', 'admin',
   'shop_freeze', 'shop_return_ticket', 'contract_deposit', 'contract_payout', 'shop_clock', 'clock_bonus',
+  'invite_activated', 'invite_welcome', 'invite_milestone',
 ]);
+
+// ---------- Bạn bè & Thưởng mời bạn (SRS-FRIENDS v1.1, BR-01..BR-07) ----------
+export const INVITE_REWARDS = deepFreeze({
+  MIN_NEW_LESSONS: 3,
+  MIN_DISTINCT_DAYS: 2,
+  WINDOW_DAYS: 14,
+  TIMEZONE: 'Asia/Ho_Chi_Minh',
+  SENDER_GEM: 3,
+  SENDER_GEM_MAX_PER_MONTH: 10,
+  RECEIVER_MILK: 500,
+  TICKETS_MAX_PER_MONTH: 3,
+  ANTI_FRAUD_HOURS: 24,
+  DAILY_INVITE_LIMIT: 5,
+  WEEKLY_INVITE_LIMIT: 20,
+  EXPIRY_DAYS: 7,
+  MILESTONES: [
+    { count: 3,  tickets: 1, titleId: 'title_invite_guide',      titleVi: 'Người dẫn đường' },
+    { count: 5,  tickets: 1, titleId: null,                      titleVi: null },
+    { count: 10, tickets: 2, titleId: 'title_invite_sower',      titleVi: 'Người gieo mầm' },
+    { count: 20, tickets: 2, titleId: 'title_invite_ambassador', titleVi: 'Đại sứ Cowdi' },
+  ],
+});
+
+export const FRIEND_LIMITS = deepFreeze({
+  MAX_FRIENDS: 100,
+  MAX_PENDING_REQUESTS: 20,
+  MAX_REQUESTS_PER_HOUR: 20,
+  CODE_LENGTH: 8,
+  CODE_ALPHABET: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
+  NICKNAME_MIN: 2,
+  NICKNAME_MAX: 20,
+  PATH_CACHE_MS: 5 * 60 * 1000,
+  MAX_AVATARS_PER_NODE: 3,
+});
 
 // ---------- Vật phẩm Giữ nhịp (GĐ3, D1) ----------
 export const KEEP_RHYTHM_ITEMS = deepFreeze({

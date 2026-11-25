@@ -15,7 +15,7 @@ import { EmojiText } from '../Emoji';
 const LEARN_PATHS    = ['/', '/learning-path', '/placement', '/lessons', '/vocabulary'];
 const PRACTICE_PATHS = ['/practice', '/review', '/mini-games', '/duel', '/typing'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
-const ME_PATHS       = ['/overview', '/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
+const ME_PATHS       = ['/overview', '/progress', '/friends', '/student-ranking', '/leaderboard', '/account', '/admin'];
 
 /* Desktop nav — chỉ giữ mục dùng thường xuyên; mục ít dùng chuyển vào popup "Thêm" */
 const TAB_GROUPS = [
@@ -36,6 +36,7 @@ const TAB_GROUPS = [
 
 /* Desktop secondary links — gom vào popup gọn để không phải cuộn sidebar */
 const DESKTOP_MORE_ITEMS = [
+  { to: '/friends',         icon: 'users',   label: 'Bạn bè',         color: '#7DBE4B' },
   { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
   { to: '/progress',        icon: 'chart',   label: 'Tiến trình học', color: '#5ECFC0' },
   { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng',  color: '#F6D365' },
@@ -67,6 +68,7 @@ const buildMobileMenus = (activePath) => {
       { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
     ],
     me: [
+      { icon: 'users',   label: 'Bạn bè',         path: '/friends' },
       { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
       { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
       { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },

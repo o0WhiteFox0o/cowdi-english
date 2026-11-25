@@ -1,68 +1,142 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
+import { getEvolutionInfo } from '../../data/pets';
+import { generateQrDataUrl } from '../../utils/qr';
+import { getDeviceId } from '../../utils/device';
 import Icon from '../../components/Icon';
 
 /**
  * InviteSheet — bottom sheet "🎁 Tặng bạn một quả trứng pet"
- * Tạo invite ngay khi mở → hiển thị QR + nút share/copy/download.
+ * - FR-FRD-05: hỏi đặt biệt danh lần đầu trước khi tạo thiệp
+ * - FR-LND-04: QR tạo ngay tại client (không phụ thuộc dịch vụ bên thứ ba)
+ * - FR-RWD-06: hiển thị thống kê đã gửi / đã nhận / đã học thật, tiến độ mốc, vé tháng (x/3)
+ * - FR-MAP-09: gợi ý mời bạn cùng lớp hoặc cùng mục tiêu học
  */
 export default function InviteSheet({ open, onClose, prefilledMessage }) {
   const { user, token, authFetch } = useAuth();
   const [invite, setInvite] = useState(null);   // { code, url, expires_at }
+  const [stats, setStats] = useState(null);
+  const [needsNickname, setNeedsNickname] = useState(false);
+  const [nickInput, setNickInput] = useState('');
+  const [nickSaving, setNickSaving] = useState(false);
+  const [nickError, setNickError] = useState(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [qrFull, setQrFull] = useState(false);
+  const [qrSrc, setQrSrc] = useState('');
   const canvasRef = useRef(null);
-  const triedRef = useRef(false); // ngăn gọi lại sau lỗi
+  const triedRef = useRef(false);
 
-  const SITE   = window.location.origin;
+  const SITE = window.location.origin;
   const fullUrl = invite ? `${SITE}/i/${invite.code}` : '';
-  const qrSrc   = invite
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(fullUrl)}`
-    : '';
 
-  // Tạo invite khi sheet mở
+  // FR-LND-04: tạo QR tại client
+  useEffect(() => {
+    let cancelled = false;
+    if (!fullUrl) {
+      setQrSrc('');
+      return () => { cancelled = true; };
+    }
+    generateQrDataUrl(fullUrl, 320)
+      .then((dataUrl) => { if (!cancelled) setQrSrc(dataUrl); })
+      .catch(() => { if (!cancelled) setQrSrc(''); });
+    return () => { cancelled = true; };
+  }, [fullUrl]);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await authFetch('/api/invites/mine/stats');
+      if (!res.ok) return null;
+      const data = await res.json();
+      setStats(data);
+      return data;
+    } catch {
+      return null;
+    }
+  }, [authFetch]);
+
   const createInvite = useCallback(async (msg) => {
     setLoading(true);
     setError(null);
     try {
+      const deviceId = getDeviceId();
       const res = await authFetch('/api/invites', {
         method: 'POST',
-        body: JSON.stringify({ pet_species: 'cowdi', message: msg || null }),
+        headers: deviceId ? { 'X-Device-Id': deviceId } : {},
+        body: JSON.stringify({ pet_species: 'cowdi', message: msg || null, deviceId }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Lỗi ${res.status}`);
+      if (!res.ok) {
+        if (data.code === 'NICKNAME_REQUIRED') {
+          setNeedsNickname(true);
+          return;
+        }
+        throw new Error(data.error || `Lỗi ${res.status}`);
+      }
       setInvite(data);
+      loadStats();
     } catch (err) {
       setError(err.message || 'Không tạo được thiệp');
     } finally {
       setLoading(false);
     }
-  }, [authFetch]);
+  }, [authFetch, loadStats]);
 
   useEffect(() => {
     if (open && token && !triedRef.current) {
       triedRef.current = true;
       if (prefilledMessage) setMessage(prefilledMessage);
-      createInvite(prefilledMessage || '');
+      (async () => {
+        const s = await loadStats();
+        if (s && !s.nickname) {
+          setNeedsNickname(true);
+          return;
+        }
+        createInvite(prefilledMessage || '');
+      })();
     }
     if (!open) {
-      // reset khi đóng
       triedRef.current = false;
       setInvite(null);
+      setStats(null);
+      setNeedsNickname(false);
+      setNickInput('');
+      setNickError(null);
       setMessage('');
       setError(null);
       setCopied(false);
       setQrFull(false);
     }
-  }, [open, token, createInvite, prefilledMessage]);
+  }, [open, token, createInvite, loadStats, prefilledMessage]);
 
   if (!open) return null;
 
-  // ── Actions ─────────────────────────────────────────────
+  async function handleSaveNickname(e) {
+    e.preventDefault();
+    setNickSaving(true);
+    setNickError(null);
+    try {
+      const res = await authFetch('/api/me/nickname', {
+        method: 'PUT',
+        body: JSON.stringify({ nickname: nickInput }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setNickError(data.error || 'Biệt danh không hợp lệ.');
+        return;
+      }
+      setNeedsNickname(false);
+      setStats((prev) => (prev ? { ...prev, nickname: data.nickname } : prev));
+      createInvite(message || prefilledMessage || '');
+    } catch {
+      setNickError('Không lưu được biệt danh. Thử lại nhé!');
+    } finally {
+      setNickSaving(false);
+    }
+  }
+
   async function handleShare() {
     if (!invite) return;
     const text = (message ? `${message}\n\n` : '') +
@@ -72,7 +146,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
         await navigator.share({ title: 'Cowdi Pet Invite 🎁', text, url: fullUrl });
       } catch { /* user cancelled */ }
     } else {
-      // Fallback: copy
       handleCopy();
     }
   }
@@ -84,7 +157,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Fallback execCommand
       const ta = document.createElement('textarea');
       ta.value = fullUrl; document.body.appendChild(ta);
       ta.select(); document.execCommand('copy');
@@ -95,10 +167,10 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   }
 
   async function handleDownload() {
-    if (!invite) return;
+    if (!invite || !qrSrc) return;
     try {
       const blob = await renderInviteCard({
-        senderName: user?.display_name || 'Bạn',
+        senderName: stats?.nickname || 'Một người bạn',
         message,
         fullUrl,
         qrSrc,
@@ -115,11 +187,9 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
     }
   }
 
-  // ── Pet preview ─────────────────────────────────────────
   const evo = getEvolutionInfo('cowdi', 0);
   const petImage = evo?.image || '/assets/images/pets/Cowdi/Cowdi_egg.webp';
 
-  // ── If not logged in ────────────────────────────────────
   if (!user) {
     return (
       <Overlay onClose={onClose}>
@@ -132,6 +202,11 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
     );
   }
 
+  const nextMs = stats?.nextMilestone;
+  const milestonePct = nextMs
+    ? Math.min(100, Math.round(((stats?.activatedCount || 0) / nextMs.count) * 100))
+    : 100;
+
   return (
     <Overlay onClose={onClose}>
       <Sheet>
@@ -143,95 +218,186 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
               <h5 className="m-0"><Icon name="gift" size={20} /> Tặng bạn quả trứng pet</h5>
               <button className="btn btn-sm btn-light" onClick={onClose} aria-label="Đóng">✕</button>
             </div>
-            <p className="text-muted small mb-3">
-              Gửi link/QR cho bạn — họ chạm vào sẽ nhận một quả trứng Cowdi.
+            <p className="text-muted small mb-2">
+              Gửi link/QR cho bạn mới — khi bạn học thật 3 bài (trong ít nhất 2 ngày), bạn nhận 💎 +3 Gem và bạn mới nhận 🥛 +500 Sữa!
             </p>
-
-            {/* Pet preview */}
-            <div className="text-center mb-2">
-              <img src={petImage} alt="Cowdi egg"
-                style={{ width: 110, height: 110, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }} />
+            <div className="alert alert-light border small py-2 px-3 mb-3">
+              💡 Mời bạn cùng lớp hoặc cùng mục tiêu học để gặp nhau trên lộ trình.
             </div>
 
-            {/* QR + URL */}
-            <div className="text-center mb-2">
-              {loading && <div className="spinner-border text-cowdi-primary" role="status" />}
-              {error && (
-                <div className="alert alert-warning small py-2 mb-2">
-                  <div className="mb-2">{error}</div>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-warning"
-                    onClick={() => { triedRef.current = true; createInvite(''); }}
-                    disabled={loading}
-                  >
-                    <Icon name="refresh" size={14} /> Thử lại
+            {needsNickname ? (
+              <form onSubmit={handleSaveNickname} className="border rounded-3 p-3 bg-light mb-3">
+                <h6 className="fw-bold mb-1">Đặt biệt danh của bạn trước nhé!</h6>
+                <p className="text-muted small mb-2">
+                  Biệt danh (2–20 ký tự) sẽ hiện trên thiệp mời và danh sách bạn bè thay cho tên Google.
+                </p>
+                <div className="input-group input-group-sm mb-2">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Ví dụ: Bé Mai, Minh Anh..."
+                    value={nickInput}
+                    minLength={2}
+                    maxLength={20}
+                    onChange={(e) => setNickInput(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="btn btn-cowdi-primary" disabled={nickSaving}>
+                    {nickSaving ? 'Đang lưu...' : 'Lưu & tạo thiệp'}
                   </button>
                 </div>
-              )}
-              {invite && (
-                <>
+                {nickError && <div className="text-danger small">{nickError}</div>}
+              </form>
+            ) : (
+              <>
+                {/* Pet preview */}
+                <div className="text-center mb-2">
+                  <img src={petImage} alt="Cowdi egg"
+                    style={{ width: 96, height: 96, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }} />
+                </div>
+
+                {/* QR + URL */}
+                <div className="text-center mb-2">
+                  {loading && <div className="spinner-border text-cowdi-primary" role="status" />}
+                  {error && (
+                    <div className="alert alert-warning small py-2 mb-2">
+                      <div className="mb-2">{error}</div>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-warning"
+                        onClick={() => { triedRef.current = true; createInvite(''); }}
+                        disabled={loading}
+                      >
+                        <Icon name="refresh" size={14} /> Thử lại
+                      </button>
+                    </div>
+                  )}
+                  {invite && (
+                    <>
+                      <button
+                        type="button"
+                        className="border-0 bg-transparent p-0"
+                        onClick={() => setQrFull(true)}
+                        title="Bấm để phóng to"
+                      >
+                        {qrSrc ? (
+                          <img src={qrSrc} alt="QR code"
+                            width="180" height="180"
+                            style={{ borderRadius: 12, border: '1px solid #eee' }} />
+                        ) : (
+                          <div style={{ width: 180, height: 180 }} className="d-flex align-items-center justify-content-center border rounded-3">
+                            <div className="spinner-border spinner-border-sm text-cowdi-primary" role="status" />
+                          </div>
+                        )}
+                      </button>
+                      <div className="small text-muted mt-1" style={{ wordBreak: 'break-all' }}>
+                        {fullUrl}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Optional message */}
+                <div className="mb-3">
+                  <label className="form-label small mb-1"><Icon name="chat" size={14} /> Lời nhắn (tuỳ chọn)</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Học tiếng Anh cùng mình nha!"
+                    value={message}
+                    maxLength={200}
+                    onChange={(e) => setMessage(e.target.value)}
+                    disabled={!invite}
+                  />
+                </div>
+
+                {/* Action buttons */}
+                <div className="d-grid gap-2 mb-3">
                   <button
-                    type="button"
-                    className="border-0 bg-transparent p-0"
-                    onClick={() => setQrFull(true)}
-                    title="Bấm để phóng to"
+                    className="btn btn-cowdi-primary"
+                    onClick={handleShare}
+                    disabled={!invite}
                   >
-                    <img src={qrSrc} alt="QR code"
-                      width="200" height="200"
-                      style={{ borderRadius: 12, border: '1px solid #eee' }} />
+                    <Icon name="rocket" size={18} /> Gửi qua Zalo / Chat
                   </button>
-                  <div className="small text-muted mt-1" style={{ wordBreak: 'break-all' }}>
-                    {fullUrl}
+                  <div className="row g-2">
+                    <div className="col-4">
+                      <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleCopy} disabled={!invite}>
+                        {copied ? '✓ Đã copy' : <><Icon name="clipboard" size={14} /> Copy link</>}
+                      </button>
+                    </div>
+                    <div className="col-4">
+                      <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleDownload} disabled={!invite || !qrSrc}>
+                        <Icon name="save" size={14} /> Tải thiệp
+                      </button>
+                    </div>
+                    <div className="col-4">
+                      <button className="btn btn-outline-secondary w-100 btn-sm" onClick={() => setQrFull(true)} disabled={!invite || !qrSrc}>
+                        <Icon name="search" size={14} /> QR to
+                      </button>
+                    </div>
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
 
-            {/* Optional message */}
-            <div className="mb-3">
-              <label className="form-label small mb-1"><Icon name="chat" size={14} /> Lời nhắn (tuỳ chọn)</label>
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                placeholder="Học cùng tao đi nha!"
-                value={message}
-                maxLength={200}
-                onChange={(e) => setMessage(e.target.value)}
-                disabled={!invite}
-              />
-            </div>
+            {/* FR-RWD-06: Thống kê mời bạn & tiến độ mốc */}
+            {stats && (
+              <div className="border rounded-3 p-3 bg-light small mb-2">
+                <div className="d-flex justify-content-between text-center mb-2">
+                  <div>
+                    <div className="fw-bold fs-6">{stats.sentCount}</div>
+                    <div className="text-muted">Đã gửi</div>
+                  </div>
+                  <div>
+                    <div className="fw-bold fs-6">{stats.claimedCount}</div>
+                    <div className="text-muted">Đã nhận</div>
+                  </div>
+                  <div>
+                    <div className="fw-bold fs-6 text-success">{stats.activatedCount}</div>
+                    <div className="text-muted">Đã học thật</div>
+                  </div>
+                </div>
 
-            {/* Action buttons */}
-            <div className="d-grid gap-2">
-              <button
-                className="btn btn-cowdi-primary"
-                onClick={handleShare}
-                disabled={!invite}
-              >
-                <Icon name="rocket" size={18} /> Gởi qua chat
-              </button>
-              <div className="row g-2">
-                <div className="col-4">
-                  <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleCopy} disabled={!invite}>
-                    {copied ? '✓ Đã copy' : <><Icon name="clipboard" size={14} /> Copy link</>}
-                  </button>
+                {nextMs ? (
+                  <div className="mb-2">
+                    <div className="d-flex justify-content-between mb-1">
+                      <span>Mốc kế tiếp: <strong>{nextMs.count} bạn</strong></span>
+                      <span className="text-primary fw-semibold">
+                        +{nextMs.tickets} Vé gacha{nextMs.titleVi ? ` · "${nextMs.titleVi}"` : ''}
+                      </span>
+                    </div>
+                    <div className="progress" style={{ height: 8 }}>
+                      <div
+                        className="progress-bar bg-success"
+                        role="progressbar"
+                        style={{ width: `${milestonePct}%` }}
+                        aria-valuenow={milestonePct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-success fw-semibold mb-2">
+                    🏆 Bạn đã hoàn thành toàn bộ các mốc Đại sứ Cowdi!
+                  </div>
+                )}
+
+                <div className="d-flex justify-content-between text-muted">
+                  <span>Vé gacha nhận tháng này: <strong>{stats.ticketsGrantedThisMonth}/{stats.ticketsCapThisMonth}</strong></span>
+                  <span>🎟️ {stats.totalGachaTickets} Vé gacha (sắp dùng được)</span>
                 </div>
-                <div className="col-4">
-                  <button className="btn btn-outline-secondary w-100 btn-sm" onClick={handleDownload} disabled={!invite}>
-                    <Icon name="save" size={14} /> Tải thiệp
-                  </button>
-                </div>
-                <div className="col-4">
-                  <button className="btn btn-outline-secondary w-100 btn-sm" onClick={() => setQrFull(true)} disabled={!invite}>
-                    <Icon name="search" size={14} /> QR to
-                  </button>
-                </div>
+                {stats.ticketsDeferredCount > 0 && (
+                  <div className="text-muted mt-1">
+                    ⏳ {stats.ticketsDeferredCount} vé vượt hạn mức tháng sẽ tự cộng khi sang tháng sau.
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
-            <p className="text-muted small text-center mt-3 mb-0">
-              <Icon name="clock" size={14} /> Thiệp hết hạn sau 7 ngày
+            <p className="text-muted small text-center mt-2 mb-0">
+              <Icon name="clock" size={14} /> Thiệp hết hạn sau 7 ngày · Chỉ dành cho tài khoản mới
             </p>
 
             <canvas ref={canvasRef} style={{ display: 'none' }} />
@@ -242,7 +408,6 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   );
 }
 
-// ── UI helpers ────────────────────────────────────────────
 function Overlay({ children, onClose }) {
   return (
     <div
@@ -297,50 +462,35 @@ function QrFullscreen({ url, qrSrc, onClose }) {
   );
 }
 
-// ── Canvas renderer ───────────────────────────────────────
 async function renderInviteCard({ senderName, message, fullUrl, qrSrc }) {
   const W = 1080, H = 1080;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // Gradient background
   const g = ctx.createLinearGradient(0, 0, W, H);
   g.addColorStop(0, '#FFD86B');
   g.addColorStop(1, '#FF8FA3');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  // Soft sparkles
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   for (let i = 0; i < 60; i++) {
     const x = Math.random() * W, y = Math.random() * H, r = Math.random() * 4 + 1;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   }
 
-  // White card
   const padding = 50;
   const cardX = padding, cardY = padding, cardW = W - padding * 2, cardH = H - padding * 2;
   roundRect(ctx, cardX, cardY, cardW, cardH, 36);
   ctx.fillStyle = '#FFFFFF';
   ctx.fill();
 
-  // ── Vertical rhythm (top → bottom inside card) ─────────────
-  //  title  ~125
-  //  egg    160 → 420   (260×260)
-  //  tagline ~480
-  //  bubble  515 → 585  (chỉ khi có message)
-  //  QR      625 → 925  (300×300)
-  //  URL    ~960
-  //  watermark ~1010
-
-  // Title
   ctx.fillStyle = '#3D2A1F';
   ctx.font = 'bold 44px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(truncate(`${senderName} tặng bạn`, 28), W / 2, 125);
 
-  // Egg image
   const egg = await loadImage('/assets/images/pets/Cowdi/Cowdi_egg.webp').catch(() => null);
   const eggSize = 260;
   const eggX = (W - eggSize) / 2, eggY = 160;
@@ -351,12 +501,10 @@ async function renderInviteCard({ senderName, message, fullUrl, qrSrc }) {
     ctx.fillText('🥚', W / 2, eggY + 200);
   }
 
-  // Tagline
   ctx.fillStyle = '#E0527E';
   ctx.font = 'bold 50px system-ui, sans-serif';
   ctx.fillText('Một quả trứng Cowdi 🐮', W / 2, 480);
 
-  // Optional message bubble
   if (message) {
     const bubbleY = 515, bubbleH = 70;
     const bubbleW = cardW - 100;
@@ -368,7 +516,6 @@ async function renderInviteCard({ senderName, message, fullUrl, qrSrc }) {
     ctx.fillText(truncate(`💬 "${message}"`, 60), W / 2, bubbleY + 46);
   }
 
-  // QR code (centered, with white pad — well separated from egg)
   const qrImg = await loadImage(qrSrc).catch(() => null);
   const qrSize = 300, qrY = 625, qrX = (W - qrSize) / 2;
   if (qrImg) {
@@ -378,12 +525,10 @@ async function renderInviteCard({ senderName, message, fullUrl, qrSrc }) {
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
   }
 
-  // URL under QR
   ctx.fillStyle = '#888';
   ctx.font = '26px monospace';
   ctx.fillText(fullUrl.replace(/^https?:\/\//, ''), W / 2, qrY + qrSize + 38);
 
-  // Watermark
   ctx.fillStyle = '#999';
   ctx.font = 'italic 22px system-ui, sans-serif';
   ctx.fillText('Học tiếng Anh, nuôi pet • cowdi.net', W / 2, H - padding - 18);

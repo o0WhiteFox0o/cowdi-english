@@ -32,9 +32,14 @@ export default function AuthCallbackPage() {
     }
   }, []);
 
-  // Bước 2: Chờ user state cập nhật rồi mới navigate
+  // Bước 2: Chờ user state cập nhật rồi mới navigate (ưu tiên quay lại thiệp mời đang chờ)
   useEffect(() => {
     if (saved && user) {
+      const pendingInvite = localStorage.getItem('cowdi_pending_invite');
+      if (pendingInvite && /^[A-Z0-9]{4,12}$/i.test(pendingInvite)) {
+        navigate(`/i/${pendingInvite.toUpperCase()}`, { replace: true });
+        return;
+      }
       navigate('/account', { replace: true });
     }
   }, [saved, user, navigate]);

@@ -46,7 +46,7 @@ cp -R server deploy-package/server
 rm -rf deploy-package/server/storage deploy-package/server/node_modules deploy-package/server/.env deploy-package/server/package-lock.json deploy-package/server/tests
 cp -R shared deploy-package/shared
 rm -f deploy-package/shared/*.test.js
-cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js scripts/run-v2-cosmetics-migration.js scripts/run-learning-groups-migration.js scripts/run-pet-catalog-migration.js deploy-package/scripts/
+cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js scripts/run-v2-cosmetics-migration.js scripts/run-learning-groups-migration.js scripts/run-pet-catalog-migration.js scripts/run-friends-migration.js deploy-package/scripts/
 cp nginx-spa.conf deploy-package/nginx-spa.conf
 (cd deploy-package && zip -rq ../deploy.zip .)
 rm -rf deploy-package
@@ -79,6 +79,7 @@ node ../scripts/run-v2-streak-migration.js
 node ../scripts/run-v2-cosmetics-migration.js
 node ../scripts/run-learning-groups-migration.js
 node ../scripts/run-pet-catalog-migration.js
+node ../scripts/run-friends-migration.js
 
 # Nếu lần đầu bật Pet Motion (chỉ cần chạy 1 lần):
 # Import server/db/migrate-pet-motion.sql trong phpMyAdmin, rồi:
@@ -97,7 +98,7 @@ node ../scripts/run-pet-catalog-migration.js
   Log phải hiển thị `✅ Database kết nối thành công` và không có lỗi khởi động.
 
 ### Bước 4 — Kiểm tra cấu hình Nginx
-Đảm bảo file cấu hình site trong aaPanel giữ nguyên khối `location ^~ /api/` và `location ^~ /auth/` từ [nginx-spa.conf](../../nginx-spa.conf) để các URL ảnh `/api/pet-motion/assets/*.png|*.webp` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh.
+Đảm bảo file cấu hình site trong aaPanel giữ nguyên các khối `location ^~ /api/`, `location ^~ /i/` (OG thẻ mời cho Zalo/FB) và `location /auth/` từ [nginx-spa.conf](../../nginx-spa.conf) để URL ảnh động và đường dẫn thiệp mời `/i/:code` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh / SPA fallback.
 
 ---
 
