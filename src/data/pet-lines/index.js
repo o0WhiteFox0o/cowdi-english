@@ -1,9 +1,10 @@
 // Gộp kho câu thoại của mọi loài pet.
-// Giai đoạn 1: dùng common.js. Giai đoạn 2: bổ sung cowdi.js và các pet khác.
+// Câu riêng của pet hiện có: cowdi.js. Các loài khác dùng common.js trung tính.
 import common from './common.js';
+import cowdi from './cowdi.js';
 
 const BY_PET = {
-  // cowdi sẽ được gắn vào ở Gói E (GĐ2)
+  cowdi,
 };
 
 /**
@@ -23,4 +24,4 @@ export const ALL_PET_LINES = [
   ...Object.values(BY_PET).flat(),
 ];
 
-export { common };
+export { common, cowdi };

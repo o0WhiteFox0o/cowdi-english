@@ -44,7 +44,7 @@ export default [
 
   // ── app_open (8) ───────────────────────────────────
   L('open.same.01', 'app_open', 'Chào bạn! Học tiếp "{lessonTitle}" nha?', { when: { daysAwayMax: 0, needs: ['lessonTitle'] }, cta: { label: 'Học tiếp', action: 'continue_lesson' } }),
-  L('open.same.02', 'app_open', 'Moo~ Sẵn sàng học chưa nè?', { when: { daysAwayMax: 0 } }),
+  L('open.same.02', 'app_open', '{petName} sẵn sàng học cùng bạn rồi nè!', { when: { daysAwayMax: 0 } }),
   L('open.short.01', 'app_open', 'Bạn về rồi! Mình học tiếp nha?', { when: { daysAwayMin: 1, daysAwayMax: 3 }, cta: { label: 'Học tiếp', action: 'continue_lesson' } }),
   L('open.short.02', 'app_open', '{petName} để dành bài "{lessonTitle}" cho bạn nè!', { when: { daysAwayMin: 1, daysAwayMax: 3, needs: ['lessonTitle'] } }),
   L('open.long.01', 'app_open', 'A, bạn đây rồi! Vui quá!', { when: { daysAwayMin: 4 } }),
@@ -66,7 +66,7 @@ export default [
 
   // ── pet_tap (6) ────────────────────────────────────
   L('tap.happy.01', 'pet_tap', 'Hihi, nhột quá!', { when: { mood: ['happy'] } }),
-  L('tap.happy.02', 'pet_tap', 'Moo~ {petName} đây!', { when: { mood: ['happy'] } }),
+  L('tap.happy.02', 'pet_tap', '{petName} đang ở ngay đây nè!', { when: { mood: ['happy'] } }),
   L('tap.today.01', 'pet_tap', 'Hôm nay mình học {lessonsToday} bài rồi đó!', { when: { needs: ['lessonsToday'], bondMin: 200 } }),
   L('tap.next.01', 'pet_tap', 'Bài tiếp theo là "{lessonTitle}" nè!', { when: { needs: ['lessonTitle'] }, cta: { label: 'Học tiếp', action: 'continue_lesson' } }),
   L('tap.tired.01', 'pet_tap', '{petName} hơi mệt, học 1 bài là khoẻ!', { when: { mood: ['sad', 'sick'] }, cta: { label: 'Học tiếp', action: 'continue_lesson' } }),
