@@ -217,7 +217,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Bước 4 — Hệ thống Bạn bè (tự kết bạn qua thiệp, `friend_code`, lời mời, huỷ, chặn, báo cáo) + `FriendsPage.jsx` + AT-06..AT-07 — 2026-11-25
 - [x] Bước 5 — Thăm pet bạn bè (`FriendPetPage.jsx`) & thách đấu bạn bè (không tính league points) + AT-10 — 2026-11-25
 - [x] Bước 6 — Bạn bè trên bản đồ lộ trình (`GET /api/friends/path-progress`, `useFriendPositions.js`, UI `LearningPathPage.jsx`, toast vượt qua) + AT-08..AT-09 — 2026-11-25
-- [ ] Bước 7 — Ghi sự kiện `app_events` (NFR-06), rà payload bảo mật API (AT-11) & hoàn tất kiểm định build/test
+- [x] Bước 7 — Ghi sự kiện `app_events` (NFR-06), rà payload bảo mật API (AT-11) & hoàn tất kiểm định build/test — 2026-11-25
 
 ---
 
@@ -231,6 +231,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-25 | Bạn bè B1–B7 | Hoàn thiện toàn bộ Phân hệ Bạn bè & Thưởng mời bạn trên nhánh `feat/friends`: migration MySQL 5.5/5.6+, OG `/i/:code` + QR client, biệt danh + chống gian lận + thưởng +3 Gem/+500 Sữa/mốc vé gacha (trần 3/tháng), bạn bè + chặn/báo cáo, thăm pet + thách đấu giao hữu không LP, bạn bè trên bản đồ lộ trình + toast vượt qua, ghi 5 sự kiện `app_events` và kiểm định AT-02..AT-11 | `feat/friends` | 152/152 test pass, build pass |
 | 2026-11-25 | Bạn bè B0 | Bổ sung tài liệu Bạn bè & Thưởng mời bạn (`SRS-FRIENDS-v1.1`, `REFERRAL-GACHA-TICKET`, `TASK-FRIENDS`), đăng ký `REG-DOCUMENTS` và viết báo cáo khảo sát `RPT-FRIENDS-SURVEY.md` | `feat/friends` | Khảo sát 7 điểm, không sửa code |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Sửa lỗi không cộng thưởng Sữa sau khi học / đấu trường (`useUser.jsx` đồng bộ `wallet.milk` tức thì + tự flush progress trước `refreshWallet`) & xoay mặt bò bên trái sang phải (`pet.css` `scaleX(-1)`) | f38de8a | 120/120 test pass, build pass |
