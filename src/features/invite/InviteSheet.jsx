@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { PET_REGISTRY, getEvolutionInfo } from '../../data/pets';
+import { generateQrDataUrl } from '../../utils/qr';
 import Icon from '../../components/Icon';
 
 /**
@@ -15,14 +16,25 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [qrFull, setQrFull] = useState(false);
+  const [qrSrc, setQrSrc] = useState('');
   const canvasRef = useRef(null);
   const triedRef = useRef(false); // ngăn gọi lại sau lỗi
 
   const SITE   = window.location.origin;
   const fullUrl = invite ? `${SITE}/i/${invite.code}` : '';
-  const qrSrc   = invite
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(fullUrl)}`
-    : '';
+
+  // FR-LND-04: tạo QR ngay tại client, không gửi link mời ra dịch vụ ngoài
+  useEffect(() => {
+    let cancelled = false;
+    if (!fullUrl) {
+      setQrSrc('');
+      return () => { cancelled = true; };
+    }
+    generateQrDataUrl(fullUrl, 320)
+      .then((dataUrl) => { if (!cancelled) setQrSrc(dataUrl); })
+      .catch(() => { if (!cancelled) setQrSrc(''); });
+    return () => { cancelled = true; };
+  }, [fullUrl]);
 
   // Tạo invite khi sheet mở
   const createInvite = useCallback(async (msg) => {
@@ -177,9 +189,15 @@ export default function InviteSheet({ open, onClose, prefilledMessage }) {
                     onClick={() => setQrFull(true)}
                     title="Bấm để phóng to"
                   >
-                    <img src={qrSrc} alt="QR code"
-                      width="200" height="200"
-                      style={{ borderRadius: 12, border: '1px solid #eee' }} />
+                    {qrSrc ? (
+                      <img src={qrSrc} alt="QR code"
+                        width="200" height="200"
+                        style={{ borderRadius: 12, border: '1px solid #eee' }} />
+                    ) : (
+                      <div style={{ width: 200, height: 200 }} className="d-flex align-items-center justify-content-center border rounded-3">
+                        <div className="spinner-border spinner-border-sm text-cowdi-primary" role="status" />
+                      </div>
+                    )}
                   </button>
                   <div className="small text-muted mt-1" style={{ wordBreak: 'break-all' }}>
                     {fullUrl}
