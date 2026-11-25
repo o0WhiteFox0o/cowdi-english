@@ -220,9 +220,8 @@ if (questionsMode) {
       '',
       '## 4. Cần Sonny xem (Đợt sau)',
       '',
-      '- **Cảnh báo `Q-LEN` & `Q-POS` trên bài v2 và bài cũ:** không chặn người học nhưng nên cân chỉnh dần theo từng unit ở các đợt sau.',
+      '- **Cảnh báo `Q-LEN` & `Q-POS` trên bài cũ (legacy):** không chặn người học; tiếp tục cân chỉnh cuốn chiếu khi nâng cấp bài cũ lên v2.',
       '- **Cảnh báo `Q-EXPL` trên bài cũ (legacy):** hiện chỉ bài v2 mới bắt buộc `explanation`; bài cũ sẽ bổ sung theo lộ trình nâng cấp bài v2 (`SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0`).',
-      '- **File trùng `src/data/quiz-bank-extra.js` ở gốc `src/data/`:** kiểm tra xem còn nơi nào dùng không, nếu không nên dọn để tránh hai bản sao song song với `src/data/quiz/quiz-bank-extra.js`.',
     ];
     fs.mkdirSync(path.dirname(path.resolve(mdOut)), { recursive: true });
     fs.writeFileSync(mdOut, md.join('\n') + '\n');
