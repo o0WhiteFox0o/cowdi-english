@@ -228,7 +228,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Bước 0 — Tiếp nhận gói `cowdi-pet-director.zip`, khảo sát mã nguồn (`Pet-motion`, `PictureLesson`, `Zero-Scroll Quiz`, CSS 3 file, Lộ trình + Bạn bè), viết SDD v1.1 + Báo cáo khảo sát + Plan 5 gói A–E — 2026-11-25
 - [x] GĐ1 · Gói A — Lõi `PetDirector` thuần JS (`rules.js`, `storage.js`, `lineSelector.js`, `PetDirector.js`, `common.js`, `index.js`) + `lines.test.mjs` & `pet-director.test.mjs` + thêm vào `npm test` — 2026-11-25
 - [x] GĐ1 · Gói B — Mở rộng `PetRig.js` & `PetAvatar.jsx` (`canvasBubble`, chuẩn hoá `tap` cho cả rig duyệt & ảnh tĩnh fallback, sửa text P3) + test `pet-rig.test.mjs` — 2026-11-25
-- [ ] GĐ1 · Gói C — `DirectorContext`, `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PetSpeech>`, `<PetThought>`; tích hợp `LessonDetailPage`, `PictureLesson`, `PracticePage`, `LearningPathPage` (`app_open`); gỡ `CowdiChat` & xoá `.cowdi-chat-*` trên 3 file CSS
+- [x] GĐ1 · Gói C — `DirectorContext`, `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PetSpeech>`, `<PetThought>`; tích hợp `LessonDetailPage`, `PictureLesson`, `PracticePage`, `LearningPathPage` (`app_open`); gỡ `CowdiChat` & xoá `.cowdi-chat-*` trên 3 file CSS — 2026-11-25
 - [ ] GĐ2 · Gói E — Kho câu thoại `cowdi.js` (~250–300 câu đạt §5.2, chuyển `PAGE_TIPS`) + trung tính hoá `common.js` + `lines.test.mjs`
 - [ ] GĐ2 · Gói D — `<PathPet>` + thẻ hành động trên `LearningPathPage`; chuyển `HomePage`, `PetPage`, `DuelPage` sang Director; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage`; nghiệm thu 360px/1280px
 

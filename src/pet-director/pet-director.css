@@ -1,0 +1,507 @@
+/* ============================================================
+   PET DIRECTOR V2 — PetStage, PetSpeech, PetThought, PathPet
+   Font: Mali (đủ dấu tiếng Việt). Không dùng position: fixed trên bài học.
+   ============================================================ */
+
+/* ── <PetStage> trong bài học & luyện tập ──────────────────── */
+.pd-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 156px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 22px;
+  background: var(--leaf-light, #DDF1C8);
+  border: 2px solid #CFE8B6;
+  overflow: hidden;
+  font-family: 'Mali', cursive;
+  color: var(--ink, #3B4A5C);
+}
+
+.pd-stage-grass {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: 0;
+  height: 44px;
+  background: #A9D97A;
+  border-radius: 50% 50% 0 0 / 28px 28px 0 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pd-stage-streak {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 3;
+  font-family: 'Mali', cursive;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #C2410C;
+  background: #FFEDD5;
+  border: 1px solid #FDBA74;
+  border-radius: 999px;
+  padding: 2px 10px;
+  line-height: 1.4;
+}
+
+.pd-stage-avatar-wrap {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 116px;
+  height: 136px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pd-stage-avatar {
+  width: 116px;
+  max-height: 134px;
+  object-fit: contain;
+}
+
+.pd-stage-avatar--img {
+  width: 104px;
+  height: 116px;
+}
+
+.pd-stage-thought {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  z-index: 4;
+}
+
+/* Dành sẵn chỗ cho bong bóng để bố cục không nhảy (CLS = 0) */
+.pd-stage-right {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 60%;
+  max-width: 62%;
+  min-width: 0;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+}
+
+.pd-stage-idle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.pd-stage-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #2E521B;
+  line-height: 1.3;
+}
+
+.pd-stage-sub {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft, #5F6E80);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 992px) {
+  .pd-stage {
+    height: 184px;
+    padding: 12px 20px;
+    gap: 18px;
+  }
+  .pd-stage-avatar-wrap {
+    flex-basis: 142px;
+    height: 160px;
+  }
+  .pd-stage-avatar {
+    width: 140px;
+    max-height: 158px;
+  }
+  .pd-stage-avatar--img {
+    width: 126px;
+    height: 138px;
+  }
+}
+
+/* Chế độ compact cho màn Quiz — bảo toàn Zero-Scroll Quiz (SDD-PET-MANAGEMENT-v1.0) */
+.pd-stage--compact {
+  height: 112px;
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  border-radius: 18px;
+}
+
+.pd-stage--compact .pd-stage-grass {
+  height: 28px;
+}
+
+.pd-stage--compact .pd-stage-avatar-wrap {
+  flex-basis: 92px;
+  height: 98px;
+}
+
+.pd-stage--compact .pd-stage-avatar {
+  width: 90px;
+  max-height: 98px;
+}
+
+.pd-stage--compact .pd-stage-avatar--img {
+  width: 82px;
+  height: 88px;
+}
+
+.pd-stage--compact .pd-stage-right {
+  min-height: 52px;
+}
+
+@media (min-width: 992px) {
+  .pd-stage--compact {
+    height: 128px;
+    padding: 8px 16px;
+  }
+  .pd-stage--compact .pd-stage-avatar-wrap {
+    flex-basis: 108px;
+    height: 112px;
+  }
+  .pd-stage--compact .pd-stage-avatar {
+    width: 106px;
+    max-height: 112px;
+  }
+}
+
+@media (max-height: 760px) {
+  .pd-stage:not(.pd-stage--compact) {
+    height: 136px;
+  }
+  .pd-stage:not(.pd-stage--compact) .pd-stage-avatar-wrap {
+    height: 118px;
+  }
+  .pd-stage:not(.pd-stage--compact) .pd-stage-avatar {
+    max-height: 116px;
+  }
+}
+
+/* ── <PetSpeech> bong bóng chữ DOM ─────────────────────────── */
+.pd-speech {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background: #FFFFFF;
+  border: 2px solid #CFE8B6;
+  border-radius: 16px;
+  padding: 9px 12px;
+  box-shadow: 0 4px 10px rgba(59, 74, 92, 0.12);
+  font-family: 'Mali', cursive;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink, #3B4A5C);
+  animation: pdSpeechIn 180ms ease-out;
+}
+
+.pd-speech--right {
+  border-bottom-left-radius: 4px;
+}
+
+.pd-speech--left {
+  border-bottom-right-radius: 4px;
+}
+
+.pd-speech--top {
+  max-width: 260px;
+  border-bottom-left-radius: 4px;
+}
+
+.pd-speech--path {
+  max-width: 240px;
+}
+
+.pd-speech-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-speech-text {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink, #3B4A5C);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 4px;
+}
+
+.pd-speech:has(.pd-speech-close) .pd-speech-row {
+  padding-right: 32px;
+}
+
+.pd-speech-speak {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--leaf-pale, #EEF8E4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.pd-speech-speak:hover {
+  background: var(--leaf-light, #DDF1C8);
+}
+
+.pd-speech-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft, #5F6E80);
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pd-speech-close:hover {
+  color: var(--ink, #3B4A5C);
+}
+
+.pd-speech-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.pd-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: 'Mali', cursive;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.25;
+}
+
+.pd-cta-btn--primary {
+  background: var(--leaf, #7DBE4B);
+  color: #FFFFFF;
+  box-shadow: 0 3px 0 var(--leaf-dark, #5E9A35);
+}
+
+.pd-cta-btn--primary:hover {
+  color: #FFFFFF;
+  filter: brightness(1.03);
+}
+
+.pd-cta-btn--ghost {
+  background: #F3F7FB;
+  color: var(--ink-soft, #5F6E80);
+  font-weight: 600;
+}
+
+.pd-cta-btn--ghost:hover {
+  background: #E7EFF7;
+  color: var(--ink, #3B4A5C);
+}
+
+@keyframes pdSpeechIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── <PetThought> bong bóng suy nghĩ Tầng 2 ────────────────── */
+.pd-thought {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: pdSpeechIn 180ms ease-out;
+}
+
+.pd-thought-bubble {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #CFE8B6;
+  box-shadow: 0 3px 8px rgba(59, 74, 92, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-thought-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1.5px solid #CFE8B6;
+  margin-top: 3px;
+}
+
+/* ── <PathPet> & Thẻ hành động trên bản đồ Lộ trình (GĐ2) ──── */
+.pd-path-pet {
+  position: absolute;
+  top: -16px;
+  width: 92px;
+  height: 92px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pd-path-pet.left {
+  right: calc(100% + 22px);
+}
+
+.pd-path-pet.right {
+  left: calc(100% + 22px);
+}
+
+.pd-path-pet-btn {
+  width: 90px;
+  height: 90px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pd-path-pet-avatar {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 6px rgba(59, 74, 92, 0.2));
+}
+
+.pd-path-pet.right .pd-path-pet-avatar {
+  transform: scaleX(-1);
+}
+
+.pd-path-pet-thought {
+  position: absolute;
+  bottom: calc(100% - 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+@media (max-width: 575.98px) {
+  .pd-path-pet {
+    top: -10px;
+    width: 72px;
+    height: 72px;
+  }
+  .pd-path-pet.left {
+    right: calc(100% + 6px);
+  }
+  .pd-path-pet.right {
+    left: calc(100% + 6px);
+  }
+  .pd-path-pet-btn {
+    width: 72px;
+    height: 72px;
+  }
+  .pd-path-pet-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  .pd-thought-bubble {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.pd-path-card-wrap {
+  position: sticky;
+  bottom: 14px;
+  z-index: 25;
+  max-width: 460px;
+  margin: 12px auto 0;
+  padding: 0 8px;
+}
+
+@media (max-width: 991.98px) {
+  .pd-path-card-wrap {
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.pd-path-card {
+  position: relative;
+  background: #FFFFFF;
+  border: 2px solid #CFE8B6;
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 18px rgba(59, 74, 92, 0.16);
+  font-family: 'Mali', cursive;
+  color: var(--ink, #3B4A5C);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: pdSpeechIn 180ms ease-out;
+}
+
+.pd-path-card-msg {
+  font-size: 14.5px;
+  line-height: 1.45;
+  padding-right: 34px;
+}
+
+.pd-path-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pd-speech,
+  .pd-thought,
+  .pd-path-card {
+    animation: pdFadeOnly 180ms ease-out;
+  }
+  @keyframes pdFadeOnly {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

@@ -25,7 +25,8 @@ function loadStepDone(lessonId) {
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
-import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import PetStage from '../../pet-director/PetStage';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 
@@ -400,26 +401,30 @@ export default function LessonDetailPage() {
   const confettiRef = useRef(null);
   const petRef = useRef(null);
   const streakRef = useRef(0);
+  const [streakCount, setStreakCount] = useState(0);
+  const { dispatch } = usePetDirector();
 
   const activePet = getActivePetWithDecay();
   const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const petName = activePet?.customName || petSpecies?.name || 'Cowdi';
 
-  const emitPetAnswer = useCallback((isCorrect) => {
+  const emitPetAnswer = useCallback((isCorrect, meta = {}) => {
     if (isCorrect) {
       streakRef.current += 1;
       const c = streakRef.current;
+      setStreakCount(c);
       if (c === 3 || c === 5 || (c >= 10 && c % 5 === 0)) {
-        petRef.current?.emit('streak', { count: c });
+        dispatch('streak', { count: c, lessonId: id });
       } else {
-        petRef.current?.emit('answer_correct');
+        dispatch('answer_correct', { ...meta, lessonId: id });
       }
     } else {
       streakRef.current = 0;
-      petRef.current?.emit('answer_wrong');
+      setStreakCount(0);
+      dispatch('answer_wrong', { ...meta, lessonId: id });
     }
-  }, []);
+  }, [dispatch, id]);
 
   // Steps: vocab → flashcard → grammar → reading → listen → speak → quiz
   const [tab, setTab] = useState('vocab');
@@ -551,7 +556,7 @@ export default function LessonDetailPage() {
     return new Promise((resolve) => {
       const done = () => {
         petRef.current?.setVoiceLevel(0);
-        petRef.current?.emit('pet_speak_end');
+        dispatch('pet_speak_end');
         resolve();
       };
       try {
@@ -565,7 +570,7 @@ export default function LessonDetailPage() {
           .trim();
         if (!cleaned) { resolve(); return; }
 
-        petRef.current?.emit('pet_speak_start', { text: cleaned });
+        dispatch('pet_speak_start');
         petRef.current?.setVoiceLevel(0.7);
 
         // Nếu caller chỉ định lang → dùng luôn (1 utterance)
@@ -672,36 +677,38 @@ export default function LessonDetailPage() {
   // Sự kiện pet: vào bài học
   useEffect(() => {
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
-  }, [id]);
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
+    dispatch('screen_enter', { screen: 'lesson', lessonTitle: lesson?.title });
+  }, [id, lesson?.title, dispatch]);
 
   // Sự kiện pet: hiện câu hỏi mới (quiz / nghe câu / nói theo)
   useEffect(() => {
     if (quizMode && !finished) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [quizMode, qIndex, finished]);
+  }, [quizMode, qIndex, finished, id, dispatch]);
 
   useEffect(() => {
     if (tab === 'listen' && listenQs.length > 0 && !listenDone) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [tab, listenIdx, listenQs.length, listenDone]);
+  }, [tab, listenIdx, listenQs.length, listenDone, id, dispatch]);
 
   useEffect(() => {
     if (tab === 'speak' && !speakDone) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [tab, speakIdx, speakDone]);
+  }, [tab, speakIdx, speakDone, id, dispatch]);
 
   // Sự kiện pet: bật / tắt mic khi luyện nói
   useEffect(() => {
     if (!isRecording) {
       petRef.current?.setMicLevel(0);
-      petRef.current?.emit('mic_end');
+      dispatch('mic_end');
       return;
     }
-    petRef.current?.emit('mic_start');
+    dispatch('mic_start');
     const iv = setInterval(() => {
       petRef.current?.setMicLevel(0.25 + Math.random() * 0.55);
     }, 120);
@@ -709,7 +716,7 @@ export default function LessonDetailPage() {
       clearInterval(iv);
       petRef.current?.setMicLevel(0);
     };
-  }, [isRecording]);
+  }, [isRecording, dispatch]);
 
   // Sự kiện pet: lên cấp kỹ năng
   const prevSkillLvlsRef = useRef(null);
@@ -723,11 +730,11 @@ export default function LessonDetailPage() {
       writing: getSkillLevel(s.writing || 0),
     };
     if (prevSkillLvlsRef.current) {
-      const leveledUp = Object.keys(cur).some((k) => cur[k] > prevSkillLvlsRef.current[k]);
-      if (leveledUp) petRef.current?.emit('skill_level_up');
+      const leveledSkill = Object.keys(cur).find((k) => cur[k] > prevSkillLvlsRef.current[k]);
+      if (leveledSkill) dispatch('skill_level_up', { skill: leveledSkill });
     }
     prevSkillLvlsRef.current = cur;
-  }, [activePet?.skills]);
+  }, [activePet?.skills, dispatch]);
 
   const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson?.quiz || []);
 
@@ -881,7 +888,8 @@ export default function LessonDetailPage() {
     setListenScore(0);
     setListenDone(false);
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
   }
 
   function handleListenPick(i) {
@@ -912,7 +920,12 @@ export default function LessonDetailPage() {
       addXP(xp);
       addSkillXP('listening', xp);
       play('celebration');
-      petRef.current?.emit('lesson_done', { text: 'Nghe giỏi lắm!' });
+      dispatch('lesson_done', {
+        perfect: listenScore === listenQs.length && listenQs.length > 0,
+        score: listenScore,
+        total: listenQs.length,
+        lessonTitle: lesson.title,
+      });
       showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} 🥛 Sữa 🎧`, 'success');
     }
   }
@@ -937,7 +950,12 @@ export default function LessonDetailPage() {
     speakAwardedRef.current = true;
     setSpeakDone(true);
     play('celebration');
-    petRef.current?.emit('lesson_done', { text: 'Phát âm tuyệt lắm!' });
+    dispatch('lesson_done', {
+      perfect: avg >= 95,
+      score: avg,
+      total: 100,
+      lessonTitle: lesson.title,
+    });
     showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} 🥛 Sữa, +${xp} điểm Speaking`, 'success');
   }
 
@@ -976,7 +994,16 @@ export default function LessonDetailPage() {
         },
       ]);
     }
-    emitPetAnswer(isCorrect);
+    const matchedVocab = (lesson?.vocabulary || []).find((v) => {
+      const ans = String(q.options?.[q.correct] || '').toLowerCase();
+      const qTxt = String(q.question || '').toLowerCase();
+      const w = String(v.word || '').toLowerCase();
+      return w && (ans === w || qTxt.includes(`"${w}"`) || qTxt.includes(`'${w}'`) || ans === String(v.meaning || '').toLowerCase());
+    });
+    emitPetAnswer(
+      isCorrect,
+      matchedVocab ? { word: matchedVocab.word, meaning: matchedVocab.meaning } : {}
+    );
 
     // Đọc đáp án khi đúng; nếu câu có explanation hoặc trả lời sai -> chờ người học bấm "Câu tiếp theo →" (U3)
     if (isCorrect) {
@@ -1014,7 +1041,12 @@ export default function LessonDetailPage() {
       markLessonCompleted(lesson.id);
       onLessonComplete();
       play('celebration');
-      petRef.current?.emit('lesson_done', { text: isPerfect ? 'Trọn điểm xuất sắc!' : 'Hoàn thành bài học!' });
+      dispatch('lesson_done', {
+        perfect: isPerfect,
+        score: finalScore,
+        total,
+        lessonTitle: lesson.title,
+      });
       spawnConfetti(confettiRef);
     } else {
       play('wrong');
@@ -1075,7 +1107,8 @@ export default function LessonDetailPage() {
     setCorrectAnim(false);
     setWrongAnim(false);
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
   }
 
   /* ── Flashcard helpers ── */
@@ -1102,37 +1135,28 @@ export default function LessonDetailPage() {
     });
   }
 
-  /* ── Pet companion dock (giữ mount xuyên suốt giữa bài học, quiz và kết quả) ── */
+  /* ── Sân khấu Pet Director (giữ mount xuyên suốt bài học, quiz và kết quả; compact khi Quiz) ── */
+  const stageStepLabel = quizMode && finished
+    ? 'Tuyệt vời! Bạn vừa hoàn thành bài kiểm tra.'
+    : quizMode
+      ? `Quiz · Câu ${Math.min(qIndex + 1, quiz.length)}/${quiz.length}`
+      : tab === 'speak'
+        ? `Bài: ${lesson.title} · Nói theo`
+        : tab === 'listen'
+          ? `Bài: ${lesson.title} · Nghe câu`
+          : `Bài: ${lesson.title} · ${LESSON_STEPS.find((s) => s.key === tab)?.label || 'Học bài'}`;
+
   const petDock = activePet ? (
-    <div className="study-pet-dock" style={quizMode ? { maxWidth: 680, margin: '0 auto 14px' } : undefined}>
-      <div className="study-pet-avatar">
-        <PetAvatar
-          ref={petRef}
-          petId={activePet.speciesId}
-          stage={(activePet.evolution || 0) + 1}
-          group={petSpecies?.group}
-          bond={bondOf(activePet.skills)}
-          topSkill={topSkillOf(activePet.skills)}
-          mode={finished ? 'home' : 'lesson'}
-          fallbackSrc={petEvo?.image}
-          alt={petName}
-        />
-      </div>
-      <div className="study-pet-meta">
-        <div className="study-pet-name">{petName} đang học cùng bạn</div>
-        <div className="study-pet-hint">
-          {quizMode && finished
-            ? 'Tuyệt vời! Bạn vừa hoàn thành bài kiểm tra.'
-            : quizMode
-              ? 'Tập trung trả lời nhé — trả lời đúng liên tiếp để nhận cổ vũ!'
-              : tab === 'speak'
-                ? 'Nhấn micro để đọc to — pet sẽ lắng nghe cùng bạn.'
-                : tab === 'listen'
-                  ? 'Lắng nghe thật kỹ và chọn nghĩa đúng nhé!'
-                  : `Bài: ${lesson.title}`}
-        </div>
-      </div>
-    </div>
+    <PetStage
+      pet={activePet}
+      petRef={petRef}
+      mode={finished ? 'home' : 'lesson'}
+      compact={Boolean(quizMode && !finished)}
+      streak={streakCount}
+      subtitle={stageStepLabel}
+      maxWidth={quizMode ? 680 : undefined}
+      onSpeak={(en) => speakWord(en, defaultTtsRate, { lang: 'en-US' })}
+    />
   ) : null;
 
   /* ══════════════════════════════════════════
@@ -1147,7 +1171,7 @@ export default function LessonDetailPage() {
         rules={rules}
         speakWord={speakWord}
         play={play}
-        petRef={petRef}
+        onPetAnswer={emitPetAnswer}
         userData={userData}
         pathQuerySuffix={pathQuerySuffix}
         pathNext={pathNext}

@@ -26,6 +26,7 @@ import GroupPicker from '../features/onboarding/GroupPicker';
 import PlacementTest from '../features/placement/PlacementTest';
 import { useFriendPositions } from '../features/friends/useFriendPositions';
 import { FRIEND_LIMITS } from '../../shared/game-config';
+import { usePetDirector } from '../pet-director/DirectorContext';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -38,7 +39,16 @@ export default function LearningPathPage() {
   const navigate = useNavigate();
   const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, refreshWallet } = useUser();
   const { getActivePetWithDecay } = usePet();
+  const { register, dispatch } = usePetDirector();
   const showToast = useToast();
+  const pathPetRef = useRef(null);
+
+  useEffect(() => {
+    const unregister = register('path', pathPetRef);
+    dispatch('app_open');
+    dispatch('screen_enter', { screen: 'path' });
+    return unregister;
+  }, [register, dispatch]);
 
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [skippedPlacement, setSkippedPlacement] = useState(false);

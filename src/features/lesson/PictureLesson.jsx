@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
 import { shuffleArray, generatePictureChallenge } from '../../utils/quiz-gen';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 
 const PIC_STEPS = [
   { key: 'look',      label: 'Xem & nghe',    icon: 'eye' },
@@ -48,13 +49,21 @@ export default function PictureLesson({
   rules,
   speakWord,
   play,
-  petRef,
+  onPetAnswer,
   userData,
   pathQuerySuffix,
   pathNext,
   onComplete,
 }) {
   const navigate = useNavigate();
+  const { dispatch } = usePetDirector();
+  const reportAnswer = useCallback(
+    (ok, meta = {}) => {
+      if (onPetAnswer) onPetAnswer(ok, meta);
+      else dispatch(ok ? 'answer_correct' : 'answer_wrong', { ...meta, lessonId: lesson?.id });
+    },
+    [onPetAnswer, dispatch, lesson?.id]
+  );
   const words = useMemo(() => lesson.words || [], [lesson.words]);
   const pattern = lesson.pattern || { en: 'I like ___.', vi: 'Em thích ___.' };
   const instructions = { ...DEFAULT_INSTRUCTIONS, ...(lesson.instructionsVi || {}) };
@@ -138,16 +147,17 @@ export default function PictureLesson({
 
   const tryMatchPair = (wordStr, picWordStr) => {
     if (!wordStr || matchedSet.has(wordStr)) return;
+    const matchedObj = words.find((w) => w.word === wordStr);
     if (wordStr === picWordStr) {
       play('correct');
-      petRef?.current?.emit('answer_correct');
-      playAudioOrSpeak(words.find((w) => w.word === wordStr));
+      reportAnswer(true, matchedObj ? { word: matchedObj.word, meaning: matchedObj.meaning } : {});
+      playAudioOrSpeak(matchedObj);
       setMatchedSet((prev) => new Set([...prev, wordStr]));
       setSelectedWord(null);
       setWrongPair(null);
     } else {
       play('wrong');
-      petRef?.current?.emit('answer_wrong');
+      reportAnswer(false, matchedObj ? { word: matchedObj.word, meaning: matchedObj.meaning } : {});
       setWrongPair(picWordStr);
       setTimeout(() => setWrongPair(null), 500);
     }
@@ -171,7 +181,8 @@ export default function PictureLesson({
   const handleRepeatDone = () => {
     setRepeatCheered(true);
     play('correct');
-    petRef?.current?.emit('answer_correct');
+    const cur = words[repeatIdx];
+    reportAnswer(true, cur ? { word: cur.word, meaning: cur.meaning } : {});
   };
 
   // ── Bước 6: Thử thách (6 câu, ≥4/6 đạt) ──
@@ -209,13 +220,15 @@ export default function PictureLesson({
     const ok = optIdx === q.correct;
     setChPicked(optIdx);
     const nextScore = ok ? chScore + 1 : chScore;
+    const qWord = q?.target || words.find((w) => w.word === q?.speak || w.word === q?.word);
+    const meta = qWord ? { word: qWord.word, meaning: qWord.meaning } : {};
     if (ok) {
       setChScore(nextScore);
       play('correct');
-      petRef?.current?.emit('answer_correct');
+      reportAnswer(true, meta);
     } else {
       play('wrong');
-      petRef?.current?.emit('answer_wrong');
+      reportAnswer(false, meta);
     }
 
     setTimeout(() => {
@@ -423,12 +436,14 @@ export default function PictureLesson({
                     style={{ minHeight: 140, cursor: 'pointer' }}
                     onClick={() => {
                       setListenPick(w.word);
+                      const targetObj = listenTurns[listenIdx]?.target;
+                      const meta = targetObj ? { word: targetObj.word, meaning: targetObj.meaning } : {};
                       if (isTarget) {
                         play('correct');
-                        petRef?.current?.emit('answer_correct');
+                        reportAnswer(true, meta);
                       } else {
                         play('wrong');
-                        petRef?.current?.emit('answer_wrong');
+                        reportAnswer(false, meta);
                       }
                       setTimeout(() => {
                         if (listenIdx + 1 < listenTurns.length) {

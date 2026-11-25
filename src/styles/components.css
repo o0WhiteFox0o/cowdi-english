@@ -53,58 +53,6 @@
   border: 3px solid var(--paper-line);
 }
 
-/* ============================================
-   COWDI FLOATING CHAT BUTTON
-   ============================================ */
-.cowdi-chat-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  font-size: 1.8rem;
-  background: linear-gradient(135deg, var(--leaf), var(--leaf-dark));
-  color: white;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-}
-.cowdi-chat-btn:hover  { transform: scale(1.1); }
-.cowdi-chat-btn.dragging { opacity: 0.85; transform: scale(1.08); cursor: grabbing; }
-
-.cowdi-chat-bubble {
-  position: fixed;
-  bottom: 5.5rem;
-  right: 2rem;
-  background: white;
-  border-radius: 16px;
-  padding: 1rem 2.5rem 1rem 1.25rem;
-  max-width: 280px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  z-index: 1050;
-  border-left: 4px solid #FF6B9D;
-  animation: fadeInUp 0.2s ease;
-}
-
-/* Close button inside bubble */
-.cowdi-chat-close {
-  position: absolute;
-  top: 6px; right: 8px;
-  background: none; border: none;
-  font-size: 1rem; line-height: 1;
-  color: #aaa; cursor: pointer; padding: 2px 4px;
-}
-.cowdi-chat-close:hover { color: #555; }
-
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -174,17 +122,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* ── Mobile adjustments when bottom nav is present ── */
-@media (max-width: 991.98px) {
-  /* Push floating chat button above bottom nav */
-  .cowdi-chat-btn {
-    bottom: 6.5rem !important;
-  }
-  .cowdi-chat-bubble {
-    bottom: 10rem !important;
-  }
 }
 
 /* ============================================
@@ -413,10 +350,6 @@
 
   body:has(.quiz-sticky-action-bar) .cowdi-invite-fab {
     display: none;
-  }
-
-  body:has(.quiz-sticky-action-bar) .cowdi-chat-btn {
-    bottom: calc(154px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 

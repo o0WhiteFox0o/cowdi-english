@@ -1260,22 +1260,6 @@ hr {
   color: var(--leaf) !important;
 }
 
-/* Cowdi floating chat → paper bubble */
-.cowdi-chat-btn {
-  background: radial-gradient(circle at 30% 30%, var(--leaf), var(--leaf-dark));
-  box-shadow: 0 0 0 3px #fff, 0 6px 14px rgba(0, 0, 0, 0.3);
-}
-
-.cowdi-chat-bubble {
-  background: #fff7c2;
-  border-left: none;
-  border: 1px solid #e6d78f;
-  color: #5a4a1a;
-  font-family: var(--font-hand);
-  font-size: 1.05rem;
-  transform: rotate(-12deg);
-}
-
 /* Toasts */
 .toast-container-fixed .toast,
 .toast-container-fixed .alert {
@@ -1598,19 +1582,6 @@ hr {
     background: var(--leaf-pale);
     color: var(--leaf-dark);
   }
-
-  .cowdi-chat-btn {
-    right: 12px !important;
-    bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    width: 52px;
-    height: 52px;
-  }
-
-  .cowdi-chat-bubble {
-    right: 12px !important;
-    bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important;
-    max-width: min(280px, calc(100vw - 24px));
-  }
 }
 
 /* Tighter desktop when the viewport is not very wide */
@@ -1814,14 +1785,6 @@ hr {
 
   body:has(.lesson-step-footer) .cowdi-invite-fab {
     display: none;
-  }
-
-  body:has(.lesson-step-footer) .cowdi-chat-btn {
-    bottom: calc(158px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  body:has(.lesson-step-footer) .cowdi-chat-bubble {
-    bottom: calc(218px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 

@@ -518,18 +518,6 @@ canvas.pet-character-img {
   color: #AAA;
 }
 
-/* ── CowdiChat Image ────────────────────────────────────────── */
-.cowdi-chat-img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  pointer-events: none;
-}
-canvas.cowdi-chat-img {
-  width: 46px;
-  height: auto;
-}
-
 /* ── Collection Page Images ──────────────────────────────────── */
 .collection-pet-img {
   width: auto;
