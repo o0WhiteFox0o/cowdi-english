@@ -10,13 +10,13 @@
 | Req ID | Mô tả yêu cầu | Nguồn (SRS / SDD) | Mã nguồn chính | Kiểm thử / Nghiệm thu | Trạng thái |
 |---|---|---|---|---|---|
 | `FR-CORE-01` | Đăng nhập Google OAuth2 + phiên JWT (kèm dev-login khoá localhost) | SRS §3.1 | `server/routes/auth.js`, `src/hooks/useAuth.jsx` | Manual + `pet-motion-step1.test.mjs` | 🚀 Production |
-| `FR-CORE-02` | Đồng bộ tiến độ học 206 bài / 44 unit, từ vựng SRS SM-2, biểu đồ học tập | SRS §3.2–3.4 | `server/routes/api.js`, `src/hooks/useUser.jsx`, `shared/lesson-ids.json` | `npm run prebuild` + Manual | 🚀 Production |
+| `FR-CORE-02` | Đồng bộ tiến độ học 221 bài / 54 unit (lộ trình 3 nhóm), từ vựng SRS SM-2, biểu đồ học tập | SRS §3.2–3.4 | `server/routes/api.js`, `src/hooks/useUser.jsx`, `shared/lesson-ids.json` | `npm run prebuild` + Manual | 🚀 Production |
 | `FR-CORE-03` | Luyện 4 kỹ năng (Nghe, Nói, Đọc, Viết) & 7 mini-game (gồm TyperShark) | SRS §3.3 | `src/features/practice/`, `src/features/mini-games/` | Manual / UAT | 🚀 Production |
 | `FR-CORE-04` | Lời mời bạn học (Invite) & Bảng xếp hạng cộng đồng | SDD-INVITE v1.0 | `server/routes/invites.js`, `src/pages/InvitePage.jsx`, `src/pages/LeaderboardPage.jsx` | Manual / UAT | 🚀 Production |
 
 ---
 
-## 2. Phân hệ Kinh tế & Chiến đấu v2 (GĐ1 → GĐ3 đã triển khai · GĐ4 → GĐ8 kế hoạch)
+## 2. Phân hệ Kinh tế & Chiến đấu v2 (GĐ1 → GĐ4 đã triển khai · GĐ5 → GĐ8 kế hoạch)
 
 | Req ID | Mô tả yêu cầu | Nguồn / Quyết định | Mã nguồn chính | Kiểm thử tự động | Trạng thái |
 |---|---|---|---|---|---|
@@ -66,21 +66,33 @@
 
 ---
 
-## 5. Phân hệ Pet Director V2 (`SDD-PET-DIRECTOR v1.1` — Tích hợp trên nền `Pet-motion`)
+## 5. Phân hệ Pet Director V2 (`SDD-PET-DIRECTOR v1.1.1` — Tích hợp trên nền `Pet-motion`)
 
-| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn dự kiến | Kiểm thử / Nghiệm thu | Trạng thái |
+| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn chính | Kiểm thử / Nghiệm thu | Trạng thái |
 |---|---|---|---|---|---|
-| `FR-DIR-01` | Lõi điều phối `PetDirector` thuần JS (ưu tiên, ngắt, cooldown, giãn cách 20s, 1 lần/phiên, giờ yên 21:00–06:00, chống lặp 7 ngày, giữ chỗ GĐ3) | SDD-PET-DIRECTOR §3–4, §11 | `src/pet-director/PetDirector.js`, `rules.js`, `lineSelector.js`, `storage.js` | `src/pet-director/pet-director.test.mjs` | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-02` | Tận dụng `Pet-motion`: thêm `canvasBubble` (`false` khi dùng Director), chuẩn hoá `onClip('tap')` cho cả rig duyệt & ảnh tĩnh fallback, tuân thủ P3 | SDD-PET-DIRECTOR §2, §9 | `src/pet-rig/PetRig.js`, `src/pet-rig/PetAvatar.jsx` | `src/pet-rig/pet-rig.test.mjs` | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-03` | Sân khấu `<PetStage>` đồng hành chuẩn V2 (Desktop `sticky` 2 cột + căn giữa thẻ đơn/Flashcard + `.lesson-step-footer` full-width; Mobile xếp dọc `compact` giữ Zero-Scroll Quiz), `<PetSpeech>` (Mali + nút Nghe TTS + nhép miệng), `<PetThought>` SVG | SDD-PET-DIRECTOR §6.1, §6.3–6.4 | `src/pet-director/DirectorContext.jsx`, `PetStage.jsx`, `PetSpeech.jsx`, `PetThought.jsx`, `pet-director.css` | `170/170` test PASS, `npm run build` PASS, UAT local | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-04` | Gỡ hoàn toàn bong bóng nổi `CowdiChat` khỏi `App.jsx` & dọn `.cowdi-chat-*` trên 3 file CSS; chuyển `LessonDetailPage`, `PictureLesson`, `PracticePage` sang `dispatch` | SDD-PET-DIRECTOR §1 (P2, P7), §7 | `src/App.jsx`, `LessonDetailPage.jsx`, `PictureLesson.jsx`, `PracticePage.jsx`, `book.css`, `components.css`, `pet.css` | 0 `position: fixed` pet trên bài học | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-05` | Kho câu thoại LineDB đạt chuẩn giọng văn P3–P6 (`common.js` trung tính + `cowdi.js` 240+ câu GĐ2 + chuyển `PAGE_TIPS`, 0 từ cấm, ≤ 60 ký tự) | SDD-PET-DIRECTOR §5 | `src/data/pet-lines/index.js`, `common.js`, `cowdi.js` | `src/pet-director/lines.test.mjs` | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-06` | `<PathPet>` trên bản đồ `LearningPathPage` (kèm `<PetThought>` & thẻ hành động `Học tiếp`/`Để sau`, hài hoà với bạn bè `FR-MAP-04`) | SDD-PET-DIRECTOR §6.2 | `src/pet-director/PathPet.jsx`, `src/pages/LearningPathPage.jsx` | `npm test` + `npm run build` | ✅ Done (`feat/pet-director`) |
-| `FR-DIR-07` | Chuyển `HomePage`, `PetPage`, `DuelPage` (luôn Tầng 1) sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` | SDD-PET-DIRECTOR §7, §10 | `HomePage.jsx`, `PetPage.jsx`, `DuelPage.jsx`, `StudyPreviewTab.jsx`, `src/data/pets.js` | `grep` 0 chuỗi cấm P3 trong kho thoại & UI pet | ✅ Done (`feat/pet-director`) |
+| `FR-DIR-01` | Lõi điều phối `PetDirector` thuần JS (ưu tiên, ngắt, cooldown, giãn cách 20s, 1 lần/phiên, giờ yên 21:00–06:00, chống lặp 7 ngày, giữ chỗ GĐ3) | SDD-PET-DIRECTOR §3–4, §11 | `src/pet-director/PetDirector.js`, `rules.js`, `lineSelector.js`, `storage.js` | `src/pet-director/pet-director.test.mjs` | ✅ Done (`main`) |
+| `FR-DIR-02` | Tận dụng `Pet-motion`: thêm `canvasBubble` (`false` khi dùng Director), chuẩn hoá `onClip('tap')` cho cả rig duyệt & ảnh tĩnh fallback, tuân thủ P3 | SDD-PET-DIRECTOR §2, §9 | `src/pet-rig/PetRig.js`, `src/pet-rig/PetAvatar.jsx` | `src/pet-rig/pet-rig.test.mjs` | ✅ Done (`main`) |
+| `FR-DIR-03` | Sân khấu `<PetStage>` đồng hành chuẩn V2 (Desktop `sticky` 2 cột + căn giữa thẻ đơn/Flashcard + `.lesson-step-footer` full-width; Mobile xếp dọc `compact` giữ Zero-Scroll Quiz), `<PetSpeech>` (Mali + nút Nghe TTS + nhép miệng), `<PetThought>` SVG | SDD-PET-DIRECTOR §6.1, §6.3–6.4 | `src/pet-director/DirectorContext.jsx`, `PetStage.jsx`, `PetSpeech.jsx`, `PetThought.jsx`, `pet-director.css` | `188/188` test PASS, `npm run build` PASS, UAT local | ✅ Done (`main`) |
+| `FR-DIR-04` | Gỡ hoàn toàn bong bóng nổi `CowdiChat` khỏi `App.jsx` & dọn `.cowdi-chat-*` trên 3 file CSS; chuyển `LessonDetailPage`, `PictureLesson`, `PracticePage` sang `dispatch` | SDD-PET-DIRECTOR §1 (P2, P7), §7 | `src/App.jsx`, `LessonDetailPage.jsx`, `PictureLesson.jsx`, `PracticePage.jsx`, `book.css`, `components.css`, `pet.css` | 0 `position: fixed` pet trên bài học | ✅ Done (`main`) |
+| `FR-DIR-05` | Kho câu thoại LineDB đạt chuẩn giọng văn P3–P6 (`common.js` trung tính + `cowdi.js` 240+ câu GĐ2 + chuyển `PAGE_TIPS`, 0 từ cấm, ≤ 60 ký tự) | SDD-PET-DIRECTOR §5 | `src/data/pet-lines/index.js`, `common.js`, `cowdi.js` | `src/pet-director/lines.test.mjs` | ✅ Done (`main`) |
+| `FR-DIR-06` | `<PathPet>` trên bản đồ `LearningPathPage` (kèm `<PetThought>` & thẻ hành động `Học tiếp`/`Để sau`, hài hoà với bạn bè `FR-MAP-04`, chặn kích hoạt khi đang onboarding) | SDD-PET-DIRECTOR §6.2 | `src/pet-director/PathPet.jsx`, `src/pages/LearningPathPage.jsx` | `npm test` + `npm run build` | ✅ Done (`main`) |
+| `FR-DIR-07` | Chuyển `HomePage`, `PetPage`, `DuelPage` (luôn Tầng 1) sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` | SDD-PET-DIRECTOR §7, §10 | `HomePage.jsx`, `PetPage.jsx`, `DuelPage.jsx`, `StudyPreviewTab.jsx`, `src/data/pets.js` | `grep` 0 chuỗi cấm P3 trong kho thoại & UI pet | ✅ Done (`main`) |
 
 ---
 
-## 6. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
+## 6. Chuẩn chất lượng & Rà soát Ngân hàng câu hỏi (`STD-QUESTION-QUALITY v1.0`)
+
+| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn chính | Kiểm thử / Nghiệm thu | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-QA-01` | Giao diện câu hỏi nghe `PlacementTest`: hỗ trợ `audioText \|\| speak`, tự phát 1 lần khi sang câu, nút `Nghe lại` & `🐢 Nghe chậm` (0.55×), badge `🎧 Câu hỏi nghe`, không lộ `audioText`, lọc câu nghe hỏng / trình duyệt thiếu TTS | STD-QUESTION-QUALITY §3.3, §5.3 | `src/features/placement/PlacementTest.jsx`, `src/pages/LearningPathPage.jsx` | `npm run build` + UAT | ✅ Done (`main`) |
+| `FR-QA-02` | Sinh câu Starter cùng nhóm `category`, bỏ lặp emoji trong lời dẫn, không sinh `image-pick-word` cho `greeting`, hiển thị ô màu `swatch` + emoji vuông, bỏ tự sinh `_type === 'grammar'` khỏi checkpoint & chống trùng nghĩa `reading.js` | STD-QUESTION-QUALITY §3.2, §3.4, §5.2 | `src/utils/quiz-gen.js`, `src/data/lessons/starter/*.js`, `PictureLesson.jsx`, `reading.js` | `shared/quiz-gen.test.js` (4 tests, chạy 500 lượt) | ✅ Done (`main`) |
+| `FR-QA-03` | Validator dùng chung 14 mã (`Q-L2-AUDIO`..`Q-EXPL` + `Q-OPT-ALL`) & 3 bảng lexicon (`categories`, `synonyms`, `ambiguous-emoji`), tích hợp retry 3× trong `generatePictureChallenge` | STD-QUESTION-QUALITY §5.1–5.2 | `shared/question-rules.js`, `src/data/lexicon/*.js` | `shared/question-rules.test.js` (14 tests) | ✅ Done (`main`) |
+| `FR-QA-04` | Chế độ `--questions` / `--json` / `--fail-on-hard` trong `validate-lessons.mjs`, chặn build ở `prebuild` & báo cáo rà soát toàn kho | STD-QUESTION-QUALITY §5.1, `GEMINI-QUESTION-QA` | `scripts/validate-lessons.mjs`, `package.json`, `RPT-QUESTION-AUDIT-2026-11-26.md` | `npm run validate:questions` (**0 lỗi cứng / 2.829 câu**) | ✅ Done (`main`) |
+| `FR-QA-05` | Sửa dứt điểm toàn bộ 29 lỗi cứng Đợt 1 (`s1-hello`, `ielts-foundation-listening`, `QUIZ_BANK`, ...) & cân chỉnh toàn bộ 70 `Q-LEN` + 89 `Q-POS` trên 54 bài v2 (Đợt 2) | `RPT-QUESTION-AUDIT-2026-11-26.md` | 44 file bài v2 + `quiz-bank.js` + `quiz-bank-extra.js` | **54/54 bài v2: 0 lỗi · 0 cảnh báo** | ✅ Done (`main`) |
+
+---
+
+## 7. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
 
 | Req ID | Hạng mục | Yêu cầu cụ thể | Cách kiểm chứng | Trạng thái |
 |---|---|---|---|---|

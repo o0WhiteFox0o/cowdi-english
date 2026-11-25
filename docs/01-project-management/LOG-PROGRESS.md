@@ -29,8 +29,8 @@
 | WS-5 | **Lộ trình 3 Nhóm & Chuẩn hoá Nội dung v2** | [SPMP v1.0](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS 3 Cấp](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD 3 Nhóm v2.0](../04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD v1.0](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 🟡 Xong 100% `int-u1..u10` + S1–S3 + IELTS R1 | **54/221 bài đạt chuẩn v2** | Media Starter S1–S3 (`G10`) + UAT · Mở rộng IELTS/TOEIC/B1/B2 v2 · `feat/pron-assessment` |
 | WS-6 | **Chuẩn Mỹ thuật v1.1, Thay thế Hình ảnh & Khung UI/UX** | [STD-ART-STYLE v1.1](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [GDE-ART-WORKFLOW](../05-implementation/art/GDE-ART-WORKFLOW-v1.1.md) · [CHK-ART-UI-AUDIT](../05-implementation/art/CHK-ART-UI-AUDIT.md) · [REG-UI-ICONS](../05-implementation/REG-UI-ICONS.md) | 🟡 Khung UI/UX đã sửa; chờ ảnh `ART-01..08` | **Chuẩn + UI frame xong** | Bổ sung 2 ảnh 404 Từ vựng + 10 ảnh Bánh Bao/Nấm Rơm + sửa 3 sprite FAIL QC + 34 Icon UI Đợt 1 |
 | WS-7 | **Phân hệ Bạn bè & Thưởng mời bạn** (OG, thưởng học thật, bạn bè, tìm email, quét QR, lộ trình) | [SRS-FRIENDS v1.1.1](../04-design/SRS-FRIENDS-v1.1.md) · [TASK-FRIENDS](../05-implementation/TASK-FRIENDS.md) · [REFERRAL-GACHA-TICKET](../04-design/economy-v2/REFERRAL-GACHA-TICKET.md) | ✅ Xong Bước 0–7 & đã đóng gói `deploy.zip` | **100% (sẵn sàng deploy)** | Upload `deploy.zip` aaPanel, chạy `run-friends-migration.js`, thêm Nginx `location ^~ /i/`, test Zalo thật (**AT-01**) |
-| WS-8 | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet** (gỡ `CowdiChat`, tận dụng `Pet-motion`) | [SDD-PET-DIRECTOR v1.1.1](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [RPT-SURVEY](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR](../05-implementation/TASK-PET-DIRECTOR.md) | ✅ Đã gộp `main` (`b04cb1c`) | **100%** | Sẵn sàng đóng gói deploy cùng `feat/question-qa` |
-| WS-9 | **Chuẩn chất lượng & Rà soát Ngân hàng câu hỏi (`Q0–Q6` + Đợt 2)** | [STD-QUESTION-QUALITY v1.0](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) · [RPT-QUESTION-AUDIT](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | ✅ Đã gộp `main` | **0 lỗi cứng / 2.829 câu · 54/54 bài v2 0 cảnh báo** | UAT `/placement` trên trình duyệt; cuốn chiếu cảnh báo bài cũ khi nâng cấp v2 |
+| WS-8 | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet** (gỡ `CowdiChat`, tận dụng `Pet-motion`) | [SDD-PET-DIRECTOR v1.1.1](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [RPT-SURVEY](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR](../05-implementation/TASK-PET-DIRECTOR.md) | ✅ Đã gộp `main` (`b04cb1c`) & đóng gói `deploy.zip` | **100%** | Upload `deploy.zip` (39.42 MB) lên aaPanel & restart Node |
+| WS-9 | **Chuẩn chất lượng & Rà soát Ngân hàng câu hỏi (`Q0–Q6` + Đợt 2)** | [STD-QUESTION-QUALITY v1.0](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) · [RPT-QUESTION-AUDIT](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | ✅ Đã gộp `main` (`5edeb56`) & đóng gói `deploy.zip` | **0 lỗi cứng / 2.829 câu · 54/54 bài v2 0 cảnh báo** | UAT `/placement` sau khi deploy; cuốn chiếu cảnh báo bài cũ khi nâng cấp v2 |
 
 ### Chỉ số sức khoẻ kỹ thuật hiện tại (2026-11-26)
 - **Automated Tests (`npm test`)**: **188 / 188 PASS** (24 suites: Kinh tế v2, Cosmetics v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm, `ExamReading` U8 & Server Wallet/Guard, Quản lý Pet `pet_catalog`, Pet Motion API/RBAC `/raw` & PetRig Runtime / `canvasBubble` / Study Preview 5.8, trọn bộ 6 suite Phân hệ Bạn bè & Thưởng mời bạn phủ `AT-02..AT-11`, trọn bộ 16 test Pet Director V2 + LineDB 240+ câu, và **18 test mới** phủ `shared/quiz-gen.test.js` 500 lượt + 14 mã `shared/question-rules.test.js`).
@@ -47,8 +47,8 @@
 | GĐ1 | Nền tảng v2 (Ledger 4 loại, Battle Engine seed, Tiến hoá API, UI Pet/Account/Dex) | `feat/economy-battle-v2` → `main` | 🚀 | 2026-11-23 | `327d136`, gộp `e432864` |
 | GĐ2 | Mô phỏng cân bằng (6 kịch bản, 6 CSV, `BALANCE-REPORT-v2.md`, 3 test biên) | `feat/balance-sim-v2` → `main` | 🚀 | 2026-11-23 | `457b570`, gộp `e432864` |
 | GĐ3 | Cửa hàng Giữ nhịp, bỏ Coins (`×3` Sữa, D12), Streak server-side (D13), UI Shop 3 tab | `feat/shop-streak` → `main` | 🚀 | 2026-11-23 | `16bab9b`, gộp `e432864`, sửa crash ví `f8baa29`, deploy `2026-11-24` |
-| **GĐ4** | **Đồ trang trí** (`owned_cosmetics`, 6 bậc, mốc học tự cấp, khung avatar, danh hiệu) | `feat/cosmetics` | ⛔ Chờ chốt | — | Cần PO chốt `DEC-01` (giá đồ Thường/Hiếm) |
-| GĐ5 | Đấu trường (vé gắn học D4, LP 6 bậc, mùa 4 tuần, rương tuần, chống lạm dụng) | `feat/arena` | ⏳ | — | Chờ chốt `DEC-02` |
+| GĐ4 | Đồ trang trí (`owned_cosmetics`, 6 bậc D14, mốc học tự cấp, combo -20%) | `feat/cosmetics-v2` → `main` | ✅ | 2026-11-24 | `00be7f2`, `1276060` (đã chốt `D14`) |
+| **GĐ5** | **Đấu trường** (vé gắn học D4, LP 6 bậc, mùa 4 tuần, rương tuần, chống lạm dụng) | `feat/arena` | ⏳ | — | Chờ chốt `DEC-02` |
 | GĐ6 | Lõi Gacha + Thiệp mời người mới + Quay pet khởi đầu (D7) | `feat/gacha-core-invite` | ⏳ | — | Phụ thuộc GĐ4/GĐ5 |
 | GĐ7 | Gacha đầy đủ (50 Gem/vé D5, banner 3 tuần, Thẻ tặng pet D6, Bụi sao) | `feat/gacha-full` | ⏳ | — | Chờ chốt `DEC-03`, `DEC-04`, `DEC-05` |
 | GĐ8 | Thanh toán (Thẻ tháng Sữa ×1.5, Thẻ mùa 30 tầng, gói Gem, giới hạn chi tiêu) | `feat/payments` | ⏳ | — | Chờ chốt `DEC-06` |
@@ -58,12 +58,11 @@
 
 ## 3. Quyết định chờ Product Owner chốt (Open Decisions)
 
-> Các quyết định cũ (`Q-01` đến `Q-07`) đã được chốt thành `D1–D13` trong [TASK.md](../../TASK.md) và đã cài đặt trong mã nguồn. Danh sách dưới đây chỉ giữ các mục **còn mở thực sự**:
+> Các quyết định cũ (`Q-01` đến `Q-07`, `DEC-01`) đã được chốt thành `D1–D14` trong [TASK.md](../../TASK.md) và đã cài đặt trong mã nguồn. Danh sách dưới đây chỉ giữ các mục **còn mở thực sự**:
 
 | Mã | GĐ bị chặn | Câu hỏi cần chốt | Đề xuất của PM / Mặc định tạm | Trạng thái |
 |---|---|---|---|---|
-| **DEC-01** | **GĐ4 (Kế tiếp)** | Đồ trang trí bậc Thường / Hiếm bán bằng **Sữa** hay **Gem**? | Thường = Sữa (tạo đầu ra Sữa); Hiếm trở lên = Gem | 🔴 Cần chốt sớm |
-| DEC-02 | GĐ5 | Câu đúng Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP từng bậc? | Không cộng kỹ năng trực tiếp; AI không tăng LP ở bậc cao | 🟡 Chờ trước GĐ5 |
+| **DEC-02** | **GĐ5 (Kế tiếp)** | Câu đúng Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP từng bậc? | Không cộng kỹ năng trực tiếp; AI không tăng LP ở bậc cao | 🔴 Cần chốt trước GĐ5 |
 | DEC-03 | GĐ7 | Tỉ lệ pet giới hạn trên banner: **3%** hay **5%**? | 3% (khớp `D5`: 67/22/8/3) | 🟡 Chờ trước GĐ7 |
 | DEC-04 | GĐ7 | Hồ sơ Pet giới hạn đầu tiên (tên, hệ, nhóm, 8 mức kỹ năng, 5 ảnh) | Chuẩn bị cùng đội họa sĩ từ GĐ5 | 🟡 Chờ trước GĐ7 |
 | DEC-05 | GĐ7 | Cách người chơi cũ lấy lại pet giới hạn mùa cũ (rerun hay cửa hàng Bụi sao)? | Rerun theo mùa + đổi Bụi sao giá cao | 🟡 Chờ trước GĐ7 |

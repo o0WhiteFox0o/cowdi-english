@@ -95,7 +95,7 @@
 | TPL | Bộ mẫu brief & khung dữ liệu bài học 3 cấp (+ brief mẫu `int-u1`) | [content/README.md](../05-implementation/content/README.md) · [STARTER](../05-implementation/content/TPL-STARTER.md) · [INTERMEDIATE](../05-implementation/content/TPL-INTERMEDIATE.md) · [EXAM](../05-implementation/content/TPL-EXAM.md) · [int-u1](../05-implementation/content/briefs/int-u1.md) | 1.0 | Approved | (mới 2026-11-24) |
 | TASK | **Nhiệm vụ triển khai Bạn bè & Thưởng mời bạn (8 bước 0–7)** | [TASK-FRIENDS.md](../05-implementation/TASK-FRIENDS.md) | 2.0 | Done (gộp `main`) | (hoàn thành 2026-11-25) |
 | RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Approved | (mới 2026-11-25) |
-| TASK | **Kế hoạch & Checklist triển khai Pet Director V2 (Gói A–E, GĐ 1–2)** | [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) | 1.1 | Done (`feat/pet-director`) | (hoàn thành 2026-11-25) |
+| TASK | **Kế hoạch & Checklist triển khai Pet Director V2 (Gói A–E, GĐ 1–2)** | [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) | 1.1 | Done (gộp `main`) | (hoàn thành 2026-11-26) |
 | RPT | **Báo cáo khảo sát mã nguồn Pet Director V2 & Tích hợp Pet-motion** | [RPT-PET-DIRECTOR-SURVEY.md](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) | — | Approved | (mới 2026-11-25) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
@@ -103,7 +103,7 @@
 |---|---|---|---|---|---|
 | STP | **Kế hoạch kiểm thử tổng thể (IEEE 29119-3)** | [STP-COWDI-v1.0.md](../06-verification-validation/STP-COWDI-v1.0.md) | 1.0 | Approved | STP-COWDI-v0.1.md |
 | RPT | **Báo cáo kiểm tra nội dung 206 bài học hiện có (+ 3 bài golden v2)** | [RPT-LESSON-CONTENT-2026-11-24.md](../06-verification-validation/RPT-LESSON-CONTENT-2026-11-24.md) | — | Approved | (mới 2026-11-24) |
-| RPT | **Báo cáo rà soát chất lượng ngân hàng câu hỏi (2.829 câu, 14 mã)** | [RPT-QUESTION-AUDIT-2026-11-26.md](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | — | Approved | (mới 2026-11-26) |
+| RPT | **Báo cáo rà soát chất lượng ngân hàng câu hỏi (2.829 câu · 0 lỗi cứng · 54/54 bài v2 0 cảnh báo)** | [RPT-QUESTION-AUDIT-2026-11-26.md](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | — | Approved | (mới 2026-11-26) |
 | RPT | **Báo cáo mô phỏng cân bằng Chiến đấu v2 (6 CSV)** | [BALANCE-REPORT-v2.md](../06-verification-validation/balance-v2/BALANCE-REPORT-v2.md) | — | Approved | (mới 2026-11-23) |
 | RPT | Đánh giá dự án (24/04/2026) | [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) | — | Approved | EVALUATION-2026-04.md |
 | RPT | Cơ chế tính điểm (23/04/2026) | [RPT-SCORING-2026-04-23.md](../06-verification-validation/RPT-SCORING-2026-04-23.md) | — | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | SCORING-REPORT.md |

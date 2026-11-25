@@ -1,12 +1,13 @@
-# Báo cáo rà soát chất lượng ngân hàng câu hỏi (2026-11-25)
+# Báo cáo rà soát chất lượng ngân hàng câu hỏi (2026-11-26)
 
 | Mục | Giá trị |
 |---|---|
 | Chuẩn áp dụng | `STD-QUESTION-QUALITY v1.0` |
-| Công cụ | `node scripts/validate-lessons.mjs --questions` |
-| Tổng số câu hỏi kiểm tra | **2829** (+ 12 bài Starter `words[]`) |
-| Tổng lỗi cứng (ERROR) | **0** |
-| Tổng cảnh báo (WARNING) | **2500** |
+| Công cụ | `npm run validate:questions` (`scripts/validate-lessons.mjs --questions --fail-on-hard`) |
+| Tổng số câu hỏi kiểm tra | **2.829** (+ 12 bài Starter `words[]`) |
+| Tổng lỗi cứng (ERROR) | **0** *(đã sửa 29/29 lỗi cứng Đợt 1)* |
+| Bài đạt chuẩn v2 (54 bài) | **0 lỗi · 0 cảnh báo** *(đã xử lý 70/70 `Q-LEN` & 89/89 `Q-POS` Đợt 2)* |
+| Tổng cảnh báo bài cũ (legacy & `QUIZ_BANK`) | **2.500** (`2.187 Q-EXPL`, `170 Q-LEN`, `143 Q-POS`) |
 
 ---
 

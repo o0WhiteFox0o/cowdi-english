@@ -25,17 +25,18 @@
 
 ---
 
-## 1. Thứ tự việc (Q0–Q6)
+## 1. Thứ tự việc (Q0–Q6 + Đợt 2) — Trạng thái
 
-| # | Việc | Loại | Phụ thuộc | Kết quả |
+| # | Việc | Loại | Trạng thái | Kết quả |
 |---|---|---|---|---|
-| **Q0** | Đưa chuẩn vào repo | Tài liệu | — | `STD-QUESTION-QUALITY-v1.0.md`, `GEMINI-QUESTION-QA.md`, liên kết chéo |
-| **Q1** | Sửa giao diện câu nghe ở `PlacementTest` | Mã (hotfix) | — | Hết lỗi Tầng 2 |
-| **Q2** | Sửa bộ sinh câu tự động (`quiz-gen.js` + `category` 12 bài Starter + màu ô vuông) | Mã | — | Hết lỗi Tầng 1 + `shared/quiz-gen.test.js` |
-| **Q3** | Validator câu hỏi dùng chung (`shared/question-rules.js` + `src/data/lexicon/`) | Mã + test | Q0 | 14 mã kiểm tra + `shared/question-rules.test.js` |
-| **Q4** | Chạy rà toàn kho, xuất báo cáo chuẩn | Script + báo cáo | Q3 | `docs/06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md` |
-| **Q5** | Sửa nội dung theo báo cáo (đợt 1: lỗi cứng `s1-hello`, `ielts-foundation-listening#4`, `QUIZ_BANK`, `pronunciation-tricky#1`; đợt sau: `Q-LEN`/`Q-POS` theo unit) | Nội dung | Q4 | Kho câu hỏi hết lỗi cứng |
-| **Q6** | Bật validator chặn build với lỗi cứng (`Q-L2-AUDIO`, `Q-OPT-DUP`, `Q-OPT-COUNT`, `Q-L1-SYN`) | Cấu hình | Q5 đợt 1 | Lỗi mới không lọt vào bản build |
+| **Q0** | Đưa chuẩn vào repo | Tài liệu | ✅ Đã xong (`f66a981`) | `STD-QUESTION-QUALITY-v1.0.md`, `GEMINI-QUESTION-QA.md`, liên kết chéo |
+| **Q1** | Sửa giao diện câu nghe ở `PlacementTest` | Mã (hotfix) | ✅ Đã xong (`efc3308`) | Hết lỗi Tầng 2 (`audioText`, tự phát, nghe chậm 0.55×, lọc câu hỏng) |
+| **Q2** | Sửa bộ sinh câu tự động (`quiz-gen.js` + `category` 12 bài Starter + màu ô vuông) | Mã | ✅ Đã xong (`2aad0b6`) | Hết lỗi Tầng 1 + `shared/quiz-gen.test.js` (500 lượt) |
+| **Q3** | Validator câu hỏi dùng chung (`shared/question-rules.js` + `src/data/lexicon/`) | Mã + test | ✅ Đã xong (`0d063e5`) | 14 mã kiểm tra + `shared/question-rules.test.js` |
+| **Q4** | Chạy rà toàn kho, xuất báo cáo chuẩn | Script + báo cáo | ✅ Đã xong (`a0704cf`) | `docs/06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md` |
+| **Q5 (Đợt 1)** | Sửa nội dung lỗi cứng toàn kho (29 lỗi cứng) | Nội dung | ✅ Đã xong (`51bca1f`) | **0 lỗi cứng / 2.829 câu** |
+| **Q6** | Bật validator chặn build (`prebuild`) + chống trùng nghĩa `reading.js` | Cấu hình + mã | ✅ Đã xong (`64738ec`) | `npm run validate:questions` chạy bắt buộc trong `prebuild` |
+| **Q5 (Đợt 2)** | Dọn file trùng `src/data/quiz-bank-extra.js` & cân chỉnh 70 `Q-LEN` + 89 `Q-POS` trên 54 bài v2 | Nội dung | ✅ Đã xong (`c10fd5d`, `8c74ea8` → gộp `main` `5edeb56`) | **54/54 bài v2: 0 lỗi · 0 cảnh báo** |
 
 ---
 
