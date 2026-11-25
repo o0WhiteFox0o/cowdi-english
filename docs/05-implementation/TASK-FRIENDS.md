@@ -2,6 +2,13 @@
 
 Bản 2 · 25/11/2026 · **Thay bản 1** (bản 1 dựng hệ mời và hộp gacha riêng, trùng với code có sẵn — không làm theo bản 1).
 
+> **Trạng thái (25/11/2026): ĐÃ HOÀN THÀNH Bước 0–7 và gộp vào `main` (`9bb6320`, `78ab01b`).**
+> Các điều chỉnh theo phản hồi PO sau test local đã áp dụng:
+> 1. Bỏ form đặt biệt danh riêng, dùng thống nhất tên hiển thị sẵn có trong Tài khoản (`AccountPage`).
+> 2. Thêm tìm kiếm & kết bạn bằng **email khớp chính xác** (`GET /api/friends/lookup`, rate limit 20/giờ, không trả email ra response).
+> 3. Thêm máy quét QR trực tiếp trong App (`src/components/QrScannerModal.jsx` dùng `jsqr`, hỗ trợ cả camera sau lẫn chọn ảnh QR) và giữ `?add=CODE` qua Google OAuth cho người chưa cài App quét bằng Camera/Zalo.
+> 4. Tương thích MySQL 5.5/5.6+ (`app_events.props` dùng `LONGTEXT`, tối đa 1 `TIMESTAMP` auto/bảng) và giữ route số ít `/api/duel`.
+
 Bạn là lập trình viên làm việc trực tiếp trên repo Cowdi English (`https://github.com/o0WhiteFox0o/cowdi-english`): client React 18 + Vite trong `src/`, server Express trong `server/`, MySQL với migration `server/db/migrate-*.sql`, dữ liệu dùng chung trong `shared/`. Chữ giao diện tiếng Việt.
 
 **Đặc tả gốc:** `docs/04-design/SRS-FRIENDS-v1.1.md`. Mọi mã `FR-*`, `BR-*`, `AT-*` trỏ về SRS. Khi tài liệu đoán sai so với code thật, **theo code thật** và ghi trong mô tả PR.

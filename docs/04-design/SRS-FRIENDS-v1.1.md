@@ -3,10 +3,10 @@
 | Mục | Nội dung |
 |---|---|
 | Mã tài liệu | SRS-FRIENDS |
-| Phiên bản | **1.1** |
+| Phiên bản | **1.1.1** |
 | Ngày | 25/11/2026 |
 | Chủ sở hữu | Sonny (Nguyễn Hồng Sơn) |
-| Trạng thái | Chờ duyệt |
+| Trạng thái | Approved (Đã triển khai trên `main`) |
 | Tài liệu liên quan | Repo: `docs/04-design/economy-v2/de-xuat-gacha-v2.md`, `docs/04-design/SDD-INVITE-v1.0.md`, `TASK.md` (GĐ6–GĐ7). Project: `claude/REFERRAL-GACHA-TICKET.md` v0.3, `claude/GEMINI-LEARNING-GROUPS.md` |
 
 **Bản 1.1 thay bản 1.0.** Bản 1.0 tự thiết kế hệ mời và hộp quà riêng, trùng với thiệp mời đã chạy và thiết kế gacha v2 trong repo. Bản 1.1 **xây trên thiệp mời có sẵn**, không làm gacha (thuộc GĐ6–GĐ7).
@@ -24,7 +24,7 @@ Khi tài liệu này đoán sai so với code thật, **theo code thật** và g
 **Trong phạm vi:**
 - Điều kiện "học thật" của người được mời; thưởng Gem/Sữa; thưởng vé gacha theo mốc.
 - Ảnh xem trước (OG) do server trả cho `/i/:code`.
-- Kết bạn: tự động qua thiệp mời; bằng mã bạn bè/QR cho người đã có tài khoản. Huỷ, chặn, báo cáo.
+- Kết bạn: tự động qua thiệp mời; bằng mã bạn bè (8 ký tự), email khớp chính xác hoặc quét QR (trong app bằng camera/ảnh, hoặc ngoài app bằng Camera điện thoại/Zalo) cho người đã có tài khoản. Huỷ, chặn, báo cáo.
 - Thăm pet của bạn; thách đấu bạn bè.
 - Bạn bè trên bản đồ lộ trình.
 
@@ -36,7 +36,7 @@ Khi tài liệu này đoán sai so với code thật, **theo code thật** và g
 **Không làm:**
 - Đồng bộ danh sách bạn bè từ Zalo/Facebook; đăng nhập Zalo/Facebook.
 - Bụi sao hoặc bất kỳ tiền tệ mới nào.
-- Chat tự do; tìm người dùng theo tên/email; bảng xếp hạng bạn bè; thông báo đẩy.
+- Chat tự do; tìm kiếm mờ theo tên / danh sách gợi ý người lạ; bảng xếp hạng bạn bè; thông báo đẩy.
 - Tài khoản phụ huynh; nạp tiền.
 
 ### 1.3 Thuật ngữ
@@ -121,7 +121,7 @@ Khách (chưa đăng nhập), Người dùng, Hệ thống (server), Quản tr�
 | FR-FRD-03 | Lời mời kết bạn: chấp nhận / từ chối. Hai bên cùng gửi → tự `accepted`. | Must |
 | FR-FRD-04 | Huỷ kết bạn; chặn (không gửi lời mời được, ẩn khỏi tìm kiếm và bản đồ của nhau); bỏ chặn; báo cáo. | Must |
 | FR-FRD-05 | **Cập nhật 25/11/2026 (PO chốt):** Bỏ bước bắt buộc đặt biệt danh riêng ở trang Bạn bè / InviteSheet; dùng thống nhất **tên hiển thị sẵn có trong Tài khoản** (`AccountPage`, đồng bộ `pet_data.nickname` → `users.nickname` → `users.display_name`). | Must |
-| FR-FRD-06 | Trang Bạn bè: tab Bạn bè (pet chính, cấp, nhóm học, ngày học gần nhất) · Lời mời · Thêm bạn (mã, QR, nút "Gửi thiệp cho người mới" mở `InviteSheet`). | Must |
+| FR-FRD-06 | Trang Bạn bè: tab Bạn bè (pet chính, cấp, nhóm học, ngày học gần nhất định dạng `dd/mm/yyyy`) · Lời mời · Thêm bạn (ô tìm kiếm chính xác theo email hoặc mã 8 ký tự, máy quét QR trong app hỗ trợ camera + chọn ảnh, QR cá nhân kèm tải ảnh QR, nút "Gửi thiệp cho người mới" mở `InviteSheet`). | Must |
 
 ### 3.4 FR-VIS — Thăm pet & thách đấu (Must)
 | ID | Yêu cầu | Ưu tiên |
@@ -165,7 +165,7 @@ Khách (chưa đăng nhập), Người dùng, Hệ thống (server), Quản tr�
 | BR-05 | Giữ giới hạn thiệp: 5/ngày, 20/tuần. Thiệp chỉ dành cho người mới (theo `de-xuat-gacha-v2.md`). |
 | BR-06 | Trận Duel giữa hai bạn không tính league points. |
 | BR-07 | 100 bạn/người; 20 lời mời kết bạn đang chờ; 20 lời mời kết bạn/giờ. |
-| BR-08 | Thông tin bạn bè thấy được: biệt danh, pet chính, cấp, trang phục, nhóm học, lộ trình, bài/unit đã xong, ngày học gần nhất. Không có tên thật, email, ảnh Google, ví, điểm bài. |
+| BR-08 | Thông tin bạn bè thấy được: tên hiển thị tài khoản, pet chính, cấp, trang phục, nhóm học, lộ trình, bài/unit đã xong, ngày học gần nhất. Không có email, ảnh Google, ví, điểm bài. |
 
 ---
 
@@ -175,12 +175,18 @@ Khách (chưa đăng nhập), Người dùng, Hệ thống (server), Quản tr�
 |---|---|
 | `invites` | + `claim_ip VARCHAR(45)`, `claim_device_hash CHAR(64)`, `flagged TINYINT(1) DEFAULT 0`, `creator_ip VARCHAR(45)`, `creator_device_hash CHAR(64)` (ghi khi tạo thiệp) |
 | `users` | + `friend_code CHAR(8) UNIQUE`, `nickname VARCHAR(32)` |
-| `friendships` (mới) | Khoá (`user_low`, `user_high`); `status ENUM('pending','accepted','blocked')`; `requested_by`; `blocked_by`; `source ENUM('invite','code','qr')`; `created_at`; `accepted_at`; `INDEX(user_high, status)` |
+| `friendships` (mới) | Khoá (`user_low`, `user_high`); `status ENUM('pending','accepted','blocked')`; `requested_by`; `blocked_by`; `source ENUM('invite','code','qr')`; `created_at TIMESTAMP`; `accepted_at DATETIME`; `INDEX(user_high, status)` |
 | `friend_reports` (mới) | `id`, `reporter_id`, `reported_id`, `reason VARCHAR(40)`, `created_at`, `handled TINYINT(1)` |
-| `wallet_ledger` | `reason` mới: `invite_activated`, `invite_welcome`, `invite_milestone`. Vé gacha: dùng cách lưu của GĐ6; chưa có thì thêm `'gacha_ticket'` vào ENUM `currency` (thống nhất với GĐ6) |
-| `shared/game-config.js` | `INVITE_REWARDS` (BR-01..04), `FRIEND_LIMITS` (BR-07) |
+| `challenges` | + `is_friend_duel TINYINT(1) NOT NULL DEFAULT 0` (chặn trận bạn bè hiện ở sảnh mở & giữ LP = 0) |
+| `user_lesson_first_completions` (mới) | `(user_id, lesson_id)` PK, `completed_date DATE` (giờ VN) — phục vụ kiểm tra BR-01 phía server |
+| `invite_ticket_queue` (mới) | `(user_id, milestone, ticket_index)` UNIQUE, `granted_month CHAR(7)` — dời vé vượt hạn mức 3 vé/tháng sang tháng sau (BR-04) |
+| `invite_notifications` (mới) | Thông báo 1 lần trong app (FR-RWD-05), `payload LONGTEXT` |
+| `app_events` (mới) | Ghi 5 sự kiện phân tích NFR-06, `props LONGTEXT` (tương thích MySQL 5.5/5.6+) |
+| `wallet_ledger` | `reason` mới: `invite_activated`, `invite_welcome`, `invite_milestone`. Mở rộng ENUM `currency` thêm `'gacha_ticket'` |
+| `owned_cosmetics` | Lưu danh hiệu mốc mời bạn với `category = 'title'`, `acquired_from = 'invite_milestone'` |
+| `shared/game-config.js` | `INVITE_REWARDS` (BR-01..05), `FRIEND_LIMITS` (BR-07) |
 
-Danh hiệu: dùng cơ chế danh hiệu/vật phẩm có sẵn nếu có; không có thì lưu trong `pet_data` theo cách repo đang lưu đồ trang trí **[cần đối chiếu code]**.
+Danh hiệu: đã chốt dùng bảng `owned_cosmetics` có sẵn (`category = 'title'`, `acquired_from = 'invite_milestone'`). Migration idempotent tại `server/db/migrate-friends.sql` và runner `scripts/run-friends-migration.js`.
 
 ---
 
@@ -189,18 +195,22 @@ Danh hiệu: dùng cơ chế danh hiệu/vật phẩm có sẵn nếu có; khôn
 | Method | Path | FR |
 |---|---|---|
 | GET | `/i/:code` (HTML + OG) | FR-LND-01..02 |
-| POST | `/api/invites` (sửa: ghi IP/thiết bị, dùng biệt danh) | FR-RWD-01, FR-FRD-05 |
+| POST | `/api/invites` (sửa: ghi IP/thiết bị, dùng tên hiển thị tài khoản) | FR-RWD-01, FR-FRD-05 |
 | POST | `/api/invites/:code/claim` (sửa: ghi IP/thiết bị, `flagged`, tự kết bạn) | FR-RWD-01, FR-FRD-01 |
 | GET | `/api/invites/mine/stats` | FR-RWD-06 |
+| GET/POST | `/api/me/invite-notifications` · `/seen` | FR-RWD-05 |
 | GET/PUT | `/api/me/friend-code`, `/api/me/nickname` | FR-FRD-02, 05 |
 | GET | `/api/friends` | FR-FRD-06 |
-| POST | `/api/friends/requests` `{ code }` | FR-FRD-02 |
+| GET | `/api/friends/lookup?q=<code\|email>` (khớp chính xác, rate limit 20/giờ) | FR-FRD-02 |
+| POST | `/api/friends/requests` `{ query \| code \| email, source? }` | FR-FRD-02 |
 | POST | `/api/friends/requests/:userId/accept` · `/decline` | FR-FRD-03 |
 | DELETE | `/api/friends/:userId` | FR-FRD-04 |
 | POST/DELETE | `/api/friends/:userId/block` · POST `/report` | FR-FRD-04 |
 | GET | `/api/friends/:userId/pet` | FR-VIS-01 |
-| POST | `/api/duels` (thêm `opponentId`) | FR-VIS-02 |
+| POST | `/api/duel` (mở rộng endpoint số ít có sẵn thêm `opponentId`, `is_friend_duel`) | FR-VIS-02 |
 | GET | `/api/friends/path-progress` | FR-MAP-01 |
+| POST | `/api/friends/events/path-passed` | NFR-06 |
+| GET/PATCH | `/api/admin/friend-reports` · `/:id/handle` (Admin) | FR-FRD-04 |
 
 Lỗi: `400` · `403` (không phải bạn / bị chặn) · `404` · `409` (vượt giới hạn) · `429`. Thân lỗi `{ error: '<mã>', messageVi }` hoặc theo quy ước lỗi hiện có của `invites.js`.
 
@@ -243,7 +253,7 @@ Lỗi: `400` · `403` (không phải bạn / bị chặn) · `404` · `409` (vư
 |---|---|---|
 | O-01 | Tỷ lệ bể pet khởi đầu 50/30/13/5/2 (GĐ6) | Sonny |
 | O-02 | "3 mảnh đá" trong bể Hiếm của gacha thường: giữ hay thay (xem `REFERRAL-GACHA-TICKET.md` v0.3 mục 3) | Sonny |
-| O-03 | Cơ chế lưu danh hiệu hiện có | Lập trình viên |
+| O-03 | ~~Cơ chế lưu danh hiệu hiện có~~ → Đã đóng: lưu vào `owned_cosmetics` (`category='title'`, `acquired_from='invite_milestone'`) | Đã chốt |
 | O-04 | Tra quy định bảo vệ dữ liệu cá nhân, vật phẩm ngẫu nhiên trong game | Sonny, trước khi ra mắt |
 
 ## 11. Lịch sử thay đổi
@@ -251,3 +261,4 @@ Lỗi: `400` · `403` (không phải bạn / bị chặn) · `404` · `409` (vư
 |---|---|---|
 | 1.0 | 24/11/2026 | Bản đầu (hệ mời và hộp quà riêng) |
 | 1.1 | 25/11/2026 | Xây trên thiệp mời có sẵn; bỏ Hộp Bạn Bè, Mảnh, pity, màn chọn pet (chuyển về GĐ6–GĐ7); thưởng bằng Gem/Sữa + vé gacha theo mốc |
+| 1.1.1 | 25/11/2026 | Đồng bộ sau triển khai & phản hồi PO: bỏ bước bắt buộc đặt biệt danh riêng (dùng thẳng tên hiển thị Tài khoản), bổ sung tìm kiếm & kết bạn bằng email khớp chính xác (`GET /api/friends/lookup`), thêm máy quét QR trong App (camera + chọn ảnh qua `jsqr`) & giữ mã `?add=` qua OAuth cho người chưa cài App, cập nhật bảng dữ liệu MySQL 5.5/5.6+ và route `/api/duel` khớp mã nguồn thật |

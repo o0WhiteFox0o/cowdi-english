@@ -1,6 +1,6 @@
 # RTM-COWDI — Ma trận Truy vết Yêu cầu (Requirements Traceability Matrix)
 
-> **Loại tài liệu:** Tài liệu sống · **Chuẩn tham chiếu:** ISO/IEC/IEEE 29148:2018 · **Cập nhật lần cuối:** 2026-11-24
+> **Loại tài liệu:** Tài liệu sống · **Chuẩn tham chiếu:** ISO/IEC/IEEE 29148:2018 · **Cập nhật lần cuối:** 2026-11-25
 > Mục đích: Đảm bảo mọi yêu cầu nghiệp vụ & phi chức năng đều truy vết xuyên suốt **Yêu cầu → Thiết kế → Mã nguồn → Kiểm thử → Trạng thái triển khai**.
 
 ---
@@ -31,7 +31,7 @@
 | `FR-ECO-09` | Bỏ hoàn toàn Coins; di trú Coins cũ → Sữa ×3; chuyển mọi thưởng sang Sữa & HUD 2 chip | D12 | `scripts/run-v2-migration.js`, `src/components/layout/BookShell.jsx`, `src/hooks/useUser.jsx` | `shared/wallet-coins-migration.test.js` | 🚀 Production |
 | `FR-ECO-10` | Streak tính trên server theo múi giờ; tặng Khăn giữ lửa mốc 7/30/100 ngày (tối đa 2) | D13, GĐ3 | `server/utils/streak-manager.js`, `scripts/run-v2-streak-migration.js` | `shared/streak-shop.test.js` | 🚀 Production |
 | `FR-ECO-11` | Cửa hàng Giữ nhịp 3 tab (Khăn giữ lửa, Vé quay lại, Khế ước 7 ngày cọc hoàn ×1.5, Đồng hồ Cowdi +10% Sữa) | D1, GĐ3 | `server/routes/shop.js`, `src/features/pet/ShopPage.jsx`, `StreakTab.jsx`, `ContractSelectSheet.jsx` | `shared/streak-shop.test.js` | 🚀 Production |
-| `FR-ECO-12` | Đồ trang trí 6 bậc (`owned_cosmetics`), đồ mốc học tự cấp, khung avatar, danh hiệu | GĐ4 (`DEC-01`) | `feat/cosmetics` (chưa mở) | Sẽ bổ sung ở GĐ4 | ⏳ Planned (GĐ4) |
+| `FR-ECO-12` | Đồ trang trí 6 bậc (`owned_cosmetics`), đồ mốc học tự cấp, combo -20% | D14, GĐ4 | `shared/cosmetics-data.js`, `server/utils/cosmetics-manager.js`, `src/features/pet/CosmeticsTab.jsx` | `server/tests/cosmetics-v2.test.mjs` | ✅ Done (`main`) |
 | `FR-ECO-13` | Đấu trường mùa 4 tuần (vé gắn học, LP 6 bậc, rương tuần, chống lạm dụng) | D4, GĐ5 (`DEC-02`) | `feat/arena` (chưa mở) | Sẽ bổ sung ở GĐ5 | ⏳ Planned (GĐ5) |
 | `FR-ECO-14` | Lõi Gacha + Thiệp mời người mới chọn Cowdi / quay pet khởi đầu + Thẻ tặng pet | D5, D6, D7, GĐ6–7 | `feat/gacha-*` (chưa mở) | Mô phỏng 100k lượt | ⏳ Planned (GĐ6–7) |
 | `FR-ECO-15` | Thanh toán (Thẻ tháng, Thẻ mùa 30 tầng, gói Gem, giới hạn chi tiêu tài khoản nhỏ tuổi) | D8, GĐ8 (`DEC-06`) | `feat/payments` (chưa mở) | Sandbox cổng thanh toán | ⏳ Planned (GĐ8) |
@@ -53,7 +53,20 @@
 
 ---
 
-## 4. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
+## 4. Phân hệ Bạn bè & Thưởng mời bạn (`SRS-FRIENDS v1.1.1`)
+
+| Req ID | Mô tả yêu cầu | Nguồn | Mã nguồn chính | Kiểm thử tự động | Trạng thái |
+|---|---|---|---|---|---|
+| `FR-LND-01..04` | Route Express `GET /i/:code` chèn OG riêng (escape XSS, fallback OG chung), mẫu Nginx `/i/`, thay `api.qrserver.com` bằng QR tạo tại client | SRS-FRIENDS §3.1 | `server/routes/inviteLanding.js`, `src/utils/qr.js`, `src/features/invite/InviteSheet.jsx`, `nginx-spa.conf` | `server/tests/friends-og.test.mjs` (4 tests) | ✅ Sẵn sàng deploy |
+| `FR-RWD-01..07` | Chống gian lận IP/thiết bị 24h (`flagged`), điều kiện "học thật" BR-01, thưởng +3 Gem / +500 Sữa / mốc vé gacha (trần 3 vé/tháng + dời tháng sau + danh hiệu), thông báo 1 lần, thống kê `InviteSheet` & `HowToEarnSheet` | SRS-FRIENDS §3.2 | `server/utils/invite-rewards.js`, `server/routes/invites.js`, `src/features/invite/InviteRewardNotice.jsx`, `src/pages/AuthCallbackPage.jsx` | `shared/friends.test.js`, `server/tests/friends-rewards.test.mjs` (`AT-02..AT-05`) | ✅ Sẵn sàng deploy |
+| `FR-FRD-01..06` | Tự kết bạn khi nhận thiệp, mã bạn bè 8 ký tự, tìm & kết bạn bằng email khớp chính xác hoặc mã (`GET /api/friends/lookup`), máy quét QR trong App (camera + ảnh) & hỗ trợ quét qua Camera/Zalo cho người chưa cài App, dùng tên hiển thị tài khoản, chặn & báo cáo | SRS-FRIENDS §3.3 | `server/utils/friends-manager.js`, `server/routes/friends.js`, `server/routes/admin.js`, `src/pages/FriendsPage.jsx`, `src/components/QrScannerModal.jsx` | `server/tests/friends-core.test.mjs` (`AT-06`, `AT-07`) | ✅ Sẵn sàng deploy |
+| `FR-VIS-01..03` | Trang thăm pet chỉ xem (BR-08) & thách đấu giao hữu bạn bè (`opponentId`, `is_friend_duel`, không cộng/trừ LP) | SRS-FRIENDS §3.4 | `src/pages/FriendPetPage.jsx`, `server/routes/api.js`, `src/features/duel/DuelPage.jsx` | `server/tests/friends-visit-duel.test.mjs` (`AT-10`) | ✅ Sẵn sàng deploy |
+| `FR-MAP-01..09` | `GET /api/friends/path-progress` (2 truy vấn, không N+1), tính vị trí bằng `buildPathNodes`/`getNextPathLesson`, avatar cạnh node + `+N` + vương miện 👑 + chip lộ trình khác + toast vượt bạn (không báo khi học lại bài cũ) | SRS-FRIENDS §3.5 | `src/features/friends/friendPathLogic.js`, `useFriendPositions.js`, `src/pages/LearningPathPage.jsx` | `server/tests/friends-path.test.mjs` (`AT-08`, `AT-09`) | ✅ Sẵn sàng deploy |
+| `NFR-FRD` | Ghi 5 sự kiện `app_events` (NFR-06, `LONGTEXT`), rà soát không rò email/ảnh Google/IP/điểm số (`AT-11`), không dùng `alert/confirm/prompt` (C-04) | SRS-FRIENDS §8 | Toàn bộ routes & UI phân hệ Bạn bè | `server/tests/friends-privacy-events.test.mjs` (`AT-11`) | ✅ Sẵn sàng deploy |
+
+---
+
+## 5. Yêu cầu Phi chức năng (Non-Functional Requirements — NFR)
 
 | Req ID | Hạng mục | Yêu cầu cụ thể | Cách kiểm chứng | Trạng thái |
 |---|---|---|---|---|

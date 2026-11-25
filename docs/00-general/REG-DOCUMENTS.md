@@ -61,7 +61,7 @@
 | SDD | Thiết kế lại XP | [SDD-XP-REDESIGN-v1.0.md](../04-design/SDD-XP-REDESIGN-v1.0.md) | 1.0 | Superseded một phần (ví XP → Sữa) | XP-REDESIGN-2026-05.md |
 | SDD | Duel kiểu Pokémon | [SDD-DUEL-BATTLE-v1.0.md](../04-design/SDD-DUEL-BATTLE-v1.0.md) | 1.0 | Superseded một phần (công thức trận) | DUEL-BATTLE-DESIGN.md |
 | SDD | Gửi trứng pet cho bạn (Invite) | [SDD-INVITE-v1.0.md](../04-design/SDD-INVITE-v1.0.md) | 1.0 | Approved | INVITE-FEATURE-DESIGN.md |
-| SRS | **Phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, lộ trình)** | [SRS-FRIENDS-v1.1.md](../04-design/SRS-FRIENDS-v1.1.md) | 1.1 | Chờ duyệt | (mới 2026-11-25 — xây trên thiệp mời có sẵn) |
+| SRS | **Phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, tìm email, quét QR, lộ trình)** | [SRS-FRIENDS-v1.1.md](../04-design/SRS-FRIENDS-v1.1.md) | 1.1.1 | Approved (Đã triển khai) | (cập nhật 2026-11-25) |
 | SDD | Share không làm phiền | [SDD-SHARE-v1.0.md](../04-design/SDD-SHARE-v1.0.md) | 1.0 | Approved | SHARE-FEATURE-DESIGN.md |
 | SDD | Tương tác pet (roadmap) | [SDD-PET-INTERACTION-v1.0.md](../04-design/SDD-PET-INTERACTION-v1.0.md) · [PDF](../04-design/SDD-PET-INTERACTION-v1.0.pdf) | 1.0 | Approved | PET-INTERACTION-REDESIGN |
 | SDD | Kinh tế v2: Đề xuất vật phẩm cửa hàng (Giữ nhịp) | [de-xuat-vat-pham-cua-hang-v2.md](../04-design/economy-v2/de-xuat-vat-pham-cua-hang-v2.md) | 2.0 | Approved | — |
@@ -91,8 +91,8 @@
 | PROMP | Hướng dẫn prompt soạn/nâng cấp nội dung bài học (Gemini) | [PROMPT-GEMINI-CONTENT.md](../05-implementation/content/PROMPT-GEMINI-CONTENT.md) | sống | Approved | (mới 2026-11-24) |
 | CHK | Danh sách kiểm tra chất lượng khi duyệt bài học | [CHK-LESSON-REVIEW.md](../05-implementation/content/CHK-LESSON-REVIEW.md) | sống | Approved | (mới 2026-11-24) |
 | TPL | Bộ mẫu brief & khung dữ liệu bài học 3 cấp (+ brief mẫu `int-u1`) | [content/README.md](../05-implementation/content/README.md) · [STARTER](../05-implementation/content/TPL-STARTER.md) · [INTERMEDIATE](../05-implementation/content/TPL-INTERMEDIATE.md) · [EXAM](../05-implementation/content/TPL-EXAM.md) · [int-u1](../05-implementation/content/briefs/int-u1.md) | 1.0 | Approved | (mới 2026-11-24) |
-| TASK | **Nhiệm vụ triển khai Bạn bè & Thưởng mời bạn (8 bước 0–7)** | [TASK-FRIENDS.md](../05-implementation/TASK-FRIENDS.md) | 2.0 | Ready | (mới 2026-11-25) |
-| RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Chờ duyệt | (mới 2026-11-25) |
+| TASK | **Nhiệm vụ triển khai Bạn bè & Thưởng mời bạn (8 bước 0–7)** | [TASK-FRIENDS.md](../05-implementation/TASK-FRIENDS.md) | 2.0 | Done (gộp `main`) | (hoàn thành 2026-11-25) |
+| RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Approved | (mới 2026-11-25) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
