@@ -215,7 +215,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Bước 2 — OG riêng cho `/i/:code` phía Express, cấu hình Nginx mẫu & thay QR ngoài bằng QR tạo tại client — 2026-11-25
 - [x] Bước 3 — Biệt danh, vá redirect OAuth `cowdi_pending_invite`, chống gian lận IP/thiết bị, thưởng mời bạn (+3 Gem, +500 Sữa, mốc vé gacha/danh hiệu) + AT-02..AT-05 — 2026-11-25
 - [x] Bước 4 — Hệ thống Bạn bè (tự kết bạn qua thiệp, `friend_code`, lời mời, huỷ, chặn, báo cáo) + `FriendsPage.jsx` + AT-06..AT-07 — 2026-11-25
-- [ ] Bước 5 — Thăm pet bạn bè (`FriendPetPage.jsx`) & thách đấu bạn bè (không tính league points) + AT-10
+- [x] Bước 5 — Thăm pet bạn bè (`FriendPetPage.jsx`) & thách đấu bạn bè (không tính league points) + AT-10 — 2026-11-25
 - [ ] Bước 6 — Bạn bè trên bản đồ lộ trình (`GET /api/friends/path-progress`, `useFriendPositions.js`, UI `LearningPathPage.jsx`, toast vượt qua) + AT-08..AT-09
 - [ ] Bước 7 — Ghi sự kiện `app_events` (NFR-06), rà payload bảo mật API (AT-11) & hoàn tất kiểm định build/test
 

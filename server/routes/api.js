@@ -17,7 +17,7 @@ import {
 } from '../utils/wallet.js';
 import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 import { processInviteActivationReward, releaseDeferredTicketsForMonth } from '../utils/invite-rewards.js';
-import { ensureFriendCode } from '../utils/friends-manager.js';
+import { ensureFriendCode, getFriendshipStatus, computeDuelLeaguePointDelta } from '../utils/friends-manager.js';
 import { validateNickname } from '../../shared/friends.js';
 
 const router = express.Router();
@@ -652,6 +652,7 @@ function formatDuelRow(row) {
     id: row.id,
     challengerId: row.challenger_id,
     opponentId: row.opponent_id,
+    isFriendDuel: Boolean(row.is_friend_duel),
     status: row.status,
     challengerScore: row.challenger_score,
     challengerTime: row.challenger_time,
@@ -695,14 +696,28 @@ router.get('/my-stats', requireAuth, async (req, res) => {
   }
 });
 
-// ── POST /api/duel – Tạo thách đấu mới ──────────────────────────────────────
+// ── POST /api/duel – Tạo thách đấu mới (hỗ trợ opponentId cho bạn bè FR-VIS-02)
 router.post('/duel', requireAuth, async (req, res) => {
-  const { quizData, answers, time, questionTimes, category, message } = req.body;
+  const { quizData, answers, time, questionTimes, category, message, opponentId } = req.body;
   if (!Array.isArray(quizData) || quizData.length < 5 || quizData.length > 30) {
     return res.status(400).json({ error: 'Quiz data không hợp lệ.' });
   }
   if (!Array.isArray(answers) || answers.length !== quizData.length) {
     return res.status(400).json({ error: 'Answers không hợp lệ.' });
+  }
+
+  let targetOpponentId = null;
+  let isFriendDuel = 0;
+  if (opponentId !== undefined && opponentId !== null && opponentId !== '') {
+    targetOpponentId = Number(opponentId);
+    if (!Number.isInteger(targetOpponentId) || targetOpponentId <= 0 || targetOpponentId === Number(req.user.id)) {
+      return res.status(400).json({ error: 'Đối thủ không hợp lệ.' });
+    }
+    const rel = await getFriendshipStatus(req.user.id, targetOpponentId);
+    if (!rel || rel.status !== 'accepted') {
+      return res.status(403).json({ error: 'Bạn chỉ có thể thách đấu trực tiếp người đã là bạn bè.' });
+    }
+    isFriendDuel = 1;
   }
   // Sanitize quiz data
   const cleanQuiz = quizData.map(q => ({
@@ -741,11 +756,13 @@ router.post('/duel', requireAuth, async (req, res) => {
 
     const [result] = await pool.execute(
       `INSERT INTO challenges
-         (challenger_id, status, quiz_data, challenger_answers, challenger_score, challenger_time,
+         (challenger_id, opponent_id, is_friend_duel, status, quiz_data, challenger_answers, challenger_score, challenger_time,
           challenger_question_times, challenger_pet_snapshot, category, message, expires_at)
-       VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.user.id,
+        targetOpponentId,
+        isFriendDuel,
         JSON.stringify(cleanQuiz),
         JSON.stringify(answers.map(a => parseInt(a) || 0)),
         score,
@@ -757,17 +774,18 @@ router.post('/duel', requireAuth, async (req, res) => {
         expiresAt,
       ]
     );
-    // Award league points and Sữa for creating duel
+    // BR-06: Trận bạn bè KHÔNG cộng league points; vẫn thưởng Sữa
     const milkEarned = Math.max(0, score * 5);
+    const createLpDelta = computeDuelLeaguePointDelta({ isFriendDuel: Boolean(isFriendDuel), phase: 'create' });
     await pool.execute(
       `UPDATE user_progress
-       SET league_points = COALESCE(league_points, 0) + 5,
+       SET league_points = COALESCE(league_points, 0) + ?,
            total_xp = COALESCE(total_xp, 0) + ?
        WHERE user_id = ?`,
-      [milkEarned, req.user.id]
+      [createLpDelta, milkEarned, req.user.id]
     );
     const wallet = await getWallet(req.user.id);
-    res.json({ ok: true, challengeId: result.insertId, score, milkEarned, wallet });
+    res.json({ ok: true, challengeId: result.insertId, score, milkEarned, isFriendDuel: Boolean(isFriendDuel), wallet });
   } catch (err) {
     console.error('POST /api/duel error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
@@ -805,6 +823,8 @@ router.get('/duel/open', requireAuth, async (req, res) => {
        LEFT JOIN users u1 ON c.challenger_id = u1.id
        WHERE c.status = 'pending'
          AND c.challenger_id != ?
+         AND COALESCE(c.is_friend_duel, 0) = 0
+         AND c.opponent_id IS NULL
          AND c.expires_at > NOW()
        ORDER BY c.created_at DESC
        LIMIT 50`,
@@ -873,6 +893,11 @@ router.get('/duel/:id', requireAuth, async (req, res) => {
       [challengeId]
     );
     if (!row) return res.status(404).json({ error: 'Không tìm thấy thách đấu.' });
+    if (row.is_friend_duel && row.opponent_id != null &&
+        Number(row.opponent_id) !== Number(req.user.id) &&
+        Number(row.challenger_id) !== Number(req.user.id)) {
+      return res.status(403).json({ error: 'Trận thách đấu bạn bè này dành cho người khác.' });
+    }
 
     const quizData = typeof row.quiz_data === 'string' ? JSON.parse(row.quiz_data) : row.quiz_data;
     // Strip correct answers so opponent can't cheat
@@ -925,6 +950,17 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
       [challengeId, req.user.id]
     );
     if (!challenge) return res.status(404).json({ error: 'Thách đấu không tồn tại hoặc đã kết thúc.' });
+
+    const isFriendDuel = Boolean(challenge.is_friend_duel);
+    if (challenge.opponent_id != null && Number(challenge.opponent_id) !== Number(req.user.id)) {
+      return res.status(403).json({ error: 'Trận thách đấu bạn bè này dành cho người khác.' });
+    }
+    if (isFriendDuel) {
+      const rel = await getFriendshipStatus(challenge.challenger_id, req.user.id);
+      if (!rel || rel.status !== 'accepted') {
+        return res.status(403).json({ error: 'Hai bạn hiện không còn là bạn bè nên không thể tham gia trận này.' });
+      }
+    }
 
     const quizData = typeof challenge.quiz_data === 'string' ? JSON.parse(challenge.quiz_data) : challenge.quiz_data;
     if (answers.length !== quizData.length) return res.status(400).json({ error: 'Số câu trả lời không khớp.' });
@@ -1025,62 +1061,64 @@ router.post('/duel/:id/join', requireAuth, async (req, res) => {
     const opponentMilk = (opponentScore * 5) + oppBonus;
     const challengerMilk = (Number(challenge.challenger_score || 0) * 5) + chBonus;
 
-    // Update league points + duel stats + Sữa (total_xp) for both players
+    // Update league points (BR-06: trận bạn bè = 0 LP) + duel stats + Sữa (total_xp) for both players
     if (isOppWin) {
-      // Opponent wins
+      const oppLp = computeDuelLeaguePointDelta({ isFriendDuel, phase: 'join', outcome: 'win' });
+      const chLp = computeDuelLeaguePointDelta({ isFriendDuel, phase: 'join', outcome: 'loss' });
       await pool.execute(
         `UPDATE user_progress
          SET duel_wins = COALESCE(duel_wins,0) + 1,
              duel_streak = COALESCE(duel_streak,0) + 1,
-             league_points = COALESCE(league_points,0) + 30,
+             league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [opponentMilk, req.user.id]
+        [oppLp, opponentMilk, req.user.id]
       );
       await pool.execute(
         `UPDATE user_progress
          SET duel_losses = COALESCE(duel_losses,0) + 1,
              duel_streak = 0,
-             league_points = COALESCE(league_points,0) + 5,
+             league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [challengerMilk, challenge.challenger_id]
+        [chLp, challengerMilk, challenge.challenger_id]
       );
     } else if (isChWin) {
-      // Challenger wins
+      const chLp = computeDuelLeaguePointDelta({ isFriendDuel, phase: 'join', outcome: 'win' });
+      const oppLp = computeDuelLeaguePointDelta({ isFriendDuel, phase: 'join', outcome: 'loss' });
       await pool.execute(
         `UPDATE user_progress
          SET duel_wins = COALESCE(duel_wins,0) + 1,
              duel_streak = COALESCE(duel_streak,0) + 1,
-             league_points = COALESCE(league_points,0) + 30,
+             league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [challengerMilk, challenge.challenger_id]
+        [chLp, challengerMilk, challenge.challenger_id]
       );
       await pool.execute(
         `UPDATE user_progress
          SET duel_losses = COALESCE(duel_losses,0) + 1,
              duel_streak = 0,
-             league_points = COALESCE(league_points,0) + 5,
+             league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [opponentMilk, req.user.id]
+        [oppLp, opponentMilk, req.user.id]
       );
     } else {
-      // Draw
+      const drawLp = computeDuelLeaguePointDelta({ isFriendDuel, phase: 'join', outcome: 'draw' });
       await pool.execute(
         `UPDATE user_progress
-         SET league_points = COALESCE(league_points,0) + 15,
+         SET league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [opponentMilk, req.user.id]
+        [drawLp, opponentMilk, req.user.id]
       );
       await pool.execute(
         `UPDATE user_progress
-         SET league_points = COALESCE(league_points,0) + 15,
+         SET league_points = COALESCE(league_points,0) + ?,
              total_xp = COALESCE(total_xp,0) + ?
          WHERE user_id = ?`,
-        [challengerMilk, challenge.challenger_id]
+        [drawLp, challengerMilk, challenge.challenger_id]
       );
     }
 

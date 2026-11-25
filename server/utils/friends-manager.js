@@ -564,3 +564,64 @@ export async function getFriendsOverview(userId, db = pool) {
     },
   };
 }
+
+/**
+ * FR-VIS-01 & BR-08: Thông tin thăm pet của bạn bè (chỉ xem, chỉ bạn accepted & không chặn).
+ * Tuyệt đối không trả email, tên thật Google, ảnh Google, ví hay điểm bài.
+ */
+export async function getFriendPetProfile(viewerId, friendId, db = pool) {
+  const targetId = Number(friendId);
+  if (!Number.isInteger(targetId) || targetId <= 0 || targetId === Number(viewerId)) {
+    return { ok: false, status: 400, error: 'INVALID_USER', messageVi: 'ID bạn bè không hợp lệ.' };
+  }
+
+  const rel = await getFriendshipStatus(viewerId, targetId, db);
+  if (!rel || rel.status !== 'accepted') {
+    return {
+      ok: false,
+      status: 403,
+      error: 'NOT_FRIENDS',
+      messageVi: 'Bạn chỉ có thể thăm pet của người đã là bạn bè.',
+    };
+  }
+
+  const [[row]] = await db.execute(
+    `SELECT u.id, u.nickname,
+            up.pet_data, up.learner_group, up.active_path, up.last_active_date
+       FROM users u
+       LEFT JOIN user_progress up ON up.user_id = u.id
+      WHERE u.id = ?`,
+    [targetId]
+  );
+  if (!row) {
+    return { ok: false, status: 404, error: 'USER_NOT_FOUND', messageVi: 'Không tìm thấy người dùng.' };
+  }
+
+  const pet = extractActivePetPublic(row.pet_data);
+  return {
+    ok: true,
+    profile: {
+      userId: Number(row.id),
+      nickname: row.nickname || 'Người bạn',
+      petId: pet.petId,
+      petEvolution: pet.petEvolution,
+      cosmetics: pet.cosmetics,
+      learnerGroup: row.learner_group || null,
+      activePath: row.active_path || null,
+      lastActiveDate: row.last_active_date || null,
+    },
+  };
+}
+
+/**
+ * BR-06: Tính biến thiên League Points cho trận Duel.
+ * Trận giao hữu bạn bè luôn trả 0 (không cộng, không trừ LP).
+ */
+export function computeDuelLeaguePointDelta({ isFriendDuel, phase, outcome }) {
+  if (isFriendDuel) return 0;
+  if (phase === 'create') return 5;
+  if (outcome === 'win') return 30;
+  if (outcome === 'draw') return 15;
+  if (outcome === 'loss') return 5;
+  return 0;
+}

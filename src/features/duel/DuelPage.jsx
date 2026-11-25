@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { useAuth } from '../../hooks/useAuth';
@@ -121,9 +122,25 @@ export default function DuelPage() {
   const { user, authFetch } = useAuth();
   const { petData } = usePet();
   const { addXP, syncWallet } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // FR-VIS-02: Thách đấu trực tiếp một người bạn (qua /duel?opponentId=...)
+  const [friendOpponent, setFriendOpponent] = useState(null); // { id, nickname }
 
   // Mode: lobby | setup | creating | playing | result
   const [mode, setMode] = useState('lobby');
+
+  useEffect(() => {
+    const oppId = Number(searchParams.get('opponentId'));
+    const oppNick = searchParams.get('opponentNick') || 'Bạn bè';
+    if (Number.isInteger(oppId) && oppId > 0) {
+      setFriendOpponent({ id: oppId, nickname: oppNick });
+      setMode('setup');
+      searchParams.delete('opponentId');
+      searchParams.delete('opponentNick');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Setup state (pre-create)
   const [setupCount, setSetupCount] = useState(10);
@@ -485,11 +502,20 @@ export default function DuelPage() {
             questionTimes: qTimes,
             category: setupCategory,
             message: setupMessage.trim() || null,
+            ...(friendOpponent?.id ? { opponentId: friendOpponent.id } : {}),
           }),
         });
         const data = await res.json();
         if (data.ok) {
-          setResult({ mode: 'created', score, total: questions.length, time, challengeId: data.challengeId });
+          setResult({
+            mode: 'created',
+            score,
+            total: questions.length,
+            time,
+            challengeId: data.challengeId,
+            isFriendDuel: Boolean(data.isFriendDuel || friendOpponent?.id),
+          });
+          setFriendOpponent(null);
           setMode('result');
           const milk = data.milkEarned ?? (score * 5);
           addXP(milk);
@@ -640,6 +666,20 @@ export default function DuelPage() {
     const msgLen = setupMessage.length;
     return (
       <div className="fade-in">
+        {friendOpponent && (
+          <div className="alert alert-info py-2 px-3 small mb-3 d-flex justify-content-between align-items-center">
+            <div>
+              ⚔️ Thách đấu giao hữu với <strong>{friendOpponent.nickname}</strong> (không cộng/trừ LP)
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary py-0"
+              onClick={() => setFriendOpponent(null)}
+            >
+              Huỷ chỉ định
+            </button>
+          </div>
+        )}
         <div className="d-flex align-items-center mb-3">
           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { play('click'); setMode('lobby'); }}>
             ← Quay lại
@@ -734,6 +774,20 @@ export default function DuelPage() {
 
     return (
       <div className="fade-in">
+        {friendOpponent && (
+          <div className="alert alert-info py-2 px-3 small mb-3 d-flex justify-content-between align-items-center">
+            <div>
+              ⚔️ Thách đấu giao hữu với <strong>{friendOpponent.nickname}</strong> (không cộng/trừ LP)
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary py-0"
+              onClick={() => setFriendOpponent(null)}
+            >
+              Huỷ chỉ định
+            </button>
+          </div>
+        )}
         {/* Battle Header */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="fw-bold small">
@@ -1266,6 +1320,30 @@ export default function DuelPage() {
         <div className="text-center text-muted small py-3 mb-4">
           Chưa có thách đấu nào. Hãy tạo một cái! <Icon name="target" size={14} />
         </div>
+      )}
+
+      {/* Incoming friend duels (FR-VIS-02) */}
+      {myDuels.filter((d) => d.status === 'pending' && d.isFriendDuel && Number(d.opponentId) === Number(user.id)).length > 0 && (
+        <>
+          <h6 className="fw-bold mb-2">🤝 Lời thách đấu từ bạn bè (không tính LP)</h6>
+          <div className="d-grid gap-2 mb-4">
+            {myDuels
+              .filter((d) => d.status === 'pending' && d.isFriendDuel && Number(d.opponentId) === Number(user.id))
+              .map((duel) => (
+                <div key={duel.id} className="card shadow-sm border-primary" style={{ cursor: 'pointer' }} onClick={() => joinDuel(duel.id)}>
+                  <div className="card-body d-flex align-items-center gap-2 py-2">
+                    <div className="flex-grow-1">
+                      <div className="fw-bold small">{duel.challengerNick} thách đấu bạn!</div>
+                      <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                        {duel.questionCount} câu · Giao hữu bạn bè · {timeAgo(duel.createdAt)}
+                      </div>
+                    </div>
+                    <button className="btn btn-sm btn-cowdi-primary fw-bold">Đấu ngay!</button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </>
       )}
 
       {/* My pending duels */}

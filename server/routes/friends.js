@@ -9,6 +9,7 @@ import { requireAuth } from '../middleware/auth.js';
 import {
   createHourlyRateLimiter,
   getFriendsOverview,
+  getFriendPetProfile,
   sendFriendRequest,
   acceptFriendRequest,
   declineFriendRequest,
@@ -84,6 +85,21 @@ export function createFriendsRouter({
       res.json(result);
     } catch (err) {
       console.error('POST /api/friends/requests/:userId/decline error:', err);
+      res.status(500).json({ error: 'SERVER_ERROR', messageVi: 'Lỗi server.' });
+    }
+  });
+
+  // ── GET /api/friends/:userId/pet — thăm pet bạn bè (FR-VIS-01, BR-08) ───
+  router.get('/:userId/pet', authMiddleware, async (req, res) => {
+    try {
+      const otherId = Number(req.params.userId);
+      const result = await getFriendPetProfile(req.user.id, otherId, db);
+      if (!result.ok) {
+        return res.status(result.status || 400).json({ error: result.error, messageVi: result.messageVi });
+      }
+      res.json(result.profile);
+    } catch (err) {
+      console.error('GET /api/friends/:userId/pet error:', err);
       res.status(500).json({ error: 'SERVER_ERROR', messageVi: 'Lỗi server.' });
     }
   });

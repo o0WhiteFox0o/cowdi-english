@@ -31,6 +31,7 @@ const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage')
 const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
 const FriendsPage         = lazy(() => import('./pages/FriendsPage'));
+const FriendPetPage       = lazy(() => import('./pages/FriendPetPage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
 const PlacementTest       = lazy(() => import('./features/placement/PlacementTest'));
 
@@ -94,6 +95,7 @@ export default function App() {
             <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/friends" element={<FriendsPage />} />
+            <Route path="/friends/:userId" element={<FriendPetPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />
             <Route path="/i/:code" element={<InvitePage />} />
             <Route path="*" element={<LearningPathPage />} />
