@@ -233,12 +233,12 @@ export const QUIZ_BANK = {
       correct: 2
     },
     {
-      question: "\"Yoga\" nghĩa là:",
+      question: "\"Stretching\" nghĩa là:",
       options: [
-        "Thái cực quyền",
-        "Yoga",
-        "Aerobic",
-        "Pilates"
+        "Nâng tạ",
+        "Kéo giãn cơ",
+        "Chạy nước rút",
+        "Nhảy dây"
       ],
       correct: 1
     },
@@ -1053,10 +1053,10 @@ export const QUIZ_BANK = {
       correct: 2
     },
     {
-      question: "\"Taxi\" nghĩa là:",
+      question: "\"Subway\" nghĩa là:",
       options: [
         "Xe buýt",
-        "Taxi",
+        "Tàu điện ngầm",
         "Xe ôm",
         "Ô tô riêng"
       ],
@@ -1973,7 +1973,7 @@ export const QUIZ_BANK = {
       correct: 2
     },
     {
-      question: "\"Hard\" (độ cứng) nghĩa là:",
+      question: "\"Hard\" (trái nghĩa với \"soft\") nghĩa là:",
       options: [
         "Mềm",
         "Cứng",
@@ -3225,14 +3225,14 @@ export const QUIZ_BANK = {
       correct: 1
     },
     {
-      question: "\"I wonder whether she ___ come.\"",
+      question: "\"I wonder whether she ___ come tomorrow.\"",
       options: [
         "will",
-        "would",
-        "cả A và B đều đúng",
-        "shall"
+        "did",
+        "was",
+        "has"
       ],
-      correct: 2
+      correct: 0
     },
     {
       question: "\"She arrived ___ time for the meeting.\"",
@@ -3626,7 +3626,7 @@ export const QUIZ_BANK = {
         "Internett",
         "Intternet",
         "Internet",
-        "Internett"
+        "Intenet"
       ],
       correct: 2,
       speak: "Internet"
@@ -3758,7 +3758,7 @@ export const QUIZ_BANK = {
         "Interresting",
         "Intresting",
         "Interesting",
-        "Intresting"
+        "Interestting"
       ],
       correct: 2,
       speak: "Interesting"
@@ -3857,7 +3857,7 @@ export const QUIZ_BANK = {
         "Especialy",
         "Especially",
         "Especialley",
-        "Especialy"
+        "Especcially"
       ],
       correct: 1,
       speak: "Especially"
@@ -3934,7 +3934,7 @@ export const QUIZ_BANK = {
         "Goverment",
         "Governement",
         "Government",
-        "Goverment"
+        "Govornment"
       ],
       correct: 2,
       speak: "Government"
@@ -4163,10 +4163,10 @@ export const QUIZ_BANK = {
       options: [
         "I have learned English since I was young.",
         "I learned English when I was young.",
-        "Cả A và B đều đúng",
+        "I am learning English since I was young.",
         "I learn English since young."
       ],
-      correct: 2
+      correct: 0
     },
     {
       question: "\"Theo tôi, sức khỏe quan trọng hơn tiền bạc.\" = ?",
@@ -4283,10 +4283,10 @@ export const QUIZ_BANK = {
       options: [
         "arrives",
         "arrive",
-        "will arrive",
-        "Cả A và C đúng"
+        "is arrive",
+        "arriving"
       ],
-      correct: 3
+      correct: 0
     },
     {
       question: "\"It was ___ a boring movie that I fell asleep.\"",

@@ -62,7 +62,7 @@ export const PRONUNCIATION_TRICKY_LESSON = {
   ],
   quiz: [
     { question: "Để phát âm /r/ tiếng Anh chuẩn, lưỡi phải:",   options: ["Rung như tiếng Việt", "Cong lên không chạm vòm", "Chạm vào lợi", "Thè ra giữa răng"], correct: 1 },
-    { question: "Cặp từ nào CHỈ khác nhau ở R và L?",            options: ["right/light", "rich/lick", "rip/lip", "Tất cả đều đúng"], correct: 3 },
+    { question: "Cặp từ nào CHỈ khác nhau ở R và L?",            options: ["right/light", "rich/lick", "vet/wet", "fan/pan"], correct: 0 },
     { question: "Phát âm /v/ khác /b/ vì:",                      options: ["V cắn môi", "B cắn môi", "Giống nhau", "V tròn môi"], correct: 0 },
     { question: "Để bật âm /p/ chuẩn, hai môi phải:",            options: ["Hé nhẹ", "Mím chặt rồi bật mạnh", "Chu tròn", "Cắn răng"], correct: 1 },
     { question: "Lỗi phổ biến nhất với phụ âm cuối là:",         options: ["Đọc quá to", "Bỏ luôn", "Đổi vị trí", "Thay bằng phụ âm khác"], correct: 1 },
