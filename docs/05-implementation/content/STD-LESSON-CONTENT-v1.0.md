@@ -31,6 +31,8 @@ Tài liệu này trả lời: **một bài đạt chuẩn trông thế nào**. S
 ```
 docs/05-implementation/content/
   STD-LESSON-CONTENT-v1.0.md      ← tài liệu này
+  STD-QUESTION-QUALITY-v1.0.md    ← chuẩn chất lượng câu hỏi trắc nghiệm (5 luật cứng, 14 mã validator)
+  GEMINI-QUESTION-QA.md           ← kịch bản chạy rà soát & sửa ngân hàng câu hỏi (Q0–Q6)
   PROMPT-GEMINI-CONTENT.md        ← điểm bắt đầu cho Gemini
   TPL-STARTER.md                  ← mẫu brief + khung dữ liệu cấp 1
   TPL-INTERMEDIATE.md             ← mẫu cấp 2
