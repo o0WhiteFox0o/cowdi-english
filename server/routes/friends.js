@@ -10,6 +10,7 @@ import {
   createHourlyRateLimiter,
   getFriendsOverview,
   getFriendPetProfile,
+  getFriendsPathProgress,
   sendFriendRequest,
   acceptFriendRequest,
   declineFriendRequest,
@@ -34,6 +35,37 @@ export function createFriendsRouter({
     } catch (err) {
       console.error('GET /api/friends error:', err);
       res.status(500).json({ error: 'SERVER_ERROR', messageVi: 'Lỗi server.' });
+    }
+  });
+
+  // ── GET /api/friends/path-progress — bạn bè trên bản đồ lộ trình (FR-MAP-01)
+  router.get('/path-progress', authMiddleware, async (req, res) => {
+    try {
+      const friends = await getFriendsPathProgress(req.user.id, db);
+      res.json({ friends });
+    } catch (err) {
+      console.error('GET /api/friends/path-progress error:', err);
+      res.status(500).json({ error: 'SERVER_ERROR', messageVi: 'Lỗi server.' });
+    }
+  });
+
+  // ── POST /api/friends/events/path-passed — ghi sự kiện vượt bạn (NFR-06) ──
+  router.post('/events/path-passed', authMiddleware, async (req, res) => {
+    try {
+      const pathId = String(req.body?.pathId || '').slice(0, 32);
+      const passedIds = Array.isArray(req.body?.passedUserIds)
+        ? req.body.passedUserIds.map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 20)
+        : [];
+      if (passedIds.length > 0) {
+        await db.execute(
+          `INSERT INTO app_events (user_id, name, props) VALUES (?, 'path_friend_passed', ?)`,
+          [req.user.id, JSON.stringify({ pathId, passedUserIds: passedIds })]
+        );
+      }
+      res.json({ ok: true });
+    } catch (err) {
+      console.error('POST /api/friends/events/path-passed error:', err);
+      res.json({ ok: false });
     }
   });
 

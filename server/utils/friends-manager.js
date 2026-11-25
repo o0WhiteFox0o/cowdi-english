@@ -625,3 +625,81 @@ export function computeDuelLeaguePointDelta({ isFriendDuel, phase, outcome }) {
   if (outcome === 'loss') return 5;
   return 0;
 }
+
+/**
+ * FR-MAP-01 & NFR-01: Lấy tiến độ lộ trình của tối đa 100 bạn bè accepted (không bị chặn).
+ * Đúng 2 truy vấn SQL (danh sách bạn + WHERE user_id IN (...)), không N+1.
+ * Chỉ trả trường BR-08: không có email, tên thật, ảnh Google, ví hay điểm số bài học.
+ */
+export async function getFriendsPathProgress(userId, db = pool) {
+  // Truy vấn 1: lấy tối đa 100 ID bạn bè accepted
+  const [relRows] = await db.execute(
+    `SELECT IF(user_low = ?, user_high, user_low) AS friend_id
+       FROM friendships
+      WHERE status = 'accepted' AND (user_low = ? OR user_high = ?)
+      LIMIT ?`,
+    [userId, userId, userId, FRIEND_LIMITS.MAX_FRIENDS]
+  );
+
+  const friendIds = relRows
+    .map((r) => Number(r.friend_id))
+    .filter((id) => Number.isInteger(id) && id > 0);
+
+  if (friendIds.length === 0) {
+    return [];
+  }
+
+  // Truy vấn 2: lấy toàn bộ tiến độ lộ trình trong 1 câu IN (...)
+  const placeholders = friendIds.map(() => '?').join(',');
+  const [rows] = await db.execute(
+    `SELECT u.id, u.nickname,
+            up.pet_data, up.learner_group, up.active_path,
+            up.completed_lessons, up.checkpoint_scores
+       FROM users u
+       LEFT JOIN user_progress up ON up.user_id = u.id
+      WHERE u.id IN (${placeholders})`,
+    friendIds
+  );
+
+  return rows.map((r) => {
+    const pet = extractActivePetPublic(r.pet_data);
+
+    let completedLessons = [];
+    if (r.completed_lessons) {
+      try {
+        const parsed = typeof r.completed_lessons === 'string'
+          ? JSON.parse(r.completed_lessons)
+          : r.completed_lessons;
+        if (Array.isArray(parsed)) {
+          completedLessons = parsed.filter((id) => typeof id === 'string');
+        }
+      } catch {}
+    }
+
+    // BR-08: chỉ trích danh sách unitId đã passed (KHÔNG trả điểm số)
+    const passedUnits = [];
+    if (r.checkpoint_scores) {
+      try {
+        const cp = typeof r.checkpoint_scores === 'string'
+          ? JSON.parse(r.checkpoint_scores)
+          : r.checkpoint_scores;
+        if (cp && typeof cp === 'object') {
+          for (const [unitId, rec] of Object.entries(cp)) {
+            if (rec && rec.passed) passedUnits.push(unitId);
+          }
+        }
+      } catch {}
+    }
+
+    return {
+      userId: Number(r.id),
+      nickname: r.nickname || 'Người bạn',
+      petId: pet.petId,
+      petEvolution: pet.petEvolution,
+      learnerGroup: r.learner_group || null,
+      activePath: r.active_path || null,
+      completedLessons,
+      passedUnits,
+    };
+  });
+}
