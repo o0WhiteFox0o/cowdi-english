@@ -44,13 +44,6 @@ export default function LearningPathPage() {
   const showToast = useToast();
   const pathPetRef = useRef(null);
 
-  useEffect(() => {
-    const unregister = register('path', pathPetRef);
-    dispatch('app_open');
-    dispatch('screen_enter', { screen: 'path' });
-    return unregister;
-  }, [register, dispatch]);
-
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [skippedPlacement, setSkippedPlacement] = useState(false);
   const [nodeFriendsModal, setNodeFriendsModal] = useState(null); // { label, friends[] }
@@ -68,6 +61,20 @@ export default function LearningPathPage() {
 
   // Path tab: ?tab=<pathId> (hỗ trợ cả ?tab=general cũ → activePath)
   const [searchParams, setSearchParams] = useSearchParams();
+  const wantsPickerFromUrl = searchParams.get('pickGroup') === '1';
+  const isFreshNewUser = !userData.learnerGroup
+    && !userData.placement
+    && (userData.completedLessons?.length || 0) === 0;
+  const shouldForceOnboarding = !userData.learnerGroup && !searchParams.get('tab');
+  const isOnboardingActive = shouldForceOnboarding || showGroupPicker || wantsPickerFromUrl;
+
+  useEffect(() => {
+    if (isOnboardingActive) return undefined;
+    const unregister = register('path', pathPetRef);
+    dispatch('app_open');
+    dispatch('screen_enter', { screen: 'path' });
+    return unregister;
+  }, [register, dispatch, isOnboardingActive]);
   const resolveTabFromUrl = useCallback(() => {
     const raw = searchParams.get('tab');
     if (raw && raw !== 'general' && PATH_IDS.includes(raw)) return raw;
@@ -254,12 +261,6 @@ export default function LearningPathPage() {
   //    • Người mới hoàn toàn (0 bài đã học, chưa làm placement) → hiện Kiểm tra đầu vào trước;
   //      nếu bỏ qua kiểm tra (hoặc ?pickGroup=1) → chuyển sang màn chọn nhóm học (GroupPicker).
   //    • Người dùng cũ đã có tiến độ → hiện GroupPicker (kèm thẻ "Gợi ý cho bạn").
-  const wantsPickerFromUrl = searchParams.get('pickGroup') === '1';
-  const isFreshNewUser = !userData.learnerGroup
-    && !userData.placement
-    && (userData.completedLessons?.length || 0) === 0;
-  const shouldForceOnboarding = !userData.learnerGroup && !searchParams.get('tab');
-
   if (shouldForceOnboarding && isFreshNewUser && !skippedPlacement && !wantsPickerFromUrl && !showGroupPicker) {
     return (
       <PlacementTest

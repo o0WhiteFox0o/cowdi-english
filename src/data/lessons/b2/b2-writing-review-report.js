@@ -178,7 +178,7 @@ export const B2_WRITING_REVIEW_REPORT_LESSON = {
       question: "Report dùng giọng văn:",
       options: [
         "Thân mật",
-        "Impersonal/Formal",
+        "Khách quan, trang trọng",
         "Hài hước",
         "Thơ ca"
       ],

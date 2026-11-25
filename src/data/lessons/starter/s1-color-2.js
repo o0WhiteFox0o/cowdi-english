@@ -8,16 +8,17 @@ export const S1_COLOR_2_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u2',
+  category: 'color',
   title: 'Màu cơ bản 2',
   description: 'Học thêm 5 màu sắc quen thuộc quanh nhà',
   icon: '🎨',
 
   words: [
-    { word: 'black',  meaning: 'màu đen',  emoji: '⚫', image: null, audio: null },
-    { word: 'white',  meaning: 'màu trắng', emoji: '⚪', image: null, audio: null },
-    { word: 'brown',  meaning: 'màu nâu',  emoji: '🟤', image: null, audio: null },
-    { word: 'purple', meaning: 'màu tím',  emoji: '🟣', image: null, audio: null },
-    { word: 'gray',   meaning: 'màu xám',  emoji: '🩶', image: null, audio: null },
+    { word: 'black',  meaning: 'màu đen',   emoji: '⬛', swatch: '#1F2937', image: null, audio: null },
+    { word: 'white',  meaning: 'màu trắng', emoji: '⬜', swatch: '#FFFFFF', image: null, audio: null },
+    { word: 'brown',  meaning: 'màu nâu',   emoji: '🟫', swatch: '#8D5524', image: null, audio: null },
+    { word: 'purple', meaning: 'màu tím',   emoji: '🟪', swatch: '#8E24AA', image: null, audio: null },
+    { word: 'gray',   meaning: 'màu xám',   emoji: '🩶', swatch: '#9CA3AF', image: null, audio: null },
   ],
 
   pattern: {

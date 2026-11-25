@@ -8,17 +8,18 @@ export const S1_COLOR_1_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u2',
+  category: 'color',
   title: 'Màu cơ bản 1',
   description: 'Nhận biết và gọi tên 6 màu sắc tươi sáng đầu tiên',
   icon: '🌈',
 
   words: [
-    { word: 'red',    meaning: 'màu đỏ',         emoji: '🔴', image: null, audio: null },
-    { word: 'blue',   meaning: 'màu xanh dương', emoji: '🔵', image: null, audio: null },
-    { word: 'yellow', meaning: 'màu vàng',       emoji: '🟡', image: null, audio: null },
-    { word: 'green',  meaning: 'màu xanh lá',    emoji: '🟢', image: null, audio: null },
-    { word: 'orange', meaning: 'màu cam',        emoji: '🟠', image: null, audio: null },
-    { word: 'pink',   meaning: 'màu hồng',       emoji: '🩷', image: null, audio: null },
+    { word: 'red',    meaning: 'màu đỏ',         emoji: '🟥', swatch: '#E53935', image: null, audio: null },
+    { word: 'blue',   meaning: 'màu xanh dương', emoji: '🟦', swatch: '#1E88E5', image: null, audio: null },
+    { word: 'yellow', meaning: 'màu vàng',       emoji: '🟨', swatch: '#FDD835', image: null, audio: null },
+    { word: 'green',  meaning: 'màu xanh lá',    emoji: '🟩', swatch: '#43A047', image: null, audio: null },
+    { word: 'orange', meaning: 'màu cam',        emoji: '🟧', swatch: '#FB8C00', image: null, audio: null },
+    { word: 'pink',   meaning: 'màu hồng',       emoji: '🩷', swatch: '#EC4899', image: null, audio: null },
   ],
 
   pattern: {

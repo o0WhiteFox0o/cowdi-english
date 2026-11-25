@@ -88,6 +88,7 @@
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |
 | REG | **Danh mục & bàn giao tạo bộ Icon UI thay thế Emoji (+ CSV prompt batch)** | [REG-UI-ICONS.md](../05-implementation/REG-UI-ICONS.md) · [CSV](../05-implementation/REG-UI-ICONS-PROMPTS.csv) | sống | Ready to Assign | (mới 2026-11-24) |
 | STD | **Chuẩn nội dung bài học 3 cấp (Starter / Intermediate / Exam)** | [STD-LESSON-CONTENT-v1.0.md](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
+| STD | **Chuẩn chất lượng & rà soát câu hỏi trắc nghiệm (5 luật cứng, 14 mã validator)** | [STD-QUESTION-QUALITY-v1.0.md](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) | 1.0 | Approved | (mới 2026-11-26) |
 | GDE | **Đối chiếu bài học v2 với UI hiện tại & 10 đầu việc sửa UI (`U1–U10`)** | [MAP-CURRENT-UI.md](../05-implementation/content/MAP-CURRENT-UI.md) | sống | Approved | (mới 2026-11-24) |
 | PROMP | Hướng dẫn prompt soạn/nâng cấp nội dung bài học (Gemini) | [PROMPT-GEMINI-CONTENT.md](../05-implementation/content/PROMPT-GEMINI-CONTENT.md) | sống | Approved | (mới 2026-11-24) |
 | CHK | Danh sách kiểm tra chất lượng khi duyệt bài học | [CHK-LESSON-REVIEW.md](../05-implementation/content/CHK-LESSON-REVIEW.md) | sống | Approved | (mới 2026-11-24) |
@@ -102,6 +103,7 @@
 |---|---|---|---|---|---|
 | STP | **Kế hoạch kiểm thử tổng thể (IEEE 29119-3)** | [STP-COWDI-v1.0.md](../06-verification-validation/STP-COWDI-v1.0.md) | 1.0 | Approved | STP-COWDI-v0.1.md |
 | RPT | **Báo cáo kiểm tra nội dung 206 bài học hiện có (+ 3 bài golden v2)** | [RPT-LESSON-CONTENT-2026-11-24.md](../06-verification-validation/RPT-LESSON-CONTENT-2026-11-24.md) | — | Approved | (mới 2026-11-24) |
+| RPT | **Báo cáo rà soát chất lượng ngân hàng câu hỏi (2.829 câu, 14 mã)** | [RPT-QUESTION-AUDIT-2026-11-26.md](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | — | Approved | (mới 2026-11-26) |
 | RPT | **Báo cáo mô phỏng cân bằng Chiến đấu v2 (6 CSV)** | [BALANCE-REPORT-v2.md](../06-verification-validation/balance-v2/BALANCE-REPORT-v2.md) | — | Approved | (mới 2026-11-23) |
 | RPT | Đánh giá dự án (24/04/2026) | [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) | — | Approved | EVALUATION-2026-04.md |
 | RPT | Cơ chế tính điểm (23/04/2026) | [RPT-SCORING-2026-04-23.md](../06-verification-validation/RPT-SCORING-2026-04-23.md) | — | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | SCORING-REPORT.md |

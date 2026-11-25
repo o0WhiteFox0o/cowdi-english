@@ -108,6 +108,7 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
     const R = RULES.starter;
     const words = lesson.words || [];
     if (lesson.format !== 'picture') err('bài starter phải có format: "picture"');
+    if (!isStr(lesson.category)) std('bài starter thiếu category (color, shape, animal, number, person, greeting, adjective…)');
     if (!inRange(words.length, R.words)) std(`words: cần ${R.words.join('–')} từ, đang có ${words.length}`);
     const seen = new Set();
     words.forEach((w, i) => {
@@ -258,9 +259,9 @@ export function examQuestionsToMcq(examQuestions = []) {
   for (const q of examQuestions) {
     if (q.type === 'tfng' || q.type === 'ynng') {
       const options = q.type === 'tfng' ? ['TRUE', 'FALSE', 'NOT GIVEN'] : ['YES', 'NO', 'NOT GIVEN'];
-      out.push({ question: q.prompt, options, correct: options.indexOf(q.answer), explanation: q.explanation });
+      out.push({ type: q.type, question: q.prompt, options, correct: options.indexOf(q.answer), explanation: q.explanation });
     } else if (q.type === 'mcq' || q.type === 'heading') {
-      out.push({ question: q.prompt, options: q.options, correct: q.answer, explanation: q.explanation });
+      out.push({ type: q.type, question: q.prompt, options: q.options, correct: q.answer, explanation: q.explanation });
     }
     // sentence-completion / matching-info: cần UI mới, chưa đổi được sang trắc nghiệm.
   }
@@ -286,7 +287,7 @@ export function toLegacyShape(lesson) {
       const options = [w.word, ...others];
       const rot = i % options.length;
       const opts = [...options.slice(rot), ...options.slice(0, rot)];
-      return { question: `${w.emoji || '🖼️'} là từ nào?`, options: opts, correct: opts.indexOf(w.word), explanation: `${w.emoji || ''} = ${w.word} (${w.meaning}).` };
+      return { question: `"${w.meaning}" tiếng Anh là từ nào?`, options: opts, correct: opts.indexOf(w.word), explanation: `"${w.word}" nghĩa là ${w.meaning}.` };
     });
     return { level: 'beginner', ...lesson, vocabulary, grammar: [], quiz };
   }

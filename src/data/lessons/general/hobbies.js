@@ -96,14 +96,14 @@ export const HOBBIES_LESSON = {
     questions: [
       {
         question: 'Lan thường chụp ảnh (photography) vào dịp nào?',
-        options: ['Mỗi sáng trước khi đi học', 'Khi gia đình đi du lịch', 'Khi đi câu cá với chú', 'Trong giờ thể dục'],
-        correct: 1,
+        options: ['Mỗi sáng trước khi đi học', 'Trong giờ thể dục', 'Khi đi câu cá với chú', 'Khi gia đình đi du lịch'],
+        correct: 3,
         explanation: 'Lan nói: "I also enjoy photography when my family goes traveling."',
       },
       {
         question: 'Vào các dịp nghỉ lễ, chú của Minh thường dẫn Minh đi làm gì?',
-        options: ['Đạp xe và trượt ván', 'Câu cá và cắm trại', 'Đan len và làm vườn', 'Chơi cờ vua và nấu ăn'],
-        correct: 1,
+        options: ['Câu cá và cắm trại', 'Đạp xe và trượt ván', 'Đan len và làm vườn', 'Chơi cờ vua và nấu ăn'],
+        correct: 0,
         explanation: 'Minh kể: "On holidays, my uncle takes me fishing and camping."',
       },
       {
@@ -114,8 +114,8 @@ export const HOBBIES_LESSON = {
       },
       {
         question: 'Bà nội của Minh thích hai hoạt động nào?',
-        options: ['Đọc sách và nhiếp ảnh', 'Đan len và tập yoga', 'Bơi lội và đạp xe', 'Hát và nhảy múa'],
-        correct: 1,
+        options: ['Đọc sách và nhiếp ảnh', 'Bơi lội và đạp xe', 'Đan len và tập yoga', 'Hát và nhảy múa'],
+        correct: 2,
         explanation: 'Minh kể: "my grandma enjoys knitting and yoga!"',
       },
     ],
@@ -125,8 +125,8 @@ export const HOBBIES_LESSON = {
     {
       skill: 'vocab',
       question: '"Photography" là sở thích nào?',
-      options: ['Làm vườn', 'Nhiếp ảnh', 'Đan len', 'Trượt ván'],
-      correct: 1,
+      options: ['Làm vườn', 'Trượt ván', 'Đan len', 'Nhiếp ảnh'],
+      correct: 3,
       explanation: '"Photography" = nhiếp ảnh (chụp ảnh).',
     },
     {
@@ -141,11 +141,11 @@ export const HOBBIES_LESSON = {
       question: 'Chọn câu đúng:',
       options: [
         'I enjoy to cook dinner.',
-        'I enjoy cook dinner.',
         'I enjoy cooking dinner.',
+        'I enjoy cook dinner.',
         'I enjoying cook dinner.',
       ],
-      correct: 2,
+      correct: 1,
       explanation: 'Sau "enjoy" bắt buộc dùng V-ing: "enjoy cooking".',
     },
     {
@@ -158,20 +158,20 @@ export const HOBBIES_LESSON = {
     {
       skill: 'grammar',
       question: 'Điền dạng đúng của động từ: "Minh is good at ___ chess."',
-      options: ['play', 'plays', 'playing', 'played'],
-      correct: 2,
+      options: ['play', 'plays', 'played', 'playing'],
+      correct: 3,
       explanation: 'Sau giới từ "at", động từ phải chia ở dạng V-ing: "playing".',
     },
     {
       skill: 'usage',
       question: 'Bạn muốn hỏi bạn mình bao lâu thì đi bơi một lần. Bạn hỏi:',
       options: [
-        'How many do you go swimming?',
         'How often do you go swimming?',
+        'How many do you go swimming?',
         'What color is swimming?',
         'Where are you swimming at?',
       ],
-      correct: 1,
+      correct: 0,
       explanation: '"How often do you…?" dùng để hỏi tần suất thực hiện một hoạt động.',
     },
     {
@@ -186,15 +186,15 @@ export const HOBBIES_LESSON = {
       skill: 'listening',
       audioText: 'I go cycling in the park every weekend.',
       question: 'Nghe và chọn tần suất người nói đi đạp xe:',
-      options: ['Mỗi sáng sớm', 'Mỗi cuối tuần', 'Mỗi tháng một lần', 'Chỉ vào mùa hè'],
-      correct: 1,
+      options: ['Mỗi sáng sớm', 'Mỗi tháng một lần', 'Mỗi cuối tuần', 'Chỉ vào mùa hè'],
+      correct: 2,
       explanation: '"every weekend" = mỗi cuối tuần.',
     },
     {
       skill: 'vocab',
       question: '"Collecting" nghĩa là gì?',
-      options: ['Đạp xe', 'Sưu tầm', 'Cắm trại', 'Bơi lội'],
-      correct: 1,
+      options: ['Đạp xe', 'Bơi lội', 'Cắm trại', 'Sưu tầm'],
+      correct: 3,
       explanation: '"Collecting" = sưu tầm (như sưu tầm tem, bưu thiếp).',
     },
   ],

@@ -90,14 +90,14 @@ export const WH_QUESTIONS_LESSON = {
     questions: [
       {
         question: 'Lan phỏng vấn Minh để làm gì?',
-        options: ['Để làm bài kiểm tra Toán', 'Để viết bản tin câu lạc bộ', 'Để tìm người trông mèo', 'Để mua máy ảnh mới'],
-        correct: 1,
+        options: ['Để viết bản tin câu lạc bộ', 'Để làm bài kiểm tra Toán', 'Để tìm người trông mèo', 'Để mua máy ảnh mới'],
+        correct: 0,
         explanation: 'Lan nói: "May I ask you a few questions for our club newsletter?"',
       },
       {
         question: 'Minh thích kỹ năng tiếng Anh nào nhất?',
-        options: ['Đọc', 'Viết', 'Nói', 'Ngữ pháp'],
-        correct: 2,
+        options: ['Đọc', 'Nói', 'Viết', 'Ngữ pháp'],
+        correct: 1,
         explanation: 'Minh trả lời: "Speaking, because I love talking with friends."',
       },
       {
@@ -108,8 +108,8 @@ export const WH_QUESTIONS_LESSON = {
       },
       {
         question: 'Chiếc máy ảnh mà Lan hỏi là của ai?',
-        options: ['Của Minh', 'Của Mai', 'Của thầy Tom', 'Của câu lạc bộ'],
-        correct: 1,
+        options: ['Của Minh', 'Của câu lạc bộ', 'Của thầy Tom', 'Của Mai'],
+        correct: 3,
         explanation: 'Minh trả lời: "and that camera is Mai\'s."',
       },
     ],
@@ -119,15 +119,15 @@ export const WH_QUESTIONS_LESSON = {
     {
       skill: 'vocab',
       question: 'Bạn muốn hỏi chiếc ô này là của ai. Từ hỏi đúng là:',
-      options: ['Who', 'Whose', 'Which', 'Where'],
-      correct: 1,
+      options: ['Whose', 'Who', 'Which', 'Where'],
+      correct: 0,
       explanation: '"Whose + danh từ" dùng để hỏi quyền sở hữu (của ai).',
     },
     {
       skill: 'vocab',
       question: 'Bạn muốn hỏi lý do bạn mình đến muộn. Dùng từ hỏi nào?',
-      options: ['When', 'Where', 'Why', 'Which'],
-      correct: 2,
+      options: ['When', 'Why', 'Where', 'Which'],
+      correct: 1,
       explanation: '"Why" dùng để hỏi lý do (tại sao).',
     },
     {
@@ -135,11 +135,11 @@ export const WH_QUESTIONS_LESSON = {
       question: 'Chọn câu hỏi đúng ngữ pháp:',
       options: [
         'Where you live?',
-        'Where do you live?',
         'Where are you live?',
+        'Where do you live?',
         'Where does you live?',
       ],
-      correct: 1,
+      correct: 2,
       explanation: 'Với động từ thường "live" và chủ ngữ "you", cần trợ động từ "do": "Where do you live?".',
     },
     {
@@ -147,18 +147,18 @@ export const WH_QUESTIONS_LESSON = {
       question: 'Chọn câu hỏi đúng khi "Who" làm chủ ngữ:',
       options: [
         'Who does live in that yellow house?',
-        'Who lives in that yellow house?',
-        'Who is live in that yellow house?',
         'Who live does in that yellow house?',
+        'Who is live in that yellow house?',
+        'Who lives in that yellow house?',
       ],
-      correct: 1,
+      correct: 3,
       explanation: 'Khi "Who" là chủ ngữ, không dùng trợ động từ mà chia động từ số ít "lives".',
     },
     {
       skill: 'grammar',
       question: 'Điền vào chỗ trống: "___ books do you read every month?"',
-      options: ['How much', 'How many', 'How old', 'How long'],
-      correct: 1,
+      options: ['How many', 'How much', 'How old', 'How long'],
+      correct: 0,
       explanation: '"Books" là danh từ đếm được số nhiều nên dùng "How many".',
     },
     {
@@ -178,19 +178,19 @@ export const WH_QUESTIONS_LESSON = {
       question: 'Có 2 cây bút xanh và đỏ trên bàn. Bạn muốn hỏi bạn mình chọn cây nào. Bạn hỏi:',
       options: [
         'Who pen do you want?',
-        'Which pen do you want?',
         'Where pen do you want?',
+        'Which pen do you want?',
         'When pen do you want?',
       ],
-      correct: 1,
+      correct: 2,
       explanation: '"Which" dùng khi lựa chọn trong một nhóm nhỏ xác định.',
     },
     {
       skill: 'listening',
       audioText: 'When does the English club meet?',
       question: 'Nghe và chọn thông tin người nói đang hỏi:',
-      options: ['Địa điểm họp câu lạc bộ', 'Thời gian họp câu lạc bộ', 'Người phụ trách câu lạc bộ', 'Chi phí tham gia'],
-      correct: 1,
+      options: ['Địa điểm họp câu lạc bộ', 'Chi phí tham gia', 'Người phụ trách câu lạc bộ', 'Thời gian họp câu lạc bộ'],
+      correct: 3,
       explanation: 'Câu hỏi bắt đầu bằng "When" (khi nào) để hỏi thời gian.',
     },
     {

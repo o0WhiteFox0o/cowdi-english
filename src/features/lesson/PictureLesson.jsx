@@ -41,6 +41,22 @@ function PictureVisual({ wordObj, size = 64 }) {
       />
     );
   }
+  if (wordObj?.swatch) {
+    return (
+      <span
+        aria-label={wordObj.meaning || wordObj.word}
+        style={{
+          display: 'inline-block',
+          width: size,
+          height: size,
+          borderRadius: Math.max(10, Math.round(size * 0.22)),
+          backgroundColor: wordObj.swatch,
+          border: '2px solid rgba(15, 23, 42, 0.16)',
+          boxShadow: '0 3px 10px rgba(15, 23, 42, 0.12)',
+        }}
+      />
+    );
+  }
   return <span style={{ fontSize: `${Math.round(size * 0.85)}px`, lineHeight: 1 }}><Emoji e={wordObj?.emoji || '🖼️'} size={size} /></span>;
 }
 
@@ -64,7 +80,10 @@ export default function PictureLesson({
     },
     [onPetAnswer, dispatch, lesson?.id]
   );
-  const words = useMemo(() => lesson.words || [], [lesson.words]);
+  const words = useMemo(
+    () => (lesson.words || []).map((w) => ({ ...w, category: w.category || lesson.category })),
+    [lesson.words, lesson.category]
+  );
   const pattern = lesson.pattern || { en: 'I like ___.', vi: 'Em thích ___.' };
   const instructions = { ...DEFAULT_INSTRUCTIONS, ...(lesson.instructionsVi || {}) };
   const ttsRate = rules?.ttsRate || 0.8;

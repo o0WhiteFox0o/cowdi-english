@@ -8,6 +8,7 @@ export const S1_SIZE_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u2',
+  category: 'adjective',
   title: 'To nhỏ & nhanh chậm',
   description: 'Phân biệt 3 cặp từ trái ngược: to–nhỏ, dài–ngắn, nhanh–chậm',
   icon: '📏',

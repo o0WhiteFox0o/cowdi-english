@@ -8,6 +8,7 @@ export const S1_FARM_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u3',
+  category: 'animal',
   title: 'Con vật nông trại',
   description: 'Gọi tên 6 con vật quen thuộc ở nông trại và đồng quê',
   icon: '🐄',
