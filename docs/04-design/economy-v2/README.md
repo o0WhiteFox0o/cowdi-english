@@ -9,6 +9,8 @@ Bản sao các tài liệu thiết kế từ Project COWDI trên claude.ai (thư
 | `lo-trinh-kiem-tien-v2.md` | Mô phỏng nhịp kiếm tài nguyên, lộ trình bán hàng, Thẻ tháng/Thẻ mùa (giá đề xuất) |
 | `de-xuat-dau-truong-va-qua-tang.md` | Đấu trường: vé, LP, bậc, mùa, rương, thưởng mùa |
 | `de-xuat-gacha-v2.md` | Gacha 50 Gem/vé, không bảo hiểm, thẻ tặng pet, thiệp mời, quay pet khởi đầu |
+| `REFERRAL-GACHA-TICKET.md` | Điều chỉnh Gacha v2 & Thưởng mời bạn (v0.3: bỏ Bụi sao, quà trùng → Gem/Sữa, lấy lại Cowdi, mốc mời bạn) |
+| `FRIENDS-REFERRAL-PLAN-tham-khao.md` | Phương án định hướng ban đầu cho Bạn bè & Mời qua Zalo/FB (tham khảo; phần kỹ thuật theo `SRS-FRIENDS-v1.1.md`) |
 | `lenh-claude-code-2-can-bang-he-tuong-khac.md` | Lệnh cho giai đoạn 2 (mô phỏng cân bằng) |
 
 Thứ tự làm việc: `docs/01-project-management/QUY-TRINH-TRIEN-KHAI-KINH-TE-V2.md`.

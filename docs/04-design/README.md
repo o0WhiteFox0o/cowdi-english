@@ -12,6 +12,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [Cowdi_English_Physical_ERD_v1.0.xlsx](Cowdi_English_Physical_ERD_v1.0.xlsx) — Sổ dữ liệu Excel đặc tả ERD vật lý từng bảng (Data Dictionary)
 - [images/cowdi-erd-physical-v1.0.png](images/cowdi-erd-physical-v1.0.png) — Ảnh sơ đồ ERD vật lý độ phân giải cao
 - [SDD-INVITE-v1.0.md](SDD-INVITE-v1.0.md)
+- [SRS-FRIENDS-v1.1.md](SRS-FRIENDS-v1.1.md) — **Đặc tả phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, thăm pet, lộ trình)**
 - [SDD-PET-INTERACTION-v1.0.md](SDD-PET-INTERACTION-v1.0.md)
 - [SDD-PET-INTERACTION-v1.0.pdf](SDD-PET-INTERACTION-v1.0.pdf)
 - [SDD-SHARE-v1.0.md](SDD-SHARE-v1.0.md)

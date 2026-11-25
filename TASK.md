@@ -206,6 +206,21 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ---
 
+## Bạn bè & Thưởng mời bạn (`feat/friends`)
+
+> Tài liệu nguồn: [SRS-FRIENDS-v1.1.md](docs/04-design/SRS-FRIENDS-v1.1.md) · [TASK-FRIENDS.md](docs/05-implementation/TASK-FRIENDS.md) · [RPT-FRIENDS-SURVEY.md](docs/05-implementation/RPT-FRIENDS-SURVEY.md) · [REFERRAL-GACHA-TICKET.md](docs/04-design/economy-v2/REFERRAL-GACHA-TICKET.md)
+
+- [x] Bước 0 — Bổ sung tài liệu phân hệ Bạn bè & Thưởng mời bạn, khảo sát mã nguồn và viết `RPT-FRIENDS-SURVEY.md` — 2026-11-25
+- [ ] Bước 1 — Migration `migrate-friends.sql` (+ runner MySQL 5.5/5.6+), cấu hình `shared/game-config.js`, hàm thuần `shared/friends.js` + test
+- [ ] Bước 2 — OG riêng cho `/i/:code` phía Express, cấu hình Nginx mẫu & thay QR ngoài bằng QR tạo tại client
+- [ ] Bước 3 — Biệt danh, vá redirect OAuth `cowdi_pending_invite`, chống gian lận IP/thiết bị, thưởng mời bạn (+3 Gem, +500 Sữa, mốc vé gacha/danh hiệu) + AT-02..AT-05
+- [ ] Bước 4 — Hệ thống Bạn bè (tự kết bạn qua thiệp, `friend_code`, lời mời, huỷ, chặn, báo cáo) + `FriendsPage.jsx` + AT-06..AT-07
+- [ ] Bước 5 — Thăm pet bạn bè (`FriendPetPage.jsx`) & thách đấu bạn bè (không tính league points) + AT-10
+- [ ] Bước 6 — Bạn bè trên bản đồ lộ trình (`GET /api/friends/path-progress`, `useFriendPositions.js`, UI `LearningPathPage.jsx`, toast vượt qua) + AT-08..AT-09
+- [ ] Bước 7 — Ghi sự kiện `app_events` (NFR-06), rà payload bảo mật API (AT-11) & hoàn tất kiểm định build/test
+
+---
+
 ## Vấn đề đang chặn
 | Ngày | GĐ | Vấn đề | Cần ai quyết | Trạng thái |
 |---|---|---|---|---|
@@ -216,6 +231,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-25 | Bạn bè B0 | Bổ sung tài liệu Bạn bè & Thưởng mời bạn (`SRS-FRIENDS-v1.1`, `REFERRAL-GACHA-TICKET`, `TASK-FRIENDS`), đăng ký `REG-DOCUMENTS` và viết báo cáo khảo sát `RPT-FRIENDS-SURVEY.md` | `feat/friends` | Khảo sát 7 điểm, không sửa code |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Sửa lỗi không cộng thưởng Sữa sau khi học / đấu trường (`useUser.jsx` đồng bộ `wallet.milk` tức thì + tự flush progress trước `refreshWallet`) & xoay mặt bò bên trái sang phải (`pet.css` `scaleX(-1)`) | f38de8a | 120/120 test pass, build pass |
 | 2026-11-24 | 4 | Mở bán Đồ trang trí thật (19 Nền, 15 Hào quang, 10 nền hệ), bảng owned_cosmetics, ledger mua Sữa/Gem, combo -20%, trang bị/tháo mượt mà | 1276060 | 120/120 test pass, build pass |

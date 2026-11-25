@@ -1,6 +1,6 @@
 # REG-DOCUMENTS — Sổ đăng ký Tài liệu (Document Register)
 
-> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-24
+> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-25
 
 > Mọi tài liệu mới, đổi phiên bản hoặc đổi trạng thái đều phải cập nhật vào sổ này. Cột **Thay cho** giữ tên file cũ để truy cứu link lịch sử.
 
@@ -61,6 +61,7 @@
 | SDD | Thiết kế lại XP | [SDD-XP-REDESIGN-v1.0.md](../04-design/SDD-XP-REDESIGN-v1.0.md) | 1.0 | Superseded một phần (ví XP → Sữa) | XP-REDESIGN-2026-05.md |
 | SDD | Duel kiểu Pokémon | [SDD-DUEL-BATTLE-v1.0.md](../04-design/SDD-DUEL-BATTLE-v1.0.md) | 1.0 | Superseded một phần (công thức trận) | DUEL-BATTLE-DESIGN.md |
 | SDD | Gửi trứng pet cho bạn (Invite) | [SDD-INVITE-v1.0.md](../04-design/SDD-INVITE-v1.0.md) | 1.0 | Approved | INVITE-FEATURE-DESIGN.md |
+| SRS | **Phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, lộ trình)** | [SRS-FRIENDS-v1.1.md](../04-design/SRS-FRIENDS-v1.1.md) | 1.1 | Chờ duyệt | (mới 2026-11-25 — xây trên thiệp mời có sẵn) |
 | SDD | Share không làm phiền | [SDD-SHARE-v1.0.md](../04-design/SDD-SHARE-v1.0.md) | 1.0 | Approved | SHARE-FEATURE-DESIGN.md |
 | SDD | Tương tác pet (roadmap) | [SDD-PET-INTERACTION-v1.0.md](../04-design/SDD-PET-INTERACTION-v1.0.md) · [PDF](../04-design/SDD-PET-INTERACTION-v1.0.pdf) | 1.0 | Approved | PET-INTERACTION-REDESIGN |
 | SDD | Kinh tế v2: Đề xuất vật phẩm cửa hàng (Giữ nhịp) | [de-xuat-vat-pham-cua-hang-v2.md](../04-design/economy-v2/de-xuat-vat-pham-cua-hang-v2.md) | 2.0 | Approved | — |
@@ -68,6 +69,8 @@
 | SDD | Kinh tế v2: Đề xuất trang trí nền & hào quang | [de-xuat-trang-tri-nen-hao-quang.md](../04-design/economy-v2/de-xuat-trang-tri-nen-hao-quang.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất Đấu trường & quà tặng | [de-xuat-dau-truong-va-qua-tang.md](../04-design/economy-v2/de-xuat-dau-truong-va-qua-tang.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.0 | Approved | — |
+| SDD | **Kinh tế v2: Thưởng mời bạn & điều chỉnh Gacha v2 (bỏ Bụi sao, quà trùng, Cowdi)** | [REFERRAL-GACHA-TICKET.md](../04-design/economy-v2/REFERRAL-GACHA-TICKET.md) | 0.3 | Draft / Chờ đồng bộ | (mới 2026-11-25 — bổ sung `de-xuat-gacha-v2.md`) |
+| REF | Kinh tế v2: Phương án Bạn bè & Mời qua Zalo/FB (định hướng tham khảo) | [FRIENDS-REFERRAL-PLAN-tham-khao.md](../04-design/economy-v2/FRIENDS-REFERRAL-PLAN-tham-khao.md) | 0.1 | Reference (kỹ thuật thay bởi SRS-FRIENDS v1.1) | (mới 2026-11-25) |
 | SPEC | Kinh tế v2: Lệnh mô phỏng cân bằng hệ tương khắc | [lenh-claude-code-2-can-bang-he-tuong-khac.md](../04-design/economy-v2/lenh-claude-code-2-can-bang-he-tuong-khac.md) | 2.0 | Approved | — |
 
 ## 05 — Triển khai mã & Hướng dẫn người vận hành (ISO/IEC/IEEE 12207 & 26514)
@@ -88,6 +91,8 @@
 | PROMP | Hướng dẫn prompt soạn/nâng cấp nội dung bài học (Gemini) | [PROMPT-GEMINI-CONTENT.md](../05-implementation/content/PROMPT-GEMINI-CONTENT.md) | sống | Approved | (mới 2026-11-24) |
 | CHK | Danh sách kiểm tra chất lượng khi duyệt bài học | [CHK-LESSON-REVIEW.md](../05-implementation/content/CHK-LESSON-REVIEW.md) | sống | Approved | (mới 2026-11-24) |
 | TPL | Bộ mẫu brief & khung dữ liệu bài học 3 cấp (+ brief mẫu `int-u1`) | [content/README.md](../05-implementation/content/README.md) · [STARTER](../05-implementation/content/TPL-STARTER.md) · [INTERMEDIATE](../05-implementation/content/TPL-INTERMEDIATE.md) · [EXAM](../05-implementation/content/TPL-EXAM.md) · [int-u1](../05-implementation/content/briefs/int-u1.md) | 1.0 | Approved | (mới 2026-11-24) |
+| TASK | **Nhiệm vụ triển khai Bạn bè & Thưởng mời bạn (8 bước 0–7)** | [TASK-FRIENDS.md](../05-implementation/TASK-FRIENDS.md) | 2.0 | Ready | (mới 2026-11-25) |
+| RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Chờ duyệt | (mới 2026-11-25) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
