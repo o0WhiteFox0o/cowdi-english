@@ -32,8 +32,8 @@ const LISTEN_INSTRUCTION_RE = /^(?:hãy\s+|lắng\s+)?nghe\b/i;
 // Chỉ khớp lời dẫn hỏi trực tiếp về hình/màu/hình dạng hiện trên màn hình
 const IMAGE_PROMPT_RE = /\b(hình này|màu này|hình dạng này|bức tranh này)\b/i;
 
-// "Tất cả đều đúng" / "Cả A và B đều đúng" / "Không có đáp án nào" (STD §3.4.5)
-const ALL_OF_ABOVE_RE = /^(tất cả( các đáp án| đều)? đúng|cả [a-d]( và| lẫn) [a-d] đều đúng|không có đáp án nào( đúng)?|all of the above|none of the above)\.?$/i;
+// "Tất cả đều đúng" / "Cả A và B (đều) đúng" / "Không có đáp án nào" (STD §3.4.5)
+const ALL_OF_ABOVE_RE = /^(tất cả( các đáp án| đều)? đúng|cả [a-d]( và| lẫn) [a-d]( đều)? đúng|không có đáp án nào( đúng)?|all of the above|none of the above)\.?$/i;
 
 // Câu hỏi về viết hoa / chính tả chữ hoa-thường
 const CASE_SENSITIVE_PROMPT_RE = /(viết hoa|chữ hoa|chữ thường|capitalize|capital letter)/i;
@@ -48,7 +48,38 @@ const NON_SEMANTIC_PROMPT_RE = /(phát âm|trọng âm|chính tả|âm\s+\/|vầ
 const VI_DIACRITIC_RE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
 
 // Phương án siêu ngôn ngữ tiếng Việt được phép đứng cạnh phương án tiếng Anh
-const METALINGUISTIC_VI_RE = /^(không cần|bỏ trống|không dùng|không có|để trống|tất cả|cả hai|không thể|cần thêm|thêm\s+)/i;
+const METALINGUISTIC_VI_RE = /^(không cần|bỏ trống|không dùng|không có|không cặp nào|không xác định|để trống|tất cả|cả hai|cả [a-d]|không mạo từ|không thể|cần thêm|thêm\s+|chỉ\s+)/i;
+
+// Công thức ngữ pháp (V-ing, to V, S + V...) không tính là lẫn ngôn ngữ
+const GRAMMAR_FORMULA_RE = /(^|\s)(S\s*\+|V-?ing|to\s+V|V[123]|V\s+quá|V\s+nguyên|V\s+hiện|V\s+tương|Adj|Adv)(\s|$|\+|,)/;
+
+// Từ vay mượn quốc tế phổ biến trong tiếng Việt
+const VI_LOANWORDS = new Set([
+  'email', 'wifi', 'wi-fi', 'bluetooth', 'internet', 'web', 'app', 'video', 'radio',
+  'tv', 'sms', 'gps', 'pdf', 'usb', 'scooter', 'taxi', 'yoga', 'menu', 'cafe', 'hotel',
+  'sport', 'film', 'game', 'club', 'team', 'fan', 'golf', 'tennis', 'judo', 'piano',
+  'guitar', 'sofa', 'camera', 'micro', 'virus', 'vitamin', 'stress', 'logic', 'alphabet',
+  'ipo', 'ceo', 'kpi', 'hr', 'pr', 'it', 'ai', 'yes', 'no', 'ok',
+]);
+
+// Âm tiết tiếng Việt không dấu phổ biến (tránh gắn nhầm tiếng Việt không dấu thành tiếng Anh)
+const VI_NO_DIACRITIC_SYLLABLES = new Set([
+  'a', 'ai', 'an', 'anh', 'ao', 'ba', 'ban', 'bang', 'bao', 'bay', 'be', 'ben', 'bi', 'bien', 'binh', 'bo', 'bon', 'bong', 'buon',
+  'ca', 'cac', 'cam', 'can', 'cao', 'cau', 'cha', 'cham', 'chan', 'chao', 'chau', 'che', 'chi', 'chia', 'chim', 'chin', 'cho', 'choi', 'chung', 'chua', 'chuyen',
+  'co', 'con', 'cong', 'cua', 'cung', 'cu', 'da', 'dai', 'dan', 'dang', 'danh', 'dao', 'dau', 'day', 'de', 'dem', 'den', 'di', 'dinh', 'do', 'doanh', 'doc', 'doi', 'don', 'dong', 'du', 'dung', 'duoc', 'duong',
+  'em', 'ga', 'gai', 'gan', 'gap', 'ghe', 'ghi', 'gia', 'giai', 'giam', 'giao', 'gio', 'gioi', 'giua', 'go', 'goi', 'gom', 'ha', 'hai', 'ham', 'han', 'hang', 'hao', 'hay', 'he', 'hen', 'het', 'hien', 'hieu', 'hinh', 'hoa', 'hoac', 'hoc', 'hoi', 'hom', 'hon', 'hop',
+  'in', 'it', 'ke', 'kem', 'kenh', 'keo', 'ket', 'kha', 'khac', 'khach', 'kham', 'khao', 'khe', 'khi', 'kho', 'khoa', 'khoang', 'khong', 'khu', 'khuyen', 'kia', 'kiem', 'kien', 'kim', 'kinh',
+  'la', 'lai', 'lam', 'lan', 'lang', 'lao', 'lau', 'le', 'len', 'lien', 'lo', 'loai', 'loi', 'lon', 'long', 'luat', 'luc', 'luon', 'luong', 'ly',
+  'ma', 'mai', 'man', 'mang', 'manh', 'mat', 'mau', 'may', 'me', 'men', 'mi', 'mien', 'minh', 'mo', 'moi', 'mon', 'mong', 'mot', 'mua', 'muc', 'mui', 'muon', 'muoi', 'my',
+  'na', 'nam', 'nang', 'nao', 'nay', 'ne', 'nem', 'nen', 'neu', 'ngai', 'ngan', 'ngang', 'ngay', 'nghe', 'nghi', 'nghia', 'ngo', 'ngoai', 'ngon', 'ngu', 'nguoi', 'nha', 'nhac', 'nham', 'nhan', 'nhanh', 'nhau', 'nhe', 'nhieu', 'nhin', 'nho', 'nhom', 'nhu', 'nhung', 'niem', 'no', 'noi', 'non', 'nong', 'nu', 'nuoc', 'nuoi',
+  'oan', 'oi', 'om', 'on', 'ong', 'pha', 'phai', 'pham', 'phan', 'phap', 'phat', 'phep', 'phi', 'phim', 'pho', 'phong', 'phu', 'phuc', 'phut', 'phuong',
+  'qua', 'quan', 'quang', 'quay', 'que', 'quen', 'quoc', 'quy', 'quyen',
+  'ra', 'ran', 'rang', 'rat', 're', 'ren', 'rieng', 'ro', 'roi', 'rong', 'ru', 'rui', 'rung',
+  'sa', 'sach', 'sai', 'san', 'sang', 'sao', 'sau', 'se', 'sen', 'si', 'sinh', 'so', 'soi', 'son', 'song', 'su', 'sua', 'suc', 'suoi', 'suong',
+  'ta', 'tac', 'tai', 'tam', 'tan', 'tang', 'tao', 'tap', 'tat', 'tau', 'tay', 'te', 'ten', 'tet', 'tha', 'tham', 'than', 'thang', 'thanh', 'thao', 'thap', 'that', 'thay', 'the', 'them', 'theo', 'thi', 'thich', 'thien', 'thiet', 'thieu', 'thinh', 'tho', 'thoi', 'thon', 'thong', 'thu', 'thua', 'thuan', 'thuc', 'thue', 'thuo', 'thuoc', 'thuong', 'thuy', 'thuyen',
+  'ti', 'tich', 'tien', 'tieng', 'tiep', 'tiet', 'tieu', 'tim', 'tin', 'tinh', 'to', 'toa', 'toan', 'toc', 'toi', 'tom', 'ton', 'tong', 'tot', 'tra', 'trai', 'tram', 'tran', 'trang', 'tranh', 'trao', 'trau', 'tre', 'tren', 'tri', 'trien', 'trieu', 'trinh', 'tro', 'troi', 'tron', 'trong', 'tru', 'trua', 'truc', 'trung', 'truoc', 'truong', 'tu', 'tua', 'tuan', 'tuc', 'tui', 'tung', 'tuoi', 'tuong', 'tuy', 'tuyen',
+  'ua', 'uoc', 'uong', 'uu', 'va', 'vai', 'van', 'vang', 'vao', 'vat', 'vay', 've', 'ven', 'vet', 'vi', 'via', 'viec', 'vien', 'viet', 'vinh', 'vo', 'voi', 'von', 'vong', 'vu', 'vua', 'vui', 'vung', 'vuon', 'vuot', 'xa', 'xanh', 'xau', 'xay', 'xe', 'xem', 'xep', 'xi', 'xin', 'xoa', 'xong', 'xu', 'xua', 'xuan', 'xuat', 'xung', 'xuong', 'xuoi', 'y', 'yeu',
+]);
 
 function getPrompt(q) {
   return String(q?.promptVi ?? q?.question ?? q?.prompt ?? '').trim();
@@ -82,16 +113,21 @@ function escapeRegex(s) {
 function classifyOptionLang(opt) {
   const s = String(opt || '').trim();
   if (!s) return 'neutral';
-  // Số / ký hiệu / thời gian / mã
+  // Số / ký hiệu / thời gian / mã / chữ cái đơn lẻ (FF, OO, X, Y, A / a)
   if (/^[\d\s.,:%/$€£+\-–—()]+$/.test(s)) return 'neutral';
+  if (/^[A-Za-z]{1,2}(\s*\/\s*[A-Za-z]{1,2})*$/.test(s)) return 'neutral';
+  if (/^[A-Z]{2,5}$/.test(s)) return 'neutral'; // Acronym: IPO, CEO, UK, US
   if (METALINGUISTIC_VI_RE.test(s)) return 'meta';
+  if (GRAMMAR_FORMULA_RE.test(s)) return 'neutral';
   // Dạng song ngữ "word (nghĩa)" hoặc "A = B" hoặc chứa dấu ngoặc giải thích
   if (/[=–—]/.test(s) || /\([^)]+\)/.test(s)) return 'bilingual';
   const hasVi = VI_DIACRITIC_RE.test(s);
   if (hasVi) return 'vi';
-  // Kiểm tra chữ cái ASCII
-  const asciiWords = s.match(/[A-Za-z]+/g) || [];
-  if (asciiWords.length === 0) return 'neutral';
+  // Kiểm tra từng token ASCII: nếu toàn bộ là âm tiết Việt không dấu hoặc từ vay mượn → tiếng Việt/neutral
+  const tokens = s.toLowerCase().match(/[a-z-]+/g) || [];
+  if (tokens.length === 0) return 'neutral';
+  const allViOrLoan = tokens.every((t) => VI_NO_DIACRITIC_SYLLABLES.has(t) || VI_LOANWORDS.has(t));
+  if (allViOrLoan) return 'neutral';
   return 'en';
 }
 
@@ -164,11 +200,16 @@ export function validateQuestion(q, opts = {}) {
 
   // 5. Q-OPT-DUP & Q-OPT-ALL
   if (options && options.length > 0) {
-    const preserveCase = CASE_SENSITIVE_PROMPT_RE.test(prompt);
+    const rawTrimmed = options.map((o) => String(o ?? '').trim());
+    const lowered = rawTrimmed.map((o) => normalizeOption(o, { preserveCase: false }));
+    // Câu hỏi kiểm tra viết hoa/dấu câu: tất cả raw đều khác nhau nhưng khi bỏ hoa/dấu câu đều thành 1 chuỗi duy nhất
+    const isCapitalizationDrill =
+      CASE_SENSITIVE_PROMPT_RE.test(prompt) ||
+      (new Set(rawTrimmed).size === options.length && new Set(lowered).size === 1);
     const seen = new Map();
     for (let i = 0; i < options.length; i++) {
-      const raw = String(options[i] ?? '').trim();
-      const norm = normalizeOption(raw, { preserveCase });
+      const raw = rawTrimmed[i];
+      const norm = isCapitalizationDrill ? raw : lowered[i];
       if (seen.has(norm)) {
         pushErr(QUESTION_CODES.OPTION_DUP, `Trùng lựa chọn "${raw}" (vị trí ${seen.get(norm)} và ${i})`);
       } else {

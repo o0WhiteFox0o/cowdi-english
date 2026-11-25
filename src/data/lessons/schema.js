@@ -259,9 +259,9 @@ export function examQuestionsToMcq(examQuestions = []) {
   for (const q of examQuestions) {
     if (q.type === 'tfng' || q.type === 'ynng') {
       const options = q.type === 'tfng' ? ['TRUE', 'FALSE', 'NOT GIVEN'] : ['YES', 'NO', 'NOT GIVEN'];
-      out.push({ question: q.prompt, options, correct: options.indexOf(q.answer), explanation: q.explanation });
+      out.push({ type: q.type, question: q.prompt, options, correct: options.indexOf(q.answer), explanation: q.explanation });
     } else if (q.type === 'mcq' || q.type === 'heading') {
-      out.push({ question: q.prompt, options: q.options, correct: q.answer, explanation: q.explanation });
+      out.push({ type: q.type, question: q.prompt, options: q.options, correct: q.answer, explanation: q.explanation });
     }
     // sentence-completion / matching-info: cần UI mới, chưa đổi được sang trắc nghiệm.
   }
