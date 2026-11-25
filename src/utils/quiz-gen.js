@@ -4,6 +4,7 @@
 // — H5: kiểm tra unit chỉ lấy câu từ các bài thuộc chính unit đó (bỏ QUIZ_BANK khớp chuỗi)
 // — Cấp 1 (picture): sinh tự động 3 dạng câu hỏi từ words[] & pattern
 // ════════════════════════════════════════════════════════════════
+import { validateQuestion } from '../../shared/question-rules.js';
 
 export function shuffleArray(arr) {
   const a = [...arr];
@@ -198,7 +199,7 @@ function balanceCorrectPositions(questions) {
  */
 export function generatePictureChallenge(words = [], pattern = null, count = 6, opts = {}) {
   if (!Array.isArray(words) || words.length < 2) return [];
-  const { allowListening = true, validator = null } = opts;
+  const { allowListening = true, validator = validateQuestion } = opts;
 
   const hasPattern = Boolean(pattern?.en?.includes('___'));
   const baseTypes = [];
