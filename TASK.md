@@ -211,7 +211,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 > Tài liệu nguồn: [SRS-FRIENDS-v1.1.md](docs/04-design/SRS-FRIENDS-v1.1.md) · [TASK-FRIENDS.md](docs/05-implementation/TASK-FRIENDS.md) · [RPT-FRIENDS-SURVEY.md](docs/05-implementation/RPT-FRIENDS-SURVEY.md) · [REFERRAL-GACHA-TICKET.md](docs/04-design/economy-v2/REFERRAL-GACHA-TICKET.md)
 
 - [x] Bước 0 — Bổ sung tài liệu phân hệ Bạn bè & Thưởng mời bạn, khảo sát mã nguồn và viết `RPT-FRIENDS-SURVEY.md` — 2026-11-25
-- [ ] Bước 1 — Migration `migrate-friends.sql` (+ runner MySQL 5.5/5.6+), cấu hình `shared/game-config.js`, hàm thuần `shared/friends.js` + test
+- [x] Bước 1 — Migration `migrate-friends.sql` (+ runner MySQL 5.5/5.6+), cấu hình `shared/game-config.js`, hàm thuần `shared/friends.js` + test — 2026-11-25
 - [ ] Bước 2 — OG riêng cho `/i/:code` phía Express, cấu hình Nginx mẫu & thay QR ngoài bằng QR tạo tại client
 - [ ] Bước 3 — Biệt danh, vá redirect OAuth `cowdi_pending_invite`, chống gian lận IP/thiết bị, thưởng mời bạn (+3 Gem, +500 Sữa, mốc vé gacha/danh hiệu) + AT-02..AT-05
 - [ ] Bước 4 — Hệ thống Bạn bè (tự kết bạn qua thiệp, `friend_code`, lời mời, huỷ, chặn, báo cáo) + `FriendsPage.jsx` + AT-06..AT-07
