@@ -17,6 +17,7 @@ import {
 } from '../utils/wallet.js';
 import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 import { processInviteActivationReward, releaseDeferredTicketsForMonth } from '../utils/invite-rewards.js';
+import { ensureFriendCode } from '../utils/friends-manager.js';
 import { validateNickname } from '../../shared/friends.js';
 
 const router = express.Router();
@@ -32,6 +33,18 @@ router.get('/me', requireAuth, async (req, res) => {
     res.json({ ...user, isAdmin: Boolean(user.is_admin) });
   } catch (err) {
     console.error('GET /api/me error:', err);
+    res.status(500).json({ error: 'Lỗi server.' });
+  }
+});
+
+// ── GET /api/me/friend-code – lấy hoặc cấp lười mã bạn bè (FR-FRD-02) ───────
+router.get('/me/friend-code', requireAuth, async (req, res) => {
+  try {
+    const info = await ensureFriendCode(req.user.id);
+    if (!info) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
+    res.json(info);
+  } catch (err) {
+    console.error('GET /api/me/friend-code error:', err);
     res.status(500).json({ error: 'Lỗi server.' });
   }
 });

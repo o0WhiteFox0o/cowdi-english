@@ -9,6 +9,7 @@ import {
   isSameDeviceOrIpWithin24h,
   getInviteStats,
 } from '../utils/invite-rewards.js';
+import { createAutoFriendshipFromInvite } from '../utils/friends-manager.js';
 
 const EXPIRY_DAYS  = INVITE_REWARDS.EXPIRY_DAYS;
 const DAILY_LIMIT  = INVITE_REWARDS.DAILY_INVITE_LIMIT;
@@ -239,6 +240,9 @@ export function createInvitesRouter({ db = pool, authMiddleware = requireAuth, o
       if (!upd || upd.affectedRows !== 1) {
         return res.status(409).json({ error: 'Thiệp đã được người khác nhận.' });
       }
+
+      // FR-FRD-01 & FR-RWD-03: Nhận thiệp thành công -> tự tạo quan hệ accepted (kể cả khi flagged)
+      await createAutoFriendshipFromInvite(row.sender_id, req.user.id, db);
 
       if (typeof onClaimed === 'function') {
         await onClaimed({ senderId: row.sender_id, receiverId: req.user.id, code, flagged: Boolean(flagged), db });

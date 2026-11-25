@@ -11,6 +11,7 @@ import { createPetMotionAdminRouter } from './routes/petMotionAdmin.js';
 import { createPetMotionPublicRouter } from './routes/petMotionPublic.js';
 import { createMotionCache } from './utils/petMotion.js';
 import invitesRouter from './routes/invites.js';
+import friendsRouter from './routes/friends.js';
 import createInviteLandingRouter from './routes/inviteLanding.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
@@ -56,6 +57,7 @@ const petMotionPublicRouter = createPetMotionPublicRouter({ motionCache: petMoti
 app.use('/i', createInviteLandingRouter());
 app.use('/auth', authRouter);
 app.use('/api/invites', invitesRouter);
+app.use('/api/friends', friendsRouter);
 app.use('/api/shop', shopRouter);
 app.use('/api/admin/pet-motion', petMotionAdminRouter);
 app.use('/api/pet-motion', petMotionPublicRouter);
