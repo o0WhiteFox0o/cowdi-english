@@ -2184,8 +2184,35 @@ export default function LessonDetailPage() {
         </div>
       )}
 
-      {/* ── Step footer: finish this part → next ── */}
-      {['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
+    </div>
+  );
+  };
+
+  const isMainLesson = !quizMode && lesson.format !== 'picture';
+  const isCenteredLayout =
+    lesson.format === 'picture' ||
+    quizMode ||
+    ['flashcard', 'listen', 'speak', 'quiz'].includes(tab);
+  const isFlashcardLayout = isMainLesson && tab === 'flashcard';
+
+  return (
+    <div className="fade-in position-relative" ref={confettiRef}>
+      {isMainLesson && renderLessonTopChrome()}
+      <div
+        className={`pd-lesson-layout${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
+      >
+        {petDock && (
+          <aside className="pd-lesson-stage-col">
+            {petDock}
+          </aside>
+        )}
+        <div className="pd-lesson-content-col">
+          {renderLessonBody()}
+        </div>
+      </div>
+
+      {/* ── Step footer: nằm trọn bề ngang đáy trang, cân đối hai bên ── */}
+      {isMainLesson && ['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
         <div className="lesson-step-footer">
           <div className="lesson-step-footer-txt">
             <small className="text-muted">Phần {curStepIdx + 1}/{steps.length}</small>
@@ -2196,33 +2223,16 @@ export default function LessonDetailPage() {
           </button>
         </div>
       )}
-      {tab === 'speak' && !speakDone && (!speakMandatory || !SpeechRecognitionAPI) && (
+      {isMainLesson && tab === 'speak' && !speakDone && (!speakMandatory || !SpeechRecognitionAPI) && (
         <div className="text-center mt-3">
           <button type="button" className="btn btn-link text-muted" onClick={completeStep}>Không có micro? Bỏ qua phần này →</button>
         </div>
       )}
-      {tab === 'speak' && !speakDone && speakMandatory && SpeechRecognitionAPI && (
+      {isMainLesson && tab === 'speak' && !speakDone && speakMandatory && SpeechRecognitionAPI && (
         <div className="text-center mt-2 small text-muted">
           Phần phát âm bắt buộc cho nhóm Luyện thi (cần trung bình ≥{speakPassThreshold}%).
         </div>
       )}
-    </div>
-  );
-  };
-
-  return (
-    <div className="fade-in position-relative" ref={confettiRef}>
-      {!quizMode && lesson.format !== 'picture' && renderLessonTopChrome()}
-      <div className="pd-lesson-layout">
-        {petDock && (
-          <aside className="pd-lesson-stage-col">
-            {petDock}
-          </aside>
-        )}
-        <div className="pd-lesson-content-col">
-          {renderLessonBody()}
-        </div>
-      </div>
     </div>
   );
 }

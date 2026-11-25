@@ -27,11 +27,36 @@
   }
 
   .pd-lesson-stage-col {
-    flex: 0 0 264px;
-    width: 264px;
+    flex: 0 0 236px;
+    width: 236px;
     position: sticky;
     top: 14px;
     z-index: 5;
+  }
+
+  /* Chế độ thẻ đơn (Flashcard, Nghe câu, Nói theo, Quiz, PictureLesson, Practice):
+     gom cả cụm [Cowdi + Thẻ học] căn giữa trang sổ tay để không bị hở khoảng trống và không lệch 1 bên */
+  .pd-lesson-layout--centered {
+    max-width: 890px;
+    margin-inline: auto;
+    gap: 20px;
+  }
+
+  .pd-lesson-layout--centered .pd-lesson-stage-col {
+    flex: 0 0 244px;
+    width: 244px;
+  }
+
+  .pd-lesson-layout--flashcard {
+    max-width: 780px;
+    align-items: center;
+  }
+
+  .pd-lesson-layout--centered .pd-lesson-content-col > .card,
+  .pd-lesson-layout--centered .pd-lesson-content-col > div > .card,
+  .pd-lesson-layout--centered .pd-lesson-content-col .quiz-viewport-stage {
+    max-width: 100% !important;
+    margin-inline: 0 !important;
   }
 }
 
@@ -195,23 +220,24 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    height: 274px;
-    padding: 14px 12px 10px;
+    height: auto;
+    min-height: 224px;
+    padding: 12px 12px 8px;
     gap: 6px;
   }
 
   .pd-stage-grass,
   .pd-stage--compact .pd-stage-grass {
-    height: 54px;
+    height: 46px;
   }
 
   .pd-stage-speech-zone {
     flex: 0 0 auto;
     width: 100%;
-    min-height: 76px;
+    min-height: 52px;
     align-items: flex-end;
     justify-content: center;
-    padding-top: 14px;
+    padding-top: 12px;
   }
 
   .pd-stage-speech-zone .pd-speech {
@@ -221,20 +247,20 @@
   .pd-stage-avatar-wrap,
   .pd-stage--compact .pd-stage-avatar-wrap {
     flex: 0 0 auto;
-    width: 158px;
-    height: 156px;
+    width: 148px;
+    height: 144px;
   }
 
   .pd-stage-avatar,
   .pd-stage--compact .pd-stage-avatar {
-    width: 154px;
-    max-height: 154px;
+    width: 144px;
+    max-height: 142px;
   }
 
   .pd-stage-avatar--img,
   .pd-stage--compact .pd-stage-avatar--img {
-    width: 142px;
-    height: 142px;
+    width: 132px;
+    height: 132px;
   }
 
   .pd-stage-hint-pill {

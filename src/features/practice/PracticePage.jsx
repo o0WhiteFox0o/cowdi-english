@@ -2268,7 +2268,7 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="pd-lesson-layout">
+    <div className="pd-lesson-layout pd-lesson-layout--centered">
       {petDock && (
         <aside className="pd-lesson-stage-col">
           {petDock}
