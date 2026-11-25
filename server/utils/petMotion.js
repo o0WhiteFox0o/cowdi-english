@@ -26,7 +26,7 @@ export const STANDARD_PARTS = new Set([
 export const PART_NAME_RE = /^[a-z][a-zA-Z0-9_]{0,30}$/;
 export const HASHED_IMAGE_FILE_RE = /^[a-z][a-zA-Z0-9_]{0,30}-[0-9a-f]{8}\.(png|webp)$/;
 export const EMOJI_FILE_RE = /^[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)$/;
-export const EMOJI_URL_RE = /^\/api\/pet-motion\/assets\/emojis\/[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)$/;
+export const EMOJI_URL_RE = /^\/api\/pet-motion\/assets\/emojis\/[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)(\/raw)?$/;
 export const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -282,12 +282,24 @@ export function resolveSafeStoragePath(storageRoot, ...segments) {
   return target;
 }
 
+/**
+ * Tạo URL phục vụ ảnh động qua API với hậu tố `/raw` để đường dẫn KHÔNG kết thúc
+ * bằng `.png`/`.webp` — tránh bị rule regex ảnh tĩnh của Nginx chặn nhầm thành 404
+ * ngay cả khi cấu hình Nginx thiếu `^~` ở `location /api/`.
+ */
+export function buildAssetUrl(urlPrefix, relPath) {
+  if (typeof relPath !== 'string' || !relPath) return null;
+  const cleanPrefix = String(urlPrefix || '').replace(/\/+$/, '');
+  const cleanRel = relPath.replace(/^\/+/, '');
+  return `${cleanPrefix}/${cleanRel}/raw`;
+}
+
 export function buildImageUrls(imagesMap, urlPrefix) {
   const result = {};
   if (!imagesMap || typeof imagesMap !== 'object') return result;
   for (const [part, relPath] of Object.entries(imagesMap)) {
     if (typeof relPath === 'string' && relPath) {
-      result[part] = `${urlPrefix}/${relPath}`;
+      result[part] = buildAssetUrl(urlPrefix, relPath);
     }
   }
   return result;

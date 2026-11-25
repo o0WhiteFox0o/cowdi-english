@@ -80,10 +80,13 @@ function val(c, tracks, t) {
 
 function resolveAssetUrl(url, basePath) {
   if (!url) return '';
-  if (/^(https?:|blob:|data:)/.test(url)) return url;
-  if (!basePath) return url;
+  const safeUrl = /\/api\/(admin\/)?pet-motion\/assets\/.+\.(png|webp)$/i.test(url)
+    ? `${url}/raw`
+    : url;
+  if (/^(https?:|blob:|data:)/.test(safeUrl)) return safeUrl;
+  if (!basePath) return safeUrl;
   const cleanBase = basePath.replace(/\/+$/, '');
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  const cleanPath = safeUrl.startsWith('/') ? safeUrl : `/${safeUrl}`;
   return `${cleanBase}${cleanPath}`;
 }
 

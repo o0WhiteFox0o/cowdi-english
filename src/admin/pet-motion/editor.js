@@ -1032,7 +1032,7 @@ export function initEditor(rootEl, api, opts = {}) {
                 : `${
                     m && m.width
                       ? `<button type="button" class="pm-btn" style="min-height:30px;padding:2px 7px;font-size:0.76rem" data-edit="${n}" title="Vẽ / tẩy trực tiếp lên ảnh bộ phận">✏️ Sửa</button>`
-                      : ''
+                      : `<button type="button" class="pm-btn warn" style="min-height:30px;padding:2px 7px;font-size:0.75rem" data-from-pet="${n}" title="Lấy ảnh hiện có của pet đưa vào Studio để tự cắt / vẽ lại bộ phận này">✂️ Lấy ảnh pet</button>`
                   }<label class="pm-file-btn" style="min-height:30px;padding:2px 8px;font-size:0.76rem">Thay hình<input type="file" accept="image/png,image/webp" hidden data-f="${n}"></label>`
             }
             ${
@@ -1448,6 +1448,27 @@ export function initEditor(rootEl, api, opts = {}) {
     );
   }
 
+  function buildReferenceLayersFor(part) {
+    if (!state.rig || String(part).startsWith('eye')) return [];
+    const targetSlot = findSlot(part);
+    const targetOff = targetSlot?.off || [0, 0];
+    const targetSc = targetSlot?.sc || 1;
+    return [...(state.rig.slots || [])]
+      .sort((a, b) => a.z - b.z)
+      .filter((s) => s.img !== part && state.images[s.img]?.width)
+      .map((s) => {
+        const sOff = s.off || [0, 0];
+        const sSc = s.sc || 1;
+        return {
+          name: s.img,
+          img: state.images[s.img],
+          z: s.z,
+          off: [(sOff[0] - targetOff[0]) / targetSc, (sOff[1] - targetOff[1]) / targetSc],
+          sc: sSc / targetSc,
+        };
+      });
+  }
+
   const onPartsClick = (e) => {
     const zUpBtn = e.target.closest('[data-zup]');
     if (zUpBtn) {
@@ -1472,6 +1493,7 @@ export function initEditor(rootEl, api, opts = {}) {
           delete state.alphaCache[`draft_${part}`];
           renderParts();
           scheduleRigSave();
+          opts.onPartsChanged?.();
           toast(`Đã bỏ ${part} khỏi rig.`);
         }
       } else if ((state.rig.slots?.length || 0) > 1) {
@@ -1481,8 +1503,27 @@ export function initEditor(rootEl, api, opts = {}) {
         if (state.selPart === part) state.selPart = state.rig.slots[0]?.img || 'body';
         renderParts();
         scheduleRigSave();
+        opts.onPartsChanged?.();
         toast(`Đã bỏ bộ phận "${part}" khỏi rig.`);
       }
+      return;
+    }
+    const fromPetBtn = e.target.closest('[data-from-pet]');
+    if (fromPetBtn && !state.learnerPreview && state.rig) {
+      e.stopPropagation();
+      const part = fromPetBtn.dataset.fromPet;
+      if (!part) return;
+      state.selPart = part;
+      renderParts();
+      opts.onSuggestFromPet?.({
+        part,
+        partLabel: PART_LABELS[part] || part,
+        petLabel: state.petLabel,
+        stage: state.stage,
+        targetSize: state.rig?.size || null,
+        referenceLayers: buildReferenceLayersFor(part),
+        isExistingSlot: true,
+      });
       return;
     }
     const editBtn = e.target.closest('[data-edit]');
@@ -1493,32 +1534,13 @@ export function initEditor(rootEl, api, opts = {}) {
       if (!part || !img || !img.width) return;
       state.selPart = part;
       renderParts();
-      const targetSlot = findSlot(part);
-      const targetOff = targetSlot?.off || [0, 0];
-      const targetSc = targetSlot?.sc || 1;
-      const referenceLayers = part.startsWith('eye')
-        ? []
-        : [...(state.rig.slots || [])]
-            .sort((a, b) => a.z - b.z)
-            .filter((s) => s.img !== part && state.images[s.img]?.width)
-            .map((s) => {
-              const sOff = s.off || [0, 0];
-              const sSc = s.sc || 1;
-              return {
-                name: s.img,
-                img: state.images[s.img],
-                z: s.z,
-                off: [(sOff[0] - targetOff[0]) / targetSc, (sOff[1] - targetOff[1]) / targetSc],
-                sc: sSc / targetSc,
-              };
-            });
       opts.onEditPart?.({
         part,
         partLabel: PART_LABELS[part] || part,
         petLabel: state.petLabel,
         stage: state.stage,
         image: img,
-        referenceLayers,
+        referenceLayers: buildReferenceLayersFor(part),
       });
       return;
     }
@@ -1554,6 +1576,7 @@ export function initEditor(rootEl, api, opts = {}) {
       renderParts();
       notifySave('saved', { kind: 'part', at: new Date() });
       opts.onDataMutated?.({ kind: 'part', part, url: up.url, updatedAt: up.updatedAt });
+      opts.onPartsChanged?.();
       return true;
     } catch (err) {
       notifySave('error', { kind: 'part', message: err.message });
@@ -1775,6 +1798,43 @@ export function initEditor(rootEl, api, opts = {}) {
       renderParts();
       sizeCanvas();
       opts.onEmojiChange?.(getClip().emoji || null);
+      opts.onPartsChanged?.();
+    },
+
+    getMissingParts() {
+      const names = partNames();
+      return names
+        .filter((n) => !state.images[n]?.width)
+        .map((n) => ({ part: n, label: PART_LABELS[n] || n }));
+    },
+
+    hasPartSlot(partName) {
+      if (!state.rig) return false;
+      if (String(partName).startsWith('eye')) {
+        const idx = Number(String(partName).slice(3));
+        return Array.isArray(state.rig.eyes) && idx >= 0 && idx < state.rig.eyes.length;
+      }
+      return Boolean((state.rig.slots || []).find((s) => s.img === partName));
+    },
+
+    getLoadedPartSources() {
+      const out = [];
+      for (const n of partNames()) {
+        const img = state.images[n];
+        if (img?.width) {
+          out.push({
+            id: `rig-part-${n}`,
+            label: `Lớp đang có trong rig: ${PART_LABELS[n] || n} (${n} · ${img.width}×${img.height}px)`,
+            shortLabel: `Rig ${n}`,
+            img,
+          });
+        }
+      }
+      return out;
+    },
+
+    buildReferenceLayersFor(partName) {
+      return buildReferenceLayersFor(partName);
     },
 
     replacePartFile(part, file) {
@@ -1837,6 +1897,7 @@ export function initEditor(rootEl, api, opts = {}) {
         await flushRigSave();
         toast(`Đã thêm bộ phận "${partName}" vào rig.`);
         opts.onDataMutated?.({ kind: 'part', part: partName, url: up.url, updatedAt: state.rigUpdatedAt });
+        opts.onPartsChanged?.();
         return true;
       } catch (err) {
         notifySave('error', { kind: 'part', message: err.message });

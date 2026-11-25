@@ -12,6 +12,7 @@ import {
   EMOJI_FILE_RE,
   HASHED_IMAGE_FILE_RE,
   MAX_IMAGE_BYTES,
+  buildAssetUrl,
   buildImageUrls,
   detectImageType,
   isValidPetIdFormat,
@@ -132,9 +133,11 @@ export function createPetMotionAdminRouter({
     return isKnownPetId(match[1]);
   }
 
-  // ── GET /api/admin/pet-motion/assets/draft/:petId/:stage/:file ──
-  // Phục vụ ảnh nháp CHỈ cho admin (chặn mọi user chưa đăng nhập / user thường)
-  router.get('/assets/draft/:petId/:stage/:file', async (req, res) => {
+  // ── GET /api/admin/pet-motion/assets/draft/:petId/:stage/:file(/raw) ──
+  // Phục vụ ảnh nháp CHỈ cho admin (hỗ trợ hậu tố /raw để không bị Nginx regex .(png|webp)$ chặn 404)
+  router.get(
+    ['/assets/draft/:petId/:stage/:file', '/assets/draft/:petId/:stage/:file/raw'],
+    async (req, res) => {
     const { petId, stage, file } = req.params;
     const stageNum = parseStage(stage);
     if (!(await isKnownPetId(petId)) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {
@@ -176,7 +179,7 @@ export function createPetMotionAdminRouter({
         files.push({
           id: e.name,
           name: e.name.replace(/-[0-9a-f]{8}\.(png|webp)$/, ''),
-          url: `/api/pet-motion/assets/emojis/${e.name}`,
+          url: buildAssetUrl('/api/pet-motion/assets', `emojis/${e.name}`),
           mtime: st.mtimeMs,
         });
       }
@@ -237,7 +240,7 @@ export function createPetMotionAdminRouter({
         emoji: {
           id: fileName,
           name: rawName,
-          url: `/api/pet-motion/assets/emojis/${fileName}`,
+          url: buildAssetUrl('/api/pet-motion/assets', `emojis/${fileName}`),
         },
       });
     } catch (err) {
@@ -310,7 +313,7 @@ export function createPetMotionAdminRouter({
             rigStatus: hasRig ? rig.status : 'none',
             approvedClips: approvalMap.get(key) || 0,
             totalClips: TOTAL_CLIPS,
-            avatarUrl: rig?.avatar_path ? `/api/pet-motion/assets/${rig.avatar_path}` : null,
+            avatarUrl: rig?.avatar_path ? buildAssetUrl('/api/pet-motion/assets', rig.avatar_path) : null,
             updatedAt: toIsoTimestamp(rig?.updated_at),
             approvedAt: toIsoTimestamp(rig?.approved_at),
           };
@@ -571,7 +574,7 @@ export function createPetMotionAdminRouter({
         ok: true,
         petStage,
         avatarPath: relPath,
-        avatarUrl: `/api/pet-motion/assets/${relPath}`,
+        avatarUrl: buildAssetUrl('/api/pet-motion/assets', relPath),
       });
     } catch (err) {
       console.error('POST /api/admin/pet-motion/:petId/:stage/avatar error:', err);
@@ -1090,7 +1093,7 @@ export function createPetMotionAdminRouter({
         petStage,
         part,
         path: relPath,
-        url: `/api/admin/pet-motion/assets/${relPath}`,
+        url: buildAssetUrl('/api/admin/pet-motion/assets', relPath),
         bytes: req.file.buffer.length,
         mime: detected.mime,
         updatedAt: toIsoTimestamp(saved?.updated_at),

@@ -6,6 +6,7 @@ import { DEFAULT_STORAGE_DIR } from './petMotionAdmin.js';
 import {
   EMOJI_FILE_RE,
   HASHED_IMAGE_FILE_RE,
+  buildAssetUrl,
   createMotionCache,
   isValidPetIdFormat,
   parseJsonCol,
@@ -28,9 +29,9 @@ export function createPetMotionPublicRouter({
 } = {}) {
   const router = express.Router();
 
-  // ── GET /api/pet-motion/assets/emojis/:file ────────────────────
-  // Phục vụ ảnh emoji tự thiết kế công khai (immutable 1 năm)
-  router.get('/assets/emojis/:file', async (req, res) => {
+  // ── GET /api/pet-motion/assets/emojis/:file(/raw) ──────────────
+  // Phục vụ ảnh emoji tự thiết kế công khai (immutable 1 năm; hỗ trợ /raw tránh Nginx chặn 404)
+  router.get(['/assets/emojis/:file', '/assets/emojis/:file/raw'], async (req, res) => {
     const { file } = req.params;
     if (!EMOJI_FILE_RE.test(file)) {
       return res.status(400).json({ error: 'Đường dẫn emoji không hợp lệ.' });
@@ -85,7 +86,7 @@ export function createPetMotionPublicRouter({
       const avatars = {};
       for (const r of avatarRows) {
         if (r.pet_stage && r.avatar_path) {
-          avatars[r.pet_stage] = `/api/pet-motion/assets/${r.avatar_path}`;
+          avatars[r.pet_stage] = buildAssetUrl('/api/pet-motion/assets', r.avatar_path);
         }
       }
 
@@ -110,9 +111,9 @@ export function createPetMotionPublicRouter({
     }
   });
 
-  // ── GET /api/pet-motion/assets/avatars/:petId/:file ────────────
-  // Phục vụ ảnh avatar tĩnh đã bổ sung từ trang quản trị (immutable 1 năm)
-  router.get('/assets/avatars/:petId/:file', async (req, res) => {
+  // ── GET /api/pet-motion/assets/avatars/:petId/:file(/raw) ──────
+  // Phục vụ ảnh avatar tĩnh đã bổ sung từ trang quản trị (immutable 1 năm; hỗ trợ /raw tránh Nginx chặn 404)
+  router.get(['/assets/avatars/:petId/:file', '/assets/avatars/:petId/:file/raw'], async (req, res) => {
     const { petId, file } = req.params;
     if (!(validatePetId(petId) || isValidPetIdFormat(petId)) || !/^c[1-5]-[0-9a-f]{8}\.(png|webp)$/.test(file)) {
       return res.status(400).json({ error: 'Đường dẫn ảnh không hợp lệ.' });
@@ -136,10 +137,13 @@ export function createPetMotionPublicRouter({
     }
   });
 
-  // ── GET /api/pet-motion/assets/published/:petId/:stage/:file ───
+  // ── GET /api/pet-motion/assets/published/:petId/:stage/:file(/raw) ─
   // Phục vụ ảnh đã xuất bản công khai với Cache-Control immutable (tên file chứa sha1 hash).
+  // Hỗ trợ hậu tố /raw để không bị rule regex .(png|webp)$ của Nginx chặn nhầm.
   // TUYỆT ĐỐI không phục vụ thư mục draft/.
-  router.get('/assets/published/:petId/:stage/:file', async (req, res) => {
+  router.get(
+    ['/assets/published/:petId/:stage/:file', '/assets/published/:petId/:stage/:file/raw'],
+    async (req, res) => {
     const { petId, stage, file } = req.params;
     const stageNum = parseStage(stage);
     if (!(validatePetId(petId) || isValidPetIdFormat(petId)) || !stageNum || !HASHED_IMAGE_FILE_RE.test(file)) {

@@ -5,6 +5,18 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export const PET_MOTION_API_BASE = API_BASE;
 
+/**
+ * Chuẩn hoá URL ảnh động của API thêm hậu tố `/raw` để đường dẫn không kết thúc bằng
+ * `.png` / `.webp` — tránh bị rule regex ảnh tĩnh của Nginx chặn nhầm thành 404.
+ */
+export function normalizeApiAssetUrl(url) {
+  if (typeof url !== 'string' || !url) return '';
+  if (/\/api\/(admin\/)?pet-motion\/assets\/.+\.(png|webp)$/i.test(url)) {
+    return `${url}/raw`;
+  }
+  return url;
+}
+
 export function createPetMotionApi(token) {
   const authHeaders = () => (token ? { Authorization: `Bearer ${token}` } : {});
 
@@ -136,7 +148,8 @@ export function createPetMotionApi(token) {
      * Trả về { img, objectUrl } — caller cần revoke objectUrl khi dọn dẹp.
      */
     async loadImage(url, { authenticated = true } = {}) {
-      const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+      const safeUrl = normalizeApiAssetUrl(url);
+      const fullUrl = safeUrl.startsWith('http') ? safeUrl : `${API_BASE}${safeUrl}`;
       if (!authenticated) {
         return new Promise((resolve, reject) => {
           const img = new Image();
@@ -182,6 +195,128 @@ export function getStageImageSpec(stage) {
 export async function readImageDimensions(file) {
   const img = await readImageFromFile(file);
   return { width: img.width, height: img.height };
+}
+
+export function createBlankStudioCanvas(width = 512, height = 512) {
+  const c = document.createElement('canvas');
+  c.width = Math.max(16, Math.round(width));
+  c.height = Math.max(16, Math.round(height));
+  return c;
+}
+
+/**
+ * Tải bất kỳ nguồn ảnh pet hiện có (ảnh tĩnh /assets/..., ảnh avatar/draft qua API,
+ * ảnh bộ phận đang mở hoặc khung trống) sang HTMLCanvasElement sạch (không bị taint CORS)
+ * để mở trong PartPaintModal cho họa sĩ tự cắt / tự vẽ lại.
+ */
+export async function loadAnyPetSourceToCanvas(sourceItem, api = null, targetSize = null) {
+  if (!sourceItem || sourceItem.kind === 'blank') {
+    const w = targetSize?.[0] || sourceItem?.width || 512;
+    const h = targetSize?.[1] || sourceItem?.height || 512;
+    return createBlankStudioCanvas(w, h);
+  }
+
+  let rawImg = sourceItem.img || null;
+  let tempObjUrl = null;
+
+  try {
+    if (!rawImg && sourceItem.file instanceof Blob) {
+      rawImg = await readImageFromFile(sourceItem.file);
+    } else if (!rawImg && sourceItem.url) {
+      const safeUrl = normalizeApiAssetUrl(sourceItem.url);
+      if (/\/api\/admin\/pet-motion\/assets\//.test(safeUrl) && api?.loadImage) {
+        const loaded = await api.loadImage(safeUrl, { authenticated: true });
+        rawImg = loaded.img;
+        tempObjUrl = loaded.objectUrl;
+      } else {
+        const fetchUrl = safeUrl.startsWith('http')
+          ? safeUrl
+          : safeUrl.startsWith('/api/')
+          ? `${API_BASE}${safeUrl}`
+          : safeUrl;
+        const res = await fetch(fetchUrl);
+        if (!res.ok) throw new Error(`Không tải được ảnh nguồn (${res.status})`);
+        const blob = await res.blob();
+        tempObjUrl = URL.createObjectURL(blob);
+        rawImg = await new Promise((resolve, reject) => {
+          const im = new Image();
+          im.onload = () => resolve(im);
+          im.onerror = () => reject(new Error('Không giải mã được ảnh nguồn.'));
+          im.src = tempObjUrl;
+        });
+      }
+    }
+
+    if (!rawImg) {
+      return createBlankStudioCanvas(targetSize?.[0] || 512, targetSize?.[1] || 512);
+    }
+
+    const srcW = rawImg.naturalWidth || rawImg.width || 512;
+    const srcH = rawImg.naturalHeight || rawImg.height || 512;
+
+    let outW = srcW;
+    let outH = srcH;
+    let dx = 0;
+    let dy = 0;
+    let dw = srcW;
+    let dh = srcH;
+
+    if (Array.isArray(targetSize) && targetSize[0] > 0 && targetSize[1] > 0) {
+      outW = Math.round(targetSize[0]);
+      outH = Math.round(targetSize[1]);
+      const sc = Math.min(outW / srcW, outH / srcH);
+      dw = Math.max(1, Math.round(srcW * sc));
+      dh = Math.max(1, Math.round(srcH * sc));
+      dx = Math.round((outW - dw) / 2);
+      dy = Math.round((outH - dh) / 2);
+    } else if (Math.max(srcW, srcH) > 800) {
+      const sc = 640 / Math.max(srcW, srcH);
+      outW = Math.max(1, Math.round(srcW * sc));
+      outH = Math.max(1, Math.round(srcH * sc));
+      dw = outW;
+      dh = outH;
+    }
+
+    const canvas = createBlankStudioCanvas(outW, outH);
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(rawImg, dx, dy, dw, dh);
+    return canvas;
+  } finally {
+    if (tempObjUrl) URL.revokeObjectURL(tempObjUrl);
+  }
+}
+
+/**
+ * Chuyển một nguồn ảnh hiện có của pet sang đối tượng File (PNG/WebP) để nạp vào bảng dựng Rig.
+ */
+export async function petSourceToFile(sourceItem, fileName = 'body.png', api = null, maxEdge = 640) {
+  const targetDim = maxEdge || 512;
+  const canvas = await loadAnyPetSourceToCanvas(
+    sourceItem,
+    api,
+    sourceItem?.kind === 'blank' ? [targetDim, targetDim] : null
+  );
+  let outCanvas = canvas;
+  const longest = Math.max(canvas.width, canvas.height);
+  if (maxEdge && longest > maxEdge) {
+    const sc = maxEdge / longest;
+    outCanvas = createBlankStudioCanvas(Math.round(canvas.width * sc), Math.round(canvas.height * sc));
+    const ctx = outCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, outCanvas.width, outCanvas.height);
+  }
+  const blob = await new Promise((resolve, reject) => {
+    outCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Không xuất được file ảnh.'))), 'image/png');
+  });
+  const cleanBase = String(fileName || 'part').replace(/\.[^.]+$/, '');
+  return {
+    file: new File([blob], `${cleanBase}.png`, { type: 'image/png' }),
+    width: outCanvas.width,
+    height: outCanvas.height,
+  };
 }
 
 /**

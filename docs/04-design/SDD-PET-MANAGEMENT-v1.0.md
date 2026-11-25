@@ -3,7 +3,7 @@
 | Mục | Giá trị |
 |---|---|
 | **Mã tài liệu** | `SDD-PET-MANAGEMENT` |
-| **Phiên bản** | `1.0` · **Ngày ban hành:** `2026-11-24` |
+| **Phiên bản** | `1.1` · **Ngày cập nhật:** `2026-11-25` |
 | **Trạng thái** | `Approved` |
 | **Chuẩn tham chiếu** | IEEE 1016-2009 · Quy ước tài liệu: [DOCP-COWDI-v1.1](../00-general/DOCP-COWDI-v1.1.md) |
 | **Tài liệu liên quan** | [PET-MOTION.md](../PET-MOTION.md) · [HUONG-DAN-CHINH-DONG-TAC-PET.md](../HUONG-DAN-CHINH-DONG-TAC-PET.md) · [STD-ART-STYLE-v1.1.md](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [CHK-ART-UI-AUDIT.md](../05-implementation/art/CHK-ART-UI-AUDIT.md) |
@@ -13,6 +13,7 @@
 | Phiên bản | Ngày | Nội dung | Người sửa |
 |---|---|---|---|
 | 1.0 | 2026-11-24 | Thiết kế & triển khai nâng cấp `/admin/pet-motion` thành Trung tâm Quản lý Pet (thêm/sửa/xoá/upload pet mới) và chuẩn hoá UI/UX gọn, popup tính năng phụ, Zero-Scroll Quiz | Sonny + AI |
+| 1.1 | 2026-11-25 | Bổ sung hậu tố `/raw` cho toàn bộ URL ảnh động API chống lỗi Nginx `404`, và bổ sung luồng đề xuất lấy ảnh hiện có của Pet để họa sĩ tự cắt bộ phận / làm phôi vẽ lại trực tiếp trong `PartPaintModal` | Sonny + AI |
 
 ---
 
@@ -77,6 +78,14 @@ Script chạy migration: `node scripts/run-pet-catalog-migration.js`.
 ### 3.3. Giao diện Quản trị (`/admin/pet-motion`)
 - Component mới: **[src/admin/pet-motion/PetFormModal.jsx](../../src/admin/pet-motion/PetFormModal.jsx)** — Popup tạo mới / chỉnh sửa thông tin Pet + khu vực chọn upload trực tiếp 5 ảnh `C1–C5` (có tuỳ chọn tự nén WebP chuẩn `512/640 px` và nhắc quy chuẩn [STD-ART-STYLE-v1.1.md](../05-implementation/art/STD-ART-STYLE-v1.1.md)).
 - Trang **[src/admin/pet-motion/PetMotionPage.jsx](../../src/admin/pet-motion/PetMotionPage.jsx)**: nâng cấp tiêu đề thành **"Quản lý Pet · Rig & Động tác"**, bổ sung nút **`+ Thêm Pet mới`**, nút **`✏️ Sửa`** trên từng pet, huy hiệu `Mới` và nút **`🗑️ Xoá`** (có modal xác nhận) cho pet tự thêm; toàn bộ bộ chọn Rig/Motion và `StudyPreviewTab` tự động nhận danh sách pet động.
+
+### 3.4. Đề xuất lấy ảnh hiện có của Pet để tự cắt / vẽ lại & Cơ chế `/raw` chống lỗi Nginx 404
+1. **Hậu tố `/raw` cho URL ảnh động (`server/utils/petMotion.js`, `petMotionAdmin.js`, `petMotionPublic.js`, `api.js`, `PetRig.js`):**
+   - Mọi URL phục vụ ảnh động (`draft`, `published`, `avatars`, `emojis`) trả về dạng `/api/.../<file>.(png|webp)/raw` (vẫn mở song song route cũ không có `/raw` để tương thích ngược).
+   - Nhờ không kết thúc bằng `.png`/`.webp`, request không bao giờ bị rule regex file tĩnh `location ~* \.(webp|png)$` trên Nginx chặn nhầm thành `404` kể cả khi vhost thiếu `^~`.
+2. **Luồng gợi ý ảnh sẵn có cho họa sĩ (`collectPetSuggestedSources`, `loadAnyPetSourceToCanvas`, `PartPaintModal.jsx`):**
+   - Khi cấp hoặc bộ phận chưa có ảnh, hệ thống tự động đề xuất theo thứ tự ưu tiên: (a) lớp bộ phận đã tải trong rig hiện tại, (b) ảnh hiện có của chính cấp đang mở, (c) ảnh các cấp khác `C1–C5` cùng loài pet, (d) phôi tham chiếu cùng nhóm kỹ năng (nếu pet hoàn toàn chưa có ảnh ở cả 5 cấp), và (e) khung vẽ trống chuẩn `512×512` / `640×640 px`.
+   - Tích hợp trên 4 điểm chạm: thẻ cấp thiếu ảnh ở Tổng quan (`✂️ Lấy ảnh pet` / `🎨 Tự vẽ / Mẫu`), `RigCreatorCard` khi chưa có rig, dòng bộ phận thiếu ảnh & hộp tách bộ phận ở Tab `🦴 Bộ phận`, và cột phải của `PartPaintModal` (`✂️ Giữ vùng chọn`, `📥 Chèn để cắt`, `👻 Làm phôi vẽ lại`).
 
 ---
 

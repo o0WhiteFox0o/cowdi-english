@@ -197,13 +197,14 @@ export const MONK_IMAGES = {
 };
 
 // ── Mushroom (Nấm rơm) Image Paths ───────────────────────────────────────────
-const MUSHROOM_IMG = '/assets/images/pets/NamRom';
+// Chờ bổ sung file vào /assets/images/pets/NamRom/NamRom_{Egg..Legendary}.webp (ART-03)
+// hoặc tải lên từ trang Quản trị Pet (/api/pet-motion/catalog sẽ tự gán ảnh động).
 export const MUSHROOM_IMAGES = {
-  egg:       `${MUSHROOM_IMG}/NamRom_Egg.webp`,
-  baby:      `${MUSHROOM_IMG}/NamRom_Baby.webp`,
-  junior:    `${MUSHROOM_IMG}/NamRom_Junior.webp`,
-  super:     `${MUSHROOM_IMG}/NamRom_Super.webp`,
-  legendary: `${MUSHROOM_IMG}/NamRom_Legendary.webp`,
+  egg:       null,
+  baby:      null,
+  junior:    null,
+  super:     null,
+  legendary: null,
 };
 
 // ── Radish (Củ cải trắng) Image Paths ────────────────────────────────────────
@@ -217,13 +218,14 @@ export const RADISH_IMAGES = {
 };
 
 // ── Bun (Bánh bao) Image Paths ───────────────────────────────────────────────
-const BUN_IMG = '/assets/images/pets/BanhBao';
+// Chờ bổ sung file vào /assets/images/pets/BanhBao/BanhBao_{Egg..Legendary}.webp (ART-02)
+// hoặc tải lên từ trang Quản trị Pet (/api/pet-motion/catalog sẽ tự gán ảnh động).
 export const BUN_IMAGES = {
-  egg:       `${BUN_IMG}/BanhBao_Egg.webp`,
-  baby:      `${BUN_IMG}/BanhBao_Baby.webp`,
-  junior:    `${BUN_IMG}/BanhBao_Junior.webp`,
-  super:     `${BUN_IMG}/BanhBao_Super.webp`,
-  legendary: `${BUN_IMG}/BanhBao_Legendary.webp`,
+  egg:       null,
+  baby:      null,
+  junior:    null,
+  super:     null,
+  legendary: null,
 };
 
 // ── Bamboo Spirit (Linh trúc) Image Paths ────────────────────────────────────

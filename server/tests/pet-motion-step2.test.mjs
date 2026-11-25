@@ -378,7 +378,13 @@ describe('Bước 2 — API admin, lưu trữ ảnh & quy tắc xuất bản pet
     assert.equal(rUp.status, 200);
     const up = await rUp.json();
     assert.match(up.path, /^draft\/bamboo\/c3\/head-[0-9a-f]{8}\.png$/);
-    assert.equal(up.url, `/api/admin/pet-motion/assets/${up.path}`);
+    assert.equal(up.url, `/api/admin/pet-motion/assets/${up.path}/raw`);
+
+    // Hỗ trợ tương thích ngược cả URL cũ không có hậu tố /raw
+    const rLegacyAdmin = await fetch(`${baseUrl}/api/admin/pet-motion/assets/${up.path}`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    assert.equal(rLegacyAdmin.status, 200);
 
     // Upload thêm body dạng WebP
     const formBody = new FormData();
@@ -663,11 +669,13 @@ describe('Bước 2 — API admin, lưu trữ ảnh & quy tắc xuất bản pet
     assert.equal(rOk.status, 200);
     const okJson = await rOk.json();
     assert.ok(okJson.emoji?.id);
-    assert.match(okJson.emoji.url, /^\/api\/pet-motion\/assets\/emojis\/.+\.png$/);
+    assert.match(okJson.emoji.url, /^\/api\/pet-motion\/assets\/emojis\/.+\.png\/raw$/);
 
     const rAsset = await fetch(`${baseUrl}${okJson.emoji.url}`);
     assert.equal(rAsset.status, 200);
     assert.equal(rAsset.headers.get('content-type'), 'image/png');
+    const rAssetLegacy = await fetch(`${baseUrl}${okJson.emoji.url.replace(/\/raw$/, '')}`);
+    assert.equal(rAssetLegacy.status, 200);
 
     const rDel = await fetch(`${baseUrl}/api/admin/pet-motion/emojis/${encodeURIComponent(okJson.emoji.id)}`, {
       method: 'DELETE',

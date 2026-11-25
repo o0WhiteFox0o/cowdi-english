@@ -1,7 +1,7 @@
 # LOG-PROGRESS — Bảng điều khiển Tiến trình Dự án Cowdi English
 
 > **Loại tài liệu:** Tài liệu sống (Living Document) · **Chuẩn tham chiếu:** IEEE 16326:2019 (Project Status Reporting) · **Quy ước:** [DOCP-COWDI-v1.1](../00-general/DOCP-COWDI-v1.1.md)
-> **Cập nhật lần cuối:** 2026-11-24 · **Phiên bản đang chạy Production:** `v2.1` (`main` @ `e3f3c36`) · **Người phụ trách:** Product Owner (Sonny) & Đội phát triển
+> **Cập nhật lần cuối:** 2026-11-25 · **Phiên bản đang chạy Production:** `v2.1` (`main`) · **Người phụ trách:** Product Owner (Sonny) & Đội phát triển
 
 ---
 
@@ -24,13 +24,13 @@
 |---|---|---|---|---|---|
 | WS-1 | **Kinh tế & Chiến đấu v2** (GĐ0 → GĐ9) | [TASK.md](../../TASK.md) · [SDD-v2.1](../04-design/SDD-ECONOMY-BATTLE-v2.1.md) | 🟡 GĐ3/9 xong | **40% (GĐ0–3 🚀)** | Chốt giá đồ Thường/Hiếm → mở nhánh `feat/cosmetics` (GĐ4) |
 | WS-2 | **Hệ thống Chỉnh động tác & Rig Pet** (`/admin/pet-motion`) | [PET-MOTION](../PET-MOTION.md) · [Hướng dẫn](../HUONG-DAN-CHINH-DONG-TAC-PET.md) | 🚀 Hoàn thành | **100%** | Duyệt dần rig & động tác cho 23 loài pet trên production |
-| WS-3 | **Hạ tầng, MySQL 5.6 & Deploy Production** | [GDE-DEPLOY-PRODUCTION v1.0](../07-deployment-operations/GDE-DEPLOY-PRODUCTION-v1.0.md) | 🚀 Ổn định | **100%** | Thiết lập lịch backup tự động `server/storage/` + DB |
+| WS-3 | **Hạ tầng, MySQL 5.6 & Deploy Production** | [GDE-DEPLOY-PRODUCTION v1.1](../07-deployment-operations/GDE-DEPLOY-PRODUCTION-v1.0.md) | 🚀 Ổn định | **100%** | Thiết lập lịch backup tự động `server/storage/` + DB |
 | WS-4 | **Chuẩn hoá Quản trị Dự án & Tài liệu IEEE** | [DOCP v1.1](../00-general/DOCP-COWDI-v1.1.md) · [SCMP v1.0](SCMP-COWDI-v1.0.md) · [STP v1.0](../06-verification-validation/STP-COWDI-v1.0.md) | ✅ Hoàn thành | **100%** | Duy trì cập nhật RTM, CR, Release Notes cho từng GĐ |
 | WS-5 | **Lộ trình 3 Nhóm & Chuẩn hoá Nội dung v2** | [SPMP v1.0](SPMP-UPGRADE-CONTENT-LEARNING-GROUPS-v1.0.md) · [SRS 3 Cấp](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) · [SDD 3 Nhóm v2.0](../04-design/SDD-LEARNING-GROUPS-v2.0.md) · [STD v1.0](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 🟡 Xong 100% `int-u1..u10` + S1–S3 + IELTS R1 | **54/221 bài đạt chuẩn v2** | Media Starter S1–S3 (`G10`) + UAT · Mở rộng IELTS/TOEIC/B1/B2 v2 · `feat/pron-assessment` |
 | WS-6 | **Chuẩn Mỹ thuật v1.1, Thay thế Hình ảnh & Khung UI/UX** | [STD-ART-STYLE v1.1](../05-implementation/art/STD-ART-STYLE-v1.1.md) · [GDE-ART-WORKFLOW](../05-implementation/art/GDE-ART-WORKFLOW-v1.1.md) · [CHK-ART-UI-AUDIT](../05-implementation/art/CHK-ART-UI-AUDIT.md) · [REG-UI-ICONS](../05-implementation/REG-UI-ICONS.md) | 🟡 Khung UI/UX đã sửa; chờ ảnh `ART-01..08` | **Chuẩn + UI frame xong** | Bổ sung 2 ảnh 404 Từ vựng + 10 ảnh Bánh Bao/Nấm Rơm + sửa 3 sprite FAIL QC + 34 Icon UI Đợt 1 |
 
-### Chỉ số sức khoẻ kỹ thuật hiện tại (2026-11-24)
-- **Automated Tests (`npm test`)**: **110 / 110 PASS** (13 suites + top-level tests: Kinh tế v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm, `ExamReading` U8 & Server Wallet/Guard, Pet Motion API & RBAC, PetRig Runtime & Study Preview 5.8).
+### Chỉ số sức khoẻ kỹ thuật hiện tại (2026-11-25)
+- **Automated Tests (`npm test`)**: **126 / 126 PASS** (14 suites: Kinh tế v2, Cosmetics v2, Battle Engine, Streak/Shop v2, Wallet/Coins migration, Lesson Schema v2, Lộ trình 3 nhóm, `ExamReading` U8 & Server Wallet/Guard, Quản lý Pet `pet_catalog`, Pet Motion API/RBAC `/raw` & PetRig Runtime / Study Preview 5.8).
 - **Build Production (`npm run build:prod`)**: PASS · `prebuild` tự động sinh `lesson-ids.json` / `units.json` (0 bài mồ côi) và chạy `validate-lessons.mjs` (0 lỗi) · `check-lesson-ui-compat.mjs` đạt **100% ✓** trên cả 3 bài golden.
 - **Nội dung & Dữ liệu**: `221` bài học (**54 bài đạt chuẩn v2, 0 cảnh báo**: `12` bài Starter S1–S3 + **39/39 bài trọn bộ lộ trình Trung bình `int-u1..u10`** + `3` bài IELTS Academic Reading v2; còn `167` bài Advanced/Exam chờ cuốn chiếu, **0 lỗi cấu trúc**) · `54` unit duy nhất (0 bài mồ côi) · `23` loài pet × `5` cấp (`115` pet-cấp) · `34` clip động tác.
 
@@ -81,10 +81,11 @@
 | RK-005 | Vận hành | **MySQL Production phiên bản cũ (< 5.6.5)**: không hỗ trợ cột `JSON`, hàm `JSON_EXTRACT`, và tối đa 1 cột `TIMESTAMP` có `CURRENT_TIMESTAMP` | **Cao** | **Quy chuẩn bắt buộc trong [SCMP v1.0](SCMP-COWDI-v1.0.md)**: mọi migration mới chỉ dùng `LONGTEXT`, tối đa 1 `TIMESTAMP` auto, không dùng `USE <db>;`, parse JSON bằng Node | ✅ Đã kiểm soát (`a8c9860`, `d57f593`, `e3f3c36`) |
 | RK-006 | Vận hành | Thư mục ảnh upload của admin (`server/storage/pets/`) nằm trên đĩa server, không nằm trong Git | **Cao** | Đã loại trừ khỏi `deploy.zip` để tránh ghi đè; **cần bật cron sao lưu định kỳ hàng ngày** trên aaPanel cùng DB | 🟡 Cần cấu hình cron |
 | RK-007 | Lỗi | `PUT /api/progress` trả `{ grantedGem: 0, grantedStone: 0 }` thay vì ví chuẩn khi user mới chưa xong bài nào → crash `<BookShell>` | **Nghiêm trọng (P0)** | Đã sửa triệt để cả backend & frontend (`wallet.js`, `api.js`, `useUser.jsx`, `BookShell.jsx`) | ✅ Đã đóng (`f8baa29`, 2026-11-24) |
-| RK-008 | Hạ tầng | `deploy.ps1` chưa copy thư mục `scripts/` (`run-v2-*.js`, `scripts/package.json`) | Thấp | Cần bổ sung copy `scripts/` vào `deploy.ps1` để lần đóng gói trên Windows đồng bộ với Mac | 🟡 Mở |
+| RK-008 | Hạ tầng | `deploy.ps1` chưa copy thư mục `scripts/` (`run-v2-*.js`, `scripts/package.json`) và `Compress-Archive` trên Windows PS 5.1 tạo đường dẫn `\` trong zip | Trung bình | Đã nâng cấp `deploy.ps1` dùng `.NET ZipArchive` chuẩn POSIX `/`, copy đủ `scripts/`, loại bỏ `server/tests/` và tự kiểm định an toàn gói zip | ✅ Đã đóng (2026-11-25) |
 | RK-009 | Lỗi | Flashcard trong `LessonDetailPage.jsx` gọi `translateEnToVi(example)` chưa định nghĩa/import → lật thẻ ném lỗi, không hiện dịch | Trung bình | Đã xoá `translateEnToVi` và hiển thị `exampleVi` (`U1`) trên `feat/learning-groups` | ✅ Đã đóng (`455ebf7`, 2026-11-24) |
 | RK-010 | Dữ liệu | 2 bài cũ lỗi cấu trúc validator bắt được: `ielts-pre-grammar` trùng từ `"Whose"`, `ielts-pre-writing` `quiz[4]` trùng lựa chọn `"paragraph"` | Thấp | Đã sửa cả 2 bài và gắn `validate-lessons.mjs` vào `prebuild` | ✅ Đã đóng (`fa41934`, 2026-11-24) |
 | RK-011 | Lỗi | `buildPassage()` trong `src/data/lessons/reading.js` không spread `...r` nên xoá sạch `paragraphs`, `glossary`, `paraphrasePairs`, `examQuestions`, `timeLimitMin` của bài v2 | **Cao (P0 với v2)** | Đã vá `return { ...r, ... }` + thêm test hồi quy | ✅ Đã đóng (`fa41934`, 2026-11-24) |
+| RK-012 | Lỗi | Trên Nginx thiếu `^~` ở `location /api`, rule regex `\.(webp\|png)$` chặn nhầm URL ảnh động `/api/.../assets/*` gây `404` (`Lỗi lưu: Không tải được ảnh (404)`); đồng thời `BanhBao`/`NamRom` chưa có file tĩnh gây 20 lỗi `404` Console | **Cao (P0 Admin Rig)** | Thêm hậu tố `/raw` cho toàn bộ API ảnh động (giữ route cũ tương thích ngược), đồng bộ `nginx-spa.conf`, và gán `null` tạm cho ảnh tĩnh chưa có file của `BanhBao`/`NamRom` | ✅ Đã đóng (2026-11-25) |
 
 ---
 
@@ -92,6 +93,7 @@
 
 | Ngày | Mảng | Nội dung chính | Commit / Tag | Người thực hiện |
 |---|---|---|---|---|
+| **2026-11-25** | Pet Motion, Studio Cắt/Vẽ & Deploy Windows | Sửa triệt để lỗi `404` tải ảnh động qua API bằng hậu tố `/raw` (miễn nhiễm cấu hình Nginx thiếu `^~`, đồng bộ Block 3 `nginx-spa.conf`) và xoá 20 lỗi `404` Console của `BanhBao`/`NamRom`; bổ sung luồng **đề xuất lấy ảnh hiện có của Pet để họa sĩ tự cắt / tự vẽ lại** trên cả 4 điểm chạm (thẻ Tổng quan thiếu ảnh, Tạo Rig mới, Tab Bộ phận thiếu ảnh & Studio `PartPaintModal` với `✂️ Giữ vùng chọn`, `📥 Chèn để cắt`, `👻 Làm phôi vẽ lại`); nâng cấp `deploy.ps1` xuất `deploy.zip` chuẩn POSIX `/` kèm `scripts/` (`126/126` test PASS) | — | Sonny + AI |
 | **2026-11-24** | UI/UX Zero-Scroll & Quản lý Pet | Hạ tỷ lệ chữ toàn web (`24px→17px`), gom mục ít dùng vào Popup (`BookShell` & `LessonDetailPage`), gắn `.quiz-sticky-action-bar` không cần cuộn chuột trên toàn bộ màn trả lời câu hỏi; nâng cấp `/admin/pet-motion` thành **Quản lý Pet** (`pet_catalog` + CRUD + upload 5 ảnh + sync `/api/pet-motion/catalog`), thêm 5 test `pet-management.test.mjs` và đặc tả `SDD-PET-MANAGEMENT-v1.0.md` | — | Sonny + AI |
 | **2026-11-24** | UI/UX & Mỹ thuật (`WS-6`) | Soạn hướng dẫn thực hành `GDE-ART-WORKFLOW-v1.1.md`, rà soát & điều chỉnh khung UI/UX toàn web (`BookShell` desktop/mobile, bỏ chồng lấp nút nổi mobile, `overflow-x: clip` khôi phục sticky, mở lại Pet/Shop ở sidebar Desktop, nạp `cowdi-tokens.css`, sửa responsive/tương phản trên `LearningPath`, `Shop`, `Pet`, `Collection/Dex`, `Duel`, `StudentRanking`) và lập sổ đầu việc thay thế hình ảnh `CHK-ART-UI-AUDIT.md` (`ART-01..08`) | `7ecd492`, `7bdfe58` | Sonny + AI |
 | **2026-11-24** | Mỹ thuật (Art Standard v1.1) | Tích hợp & chuẩn hoá **Art Bible & Art Kit v1.1** thành nguyên tắc mỹ thuật toàn dự án tại `docs/05-implementation/art/` (`STD-ART-STYLE-v1.1.md`, `art-spec.json`, 55 token màu `palettes/`, SVG template 2160/1080, Face Kit C1–C5, Ground Shadow C1–C5, `AI_PROMPT_BLOCKS.md`, `qc_check.py`, `palette_lock.py`), tạo rule toàn dự án `.agents/rules/art-style.md`, đăng ký `REG-DOCUMENTS` & liên kết chéo các tài liệu ảnh/rig hiện hữu | `9b3bfa8` | Sonny + AI |

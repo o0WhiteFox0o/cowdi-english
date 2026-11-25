@@ -11,8 +11,8 @@ Trang quản trị **`/admin/pet-motion`** đã được nâng cấp thành **Tr
 | `src/pet-rig/PetRig.js` | Runtime canvas cho người học (chỉ phát dữ liệu đã duyệt từ server). |
 | `src/pet-rig/PetAvatar.jsx` | Component React + `topSkillOf`, `bondOf` (tự fallback ảnh tĩnh nếu chưa duyệt rig). |
 | `src/pet-rig/motionCache.js` | Cache trong bộ nhớ theo `petId` cho `GET /api/pet-motion/:petId`. |
-| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (Quản lý toàn bộ pet gốc + pet tự thêm × 5 cấp, popup `PetFormModal.jsx` tạo/sửa/upload pet mới, bàn chỉnh keyframe, trình vẽ bộ phận `PartPaintModal.jsx`, tab `StudyPreviewTab.jsx`). |
-| `server/routes/petMotionAdmin.js` | API quản trị (`requireAuth + requireAdmin`): CRUD `pet_catalog` (`/pets`), upload avatar/part, lưu nháp, duyệt rig/clip, emoji tự thiết kế. |
+| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (Quản lý toàn bộ pet gốc + pet tự thêm × 5 cấp, popup `PetFormModal.jsx`, bàn chỉnh keyframe, Studio cắt/vẽ `PartPaintModal.jsx` có gợi ý lấy ảnh pet hiện có để tự cắt hoặc làm phôi vẽ lại, tab `StudyPreviewTab.jsx`). |
+| `server/routes/petMotionAdmin.js` | API quản trị (`requireAuth + requireAdmin`): CRUD `pet_catalog` (`/pets`), upload avatar/part, lưu nháp, duyệt rig/clip, emoji tự thiết kế (URL ảnh động gắn hậu tố `/raw` chống Nginx chặn 404). |
 | `server/routes/petMotionPublic.js` | API công khai cho người học (`GET /api/pet-motion/catalog` đồng bộ `PET_REGISTRY`, `GET /api/pet-motion/:petId` + ảnh đã xuất bản). |
 | `server/db/migrate-pet-motion.sql` · `migrate-pet-catalog.sql` | Migration 5 bảng DB (`pet_catalog`, `pet_motion_clips`, `pet_motion_approvals`, `pet_rigs`, `pet_motion_history`) tương thích MySQL 5.6+. |
 | `scripts/run-pet-catalog-migration.js` | Script idempotent tạo bảng `pet_catalog` trên local/production. |

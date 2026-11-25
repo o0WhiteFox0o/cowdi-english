@@ -227,7 +227,14 @@ test('Quản lý Pet (pet_catalog): validate payload, CRUD, upload avatar pet m�
     });
     assert.equal(upRes.status, 200);
     const upJson = await upRes.json();
-    assert.match(upJson.avatarUrl, /^\/api\/pet-motion\/assets\/avatars\/banh_mi\/c3-[0-9a-f]{8}\.png$/);
+    assert.match(upJson.avatarUrl, /^\/api\/pet-motion\/assets\/avatars\/banh_mi\/c3-[0-9a-f]{8}\.png\/raw$/);
+
+    // Tải ảnh qua URL /raw mới VÀ URL cũ không có /raw đều trả 200 image/png
+    const rawImgRes = await fetch(`${baseUrl}${upJson.avatarUrl}`);
+    assert.equal(rawImgRes.status, 200);
+    assert.equal(rawImgRes.headers.get('content-type'), 'image/png');
+    const legacyImgRes = await fetch(`${baseUrl}${upJson.avatarUrl.replace(/\/raw$/, '')}`);
+    assert.equal(legacyImgRes.status, 200);
 
     const catRes = await fetch(`${baseUrl}/api/pet-motion/catalog`);
     assert.equal(catRes.status, 200);

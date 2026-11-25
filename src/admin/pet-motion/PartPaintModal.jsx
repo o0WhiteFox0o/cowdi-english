@@ -247,12 +247,15 @@ export default function PartPaintModal({
   stage,
   image,
   referenceLayers = [],
+  initialDirty = false,
+  suggestedSources = [],
+  onLoadSuggestedSource = null,
   saving = false,
   onSave,
   onClose,
 }) {
-  const imgW = image?.naturalWidth || image?.width || 256;
-  const imgH = image?.naturalHeight || image?.height || 256;
+  const imgW = image?.naturalWidth || image?.width || 512;
+  const imgH = image?.naturalHeight || image?.height || 512;
 
   const calcFitZoom = useCallback(() => {
     const maxDim = Math.max(imgW, imgH, 1);
@@ -298,7 +301,9 @@ export default function PartPaintModal({
   // ── History & dirty flags ──────────────────────────────────────
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [dirty, setDirty] = useState(false);
+  const [dirty, setDirty] = useState(Boolean(initialDirty));
+  const [selectedSourceIdx, setSelectedSourceIdx] = useState(0);
+  const [loadingSource, setLoadingSource] = useState(false);
 
   // ── Refs for fast 60fps canvas drawing ─────────────────────────
   const layerCanvasesRef = useRef(new Map()); // id -> HTMLCanvasElement
@@ -677,9 +682,10 @@ export default function PartPaintModal({
     setSelectionMask(null);
     historyRef.current = { stack: [], index: -1 };
     pushSnapshot(initLayers, baseId);
-    setDirty(false);
+    setDirty(Boolean(initialDirty));
+    setSelectedSourceIdx(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [image, imgW, imgH, part]);
+  }, [image, imgW, imgH, part, initialDirty]);
 
   useEffect(() => {
     renderDisplay();
@@ -846,6 +852,109 @@ export default function PartPaintModal({
       renderDisplay();
     }
   }, [activeLayer, imgW, imgH, pushSnapshot, renderDisplay]);
+
+  /** Giữ lại đúng phần trong vùng chọn và xoá sạch bên ngoài (tách bộ phận 1 chạm) */
+  const keepSelectedPixels = useCallback(() => {
+    if (!selMaskRef.current || !activeLayer || activeLayer.locked) return;
+    const c = layerCanvasesRef.current.get(activeLayer.id);
+    if (!c) return;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    const imgData = ctx.getImageData(0, 0, imgW, imgH);
+    const mask = selMaskRef.current;
+    let changed = false;
+    for (let i = 0; i < mask.length; i++) {
+      if (!mask[i] && imgData.data[i * 4 + 3] > 0) {
+        imgData.data[i * 4] = 0;
+        imgData.data[i * 4 + 1] = 0;
+        imgData.data[i * 4 + 2] = 0;
+        imgData.data[i * 4 + 3] = 0;
+        changed = true;
+      }
+    }
+    if (changed) {
+      ctx.putImageData(imgData, 0, 0);
+      bumpLayerRev(activeLayer.id);
+      pushSnapshot();
+      setDirty(true);
+      renderDisplay();
+    }
+  }, [activeLayer, imgW, imgH, pushSnapshot, renderDisplay]);
+
+  /** Chèn ảnh hiện có của pet vào Layer mới (để tự cắt) hoặc đặt làm phôi mờ bên dưới (để vẽ lại) */
+  const handleInsertSuggestedSource = useCallback(async (asUnderlayGuide = false) => {
+    const srcItem = suggestedSources[selectedSourceIdx];
+    if (!srcItem || !onLoadSuggestedSource || loadingSource) return;
+    setLoadingSource(true);
+    try {
+      const loadedImg = await onLoadSuggestedSource(srcItem);
+      if (!loadedImg) return;
+      const srcW = loadedImg.naturalWidth || loadedImg.width || imgW;
+      const srcH = loadedImg.naturalHeight || loadedImg.height || imgH;
+      const fitScale = Math.min(imgW / srcW, imgH / srcH);
+      const drawW = Math.round(srcW * fitScale);
+      const drawH = Math.round(srcH * fitScale);
+      const dx = Math.round((imgW - drawW) / 2);
+      const dy = Math.round((imgH - drawH) / 2);
+
+      const c = makeCanvas(imgW, imgH);
+      const ctx = c.getContext('2d', { willReadFrequently: true });
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(loadedImg, dx, dy, drawW, drawH);
+
+      const num = nextLayerNumRef.current++;
+      const id = `layer-${Date.now()}-${num}`;
+      layerCanvasesRef.current.set(id, c);
+
+      if (asUnderlayGuide) {
+        const guideLayer = {
+          id,
+          name: `Phôi: ${srcItem.shortLabel || srcItem.label}`,
+          visible: true,
+          locked: true,
+          opacity: 38,
+          rev: 0,
+        };
+        const drawLayerId = `layer-${Date.now()}-${nextLayerNumRef.current++}`;
+        layerCanvasesRef.current.set(drawLayerId, makeCanvas(imgW, imgH));
+        const drawLayer = {
+          id: drawLayerId,
+          name: `Vẽ lại (${partLabel || part})`,
+          visible: true,
+          locked: false,
+          opacity: 100,
+          rev: 0,
+        };
+        const next = [guideLayer, ...layersRef.current, drawLayer];
+        layersRef.current = next;
+        activeLayerIdRef.current = drawLayerId;
+        setLayers(next);
+        setActiveLayerId(drawLayerId);
+        pushSnapshot(next, drawLayerId);
+        setTool('brush');
+      } else {
+        const cutLayer = {
+          id,
+          name: srcItem.shortLabel || srcItem.label,
+          visible: true,
+          locked: false,
+          opacity: 100,
+          rev: 0,
+        };
+        const next = [...layersRef.current, cutLayer];
+        layersRef.current = next;
+        activeLayerIdRef.current = id;
+        setLayers(next);
+        setActiveLayerId(id);
+        pushSnapshot(next, id);
+        setTool('lasso');
+      }
+      setDirty(true);
+      renderDisplay();
+    } finally {
+      setLoadingSource(false);
+    }
+  }, [suggestedSources, selectedSourceIdx, onLoadSuggestedSource, loadingSource, imgW, imgH, partLabel, part, pushSnapshot, renderDisplay]);
 
   const invertSelection = useCallback(() => {
     const cur = selMaskRef.current;
@@ -1636,6 +1745,9 @@ export default function PartPaintModal({
                     Vùng chọn: {selBounds ? `${selBounds.w}×${selBounds.h}px` : ''}
                   </div>
                   <div className="pm-tip-row">
+                    <button type="button" className="pm-st-btn pm-st-xs primary" onClick={keepSelectedPixels} title="Giữ vùng chọn và xoá sạch phần bên ngoài để tách bộ phận nhanh">
+                      ✂️ Giữ vùng chọn
+                    </button>
                     <button type="button" className="pm-st-btn pm-st-xs" onClick={clearSelectedPixels} title="Xoá nội dung trong vùng chọn (Delete)">
                       Xoá (Del)
                     </button>
@@ -1708,6 +1820,49 @@ export default function PartPaintModal({
                 </div>
               )}
             </section>
+
+            {/* Section B2: Gợi ý lấy ảnh hiện có của pet để tự cắt / vẽ lại */}
+            {suggestedSources.length > 0 && onLoadSuggestedSource && (
+              <section className="pm-ins-sec" style={{ background: 'rgba(47, 158, 79, 0.08)' }}>
+                <div className="pm-ins-head">
+                  <span>✂️ Ảnh pet hiện có</span>
+                  <span className="small text-muted">{suggestedSources.length} nguồn</span>
+                </div>
+                <select
+                  className="form-select form-select-sm mb-1"
+                  style={{ fontSize: '0.75rem' }}
+                  value={selectedSourceIdx}
+                  disabled={loadingSource}
+                  onChange={(e) => setSelectedSourceIdx(Number(e.target.value))}
+                >
+                  {suggestedSources.map((src, idx) => (
+                    <option key={src.id || idx} value={idx}>
+                      {src.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pm-tip-row">
+                  <button
+                    type="button"
+                    className="pm-st-btn pm-st-xs primary"
+                    disabled={loadingSource}
+                    onClick={() => handleInsertSuggestedSource(false)}
+                    title="Đưa ảnh pet này vào Layer mới và bật công cụ Khoanh tự do (Lasso) để cắt lấy bộ phận"
+                  >
+                    {loadingSource ? 'Đang nạp…' : '📥 Chèn để cắt'}
+                  </button>
+                  <button
+                    type="button"
+                    className="pm-st-btn pm-st-xs"
+                    disabled={loadingSource}
+                    onClick={() => handleInsertSuggestedSource(true)}
+                    title="Đặt ảnh pet làm phôi mờ 38% (khoá) ở dưới và tạo Layer trống bên trên để họa sĩ vẽ lại"
+                  >
+                    👻 Làm phôi vẽ lại
+                  </button>
+                </div>
+              </section>
+            )}
 
             {/* Section C: Quản lý Layer */}
             <section className="pm-ins-sec">
