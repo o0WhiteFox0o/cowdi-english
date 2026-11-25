@@ -1,6 +1,6 @@
 # TASK-PET-DIRECTOR — Kế hoạch & Checklist triển khai Pet Director V2 (Giai đoạn 1–2)
 
-> **Ngày lập:** 2026-11-25 · **Trạng thái:** Chờ PO duyệt Plan · **Nhánh đề xuất:** `feat/pet-director` (mỗi gói 1 commit sạch, hoặc tách nhánh A–E theo yêu cầu)
+> **Ngày lập:** 2026-11-25 · **Trạng thái:** ✅ Đã hoàn thành GĐ 1–2 (Gói A–E trên `feat/pet-director`) · **Nhánh:** `feat/pet-director`
 > **Tài liệu gốc:** [SDD-PET-DIRECTOR-v1.1.md](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [RPT-PET-DIRECTOR-SURVEY.md](RPT-PET-DIRECTOR-SURVEY.md) · [PET-MOTION.md](../PET-MOTION.md)
 
 ---

@@ -655,7 +655,7 @@ h5,
   flex-shrink: 0;
 }
 
-/* ── Floating invite button (mobile — stacked cleanly above CowdiChat) ── */
+/* ── Floating invite button (mobile) ── */
 .cowdi-invite-fab {
   position: fixed;
   right: 14px;

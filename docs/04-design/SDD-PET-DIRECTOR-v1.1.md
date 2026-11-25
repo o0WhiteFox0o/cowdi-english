@@ -4,7 +4,7 @@
 |---|---|
 | **Mã tài liệu** | `SDD-PET-DIRECTOR` |
 | **Phiên bản** | `1.1` · **Ngày tạo:** `2026-11-25` |
-| **Trạng thái** | `Draft — Chờ duyệt triển khai` |
+| **Trạng thái** | `Approved — Đã triển khai GĐ 1–2 (feat/pet-director)` |
 | **Chuẩn tham chiếu** | IEEE 1016-2009 · Quy ước tài liệu: [DOCP-COWDI-v1.1](../00-general/DOCP-COWDI-v1.1.md) |
 | **Tài liệu nguồn & liên quan** | Gói bàn giao `cowdi-pet-director.zip` (v1.1, 2026-11-25) · [PET-MOTION.md](../PET-MOTION.md) · [SDD-PET-MANAGEMENT-v1.0.md](SDD-PET-MANAGEMENT-v1.0.md) · [RPT-PET-DIRECTOR-SURVEY.md](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) |
 | **Mockup & Hình tham khảo** | [pet-director-mockups/](pet-director-mockups/) (`01-bai-hoc-pet-stage.html`, `02-lo-trinh-path-pet.html`, `03-he-thong-dao-dien.html`, `bug-chat-che-man-hinh.jpg`) |

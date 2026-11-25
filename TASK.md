@@ -230,7 +230,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] GĐ1 · Gói B — Mở rộng `PetRig.js` & `PetAvatar.jsx` (`canvasBubble`, chuẩn hoá `tap` cho cả rig duyệt & ảnh tĩnh fallback, sửa text P3) + test `pet-rig.test.mjs` — 2026-11-25
 - [x] GĐ1 · Gói C — `DirectorContext`, `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PetSpeech>`, `<PetThought>`; tích hợp `LessonDetailPage`, `PictureLesson`, `PracticePage`, `LearningPathPage` (`app_open`); gỡ `CowdiChat` & xoá `.cowdi-chat-*` trên 3 file CSS — 2026-11-25
 - [x] GĐ2 · Gói E — Kho câu thoại `cowdi.js` (~250–300 câu đạt §5.2, chuyển `PAGE_TIPS`) + trung tính hoá `common.js` + `lines.test.mjs` — 2026-11-25
-- [ ] GĐ2 · Gói D — `<PathPet>` + thẻ hành động trên `LearningPathPage`; chuyển `HomePage`, `PetPage`, `DuelPage` sang Director; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage`; nghiệm thu 360px/1280px
+- [x] GĐ2 · Gói D — `<PathPet>` + thẻ hành động trên `LearningPathPage`; chuyển `HomePage`, `PetPage`, `DuelPage` sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` — 2026-11-25
 
 ---
 
@@ -244,6 +244,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-25 | Pet Director A–E | Hoàn thành trọn bộ Pet Director V2 (GĐ1–2, Gói A/B/C/E/D) trên nhánh `feat/pet-director`: lõi thuần JS + 16 test (`rules`, `storage`, `lineSelector`, `PetDirector`), mở rộng `PetRig`/`PetAvatar` (`canvasBubble` + chuẩn hoá `tap` cả ảnh tĩnh), `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PathPet>` + thẻ hành động, 240+ câu thoại `cowdi.js` + `common.js` trung tính, chuyển 7 màn hình sang Director, thêm công tắc preview Director trong `StudyPreviewTab`, gỡ hoàn toàn `CowdiChat.jsx`, `.cowdi-chat-*` (3 file CSS), `chatMessages` & `getPetMessage` | `feat/pet-director` | 170/170 test pass, build pass |
 | 2026-11-25 | Pet Director B0 | Khảo sát gói `cowdi-pet-director.zip` đối chiếu mã nguồn & hệ `Pet-motion`, soạn `SDD-PET-DIRECTOR-v1.1.md`, `RPT-PET-DIRECTOR-SURVEY.md`, `TASK-PET-DIRECTOR.md` (Plan 5 gói A–E), lưu mockups và đồng bộ `PET-MOTION.md`, `REG-DOCUMENTS.md`, `LOG-PROGRESS.md`, `RTM-COWDI.md` | — | Chờ PO duyệt Plan trước khi code |
 | 2026-11-25 | Bạn bè UX | Bỏ form đặt biệt danh riêng (dùng thẳng tên hiển thị tài khoản), thêm tìm & kết bạn bằng email khớp chính xác (`GET /api/friends/lookup`), thêm máy quét QR trong App (`QrScannerModal` camera + chọn ảnh qua `jsqr`), giữ `?add=CODE` qua OAuth cho người chưa cài App, định dạng ngày VN `dd/mm/yyyy` | `main` | 152/152 test pass, build & deploy.zip pass |
 | 2026-11-25 | Bạn bè B1–B7 | Hoàn thiện toàn bộ Phân hệ Bạn bè & Thưởng mời bạn trên nhánh `feat/friends`: migration MySQL 5.5/5.6+, OG `/i/:code` + QR client, biệt danh + chống gian lận + thưởng +3 Gem/+500 Sữa/mốc vé gacha (trần 3/tháng), bạn bè + chặn/báo cáo, thăm pet + thách đấu giao hữu không LP, bạn bè trên bản đồ lộ trình + toast vượt qua, ghi 5 sự kiện `app_events` và kiểm định AT-02..AT-11 | `feat/friends` | 152/152 test pass, build pass |
