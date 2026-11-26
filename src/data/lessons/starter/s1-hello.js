@@ -8,13 +8,14 @@ export const S1_HELLO_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u1',
+  category: 'greeting',
   title: 'Xin chào',
   description: 'Chào hỏi và nói cảm ơn bằng 6 từ đơn giản',
   icon: '👋',
 
   words: [
     { word: 'hello',     meaning: 'xin chào',   emoji: '👋', image: null, audio: null },
-    { word: 'hi',        meaning: 'chào bạn',   emoji: '😊', image: null, audio: null },
+    { word: 'please',    meaning: 'làm ơn',     emoji: '🥺', image: null, audio: null },
     { word: 'bye',       meaning: 'tạm biệt',   emoji: '🖐️', image: null, audio: null },
     { word: 'yes',       meaning: 'có / vâng',  emoji: '✅', image: null, audio: null },
     { word: 'no',        meaning: 'không',      emoji: '❌', image: null, audio: null },

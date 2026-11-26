@@ -24,6 +24,10 @@ import { usePet } from '../hooks/usePet';
 import { useToast } from '../components/layout/Toast';
 import GroupPicker from '../features/onboarding/GroupPicker';
 import PlacementTest from '../features/placement/PlacementTest';
+import { useFriendPositions } from '../features/friends/useFriendPositions';
+import { FRIEND_LIMITS } from '../../shared/game-config';
+import { usePetDirector } from '../pet-director/DirectorContext';
+import { PathPet, PathPetCard } from '../pet-director/PathPet';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 
@@ -36,10 +40,13 @@ export default function LearningPathPage() {
   const navigate = useNavigate();
   const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, refreshWallet } = useUser();
   const { getActivePetWithDecay } = usePet();
+  const { register, dispatch } = usePetDirector();
   const showToast = useToast();
+  const pathPetRef = useRef(null);
 
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [skippedPlacement, setSkippedPlacement] = useState(false);
+  const [nodeFriendsModal, setNodeFriendsModal] = useState(null); // { label, friends[] }
 
   // Checkpoint test state
   const [testUnit, setTestUnit] = useState(null);
@@ -54,6 +61,20 @@ export default function LearningPathPage() {
 
   // Path tab: ?tab=<pathId> (hỗ trợ cả ?tab=general cũ → activePath)
   const [searchParams, setSearchParams] = useSearchParams();
+  const wantsPickerFromUrl = searchParams.get('pickGroup') === '1';
+  const isFreshNewUser = !userData.learnerGroup
+    && !userData.placement
+    && (userData.completedLessons?.length || 0) === 0;
+  const shouldForceOnboarding = !userData.learnerGroup && !searchParams.get('tab');
+  const isOnboardingActive = shouldForceOnboarding || showGroupPicker || wantsPickerFromUrl;
+
+  useEffect(() => {
+    if (isOnboardingActive) return undefined;
+    const unregister = register('path', pathPetRef);
+    dispatch('app_open');
+    dispatch('screen_enter', { screen: 'path' });
+    return unregister;
+  }, [register, dispatch, isOnboardingActive]);
   const resolveTabFromUrl = useCallback(() => {
     const raw = searchParams.get('tab');
     if (raw && raw !== 'general' && PATH_IDS.includes(raw)) return raw;
@@ -106,6 +127,24 @@ export default function LearningPathPage() {
   const doneCount = nodes.filter((n) => n.status === 'done' || n.status === 'placed').length;
   const pct = nodes.length ? Math.round((doneCount / nodes.length) * 100) : 0;
   const currentNode = nodes.find((n) => n.status === 'current');
+
+  // FR-MAP-01..08: Bạn bè trên bản đồ lộ trình (kiểu Candy Crush Saga)
+  const handlePassedFriends = useCallback((passed) => {
+    const names = passed.slice(0, 2).map((f) => f.nickname).join(', ');
+    const extra = passed.length > 2 ? ` và ${passed.length - 2} bạn khác` : '';
+    showToast(`🎉 Bạn vừa vượt qua ${names}${extra}!`, 'success');
+  }, [showToast]);
+
+  const {
+    otherPathFriends,
+    byNodeKey: friendsByNodeKey,
+    nearestAhead,
+  } = useFriendPositions({
+    activePath,
+    nodes,
+    completedLessonsCount: userData.completedLessons?.length || 0,
+    onPassedFriends: handlePassedFriends,
+  });
 
   // Mascot next to the current node
   const activePet = getActivePetWithDecay();
@@ -222,12 +261,6 @@ export default function LearningPathPage() {
   //    • Người mới hoàn toàn (0 bài đã học, chưa làm placement) → hiện Kiểm tra đầu vào trước;
   //      nếu bỏ qua kiểm tra (hoặc ?pickGroup=1) → chuyển sang màn chọn nhóm học (GroupPicker).
   //    • Người dùng cũ đã có tiến độ → hiện GroupPicker (kèm thẻ "Gợi ý cho bạn").
-  const wantsPickerFromUrl = searchParams.get('pickGroup') === '1';
-  const isFreshNewUser = !userData.learnerGroup
-    && !userData.placement
-    && (userData.completedLessons?.length || 0) === 0;
-  const shouldForceOnboarding = !userData.learnerGroup && !searchParams.get('tab');
-
   if (shouldForceOnboarding && isFreshNewUser && !skippedPlacement && !wantsPickerFromUrl && !showGroupPicker) {
     return (
       <PlacementTest
@@ -503,6 +536,38 @@ export default function LearningPathPage() {
         <span>💠 Đá kế tiếp: <b>{(userData.completedLessons?.length || 0) % 10}/10</b> bài mới</span>
       </div>
 
+      {/* FR-MAP-06: Dòng bạn gần nhất phía trước trên cùng lộ trình */}
+      {nearestAhead && (
+        <div className="d-flex justify-content-center mb-2">
+          <Link
+            to={`/friends/${nearestAhead.friend.userId}`}
+            className="badge rounded-pill bg-warning-subtle text-dark border border-warning px-3 py-2 text-decoration-none"
+          >
+            🏃 <strong>{nearestAhead.friend.nickname}</strong> đang đi trước bạn{' '}
+            <strong>{nearestAhead.stepsAhead}</strong> bài
+          </Link>
+        </div>
+      )}
+
+      {/* FR-MAP-05: Dải chip bạn bè ở lộ trình khác (bấm -> thăm pet, không đổi lộ trình mình) */}
+      {otherPathFriends.length > 0 && (
+        <div className="d-flex align-items-center justify-content-center flex-wrap gap-1 mb-3 small">
+          <span className="text-muted me-1">Bạn bè ở lộ trình khác:</span>
+          {otherPathFriends.slice(0, 8).map((f) => {
+            const fp = f.activePath ? getPathById(f.activePath) : null;
+            return (
+              <Link
+                key={f.userId}
+                to={`/friends/${f.userId}`}
+                className="badge rounded-pill bg-light text-dark border text-decoration-none px-2 py-1"
+              >
+                {f.nickname} ({fp?.title || 'Chưa chọn'})
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
       {/* Trail */}
       <div className="path-trail">
         {activePath.units.map((unit, uIdx) => {
@@ -611,10 +676,19 @@ export default function LearningPathPage() {
                     </>
                   );
 
+                  const nodeFriends = friendsByNodeKey[node.key] || [];
+                  const maxVisibleFriends = FRIEND_LIMITS.MAX_AVATARS_PER_NODE || 3;
+                  const visibleFriends = nodeFriends.slice(0, maxVisibleFriends);
+                  const extraFriendCount = Math.max(0, nodeFriends.length - maxVisibleFriends);
+
                   return (
                     <li key={node.key} className="path-step" style={{ '--x': `${x}px` }} ref={isCur ? currentRef : null}>
                       {isCur && (
-                        <img src={petImg} alt="" className={`path-mascot ${x >= 0 ? 'left' : 'right'}`} />
+                        <PathPet
+                          pet={activePet}
+                          petRef={pathPetRef}
+                          side={x >= 0 ? 'left' : 'right'}
+                        />
                       )}
                       {node.status === 'locked' ? (
                         <button type="button" className={cls} onClick={() => onLockedClick(node)} aria-label={`${label} (đã khoá)`}>
@@ -624,6 +698,47 @@ export default function LearningPathPage() {
                         <Link to={`/lessons/${node.lessonId}`} className={cls}>{inner}</Link>
                       ) : (
                         <button type="button" className={cls} onClick={() => startCheckpoint(unit, node.isTestOut)}>{inner}</button>
+                      )}
+
+                      {/* FR-MAP-04: Avatar bạn bè cạnh node (tối đa 3 + "+N", 👑 nếu xong lộ trình) */}
+                      {nodeFriends.length > 0 && (
+                        <div
+                          className="d-flex align-items-center gap-1 mt-1 flex-wrap justify-content-center"
+                          style={{ maxWidth: 210 }}
+                        >
+                          {visibleFriends.map((fr) => {
+                            const frEvo = getEvolutionInfo(fr.petId || 'cowdi', fr.petEvolution || 0);
+                            return (
+                              <Link
+                                key={fr.userId}
+                                to={`/friends/${fr.userId}`}
+                                className="d-inline-flex align-items-center gap-1 bg-white border rounded-pill px-2 py-0 text-decoration-none text-dark shadow-sm"
+                                style={{ fontSize: '0.72rem', lineHeight: '1.5' }}
+                                title={`${fr.nickname}${fr.finished ? ' (Đã xong lộ trình 👑)' : ''}`}
+                              >
+                                <img
+                                  src={frEvo?.image || '/assets/images/pets/Cowdi/Cowdi_egg.webp'}
+                                  alt={fr.nickname}
+                                  width="20"
+                                  height="20"
+                                  className="rounded-circle"
+                                  style={{ objectFit: 'contain' }}
+                                />
+                                <span className="fw-semibold">{fr.nickname}</span>
+                                {fr.finished && <span aria-label="Hoàn thành lộ trình">👑</span>}
+                              </Link>
+                            );
+                          })}
+                          {extraFriendCount > 0 && (
+                            <button
+                              type="button"
+                              className="badge rounded-pill bg-secondary border-0"
+                              onClick={() => setNodeFriendsModal({ label, friends: nodeFriends })}
+                            >
+                              +{extraFriendCount}
+                            </button>
+                          )}
+                        </div>
                       )}
                     </li>
                   );
@@ -641,6 +756,12 @@ export default function LearningPathPage() {
         </div>
       </div>
 
+      <PathPetCard
+        petName={activePet?.customName || PET_REGISTRY[activePet?.speciesId]?.name || 'Cowdi'}
+        currentNode={currentNode}
+        onStartCheckpoint={startCheckpoint}
+      />
+
       {currentNode && (
         <div className="path-fab">
           {currentNode.type === 'lesson' ? (
@@ -656,6 +777,39 @@ export default function LearningPathPage() {
               <Icon name="trophy" size={20} /> {currentNode.unit.checkpoint.title}
             </button>
           )}
+        </div>
+      )}
+      {nodeFriendsModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+          style={{ background: 'rgba(0,0,0,0.45)', zIndex: 1090 }}
+          onClick={() => setNodeFriendsModal(null)}
+        >
+          <div className="bg-white rounded-4 p-3 shadow" style={{ maxWidth: 380, width: '100%' }} onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h6 className="fw-bold mb-0">Bạn bè tại: {nodeFriendsModal.label}</h6>
+              <button type="button" className="btn btn-sm btn-light" onClick={() => setNodeFriendsModal(null)}>✕</button>
+            </div>
+            <div className="d-flex flex-column gap-2" style={{ maxHeight: 300, overflowY: 'auto' }}>
+              {nodeFriendsModal.friends.map((fr) => {
+                const frEvo = getEvolutionInfo(fr.petId || 'cowdi', fr.petEvolution || 0);
+                return (
+                  <Link
+                    key={fr.userId}
+                    to={`/friends/${fr.userId}`}
+                    onClick={() => setNodeFriendsModal(null)}
+                    className="d-flex align-items-center justify-content-between border rounded-3 p-2 text-decoration-none text-dark"
+                  >
+                    <div className="d-flex align-items-center gap-2">
+                      <img src={frEvo?.image} alt="" width="32" height="32" className="rounded-circle bg-light" style={{ objectFit: 'contain' }} />
+                      <span className="fw-semibold">{fr.nickname} {fr.finished ? '👑' : ''}</span>
+                    </div>
+                    <span className="small text-primary">Thăm pet →</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

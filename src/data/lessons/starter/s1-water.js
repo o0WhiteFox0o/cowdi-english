@@ -8,6 +8,7 @@ export const S1_WATER_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u3',
+  category: 'animal',
   title: 'Sinh vật dưới nước',
   description: 'Gọi tên 6 con vật sống ở ao hồ và biển cả',
   icon: '🐢',

@@ -1,9 +1,10 @@
 # CHK-LESSON-REVIEW — Danh sách kiểm tra khi duyệt bài
 
-Dùng cho người duyệt (Sonny) sau khi `validate-lessons` đã báo 0 lỗi. Validator kiểm tra **cấu trúc**; danh sách này kiểm tra **chất lượng**, thứ máy không chấm được.
+Dùng cho người duyệt (Sonny) sau khi `npm run validate:lessons` và `npm run validate:questions` đều báo **0 lỗi**. Validator kiểm tra cấu trúc và 14 mã chuẩn ([STD-QUESTION-QUALITY-v1.0.md](STD-QUESTION-QUALITY-v1.0.md)); danh sách này kiểm tra **chất lượng ngữ nghĩa**, thứ máy không chấm hết được.
 
 ## 1. Mọi cấp
 
+- [ ] Đạt 0 lỗi cứng và 0 cảnh báo `Q-LEN`/`Q-POS` trên bài v2 (`npm run validate:questions`)
 - [ ] Mục tiêu bài rõ, mọi phần đều phục vụ mục tiêu đó
 - [ ] Không có câu, đoạn nào chép từ nguồn có bản quyền (dán thử một câu bất kỳ vào Google trong ngoặc kép)
 - [ ] Không có số liệu, trích dẫn bịa đặt như sự thật
@@ -14,6 +15,7 @@ Dùng cho người duyệt (Sonny) sau khi `validate-lessons` đã báo 0 lỗi.
 
 ## 2. Cấp 1 — thêm
 
+- [ ] Có trường `category` khớp nhóm nghĩa (bài màu có `swatch` hex + emoji ô vuông, không dùng hình tròn `🔴`)
 - [ ] Thử với một đứa trẻ (hoặc tưởng tượng): nhìn hình có đoán ra từ không?
 - [ ] Ảnh đúng phong cách, không chữ, nền sạch
 - [ ] Âm thanh đúng, chậm, rõ

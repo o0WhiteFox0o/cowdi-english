@@ -256,24 +256,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Cowdi', xp: 2500, emoji: '👑', image: COWDI_IMAGES.legendary },
     ],
     unlockCondition: null, // Starter — có sẵn
-    chatMessages: {
-      happy: [
-        'Chào bạn! Hôm nay mình học gì nhé? 🐮',
-        'Moo~ Bạn đã ôn bài chưa? 📚',
-        'Cố lên! Cowdi tin bạn! 💪',
-        'Mỗi ngày một ít, bạn sẽ giỏi thôi! 🌟',
-        'Hay quá! Tiếp tục học nhé! 🎉',
-      ],
-      sad: [
-        'Moo... Cowdi nhớ bạn lắm 😢',
-        'Cowdi hơi buồn... Học bài đi nha 🥺',
-        'Sao lâu không thấy bạn vậy...? 😿',
-      ],
-      sick: [
-        'Cowdi ốm rồi... Cần bạn giúp 🤒',
-        'Moo... Cowdi yếu lắm... Học 1 bài thôi nha 😷',
-      ],
-    },
   },
 
   foxie: {
@@ -292,23 +274,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Foxie', xp: 2500, emoji: '👑', image: FOXIE_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 5 },
-    chatMessages: {
-      happy: [
-        'Hmm, câu này dễ mà! 🦊',
-        'Foxie thích ngữ pháp lắm! Học cùng nha! 📖',
-        'Thông minh lắm! Foxie nể bạn! 🧠',
-        'Giải đố cùng Foxie nhé! ✨',
-        'Ngọn lửa tri thức, bừng sáng lên! 🔥',
-      ],
-      sad: [
-        'Foxie buồn quá... Lâu rồi không ai giải đố 😢',
-        'Foxie nhớ bạn... 🥺',
-      ],
-      sick: [
-        'Foxie ốm mất rồi... 🤒',
-        'Khan tiếng, Foxie không sai khiến được lửa... 😷',
-      ],
-    },
   },
 
   pingu: {
@@ -327,23 +292,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Pingu', xp: 2500, emoji: '👑', image: PINGU_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 10, category: 'listening' },
-    chatMessages: {
-      happy: [
-        'Nghe này nghe này! 🎵',
-        'Pingu nghe rõ lắm nè! 👂',
-        'Luyện nghe cùng Pingu nhé! 🐧',
-        'Băng trôi mát lạnh, tai thính nhạy! 🧊',
-        'Mỗi âm thanh là một bài học – Pingu để ý lắm! 🎶',
-      ],
-      sad: [
-        'Pingu lạnh quá... Học bài cho ấm nha 🥶',
-        'Băng tan hết rồi, ai đâu để cuộc ồ 😢',
-      ],
-      sick: [
-        'Pingu ốm rồi... 😷',
-        'Cánh rụ xuống, không trượt băng được... 🤒',
-      ],
-    },
   },
 
   leafy: {
@@ -362,23 +310,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Leafy', xp: 2500, emoji: '👑', image: LEAFY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'words', value: 50 },
-    chatMessages: {
-      happy: [
-        'Chậm mà chắc! Học từ mới nào! 🐢',
-        'Leafy nhớ hết từ rồi đó! 🌿',
-        'Từ vựng là sức mạnh! 📝',
-        'Mùa này lá xanh, từ xanh – cuộc đời xanh! 🍃',
-        'Một ngày học 5 từ, một đời vững vàng! 📖',
-      ],
-      sad: [
-        'Leafy buồn... Lâu rồi không học từ mới 🥺',
-        'Bì bõm mùa mưa, mài chẳng thấy từ vựng... 😢',
-      ],
-      sick: [
-        'Leafy ốm rồi... 😷',
-        'Mai rùa nặng trĩu, cần bạn tiếp sức 🤒',
-      ],
-    },
   },
 
   sparky: {
@@ -397,23 +328,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Sparky', xp: 2500, emoji: '👑', image: SPARKY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'streak', value: 7 },
-    chatMessages: {
-      happy: [
-        'Rawr~! Viết câu cùng Sparky! 🐉',
-        'Sparky đầy sáng tạo hôm nay! ✨',
-        'Lửa cháy trong tim! 🔥',
-        'Mỗi câu văn là một ngọn lửa nhỏ! ✍️',
-        'Viết đi, viết nữa, viết mãi! 📝',
-      ],
-      sad: [
-        'Sparky hết lửa rồi... 😢',
-        'Cánh gấp lại, không muốn bay... 🥺',
-      ],
-      sick: [
-        'Sparky ốm... không phun lửa được 🤒',
-        'Vảy khô cứng, cần hơi ấm của bạn 😷',
-      ],
-    },
   },
 
   mimi: {
@@ -432,23 +346,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Mimi', xp: 2500, emoji: '👑', image: MIMI_IMAGES.legendary },
     ],
     unlockCondition: { type: 'perfectQuizzes', value: 3 },
-    chatMessages: {
-      happy: [
-        'Meo~ Mimi thấy bạn giỏi lắm! 🐱',
-        'Ngôi sao lấp lánh! ⭐',
-        'Mimi tin bạn sẽ hoàn hảo! 💫',
-        'Trăng sáng đêm nay, từ vựng sáng theo! 🌙',
-        'Một cu dỗi nhẹ vào câu trả lời đúng! 🐾',
-      ],
-      sad: [
-        'Mimi buồn... Meo meo... 😿',
-        'Vi tinh rơi, ánh sao cũng mờ... 🥺',
-      ],
-      sick: [
-        'Mimi ốm rồi... 🤒',
-        'Lông xù rối, cần bạn chăm sóc 😷',
-      ],
-    },
   },
 
   owlbert: {
@@ -467,23 +364,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Owlbert', xp: 2500, emoji: '👑', image: OWLBERT_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 15, category: 'grammar' },
-    chatMessages: {
-      happy: [
-        'Hoo hoo! Ngữ pháp là nghệ thuật! 🦉',
-        'Owlbert biết tất cả quy tắc! 📖',
-        'Thông thái như Owlbert! 🎓',
-        'Cụm giới từ? Dễ thui! 📚',
-        'Đêm khuya tĩnh mịch, tri thức sáng như đèn! 💡',
-      ],
-      sad: [
-        'Hoo... Owlbert cô đơn 😢',
-        'Sao không ai hỏi ngữ pháp Owlbert nữa vậy? 🥺',
-      ],
-      sick: [
-        'Owlbert ốm... 🤒',
-        'Mắt mờ, không đọc được sách... 😷',
-      ],
-    },
   },
 
   flippy: {
@@ -502,23 +382,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Flippy', xp: 2500, emoji: '👑', image: FLIPPY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'words', value: 100 },
-    chatMessages: {
-      happy: [
-        'Splash! Học từ mới nào! 🐬',
-        'Flippy nói tiếng Anh giỏi lắm! 🌊',
-        'Đại dương kiến thức! 💙',
-        'Lặn sâu vào câu, nổi lên với ý nghĩa! 🌬️',
-        'Cuộc trò chuyện là dòng hải lưu! 🗣️',
-      ],
-      sad: [
-        'Flippy buồn... 😢',
-        'Biển lặng, không có ai để nhảy sóng cùng... 🥺',
-      ],
-      sick: [
-        'Flippy ốm... 🤒',
-        'Vây mệt lắm, bơi chậm hơn thường ngày 😷',
-      ],
-    },
   },
 
   leo: {
@@ -537,23 +400,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Leo', xp: 2500, emoji: '👑', image: LEO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'xp', value: 1000 },
-    chatMessages: {
-      happy: [
-        'ROAR! Leo mạnh lắm! 🦁',
-        'Vua muôn loài đây! 👑',
-        'Sức mạnh đến từ kiến thức! 💪',
-        'Một tiếng gầm, ngàn câu tiếng Anh! 🔥',
-        'Dũng cảm đối diện mọi bài quiz! ⚡',
-      ],
-      sad: [
-        'Leo buồn... Gầm nhẹ thôi 😢',
-        'Bộ bờm rủ xuống, không ai luyện cùng... 🥺',
-      ],
-      sick: [
-        'Leo ốm rồi... 🤒',
-        'Vương miện nặng trĩu, cần bạn tiếp sức 😷',
-      ],
-    },
   },
 
   bamboo: {
@@ -572,23 +418,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Bamboo', xp: 2500, emoji: '👑', image: BAMBOO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 8 },
-    chatMessages: {
-      happy: [
-        'Nom nom! Bamboo ăn tre và học! 🐼',
-        'Bamboo nói giỏi lắm nè! 🎋',
-        'Giao tiếp là sức mạnh! 💚',
-        'Nhồ tre, trồng bụi, nói tiếng Anh đúng chuẩn! 🌿',
-        'Một câu tiếng Anh ngon như một miếng tre trúc! 😄',
-      ],
-      sad: [
-        'Bamboo buồn... Đói tre 😢',
-        'Lá tre khô hết rồi, cần nhạc mới... 🥺',
-      ],
-      sick: [
-        'Bamboo ốm... 🤒',
-        'Bụng đau, nói chẳng ra hiên... 😷',
-      ],
-    },
   },
 
   storm: {
@@ -607,23 +436,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Storm', xp: 2500, emoji: '👑', image: STORM_IMAGES.legendary },
     ],
     unlockCondition: { type: 'streak', value: 30 },
-    chatMessages: {
-      happy: [
-        'Bay cao cùng Storm! 🦅',
-        'Bão tố không thể cản! ⚡',
-        'Kiên trì là sức mạnh! 💨',
-        'Đứng trên mây – nhìn mọi từ vựng bên dưới! ☁️',
-        'Cánh rộng vươn xa, từ trầm sắc sảo! 🔊',
-      ],
-      sad: [
-        'Storm buồn... Trời yên gió lặng 😢',
-        'Mấy hôm không có bão nào cả, nhớ bầu trời... 🥺',
-      ],
-      sick: [
-        'Storm ốm... Không bay được 🤒',
-        'Lông vũ ướt sũng, cần nắng ấm 😷',
-      ],
-    },
   },
 
   shadow: {
@@ -642,23 +454,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Shadow', xp: 2500, emoji: '👑', image: SHADOW_IMAGES.legendary },
     ],
     unlockCondition: { type: 'quizzes', value: 50 },
-    chatMessages: {
-      happy: [
-        'Awoo~ Shadow giỏi lắm! 🐺',
-        'Bóng tối che giấu sức mạnh! 🌑',
-        'Trí tuệ và sáng tạo! ✨',
-        'Ánh trăng sáng – câu văn sắc như nanh sói! 🌘',
-        'Lặng lẽ quan sát, am hiểu mọi quy tắc! 🔮',
-      ],
-      sad: [
-        'Shadow cô đơn... 😢',
-        'Đên không trăng, mình hu cùng tiếng vọng... 🥺',
-      ],
-      sick: [
-        'Shadow ốm... 🤒',
-        'Ánh mắt mờ, không nhìn rõ trang sách 😷',
-      ],
-    },
   },
 
   prisma: {
@@ -677,23 +472,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Prisma', xp: 2500, emoji: '👑', image: PRISMA_IMAGES.legendary },
     ],
     unlockCondition: { type: 'xp', value: 2500 },
-    chatMessages: {
-      happy: [
-        'Cầu vồng kiến thức! 🌈',
-        'Prisma tỏa sáng! 🦄',
-        'Huyền thoại đây rồi! ✨',
-        'Bảy sắc hòa quyện, bảy kỹ năng khởi sắc! 🌬️',
-        'Phep màu học tập – bắt đầu từ bạn! 💫',
-      ],
-      sad: [
-        'Prisma mờ nhạt... 😢',
-        'Cầu vồng nhạt dần, bạn là ánh sáng duy nhất 🥺',
-      ],
-      sick: [
-        'Prisma ốm... Mất sắc màu... 🤒',
-        'Sừng pha lê nứt nhẹ, cần năng lượng XP của bạn 😷',
-      ],
-    },
   },
 
   draco: {
@@ -712,23 +490,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Draco', xp: 2500, emoji: '👑', image: DRACO_IMAGES.legendary },
     ],
     unlockCondition: { type: 'collection', value: 17 },
-    chatMessages: {
-      happy: [
-        'ROARRRR! Draco bậc thầy đây! 🐲',
-        'Rồng cổ đại thức giấc! 🔥',
-        'Sức mạnh tối thượng! ⚡',
-        'Ngàn năm tu luyện, một phút thiêu rụi sai sót! 🌋',
-        'Một lời rồng – vạn câu học trò! 📜',
-      ],
-      sad: [
-        'Draco buồn... Gầm nhẹ... 😢',
-        'Hang động vắng tanh, không ai để luyện cùng... 🥺',
-      ],
-      sick: [
-        'Draco ốm... 🤒',
-        'Vảy rồng xỉn màu, cần năng lượng XP mới 😷',
-      ],
-    },
   },
 
   pumpkin: {
@@ -747,23 +508,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Pumpkin', xp: 2500, emoji: '👑', image: PUMPKIN_IMAGES.legendary },
     ],
     unlockCondition: { type: 'event', eventId: 'halloween' },
-    chatMessages: {
-      happy: [
-        'Boo! Hù bạn đó! 🎃',
-        'Trick or Treat! Học tiếng Anh nào! 👻',
-        'Halloween vui vẻ! 🎃',
-        'Đêm kỳ lạ, từ mới càng kỳ diệu! 🕯️',
-        'Đùa tí nào – rồi quay lại bài quiz nhé! ✨',
-      ],
-      sad: [
-        'Pumpkin héo rồi... 😢',
-        'Lễ hội qua đi, ai còn nhớ Pumpkin... 🥺',
-      ],
-      sick: [
-        'Pumpkin ốm... 🤒',
-        'Đèn trong bí tắt, cần bạn thắp sáng 😷',
-      ],
-    },
   },
 
   monk: {
@@ -782,23 +526,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Thiền Sư Monk',   xp: 2500, emoji: '☸️', image: MONK_IMAGES.legendary },
     ],
     unlockCondition: { type: 'event', eventId: 'buddhist' },
-    chatMessages: {
-      happy: [
-        'Nam mô A Di Đà Phật, chào bạn an lạc 🙏',
-        'Tâm tĩnh thì trí sáng — học bài thôi nào 🪷',
-        'Mỗi từ học được là một đóa sen nở ✨',
-        'Từ bi và kiên trì, bạn sẽ giỏi tiếng Anh 📿',
-        'Hôm nay là ngày Phật, học một bài lấy phước nha ☸️',
-      ],
-      sad: [
-        'Tâm chưa an, học hành trễ nải rồi... 🥺',
-        'Monk lặng lẽ tụng kinh chờ bạn quay lại 🪷',
-      ],
-      sick: [
-        'Thân tứ đại mỏi mệt, cần bạn chăm sóc 🤒',
-        'Hãy cho Monk chút thời gian thiền định nha 😷',
-      ],
-    },
   },
 
   ginseng: {
@@ -817,23 +544,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Ginseng', xp: 2500, emoji: '👑', image: GINSENG_IMAGES.legendary },
     ],
     unlockCondition: { type: 'collection_species', value: ['leafy', 'bamboo', 'paddy', 'mushroom'] },
-    chatMessages: {
-      happy: [
-        'Nhân sâm nghìn năm đây! 🌱',
-        'Ginseng hồi phục năng lượng cho bạn! 💚',
-        'Trí tuệ cổ xưa, kiến thức vĩnh cửu! ✨',
-        'Rễ sâu gốc vững, học chắc nhớ lâu! 🌿',
-        'Mỗi bài học là một giọt sương sớm! 💧',
-      ],
-      sad: [
-        'Ginseng héo rồi... Cần bạn tưới nước 🥺',
-        'Đất khô cằn, lâu không nghe tiếng bạn 😢',
-      ],
-      sick: [
-        'Ginseng ốm... Rễ yếu lắm... 🤒',
-        'Mầm cữ già nua, cần năng lượng XP để hồi phục 😷',
-      ],
-    },
   },
 
   paddy: {
@@ -852,23 +562,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Paddy', xp: 2500, emoji: '👑', image: PADDY_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 12 },
-    chatMessages: {
-      happy: [
-        'Mùa vàng bội thu! 🌾',
-        'Paddy chăm chỉ như cánh đồng lúa! 🌱',
-        'Từng hạt kiến thức, tích lũy mỗi ngày! ✨',
-        'Gió đồng mát rượi, học thôi nào! 🍃',
-        'Cắt một bó lúa, gom một đám từ vựng! 📚',
-      ],
-      sad: [
-        'Paddy héo rồi... Cần nước tưới 🥺',
-        'Đồng trống, chưa có ai gieo mầm... 😢',
-      ],
-      sick: [
-        'Paddy ốm... Sâu bệnh rồi... 🤒',
-        'Bông lúa lép, cần bạn quay lại chăm sóc 😷',
-      ],
-    },
   },
 
   sprout: {
@@ -887,23 +580,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Legendary Sprout', xp: 2500, emoji: '👑', image: SPROUT_IMAGES.legendary },
     ],
     unlockCondition: { type: 'streak', value: 14 },
-    chatMessages: {
-      happy: [
-        'Vươn cao nào! 🎋',
-        'Sprout cứng cáp hơn mỗi ngày! 💪',
-        'Tre già măng mọc, kiến thức bất tận! 🌿',
-        'Gió lớn không gãy, kiên cường học tập! 🌪️',
-        'Màu xanh măng tre là màu của hy vọng! 🌱',
-      ],
-      sad: [
-        'Sprout buồn... Thiếu ánh sáng 🥺',
-        'Luộc hết, bụi tre cùng héo theo... 😢',
-      ],
-      sick: [
-        'Sprout ốm... Lá vàng rồi... 🤒',
-        'Thân măng mềm oai, cần bạn tiếp sức 😷',
-      ],
-    },
   },
 
   mushroom: {
@@ -923,23 +599,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Nấm Tiên',  xp: 2500, emoji: '👑', image: MUSHROOM_IMAGES.legendary },
     ],
     unlockCondition: { type: 'words', value: 80 },
-    chatMessages: {
-      happy: [
-        'Lặng lẽ mọc trong đêm, sáng ra đã thành rừng nấm! 🍄',
-        'Nấm Rơm thích đọc sách trong rừng tre! 📖',
-        'Đất ẩm, rơm khô — môi trường hoàn hảo để học! 🌧️',
-        'Một câu chuyện hay như mùi rơm mới gặt! 🌾',
-        'Hái nấm cùng từ vựng, gom đầy giỏ kiến thức! 🧺',
-      ],
-      sad: [
-        'Nấm Rơm khô héo rồi... Cần một trận mưa từ vựng 🥺',
-        'Rừng rơm vắng tiếng bạn, Nấm co lại nhỏ xíu 😢',
-      ],
-      sick: [
-        'Nấm Rơm ốm... Mũ nấm tóp lại rồi 🤒',
-        'Bào tử yếu ớt, cần XP để hồi sinh 😷',
-      ],
-    },
   },
 
   radish: {
@@ -959,23 +618,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Củ Cải Huyền Thoại', xp: 2500, emoji: '👑', image: RADISH_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 10 },
-    chatMessages: {
-      happy: [
-        'Rễ sâu, lá xanh, chữ vững! ✍️',
-        'Củ Cải viết câu nào là chắc câu đó! 📝',
-        'Trắng tinh khôi như trang giấy mới! 📃',
-        'Một củ cải, một bài luận hoàn hảo! 💪',
-        'Giòn ngọt như niềm vui khi học xong bài! 🥗',
-      ],
-      sad: [
-        'Củ Cải buồn... Đất khô nứt nẻ rồi 🥺',
-        'Lá rũ xuống, lâu không có ai viết cùng 😢',
-      ],
-      sick: [
-        'Củ Cải ốm... Củ mềm rồi 🤒',
-        'Bị sâu cắn lá, cần bạn tiếp năng lượng XP 😷',
-      ],
-    },
   },
 
   bun: {
@@ -995,23 +637,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Bánh Bao Vương',   xp: 2500, emoji: '👑', image: BUN_IMAGES.legendary },
     ],
     unlockCondition: { type: 'perfectQuizzes', value: 5 },
-    chatMessages: {
-      happy: [
-        'Nóng hổi vừa thổi vừa ăn — vừa học vừa vui! 🥟',
-        'Bánh Bao có nhân — câu nói có nghĩa! ✨',
-        'Hấp lên thôi! Ý tưởng đang bốc khói! ♨️',
-        'Tròn trịa như câu văn hoàn chỉnh! 💯',
-        'Một cái bánh bao, một câu chuyện ấm bụng! 💬',
-      ],
-      sad: [
-        'Bánh Bao nguội rồi... Cần bạn hâm lại bằng XP 🥺',
-        'Nhân bánh khô khốc, lâu không có ai trò chuyện 😢',
-      ],
-      sick: [
-        'Bánh Bao ốm... Vỏ nhăn nheo rồi 🤒',
-        'Lò hấp tắt lửa, cần bạn nhóm lại 😷',
-      ],
-    },
   },
 
   bamboo_spirit: {
@@ -1030,23 +655,6 @@ export const PET_REGISTRY = {
       { stage: 4, name: 'Huyền Linh Trúc',    xp: 2500, emoji: '👑', image: BAMBOO_SPIRIT_IMAGES.legendary },
     ],
     unlockCondition: { type: 'lessons', value: 15 },
-    chatMessages: {
-      happy: [
-        'Gió trúc mát lành, cùng học tiếng Anh nhé! 🎋',
-        'Linh khí rừng xanh đang cổ vũ bạn đó! 🌿',
-        'Mỗi từ mới như một búp măng vươn lên! 🌱',
-        'Tĩnh tâm và bền bỉ, bạn làm tốt lắm! ✨',
-        'Bamboo Spirit luôn ở bên cạnh bạn! 💚',
-      ],
-      sad: [
-        'Rừng trúc hơi vắng lặng... Học cùng mình nha 🥺',
-        'Lá trúc xào xạc nhớ tiếng đọc bài của bạn 😢',
-      ],
-      sick: [
-        'Linh khí suy yếu rồi... Cần XP từ bài học 🤒',
-        'Bamboo Spirit hơi mệt, làm 1 bài nhỏ nhé 😷',
-      ],
-    },
   },
 };
 
@@ -1326,13 +934,6 @@ export function getPetMood(needs) {
   return 'happy';
 }
 
-// ── Helper: Get random message ───────────────────────────────────────────────
-export function getPetMessage(speciesId, mood) {
-  const species = PET_REGISTRY[speciesId];
-  if (!species) return 'Moo~';
-  const msgs = species.chatMessages?.[mood] || species.chatMessages?.happy || ['Học tiếng Anh cùng nhau nhé!'];
-  return msgs[Math.floor(Math.random() * msgs.length)];
-}
 
 /**
  * Hợp nhất danh mục pet động (do Admin thêm/sửa trên /admin/pet-motion) và ảnh avatar mới tải lên
@@ -1372,11 +973,6 @@ export function mergeDynamicPetCatalog(payload, apiBase = '') {
       evolutions: defaultEvos,
       baseStats: existing?.baseStats || { listening: 5, speaking: 5, reading: 5, writing: 5 },
       unlockCondition: p.unlockCondition || existing?.unlockCondition || { type: 'lessons', value: 1, text: 'Mở khoá qua sự kiện / quản trị' },
-      chatMessages: existing?.chatMessages || {
-        happy: [`Chào bạn! ${p.name || 'Mình'} rất vui được học cùng bạn!`],
-        sad: [`Học thêm 1 bài cùng ${p.name || 'mình'} nhé!`],
-        sick: [`${p.name || 'Mình'} hơi mệt rồi, vào học để tiếp năng lượng nha!`],
-      },
       isCustom: Boolean(p.isCustom ?? !existing),
     };
     changed = true;

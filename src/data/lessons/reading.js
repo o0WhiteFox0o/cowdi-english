@@ -49,9 +49,17 @@ function buildQuestions(vocabulary, highlights) {
   const picked = shuffle(pool).slice(0, Math.min(3, pool.length));
   const questions = [];
   for (const v of picked) {
-    const distractors = shuffle(
-      vocabulary.filter((x) => x.word !== v.word && x.meaning)
-    ).slice(0, 3);
+    const normTarget = String(v.meaning || '').trim().toLowerCase();
+    const seenMeanings = new Set([normTarget]);
+    const distractors = [];
+    for (const x of shuffle(vocabulary)) {
+      if (distractors.length >= 3) break;
+      if (x.word === v.word || !x.meaning) continue;
+      const nm = String(x.meaning).trim().toLowerCase();
+      if (!nm || seenMeanings.has(nm)) continue;
+      seenMeanings.add(nm);
+      distractors.push(x);
+    }
     if (distractors.length < 3) continue;
     const opts = shuffle([v.meaning, ...distractors.map((d) => d.meaning)]);
     questions.push({

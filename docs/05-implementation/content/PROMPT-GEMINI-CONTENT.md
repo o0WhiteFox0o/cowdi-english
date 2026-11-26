@@ -8,7 +8,8 @@ Dán phần "Lời nhắc" dưới đây vào Gemini (Antigravity / Gemini CLI) 
 Bạn soạn nội dung bài học cho repo Cowdi English. Trước khi viết bất cứ gì, đọc theo đúng thứ tự:
 
 1. docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md   — chuẩn bắt buộc
-2. docs/05-implementation/content/MAP-CURRENT-UI.md             — UI hiện tại dùng trường nào
+2. docs/05-implementation/content/STD-QUESTION-QUALITY-v1.0.md — quy tắc chất lượng câu hỏi (5 luật cứng)
+3. docs/05-implementation/content/MAP-CURRENT-UI.md             — UI hiện tại dùng trường nào
 3. src/data/lessons/schema.js                                    — chuẩn dạng mã, chạy được
 4. Bài golden của đúng cấp:
    - cấp 1: src/data/lessons/_golden/s1-pets.js

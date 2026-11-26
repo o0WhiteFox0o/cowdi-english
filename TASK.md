@@ -150,20 +150,20 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [ ] Sữa Đấu trường ≈ 10–20% Sữa từ học trên dữ liệu thử
 
 ## GĐ6 — Lõi gacha + thiệp mời + quay khởi đầu
-- [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; rà `activePetId = 'cowdi_1'`
+- [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; ghi `source` (`starter`/`starter_pull`/`gift_card`/`event:<id>`) để sau này lấy lại Cowdi qua sự kiện không bị trùng; rà `activePetId = 'cowdi_1'`
 - [ ] Lõi gacha server: RNG an toàn, tỉ lệ theo config, lịch sử 100 lượt, công khai tỉ lệ
-- [ ] Thiệp mời chỉ cho người mới; màn chọn Cowdi / quay pet khởi đầu (D7)
+- [ ] Thiệp mời chỉ cho người mới; màn chọn Cowdi (+ phụ kiện "Khăn Bạn Đầu Tiên") / quay pet khởi đầu (D7 + `REFERRAL-GACHA-TICKET.md` v0.3)
 - [ ] Bảng `invites`: `starter_choice`, `starter_species`, `gift_card_id`
 
 **Tiêu chí xong**
 - [ ] Người mới qua thiệp nhận đúng pet theo lựa chọn; không tạo nhầm Cowdi; tài khoản cũ không nhận được thiệp
 
 ## GĐ7 — Gacha đầy đủ
-- [ ] Vé gacha 50 Gem mua lẻ; nguồn vé miễn phí
-- [ ] Bể gacha thường (D5), không bảo hiểm
-- [ ] Banner 3 tuần + pet giới hạn đầu tiên + nhiệm vụ sự kiện 15 bài
-- [ ] Thẻ tặng pet qua `InviteSheet` (D6); bảng `pet_gift_cards`
-- [ ] Bụi sao và cửa hàng Bụi sao
+- [ ] Vé gacha 50 Gem mua lẻ; nguồn vé miễn phí (dùng chung `wallet_ledger.currency = 'gacha_ticket'` đã có từ phân hệ Bạn bè)
+- [ ] Bể gacha thường (D5), không bảo hiểm; quà trùng đổi sang Gem/Sữa (`gacha_duplicate`: Thường/Hiếm đủ hết → 600 Sữa, Sử thi → +10 Gem)
+- [ ] Banner 3 tuần + pet giới hạn đầu tiên + nhiệm vụ sự kiện 15 bài (+ nhiệm vụ sự kiện lấy lại Cowdi)
+- [ ] Thẻ tặng pet qua `InviteSheet` (D6); bảng `pet_gift_cards`; hết hạn 60 ngày đổi +10 Gem (`gift_card_expired`)
+- [-] Bụi sao và cửa hàng Bụi sao — Bỏ theo quyết định Q3 trong `REFERRAL-GACHA-TICKET.md` v0.3 (đổi quà trùng thẳng sang Gem/Sữa)
 
 **Tiêu chí xong**
 - [ ] Mô phỏng 100 000 lượt ra đúng tỉ lệ; thẻ tặng chỉ người mới nhận được
@@ -206,6 +206,35 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 ---
 
+## Bạn bè & Thưởng mời bạn (`feat/friends`)
+
+> Tài liệu nguồn: [SRS-FRIENDS-v1.1.md](docs/04-design/SRS-FRIENDS-v1.1.md) · [TASK-FRIENDS.md](docs/05-implementation/TASK-FRIENDS.md) · [RPT-FRIENDS-SURVEY.md](docs/05-implementation/RPT-FRIENDS-SURVEY.md) · [REFERRAL-GACHA-TICKET.md](docs/04-design/economy-v2/REFERRAL-GACHA-TICKET.md)
+
+- [x] Bước 0 — Bổ sung tài liệu phân hệ Bạn bè & Thưởng mời bạn, khảo sát mã nguồn và viết `RPT-FRIENDS-SURVEY.md` — 2026-11-25
+- [x] Bước 1 — Migration `migrate-friends.sql` (+ runner MySQL 5.5/5.6+), cấu hình `shared/game-config.js`, hàm thuần `shared/friends.js` + test — 2026-11-25
+- [x] Bước 2 — OG riêng cho `/i/:code` phía Express, cấu hình Nginx mẫu & thay QR ngoài bằng QR tạo tại client — 2026-11-25
+- [x] Bước 3 — Biệt danh, vá redirect OAuth `cowdi_pending_invite`, chống gian lận IP/thiết bị, thưởng mời bạn (+3 Gem, +500 Sữa, mốc vé gacha/danh hiệu) + AT-02..AT-05 — 2026-11-25
+- [x] Bước 4 — Hệ thống Bạn bè (tự kết bạn qua thiệp, `friend_code`, lời mời, huỷ, chặn, báo cáo) + `FriendsPage.jsx` + AT-06..AT-07 — 2026-11-25
+- [x] Bước 5 — Thăm pet bạn bè (`FriendPetPage.jsx`) & thách đấu bạn bè (không tính league points) + AT-10 — 2026-11-25
+- [x] Bước 6 — Bạn bè trên bản đồ lộ trình (`GET /api/friends/path-progress`, `useFriendPositions.js`, UI `LearningPathPage.jsx`, toast vượt qua) + AT-08..AT-09 — 2026-11-25
+- [x] Bước 7 — Ghi sự kiện `app_events` (NFR-06), rà payload bảo mật API (AT-11) & hoàn tất kiểm định build/test — 2026-11-25
+
+---
+
+## Pet Director V2 — Điều phối biểu đạt Pet (`feat/pet-director`)
+
+> Tài liệu nguồn: [SDD-PET-DIRECTOR-v1.1.md](docs/04-design/SDD-PET-DIRECTOR-v1.1.md) · [RPT-PET-DIRECTOR-SURVEY.md](docs/05-implementation/RPT-PET-DIRECTOR-SURVEY.md) · [TASK-PET-DIRECTOR.md](docs/05-implementation/TASK-PET-DIRECTOR.md) · [PET-MOTION.md](docs/PET-MOTION.md)
+
+- [x] Bước 0 — Tiếp nhận gói `cowdi-pet-director.zip`, khảo sát mã nguồn (`Pet-motion`, `PictureLesson`, `Zero-Scroll Quiz`, CSS 3 file, Lộ trình + Bạn bè), viết SDD v1.1 + Báo cáo khảo sát + Plan 5 gói A–E — 2026-11-25 · edccdaf
+- [x] GĐ1 · Gói A — Lõi `PetDirector` thuần JS (`rules.js`, `storage.js`, `lineSelector.js`, `PetDirector.js`, `common.js`, `index.js`) + `lines.test.mjs` & `pet-director.test.mjs` + thêm vào `npm test` — 2026-11-25 · 6774126
+- [x] GĐ1 · Gói B — Mở rộng `PetRig.js` & `PetAvatar.jsx` (`canvasBubble`, chuẩn hoá `tap` cho cả rig duyệt & ảnh tĩnh fallback, sửa text P3) + test `pet-rig.test.mjs` — 2026-11-25 · f7df4d7
+- [x] GĐ1 · Gói C — `DirectorContext`, `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PetSpeech>`, `<PetThought>`; tích hợp `LessonDetailPage`, `PictureLesson`, `PracticePage`, `LearningPathPage` (`app_open`); gỡ `CowdiChat` & xoá `.cowdi-chat-*` trên 3 file CSS — 2026-11-25 · c93e950
+- [x] GĐ2 · Gói E — Kho câu thoại `cowdi.js` (240+ câu đạt §5.2, chuyển `PAGE_TIPS`) + trung tính hoá `common.js` + `lines.test.mjs` — 2026-11-25 · 7b25f65
+- [x] GĐ2 · Gói D — `<PathPet>` + thẻ hành động trên `LearningPathPage`; chuyển `HomePage`, `PetPage`, `DuelPage` sang Director; thêm preview Director trong `StudyPreviewTab`; xoá `CowdiChat.jsx`, `chatMessages`, `getPetMessage` — 2026-11-25 · ee49eba
+- [x] Tinh chỉnh UI V2 — Đưa Header/Stepper lên trên, chuyển `<PetStage>` sang bố cục đồng hành `sticky` (cân giữa cụm Flashcard/Nghe/Nói/Quiz/Practice, `.lesson-step-footer` full-width, bỏ banner thừa `"Nói theo Cowdi!"`) — 2026-11-26 · ae761cb, 5278843
+
+---
+
 ## Vấn đề đang chặn
 | Ngày | GĐ | Vấn đề | Cần ai quyết | Trạng thái |
 |---|---|---|---|---|
@@ -216,6 +245,14 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-26 | Question QA (Đợt 2 & Merge) | Dọn file trùng `src/data/quiz-bank-extra.js`, cân chỉnh toàn bộ **70 cảnh báo `Q-LEN` và 89 cảnh báo `Q-POS`** trên trọn bộ 44 file bài v2 (`int-u1..u10` + 3 bài IELTS Reading v2 + golden) → **54/54 bài v2 đạt 0 lỗi · 0 cảnh báo**, cập nhật `RPT-QUESTION-AUDIT-2026-11-26.md` và gộp `feat/question-qa` vào `main` | `c10fd5d`, `main` | 188/188 test pass, build + prebuild pass |
+| 2026-11-26 | Question QA (Q0–Q6) | Gộp `feat/pet-director` vào `main` (`b04cb1c`), mở `feat/question-qa` hoàn tất Q0–Q6: đưa `STD-QUESTION-QUALITY v1.0` & `GEMINI-QUESTION-QA` vào repo, sửa `PlacementTest` hỗ trợ `audioText`/tự phát/nút nghe chậm/lọc câu nghe hỏng + chặn Pet Director khi onboarding, nâng cấp `quiz-gen.js` lọc nhiễu cùng `category` + gắn `category` & ô màu `swatch` cho 12 bài Starter + test 500 lượt (`shared/quiz-gen.test.js`), tạo `shared/question-rules.js` (14 mã) + `src/data/lexicon/*` + 14 test, thêm `--questions --fail-on-hard` vào `validate-lessons.mjs` & `prebuild`, xuất `RPT-QUESTION-AUDIT-2026-11-26.md`, sửa dứt điểm toàn bộ 29 lỗi cứng trên bài học & `QUIZ_BANK` (**0 lỗi cứng / 2.829 câu**) | `f66a981` → `51bca1f` (`feat/question-qa`) | 188/188 test pass, build + prebuild pass |
+| 2026-11-26 | Pet Director UI | Hoàn thiện bố cục đồng hành V2 (`<PetStage>` `sticky` bên trái trên Desktop, cân giữa cụm Flashcard/Nghe/Nói/Quiz/Practice, `.lesson-step-footer` full-width, bỏ banner thừa `"Nói theo Cowdi!"`) và đồng bộ toàn bộ tài liệu SDD v1.1.1 / TASK / LOG / REG / RTM | `ae761cb`, `5278843` | 170/170 test pass, build pass, UAT local OK |
+| 2026-11-25 | Pet Director A–E | Hoàn thành trọn bộ Pet Director V2 (GĐ1–2, Gói A/B/C/E/D) trên nhánh `feat/pet-director`: lõi thuần JS + 16 test (`rules`, `storage`, `lineSelector`, `PetDirector`), mở rộng `PetRig`/`PetAvatar` (`canvasBubble` + chuẩn hoá `tap` cả ảnh tĩnh), `<PetStage>` (có `compact` giữ Zero-Scroll Quiz), `<PathPet>` + thẻ hành động, 240+ câu thoại `cowdi.js` + `common.js` trung tính, chuyển 7 màn hình sang Director, thêm công tắc preview Director trong `StudyPreviewTab`, gỡ hoàn toàn `CowdiChat.jsx`, `.cowdi-chat-*` (3 file CSS), `chatMessages` & `getPetMessage` | `feat/pet-director` | 170/170 test pass, build pass |
+| 2026-11-25 | Pet Director B0 | Khảo sát gói `cowdi-pet-director.zip` đối chiếu mã nguồn & hệ `Pet-motion`, soạn `SDD-PET-DIRECTOR-v1.1.md`, `RPT-PET-DIRECTOR-SURVEY.md`, `TASK-PET-DIRECTOR.md` (Plan 5 gói A–E), lưu mockups và đồng bộ `PET-MOTION.md`, `REG-DOCUMENTS.md`, `LOG-PROGRESS.md`, `RTM-COWDI.md` | — | Chờ PO duyệt Plan trước khi code |
+| 2026-11-25 | Bạn bè UX | Bỏ form đặt biệt danh riêng (dùng thẳng tên hiển thị tài khoản), thêm tìm & kết bạn bằng email khớp chính xác (`GET /api/friends/lookup`), thêm máy quét QR trong App (`QrScannerModal` camera + chọn ảnh qua `jsqr`), giữ `?add=CODE` qua OAuth cho người chưa cài App, định dạng ngày VN `dd/mm/yyyy` | `main` | 152/152 test pass, build & deploy.zip pass |
+| 2026-11-25 | Bạn bè B1–B7 | Hoàn thiện toàn bộ Phân hệ Bạn bè & Thưởng mời bạn trên nhánh `feat/friends`: migration MySQL 5.5/5.6+, OG `/i/:code` + QR client, biệt danh + chống gian lận + thưởng +3 Gem/+500 Sữa/mốc vé gacha (trần 3/tháng), bạn bè + chặn/báo cáo, thăm pet + thách đấu giao hữu không LP, bạn bè trên bản đồ lộ trình + toast vượt qua, ghi 5 sự kiện `app_events` và kiểm định AT-02..AT-11 | `feat/friends` | 152/152 test pass, build pass |
+| 2026-11-25 | Bạn bè B0 | Bổ sung tài liệu Bạn bè & Thưởng mời bạn (`SRS-FRIENDS-v1.1`, `REFERRAL-GACHA-TICKET`, `TASK-FRIENDS`), đăng ký `REG-DOCUMENTS` và viết báo cáo khảo sát `RPT-FRIENDS-SURVEY.md` | `feat/friends` | Khảo sát 7 điểm, không sửa code |
 | 2026-11-24 | Wallet / Fix | Khắc phục triệt để lỗi không nhận Sữa trong bài học (race condition sync/refreshWallet) & đấu trường (thiếu cộng total_xp DB và trả ví chuẩn D4) | da7c5f8 | 120/120 test pass, build pass |
 | 2026-11-24 | 4 / UI | Sửa lỗi không cộng thưởng Sữa sau khi học / đấu trường (`useUser.jsx` đồng bộ `wallet.milk` tức thì + tự flush progress trước `refreshWallet`) & xoay mặt bò bên trái sang phải (`pet.css` `scaleX(-1)`) | f38de8a | 120/120 test pass, build pass |
 | 2026-11-24 | 4 | Mở bán Đồ trang trí thật (19 Nền, 15 Hào quang, 10 nền hệ), bảng owned_cosmetics, ledger mua Sữa/Gem, combo -20%, trang bị/tháo mượt mà | 1276060 | 120/120 test pass, build pass |

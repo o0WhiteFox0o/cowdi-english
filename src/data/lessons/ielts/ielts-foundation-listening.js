@@ -45,7 +45,13 @@ export const IELTS_FOUNDATION_LISTENING_LESSON = {
     { question: "Câu nào dùng để nhờ nhắc lại?",           options: ["Please sit down.", "Could you repeat that?", "Thank you.", "I'm busy."], correct: 1 },
     { question: "\"Depart\" trái nghĩa với:",              options: ["Reserve", "Confirm", "Arrive", "Spell"],                      correct: 2 },
     { question: "\"The train leaves from ___ 3.\"",        options: ["address", "platform", "postcode", "schedule"],                correct: 1 },
-    { question: "Nghe \"oh-seven-double-nine\" là số:",    options: ["0799", "0779", "0779-9", "0709"],                             correct: 0 },
+    {
+      question: "Nghe số điện thoại và chọn dãy số đúng:",
+      audioText: "My phone number is oh-seven-double-nine.",
+      options: ["0799", "0779", "0779-9", "0709"],
+      correct: 0,
+      explanation: "Trong IELTS Listening, 'oh' là số 0 và 'double nine' là 99, nên 'oh-seven-double-nine' là 0799.",
+    },
   ],
 };
 

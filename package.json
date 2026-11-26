@@ -6,15 +6,18 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "prebuild": "node scripts/build-lesson-ids.mjs && node scripts/validate-lessons.mjs",
+    "prebuild": "node scripts/build-lesson-ids.mjs && node scripts/validate-lessons.mjs && node scripts/validate-lessons.mjs --questions --fail-on-hard",
     "validate:lessons": "node scripts/validate-lessons.mjs",
+    "validate:questions": "node scripts/validate-lessons.mjs --questions --fail-on-hard",
     "build": "vite build",
     "build:prod": "vite build --config vite.config.prod.js --mode production",
     "preview": "vite preview",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
-    "test": "node --test \"shared/*.test.js\" \"server/tests/*.test.mjs\" \"src/pet-rig/*.test.mjs\""
+    "test": "node --test \"shared/*.test.js\" \"server/tests/*.test.mjs\" \"src/pet-rig/*.test.mjs\" \"src/pet-director/*.test.mjs\""
   },
   "dependencies": {
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.26.0"

@@ -18,7 +18,7 @@ export const TOEIC_PART4_TALKS_LESSON = {
     { word: "Disregard", phonetic: "/ˌdɪsrɪˈɡɑːd/", meaning: "Bỏ qua", example: "Please disregard the previous email.", illustration: "🚫" },
     { word: "Stay tuned", phonetic: "/steɪ tjuːnd/", meaning: "Đón xem tiếp", example: "Stay tuned for more updates.", illustration: "📻" },
     { word: "Headline", phonetic: "/ˈhedlaɪn/", meaning: "Tiêu đề tin", example: "Today's top headline is...", illustration: "📰" },
-    { word: "Notify", phonetic: "/ˈnəʊtɪfaɪ/", meaning: "Thông báo", example: "We'll notify you of any changes.", illustration: "🔔" }
+    { word: "Notify", phonetic: "/ˈnəʊtɪfaɪ/", meaning: "Báo tin / Thông báo cho ai", example: "We'll notify you of any changes.", illustration: "🔔" }
   ],
   grammar: [
     {

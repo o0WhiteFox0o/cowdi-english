@@ -3,6 +3,10 @@ import { PET_REGISTRY } from '../../data/pets';
 import { CLIPS } from '../../../shared/pet-motion.js';
 import { getClipLabelVi } from '../../../shared/pet-motion-labels.js';
 import { PetAvatar } from '../../pet-rig/PetAvatar';
+import { PetDirector } from '../../pet-director/PetDirector';
+import { createDirectorStorage, createMemoryStorage } from '../../pet-director/storage';
+import PetSpeech from '../../pet-director/PetSpeech';
+import PetThought from '../../pet-director/PetThought';
 import { PET_MOTION_API_BASE } from './api';
 
 const PET_LIST = Object.values(PET_REGISTRY);
@@ -321,9 +325,60 @@ export default function StudyPreviewTab({
     });
   }, []);
 
+  // Công tắc mô phỏng Pet Director ngay trong tab Xem trước khi học (Gói D)
+  const [useDirectorPreview, setUseDirectorPreview] = useState(false);
+  const [dirSpeech, setDirSpeech] = useState(null);
+  const [dirThought, setDirThought] = useState(null);
+  const [dirTier, setDirTier] = useState(null);
+  const previewDirRef = useRef(null);
+  const dirTimerRef = useRef(null);
+
+  useEffect(() => {
+    previewDirRef.current = new PetDirector({
+      userId: `preview_${petId}`,
+      storage: createDirectorStorage(`preview_${petId}`, createMemoryStorage()),
+    });
+    setDirSpeech(null);
+    setDirThought(null);
+    setDirTier(null);
+    return () => clearTimeout(dirTimerRef.current);
+  }, [petId, useDirectorPreview]);
+
   const emitEvent = useCallback((eventName, data = {}) => {
+    if (useDirectorPreview && previewDirRef.current) {
+      const screen = mode === 'battle' ? 'battle' : mode === 'lesson' ? 'lesson' : 'home';
+      const decision = previewDirRef.current.dispatch(eventName, data, {
+        screen,
+        petId,
+        petName: petObj?.name || 'Cowdi',
+        mood: 'happy',
+        stage,
+        bond,
+        group: petObj?.group || 'farm',
+        lessonId: 'preview_quiz',
+        lessonTitle: 'Bài mẫu',
+        lessonsToday: 2,
+      });
+      if (decision) {
+        setDirTier(decision.tier);
+        if (decision.rigEvent) {
+          petRef.current?.emit(decision.rigEvent, decision.rigData);
+        }
+        if (decision.speech) {
+          clearTimeout(dirTimerRef.current);
+          setDirSpeech(decision.speech);
+          setDirThought(null);
+          dirTimerRef.current = setTimeout(() => setDirSpeech(null), decision.speech.ttlMs);
+        } else if (decision.thought) {
+          clearTimeout(dirTimerRef.current);
+          setDirThought(decision.thought);
+          dirTimerRef.current = setTimeout(() => setDirThought(null), 6000);
+        }
+      }
+      return;
+    }
     petRef.current?.emit(eventName, data);
-  }, []);
+  }, [useDirectorPreview, mode, petId, petObj?.name, petObj?.group, stage, bond]);
 
   // Đổi chế độ Ở nhà / Bài học / Trận đấu
   const handleSwitchMode = (nextMode) => {
@@ -366,11 +421,11 @@ export default function StudyPreviewTab({
       if (nextStreak === 3 || nextStreak === 5 || nextStreak === 10) {
         emitEvent('streak', { count: nextStreak });
       } else {
-        emitEvent('answer_correct');
+        emitEvent('answer_correct', { word: q.word, meaning: q.choices[q.answer] });
       }
     } else {
       setQuizStreak(0);
-      emitEvent('answer_wrong');
+      emitEvent('answer_wrong', { word: q.word, meaning: q.choices[q.answer] });
     }
 
     clearTimeout(nextQuestionTimerRef.current);
@@ -662,6 +717,15 @@ export default function StudyPreviewTab({
             >
               ⚔️ Trận đấu
             </button>
+            <button
+              type="button"
+              className={`pm-btn ${useDirectorPreview ? 'primary' : ''}`}
+              style={{ marginLeft: 'auto' }}
+              onClick={() => setUseDirectorPreview((v) => !v)}
+              title="Bật để xem phản ứng Tầng 1/2/3 của Pet Director song song với clip Pet-motion"
+            >
+              🎬 Director: {useDirectorPreview ? 'Bật' : 'Tắt'}
+            </button>
           </div>
 
           <div className={`pm-preview-stage mode-${mode}`}>
@@ -677,13 +741,28 @@ export default function StudyPreviewTab({
                 bond={bond}
                 topSkill={topSkill}
                 mode={mode}
+                canvasBubble={!useDirectorPreview}
                 motion={motion || {}}
                 basePath={PET_MOTION_API_BASE}
                 fallbackSrc={stageEvo?.image}
                 timeScale={fastForward ? 10 : 1}
+                onClip={(evt) => {
+                  if (evt === 'tap' && useDirectorPreview) emitEvent('pet_tap');
+                }}
                 onDiagnostic={handleDiagnostic}
                 className="pm-preview-canvas"
               />
+            )}
+
+            {useDirectorPreview && dirSpeech && (
+              <div style={{ position: 'absolute', right: 12, bottom: 42, maxWidth: 230, zIndex: 5 }}>
+                <PetSpeech speech={dirSpeech} placement="right" onDismiss={() => setDirSpeech(null)} />
+              </div>
+            )}
+            {useDirectorPreview && !dirSpeech && dirThought && (
+              <div style={{ position: 'absolute', right: 18, top: 44, zIndex: 5 }}>
+                <PetThought icon={dirThought} />
+              </div>
             )}
 
             <div className="pm-preview-hud-top">
@@ -693,6 +772,9 @@ export default function StudyPreviewTab({
               <span className={`pm-preview-pill ${activeClip ? 'ok' : ''}`}>
                 Clip: <strong>{activeClip || (stageHasRig ? 'tư thế nghỉ' : 'ảnh tĩnh')}</strong>
               </span>
+              {useDirectorPreview && dirTier && (
+                <span className="pm-preview-pill ok">Director T{dirTier}</span>
+              )}
               {fastForward && <span className="pm-preview-pill fast">⏩ ×10</span>}
             </div>
 

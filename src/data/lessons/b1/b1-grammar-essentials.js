@@ -103,7 +103,7 @@ export const B1_GRAMMAR_ESSENTIALS_LESSON = {
     {
       word: "Nevertheless",
       phonetic: "/ˌnɛvərðəˈlɛs/",
-      meaning: "Tuy nhiên",
+      meaning: "Tuy nhiên / Dù vậy",
       example: "It was difficult. Nevertheless, she succeeded.",
       illustration: "💪"
     },

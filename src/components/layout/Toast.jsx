@@ -22,13 +22,13 @@ export function ToastProvider({ children }) {
   const { play } = useSound();
 
   const showToast = useCallback((message, type = 'info') => {
-    const id = Date.now();
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setToasts((prev) => [...prev, { id, message, type }]);
     const snd = TYPE_SOUND[type];
     if (snd) play(snd);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
+    }, 3500);
   }, [play]);
 
   return (
