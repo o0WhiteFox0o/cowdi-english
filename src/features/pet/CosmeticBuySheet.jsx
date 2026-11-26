@@ -60,7 +60,9 @@ export default function CosmeticBuySheet({
               style={{
                 width: '48px',
                 height: '48px',
-                backgroundColor: item.bgStyle || '#f8f9fa',
+                background: item.bgStyle || '#f8f9fa',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 fontSize: '28px',
                 border: '1px solid #e9ecef',
               }}
@@ -127,8 +129,9 @@ export default function CosmeticBuySheet({
             <span className="text-muted">Giá bán:</span>
             <div className="d-inline-flex align-items-center">
               {hasSameTheme && (
-                <span className="text-decoration-line-through text-muted me-2 d-inline-flex align-items-center">
-                  {originalPrice.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="ms-1" />
+                <span className="text-muted me-2 d-inline-flex align-items-center">
+                  <span className="text-decoration-line-through">{originalPrice.toLocaleString('vi-VN')}</span>
+                  <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="ms-1" />
                 </span>
               )}
               <span className="fw-bold d-inline-flex align-items-center" style={{ color: isGem ? '#7B1FA2' : '#2E7D32', fontSize: '15px' }}>

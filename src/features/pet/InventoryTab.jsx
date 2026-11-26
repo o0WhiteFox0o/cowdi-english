@@ -27,6 +27,26 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
   const [filterType, setFilterType] = useState('all');
   const [page, setPage] = useState(1);
   const [dressingModalOpen, setDressingModalOpen] = useState(false);
+  const [serverOwnedIds, setServerOwnedIds] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadOwned() {
+      try {
+        const res = await authFetch('/api/shop/cosmetics');
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.ok && Array.isArray(data.ownedIds)) {
+            setServerOwnedIds(data.ownedIds);
+          }
+        }
+      } catch {
+        // Fallback dùng petData local
+      }
+    }
+    loadOwned();
+    return () => { cancelled = true; };
+  }, [authFetch]);
 
   useEffect(() => {
     setPage(1);
@@ -56,9 +76,9 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
     return list;
   }, []);
 
-  // Lấy danh sách đồ đã sở hữu (loại trừ food)
+  // Lấy danh sách đồ đã sở hữu (hợp nhất server owned_cosmetics + petData.ownedItems + đang mặc)
   const ownedItems = useMemo(() => {
-    const ownedIds = new Set(petData.ownedItems || []);
+    const ownedIds = new Set([...(serverOwnedIds || []), ...(petData.ownedItems || [])]);
     // Cũng bao gồm đồ đang được trang bị trên pet
     if (currentPet?.cosmetics) {
       for (const id of Object.values(currentPet.cosmetics)) {
@@ -69,7 +89,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
     return combinedCatalog.filter(
       (item) => ownedIds.has(item.id) && item.category !== 'food'
     );
-  }, [combinedCatalog, petData.ownedItems, currentPet?.cosmetics]);
+  }, [combinedCatalog, serverOwnedIds, petData.ownedItems, currentPet?.cosmetics]);
 
   const filteredItems = useMemo(() => {
     if (filterType === 'all') return ownedItems;
@@ -220,7 +240,9 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
                     style={{
                       width: '54px',
                       height: '54px',
-                      backgroundColor: item.bgStyle || '#F8F9FA',
+                      background: item.bgStyle || '#F8F9FA',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       border: '1px solid #ECEFF1',
                     }}
                   >

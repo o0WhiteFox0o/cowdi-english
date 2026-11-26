@@ -131,16 +131,22 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
   // Danh sách thô theo danh mục
   const rawList = subCategory === 'room' ? BACKGROUND_ITEMS : EFFECT_ITEMS;
 
-  // Lọc theo phẩm chất & hệ
+  // Lọc theo phẩm chất & hệ + sắp xếp món đã mua lên trên cùng
   const filteredList = useMemo(() => {
-    return rawList.filter((item) => {
+    const list = rawList.filter((item) => {
       if (rarityFilter !== 'all' && item.rarity !== rarityFilter) return false;
       if (subCategory === 'room' && elementFilter !== 'all') {
         if (item.element !== elementFilter) return false;
       }
       return true;
     });
-  }, [rawList, rarityFilter, elementFilter, subCategory]);
+    return [...list].sort((a, b) => {
+      const aOwned = ownedSet.has(a.id) ? 0 : 1;
+      const bOwned = ownedSet.has(b.id) ? 0 : 1;
+      if (aOwned !== bOwned) return aOwned - bOwned;
+      return 0;
+    });
+  }, [rawList, rarityFilter, elementFilter, subCategory, ownedSet]);
 
   const activeFilterCount = (rarityFilter !== 'all' ? 1 : 0) + (subCategory === 'room' && elementFilter !== 'all' ? 1 : 0);
 
@@ -409,7 +415,9 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
                     style={{
                       width: '54px',
                       height: '54px',
-                      backgroundColor: item.bgStyle || '#F8F9FA',
+                      background: item.bgStyle || '#F8F9FA',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       border: '1px solid #ECEFF1',
                     }}
                   >
