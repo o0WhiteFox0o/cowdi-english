@@ -68,3 +68,91 @@ export function getScoreLabel(score) {
   if (score >= 30) return { text: 'Cố thêm! 📖', color: '#E17055', icon: '📖' };
   return { text: 'Thử lại nhé! 🔄', color: '#D63031', icon: '🔄' };
 }
+
+/* ══════════════════════════════════════════════
+   TEXT-TO-SPEECH (TTS) — Dùng chung cho Flashcard & các màn học
+   SDD-FLASHCARD-AUDIO-UX v1.4 (F1, F2)
+   ══════════════════════════════════════════════ */
+
+export function cleanSpeechText(text) {
+  return String(text || '')
+    .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
+    .replace(/_+/g, ', ')
+    .replace(/\//g, ', ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function stopSpeaking() {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+  } catch { /* bỏ qua */ }
+}
+
+/** Kiểm tra trình duyệt có giọng đọc tiếng Việt (vi / vi-VN) hay không. */
+export function hasVietnameseVoice() {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false;
+  try {
+    const voices = window.speechSynthesis.getVoices() || [];
+    return voices.some((v) => v?.lang && v.lang.toLowerCase().startsWith('vi'));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Đọc văn bản bằng Web Speech API.
+ * Trả về Promise: resolve khi đọc xong hoặc bị huỷ chủ động; reject khi trình duyệt chặn ('not-allowed') hoặc lỗi phát.
+ * @param {string} text
+ * @param {number|object} [rateOrOpts]  hỗ trợ cả speakWord(text, 0.85) lẫn speakWord(text, { rate, lang, onStart, onEnd })
+ * @param {object} [extraOpts]
+ */
+export function speakWord(text, rateOrOpts = {}, extraOpts = {}) {
+  const opts = typeof rateOrOpts === 'number'
+    ? { rate: rateOrOpts, ...extraOpts }
+    : { ...(rateOrOpts || {}), ...extraOpts };
+  const { rate = 0.85, lang = 'en-US', onStart, onEnd } = opts;
+
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return Promise.reject(new Error('speechSynthesis-unavailable'));
+  }
+  const clean = cleanSpeechText(text);
+  if (!clean) {
+    onEnd?.();
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (err) => {
+      if (settled) return;
+      settled = true;
+      onEnd?.();
+      if (err) reject(err);
+      else resolve();
+    };
+
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = lang;
+      u.rate = rate;
+      u.onstart = () => onStart?.();
+      u.onend = () => finish(null);
+      u.onerror = (e) => {
+        const code = e?.error || 'speech-error';
+        // 'canceled' / 'interrupted' xảy ra khi người dùng chuyển thẻ hoặc bấm đọc lại → không coi là lỗi chặn
+        if (code === 'canceled' || code === 'interrupted') {
+          finish(null);
+        } else {
+          finish(new Error(code));
+        }
+      };
+      onStart?.();
+      window.speechSynthesis.speak(u);
+    } catch (err) {
+      finish(err);
+    }
+  });
+}

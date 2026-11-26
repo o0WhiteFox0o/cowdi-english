@@ -4,12 +4,14 @@
 // 6 bước: Xem và nghe → Nghe chọn hình → Ghép hình với chữ → Mẫu câu → Nhắc lại → Thử thách
 // Không hiện IPA, không ngữ pháp, chữ to ≥28px, nút chạm ≥56px, không chấm phát âm.
 // ════════════════════════════════════════════════════════════════
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
 import { shuffleArray, generatePictureChallenge } from '../../utils/quiz-gen';
 import { usePetDirector } from '../../pet-director/DirectorContext';
+import { useUser } from '../../hooks/useUser';
+import { getGroup } from '../../data/config/groups';
 
 const PIC_STEPS = [
   { key: 'look',      label: 'Xem & nghe',    icon: 'eye' },
@@ -211,9 +213,13 @@ export default function PictureLesson({
   const [chScore, setChScore] = useState(0);
   const [chFinished, setChFinished] = useState(false);
   const [rewardInfo, setRewardInfo] = useState(null);
+  const { recordQuestionResult } = useUser();
+  const chRunSetRef = useRef(new Set());
+  const beginnerRules = useMemo(() => getGroup('beginner')?.rules, []);
 
   const startChallenge = useCallback(() => {
     const qs = generatePictureChallenge(words, pattern, 6);
+    chRunSetRef.current = new Set();
     setChallengeQs(qs);
     setChIdx(0);
     setChPicked(null);
@@ -237,6 +243,7 @@ export default function PictureLesson({
     if (chPicked !== null) return;
     const q = challengeQs[chIdx];
     const ok = optIdx === q.correct;
+    recordQuestionResult(q, ok, chRunSetRef.current, beginnerRules);
     setChPicked(optIdx);
     const nextScore = ok ? chScore + 1 : chScore;
     const qWord = q?.target || words.find((w) => w.word === q?.speak || w.word === q?.word);

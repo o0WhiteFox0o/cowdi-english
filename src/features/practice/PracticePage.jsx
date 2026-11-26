@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
-import { QUIZ_BANK, LESSONS } from '../../data/lessons';
+import { QUIZ_BANK, LESSONS, getGroup, getGroupOfPath } from '../../data/lessons';
 import { getAllTopicWords } from '../../data/vocab-topics';
 import { LISTEN_SENTENCE_TOPICS, getListenTopic } from '../../data/quiz/sentences-quiz';
 import { SKILL_GROUPS, QUIZ_TO_SKILL, PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
@@ -372,10 +372,15 @@ function useSpeechRec() {
 
 export default function PracticePage() {
   useSEO(SEO_CONFIGS['/practice']);
-  const { addXP, addSkillXP, incrementQuizzes } = useUser();
+  const { userData, addXP, addSkillXP, incrementQuizzes, recordQuestionResult } = useUser();
   const { getActivePetWithDecay, onQuizComplete, addCoins } = usePet();
   const showToast = useToast();
   const { play } = useSound();
+  const practiceRunSetRef = useRef(new Set());
+  const practiceRules = useMemo(() => {
+    const g = getGroupOfPath(userData.activePath) || getGroup(userData.learnerGroup) || getGroup('intermediate');
+    return g?.rules;
+  }, [userData.activePath, userData.learnerGroup]);
   const petRef = useRef(null);
   const streakRef = useRef(0);
   const [streakCount, setStreakCount] = useState(0);
@@ -843,6 +848,7 @@ export default function PracticePage() {
     setAnswered(idx);
     const q = questions[qIndex];
     const ok = idx === q.correct;
+    recordQuestionResult(q, ok, practiceRunSetRef.current, practiceRules);
     if (ok) { setScore((s) => s + 1); play('correct'); } else { play('wrong'); }
     emitPetAnswer(ok);
 
@@ -999,6 +1005,7 @@ export default function PracticePage() {
     setDynPicked(idx);
     const q = dynQs[dynIdx];
     const isCorrect = idx === q.correct;
+    recordQuestionResult(q, isCorrect, practiceRunSetRef.current, practiceRules);
     if (isCorrect) { setDynScore((s) => s + 1); play('correct'); } else { play('wrong'); }
     emitPetAnswer(isCorrect);
 

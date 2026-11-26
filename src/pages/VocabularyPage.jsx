@@ -12,6 +12,15 @@ import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 import { SpeechRecognitionAPI, scorePronunciation, getScoreLabel } from '../utils/speech';
 import { resolveImage, resolveTitle } from '../utils/imageOverrides';
+import { getGroup, getGroupOfPath } from '../data/config/groups';
+import Flashcard from '../components/learn/Flashcard';
+import {
+  orderCards,
+  wordStatus as getWordMemoryStatus,
+  isMaybeForgotten,
+  WORD_STATUS_UI,
+  getWordId,
+} from '../features/vocab/wordProgress';
 
 // ── Views: topics → subtopics → words (flashcard / list) ──────────────
 
@@ -330,10 +339,25 @@ const SUBTOPIC_DISPLAY_NAMES = {
 
 export default function VocabularyPage() {
   useSEO(SEO_CONFIGS['/vocabulary']);
-  const { userData, setWordStatus, getWordStatus } = useUser();
+  const { userData, setWordStatus, getWordStatus, recordWordEncounter } = useUser();
   const { onVocabReview } = usePet();
   const showToast = useToast();
-  const { play } = useSound();
+  const { play, muted } = useSound();
+
+  const groupRules = useMemo(() => (
+    getGroupOfPath(userData.activePath)?.rules
+    || getGroup(userData.learnerGroup)?.rules
+    || getGroup('intermediate')?.rules
+  ), [userData.activePath, userData.learnerGroup]);
+
+  const fcRunSetRef = useRef(new Set());
+  const wordProgressRef = useRef(userData.wordProgress || {});
+  wordProgressRef.current = userData.wordProgress || {};
+  const [fcOrderedCards, setFcOrderedCards] = useState([]);
+  const [fcReviewAtOpen, setFcReviewAtOpen] = useState(0);
+  const [fcReviewOnly, setFcReviewOnly] = useState(false);
+  const [fcCompleteNotice, setFcCompleteNotice] = useState(null);
+  const [fcRunTick, setFcRunTick] = useState(0);
 
   // Listen to Admin Image Manager real-time overrides
   const [, setOverrideTick] = useState(0);
@@ -398,6 +422,34 @@ export default function VocabularyPage() {
   }, [activeWords, search]);
 
   const currentWord = filteredWords[cardIndex] || filteredWords[0];
+
+  // Chốt thứ tự thẻ khi mở Flashcard chủ đề hoặc đổi từ khoá tìm kiếm (F5)
+  useEffect(() => {
+    if (view !== 'words' || mode !== 'flashcard') return;
+    const prog = wordProgressRef.current;
+    fcRunSetRef.current = new Set();
+    const ordered = orderCards(filteredWords, prog, groupRules);
+    const reviewList = ordered.filter((w) => getWordMemoryStatus(prog[getWordId(w)], groupRules) === 'review');
+    setFcOrderedCards(fcReviewOnly && reviewList.length > 0 ? reviewList : ordered);
+    setFcReviewAtOpen(reviewList.length);
+    setFcCompleteNotice(null);
+    setFcRunTick((t) => t + 1);
+  }, [view, mode, selectedSub?.id, search, fcReviewOnly, groupRules]);
+
+  const handleTopicEncounter = useCallback((cardObj) => {
+    recordWordEncounter(cardObj, fcRunSetRef.current, groupRules);
+  }, [recordWordEncounter, groupRules]);
+
+  const getTopicDotInfo = useCallback((cardObj) => {
+    const p = (userData.wordProgress || {})[getWordId(cardObj)];
+    const st = getWordMemoryStatus(p, groupRules);
+    const ui = WORD_STATUS_UI[st] || WORD_STATUS_UI.new;
+    return {
+      color: ui.color,
+      label: ui.label,
+      maybeForgotten: isMaybeForgotten(p, groupRules),
+    };
+  }, [userData.wordProgress, groupRules]);
 
   // Progress helpers
   const getSubtopicProgress = useCallback((sub) => {
@@ -830,122 +882,39 @@ export default function VocabularyPage() {
         />
       </div>
 
-      {/* Flashcard mode */}
-      {mode === 'flashcard' && currentWord && (
-        <div className="text-center">
-          <div
-            className="flashcard-wrapper mx-auto mb-3"
-            onClick={() => setFlipped(!flipped)}
-          >
-            <div className={`flashcard-inner ${flipped ? 'flipped' : ''}`}>
-              <div className="flashcard-front">
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }} className="emoji-big"><Emoji e={currentWord.illustration} size={48} /></div>
-                <h2 className="mb-2">{currentWord.word}</h2>
-                <p className="mb-2" style={{ color: 'rgba(255,255,255,0.8)' }}>{currentWord.phonetic}</p>
-                <div className="d-flex gap-2 justify-content-center mb-2">
-                  <button
-                    className="btn btn-sm btn-light"
-                    title="Đọc bình thường"
-                    onClick={(e) => { e.stopPropagation(); speakWord(currentWord.word); }}
-                  ><Icon name="sound" size={14} /> Nghe</button>
-                  <button
-                    className="btn btn-sm btn-outline-light"
-                    title="Đọc chậm"
-                    onClick={(e) => { e.stopPropagation(); speakSlow(currentWord.word); }}
-                  ><Icon name="snail" size={14} /> Chậm</button>
-                  <button
-                    className={`btn btn-sm ${isRecording ? 'btn-danger' : 'btn-outline-light'}`}
-                    title="Phát âm"
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      if (isRecording) stopRecording(); 
-                      else startRecording(currentWord.word); 
-                    }}
-                  ><Icon name="mic" size={14} /> {isRecording ? 'Dừng' : 'Nói'}</button>
-                </div>
-                
-                {/* Speech Result */}
-                {(transcript || speakResult || recError) && (
-                  <div className="mt-3 p-2 rounded" style={{ background: 'rgba(255,255,255,0.1)', fontSize: '0.9rem' }}>
-                    {recError && <div className="text-warning small mb-1">{recError}</div>}
-                    {isRecording && <div className="text-info small mb-1">Đang nghe...</div>}
-                    {transcript && <div className="mb-1">Bạn nói: <i>"{transcript}"</i></div>}
-                    {speakResult && (
-                      <div style={{ color: getScoreLabel(speakResult.score).color, fontWeight: 'bold' }}>
-                        {getScoreLabel(speakResult.score).text} - {speakResult.score}%
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <small style={{ color: 'rgba(255,255,255,0.6)' }}>Nhấn để lật thẻ</small>
-              </div>
-              <div className="flashcard-back">
-                <h2 className="text-cowdi-primary mb-2">{currentWord.meaning}</h2>
-                {/* Examples — multiple usage contexts */}
-                {(() => {
-                  const list = Array.isArray(currentWord.examples) && currentWord.examples.length > 0
-                    ? currentWord.examples
-                    : (currentWord.example ? [{ en: currentWord.example, vi: '' }] : []);
-                  return list.map((ex, i) => (
-                    <div key={i} className="text-start mb-2 p-2 rounded" style={{ background: 'rgba(0,0,0,0.04)' }}>
-                      {ex.context && (
-                        <div className="badge bg-info-subtle text-info mb-1" style={{ fontSize: '0.7rem' }}>{ex.context}</div>
-                      )}
-                      <div className="d-flex align-items-start gap-1">
-                        <p className="fst-italic mb-1 flex-grow-1" style={{ fontSize: '0.92rem' }}>"{ex.en}"</p>
-                        <button
-                          className="btn btn-sm btn-link p-0 text-decoration-none"
-                          title="Đọc câu"
-                          onClick={(e) => { e.stopPropagation(); speakWord(ex.en); }}
-                        ><Icon name="sound" size={14} /></button>
-                        <button
-                          className="btn btn-sm btn-link p-0 text-decoration-none"
-                          title="Đọc chậm"
-                          onClick={(e) => { e.stopPropagation(); speakSlow(ex.en); }}
-                        ><Icon name="snail" size={14} /></button>
-                      </div>
-                      {ex.vi && (
-                        <div className="text-muted" style={{ fontSize: '0.78rem' }}>→ {ex.vi}</div>
-                      )}
-                    </div>
-                  ));
-                })()}
-                {currentWord.memoryTip && (
-                  <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,193,7,0.1)', fontSize: '0.85rem' }}>
-                    <strong><Icon name="bulb" size={14} /> Mẹo nhớ:</strong> {currentWord.memoryTip}
-                  </div>
-                )}
-                {currentWord.context && (
-                  <div className="mt-2 text-start" style={{ fontSize: '0.8rem', color: '#6c757d' }}>
-                    {currentWord.context}
-                  </div>
-                )}
-                {currentWord.related && (
-                  <div className="mt-2 text-start" style={{ fontSize: '0.8rem', color: '#0d6efd' }}>
-                    <Icon name="link" size={13} /> {currentWord.related}
-                  </div>
-                )}
-                <small className="text-muted d-block mt-2">Nhấn để lật lại</small>
-              </div>
+      {/* Flashcard mode (SDD-FLASHCARD-AUDIO-UX v1.4) */}
+      {mode === 'flashcard' && filteredWords.length > 0 && (
+        <div className="d-flex flex-column align-items-center">
+          {fcReviewOnly && (
+            <div className="mb-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setFcReviewOnly(false)}
+              >
+                ← Quay lại đủ {filteredWords.length} thẻ
+              </button>
             </div>
-          </div>
-
-          <p className="text-muted mb-3">{cardIndex + 1} / {filteredWords.length}</p>
-
-          <div className="d-flex justify-content-center gap-3 mb-3">
-            <button className="btn btn-outline-secondary" onClick={prevCard}><Icon name="arrowLeft" size={16} /> Trước</button>
-            <button className="btn btn-outline-secondary" onClick={nextCard}>Sau <Icon name="arrowRight" size={16} /></button>
-          </div>
-
-          <div className="d-flex justify-content-center gap-3">
-            <button className="btn btn-success fw-bold" onClick={() => markWord(currentWord.word, 'learned')}>
-              <Icon name="check" size={16} /> Đã thuộc
-            </button>
-            <button className="btn btn-warning fw-bold" onClick={() => markWord(currentWord.word, 'learning')}>
-              <Icon name="note" size={16} /> Đang học
-            </button>
-          </div>
+          )}
+          <Flashcard
+            cards={fcOrderedCards.length > 0 ? fcOrderedCards : filteredWords}
+            ttsRate={groupRules?.ttsRate || 0.85}
+            muted={muted}
+            onEncounter={handleTopicEncounter}
+            getCardDotInfo={getTopicDotInfo}
+            completeNotice={fcCompleteNotice}
+            onStartReviewOnly={() => setFcReviewOnly(true)}
+            onComplete={() => {
+              const total = (fcOrderedCards.length > 0 ? fcOrderedCards : filteredWords).length;
+              const msg = fcReviewAtOpen > 0 && !fcReviewOnly
+                ? `Xong ${total} thẻ! Có ${fcReviewAtOpen} từ cần ôn`
+                : `Xong ${total} thẻ!`;
+              setFcCompleteNotice({ text: msg, reviewCount: fcReviewOnly ? 0 : fcReviewAtOpen });
+              showToast(msg, 'success');
+              onVocabReview?.();
+            }}
+            resetKey={`${selectedSub?.id || ''}-${search}-${fcReviewOnly}-${fcRunTick}`}
+          />
         </div>
       )}
 

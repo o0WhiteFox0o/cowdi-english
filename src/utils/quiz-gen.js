@@ -6,6 +6,8 @@
 // ════════════════════════════════════════════════════════════════
 import { validateQuestion } from '../../shared/question-rules.js';
 
+const toWordId = (w) => String(w || '').trim().toLowerCase();
+
 export function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -32,6 +34,7 @@ export function generateAutoQuestions(lesson) {
       options,
       correct: options.indexOf(v.meaning),
       _type: 'word2meaning',
+      targetWords: [toWordId(v.word)],
     });
   }
 
@@ -47,6 +50,7 @@ export function generateAutoQuestions(lesson) {
       options,
       correct: options.indexOf(v.word),
       _type: 'meaning2word',
+      targetWords: [toWordId(v.word)],
     });
   }
 
@@ -266,6 +270,7 @@ export function generatePictureChallenge(words = [], pattern = null, count = 6, 
           options: choiceWords.map((w) => (w.swatch ? w.meaning : `${w.emoji || '🖼️'} ${w.meaning}`)),
           correct: choiceWords.findIndex((w) => w.word === target.word),
           explanation: `"${target.word}" nghĩa là ${target.meaning}.`,
+          targetWords: [toWordId(target.word)],
         };
       } else if (kind === 'image-pick-word') {
         candidate = {
@@ -278,6 +283,7 @@ export function generatePictureChallenge(words = [], pattern = null, count = 6, 
           options: choiceWords.map((w) => w.word),
           correct: choiceWords.findIndex((w) => w.word === target.word),
           explanation: `Đáp án đúng là "${target.word}" (${target.meaning}).`,
+          targetWords: [toWordId(target.word)],
         };
       } else {
         const sentence = pattern.en.replace('___', '______');
@@ -292,6 +298,7 @@ export function generatePictureChallenge(words = [], pattern = null, count = 6, 
           options: choiceWords.map((w) => w.word),
           correct: choiceWords.findIndex((w) => w.word === target.word),
           explanation: `${pattern.en.replace('___', target.word)} — ${pattern.vi.replace('___', target.meaning)}.`,
+          targetWords: [toWordId(target.word)],
         };
       }
 

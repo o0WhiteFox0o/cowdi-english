@@ -20,6 +20,8 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [SDD-ECONOMY-BATTLE-v2.1.md](SDD-ECONOMY-BATTLE-v2.1.md)
 - [SDD-LEARNING-GROUPS-v2.0.md](SDD-LEARNING-GROUPS-v2.0.md) — **Thiết kế tách lộ trình học thành 3 nhóm (Mới học · Trung bình · Luyện thi) & migration**
 - [SDD-PET-MANAGEMENT-v1.0.md](SDD-PET-MANAGEMENT-v1.0.md) — **Nâng cấp Quản lý Pet (thêm/sửa/xoá/upload pet mới) & Tối ưu UI/UX Zero-Scroll Quiz**
+- [SDD-PET-DIRECTOR-v1.1.md](SDD-PET-DIRECTOR-v1.1.md) — **Hệ thống Điều phối Biểu đạt Pet Director V2 & Sân khấu Pet (GĐ 1–2)**
+- [SDD-FLASHCARD-AUDIO-UX-v1.4.md](SDD-FLASHCARD-AUDIO-UX-v1.4.md) — **Flashcard v1.4: Tự đọc khi chuyển thẻ, Loa trên thẻ & Trạng thái từ tự động (Điểm nhớ)** ([Demo](flashcard-mockups/flashcard-demo.html))
 - [SDD-PET-BATTLE-SPEC-v2.0.docx](SDD-PET-BATTLE-SPEC-v2.0.docx)
 - [WRD-COWDI-v1.0.md](WRD-COWDI-v1.0.md)
 - [SDD-GAME-PET-v1.0.md](SDD-GAME-PET-v1.0.md)
