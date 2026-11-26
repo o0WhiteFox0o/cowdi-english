@@ -533,7 +533,6 @@ export default function AccountPage() {
     );
   }
 
-  const currentGroup = userData.learnerGroup ? getGroup(userData.learnerGroup) : null;
   // ── Đã đăng nhập ─────────────────────────────────────────────────────────
   return (
     <div className="fade-in acc-v2">
