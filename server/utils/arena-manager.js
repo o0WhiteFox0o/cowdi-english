@@ -25,11 +25,72 @@ function getTodayDateString(date = new Date()) {
   return date.toISOString().split('T')[0];
 }
 
+let arenaTablesEnsured = false;
+
+/**
+ * Tự động tạo bảng arena_profiles, arena_matches, arena_clovers nếu chưa có (idempotent).
+ */
+export async function ensureArenaTables(db = pool) {
+  if (arenaTablesEnsured || db !== pool) return;
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS arena_profiles (
+        user_id                INT UNSIGNED NOT NULL PRIMARY KEY,
+        tickets                INT NOT NULL DEFAULT 3,
+        lp                     INT NOT NULL DEFAULT 0,
+        tier                   VARCHAR(32) NOT NULL DEFAULT 'bronze',
+        wins_this_week         INT NOT NULL DEFAULT 0,
+        claimed_weekly_chests  VARCHAR(255) NOT NULL DEFAULT '[]',
+        last_ticket_refill     DATE DEFAULT NULL,
+        last_weekly_reset      DATE DEFAULT NULL,
+        season_id              VARCHAR(32) NOT NULL DEFAULT 'season_1',
+        created_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at             TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS arena_matches (
+        id                   BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        challenger_id        INT UNSIGNED NOT NULL,
+        opponent_id          INT UNSIGNED NULL,
+        is_bot               TINYINT(1) NOT NULL DEFAULT 0,
+        has_ticket           TINYINT(1) NOT NULL DEFAULT 1,
+        winner               VARCHAR(32) NOT NULL,
+        challenger_score     INT NOT NULL DEFAULT 0,
+        opponent_score       INT NOT NULL DEFAULT 0,
+        challenger_lp_delta  INT NOT NULL DEFAULT 0,
+        opponent_lp_delta    INT NOT NULL DEFAULT 0,
+        reward_milk          INT NOT NULL DEFAULT 0,
+        season_id            VARCHAR(32) NOT NULL DEFAULT 'season_1',
+        battle_log           MEDIUMTEXT NULL,
+        created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_challenger_date (challenger_id, created_at),
+        INDEX idx_opponent_date (opponent_id, created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS arena_clovers (
+        id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        sender_id   INT UNSIGNED NOT NULL,
+        receiver_id INT UNSIGNED NOT NULL,
+        sent_date   DATE NOT NULL,
+        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_sender_receiver_date (sender_id, receiver_id, sent_date),
+        INDEX idx_receiver_date (receiver_id, sent_date)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    arenaTablesEnsured = true;
+  } catch (err) {
+    console.warn('[arena] ensureArenaTables warning:', err.message);
+  }
+}
+
 /**
  * Đảm bảo người dùng có hồ sơ Đấu trường.
  * Tự động cấp 3 vé miễn phí/ngày (max 15) và reset rương tuần vào thứ Hai.
  */
 export async function ensureArenaProfile(userId, db = pool) {
+  await ensureArenaTables(db);
   const today = getTodayDateString();
   const currentWeek = getIsoWeekString();
 
@@ -317,13 +378,14 @@ export async function submitArenaMatch(params, db = pool) {
   let oppLpDelta = 0;
   let rewardMilk = 0;
 
-  if (useTicket) {
+  if (useTicket || isBot) {
     const isWin = winner === 'challenger';
     const isDraw = winner === 'draw';
-    const isLoss = winner === 'opponent';
 
-    // Thưởng Sữa theo D4 (thắng 8, hoà 5, thua 2 Sữa)
-    rewardMilk = isWin ? ARENA_CONFIG.REWARD_MILK.WIN : (isDraw ? ARENA_CONFIG.REWARD_MILK.DRAW : ARENA_CONFIG.REWARD_MILK.LOSS);
+    // Thưởng Sữa theo D4 (chỉ khi đấu có vé: thắng 8, hoà 5, thua 2 Sữa)
+    if (useTicket) {
+      rewardMilk = isWin ? ARENA_CONFIG.REWARD_MILK.WIN : (isDraw ? ARENA_CONFIG.REWARD_MILK.DRAW : ARENA_CONFIG.REWARD_MILK.LOSS);
+    }
 
     // Tính LP (AI tính 50% theo D15)
     const ratio = isBot ? ARENA_CONFIG.LP.BOT_RATIO : 1.0;
