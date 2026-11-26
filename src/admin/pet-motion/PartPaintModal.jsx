@@ -248,6 +248,7 @@ export default function PartPaintModal({
   image,
   referenceLayers = [],
   initialDirty = false,
+  initialTool = 'brush',
   suggestedSources = [],
   onLoadSuggestedSource = null,
   saving = false,
@@ -265,7 +266,7 @@ export default function PartPaintModal({
   }, [imgW, imgH]);
 
   // ── Tool & Brush states ────────────────────────────────────────
-  const [tool, setTool] = useState('brush');
+  const [tool, setTool] = useState(initialTool || 'brush');
   const [color, setColor] = useState('#231f20');
   const [recentColors, setRecentColors] = useState([]);
   const [brushTip, setBrushTip] = useState('round'); // 'round' | 'square' | 'calligraphy'
@@ -683,9 +684,10 @@ export default function PartPaintModal({
     historyRef.current = { stack: [], index: -1 };
     pushSnapshot(initLayers, baseId);
     setDirty(Boolean(initialDirty));
+    if (initialTool) setTool(initialTool);
     setSelectedSourceIdx(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [image, imgW, imgH, part, initialDirty]);
+  }, [image, imgW, imgH, part, initialDirty, initialTool]);
 
   useEffect(() => {
     renderDisplay();

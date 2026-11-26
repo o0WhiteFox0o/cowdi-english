@@ -102,9 +102,10 @@ Trong tab **🦴 Bộ phận**:
   - **Tạo dáng**: kéo bộ phận trên pet để đặt keyframe chuyển động.
   - **Dời hình**: kéo để chỉnh vị trí lệch X/Y của ảnh bộ phận.
   - **Điểm xoay**: kéo chấm cam để dời khớp xoay (cổ, vai, cuống lá).
-- Dùng khu vực **`+ Thêm bộ phận`** để bổ sung thêm ảnh tách lớp mới vào rig đang có, nút **`Thay hình`** để đổi ảnh từ máy, hoặc **`✕`** để bỏ bộ phận khỏi rig.
-- **Khi bộ phận đang `chưa có ảnh` hoặc cần tách thêm Đầu / Tay từ ảnh gốc của pet**:
-  - Bấm nút **`✂️ Lấy ảnh pet`** ngay trên dòng bộ phận thiếu ảnh, **hoặc** dùng hộp đề xuất bên dưới để chọn nguồn ảnh hiện có của pet (`C1–C5` / lớp `body` hiện tại / khung trống) + chọn bộ phận đích → bấm **`✂️ Mở Studio cắt / vẽ`**.
+- Ngay tại khung thêm bộ phận dưới danh sách lớp:
+  - Chọn tên bộ phận muốn thêm (mặc định tự gợi ý bộ phận tiếp theo chưa có như `head (Đầu)` → `armL` → `armR` → `crown` → `eye0` → `eye1`).
+  - Bấm **`✂️ + Lấy ảnh gốc`**: hệ thống lấy ngay **ảnh gốc nguyên bản của pet cấp hiện tại** (hoặc lớp `body` đang có — có thể đổi nhanh ở dòng `Nguồn gốc:` ngay bên dưới) đưa vào Studio, tự động bật sẵn công cụ **Chọn tự do (`L`)** để họa sĩ khoanh vùng Đầu/Tay/Mắt → bấm **`✂️ Giữ vùng chọn`** → bấm **`💾 Lưu bản nháp`** (với `eye0`/`eye1` hệ thống còn tự động lưu toạ độ mắt trên mặt rồi crop gọn ảnh mắt).
+  - Hoặc bấm **`📁 + Tải file`** bên cạnh nếu muốn tải file PNG/WebP tách lẻ từ máy tính; nút **`Thay hình`** để đổi ảnh của lớp đang có, nút **`✂️ Lấy ảnh pet`** nếu bộ phận bị thiếu ảnh, hoặc **`✕`** để xoá lớp khỏi rig.
 
 ### 5.3. Vẽ / cắt / tẩy trực tiếp lên file bộ phận (`✏️ Sửa` · `✂️ Lấy ảnh pet`)
 Bấm nút **`✏️ Sửa`** (hoặc **`✂️ Lấy ảnh pet`**) trên bộ phận để mở **Trình sửa ảnh Studio 3 cột**:
