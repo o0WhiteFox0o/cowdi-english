@@ -35,6 +35,8 @@
 |---|---|---|---|---|---|
 | SRS | Đặc tả yêu cầu phần mềm | [SRS-COWDI-v1.0.docx](../02-requirements/SRS-COWDI-v1.0.docx) | 1.0 | Approved | Cowdi_SRS_v1.0.docx |
 | SRS | **Nhu cầu xây dựng bài học theo 3 cấp (Starter / Intermediate / Exam)** | [SRS-LESSON-3-LEVELS-v1.0.md](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) | 1.0 | Approved | LESSON-REQUIREMENTS-3-LEVELS.md |
+| SRS | **Đặc tả nghiệp vụ Luật thi đấu Đấu trường (PvP)** | [SRS-ARENA-PVP-RULES-v1.0.md](../02-requirements/SRS-ARENA-PVP-RULES-v1.0.md) | 1.0 | Approved | (mới 2026-11-26) |
+| PROC | **Quy trình nghiệp vụ Triển khai Đấu trường (PvP)** | [PROC-ARENA-PVP-WORKFLOW-v1.0.md](../02-requirements/PROC-ARENA-PVP-WORKFLOW-v1.0.md) | 1.0 | Approved | (mới 2026-11-26) |
 | RTM | **Ma trận truy vết yêu cầu (End-to-End)** | [RTM-COWDI.md](../02-requirements/RTM-COWDI.md) | sống | Approved | TRACEABILITY-MATRIX.md |
 
 ## 03 — Kiến trúc (ISO/IEC/IEEE 42010)

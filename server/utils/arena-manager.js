@@ -258,21 +258,31 @@ export function generateBotAnswers(count = 10, correctRate = 0.75) {
   return answers;
 }
 
+/** Hàng đợi ghép cặp in-memory (TTL 20s) để ghép người chơi đang cùng tìm trận */
+const arenaMatchQueue = new Map(); // userId -> { userId, displayName, lp, tier, petSnapshot, matchedWith, joinedAt }
+const QUEUE_TTL_MS = 20000;
+
+function cleanupMatchQueue(now = Date.now()) {
+  for (const [uid, entry] of arenaMatchQueue.entries()) {
+    if (now - entry.joinedAt > QUEUE_TTL_MS) {
+      arenaMatchQueue.delete(uid);
+    }
+  }
+}
+
+export function leaveArenaQueue(userId) {
+  arenaMatchQueue.delete(userId);
+}
+
 /**
- * Tìm trận Đấu trường:
- * Ghép người chơi cùng cấp tiến hoá (±1) và LP gần nhau (±150 LP).
- * Giới hạn 2 trận/ngày với cùng đối thủ (D15).
- * Nếu không có ai phù hợp, tự động ghép với đối thủ AI luyện tập.
+ * Tìm Ghost Bot: lấy tên hiển thị & pet snapshot của một người chơi thật trong DB
+ * (cấp tiến hoá ±1, LP ±150, < 2 trận/ngày) nhưng đánh dấu isBot = true (thưởng 50%).
+ * Nếu DB chưa có người phù hợp, fallback sang generateAiBotOpponent.
  */
-export async function findArenaMatch(userId, userSnapshot, db = pool) {
-  const profile = await ensureArenaProfile(userId, db);
-  const userEvo = Math.max(0, Number(userSnapshot?.evolution) || 1);
+export async function findGhostBotOpponent(userId, userSnapshot, userLp = 0, db = pool) {
+  const userEvo = Math.max(0, Number(userSnapshot?.evolution) || 0);
   const today = getTodayDateString();
 
-  // Tìm người chơi thực thoả mãn:
-  // 1. Khác userId
-  // 2. Có ít hơn 2 trận đấu với userId hôm nay
-  // 3. LP chênh lệch trong khoảng ±150 LP
   const [candidates] = await db.execute(
     `SELECT ap.user_id, ap.lp, ap.tier, u.display_name, up.pet_data
      FROM arena_profiles ap
@@ -289,10 +299,9 @@ export async function findArenaMatch(userId, userSnapshot, db = pool) {
        ) < ?
      ORDER BY ABS(ap.lp - ?) ASC
      LIMIT 10`,
-    [userId, profile.lp, userId, today, ARENA_CONFIG.MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT, profile.lp]
+    [userId, userLp, userId, today, ARENA_CONFIG.MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT, userLp]
   );
 
-  // Lọc candidate có pet cấp ±1
   for (const cand of candidates) {
     let petData = null;
     try {
@@ -313,7 +322,8 @@ export async function findArenaMatch(userId, userSnapshot, db = pool) {
         rarity: oppPet.rarity,
       });
       return {
-        isBot: false,
+        isBot: true,
+        isGhostBot: true,
         opponentId: cand.user_id,
         displayName: cand.display_name || 'Người chơi Cowdi',
         lp: cand.lp || 0,
@@ -323,8 +333,211 @@ export async function findArenaMatch(userId, userSnapshot, db = pool) {
     }
   }
 
-  // Không có người chơi phù hợp -> Ghép với đối thủ AI luyện tập
-  return generateAiBotOpponent(userSnapshot, profile.lp);
+  return generateAiBotOpponent(userSnapshot, userLp);
+}
+
+/**
+ * Tìm trận Đấu trường (hỗ trợ hàng đợi 10-15s):
+ * - Ưu tiên ghép với người chơi thực đang cùng tìm trận trong hàng đợi (tiến hoá ±1, LP ±150, < 2 trận/ngày).
+ * - Nếu chưa có người và allowBotFallback = false -> trả về { status: 'waiting', waitMs }.
+ * - Nếu quá 10-15s (allowBotFallback = true) -> ghép với Ghost Bot mang tên & pet người chơi thật (50% thưởng).
+ */
+export async function findArenaMatch(userId, userSnapshot, optionsOrDb = {}, maybeDb = pool) {
+  const isDbObj = optionsOrDb && typeof optionsOrDb.execute === 'function';
+  const options = isDbObj ? {} : (optionsOrDb || {});
+  const db = isDbObj ? optionsOrDb : maybeDb;
+  const allowBotFallback = options.allowBotFallback !== undefined ? Boolean(options.allowBotFallback) : true;
+  const friendId = options.friendId ? Number(options.friendId) : null;
+
+  const profile = await ensureArenaProfile(userId, db);
+  const userEvo = Math.max(0, Number(userSnapshot?.evolution) || 0);
+  const today = getTodayDateString();
+
+  // Trường hợp 1: Mời bạn đấu trực tiếp
+  if (friendId && friendId !== userId) {
+    const [[friendRow]] = await db.execute(
+      `SELECT u.id AS user_id, u.display_name, COALESCE(ap.lp, 0) AS lp, COALESCE(ap.tier, 'bronze') AS tier, up.pet_data
+       FROM users u
+       LEFT JOIN arena_profiles ap ON ap.user_id = u.id
+       LEFT JOIN user_progress up ON up.user_id = u.id
+       WHERE u.id = ?`,
+      [friendId]
+    );
+    if (!friendRow) {
+      throw new Error('Không tìm thấy người bạn này.');
+    }
+    const [[dailyRow]] = await db.execute(
+      `SELECT COUNT(*) AS total
+       FROM arena_matches
+       WHERE challenger_id = ? AND opponent_id = ? AND has_ticket = 1 AND DATE(created_at) = ?`,
+      [userId, friendId, today]
+    );
+    const dailyRewardedCount = Number(dailyRow?.total || 0);
+
+    let petData = null;
+    try {
+      petData = typeof friendRow.pet_data === 'string' ? JSON.parse(friendRow.pet_data) : friendRow.pet_data;
+    } catch {
+      petData = null;
+    }
+    const oppPet = petData?.activePet || (petData?.collection ? Object.values(petData.collection)[0] : null) || {};
+    const snap = resolveSnapshot({
+      speciesId: oppPet.speciesId || 'cowdi',
+      evolution: Math.max(1, Number(oppPet.evolution) || 1),
+      skills: oppPet.skills || {},
+      element: oppPet.element,
+      group: oppPet.group,
+      rarity: oppPet.rarity,
+    });
+
+    return {
+      status: 'matched',
+      dailyLimitReached: dailyRewardedCount >= ARENA_CONFIG.MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT,
+      match: {
+        isBot: false,
+        isFriendMatch: true,
+        opponentId: friendRow.user_id,
+        displayName: friendRow.display_name || 'Bạn bè Cowdi',
+        lp: friendRow.lp || 0,
+        tier: friendRow.tier || 'bronze',
+        petSnapshot: snap,
+      },
+    };
+  }
+
+  // Trường hợp 2: Ghép cặp ngẫu nhiên qua hàng đợi in-memory (10-15s)
+  cleanupMatchQueue();
+
+  // Nếu người chơi này đã được ghép bởi một người khác vừa vào trước đó
+  const selfEntry = arenaMatchQueue.get(userId);
+  if (selfEntry?.matchedWith) {
+    const matched = selfEntry.matchedWith;
+    const matchedRoomId = selfEntry.matchedRoomId;
+    arenaMatchQueue.delete(userId);
+    if (matchedRoomId && arenaFriendRooms.has(matchedRoomId)) {
+      return { status: 'matched', match: matched, room: getFriendRoomState(matchedRoomId, userId) };
+    }
+    return { status: 'matched', match: matched };
+  }
+
+  // Lấy thông tin hiển thị của người tìm trận
+  const [[userRow]] = await db.execute('SELECT display_name FROM users WHERE id = ?', [userId]);
+  const selfDisplayName = userRow?.display_name || 'Người chơi Cowdi';
+
+  // Quét hàng đợi xem có người chơi thực nào đang chờ phù hợp không
+  for (const [otherId, cand] of arenaMatchQueue.entries()) {
+    if (otherId === userId || cand.matchedWith) continue;
+    const oppEvo = Math.max(0, Number(cand.petSnapshot?.evolution) || 0);
+    if (Math.abs(userEvo - oppEvo) > 1) continue;
+    if (Math.abs(profile.lp - (cand.lp || 0)) > 150) continue;
+
+    const [[cntRow]] = await db.execute(
+      `SELECT COUNT(*) AS total
+       FROM arena_matches
+       WHERE challenger_id = ? AND opponent_id = ? AND DATE(created_at) = ?`,
+      [userId, otherId, today]
+    );
+    if (Number(cntRow?.total || 0) >= ARENA_CONFIG.MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT) continue;
+
+    // Khớp cặp thành công! Tạo luôn phòng đồng bộ 2 người (100% thưởng, ai rời trận xử thua)
+    const selfSnap = resolveSnapshot(userSnapshot);
+    const sharedQuiz = Array.isArray(cand.quizData) && cand.quizData.length >= 5
+      ? cand.quizData
+      : (Array.isArray(options.quizData) ? options.quizData : []);
+
+    let matchedRoomId = null;
+    if (sharedQuiz.length >= 5) {
+      cleanupFriendRooms();
+      matchedRoomId = `fr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const now = Date.now();
+      const candFull = await loadPlayerArenaSnap(otherId, cand.petSnapshot, db);
+      const selfFull = await loadPlayerArenaSnap(userId, selfSnap, db);
+      arenaFriendRooms.set(matchedRoomId, {
+        roomId: matchedRoomId,
+        hasTicket: true,
+        status: 'accepted',
+        quizData: sharedQuiz,
+        challenger: { ...candFull, answers: [], times: [], answeredCount: 0, submitted: false },
+        opponent: { ...selfFull, answers: [], times: [], answeredCount: 0, submitted: false },
+        liveBattle: {
+          settledCount: 0,
+          challengerHpPct: 100,
+          opponentHpPct: 100,
+          challengerAnswered: 0,
+          opponentAnswered: 0,
+        },
+        result: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    cand.matchedRoomId = matchedRoomId;
+    cand.matchedWith = {
+      isBot: false,
+      opponentId: userId,
+      displayName: selfDisplayName,
+      lp: profile.lp,
+      tier: profile.tier,
+      petSnapshot: selfSnap,
+    };
+    arenaMatchQueue.delete(userId);
+
+    const matchPayload = {
+      isBot: false,
+      opponentId: otherId,
+      displayName: cand.displayName,
+      lp: cand.lp,
+      tier: cand.tier,
+      petSnapshot: cand.petSnapshot,
+    };
+
+    if (matchedRoomId && arenaFriendRooms.has(matchedRoomId)) {
+      return {
+        status: 'matched',
+        match: matchPayload,
+        room: getFriendRoomState(matchedRoomId, userId),
+      };
+    }
+
+    return {
+      status: 'matched',
+      match: matchPayload,
+    };
+  }
+
+  // Chưa có ai phù hợp trong hàng đợi
+  if (!allowBotFallback) {
+    if (!selfEntry) {
+      arenaMatchQueue.set(userId, {
+        userId,
+        displayName: selfDisplayName,
+        lp: profile.lp,
+        tier: profile.tier,
+        petSnapshot: resolveSnapshot(userSnapshot),
+        quizData: Array.isArray(options.quizData) ? options.quizData : null,
+        matchedWith: null,
+        matchedRoomId: null,
+        joinedAt: Date.now(),
+      });
+    }
+    return {
+      status: 'waiting',
+      waitMs: ARENA_CONFIG.MATCHMAKING_WAIT_MS,
+    };
+  }
+
+  // Đã hết 10-15s chờ -> rời hàng đợi và ghép với Ghost Bot mang tên & pet người chơi thật
+  arenaMatchQueue.delete(userId);
+  const ghostMatch = await findGhostBotOpponent(userId, userSnapshot, profile.lp, db);
+  if (isDbObj) {
+    // Tương thích ngược nếu caller cũ nhận trực tiếp object match
+    return ghostMatch;
+  }
+  return {
+    status: 'matched',
+    match: ghostMatch,
+  };
 }
 
 /**
@@ -378,16 +591,17 @@ export async function submitArenaMatch(params, db = pool) {
   let oppLpDelta = 0;
   let rewardMilk = 0;
 
-  if (useTicket || isBot) {
+  if (useTicket) {
     const isWin = winner === 'challenger';
     const isDraw = winner === 'draw';
 
-    // Thưởng Sữa theo D4 (chỉ khi đấu có vé: thắng 8, hoà 5, thua 2 Sữa)
-    if (useTicket) {
-      rewardMilk = isWin ? ARENA_CONFIG.REWARD_MILK.WIN : (isDraw ? ARENA_CONFIG.REWARD_MILK.DRAW : ARENA_CONFIG.REWARD_MILK.LOSS);
-    }
+    // Thưởng Sữa theo tỉ lệ Máy (1) : Người (2)
+    // - Người thật: 8 / 5 / 2 Sữa
+    // - Máy (Ghost Bot): 4 / 2 / 1 Sữa
+    const milkTable = isBot ? ARENA_CONFIG.REWARD_MILK_BOT : ARENA_CONFIG.REWARD_MILK;
+    rewardMilk = isWin ? milkTable.WIN : (isDraw ? milkTable.DRAW : milkTable.LOSS);
 
-    // Tính LP (AI tính 50% theo D15)
+    // Tính LP (Máy tính 50% theo D15)
     const ratio = isBot ? ARENA_CONFIG.LP.BOT_RATIO : 1.0;
     if (isWin) {
       chLpDelta = Math.round(ARENA_CONFIG.LP.WIN * ratio);
@@ -678,4 +892,636 @@ export async function getArenaLeaderboard(limit = 50, db = pool) {
       pet,
     };
   });
+}
+
+// ============================================================
+// Phòng mời bạn đồng bộ 2 người (Live Friend Arena Room)
+// ============================================================
+
+const arenaFriendRooms = new Map(); // roomId -> room state
+const FRIEND_ROOM_TTL_MS = 10 * 60 * 1000; // 10 phút
+
+function cleanupFriendRooms(now = Date.now()) {
+  for (const [id, r] of arenaFriendRooms.entries()) {
+    if (now - r.updatedAt > FRIEND_ROOM_TTL_MS) {
+      arenaFriendRooms.delete(id);
+    }
+  }
+}
+
+async function loadPlayerArenaSnap(userId, fallbackSnap = null, db = pool) {
+  const profile = await ensureArenaProfile(userId, db);
+  const [[row]] = await db.execute(
+    `SELECT u.display_name, up.pet_data
+     FROM users u
+     LEFT JOIN user_progress up ON up.user_id = u.id
+     WHERE u.id = ?`,
+    [userId]
+  );
+  if (!row) throw new Error('Không tìm thấy người chơi.');
+
+  let snap = fallbackSnap;
+  if (!snap) {
+    let petData = null;
+    try {
+      petData = typeof row.pet_data === 'string' ? JSON.parse(row.pet_data) : row.pet_data;
+    } catch {
+      petData = null;
+    }
+    const active = petData?.activePet || (petData?.collection ? Object.values(petData.collection)[0] : null) || {};
+    const evo = active.evolution !== undefined && active.evolution !== null ? Math.max(0, Number(active.evolution) || 0) : 0;
+    snap = {
+      speciesId: active.speciesId || 'cowdi',
+      evolution: evo,
+      skills: active.skills || {},
+      element: active.element,
+      group: active.group,
+      rarity: active.rarity,
+    };
+  }
+
+  return {
+    userId,
+    displayName: row.display_name || 'Người chơi Cowdi',
+    lp: profile.lp,
+    tier: profile.tier,
+    tickets: profile.tickets,
+    winsThisWeek: profile.winsThisWeek,
+    claimedWeeklyChests: profile.claimedWeeklyChests,
+    seasonId: profile.seasonId,
+    petSnapshot: resolveSnapshot(snap),
+  };
+}
+
+/**
+ * Tạo phòng mời bạn đấu trực tiếp (2 người cùng vào phòng khi người kia đồng ý).
+ */
+export async function createFriendRoom({ userId, friendId, hasTicket, quizData, petSnapshot }, db = pool) {
+  cleanupFriendRooms();
+  const oppId = Number(friendId);
+  if (!oppId || oppId === userId) {
+    throw new Error('Người bạn được mời không hợp lệ.');
+  }
+  if (!Array.isArray(quizData) || quizData.length < 5) {
+    throw new Error('Bộ câu hỏi trận đấu không hợp lệ.');
+  }
+
+  const challenger = await loadPlayerArenaSnap(userId, petSnapshot, db);
+  const opponent = await loadPlayerArenaSnap(oppId, null, db);
+
+  const useTicket = Boolean(hasTicket);
+  if (useTicket) {
+    if (challenger.tickets <= 0) {
+      throw new Error('Bạn không đủ vé đấu để tạo trận có thưởng.');
+    }
+    const today = getTodayDateString();
+    const [[dailyRow]] = await db.execute(
+      `SELECT COUNT(*) AS total
+       FROM arena_matches
+       WHERE challenger_id = ? AND opponent_id = ? AND has_ticket = 1 AND DATE(created_at) = ?`,
+      [userId, oppId, today]
+    );
+    if (Number(dailyRow?.total || 0) >= ARENA_CONFIG.MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT) {
+      throw new Error('Bạn đã đấu đủ 2 trận có thưởng với người bạn này hôm nay.');
+    }
+  }
+
+  const roomId = `fr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const now = Date.now();
+  const room = {
+    roomId,
+    hasTicket: useTicket,
+    status: 'pending', // 'pending' | 'accepted' | 'declined' | 'cancelled' | 'completed'
+    quizData,
+    challenger: { ...challenger, answers: [], times: [], answeredCount: 0, submitted: false },
+    opponent: { ...opponent, answers: [], times: [], answeredCount: 0, submitted: false },
+    liveBattle: {
+      settledCount: 0,
+      challengerHpPct: 100,
+      opponentHpPct: 100,
+      challengerAnswered: 0,
+      opponentAnswered: 0,
+    },
+    result: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  arenaFriendRooms.set(roomId, room);
+  return getFriendRoomState(roomId, userId);
+}
+
+/**
+ * Lấy danh sách lời mời thách đấu đang chờ gửi tới userId.
+ */
+export function getIncomingFriendRooms(userId) {
+  cleanupFriendRooms();
+  const uid = Number(userId);
+  const list = [];
+  for (const room of arenaFriendRooms.values()) {
+    if (Number(room.opponent.userId) === uid && room.status === 'pending') {
+      list.push({
+        roomId: room.roomId,
+        hasTicket: room.hasTicket,
+        challenger: {
+          userId: room.challenger.userId,
+          displayName: room.challenger.displayName,
+          lp: room.challenger.lp,
+          tier: room.challenger.tier,
+          petSnapshot: room.challenger.petSnapshot,
+        },
+        createdAt: room.createdAt,
+      });
+    }
+  }
+  return list.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Xem trạng thái phòng mời bạn theo góc nhìn của userId.
+ */
+export function getFriendRoomState(roomId, userId) {
+  cleanupFriendRooms();
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) throw new Error('Phòng đấu không tồn tại hoặc đã hết hạn.');
+
+  const uid = Number(userId);
+  const isChallenger = Number(room.challenger.userId) === uid;
+  const isOpponent = Number(room.opponent.userId) === uid;
+  if (!isChallenger && !isOpponent) {
+    throw new Error('Bạn không thuộc phòng đấu này.');
+  }
+
+  return {
+    roomId: room.roomId,
+    status: room.status,
+    hasTicket: room.hasTicket,
+    mySide: isChallenger ? 'challenger' : 'opponent',
+    quizData: room.quizData,
+    challenger: {
+      userId: room.challenger.userId,
+      displayName: room.challenger.displayName,
+      lp: room.challenger.lp,
+      tier: room.challenger.tier,
+      petSnapshot: room.challenger.petSnapshot,
+      answeredCount: room.challenger.answeredCount || 0,
+      submitted: room.challenger.submitted,
+    },
+    opponent: {
+      userId: room.opponent.userId,
+      displayName: room.opponent.displayName,
+      lp: room.opponent.lp,
+      tier: room.opponent.tier,
+      petSnapshot: room.opponent.petSnapshot,
+      answeredCount: room.opponent.answeredCount || 0,
+      submitted: room.opponent.submitted,
+    },
+    liveBattle: room.liveBattle || null,
+    result: room.result,
+  };
+}
+
+/**
+ * Lưu đáp án từng câu và tính ngay % HP real-time khi cả 2 bên đã qua cùng câu đó.
+ */
+export function submitFriendRoomStep(roomId, userId, { questionIndex, correct, timeMs }) {
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) throw new Error('Phòng đấu không tồn tại hoặc đã hết hạn.');
+  if (room.status !== 'accepted' && room.status !== 'completed') {
+    throw new Error('Phòng đấu chưa sẵn sàng.');
+  }
+
+  const uid = Number(userId);
+  const isChallenger = Number(room.challenger.userId) === uid;
+  const isOpponent = Number(room.opponent.userId) === uid;
+  if (!isChallenger && !isOpponent) {
+    throw new Error('Bạn không thuộc phòng đấu này.');
+  }
+
+  const target = isChallenger ? room.challenger : room.opponent;
+  const idx = Math.max(0, Math.min(room.quizData.length - 1, Number(questionIndex) || 0));
+  if (!Array.isArray(target.answers)) target.answers = [];
+  if (!Array.isArray(target.times)) target.times = [];
+
+  target.answers[idx] = Boolean(correct);
+  target.times[idx] = Number(timeMs) || 3500;
+  target.answeredCount = Math.max(target.answeredCount || 0, idx + 1);
+  room.updatedAt = Date.now();
+
+  // Tính số câu mà CẢ HAI bên đều đã trả lời xong
+  let settledCount = 0;
+  for (let i = 0; i < room.quizData.length; i++) {
+    if (room.challenger.answers?.[i] !== undefined && room.opponent.answers?.[i] !== undefined) {
+      settledCount = i + 1;
+    } else {
+      break;
+    }
+  }
+
+  if (settledCount > 0) {
+    const buildSlice = (sideObj) => {
+      const out = [];
+      for (let i = 0; i < settledCount; i++) {
+        out.push({
+          correct: Boolean(sideObj.answers[i]),
+          timeMs: Number(sideObj.times[i]) || 3500,
+          category: room.quizData?.[i]?.category || room.quizData?.[i]?.skill || null,
+        });
+      }
+      return out;
+    };
+
+    const br = simulateBattle(
+      room.challenger.petSnapshot,
+      room.opponent.petSnapshot,
+      buildSlice(room.challenger),
+      buildSlice(room.opponent),
+      room.roomId
+    );
+    room.liveBattle = {
+      settledCount,
+      challengerHpPct: Math.round((br.challenger?.hpPct ?? 1) * 100),
+      opponentHpPct: Math.round((br.opponent?.hpPct ?? 1) * 100),
+      challengerAnswered: room.challenger.answeredCount || 0,
+      opponentAnswered: room.opponent.answeredCount || 0,
+      lastRound: {
+        q: settledCount,
+        challengerCorrect: Boolean(room.challenger.answers[settledCount - 1]),
+        opponentCorrect: Boolean(room.opponent.answers[settledCount - 1]),
+      },
+    };
+  } else {
+    room.liveBattle = {
+      settledCount: 0,
+      challengerHpPct: 100,
+      opponentHpPct: 100,
+      challengerAnswered: room.challenger.answeredCount || 0,
+      opponentAnswered: room.opponent.answeredCount || 0,
+    };
+  }
+
+  return getFriendRoomState(roomId, userId);
+}
+
+/**
+ * Bên được mời phản hồi Chấp nhận / Từ chối vào phòng.
+ */
+export async function respondFriendRoom(roomId, userId, { accept, petSnapshot }, db = pool) {
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) throw new Error('Phòng đấu không tồn tại hoặc đã hết hạn.');
+  if (Number(room.opponent.userId) !== Number(userId)) {
+    throw new Error('Chỉ người được mời mới có thể phản hồi.');
+  }
+  if (room.status !== 'pending') {
+    throw new Error('Lời mời này đã được xử lý hoặc đã huỷ.');
+  }
+
+  if (!accept) {
+    room.status = 'declined';
+    room.updatedAt = Date.now();
+    return getFriendRoomState(roomId, userId);
+  }
+
+  const oppSnap = await loadPlayerArenaSnap(userId, petSnapshot, db);
+  if (room.hasTicket && oppSnap.tickets <= 0) {
+    throw new Error('Bạn không đủ vé để tham gia trận đấu 1 vé.');
+  }
+  room.opponent = { ...oppSnap, answers: [], times: [], answeredCount: 0, submitted: false };
+  room.status = 'accepted';
+  room.updatedAt = Date.now();
+  return getFriendRoomState(roomId, userId);
+}
+
+/**
+ * Bên mời huỷ lời mời khi đối thủ chưa vào phòng.
+ */
+export function cancelFriendRoom(roomId, userId) {
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) return { ok: true };
+  if (room.challenger.userId !== userId) {
+    throw new Error('Chỉ chủ phòng mới có thể huỷ.');
+  }
+  if (room.status === 'pending') {
+    room.status = 'cancelled';
+    room.updatedAt = Date.now();
+  }
+  return { ok: true };
+}
+
+/**
+ * Xử thua ngay lập tức khi một người rời khỏi trận đấu bạn bè giữa chừng.
+ */
+export async function forfeitFriendRoom(roomId, userId, db = pool) {
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) return { ok: true };
+  if (room.status === 'completed' && room.result) {
+    return getFriendRoomState(roomId, userId);
+  }
+  if (room.status !== 'accepted') {
+    return cancelFriendRoom(roomId, userId);
+  }
+
+  const uid = Number(userId);
+  const isChallenger = Number(room.challenger.userId) === uid;
+  const isOpponent = Number(room.opponent.userId) === uid;
+  if (!isChallenger && !isOpponent) {
+    throw new Error('Bạn không thuộc phòng đấu này.');
+  }
+
+  const winner = isChallenger ? 'opponent' : 'challenger';
+  const chScore = (room.challenger.answers || []).filter(Boolean).length;
+  const oppScore = (room.opponent.answers || []).filter(Boolean).length;
+
+  let chLpDelta = 0;
+  let oppLpDelta = 0;
+  let chMilk = 0;
+  let oppMilk = 0;
+
+  if (room.hasTicket) {
+    if (winner === 'challenger') {
+      chMilk = ARENA_CONFIG.REWARD_MILK.WIN;
+      oppMilk = ARENA_CONFIG.REWARD_MILK.LOSS;
+      chLpDelta = ARENA_CONFIG.LP.WIN;
+      oppLpDelta = ARENA_CONFIG.LP.LOSS;
+    } else {
+      chMilk = ARENA_CONFIG.REWARD_MILK.LOSS;
+      oppMilk = ARENA_CONFIG.REWARD_MILK.WIN;
+      chLpDelta = ARENA_CONFIG.LP.LOSS;
+      oppLpDelta = ARENA_CONFIG.LP.WIN;
+    }
+    if (room.challenger.tier === 'bronze' && chLpDelta < 0) chLpDelta = 0;
+    if (room.opponent.tier === 'bronze' && oppLpDelta < 0) oppLpDelta = 0;
+  }
+
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const applyForfeitUpdate = async (player, lpDelta, milk, isWinner) => {
+      const p = await ensureArenaProfile(player.userId, conn);
+      const newLp = Math.max(0, p.lp + lpDelta);
+      const newTier = getTierFromLp(newLp);
+      const newTickets = room.hasTicket ? Math.max(0, p.tickets - 1) : p.tickets;
+      const newWins = (isWinner && room.hasTicket) ? p.winsThisWeek + 1 : p.winsThisWeek;
+
+      await conn.execute(
+        `UPDATE arena_profiles
+         SET tickets = ?, lp = ?, tier = ?, wins_this_week = ?
+         WHERE user_id = ?`,
+        [newTickets, newLp, newTier, newWins, player.userId]
+      );
+      if (milk > 0) {
+        await conn.execute(
+          `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+           VALUES (?, 'milk', ?, 'arena_match', ?)`,
+          [player.userId, milk, `${room.roomId}:${player.userId}`]
+        );
+        await conn.execute(
+          'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
+          [milk, player.userId]
+        );
+      }
+      return {
+        userId: player.userId,
+        tickets: newTickets,
+        lp: newLp,
+        tier: newTier,
+        tierInfo: ARENA_CONFIG.TIERS[newTier],
+        winsThisWeek: newWins,
+        claimedWeeklyChests: p.claimedWeeklyChests,
+        seasonId: p.seasonId,
+      };
+    };
+
+    const chProfile = await applyForfeitUpdate(room.challenger, chLpDelta, chMilk, winner === 'challenger');
+    const oppProfile = await applyForfeitUpdate(room.opponent, oppLpDelta, oppMilk, winner === 'opponent');
+
+    const [matchInsert] = await conn.execute(
+      `INSERT INTO arena_matches
+         (challenger_id, opponent_id, is_bot, has_ticket, winner, challenger_score, opponent_score,
+          challenger_lp_delta, opponent_lp_delta, reward_milk, season_id, battle_log)
+       VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        room.challenger.userId,
+        room.opponent.userId,
+        room.hasTicket ? 1 : 0,
+        winner,
+        chScore,
+        oppScore,
+        chLpDelta,
+        oppLpDelta,
+        chMilk,
+        chProfile.seasonId || 'season_1',
+        JSON.stringify([{ type: 'forfeit', forfeitedBy: uid }]),
+      ]
+    );
+
+    await conn.commit();
+
+    room.status = 'completed';
+    room.updatedAt = Date.now();
+    room.result = {
+      matchId: matchInsert.insertId,
+      winner,
+      forfeitedBy: uid,
+      challengerScore: chScore,
+      opponentScore: oppScore,
+      challengerLpDelta: chLpDelta,
+      opponentLpDelta: oppLpDelta,
+      challengerRewardMilk: chMilk,
+      opponentRewardMilk: oppMilk,
+      hasTicket: room.hasTicket,
+      battleResult: { challenger: { hpPct: isChallenger ? 0 : 1 }, opponent: { hpPct: isOpponent ? 0 : 1 }, log: [] },
+      challengerProfile: chProfile,
+      opponentProfile: oppProfile,
+    };
+
+    return getFriendRoomState(roomId, userId);
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+}
+
+/**
+ * Nộp đáp án trong phòng mời bạn. Khi cả 2 bên đã nộp, server chạy simulateBattle bằng đáp án thật của cả hai.
+ */
+export async function submitFriendRoomAnswers(roomId, userId, { answers, times }, db = pool) {
+  const room = arenaFriendRooms.get(roomId);
+  if (!room) throw new Error('Phòng đấu không tồn tại hoặc đã hết hạn.');
+  if (room.status === 'completed' && room.result) {
+    return { waitingOpponent: false, ...getFriendRoomState(roomId, userId) };
+  }
+  if (room.status !== 'accepted') {
+    throw new Error('Phòng đấu chưa sẵn sàng để nộp bài.');
+  }
+
+  const isChallenger = room.challenger.userId === userId;
+  const isOpponent = room.opponent.userId === userId;
+  if (!isChallenger && !isOpponent) {
+    throw new Error('Bạn không thuộc phòng đấu này.');
+  }
+
+  const target = isChallenger ? room.challenger : room.opponent;
+  target.answers = Array.isArray(answers) ? answers : [];
+  target.times = Array.isArray(times) ? times : [];
+  target.submitted = true;
+  room.updatedAt = Date.now();
+
+  if (!room.challenger.submitted || !room.opponent.submitted) {
+    return {
+      waitingOpponent: true,
+      ...getFriendRoomState(roomId, userId),
+    };
+  }
+
+  // Cả 2 bên đã hoàn thành -> chạy simulateBattle bằng đáp án thật của cả hai!
+  const count = room.quizData.length;
+  const buildAnswers = (sideObj) => {
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      out.push({
+        correct: Boolean(sideObj.answers?.[i]),
+        timeMs: Number(sideObj.times?.[i]) || 3500,
+        category: room.quizData?.[i]?.category || room.quizData?.[i]?.skill || null,
+      });
+    }
+    return out;
+  };
+
+  const answersA = buildAnswers(room.challenger);
+  const answersB = buildAnswers(room.opponent);
+  const battleResult = simulateBattle(
+    room.challenger.petSnapshot,
+    room.opponent.petSnapshot,
+    answersA,
+    answersB,
+    room.roomId
+  );
+
+  const winner = battleResult.winner; // 'challenger' | 'opponent' | 'draw'
+  const chScore = answersA.filter((a) => a.correct).length;
+  const oppScore = answersB.filter((a) => a.correct).length;
+
+  let chLpDelta = 0;
+  let oppLpDelta = 0;
+  let chMilk = 0;
+  let oppMilk = 0;
+
+  if (room.hasTicket) {
+    if (winner === 'challenger') {
+      chMilk = ARENA_CONFIG.REWARD_MILK.WIN;
+      oppMilk = ARENA_CONFIG.REWARD_MILK.LOSS;
+      chLpDelta = ARENA_CONFIG.LP.WIN;
+      oppLpDelta = ARENA_CONFIG.LP.LOSS;
+    } else if (winner === 'opponent') {
+      chMilk = ARENA_CONFIG.REWARD_MILK.LOSS;
+      oppMilk = ARENA_CONFIG.REWARD_MILK.WIN;
+      chLpDelta = ARENA_CONFIG.LP.LOSS;
+      oppLpDelta = ARENA_CONFIG.LP.WIN;
+    } else {
+      chMilk = ARENA_CONFIG.REWARD_MILK.DRAW;
+      oppMilk = ARENA_CONFIG.REWARD_MILK.DRAW;
+      chLpDelta = ARENA_CONFIG.LP.DRAW;
+      oppLpDelta = ARENA_CONFIG.LP.DRAW;
+    }
+    if (room.challenger.tier === 'bronze' && chLpDelta < 0) chLpDelta = 0;
+    if (room.opponent.tier === 'bronze' && oppLpDelta < 0) oppLpDelta = 0;
+  }
+
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const applyPlayerUpdate = async (player, lpDelta, milk, isWinner) => {
+      const p = await ensureArenaProfile(player.userId, conn);
+      const newLp = Math.max(0, p.lp + lpDelta);
+      const newTier = getTierFromLp(newLp);
+      const newTickets = room.hasTicket ? Math.max(0, p.tickets - 1) : p.tickets;
+      const newWins = (isWinner && room.hasTicket) ? p.winsThisWeek + 1 : p.winsThisWeek;
+
+      await conn.execute(
+        `UPDATE arena_profiles
+         SET tickets = ?, lp = ?, tier = ?, wins_this_week = ?
+         WHERE user_id = ?`,
+        [newTickets, newLp, newTier, newWins, player.userId]
+      );
+
+      if (milk > 0) {
+        await conn.execute(
+          `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
+           VALUES (?, 'milk', ?, 'arena_match', ?)`,
+          [player.userId, milk, `${room.roomId}:${player.userId}`]
+        );
+        await conn.execute(
+          'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
+          [milk, player.userId]
+        );
+      }
+
+      return {
+        userId: player.userId,
+        tickets: newTickets,
+        lp: newLp,
+        tier: newTier,
+        tierInfo: ARENA_CONFIG.TIERS[newTier],
+        winsThisWeek: newWins,
+        claimedWeeklyChests: p.claimedWeeklyChests,
+        seasonId: p.seasonId,
+      };
+    };
+
+    const chProfile = await applyPlayerUpdate(room.challenger, chLpDelta, chMilk, winner === 'challenger');
+    const oppProfile = await applyPlayerUpdate(room.opponent, oppLpDelta, oppMilk, winner === 'opponent');
+
+    const [matchInsert] = await conn.execute(
+      `INSERT INTO arena_matches
+         (challenger_id, opponent_id, is_bot, has_ticket, winner, challenger_score, opponent_score,
+          challenger_lp_delta, opponent_lp_delta, reward_milk, season_id, battle_log)
+       VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        room.challenger.userId,
+        room.opponent.userId,
+        room.hasTicket ? 1 : 0,
+        winner,
+        chScore,
+        oppScore,
+        chLpDelta,
+        oppLpDelta,
+        chMilk,
+        chProfile.seasonId || 'season_1',
+        JSON.stringify(battleResult.log),
+      ]
+    );
+
+    await conn.commit();
+
+    room.status = 'completed';
+    room.updatedAt = Date.now();
+    room.result = {
+      matchId: matchInsert.insertId,
+      winner,
+      challengerScore: chScore,
+      opponentScore: oppScore,
+      challengerLpDelta: chLpDelta,
+      opponentLpDelta: oppLpDelta,
+      challengerRewardMilk: chMilk,
+      opponentRewardMilk: oppMilk,
+      hasTicket: room.hasTicket,
+      battleResult,
+      challengerProfile: chProfile,
+      opponentProfile: oppProfile,
+    };
+
+    return {
+      waitingOpponent: false,
+      ...getFriendRoomState(roomId, userId),
+    };
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
 }

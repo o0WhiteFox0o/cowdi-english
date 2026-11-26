@@ -138,8 +138,11 @@ export default function LearningPathPage() {
     return new Set();
   });
 
+  const [showAllUnits, setShowAllUnits] = useState(false);
+
   // Khi đổi lộ trình, nạp lại trạng thái đã lưu
   useEffect(() => {
+    setShowAllUnits(false);
     try {
       const saved = localStorage.getItem(`cowdi_collapsed_${activePath.id}`);
       if (saved) {
@@ -652,25 +655,47 @@ export default function LearningPathPage() {
 
       {/* Trail */}
       <div className="path-trail">
-        {activePath.units.map((unit, uIdx) => {
-          // Unit S2–S10 sắp ra mắt (không khoá luồng)
-          if (unit.comingSoon || !unit.lessons?.length) {
-            return (
-              <section key={unit.id} className="path-unit locked" style={{ '--u': unit.color, opacity: 0.72 }}>
-                <header className="path-unit-head">
-                  <div className="path-unit-ico"><Emoji e={unit.icon} size={28} /></div>
-                  <div className="path-unit-txt">
-                    <div className="d-flex align-items-center gap-2 flex-wrap">
-                      <small>Unit {uIdx + 1}</small>
-                      <span className="badge bg-secondary">Sắp ra mắt</span>
-                    </div>
-                    <b>{unit.title}</b>
-                    <span>{unit.subtitle}</span>
-                  </div>
-                </header>
-              </section>
-            );
-          }
+        {(() => {
+          const currentUnitIdx = currentNode?.unitIndex ?? 0;
+          const isUnitActiveOrDone = (u, idx) => {
+            if (u.comingSoon || !u.lessons?.length) return false;
+            const uNodes = nodes.filter((n) => n.unitIndex === idx);
+            return uNodes.some((n) => n.status === 'done' || n.status === 'placed' || n.status === 'current');
+          };
+          const nextUnitIdx = activePath.units.findIndex(
+            (u, idx) => idx > currentUnitIdx && !isUnitActiveOrDone(u, idx)
+          );
+          const visibleIndices = new Set();
+          activePath.units.forEach((u, idx) => {
+            if (showAllUnits || isUnitActiveOrDone(u, idx) || idx === nextUnitIdx) {
+              visibleIndices.add(idx);
+            }
+          });
+          const hiddenCount = activePath.units.length - visibleIndices.size;
+
+          return (
+            <>
+              {activePath.units.map((unit, uIdx) => {
+                if (!visibleIndices.has(uIdx)) return null;
+
+                // Unit S2–S10 sắp ra mắt (không khoá luồng)
+                if (unit.comingSoon || !unit.lessons?.length) {
+                  return (
+                    <section key={unit.id} className="path-unit locked" style={{ '--u': unit.color, opacity: 0.72 }}>
+                      <header className="path-unit-head">
+                        <div className="path-unit-ico"><Emoji e={unit.icon} size={28} /></div>
+                        <div className="path-unit-txt">
+                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <small>Unit {uIdx + 1}</small>
+                            <span className="badge bg-secondary">Sắp ra mắt</span>
+                          </div>
+                          <b>{unit.title}</b>
+                          <span>{unit.subtitle}</span>
+                        </div>
+                      </header>
+                    </section>
+                  );
+                }
 
           const unitNodes = nodes.filter((n) => n.unitIndex === uIdx);
           const unitDone = unitNodes.filter((n) => n.status === 'done' || n.status === 'placed').length;
@@ -879,6 +904,23 @@ export default function LearningPathPage() {
             </section>
           );
         })}
+
+              {(hiddenCount > 0 || showAllUnits) && (
+                <div className="text-center my-3">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                    onClick={() => setShowAllUnits((v) => !v)}
+                  >
+                    {showAllUnits
+                      ? 'Ẩn các unit chưa học'
+                      : `🔒 Đã ẩn ${hiddenCount} unit chưa học · Xem tất cả`}
+                  </button>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         <div className={`path-finish ${doneAll ? 'done' : ''}`}>
           <div className="path-finish-ico"><Icon name={doneAll ? 'trophy' : 'flag'} size={44} /></div>

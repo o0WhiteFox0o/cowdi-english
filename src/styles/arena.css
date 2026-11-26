@@ -134,8 +134,9 @@
 /* Mặt trời & Mây */
 .arena-sun {
   position: absolute;
-  top: 24px;
-  right: 120px;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 44px;
   height: 44px;
   background: #ffd54f;
@@ -161,26 +162,26 @@
   height: 34px;
 }
 
-/* Đồi cỏ đối thủ (phía trên bên phải) */
+/* Đồi cỏ đối thủ (giữa-phải sân) */
 .arena-hill-opponent {
   position: absolute;
-  top: 140px;
-  right: 60px;
-  width: 280px;
-  height: 80px;
+  bottom: 48px;
+  right: 16%;
+  width: 220px;
+  height: 70px;
   background: #88c868;
   border-radius: 50%;
   border-bottom: 4px solid #6ba84d;
   box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.25);
 }
 
-/* Đồi cỏ người chơi (phía dưới bên trái) */
+/* Đồi cỏ người chơi (giữa-trái sân) */
 .arena-hill-mine {
   position: absolute;
-  bottom: 25px;
-  left: 60px;
-  width: 320px;
-  height: 90px;
+  bottom: 24px;
+  left: 16%;
+  width: 230px;
+  height: 74px;
   background: #73b854;
   border-radius: 50%;
   border-bottom: 5px solid #559338;
@@ -197,13 +198,13 @@
 }
 
 .arena-pet-mine {
-  bottom: 52px;
-  left: 105px;
+  bottom: 44px;
+  left: calc(16% + 58px);
 }
 
 .arena-pet-opponent {
-  top: 78px;
-  right: 110px;
+  bottom: 68px;
+  right: calc(16% + 58px);
 }
 
 .arena-pet-mine .pet-render-slot img,
@@ -236,14 +237,16 @@
 }
 
 .arena-hud-opponent {
-  top: 28px;
-  right: 245px;
+  top: 16px;
+  right: 20px;
   left: auto;
 }
 
 .arena-hud-mine {
-  bottom: 36px;
-  left: 260px;
+  top: 16px;
+  bottom: auto;
+  left: 20px;
+  right: auto;
 }
 
 .arena-hud-header {
@@ -503,35 +506,39 @@
     height: 260px;
   }
   .arena-hill-opponent {
-    right: 20px;
-    top: 110px;
-    width: 200px;
-    height: 60px;
+    right: 10%;
+    top: auto;
+    bottom: 38px;
+    width: 165px;
+    height: 52px;
   }
   .arena-hill-mine {
-    left: 20px;
+    left: 10%;
     bottom: 20px;
-    width: 220px;
-    height: 65px;
+    width: 170px;
+    height: 55px;
   }
   .arena-pet-mine {
-    left: 60px;
-    bottom: 40px;
+    left: calc(10% + 32px);
+    bottom: 34px;
   }
   .arena-pet-opponent {
-    right: 60px;
-    top: 60px;
+    right: calc(10% + 32px);
+    top: auto;
+    bottom: 52px;
   }
   .arena-hud-opponent {
-    left: 20px;
-    top: 15px;
-    min-width: 140px;
+    right: 12px;
+    left: auto;
+    top: 12px;
+    min-width: 145px;
   }
   .arena-hud-mine {
-    left: auto;
-    right: 20px;
-    bottom: 15px;
-    min-width: 140px;
+    left: 12px;
+    right: auto;
+    top: 12px;
+    bottom: auto;
+    min-width: 145px;
   }
   .arena-qa-desktop {
     grid-template-columns: 1fr;

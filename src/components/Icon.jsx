@@ -1255,6 +1255,18 @@ export const WEBP_ICONS = {
   ui_folder_tabs: '/image/icons-ui/ui_folder_tabs.webp',
   ui_sort: '/image/icons-ui/ui_sort.webp',
 
+  // 10 Icon UI danh mục & tính năng mới
+  ui_progress: '/image/icons-ui/ui_progress.webp',
+  ui_admin: '/image/icons-ui/ui_admin.webp',
+  ui_ranking: '/image/icons-ui/ui_ranking.webp',
+  ui_duel: '/image/icons-ui/ui_duel.webp',
+  ui_friends: '/image/icons-ui/ui_friends.webp',
+  ui_dex: '/image/icons-ui/ui_dex.webp',
+  ui_overview: '/image/icons-ui/ui_overview.webp',
+  ui_invite: '/image/icons-ui/ui_invite.webp',
+  ui_library: '/image/icons-ui/ui_library.webp',
+  ui_account: '/image/icons-ui/ui_account.webp',
+
   // 6 Nền trang trí
   bg_beach: '/image/icons-ui/cosmetics/bg_beach.webp',
   bg_volcano: '/image/icons-ui/cosmetics/bg_volcano.webp',

@@ -6,6 +6,7 @@ import { PetDirectorProvider } from './pet-director/DirectorContext';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import InviteRewardNotice from './features/invite/InviteRewardNotice';
+import FriendDuelInviteBanner from './features/duel/FriendDuelInviteBanner';
 import RequireAdmin from './components/RequireAdmin';
 import { SoundProvider } from './hooks/useSound';
 import LearningPathPage from './pages/LearningPathPage';
@@ -108,6 +109,7 @@ export default function App() {
         </main>
       </BookShell>
       <InviteRewardNotice />
+      <FriendDuelInviteBanner />
       <PWAInstallPrompt />
     </PetDirectorProvider>
     </ToastProvider>

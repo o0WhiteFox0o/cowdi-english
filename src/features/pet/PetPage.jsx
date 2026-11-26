@@ -32,6 +32,12 @@ const ROOM_BACKGROUND_STYLES = {
   room_space: "linear-gradient(180deg, rgba(26, 35, 126, 0.6) 0%, rgba(40, 53, 147, 0.75) 100%), url('/image/icons-ui/cosmetics/bg_space.webp') center / cover no-repeat",
   room_ocean: "linear-gradient(180deg, rgba(2, 119, 189, 0.45) 0%, rgba(3, 155, 229, 0.6) 100%), url('/image/icons-ui/cosmetics/bg_ocean.webp') center / cover no-repeat",
   room_deep_sea: "linear-gradient(180deg, rgba(2, 119, 189, 0.45) 0%, rgba(3, 155, 229, 0.6) 100%), url('/image/icons-ui/cosmetics/bg_ocean.webp') center / cover no-repeat",
+  room_library: "url('/image/background_character/bg_library.webp') center / cover no-repeat",
+  room_collection: "url('/image/background_character/bg_collection.webp') center / cover no-repeat",
+  room_game_category: "url('/image/background_character/bg_game_category.webp') center / cover no-repeat",
+  room_discovery: "url('/image/background_character/bg_discovery.webp') center / cover no-repeat",
+  room_latest_updates: "url('/image/background_character/bg_latest_updates.webp') center / cover no-repeat",
+  room_featured_events: "url('/image/background_character/bg_featured_events.webp') center / cover no-repeat",
 };
 
 export default function PetPage() {

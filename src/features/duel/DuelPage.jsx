@@ -144,6 +144,26 @@ export default function DuelPage() {
       searchParams.delete('opponentId');
       searchParams.delete('opponentNick');
       setSearchParams(searchParams, { replace: true });
+      return;
+    }
+
+    const roomId = searchParams.get('roomId');
+    if (roomId) {
+      searchParams.delete('roomId');
+      setSearchParams(searchParams, { replace: true });
+      (async () => {
+        try {
+          const res = await authFetch(`/api/arena/friend-room/${encodeURIComponent(roomId)}`);
+          const data = await res.json();
+          if (res.ok && data?.room && data.room.status === 'accepted') {
+            enterFriendRoomMatch(data.room);
+          } else {
+            showToast(data?.error || 'Phòng đấu bạn bè không còn khả dụng.', 'warning');
+          }
+        } catch {
+          showToast('Không thể tham gia phòng đấu bạn bè.', 'danger');
+        }
+      })();
     }
   }, [searchParams, setSearchParams]);
 
@@ -159,9 +179,25 @@ export default function DuelPage() {
   const [arenaProfile, setArenaProfile] = useState({ tickets: 3, lp: 0, tier: 'bronze', winsThisWeek: 0, claimedWeeklyChests: [] });
   const [loading, setLoading] = useState(true);
   const [matchmaking, setMatchmaking] = useState(false);
+  const [matchWaitLeft, setMatchWaitLeft] = useState(0);
+  const matchCancelRef = useRef(false);
+  const matchForceBotRef = useRef(false);
+  const [showFriendPicker, setShowFriendPicker] = useState(false);
+  const [friendsList, setFriendsList] = useState([]);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+  const [pendingFriendRoom, setPendingFriendRoom] = useState(null); // { roomId, friendName }
+  const [incomingFriendRooms, setIncomingFriendRooms] = useState([]);
+  const friendRoomCancelRef = useRef(false);
 
   // Arena v2 match state
   const [arenaMatch, setArenaMatch] = useState(null);
+  const [activeFriendRoomId, setActiveFriendRoomId] = useState(null);
+  const [oppAnsweredCount, setOppAnsweredCount] = useState(0);
+  const [waitingFriendFinish, setWaitingFriendFinish] = useState(false);
+  const [waitingStepSync, setWaitingStepSync] = useState(false);
+  const settledHandledRef = useRef(0);
+  const answersRef = useRef([]);
+  const timesRef = useRef([]);
   const [arenaHasTicket, setArenaHasTicket] = useState(true);
   const [energy, setEnergy] = useState(0); // 0..5
   const [skillBubble, setSkillBubble] = useState(null); // { side: 'mine' | 'opponent', text: string }
@@ -281,9 +317,10 @@ export default function DuelPage() {
     } else if (mode === 'result' && result) {
       if (result.mode === 'created') {
         dispatch(result.score >= result.total / 2 ? 'battle_win' : 'battle_start', { target: 'mine' });
-      } else {
-        dispatch(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'mine' });
-        dispatch(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'opp' });
+      } else if (!result.isDraw) {
+        // Khi Hoà thì để cả 2 pet đứng im (idle), chỉ phát thắng/thua khi có phân định
+        dispatch(result.isWin ? 'battle_win' : 'battle_lose', { target: 'mine' });
+        dispatch(!result.isWin ? 'battle_win' : 'battle_lose', { target: 'opp' });
       }
     }
   }, [mode, result, dispatch]);
@@ -363,10 +400,262 @@ export default function DuelPage() {
 
   const myPetImage = useMemo(() => resolvePetImage(myPetInfo.speciesId, myPetInfo.evolution), [myPetInfo]);
 
-  // ── Start Arena v2 Matchmaking (Ranked / Practice AI) ────────
-  async function startArenaMatch(useTicket = true) {
+  // ── Cancel Matchmaking ─────────────────────────────────────
+  async function cancelMatchmaking() {
+    matchCancelRef.current = true;
+    setMatchmaking(false);
+    setMatchWaitLeft(0);
+    try {
+      await authFetch('/api/arena/matchmake/cancel', { method: 'POST' });
+    } catch { /* ignore */ }
+  }
+
+  // ── Open Friend Picker for Arena PvP ───────────────────────
+  async function openFriendPicker() {
+    play('click');
+    setShowFriendPicker(true);
+    setFriendsLoading(true);
+    try {
+      const res = await authFetch('/api/friends');
+      const data = await res.json();
+      setFriendsList(Array.isArray(data?.friends) ? data.friends : []);
+    } catch {
+      setFriendsList([]);
+    }
+    setFriendsLoading(false);
+  }
+
+  // Poll lời mời thách đấu bạn bè ngay trong Lobby /duel
+  useEffect(() => {
+    if (mode !== 'lobby') return undefined;
+    let active = true;
+    const fetchIncoming = async () => {
+      try {
+        const res = await authFetch('/api/arena/friend-room/incoming');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active && Array.isArray(data?.rooms)) {
+          setIncomingFriendRooms(data.rooms);
+        }
+      } catch { /* ignore */ }
+    };
+    fetchIncoming();
+    const t = setInterval(fetchIncoming, 2000);
+    return () => { active = false; clearInterval(t); };
+  }, [mode, authFetch]);
+
+  async function respondIncomingFriendRoom(roomId, accept) {
+    try {
+      const petSnap = {
+        speciesId: myPetInfo.speciesId || 'cowdi',
+        evolution: myPetInfo.evolution ?? 0,
+        skills: myPetInfo.skills || {},
+        element: myPetInfo.element,
+        group: myPetInfo.group,
+      };
+      const res = await authFetch(`/api/arena/friend-room/${encodeURIComponent(roomId)}/respond`, {
+        method: 'POST',
+        body: JSON.stringify({ accept, petSnapshot: petSnap }),
+      });
+      const data = await res.json();
+      setIncomingFriendRooms((prev) => prev.filter((r) => r.roomId !== roomId));
+      if (res.ok && accept && data?.room) {
+        enterFriendRoomMatch(data.room);
+      } else if (!res.ok) {
+        showToast(data?.error || 'Không thể tham gia phòng.', 'danger');
+      }
+    } catch {
+      showToast('Lỗi kết nối phòng đấu.', 'danger');
+    }
+  }
+
+  // Poll real-time từng câu khi đang đấu trong Phòng Bạn bè (1 giây/lần — Lock-step cùng qua câu mới)
+  useEffect(() => {
+    if (mode !== 'arena' || !activeFriendRoomId) return undefined;
+    let active = true;
+    const syncLive = async () => {
+      try {
+        const res = await authFetch(`/api/arena/friend-room/${encodeURIComponent(activeFriendRoomId)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const room = data?.room;
+        if (!active || !room) return;
+
+        const isCh = (room.mySide || arenaMatch?.mySide || 'challenger') === 'challenger';
+        const oppObj = isCh ? room.opponent : room.challenger;
+        setOppAnsweredCount(oppObj?.answeredCount || 0);
+
+        const settled = room.liveBattle?.settledCount || 0;
+        if (settled > 0) {
+          setMyHp(isCh ? room.liveBattle.challengerHpPct : room.liveBattle.opponentHpPct);
+          setOpponentHp(isCh ? room.liveBattle.opponentHpPct : room.liveBattle.challengerHpPct);
+        }
+
+        // Nếu đối thủ rời trận (forfeit) hoặc trận đã hoàn tất -> chuyển ngay sang màn kết quả!
+        if (room.status === 'completed' && room.result) {
+          const finalResult = room.result;
+          const isWin = finalResult.winner === (room.mySide || 'challenger');
+          const isDraw = finalResult.winner === 'draw';
+          const br = finalResult.battleResult || {};
+          const myBr = isCh ? br.challenger : br.opponent;
+          const oppBr = isCh ? br.opponent : br.challenger;
+          const myHpPct = Math.round((myBr?.hpPct ?? 1) * 100);
+          const theirHpPct = Math.round((oppBr?.hpPct ?? 1) * 100);
+          const myProfile = isCh ? finalResult.challengerProfile : finalResult.opponentProfile;
+          const rewardMilk = isCh ? (finalResult.challengerRewardMilk || 0) : (finalResult.opponentRewardMilk || 0);
+          const lpDelta = isCh ? (finalResult.challengerLpDelta || 0) : (finalResult.opponentLpDelta || 0);
+
+          setMyHp(myHpPct);
+          setOpponentHp(theirHpPct);
+          if (myProfile) setArenaProfile(myProfile);
+          setActiveFriendRoomId(null);
+          setWaitingStepSync(false);
+          setWaitingFriendFinish(false);
+          if (finalResult.forfeitedBy) {
+            showToast('Đối thủ đã rời trận — Bạn chiến thắng!', 'success');
+          }
+          setResult({
+            mode: 'arena',
+            matchId: finalResult.matchId,
+            myScore: isCh ? finalResult.challengerScore : finalResult.opponentScore,
+            theirScore: isCh ? finalResult.opponentScore : finalResult.challengerScore,
+            myTime: Math.floor((Date.now() - (quizStartTime || Date.now())) / 1000),
+            theirTime: Math.round((oppBr?.totalTimeMs || 0) / 1000),
+            myHpPct,
+            theirHpPct,
+            rewardMilk,
+            lpDelta,
+            hasTicket: finalResult.hasTicket,
+            isBot: false,
+            opponentId: arenaMatch?.opponentId || null,
+            battleLog: br.log || [],
+            isWin,
+            isDraw,
+            total: questions.length,
+          });
+          setMode('result');
+          if (rewardMilk > 0) addXP(rewardMilk);
+          play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
+          return;
+        }
+
+        // Nếu cả 2 đã trả lời xong câu hiện tại (currentQ) -> diễn hoạt ảnh đòn đánh của đối thủ (nếu đối thủ đúng) rồi cùng qua câu mới!
+        if (waitingStepSync && settled >= currentQ + 1 && settledHandledRef.current < currentQ + 1) {
+          settledHandledRef.current = currentQ + 1;
+          const lr = room.liveBattle?.lastRound;
+          const oppHitMe = lr && (isCh ? lr.opponentCorrect : lr.challengerCorrect);
+
+          const advanceTurn = () => {
+            setMyHp(isCh ? room.liveBattle.challengerHpPct : room.liveBattle.opponentHpPct);
+            setOpponentHp(isCh ? room.liveBattle.opponentHpPct : room.liveBattle.challengerHpPct);
+            setWaitingStepSync(false);
+            if (currentQ < questions.length - 1) {
+              setCurrentQ((prev) => prev + 1);
+              setSelectedOption(null);
+              setQuestionStartTime(Date.now());
+            } else {
+              finishQuiz(answersRef.current, timesRef.current);
+            }
+          };
+
+          if (oppHitMe) {
+            setBattleAnim('attack-opponent');
+            dispatch('battle_attack', { target: 'opp' });
+            play('battleAttack');
+            setTimeout(() => {
+              setBattleAnim('damage-mine');
+              dispatch('battle_hit', { target: 'mine' });
+              play('battleDamage');
+              setTimeout(() => {
+                setBattleAnim(null);
+                advanceTurn();
+              }, 450);
+            }, 300);
+          } else {
+            advanceTurn();
+          }
+        }
+      } catch { /* ignore */ }
+    };
+    syncLive();
+    const t = setInterval(syncLive, 800);
+    return () => { active = false; clearInterval(t); };
+  }, [mode, activeFriendRoomId, authFetch, arenaMatch?.mySide, waitingStepSync, currentQ, questions.length]);
+
+  // ── Enter Synchronized Friend Room Match ───────────────────
+  function enterFriendRoomMatch(room) {
+    const mySide = room.mySide || 'challenger';
+    const oppObj = mySide === 'challenger' ? room.opponent : room.challenger;
+    const oppSnap = oppObj?.petSnapshot || {};
+    const oppSpecies = PET_REGISTRY[oppSnap.speciesId] || PET_REGISTRY.cowdi;
+    const oppImg = resolvePetImage(oppSnap.speciesId, oppSnap.evolution ?? 0);
+    const quiz = Array.isArray(room.quizData) ? room.quizData : [];
+
+    setActiveFriendRoomId(room.roomId);
+    setOppAnsweredCount(0);
+    setWaitingFriendFinish(false);
+    setWaitingStepSync(false);
+    settledHandledRef.current = 0;
+    answersRef.current = new Array(quiz.length).fill(-1);
+    timesRef.current = new Array(quiz.length).fill(0);
+    setPendingFriendRoom(null);
+    setArenaMatch({
+      isBot: false,
+      isFriendRoom: true,
+      mySide,
+      opponentId: oppObj?.userId || null,
+      displayName: oppObj?.displayName || 'Bạn bè',
+      lp: oppObj?.lp || 0,
+      tier: oppObj?.tier || 'bronze',
+      petSnapshot: oppSnap,
+    });
+    setArenaHasTicket(Boolean(room.hasTicket));
+    setQuestions(quiz);
+    setAnswers(new Array(quiz.length).fill(-1));
+    setQuestionTimes(new Array(quiz.length).fill(0));
+    setCurrentQ(0);
+    setSelectedOption(null);
+    setQuizStartTime(Date.now());
+    setQuestionStartTime(Date.now());
+    setElapsed(0);
+    setMyHp(100);
+    setOpponentHp(100);
+    setComboCount(0);
+    setEnergy(0);
+    setSkillBubble(null);
+    setCloverSent(false);
+    setDuelCategory('all');
+    setDuelMessage(null);
+    setChallengerNick(oppObj?.displayName || 'Bạn bè');
+    setOpponentPet({
+      speciesId: oppSnap.speciesId || 'cowdi',
+      evolution: oppSnap.evolution ?? 0,
+      group: oppSnap.group || oppSpecies?.group || 'farm',
+      name: oppObj?.displayName || oppSpecies?.name || 'Bạn bè',
+      emoji: oppSpecies?.emoji || '🐮',
+      image: oppImg,
+      element: oppSnap.element || oppSpecies?.element || 'neutral',
+      skills: oppSnap.skills || {},
+    });
+    setMode('arena');
+  }
+
+  async function cancelFriendRoomWait() {
+    friendRoomCancelRef.current = true;
+    const rId = pendingFriendRoom?.roomId;
+    setPendingFriendRoom(null);
+    setMatchmaking(false);
+    if (rId) {
+      try {
+        await authFetch(`/api/arena/friend-room/${encodeURIComponent(rId)}/cancel`, { method: 'POST' });
+      } catch { /* ignore */ }
+    }
+  }
+
+  // ── Start Arena v2 Matchmaking (Ghép cặp 10-15s / Mời bạn / Luyện tập AI) ──
+  async function startArenaMatch(useTicket = true, friendId = null, friendName = 'Bạn bè') {
     if (useTicket && (arenaProfile?.tickets || 0) <= 0) {
-      showToast('Bạn đã hết vé đấu! Hãy học bài mới để nhận thêm vé hoặc Đấu Luyện Tập AI.', 'warning');
+      showToast('Bạn đã hết vé đấu! Hãy học bài mới để nhận thêm vé hoặc Luyện tập AI.', 'warning');
       return;
     }
     const quiz = generateDuelQuiz(10, 'all');
@@ -375,21 +664,168 @@ export default function DuelPage() {
       return;
     }
     play('click');
+    matchCancelRef.current = false;
+    matchForceBotRef.current = false;
+    friendRoomCancelRef.current = false;
+    setShowFriendPicker(false);
+    setActiveFriendRoomId(null);
     setMatchmaking(true);
+
     try {
       const petSnap = {
         speciesId: myPetInfo.speciesId || 'cowdi',
-        evolution: myPetInfo.evolution || 1,
+        evolution: myPetInfo.evolution ?? 0,
         skills: myPetInfo.skills || {},
         element: myPetInfo.element,
         group: myPetInfo.group,
       };
-      const res = await authFetch('/api/arena/matchmake', {
-        method: 'POST',
-        body: JSON.stringify({ petSnapshot: petSnap, practice: !useTicket }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.match) {
+
+      // Luồng Mời bạn đồng bộ 2 người: tạo phòng -> chờ bạn bấm Đồng ý
+      if (friendId) {
+        const createRes = await authFetch('/api/arena/friend-room', {
+          method: 'POST',
+          body: JSON.stringify({
+            friendId,
+            hasTicket: useTicket,
+            quizData: quiz,
+            petSnapshot: petSnap,
+          }),
+        });
+        const createData = await createRes.json();
+        if (!createRes.ok || !createData?.room) {
+          showToast(createData?.error || 'Không thể gửi lời mời thách đấu.', 'danger');
+          setMatchmaking(false);
+          return;
+        }
+
+        const roomId = createData.room.roomId;
+        setPendingFriendRoom({ roomId, friendName });
+
+        // Poll trạng thái phòng tối đa 90 giây chờ bạn đồng ý
+        for (let i = 0; i < 60; i++) {
+          if (friendRoomCancelRef.current) {
+            setMatchmaking(false);
+            setPendingFriendRoom(null);
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 1500));
+          if (friendRoomCancelRef.current) {
+            setMatchmaking(false);
+            setPendingFriendRoom(null);
+            return;
+          }
+
+          const pollRes = await authFetch(`/api/arena/friend-room/${encodeURIComponent(roomId)}`);
+          const pollData = await pollRes.json();
+          if (!pollRes.ok || !pollData?.room) break;
+          const st = pollData.room.status;
+          if (st === 'accepted') {
+            setMatchmaking(false);
+            enterFriendRoomMatch(pollData.room);
+            return;
+          }
+          if (st === 'declined') {
+            showToast(`${friendName} đã từ chối lời mời thách đấu.`, 'info');
+            setMatchmaking(false);
+            setPendingFriendRoom(null);
+            return;
+          }
+          if (st === 'cancelled') {
+            setMatchmaking(false);
+            setPendingFriendRoom(null);
+            return;
+          }
+        }
+
+        showToast('Hết thời gian chờ bạn bè phản hồi.', 'warning');
+        await cancelFriendRoomWait();
+        return;
+      }
+
+      const callMatchmake = async (allowBotFallback) => {
+        const res = await authFetch('/api/arena/matchmake', {
+          method: 'POST',
+          body: JSON.stringify({
+            petSnapshot: petSnap,
+            practice: !useTicket && !friendId,
+            allowBotFallback,
+            friendId,
+            quizData: quiz,
+          }),
+        });
+        const data = await res.json();
+        return { res, data };
+      };
+
+      // Nếu là luyện tập AI hoặc mời bạn -> vào thẳng không cần chờ hàng đợi
+      let { res, data } = await callMatchmake(!useTicket || Boolean(friendId));
+      if (!res.ok) {
+        showToast(data.error || 'Không tìm được đối thủ.', 'danger');
+        setMatchmaking(false);
+        return;
+      }
+
+      if (data.dailyLimitReached && useTicket) {
+        showToast('Bạn đã đấu đủ 2 trận có thưởng với người bạn này hôm nay!', 'warning');
+        setMatchmaking(false);
+        return;
+      }
+
+      // Nếu đang chờ ghép cặp người chơi thực (10–15 giây)
+      if (data.status === 'waiting') {
+        const waitTotalSec = Math.round((data.waitMs || ARENA_CONFIG.MATCHMAKING_WAIT_MS || 12000) / 1000);
+        setMatchWaitLeft(waitTotalSec);
+
+        for (let sec = waitTotalSec; sec > 0; sec -= 1) {
+          if (matchCancelRef.current) {
+            setMatchmaking(false);
+            setMatchWaitLeft(0);
+            return;
+          }
+          setMatchWaitLeft(sec);
+
+          if (matchForceBotRef.current) {
+            break;
+          }
+
+          // Poll server mỗi 2 giây xem có người chơi thực vào ghép chưa
+          if (sec % 2 === 0 && sec < waitTotalSec) {
+            const poll = await callMatchmake(false);
+            if (poll.res.ok && poll.data?.status === 'matched' && poll.data?.match) {
+              data = poll.data;
+              break;
+            }
+          }
+
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+
+        if (matchCancelRef.current) {
+          setMatchmaking(false);
+          setMatchWaitLeft(0);
+          return;
+        }
+
+        // Hết 12s (hoặc user bấm Đấu ngay với Máy) -> fallback Ghost Bot mang tên người chơi
+        if (!data.match) {
+          const fallback = await callMatchmake(true);
+          if (!fallback.res.ok || !fallback.data?.match) {
+            showToast(fallback.data?.error || 'Không tìm được đối thủ.', 'danger');
+            setMatchmaking(false);
+            setMatchWaitLeft(0);
+            return;
+          }
+          data = fallback.data;
+        }
+      }
+
+      setMatchWaitLeft(0);
+      if (data.room) {
+        setMatchmaking(false);
+        enterFriendRoomMatch(data.room);
+        return;
+      }
+      if (!data.match) {
         showToast(data.error || 'Không tìm được đối thủ.', 'danger');
         setMatchmaking(false);
         return;
@@ -398,7 +834,7 @@ export default function DuelPage() {
       const m = data.match;
       const oppSnap = m.petSnapshot || {};
       const oppSpecies = PET_REGISTRY[oppSnap.speciesId] || PET_REGISTRY.mushroom;
-      const oppImg = resolvePetImage(oppSnap.speciesId, oppSnap.evolution || 1);
+      const oppImg = resolvePetImage(oppSnap.speciesId, oppSnap.evolution ?? 0);
 
       setArenaMatch(m);
       setArenaHasTicket(useTicket);
@@ -434,6 +870,7 @@ export default function DuelPage() {
       showToast('Lỗi kết nối máy chủ Đấu trường.', 'danger');
     }
     setMatchmaking(false);
+    setMatchWaitLeft(0);
   }
 
   // ── Claim Weekly Chest ──────────────────────────────────────
@@ -531,7 +968,9 @@ export default function DuelPage() {
             play('battleHit');
           }
           setDamagePopup({ target: 'opponent', amount: dmg, isCritical });
-          setOpponentHp(prev => Math.max(0, prev - dmg));
+          if (!activeFriendRoomId) {
+            setOpponentHp(prev => Math.max(0, prev - dmg));
+          }
           battleAnimTimeoutRef.current = setTimeout(() => {
             setBattleAnim(null);
             setEffectClass(null);
@@ -559,7 +998,9 @@ export default function DuelPage() {
             play('battleDamage');
           }
           setDamagePopup({ target: 'mine', amount: oppDmg, isCritical: oppCritical });
-          setMyHp(prev => Math.max(0, prev - oppDmg));
+          if (!activeFriendRoomId) {
+            setMyHp(prev => Math.max(0, prev - oppDmg));
+          }
           battleAnimTimeoutRef.current = setTimeout(() => {
             setBattleAnim(null);
             setEffectClass(null);
@@ -603,11 +1044,40 @@ export default function DuelPage() {
     const newAnswers = [...answers];
     newAnswers[currentQ] = optionIdx;
     setAnswers(newAnswers);
+    answersRef.current = newAnswers;
 
     // Track per-question time (seconds, 1 decimal)
     const newTimes = [...questionTimes];
     newTimes[currentQ] = Math.round(answerTime * 10) / 10;
     setQuestionTimes(newTimes);
+    timesRef.current = newTimes;
+
+    // Nếu đang ở Phòng Bạn bè đồng bộ -> gửi ngay đáp án câu hiện tại lên server
+    if (mode === 'arena' && activeFriendRoomId) {
+      setWaitingStepSync(true);
+      authFetch(`/api/arena/friend-room/${encodeURIComponent(activeFriendRoomId)}/answer`, {
+        method: 'POST',
+        body: JSON.stringify({
+          questionIndex: currentQ,
+          correct: isCorrect,
+          timeMs: Math.round(answerTime * 1000),
+        }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          const r = d?.room;
+          if (!r) return;
+          const isCh = (r.mySide || arenaMatch?.mySide || 'challenger') === 'challenger';
+          const oppObj = isCh ? r.opponent : r.challenger;
+          setOppAnsweredCount(oppObj?.answeredCount || 0);
+          const settled = r.liveBattle?.settledCount || 0;
+          if (settled > 0) {
+            setMyHp(isCh ? r.liveBattle.challengerHpPct : r.liveBattle.opponentHpPct);
+            setOpponentHp(isCh ? r.liveBattle.opponentHpPct : r.liveBattle.challengerHpPct);
+          }
+        })
+        .catch(() => {});
+    }
 
     if (isCorrect) {
       const nextCombo = comboCount + 1;
@@ -642,8 +1112,11 @@ export default function DuelPage() {
       play('wrong');
     }
 
-    // Run battle animation, then advance
+    // Run battle animation, then advance (nếu đang ở Phòng Bạn bè đồng bộ thì chờ đối thủ xong cùng câu mới qua câu kế)
     runBattleAnimation(isCorrect, isCritical, currentQ, () => {
+      if (mode === 'arena' && activeFriendRoomId) {
+        return; // useEffect poll (800ms) sẽ chuyển câu ngay khi settledCount >= currentQ + 1
+      }
       if (currentQ < questions.length - 1) {
         setCurrentQ(prev => prev + 1);
         setSelectedOption(null);
@@ -753,6 +1226,92 @@ export default function DuelPage() {
       try {
         const chAnswersBool = finalAnswers.map((a, i) => a === questions[i].correct);
         const chTimesMs = qTimes.map((sec) => Math.round((Number(sec) || 3) * 1000));
+
+        // Nếu đang ở phòng mời bạn đồng bộ 2 người
+        if (activeFriendRoomId) {
+          const subRes = await authFetch(`/api/arena/friend-room/${encodeURIComponent(activeFriendRoomId)}/submit`, {
+            method: 'POST',
+            body: JSON.stringify({ answers: chAnswersBool, times: chTimesMs }),
+          });
+          let roomPayload = await subRes.json();
+          if (!subRes.ok) {
+            showToast(roomPayload?.error || 'Lỗi nộp bài phòng đấu.', 'danger');
+            setMode('lobby');
+            return;
+          }
+
+          if (roomPayload.waitingOpponent) {
+            setWaitingFriendFinish(true);
+            for (let i = 0; i < 90; i++) {
+              await new Promise((r) => setTimeout(r, 1000));
+              const pollRes = await authFetch(`/api/arena/friend-room/${encodeURIComponent(activeFriendRoomId)}`);
+              const pollData = await pollRes.json();
+              if (pollRes.ok && pollData?.room) {
+                const rm = pollData.room;
+                const isChPoll = (rm.mySide || arenaMatch?.mySide || 'challenger') === 'challenger';
+                const oppPoll = isChPoll ? rm.opponent : rm.challenger;
+                setOppAnsweredCount(oppPoll?.answeredCount || 0);
+                if (rm.status === 'completed' && rm.result) {
+                  roomPayload = rm;
+                  break;
+                }
+              }
+            }
+            setWaitingFriendFinish(false);
+          }
+
+          const finalResult = roomPayload.result;
+          if (!finalResult) {
+            showToast('Đối thủ chưa hoàn thành kịp thời gian.', 'warning');
+            setMode('lobby');
+            setActiveFriendRoomId(null);
+            return;
+          }
+
+          const mySide = roomPayload.mySide || arenaMatch?.mySide || 'challenger';
+          const isCh = mySide === 'challenger';
+          const isWin = finalResult.winner === mySide;
+          const isDraw = finalResult.winner === 'draw';
+          const br = finalResult.battleResult || {};
+          const myBr = isCh ? br.challenger : br.opponent;
+          const oppBr = isCh ? br.opponent : br.challenger;
+          const myHpPct = Math.round((myBr?.hpPct ?? 1) * 100);
+          const theirHpPct = Math.round((oppBr?.hpPct ?? 1) * 100);
+          const myProfile = isCh ? finalResult.challengerProfile : finalResult.opponentProfile;
+          const rewardMilk = isCh ? (finalResult.challengerRewardMilk || 0) : (finalResult.opponentRewardMilk || 0);
+          const lpDelta = isCh ? (finalResult.challengerLpDelta || 0) : (finalResult.opponentLpDelta || 0);
+
+          setMyHp(myHpPct);
+          setOpponentHp(theirHpPct);
+          if (myProfile) setArenaProfile(myProfile);
+          setActiveFriendRoomId(null);
+
+          setResult({
+            mode: 'arena',
+            matchId: finalResult.matchId,
+            myScore: isCh ? finalResult.challengerScore : finalResult.opponentScore,
+            theirScore: isCh ? finalResult.opponentScore : finalResult.challengerScore,
+            myTime: time,
+            theirTime: Math.round((oppBr?.totalTimeMs || 35000) / 1000),
+            myHpPct,
+            theirHpPct,
+            rewardMilk,
+            lpDelta,
+            hasTicket: finalResult.hasTicket,
+            isBot: false,
+            opponentId: arenaMatch?.opponentId || null,
+            battleLog: br.log || [],
+            isWin,
+            isDraw,
+            total: questions.length,
+          });
+          setMode('result');
+          if (rewardMilk > 0) addXP(rewardMilk);
+          play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
+          setSubmitting(false);
+          return;
+        }
+
         const res = await authFetch('/api/arena/submit', {
           method: 'POST',
           body: JSON.stringify({
@@ -874,8 +1433,37 @@ export default function DuelPage() {
     }
   }
 
+  // Tự động xử thua nếu người chơi đóng tab / rời trang khi đang đấu Phòng Bạn bè
+  useEffect(() => {
+    if (mode !== 'arena' || !activeFriendRoomId) return undefined;
+    const rId = activeFriendRoomId;
+    const handleBeforeUnload = () => {
+      try {
+        authFetch(`/api/arena/friend-room/${encodeURIComponent(rId)}/forfeit`, {
+          method: 'POST',
+          keepalive: true,
+        });
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [mode, activeFriendRoomId, authFetch]);
+
   // ── Return to lobby ─────────────────────────────────────────
   function backToLobby() {
+    if (mode === 'arena' && activeFriendRoomId) {
+      const rId = activeFriendRoomId;
+      authFetch(`/api/arena/friend-room/${encodeURIComponent(rId)}/forfeit`, {
+        method: 'POST',
+        keepalive: true,
+      }).catch(() => {});
+      showToast('Bạn đã rời trận đấu nên bị xử thua!', 'warning');
+    }
+    setActiveFriendRoomId(null);
+    setWaitingStepSync(false);
+    setWaitingFriendFinish(false);
     setMode('lobby');
     setResult(null);
     setQuestions([]);
@@ -1045,13 +1633,20 @@ export default function DuelPage() {
             <div className="arena-title-wrap">
               <h5>
                 {mode === 'arena'
-                  ? (arenaHasTicket ? 'Đấu trường Xếp hạng' : 'Đấu trường Luyện tập AI')
+                  ? (arenaMatch?.isFriendRoom
+                      ? (arenaHasTicket ? 'Đấu Bạn bè (1 vé)' : 'Đấu Bạn bè (Giao hữu)')
+                      : (arenaHasTicket ? 'Đấu trường Xếp hạng' : 'Đấu trường Luyện tập AI'))
                   : mode === 'creating'
                     ? 'Tạo thách đấu'
                     : 'Thách đấu'}
               </h5>
               <p className="arena-subtitle">
                 Chủ đề: {catInfo.label} · Câu {currentQ + 1}/{questions.length}
+                {arenaMatch?.isFriendRoom
+                  ? (waitingStepSync
+                      ? ` · ⏳ Đang chờ đối thủ chọn câu ${currentQ + 1}...`
+                      : ` · Đối thủ: ${oppAnsweredCount}/${questions.length}`)
+                  : ''}
               </p>
             </div>
           </div>
@@ -1209,6 +1804,14 @@ export default function DuelPage() {
         </div>
 
         {/* ── Khối Câu Hỏi (Trái) & 4 Đáp Án Lớn 2x2 (Phải) ── */}
+        {waitingFriendFinish ? (
+          <div className="cowdi-card p-4 text-center border border-primary bg-light my-2">
+            <div className="fw-bold fs-5 mb-1">⏳ Bạn đã hoàn thành {questions.length}/{questions.length} câu!</div>
+            <div className="text-muted small">
+              Đang chờ đối thủ trả lời xong ({oppAnsweredCount}/{questions.length} câu)... Kết quả sẽ hiện ngay khi cả hai hoàn tất.
+            </div>
+          </div>
+        ) : (
         <div className="arena-qa-desktop">
           <div className="arena-question-card">
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -1259,6 +1862,7 @@ export default function DuelPage() {
             })}
           </div>
         </div>
+        )}
       </div>
     );
   }
@@ -1632,82 +2236,166 @@ export default function DuelPage() {
         </div>
       </div>
 
-      {/* Primary Arena v2 Actions */}
-      <div className="row g-2 mb-3">
-        <div className="col-12 col-md-6">
-          <button
-            type="button"
-            className="btn btn-cowdi-primary w-100 py-3 fw-bold"
-            disabled={matchmaking}
-            onClick={() => startArenaMatch(true)}
-          >
-            {matchmaking ? '⏳ Đang ghép trận...' : '⚔️ Đấu Xếp Hạng (1 vé · 8/5/2 🥛)'}
-          </button>
-        </div>
-        <div className="col-12 col-md-6">
-          <button
-            type="button"
-            className="btn btn-outline-primary w-100 py-3 fw-bold"
-            disabled={matchmaking}
-            onClick={() => startArenaMatch(false)}
-          >
-            🤖 Luyện Tập AI (Miễn phí · 50% LP)
-          </button>
-        </div>
-      </div>
-
-      {/* Create Open Duel button */}
-      <button className="btn btn-outline-secondary w-100 py-2 mb-4 fw-bold" onClick={openSetup}>
-        <Icon name="swords" size={18} /> Tạo thách đấu tự do / Mời bạn
-      </button>
-
-      {/* Open duels */}
-      <h6 className="fw-bold mb-2">
-        <Icon name="target" size={18} /> Thách đấu đang chờ
-        <span className="badge bg-danger ms-2">{openDuels.length}</span>
-      </h6>
-      {loading ? (
-        <div className="text-center py-3">
-          <div className="spinner-border spinner-border-sm text-muted"></div>
-        </div>
-      ) : openDuels.length > 0 ? (
-        <div className="d-grid gap-2 mb-4">
-          {openDuels.map(duel => {
-            const catInfo = CATEGORY_INFO[duel.category] || CATEGORY_INFO.all;
-            const msgPreview = duel.message ? (duel.message.length > 60 ? duel.message.slice(0, 60) + '…' : duel.message) : null;
-            return (
-              <div key={duel.id} className="card shadow-sm card-hover" style={{ cursor: 'pointer' }} onClick={() => playDuel(duel.id)}>
-                <div className="card-body py-2">
-                  <div className="d-flex align-items-center gap-2">
-                    {resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.evolution) ? (
-                      <img src={resolvePetImage(duel.challengerPet?.speciesId, duel.challengerPet?.evolution)} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />
-                    ) : (
-                      <span className="fs-3"><Emoji e={petEmoji(duel.challengerPet)} size={28} /></span>
-                    )}
-                    <div className="flex-grow-1">
-                      <div className="fw-bold small">{duel.challengerNick}</div>
-                      <div className="text-muted" style={{ fontSize: '0.7rem' }}>
-                        <span className="badge bg-light text-dark me-1" style={{ fontSize: '0.65rem' }}>
-                          <Emoji e={catInfo.icon} size={12} /> {catInfo.label}
-                        </span>
-                        {duel.questionCount} câu · {timeAgo(duel.createdAt)}
-                      </div>
-                    </div>
-                    <button className="btn btn-sm btn-outline-danger fw-bold">Đấu!</button>
-                  </div>
-                  {msgPreview && (
-                    <div className="mt-2 px-2 py-1 rounded small fst-italic" style={{ background: '#fff8e1', borderLeft: '3px solid #ffc107', color: '#6c5300' }}>
-                      <Icon name="chat" size={14} /> "<EmojiText>{msgPreview}</EmojiText>"
-                    </div>
-                  )}
+      {/* Lời mời thách đấu bạn bè đến (hiển thị ngay giữa trang /duel) */}
+      {incomingFriendRooms.length > 0 && (
+        <div className="cowdi-card p-3 mb-3 border border-success bg-light">
+          {incomingFriendRooms.map((inv) => (
+            <div key={inv.roomId} className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <div className="fw-bold text-success">
+                  ⚔️ {inv.challenger?.displayName || 'Bạn bè'} mời bạn đấu trực tiếp!
+                </div>
+                <div className="small text-muted">
+                  {inv.hasTicket ? 'Trận Xếp hạng 1 vé (100% thưởng Sữa & LP)' : 'Trận Giao hữu 0 vé (không tính LP, không thưởng)'}
                 </div>
               </div>
-            );
-          })}
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-cowdi-primary fw-bold"
+                  onClick={() => respondIncomingFriendRoom(inv.roomId, true)}
+                >
+                  ✅ Đồng ý vào phòng
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => respondIncomingFriendRoom(inv.roomId, false)}
+                >
+                  Từ chối
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Primary Arena v2 Actions: 2 chức năng chính (Ghép cặp & Mời bạn) */}
+      {pendingFriendRoom ? (
+        <div className="cowdi-card p-3 mb-3 text-center border border-primary bg-light">
+          <div className="fw-bold mb-1">
+            ⏳ Đang chờ {pendingFriendRoom.friendName} đồng ý vào phòng...
+          </div>
+          <div className="small text-muted mb-2">
+            Khi bạn của bạn bấm "Đồng ý vào phòng", cả hai sẽ cùng thi đấu bộ 10 câu hỏi giống nhau!
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={cancelFriendRoomWait}
+          >
+            Huỷ lời mời
+          </button>
+        </div>
+      ) : matchmaking && matchWaitLeft > 0 ? (
+        <div className="cowdi-card p-3 mb-3 text-center border border-warning bg-light">
+          <div className="fw-bold mb-1">
+            ⏳ Đang tìm người chơi ghép cặp... ({matchWaitLeft}s)
+          </div>
+          <div className="small text-muted mb-2">
+            Nếu sau {matchWaitLeft}s chưa có người đang ghép, hệ thống sẽ ghép Máy mang tên người chơi (thưởng 50%).
+          </div>
+          <div className="d-flex gap-2 justify-content-center">
+            <button
+              type="button"
+              className="btn btn-sm btn-warning fw-bold"
+              onClick={() => { matchForceBotRef.current = true; }}
+            >
+              ⚡ Đấu ngay với Máy (50%)
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={cancelMatchmaking}
+            >
+              Huỷ tìm trận
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="text-center text-muted small py-3 mb-4">
-          Chưa có thách đấu nào. Hãy tạo một cái! <Icon name="target" size={14} />
+        <div className="row g-2 mb-2">
+          <div className="col-12 col-md-6">
+            <button
+              type="button"
+              className="btn btn-cowdi-primary w-100 py-3 fw-bold"
+              disabled={matchmaking}
+              onClick={() => startArenaMatch(true)}
+            >
+              {matchmaking ? '⏳ Đang ghép trận...' : '⚔️ Ghép cặp (1 vé · Người 8/5/2 🥛 · Máy 4/2/1 🥛)'}
+            </button>
+          </div>
+          <div className="col-12 col-md-6">
+            <button
+              type="button"
+              className="btn btn-outline-primary w-100 py-3 fw-bold"
+              disabled={matchmaking}
+              onClick={openFriendPicker}
+            >
+              👥 Mời bạn đấu trực tiếp (100% thưởng)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Secondary Action: Luyện tập AI (0 vé · 0 thưởng) */}
+      <div className="mb-4">
+        <button
+          type="button"
+          className="btn btn-outline-secondary w-100 py-2 fw-bold"
+          disabled={matchmaking}
+          onClick={() => startArenaMatch(false)}
+        >
+          🤖 Luyện tập AI (0 vé · 0 LP · 0 Sữa)
+        </button>
+      </div>
+
+      {/* Modal chọn bạn bè đấu trực tiếp */}
+      {showFriendPicker && (
+        <div className="cowdi-card p-3 mb-4 border border-primary">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h6 className="fw-bold mb-0">👥 Chọn bạn bè để mời đấu (100% thưởng)</h6>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => setShowFriendPicker(false)}
+            >
+              Đóng
+            </button>
+          </div>
+          {friendsLoading ? (
+            <div className="text-center py-2 text-muted small">Đang tải danh sách bạn bè...</div>
+          ) : friendsList.length === 0 ? (
+            <div className="text-center py-2 text-muted small">
+              Bạn chưa có bạn bè nào. Hãy vào mục Bạn bè để kết bạn trước nhé!
+            </div>
+          ) : (
+            <div className="d-grid gap-2" style={{ maxHeight: 240, overflowY: 'auto' }}>
+              {friendsList.map((fr) => (
+                <div key={fr.userId || fr.id} className="d-flex justify-content-between align-items-center p-2 border rounded bg-white">
+                  <div>
+                    <div className="fw-bold">{fr.displayName || fr.nickname || 'Bạn bè'}</div>
+                    <div className="small text-muted">Mã: {fr.friendCode || '—'}</div>
+                  </div>
+                  <div className="d-flex gap-1">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-cowdi-primary fw-bold"
+                      onClick={() => startArenaMatch(true, fr.userId || fr.id, fr.displayName || fr.nickname || 'Bạn bè')}
+                    >
+                      Đấu 1 vé (100%)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => startArenaMatch(false, fr.userId || fr.id, fr.displayName || fr.nickname || 'Bạn bè')}
+                    >
+                      Giao hữu (0 vé)
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

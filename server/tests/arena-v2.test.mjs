@@ -18,6 +18,12 @@ import {
   generateAiBotOpponent,
   submitArenaMatch,
   claimWeeklyChest,
+  createFriendRoom,
+  getIncomingFriendRooms,
+  respondFriendRoom,
+  forfeitFriendRoom,
+  submitFriendRoomStep,
+  submitFriendRoomAnswers,
 } from '../utils/arena-manager.js';
 
 const sk = (l, s, r, w) => ({ listening: l, speaking: s, reading: r, writing: w });
@@ -228,12 +234,12 @@ test('GĐ5-9: submitArenaMatch (mock DB) trừ vé, tính LP, thưởng Sữa qu
   assert.equal(res.matchId, 999);
   assert.equal(res.winner, 'challenger');
   assert.equal(res.hasTicket, true);
-  assert.equal(res.rewardMilk, 8); // Thắng = 8 Sữa
+  assert.equal(res.rewardMilk, 4); // Thắng Máy (Ghost Bot) = 4 Sữa (tỉ lệ 1:2 so với Người)
   assert.equal(res.challengerLpDelta, 10); // Bot = 50% của +20 LP = +10 LP
   assert.equal(res.updatedProfile.tickets, 4); // 5 - 1 = 4 vé
   assert.equal(res.updatedProfile.winsThisWeek, 3);
   assert.equal(ledgerRows.length, 1);
-  assert.equal(ledgerRows[0][1], 8); // amount = 8 Sữa
+  assert.equal(ledgerRows[0][1], 4); // amount = 4 Sữa
 });
 
 test('GĐ5-10: claimWeeklyChest (mock DB) trao Sữa/Gem/Mảnh đá qua ledger', async () => {
@@ -278,4 +284,290 @@ test('GĐ5-10: claimWeeklyChest (mock DB) trao Sữa/Gem/Mảnh đá qua ledger'
   assert.equal(res.rewards.gem, 2);
   assert.equal(res.rewards.stoneShards, 2);
   assert.equal(ledgerRows.length, 3); // 1 milk, 1 gem, 1 stone_shard
+});
+
+test('GĐ5-11: Đấu với Người chơi (isBot = false, hasTicket = true) nhận 8 Sữa & +20 LP', async () => {
+  const ledgerRows = [];
+  const mockConn = {
+    beginTransaction: async () => {},
+    commit: async () => {},
+    rollback: async () => {},
+    release: () => {},
+    execute: async (sql, params) => {
+      if (sql.includes('INSERT INTO wallet_ledger')) ledgerRows.push(params);
+      if (sql.includes('INSERT INTO arena_matches')) return [{ insertId: 1001 }];
+      return [{ affectedRows: 1 }];
+    },
+  };
+  const todayStr = new Date().toISOString().split('T')[0];
+  const mockDb = {
+    execute: async (sql) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        return [[{
+          user_id: 101, tickets: 5, lp: 250, tier: 'silver', wins_this_week: 2,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      return [[]];
+    },
+    getConnection: async () => mockConn,
+  };
+
+  const res = await submitArenaMatch({
+    userId: 101,
+    opponentId: 202,
+    isBot: false,
+    hasTicket: true,
+    quizData: Array.from({ length: 10 }, () => ({ category: 'vocabulary' })),
+    challengerAnswers: Array.from({ length: 10 }, () => true),
+    challengerTimes: Array.from({ length: 10 }, () => 2800),
+    challengerPetSnap: { speciesId: 'cowdi', evolution: 2, skills: sk(120, 120, 120, 120) },
+    opponentPetSnap: { speciesId: 'mushroom', evolution: 2, skills: sk(10, 10, 10, 10) },
+  }, mockDb);
+
+  assert.equal(res.winner, 'challenger');
+  assert.equal(res.rewardMilk, 8);
+  assert.equal(res.challengerLpDelta, 20);
+  assert.equal(ledgerRows[0][1], 8);
+});
+
+test('GĐ5-12: Đấu không vé (luyện tập AI / giao hữu) nhận 0 Sữa & 0 LP', async () => {
+  const ledgerRows = [];
+  const mockConn = {
+    beginTransaction: async () => {},
+    commit: async () => {},
+    rollback: async () => {},
+    release: () => {},
+    execute: async (sql, params) => {
+      if (sql.includes('INSERT INTO wallet_ledger')) ledgerRows.push(params);
+      if (sql.includes('INSERT INTO arena_matches')) return [{ insertId: 1002 }];
+      return [{ affectedRows: 1 }];
+    },
+  };
+  const todayStr = new Date().toISOString().split('T')[0];
+  const mockDb = {
+    execute: async (sql) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        return [[{
+          user_id: 101, tickets: 5, lp: 250, tier: 'silver', wins_this_week: 2,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      return [[]];
+    },
+    getConnection: async () => mockConn,
+  };
+
+  const res = await submitArenaMatch({
+    userId: 101,
+    opponentId: null,
+    isBot: true,
+    hasTicket: false,
+    quizData: Array.from({ length: 10 }, () => ({ category: 'vocabulary' })),
+    challengerAnswers: Array.from({ length: 10 }, () => true),
+    challengerTimes: Array.from({ length: 10 }, () => 2800),
+    challengerPetSnap: { speciesId: 'cowdi', evolution: 2, skills: sk(120, 120, 120, 120) },
+    opponentPetSnap: { speciesId: 'mushroom', evolution: 2, skills: sk(10, 10, 10, 10) },
+  }, mockDb);
+
+  assert.equal(res.hasTicket, false);
+  assert.equal(res.rewardMilk, 0);
+  assert.equal(res.challengerLpDelta, 0);
+  assert.equal(res.updatedProfile.tickets, 5); // Không trừ vé
+  assert.equal(ledgerRows.length, 0);
+});
+
+test('GĐ5-13: Phòng mời bạn đồng bộ 2 người (tạo phòng -> đồng ý -> chấm đáp án thật của cả hai)', async () => {
+  const ledgerRows = [];
+  const mockConn = {
+    beginTransaction: async () => {},
+    commit: async () => {},
+    rollback: async () => {},
+    release: () => {},
+    execute: async (sql, params) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        const uid = params[0];
+        return [[{
+          user_id: uid, tickets: 5, lp: 250, tier: 'silver', wins_this_week: 0,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      if (sql.includes('INSERT INTO wallet_ledger')) ledgerRows.push(params);
+      if (sql.includes('INSERT INTO arena_matches')) return [{ insertId: 2026 }];
+      return [{ affectedRows: 1 }];
+    },
+  };
+  const todayStr = new Date().toISOString().split('T')[0];
+  const mockDb = {
+    execute: async (sql, params) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        const uid = params[0];
+        return [[{
+          user_id: uid, tickets: 5, lp: 250, tier: 'silver', wins_this_week: 0,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      if (sql.includes('FROM users u')) {
+        const uid = params[0];
+        return [[{
+          display_name: uid === 101 ? 'Phuc' : 'Ban Be',
+          pet_data: JSON.stringify({ activePet: { speciesId: 'cowdi', evolution: 2, skills: sk(50, 50, 50, 50) } }),
+        }]];
+      }
+      if (sql.includes('SELECT COUNT(*) AS total')) return [[{ total: 0 }]];
+      return [[]];
+    },
+    getConnection: async () => mockConn,
+  };
+
+  const quizData = Array.from({ length: 10 }, () => ({ category: 'vocabulary' }));
+  const room = await createFriendRoom({
+    userId: 101,
+    friendId: 202,
+    hasTicket: true,
+    quizData,
+    petSnapshot: { speciesId: 'cowdi', evolution: 2, skills: sk(80, 80, 80, 80) },
+  }, mockDb);
+  assert.equal(room.status, 'pending');
+
+  const incoming = getIncomingFriendRooms(202);
+  assert.equal(incoming.length, 1);
+  assert.equal(incoming[0].roomId, room.roomId);
+
+  const accepted = await respondFriendRoom(room.roomId, 202, {
+    accept: true,
+    petSnapshot: { speciesId: 'mushroom', evolution: 2, skills: sk(20, 20, 20, 20) },
+  }, mockDb);
+  assert.equal(accepted.status, 'accepted');
+
+  // Người 1 nộp trước -> waitingOpponent = true
+  const firstSubmit = await submitFriendRoomAnswers(room.roomId, 101, {
+    answers: Array.from({ length: 10 }, () => true),
+    times: Array.from({ length: 10 }, () => 2500),
+  }, mockDb);
+  assert.equal(firstSubmit.waitingOpponent, true);
+
+  // Người 2 nộp sau -> chấm thật cả 2 bên
+  const secondSubmit = await submitFriendRoomAnswers(room.roomId, 202, {
+    answers: Array.from({ length: 10 }, () => false),
+    times: Array.from({ length: 10 }, () => 4000),
+  }, mockDb);
+  assert.equal(secondSubmit.waitingOpponent, false);
+  assert.equal(secondSubmit.status, 'completed');
+  assert.equal(secondSubmit.result.winner, 'challenger');
+  assert.equal(secondSubmit.result.challengerRewardMilk, 8);
+  assert.equal(secondSubmit.result.opponentRewardMilk, 2);
+  assert.equal(ledgerRows.length, 2); // Thưởng Sữa cho cả người thắng (8) và người thua (2)
+});
+
+test('GĐ5-14: Đồng bộ real-time từng câu (submitFriendRoomStep) cập nhật HP ngay khi cả 2 qua cùng câu', async () => {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const mockDb = {
+    execute: async (sql, params) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        return [[{
+          user_id: params[0], tickets: 5, lp: 250, tier: 'silver', wins_this_week: 0,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      if (sql.includes('FROM users u')) {
+        return [[{
+          display_name: params[0] === 101 ? 'A' : 'B',
+          pet_data: JSON.stringify({ activePet: { speciesId: 'cowdi', evolution: 2, skills: sk(50, 50, 50, 50) } }),
+        }]];
+      }
+      return [[]];
+    },
+  };
+
+  const quizData = Array.from({ length: 10 }, () => ({ category: 'vocabulary' }));
+  const room = await createFriendRoom({
+    userId: 101,
+    friendId: 202,
+    hasTicket: false,
+    quizData,
+    petSnapshot: { speciesId: 'cowdi', evolution: 2, skills: sk(80, 80, 80, 80) },
+  }, mockDb);
+  await respondFriendRoom(room.roomId, 202, {
+    accept: true,
+    petSnapshot: { speciesId: 'mushroom', evolution: 2, skills: sk(20, 20, 20, 20) },
+  }, mockDb);
+
+  // Người 1 trả lời câu 1 -> settledCount vẫn là 0 vì người 2 chưa trả lời câu 1
+  const s1 = submitFriendRoomStep(room.roomId, 101, { questionIndex: 0, correct: true, timeMs: 2500 });
+  assert.equal(s1.liveBattle.settledCount, 0);
+  assert.equal(s1.challenger.answeredCount, 1);
+
+  // Người 2 trả lời sai câu 1 -> settledCount = 1 và HP đối thủ tụt < 100
+  const s2 = submitFriendRoomStep(room.roomId, 202, { questionIndex: 0, correct: false, timeMs: 4000 });
+  assert.equal(s2.liveBattle.settledCount, 1);
+  assert.ok(s2.liveBattle.opponentHpPct < 100);
+  assert.equal(s2.liveBattle.challengerHpPct, 100);
+});
+
+test('GĐ5-15: Rời trận giữa chừng (forfeitFriendRoom) xử thua người rời & giữ nguyên cấp Trứng (evolution = 0)', async () => {
+  const ledgerRows = [];
+  const mockConn = {
+    beginTransaction: async () => {},
+    commit: async () => {},
+    rollback: async () => {},
+    release: () => {},
+    execute: async (sql, params) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        return [[{
+          user_id: params[0], tickets: 5, lp: 250, tier: 'silver', wins_this_week: 0,
+          claimed_weekly_chests: '[]', last_ticket_refill: new Date().toISOString().split('T')[0],
+          last_weekly_reset: new Date().toISOString().split('T')[0], season_id: 'season_1',
+        }]];
+      }
+      if (sql.includes('INSERT INTO wallet_ledger')) ledgerRows.push(params);
+      if (sql.includes('INSERT INTO arena_matches')) return [{ insertId: 3030 }];
+      return [{ affectedRows: 1 }];
+    },
+  };
+  const todayStr = new Date().toISOString().split('T')[0];
+  const mockDb = {
+    execute: async (sql, params) => {
+      if (sql.includes('SELECT * FROM arena_profiles')) {
+        return [[{
+          user_id: params[0], tickets: 5, lp: 250, tier: 'silver', wins_this_week: 0,
+          claimed_weekly_chests: '[]', last_ticket_refill: todayStr, last_weekly_reset: todayStr, season_id: 'season_1',
+        }]];
+      }
+      if (sql.includes('FROM users u')) {
+        return [[{
+          display_name: params[0] === 101 ? 'Phuc' : 'Trong Phuc',
+          pet_data: JSON.stringify({ activePet: { speciesId: 'cowdi', evolution: params[0] === 101 ? 0 : 1, skills: sk(10, 10, 10, 10) } }),
+        }]];
+      }
+      if (sql.includes('SELECT COUNT(*) AS total')) return [[{ total: 0 }]];
+      return [[]];
+    },
+    getConnection: async () => mockConn,
+  };
+
+  const quizData = Array.from({ length: 10 }, () => ({ category: 'vocabulary' }));
+  const room = await createFriendRoom({
+    userId: 101,
+    friendId: 202,
+    hasTicket: true,
+    quizData,
+    petSnapshot: { speciesId: 'cowdi', evolution: 0, skills: sk(10, 10, 10, 10) },
+  }, mockDb);
+  // Kiểm tra giữ nguyên evolution = 0 (Trứng C1)
+  assert.equal(room.challenger.petSnapshot.evolution, 0);
+
+  await respondFriendRoom(room.roomId, 202, {
+    accept: true,
+    petSnapshot: { speciesId: 'cowdi', evolution: 1, skills: sk(40, 40, 40, 40) },
+  }, mockDb);
+
+  // Người 101 rời trận -> bị xử thua, người 202 thắng (8 Sữa, +20 LP)
+  const res = await forfeitFriendRoom(room.roomId, 101, mockDb);
+  assert.equal(res.status, 'completed');
+  assert.equal(res.result.winner, 'opponent');
+  assert.equal(res.result.forfeitedBy, 101);
+  assert.equal(res.result.opponentRewardMilk, 8);
+  assert.equal(res.result.challengerRewardMilk, 2);
+  assert.equal(ledgerRows.length, 2);
 });

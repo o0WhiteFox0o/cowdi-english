@@ -399,12 +399,19 @@ export const ARENA_CONFIG = deepFreeze({
     LOSS: -12,
     BOT_RATIO: 0.5, // Đối thủ luyện tập AI tính 50% LP (+10 / +2 / -6)
   },
-  // Thưởng Sữa mỗi trận có vé (qua ledger)
+  // Thưởng Sữa mỗi trận có vé (qua ledger) — Tỉ lệ Máy 1 : Người 2
   REWARD_MILK: {
     WIN: 8,
     DRAW: 5,
     LOSS: 2,
   },
+  REWARD_MILK_BOT: {
+    WIN: 4,
+    DRAW: 2,
+    LOSS: 1,
+  },
+  // Thời gian chờ tìm người chơi thực trước khi ghép Ghost Bot (ms)
+  MATCHMAKING_WAIT_MS: 12000,
   // Rương tuần theo số trận thắng có vé
   WEEKLY_CHESTS: {
     bronze: { id: 'bronze', winsRequired: 5,  labelVi: 'Rương Đồng',  rewardMilk: 30,  rewardGem: 0, rewardStoneShards: 0 },
