@@ -1,4 +1,5 @@
 import { COSMETIC_RARITIES } from '../../../shared/cosmetics-data.js';
+import Icon from '../../components/Icon';
 
 export default function CosmeticFilterSheet({
   open,
@@ -14,26 +15,26 @@ export default function CosmeticFilterSheet({
 
   const RARITY_OPTIONS = [
     { id: 'all', label: 'Tất cả phẩm chất' },
-    { id: 'common', label: '⚪ Thường' },
-    { id: 'rare', label: '🔵 Hiếm' },
-    { id: 'epic', label: '🟣 Sử thi' },
-    { id: 'legendary', label: '🟡 Huyền thoại' },
-    { id: 'achievement', label: '🟢 Mốc học' },
-    { id: 'season', label: '🟠 Mùa' },
+    { id: 'common', label: 'Thường', icon: 'rarity_common' },
+    { id: 'rare', label: 'Hiếm', icon: 'rarity_rare' },
+    { id: 'epic', label: 'Sử thi', icon: 'rarity_epic' },
+    { id: 'legendary', label: 'Huyền thoại', icon: 'rarity_legendary' },
+    { id: 'achievement', label: 'Mốc học', icon: 'rarity_milestone' },
+    { id: 'season', label: 'Mùa', icon: 'rarity_season' },
   ];
 
   const ELEMENT_OPTIONS = [
     { id: 'all', label: 'Tất cả hệ' },
-    { id: 'fire', label: '🔥 Hỏa' },
-    { id: 'water', label: '🌊 Thủy' },
-    { id: 'wood', label: '🎋 Mộc' },
-    { id: 'metal', label: '⚙️ Kim' },
-    { id: 'earth', label: '🪨 Thổ' },
-    { id: 'light', label: '☀️ Quang' },
-    { id: 'dark', label: '🌑 Ám' },
-    { id: 'wind', label: '🌪️ Phong' },
-    { id: 'thunder', label: '⚡ Lôi' },
-    { id: 'neutral', label: '🥋 Vô' },
+    { id: 'fire', label: 'Hỏa', icon: 'elem_fire' },
+    { id: 'water', label: 'Thủy', icon: 'elem_water' },
+    { id: 'wood', label: 'Mộc', icon: 'elem_wood' },
+    { id: 'metal', label: 'Kim', icon: 'elem_metal' },
+    { id: 'earth', label: 'Thổ', icon: 'elem_earth' },
+    { id: 'light', label: 'Quang', icon: 'elem_light' },
+    { id: 'dark', label: 'Ám', icon: 'elem_dark' },
+    { id: 'wind', label: 'Phong', icon: 'elem_wind' },
+    { id: 'thunder', label: 'Lôi', icon: 'elem_thunder' },
+    { id: 'neutral', label: 'Vô', icon: 'elem_neutral' },
   ];
 
   const hasFilter = rarityFilter !== 'all' || (subCategory === 'room' && elementFilter !== 'all');
@@ -82,13 +83,14 @@ export default function CosmeticFilterSheet({
                 <button
                   key={r.id}
                   type="button"
-                  className={`btn rounded-pill px-3 py-1 ${
+                  className={`btn rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 ${
                     isSelected ? 'btn-cowdi-primary fw-bold shadow-xs' : 'btn-light border text-dark'
                   }`}
                   style={{ fontSize: '0.95rem', minHeight: '36px', lineHeight: 1 }}
                   onClick={() => onSelectRarity(r.id)}
                 >
-                  {r.label}
+                  {r.icon && <Icon name={r.icon} size={16} />}
+                  <span>{r.label}</span>
                 </button>
               );
             })}
@@ -106,13 +108,14 @@ export default function CosmeticFilterSheet({
                   <button
                     key={elem.id}
                     type="button"
-                    className={`btn rounded-pill px-3 py-1 ${
+                    className={`btn rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 ${
                       isSelected ? 'btn-dark fw-bold shadow-xs' : 'btn-light border text-dark'
                     }`}
                     style={{ fontSize: '0.95rem', minHeight: '36px', lineHeight: 1 }}
                     onClick={() => onSelectElement(elem.id)}
                   >
-                    {elem.label}
+                    {elem.icon && <Icon name={elem.icon} size={16} />}
+                    <span>{elem.label}</span>
                   </button>
                 );
               })}

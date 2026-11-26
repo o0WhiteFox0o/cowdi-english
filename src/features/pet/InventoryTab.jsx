@@ -6,20 +6,21 @@ import { useSound } from '../../hooks/useSound';
 import { PET_REGISTRY, SHOP_ITEMS, getEvolutionInfo } from '../../data/pets';
 import { ALL_COSMETIC_ITEMS, COSMETIC_MAP, COSMETIC_RARITIES } from '../../../shared/cosmetics-data.js';
 import Emoji from '../../components/Emoji';
+import Icon from '../../components/Icon';
 import PetDressingModal from './PetDressingModal';
 
 const INVENTORY_FILTERS = [
   { id: 'all', label: 'Tất cả' },
-  { id: 'room', label: '🖼️ Nền' },
-  { id: 'effect', label: '✨ Hào quang' },
-  { id: 'hat', label: '🎩 Mũ' },
-  { id: 'outfit', label: '👔 Áo' },
+  { id: 'room', label: 'Nền', icon: 'tab_background' },
+  { id: 'effect', label: 'Hào quang', icon: 'rarity_epic' },
+  { id: 'hat', label: 'Mũ', emoji: '🎩' },
+  { id: 'outfit', label: 'Áo', emoji: '👔' },
 ];
 
 const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
 
 export default function InventoryTab({ selectedPetId, onSelectPetId }) {
-  const { petData, equipItem } = usePet();
+  const { petData, equipItem, setPetData } = usePet();
   const { authFetch } = useAuth();
   const showToast = useToast();
   const { play } = useSound();
@@ -108,6 +109,9 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
         showToast(data.error || 'Chưa thể trang bị vật phẩm.', 'error');
         return;
       }
+      if (data.petData && typeof setPetData === 'function') {
+        setPetData(data.petData);
+      }
       showToast(
         isEquipped ? `Đã tháo ${item.name}` : `Đã trang bị ${item.name}! ${item.emoji}`,
         isEquipped ? 'info' : 'success'
@@ -154,10 +158,12 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
           <button
             key={cat.id}
             type="button"
-            className={`shop-toolbar-pill ${filterType === cat.id ? 'on' : ''}`}
+            className={`shop-toolbar-pill d-inline-flex align-items-center ${filterType === cat.id ? 'on' : ''}`}
             onClick={() => setFilterType(cat.id)}
           >
-            {cat.label}
+            {cat.icon && <Icon name={cat.icon} size={16} className="me-1" />}
+            {cat.emoji && <Emoji e={cat.emoji} size={16} className="me-1" />}
+            <span>{cat.label}</span>
           </button>
         ))}
       </div>
@@ -165,7 +171,7 @@ export default function InventoryTab({ selectedPetId, onSelectPetId }) {
       {/* 3. Lưới các món sở hữu dạng Compact RPG túi đồ (3 cột mobile, 4 cột desktop) */}
       {filteredItems.length === 0 ? (
         <div className="card border-dashed p-4 text-center text-muted small my-3" style={{ backgroundColor: '#fafbfc', borderRadius: '12px' }}>
-          <div className="fs-2 mb-2">🎒</div>
+          <div className="mb-2"><Icon name="tab_inventory" size={40} /></div>
           <div className="fw-bold">Kho đồ đang trống ở mục này.</div>
           <div className="text-muted mt-1">Hãy ghé tab Trang trí để sắm Nền và Hào quang mới cho thú cưng nhé!</div>
         </div>

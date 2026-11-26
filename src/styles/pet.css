@@ -19,25 +19,46 @@
   justify-content: center;
   padding: 2.5rem 2rem 1.5rem;
   min-height: 220px;
-  background: linear-gradient(160deg, #FFF8E1 0%, #FFECB3 30%, #FFE0B2 70%, #FFF3E0 100%);
   border-radius: 0 0 40px 40px;
   transition: background 0.5s ease;
+  overflow: hidden;
 }
 
-.pet-stage-container.happy {
+.pet-stage-container:not(.has-custom-bg) {
+  background: linear-gradient(160deg, #FFF8E1 0%, #FFECB3 30%, #FFE0B2 70%, #FFF3E0 100%);
+}
+
+.pet-stage-container:not(.has-custom-bg).happy {
   background: linear-gradient(160deg, #E8F5E9 0%, #FFF9C4 40%, #FFECB3 70%, #FFF8E1 100%);
 }
 
-.pet-stage-container.sad {
+.pet-stage-container:not(.has-custom-bg).sad {
   background: linear-gradient(160deg, #E3F2FD 0%, #E8EAF6 40%, #F3E5F5 70%, #EDE7F6 100%);
 }
 
-.pet-stage-container.sick {
+.pet-stage-container:not(.has-custom-bg).sick {
   background: linear-gradient(160deg, #FBE9E7 0%, #FFCCBC 40%, #FFE0B2 70%, #FFF3E0 100%);
 }
 
 .pet-stage-container.has-custom-bg {
-  background-image: none !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.pet-stage-bg-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.35;
+  pointer-events: none;
+  border-radius: 0 0 40px 40px;
+  z-index: 1;
 }
 
 /* ── Pet Image ───────────────────────────────────────────────── */

@@ -38,10 +38,10 @@ export default function HowToEarnSheet({ open, onClose }) {
           </button>
         </div>
 
-        {/* 1. Sữa 🥛 */}
+        {/* 1. Sữa */}
         <div className="mb-4">
           <div className="d-flex align-items-center gap-2 mb-2">
-            <span className="fs-5">🥛</span>
+            <Icon name="res_milk" size={22} />
             <h6 className="fw-bold text-primary mb-0">Sữa — Học tập &amp; Giữ nhịp</h6>
           </div>
           <p className="text-muted small mb-2">
@@ -68,10 +68,10 @@ export default function HowToEarnSheet({ open, onClose }) {
           </div>
         </div>
 
-        {/* 2. Gem 💎 */}
+        {/* 2. Gem */}
         <div className="mb-4">
           <div className="d-flex align-items-center gap-2 mb-2">
-            <span className="fs-5">💎</span>
+            <Icon name="res_gem" size={22} />
             <h6 className="fw-bold text-info mb-0">Gem — Tiến hoá, Đổi đá &amp; Gacha</h6>
           </div>
           <p className="text-muted small mb-2">
@@ -93,10 +93,10 @@ export default function HowToEarnSheet({ open, onClose }) {
           </div>
         </div>
 
-        {/* 3. Đá nguyên tố 💠 */}
+        {/* 3. Đá nguyên tố */}
         <div className="mb-3">
           <div className="d-flex align-items-center gap-2 mb-2">
-            <span className="fs-5">💠</span>
+            <Icon name="res_stone" size={22} />
             <h6 className="fw-bold text-secondary mb-0">Đá nguyên tố — Mốc tiến hoá C4 &amp; C5</h6>
           </div>
           <p className="text-muted small mb-2">

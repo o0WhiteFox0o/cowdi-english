@@ -23,6 +23,17 @@ import Icon, { SKILL_ICON } from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 import { BATTLE_STAT_ICONS, SKILL_IMAGE_ICONS } from './CollectionPage';
 
+// Bối cảnh nền sống động chất lượng cao cho các phòng/nền Kinh tế v2
+const ROOM_BACKGROUND_STYLES = {
+  room_beach: "linear-gradient(180deg, rgba(79, 195, 247, 0.35) 0%, rgba(255, 224, 130, 0.5) 100%), url('/image/icons-ui/cosmetics/bg_beach.webp') center / cover no-repeat",
+  room_forest: "linear-gradient(180deg, rgba(129, 199, 132, 0.35) 0%, rgba(200, 230, 201, 0.5) 100%), url('/image/icons-ui/cosmetics/bg_forest.webp') center / cover no-repeat",
+  room_volcano: "linear-gradient(180deg, rgba(239, 83, 80, 0.35) 0%, rgba(255, 205, 210, 0.5) 100%), url('/image/icons-ui/cosmetics/bg_volcano.webp') center / cover no-repeat",
+  room_bamboo: "linear-gradient(180deg, rgba(174, 213, 129, 0.35) 0%, rgba(220, 237, 200, 0.5) 100%), url('/image/icons-ui/cosmetics/bg_bamboo.webp') center / cover no-repeat",
+  room_space: "linear-gradient(180deg, rgba(26, 35, 126, 0.6) 0%, rgba(40, 53, 147, 0.75) 100%), url('/image/icons-ui/cosmetics/bg_space.webp') center / cover no-repeat",
+  room_ocean: "linear-gradient(180deg, rgba(2, 119, 189, 0.45) 0%, rgba(3, 155, 229, 0.6) 100%), url('/image/icons-ui/cosmetics/bg_ocean.webp') center / cover no-repeat",
+  room_deep_sea: "linear-gradient(180deg, rgba(2, 119, 189, 0.45) 0%, rgba(3, 155, 229, 0.6) 100%), url('/image/icons-ui/cosmetics/bg_ocean.webp') center / cover no-repeat",
+};
+
 export default function PetPage() {
   useSEO(SEO_CONFIGS['/pet']);
   const { petData, getActivePetWithDecay, feedPet, renamePet, useFood, completeDailyQuest, addCoins, evolvePet } = usePet();
@@ -162,10 +173,13 @@ export default function PetPage() {
       <div className="pet-display-card mb-4">
         {/* Pet Stage with Image */}
         {(() => {
-          const roomCosmetic = activePet?.cosmetics?.room
-            ? (COSMETIC_MAP[activePet.cosmetics.room] || SHOP_ITEMS.find((i) => i.id === activePet.cosmetics.room))
+          const roomId = activePet?.cosmetics?.room;
+          const roomCosmetic = roomId
+            ? (COSMETIC_MAP[roomId] || SHOP_ITEMS.find((i) => i.id === roomId))
             : null;
-          const customBg = roomCosmetic?.bgStyle || (roomCosmetic?.id === 'room_beach' ? '#E0F7FA' : undefined);
+          const customBg = (roomId && ROOM_BACKGROUND_STYLES[roomId])
+            || roomCosmetic?.bgStyle
+            || (roomId === 'room_beach' ? ROOM_BACKGROUND_STYLES.room_beach : undefined);
           return (
             <div
               className={`pet-stage-container ${mood} ${customBg ? 'has-custom-bg' : ''}`}

@@ -12,18 +12,25 @@ import InventoryTab from './InventoryTab';
 import HowToEarnSheet from './HowToEarnSheet';
 
 const SHOP_TABS = [
-  { id: 'streak', label: '🔥 Giữ nhịp' },
-  { id: 'cosmetics', label: '✨ Trang trí' },
-  { id: 'inventory', label: '🎒 Kho đồ' },
+  { id: 'streak', icon: 'tab_streak', label: 'Giữ nhịp' },
+  { id: 'cosmetics', icon: 'tab_cosmetics', label: 'Trang trí' },
+  { id: 'inventory', icon: 'tab_inventory', label: 'Kho đồ' },
 ];
 
 export default function ShopPage() {
   useSEO(SEO_CONFIGS['/shop']);
-  const { userData, setUserData, syncWallet } = useUser();
+  const { userData, setUserData, syncWallet, refreshWallet } = useUser();
   const { authFetch, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { petData } = usePet();
+
+  // Luôn đồng bộ ví mới nhất từ server khi vào Cửa hàng
+  useEffect(() => {
+    if (typeof refreshWallet === 'function') {
+      refreshWallet();
+    }
+  }, [refreshWallet]);
 
   const [activeTab, setActiveTab] = useState('streak');
   const [howToEarnOpen, setHowToEarnOpen] = useState(false);
@@ -154,7 +161,8 @@ export default function ShopPage() {
               className={`shop-tab-btn ${isActive ? 'on' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
-              {tab.label}
+              <Icon name={tab.icon} size={20} className="me-1" />
+              <span>{tab.label}</span>
             </button>
           );
         })}

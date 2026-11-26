@@ -577,6 +577,7 @@ export function PetProvider({ children }) {
     useFood,
     completeDailyQuest,
     evolvePet,
+    setPetData,
   };
 
   return <PetContext.Provider value={value}>{children}</PetContext.Provider>;

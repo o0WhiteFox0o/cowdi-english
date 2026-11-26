@@ -14,14 +14,15 @@ import {
   checkCosmeticUnlocked,
 } from '../../../shared/cosmetics-data.js';
 import Emoji from '../../components/Emoji';
+import Icon from '../../components/Icon';
 import CosmeticBuySheet from './CosmeticBuySheet';
 import CosmeticFilterSheet from './CosmeticFilterSheet';
 import PetDressingModal from './PetDressingModal';
 import CosmeticMilestoneModal from './CosmeticMilestoneModal';
 
 const COSMETIC_CATEGORIES = [
-  { id: 'room', label: `🖼️ Nền (${BACKGROUND_ITEMS.length})` },
-  { id: 'effect', label: `✨ Hào quang (${EFFECT_ITEMS.length})` },
+  { id: 'room', label: 'Nền', icon: 'tab_background', count: BACKGROUND_ITEMS.length },
+  { id: 'effect', label: 'Hào quang', icon: 'rarity_epic', count: EFFECT_ITEMS.length },
 ];
 
 const PAGE_SIZE = 12; // 12 món mỗi trang (3 hàng x 4 cột desktop)
@@ -97,6 +98,9 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
             setServerOwnedIds(data.ownedIds || []);
             setServerWallet(data.wallet || null);
             setUserStats(data.userStats || null);
+            if (data.wallet && typeof syncWallet === 'function') {
+              syncWallet(data.wallet);
+            }
           }
         }
       } catch (err) {
@@ -296,10 +300,11 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
             <button
               key={cat.id}
               type="button"
-              className={`shop-toolbar-pill ${subCategory === cat.id ? 'on' : ''}`}
+              className={`shop-toolbar-pill d-inline-flex align-items-center ${subCategory === cat.id ? 'on' : ''}`}
               onClick={() => setSubCategory(cat.id)}
             >
-              {cat.label}
+              <Icon name={cat.icon} size={18} className="me-1" />
+              <span>{cat.label} ({cat.count})</span>
             </button>
           ))}
         </div>
@@ -466,8 +471,8 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
                             {originalPrice}
                           </span>
                         )}
-                        <span>
-                          {finalPrice.toLocaleString('vi-VN')} {isGem ? '💎' : '🥛'}
+                        <span className="d-inline-flex align-items-center">
+                          {finalPrice.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={15} className="ms-1" />
                         </span>
                       </button>
                     )}

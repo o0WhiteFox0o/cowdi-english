@@ -586,9 +586,9 @@ export default function LearningPathPage() {
         <span>{doneCount}/{nodes.length} · {pct}%</span>
       </div>
       <div className="d-flex justify-content-center gap-3 text-muted small mt-1 mb-3 flex-wrap">
-        <span>💎 Gem kế tiếp: <b>{(userData.completedLessons?.length || 0) % 2}/2</b> bài mới</span>
+        <span><Icon name="res_gem" size={18} /> Gem kế tiếp: <b>{(userData.completedLessons?.length || 0) % 2}/2</b> bài mới</span>
         <span>·</span>
-        <span>💠 Đá kế tiếp: <b>{(userData.completedLessons?.length || 0) % 10}/10</b> bài mới</span>
+        <span><Icon name="res_stone" size={18} /> Đá kế tiếp: <b>{(userData.completedLessons?.length || 0) % 10}/10</b> bài mới</span>
       </div>
 
       {/* FR-MAP-06: Dòng bạn gần nhất phía trước trên cùng lộ trình */}
@@ -715,11 +715,11 @@ export default function LearningPathPage() {
                   <div className="d-flex align-items-center gap-2 flex-wrap">
                     <small>Unit {uIdx + 1} · {unitDone}/{unitNodes.length}</small>
                     {isPerfect100 ? (
-                      <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận 💎 3</span>
+                      <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận <Icon name="res_gem" size={14} /> 3</span>
                     ) : allLessonsDone && cpRealPassed ? (
-                      <span className="badge bg-light text-success">✓ Đã nhận 💎 1</span>
+                      <span className="badge bg-light text-success">✓ Đã nhận <Icon name="res_gem" size={14} /> 1</span>
                     ) : (
-                      <small className="path-unit-gem-hint">💎 +1 khi xong bài và qua kiểm tra</small>
+                      <small className="path-unit-gem-hint"><Icon name="res_gem" size={14} /> +1 khi xong bài và qua kiểm tra</small>
                     )}
                   </div>
                   <b>{unit.title}</b>

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Emoji from '../../components/Emoji';
+import Icon from '../../components/Icon';
 
 export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, onClose, loading = false }) {
   const [confirming, setConfirming] = useState(false);
@@ -44,7 +46,7 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
               className="d-flex align-items-center justify-content-center rounded"
               style={{ width: '40px', height: '40px', backgroundColor: '#f1f3f4', fontSize: '24px' }}
             >
-              {item.icon}
+              <Emoji e={item.icon} size={28} />
             </span>
             <div>
               <h3 className="shop-sheet-title mb-0">{item.name}</h3>
@@ -92,17 +94,25 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
           <div className="bg-light p-3 rounded mb-3 small">
             <div className="d-flex justify-content-between mb-1">
               <span className="text-muted">Giá vật phẩm:</span>
-              <span className="fw-bold text-primary">{price.toLocaleString('vi-VN')} 🥛 Sữa</span>
+              <span className="fw-bold text-primary d-inline-flex align-items-center">
+                {price.toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="mx-1" /> Sữa
+              </span>
             </div>
             <div className="d-flex justify-content-between mb-1">
               <span className="text-muted">Số dư hiện tại:</span>
-              <span>{userMilk.toLocaleString('vi-VN')} 🥛 Sữa</span>
+              <span className="d-inline-flex align-items-center">
+                {userMilk.toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="mx-1" /> Sữa
+              </span>
             </div>
             <hr className="my-1" />
             <div className="d-flex justify-content-between">
               <span className="text-muted">Số dư sau mua:</span>
-              <span className={`fw-bold ${remaining < 0 ? 'text-danger' : 'text-success'}`}>
-                {remaining >= 0 ? `${remaining.toLocaleString('vi-VN')} 🥛 Sữa` : `Thiếu ${Math.abs(remaining).toLocaleString('vi-VN')} 🥛 Sữa`}
+              <span className={`fw-bold d-inline-flex align-items-center ${remaining < 0 ? 'text-danger' : 'text-success'}`}>
+                {remaining >= 0 ? (
+                  <>{remaining.toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="mx-1" /> Sữa</>
+                ) : (
+                  <>Thiếu {Math.abs(remaining).toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="mx-1" /> Sữa</>
+                )}
               </span>
             </div>
           </div>
@@ -111,8 +121,8 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
         {/* Actions / Confirmation */}
         {confirming ? (
           <div className="border border-success bg-success bg-opacity-10 p-3 rounded text-center">
-            <p className="fw-bold mb-2">
-              Xác nhận dùng {price.toLocaleString('vi-VN')} 🥛 Sữa để {item.actionLabel || 'mua'} {item.name}?
+            <p className="fw-bold mb-2 d-inline-flex align-items-center justify-content-center flex-wrap">
+              Xác nhận dùng {price.toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="mx-1" /> Sữa để {item.actionLabel || 'mua'} {item.name}?
             </p>
             <div className="d-flex gap-2">
               <button
@@ -144,11 +154,15 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
             ) : (
               <button
                 type="button"
-                className="btn btn-cowdi-primary w-100 py-2"
+                className="btn btn-cowdi-primary w-100 py-2 d-inline-flex align-items-center justify-content-center"
                 onClick={handleBuyClick}
                 disabled={!canAfford || loading}
               >
-                {canAfford ? `${item.actionLabel || 'Mua ngay'} · ${price.toLocaleString('vi-VN')} 🥛` : `Thiếu ${Math.abs(remaining).toLocaleString('vi-VN')} 🥛`}
+                {canAfford ? (
+                  <>{item.actionLabel || 'Mua ngay'} · {price.toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="ms-1" /></>
+                ) : (
+                  <>Thiếu {Math.abs(remaining).toLocaleString('vi-VN')} <Icon name="res_milk" size={16} className="ms-1" /></>
+                )}
               </button>
             )}
           </div>

@@ -308,21 +308,28 @@ function mergeProgress(local, remote) {
 
   // Giữ XP cao nhất (lifetime)
   merged.totalXP = Math.max(local.totalXP || 0, remote.totalXP || 0);
-  // Ví availableXP: số XP ĐÃ TIÊU (totalXP - availableXP) chỉ tăng, không bao giờ giảm,
-  // nên lấy max(spent) của 2 bên là an toàn bất kể timestamp/cache cũ.
   const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
   merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
   const rawWallet = remote.wallet || local.wallet || {};
-  merged.wallet = {
-    milk: Number(rawWallet.milk ?? merged.availableXP ?? 0) || 0,
-    gem: Number(rawWallet.gem ?? 0) || 0,
-    stone: Number(rawWallet.stone ?? 0) || 0,
-    stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
-  };
-  if (typeof remote.wallet?.milk === 'number' && (remote.totalXP || 0) >= (local.totalXP || 0)) {
-    merged.availableXP = remote.wallet.milk;
-    merged.wallet.milk = remote.wallet.milk;
+
+  // Kinh tế v2: Server ledger là nguồn sự thật duy nhất cho ví (Sữa, Gem, Đá, Mảnh đá)
+  if (remote.wallet && typeof remote.wallet.milk === 'number') {
+    const unsyncedXP = Math.max(0, (local.totalXP || 0) - (remote.totalXP || 0));
+    const effectiveMilk = Math.max(0, Number(remote.wallet.milk) + unsyncedXP);
+    merged.wallet = {
+      milk: effectiveMilk,
+      gem: Number(remote.wallet.gem || 0),
+      stone: Number(remote.wallet.stone || 0),
+      stone_shard: Number(remote.wallet.stone_shard || 0),
+    };
+    merged.availableXP = effectiveMilk;
   } else {
+    merged.wallet = {
+      milk: Number(rawWallet.milk ?? merged.availableXP ?? 0) || 0,
+      gem: Number(rawWallet.gem ?? 0) || 0,
+      stone: Number(rawWallet.stone ?? 0) || 0,
+      stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
+    };
     merged.wallet.milk = merged.availableXP;
   }
 

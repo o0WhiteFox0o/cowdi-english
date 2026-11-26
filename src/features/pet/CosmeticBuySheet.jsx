@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Emoji from '../../components/Emoji';
+import Icon from '../../components/Icon';
 import { COSMETIC_RARITIES, getCosmeticPrice } from '../../../shared/cosmetics-data.js';
 
 export default function CosmeticBuySheet({
@@ -124,31 +125,33 @@ export default function CosmeticBuySheet({
         <div className="bg-light p-3 rounded-3 mb-3 small border">
           <div className="d-flex justify-content-between align-items-center mb-1">
             <span className="text-muted">Giá bán:</span>
-            <div>
+            <div className="d-inline-flex align-items-center">
               {hasSameTheme && (
-                <span className="text-decoration-line-through text-muted me-2">
-                  {originalPrice.toLocaleString('vi-VN')} {currencyIcon}
+                <span className="text-decoration-line-through text-muted me-2 d-inline-flex align-items-center">
+                  {originalPrice.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="ms-1" />
                 </span>
               )}
-              <span className="fw-bold" style={{ color: isGem ? '#7B1FA2' : '#2E7D32', fontSize: '15px' }}>
-                {finalPrice.toLocaleString('vi-VN')} {currencyIcon} {currencyName}
+              <span className="fw-bold d-inline-flex align-items-center" style={{ color: isGem ? '#7B1FA2' : '#2E7D32', fontSize: '15px' }}>
+                {finalPrice.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={15} className="mx-1" /> {currencyName}
               </span>
             </div>
           </div>
 
           <div className="d-flex justify-content-between align-items-center mb-1">
             <span className="text-muted">Số dư ví của bạn:</span>
-            <span className="fw-semibold">
-              {userBalance.toLocaleString('vi-VN')} {currencyIcon} {currencyName}
+            <span className="fw-semibold d-inline-flex align-items-center">
+              {userBalance.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="mx-1" /> {currencyName}
             </span>
           </div>
 
           <div className="d-flex justify-content-between align-items-center pt-2 mt-1 border-top">
             <span className="text-muted">Số dư sau khi mua:</span>
-            <span className={`fw-bold ${canAfford ? 'text-success' : 'text-danger'}`}>
-              {canAfford
-                ? `${remaining.toLocaleString('vi-VN')} ${currencyIcon} ${currencyName}`
-                : `Thiếu ${(finalPrice - userBalance).toLocaleString('vi-VN')} ${currencyIcon} ${currencyName}`}
+            <span className={`fw-bold d-inline-flex align-items-center ${canAfford ? 'text-success' : 'text-danger'}`}>
+              {canAfford ? (
+                <>{remaining.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="mx-1" /> {currencyName}</>
+              ) : (
+                <>Thiếu {(finalPrice - userBalance).toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={14} className="mx-1" /> {currencyName}</>
+              )}
             </span>
           </div>
         </div>
@@ -179,7 +182,7 @@ export default function CosmeticBuySheet({
           </button>
           <button
             type="button"
-            className={`btn flex-grow-1 py-2 rounded-pill fw-bold ${
+            className={`btn flex-grow-1 py-2 rounded-pill fw-bold d-inline-flex align-items-center justify-content-center ${
               canAfford ? 'btn-cowdi-primary shadow-sm' : 'btn-secondary text-white'
             }`}
             onClick={handleBuy}
@@ -188,7 +191,7 @@ export default function CosmeticBuySheet({
             {loading ? (
               <span>Đang xử lý...</span>
             ) : canAfford ? (
-              `Xác nhận mua · ${finalPrice.toLocaleString('vi-VN')} ${currencyIcon}`
+              <>Xác nhận mua · {finalPrice.toLocaleString('vi-VN')} <Icon name={isGem ? 'res_gem' : 'res_milk'} size={16} className="ms-1" /></>
             ) : (
               `Chưa đủ ${currencyName}`
             )}

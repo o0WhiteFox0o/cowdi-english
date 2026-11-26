@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Icon from '../../components/Icon';
+import Emoji from '../../components/Emoji';
 
 const CONTRACT_TIERS = [
   { key: 'starter', label: 'Khởi động', deposit: 300, lessons: 1, payout: 450, profit: 150 },
@@ -44,9 +46,9 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
           <div className="d-flex align-items-center gap-2">
             <span
               className="d-flex align-items-center justify-content-center rounded"
-              style={{ width: '40px', height: '40px', backgroundColor: '#f1f3f4', fontSize: '24px' }}
+              style={{ width: '40px', height: '40px', backgroundColor: '#f1f3f4' }}
             >
-              📜
+              <Icon name="shop_contract" size={28} />
             </span>
             <div>
               <h3 className="shop-sheet-title mb-0">Khế ước 7 ngày</h3>
@@ -88,8 +90,8 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
                 >
                   <div className="fw-bold small">{tier.label}</div>
                   <div className="small text-muted my-1">{tier.lessons} bài/ngày</div>
-                  <div className="small">Cọc {tier.deposit} 🥛</div>
-                  <div className="fw-bold text-success small">+{tier.profit} 🥛 lãi</div>
+                  <div className="small d-inline-flex align-items-center justify-content-center">Cọc {tier.deposit} <Icon name="res_milk" size={14} className="ms-1" /></div>
+                  <div className="fw-bold text-success small d-inline-flex align-items-center justify-content-center">+{tier.profit} <Icon name="res_milk" size={14} className="mx-1" /> lãi</div>
                 </div>
               </div>
             );
@@ -104,17 +106,25 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
           </div>
           <div className="d-flex justify-content-between mb-1">
             <span className="text-muted">Số tiền đặt cọc:</span>
-            <span className="fw-bold text-primary">{currentTier.deposit.toLocaleString('vi-VN')} 🥛 Sữa</span>
+            <span className="fw-bold text-primary d-inline-flex align-items-center">
+              {currentTier.deposit.toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="mx-1" /> Sữa
+            </span>
           </div>
           <div className="d-flex justify-content-between mb-1">
             <span className="text-muted">Nhận lại khi xong 7 ngày:</span>
-            <span className="fw-bold text-success">{currentTier.payout.toLocaleString('vi-VN')} 🥛 Sữa (lãi +{currentTier.profit})</span>
+            <span className="fw-bold text-success d-inline-flex align-items-center">
+              {currentTier.payout.toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="mx-1" /> Sữa (lãi +{currentTier.profit})
+            </span>
           </div>
           <hr className="my-1" />
           <div className="d-flex justify-content-between">
             <span className="text-muted">Số dư sau cọc:</span>
-            <span className={`fw-bold ${remaining < 0 ? 'text-danger' : ''}`}>
-              {canAfford ? `${remaining.toLocaleString('vi-VN')} 🥛 Sữa` : `Thiếu ${(currentTier.deposit - userMilk).toLocaleString('vi-VN')} 🥛`}
+            <span className={`fw-bold d-inline-flex align-items-center ${remaining < 0 ? 'text-danger' : ''}`}>
+              {canAfford ? (
+                <>{remaining.toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="mx-1" /> Sữa</>
+              ) : (
+                <>Thiếu {(currentTier.deposit - userMilk).toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="mx-1" /></>
+              )}
             </span>
           </div>
         </div>
@@ -122,8 +132,8 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
         {/* Confirmation & CTA */}
         {confirming ? (
           <div className="border border-success bg-success bg-opacity-10 p-3 rounded text-center">
-            <p className="fw-bold mb-2">
-              Xác nhận cọc {currentTier.deposit.toLocaleString('vi-VN')} 🥛 Sữa để ký khế ước {currentTier.label}?
+            <p className="fw-bold mb-2 d-inline-flex align-items-center justify-content-center flex-wrap">
+              Xác nhận cọc {currentTier.deposit.toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="mx-1" /> Sữa để ký khế ước {currentTier.label}?
             </p>
             <div className="d-flex gap-2">
               <button
@@ -147,11 +157,15 @@ export default function ContractSelectSheet({ open, userMilk = 0, onSign, onClos
         ) : (
           <button
             type="button"
-            className="btn btn-cowdi-primary w-100 py-2"
+            className="btn btn-cowdi-primary w-100 py-2 d-inline-flex align-items-center justify-content-center"
             onClick={() => setConfirming(true)}
             disabled={!canAfford || loading}
           >
-            {canAfford ? `Đặt cọc ${currentTier.deposit.toLocaleString('vi-VN')} 🥛` : `Thiếu ${(currentTier.deposit - userMilk).toLocaleString('vi-VN')} 🥛`}
+            {canAfford ? (
+              <>Đặt cọc {currentTier.deposit.toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="ms-1" /></>
+            ) : (
+              <>Thiếu {(currentTier.deposit - userMilk).toLocaleString('vi-VN')} <Icon name="res_milk" size={14} className="ms-1" /></>
+            )}
           </button>
         )}
       </div>

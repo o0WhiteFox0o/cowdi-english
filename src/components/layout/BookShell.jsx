@@ -211,18 +211,18 @@ export default function BookShell({ children }) {
           <span>Cowdi</span>
         </Link>
         <div className="book-mobile-stats">
-          <span className="book-pill" title="Chuỗi ngày học"><Icon name="fire" size={20} />{userData.streak}</span>
+          <span className="book-pill" title="Chuỗi ngày học"><Icon name="tab_streak" size={20} />{userData.streak}</span>
           <span className="book-pill book-mobile-lvl" title={`Lv.${level.level} · ${userData.totalXP} XP`}><Icon name="medal" size={20} />Lv{level.level}</span>
           <Link to="/shop?help=earn" className={`book-pill position-relative ${milkDelta ? 'pulse-pop' : ''}`} title={`Sữa: ${wallet.milk} · Bấm để xem cách kiếm`}>
-            <span>🥛</span>{formatCompact(wallet.milk)}
+            <Icon name="res_milk" size={20} />{formatCompact(wallet.milk)}
             {milkDelta && <span className="resource-float-delta text-primary">+{milkDelta}</span>}
           </Link>
           <Link to="/shop?help=earn" className={`book-pill book-hud-resource position-relative ${gemDelta ? 'pulse-pop' : ''}`} title={`Gem: ${wallet.gem} · Bấm để xem cách kiếm`}>
-            <span>💎</span>{formatCompact(wallet.gem)}
+            <Icon name="res_gem" size={20} />{formatCompact(wallet.gem)}
             {gemDelta && <span className="resource-float-delta text-info">+{gemDelta}</span>}
           </Link>
           <Link to="/shop?help=earn" className={`book-pill book-hud-resource position-relative ${stoneDelta ? 'pulse-pop' : ''}`} title={`Đá nguyên tố: ${wallet.stone} · Bấm để xem cách kiếm`}>
-            <span>💠</span>{formatCompact(wallet.stone)}
+            <Icon name="res_stone" size={20} />{formatCompact(wallet.stone)}
             {stoneDelta && <span className="resource-float-delta text-info">+{stoneDelta}</span>}
           </Link>
           <Link to="/pet" className="book-pill book-mobile-pet-pill" title={`${petName} · ${petPct}%`}>
@@ -381,7 +381,7 @@ export default function BookShell({ children }) {
           <div className="book-page-top">
             <div className="book-hud">
               <span className="book-pill" title="Chuỗi ngày học liên tiếp">
-                <Icon name="fire" size={24} />{userData.streak}
+                <Icon name="tab_streak" size={24} />{userData.streak}
               </span>
               <Link to="/progress" className="book-pill" title={`${level.title} · ${userData.totalXP} XP`}>
                 <Icon name="medal" size={24} />Lv{level.level}
@@ -391,7 +391,7 @@ export default function BookShell({ children }) {
                 className={`book-pill book-hud-resource position-relative ${milkDelta ? 'pulse-pop' : ''}`}
                 title={`Sữa: ${wallet.milk.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
               >
-                <span>🥛</span><span>{formatCompact(wallet.milk)}</span>
+                <Icon name="res_milk" size={24} /><span>{formatCompact(wallet.milk)}</span>
                 {milkDelta && (
                   <span className="resource-float-delta text-primary">+{milkDelta}</span>
                 )}
@@ -401,7 +401,7 @@ export default function BookShell({ children }) {
                 className={`book-pill book-hud-resource position-relative ${gemDelta ? 'pulse-pop' : ''}`}
                 title={`Gem: ${wallet.gem.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
               >
-                <span>💎</span><span>{formatCompact(wallet.gem)}</span>
+                <Icon name="res_gem" size={24} /><span>{formatCompact(wallet.gem)}</span>
                 {gemDelta && (
                   <span className="resource-float-delta text-info">+{gemDelta}</span>
                 )}
@@ -411,7 +411,7 @@ export default function BookShell({ children }) {
                 className={`book-pill book-hud-resource position-relative ${stoneDelta ? 'pulse-pop' : ''}`}
                 title={`Đá nguyên tố: ${wallet.stone.toLocaleString('vi-VN')} · Bấm để xem cách kiếm`}
               >
-                <span>💠</span><span>{formatCompact(wallet.stone)}</span>
+                <Icon name="res_stone" size={24} /><span>{formatCompact(wallet.stone)}</span>
                 {stoneDelta && (
                   <span className="resource-float-delta text-info">+{stoneDelta}</span>
                 )}

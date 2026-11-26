@@ -1208,19 +1208,119 @@ const ICONS = {
 };
 
 /* Native emoji → Icon name (used by <Emoji> to upgrade common glyphs) */
+export const WEBP_ICONS = {
+  // Tài nguyên Kinh tế v2
+  res_milk: '/image/icons-ui/res_milk.webp',
+  res_gem: '/image/icons-ui/res_gem.webp',
+  res_stone: '/image/icons-ui/res_stone.webp',
+  res_stone_shard: '/image/icons-ui/res_stone_shard.webp',
+  res_coin: '/image/icons-ui/res_coin.webp',
+
+  // Vật phẩm Giữ nhịp
+  shop_freeze_scarf: '/image/icons-ui/shop_freeze_scarf.webp',
+  shop_return_ticket: '/image/icons-ui/shop_return_ticket.webp',
+  shop_contract: '/image/icons-ui/shop_contract.webp',
+  shop_study_clock: '/image/icons-ui/shop_study_clock.webp',
+
+  // Tab Cửa hàng
+  tab_streak: '/image/icons-ui/tab_streak.webp',
+  tab_cosmetics: '/image/icons-ui/tab_cosmetics.webp',
+  tab_inventory: '/image/icons-ui/tab_inventory.webp',
+  tab_background: '/image/icons-ui/tab_background.webp',
+
+  // 10 Hệ nguyên tố
+  elem_fire: '/image/icons-ui/elem_fire.webp',
+  elem_water: '/image/icons-ui/elem_water.webp',
+  elem_wood: '/image/icons-ui/elem_wood.webp',
+  elem_thunder: '/image/icons-ui/elem_thunder.webp',
+  elem_earth: '/image/icons-ui/elem_earth.webp',
+  elem_wind: '/image/icons-ui/elem_wind.webp',
+  elem_light: '/image/icons-ui/elem_light.webp',
+  elem_dark: '/image/icons-ui/elem_dark.webp',
+  elem_metal: '/image/icons-ui/elem_metal.webp',
+  elem_neutral: '/image/icons-ui/elem_neutral.webp',
+
+  // 6 Huy hiệu Độ hiếm
+  rarity_common: '/image/icons-ui/rarity_common.webp',
+  rarity_rare: '/image/icons-ui/rarity_rare.webp',
+  rarity_epic: '/image/icons-ui/rarity_epic.webp',
+  rarity_legendary: '/image/icons-ui/rarity_legendary.webp',
+  rarity_season: '/image/icons-ui/rarity_season.webp',
+  rarity_milestone: '/image/icons-ui/rarity_milestone.webp',
+
+  // Cờ & Tiện ích
+  flag_uk: '/image/icons-ui/flag_uk.webp',
+  flag_vn: '/image/icons-ui/flag_vn.webp',
+  status_medicine: '/image/icons-ui/status_medicine.webp',
+  ui_folder_tabs: '/image/icons-ui/ui_folder_tabs.webp',
+  ui_sort: '/image/icons-ui/ui_sort.webp',
+
+  // 6 Nền trang trí
+  bg_beach: '/image/icons-ui/cosmetics/bg_beach.webp',
+  bg_volcano: '/image/icons-ui/cosmetics/bg_volcano.webp',
+  bg_bamboo: '/image/icons-ui/cosmetics/bg_bamboo.webp',
+  bg_forest: '/image/icons-ui/cosmetics/bg_forest.webp',
+  bg_space: '/image/icons-ui/cosmetics/bg_space.webp',
+  bg_ocean: '/image/icons-ui/cosmetics/bg_ocean.webp',
+
+  // 8 Icon pet chiến đấu & kỹ năng chuẩn có sẵn
+  pet_attack: '/image/icon_pet/Attack.webp',
+  pet_defense: '/image/icon_pet/Defense.webp',
+  pet_hp: '/image/icon_pet/HP.webp',
+  pet_speed: '/image/icon_pet/Speed.webp',
+  skill_listening: '/image/icon_pet/Listening.webp',
+  skill_speaking: '/image/icon_pet/Speaking.webp',
+  skill_reading: '/image/icon_pet/Reading.webp',
+  skill_writing: '/image/icon_pet/Writing.webp',
+};
+
+/* Native emoji → Icon name (used by <Emoji> to upgrade common glyphs) */
 export const EMOJI_ICON = {
+  // Tiền tệ & Tài nguyên Kinh tế v2
+  '🥛': 'res_milk',
+  '💎': 'res_gem',
+  '🪨': 'res_stone',
+  '💠': 'res_stone',
+  '🧩': 'res_stone_shard',
+  '🪙': 'res_coin',
+
+  // Vật phẩm Giữ nhịp & Tab Cửa hàng
+  '🧣': 'shop_freeze_scarf',
+  '🔁': 'shop_return_ticket',
+  '📜': 'shop_contract',
+  '⏰': 'shop_study_clock',
+  '🔥': 'tab_streak',
+  '✨': 'tab_cosmetics',
+  '🎒': 'tab_inventory',
+  '🖼️': 'tab_background',
+
+  // Cờ & Tiện ích
+  '🇻🇳': 'flag_vn',
+  '🇬🇧': 'flag_uk',
+  '💊': 'status_medicine',
+  '🗂️': 'ui_folder_tabs',
+  '↕': 'ui_sort',
+
+  // Hệ nguyên tố khi truyền emoji
+  '⚙️': 'elem_metal',
+  '🌿': 'elem_wood',
+  '💧': 'elem_water',
+  '🌪️': 'elem_wind',
+  '🌑': 'elem_dark',
+  '☀️': 'elem_light',
+
   '✅': 'check', '❌': 'x', '🔊': 'sound', '🔇': 'mute', '🏆': 'trophy', '⭐': 'star', '🌟': 'star', '★': 'star',
-  '🎉': 'party', '🎊': 'party', '🥳': 'party', '📚': 'books', '🔥': 'fire', '🎯': 'target', '⚡': 'bolt', '🐮': 'cow', '🐄': 'cow',
-  '📖': 'book', '📕': 'redbook', '📗': 'greenbook', '📘': 'bluebook', '📒': 'notebook', '📓': 'notebook', '🐾': 'paw', '💪': 'muscle', '🪙': 'coin', '💡': 'bulb',
-  '✨': 'sparkles', '📝': 'note', '🔄': 'refresh', '🔁': 'repeat', '💬': 'chat', '💭': 'chat', '🎁': 'gift', '💯': 'hundred',
+  '🎉': 'party', '🎊': 'party', '🥳': 'party', '📚': 'books', '🎯': 'target', '⚡': 'bolt', '🐮': 'cow', '🐄': 'cow',
+  '📖': 'book', '📕': 'redbook', '📗': 'greenbook', '📘': 'bluebook', '📒': 'notebook', '📓': 'notebook', '🐾': 'paw', '💪': 'muscle', '💡': 'bulb',
+  '📝': 'note', '🔄': 'refresh', '💬': 'chat', '💭': 'chat', '🎁': 'gift', '💯': 'hundred',
   '🎧': 'headphones', '🃏': 'cards', '🎴': 'cards', '👍': 'thumb', '🎤': 'mic', '🎙️': 'mic', '⚔️': 'swords', '🔤': 'abc', '🔡': 'abc', '🔠': 'abc',
   '🐌': 'snail', '🐢': 'turtle', '🏅': 'medal', '🎖️': 'medal', '📊': 'chart', '📈': 'chartup', '📉': 'chartdown', '📅': 'calendar', '🗓️': 'calendar',
-  '🔒': 'lock', '🥚': 'egg', '🌱': 'sprout', '🌿': 'leaf', '🍃': 'leaf', '🍀': 'clover', '🌳': 'tree', '🌲': 'tree', '🎄': 'christmas',
-  '🚀': 'rocket', '⏱️': 'timer', '⏱': 'timer', '⏰': 'clock', '🕐': 'clock', '⏳': 'hourglass', '⌛': 'hourglass', '🔗': 'link',
+  '🔒': 'lock', '🥚': 'egg', '🌱': 'sprout', '🍃': 'leaf', '🍀': 'clover', '🌳': 'tree', '🌲': 'tree', '🎄': 'christmas',
+  '🚀': 'rocket', '⏱️': 'timer', '⏱': 'timer', '🕐': 'clock', '⏳': 'hourglass', '⌛': 'hourglass', '🔗': 'link',
   '🎮': 'gamepad', '🕹️': 'gamepad', '🐝': 'bee', '🎓': 'grad', '🧠': 'brain', '🥇': 'gold', '🥈': 'silver', '🥉': 'bronze',
   '🔍': 'search', '🔎': 'search', '📋': 'clipboard', '🆕': 'new', '🏠': 'home', '💼': 'briefcase', '✍️': 'pencil', '✏️': 'pencil', '🖊️': 'pencil',
-  '🧩': 'puzzle', '🎲': 'dice', '😊': 'smile', '🙂': 'smile', '😄': 'smile', '😀': 'smile', '🥰': 'love', '😍': 'love', '😎': 'cool', '😢': 'sad', '😿': 'sad', '🥺': 'sad', '😤': 'angry', '😠': 'angry',
-  '🤒': 'sick', '😷': 'sick', '🤔': 'think', '📦': 'box', '🗣️': 'speak', '👂': 'ear', '💎': 'gem', '👑': 'crown', '🌐': 'globe', '🌍': 'globe', '🌎': 'globe', '🌏': 'globe',
+  '🎲': 'dice', '😊': 'smile', '🙂': 'smile', '😄': 'smile', '😀': 'smile', '🥰': 'love', '😍': 'love', '😎': 'cool', '😢': 'sad', '😿': 'sad', '🥺': 'sad', '😤': 'angry', '😠': 'angry',
+  '🤒': 'sick', '😷': 'sick', '🤔': 'think', '📦': 'box', '🗣️': 'speak', '👂': 'ear', '👑': 'crown', '🌐': 'globe', '🌍': 'globe', '🌎': 'globe', '🌏': 'globe',
   '❓': 'question', '❔': 'question', 'ℹ️': 'info', '⚠️': 'warning', '⚠': 'warning', '🏁': 'checkered', '💸': 'money', '💵': 'money', '💰': 'money',
   '⬅️': 'arrowLeft', '➡️': 'arrowRight', '↔': 'arrowsLR', '↔️': 'arrowsLR', '⬆️': 'up', '⬇️': 'down', '➕': 'plus', '📌': 'pin', '📍': 'pin',
   '👥': 'users', '👤': 'user', '🧱': 'bricks', '💥': 'boom', '🤝': 'handshake', '📱': 'phone', '📲': 'phone', '⌨️': 'keyboard',
@@ -1228,14 +1328,38 @@ export const EMOJI_ICON = {
   '🎵': 'music', '🎶': 'music', '👁️': 'eye', '👀': 'eyes', '👋': 'wave', '🔔': 'bell', '🔕': 'bellOff', '🗺️': 'map', '🛤️': 'road', '🛣️': 'road',
   '💝': 'gift', '❤️': 'heart', '💖': 'heart', '💕': 'heart', '💗': 'heart', '🧲': 'magnet', '🎚️': 'slider', '🚂': 'train', '🚆': 'train',
   '🏢': 'building', '🏫': 'building', '🏥': 'building', '✈️': 'plane', '🏭': 'factory', '📐': 'ruler', '📏': 'ruler', '🛠️': 'wrench', '🔧': 'wrench',
-  '🎭': 'mask', '🎨': 'palette', '💧': 'water', '🪨': 'rock', '⚪': 'circle', '⬜': 'square', '📜': 'scroll', '💾': 'save', '🙈': 'monkey', '🙏': 'pray',
+  '🎭': 'mask', '🎨': 'palette', '⚪': 'circle', '⬜': 'square', '💾': 'save', '🙈': 'monkey', '🙏': 'pray',
   '🟢': 'dotGreen', '🟡': 'dotYellow', '🔴': 'dotRed', '👆': 'point', '👉': 'pointRight', '🐤': 'chick', '🐣': 'chick', '🐰': 'bunny', '🐱': 'cat', '🐲': 'dragon', '🐉': 'dragon',
-  '🪷': 'lotus', '🎩': 'tophat', '👔': 'tie', '🍕': 'pizza', '🍽️': 'plate', '📢': 'megaphone', '🌞': 'sun', '☀️': 'sun', '☁️': 'cloud', '🌙': 'moon',
+  '🪷': 'lotus', '🎩': 'tophat', '👔': 'tie', '🍕': 'pizza', '🍽️': 'plate', '📢': 'megaphone', '🌞': 'sun', '☁️': 'cloud', '🌙': 'moon',
   '🥟': 'dumpling', '🐟': 'fish', '🐠': 'fish', '📷': 'camera', '📸': 'camera', '📭': 'mail', '📧': 'mail', '✉️': 'mail', '⛺': 'tent',
   '🏋️': 'dumbbell', '🧘': 'lotus', '💻': 'keyboard',
 };
 
 export default function Icon({ name, size = 24, className = '', title, style }) {
+  const webpSrc = WEBP_ICONS[name];
+  if (webpSrc) {
+    return (
+      <img
+        src={webpSrc}
+        className={`ic ic-img ic-${name} ${className}`}
+        width={size}
+        height={size}
+        alt={title || name}
+        title={title}
+        loading="lazy"
+        draggable={false}
+        style={{
+          width: size,
+          height: size,
+          objectFit: 'contain',
+          verticalAlign: 'middle',
+          display: 'inline-block',
+          ...style,
+        }}
+      />
+    );
+  }
+
   const body = ICONS[name];
   if (!body) return null;
   return (
@@ -1256,7 +1380,21 @@ export const ICON_NAMES = Object.keys(ICONS);
 
 /* Element / skill → icon name maps (shared by pet screens) */
 export const ELEMENT_ICON = {
-  metal: 'magnet', wood: 'leaf', water: 'water', fire: 'fire', earth: 'rock',
-  dark: 'moon', light: 'sun', neutral: 'neutral', wind: 'wind', thunder: 'bolt',
+  metal: 'elem_metal',
+  wood: 'elem_wood',
+  water: 'elem_water',
+  fire: 'elem_fire',
+  earth: 'elem_earth',
+  dark: 'elem_dark',
+  light: 'elem_light',
+  neutral: 'elem_neutral',
+  none: 'elem_neutral',
+  wind: 'elem_wind',
+  thunder: 'elem_thunder',
 };
-export const SKILL_ICON = { listening: 'ear', speaking: 'speak', reading: 'book', writing: 'pencil' };
+export const SKILL_ICON = {
+  listening: 'skill_listening',
+  speaking: 'skill_speaking',
+  reading: 'skill_reading',
+  writing: 'skill_writing',
+};

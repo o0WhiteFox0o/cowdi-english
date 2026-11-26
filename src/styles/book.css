@@ -136,6 +136,12 @@ h5,
   flex-shrink: 0;
 }
 
+.ic-img {
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .btn .ic,
 .badge .ic {
   vertical-align: -0.25em;

@@ -5,6 +5,7 @@ import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import { usePush } from '../../hooks/usePush';
 import { KEEP_RHYTHM_ITEMS } from '../../../shared/game-config.js';
+import Emoji from '../../components/Emoji';
 import ItemDetailSheet from './ItemDetailSheet';
 import ContractSelectSheet from './ContractSelectSheet';
 
@@ -330,7 +331,7 @@ export default function StreakTab({ streakState, onRefreshState }) {
               {/* Bên trái: Icon + Nội dung */}
               <div className="shop-row-left">
                 <div className="shop-row-icon">
-                  {item.icon}
+                  <Emoji e={item.icon} size={36} />
                 </div>
                 <div className="shop-row-body">
                   <div className="shop-row-title">
