@@ -12,6 +12,7 @@ import { createPetMotionPublicRouter } from './routes/petMotionPublic.js';
 import { createMotionCache } from './utils/petMotion.js';
 import invitesRouter from './routes/invites.js';
 import friendsRouter from './routes/friends.js';
+import arenaRouter from './routes/arena.js';
 import createInviteLandingRouter from './routes/inviteLanding.js';
 import pool from './config/database.js';
 import { startReminderJob } from './jobs/reminder.js';
@@ -62,6 +63,7 @@ app.use('/api/shop', shopRouter);
 app.use('/api/admin/pet-motion', petMotionAdminRouter);
 app.use('/api/pet-motion', petMotionPublicRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/arena', arenaRouter);
 app.use('/api',  apiRouter);
 
 // ── Health check ─────────────────────────────────────────────────────────────

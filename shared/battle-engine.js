@@ -11,6 +11,7 @@ import {
   SKILL_KEYS, STAT_FORMULA, EVOLUTION_STAGES, EVOLUTION_COSTS, MAX_EVOLUTION,
   RARITIES, RARITY_ALIASES, ELEMENTS, COUNTERS, COUNTER_MULT,
   GROUPS, GROUP_SKILLS, BATTLE, PET_BATTLE_DATA, POWER_SCORE,
+  PET_SKILLS, TRIGGER_TYPES, TRIGGER_PRIORITY_ORDER, ARENA_CONFIG,
 } from './game-config.js';
 
 // ---------- Tiện ích ----------
@@ -222,18 +223,26 @@ export function createRng(seed) {
   };
 }
 
-// ---------- Trận đấu (5.1–5.6) ----------
+// ---------- Trận đấu (5.1–5.6, v0.2 trigger system) ----------
+export function getPetSkill(speciesId) {
+  return PET_SKILLS[speciesId] || null;
+}
+
 function makeFighter(snapshot, side) {
   const snap = resolveSnapshot(snapshot);
   const stats = computeStats(snap);
   const el = ELEMENTS[snap.element];
   const skill = activeGroupSkill(snap);
+  // Pet ở giai đoạn Egg (stage 0) không có kỹ năng. Min stage mặc định là baby (stage 1)
+  const petSkill = snap.evolution > 0 ? (PET_SKILLS[snap.speciesId] || null) : null;
+
   return {
     side,
     snap,
     stats,
     el,
     skill,
+    petSkill,
     maxHp: stats.hp,
     hp: stats.hp,
     streak: 0,
@@ -244,6 +253,15 @@ function makeFighter(snapshot, side) {
     stunned: false,
     critNext: false,          // Lướt sóng: vừa né → câu đúng kế tiếp chắc chắn crit
     burn: null,               // { turnsLeft, damage }
+
+    // State phục vụ trigger kỹ năng v0.2
+    energy: 0,                // 0..5
+    energyTriggered: false,   // Tuyệt kỹ 1 lần / trận
+    lowHpTriggered: false,    // Cứu nguy 1 lần / trận
+    cooldownTurns: 0,         // Số lượt hồi chiêu còn lại
+    usesCount: 0,             // Số lần đã dùng kỹ năng
+    tookDamageThisTurn: false,// Vừa trúng đòn ở lượt này để xét low_hp
+    comboCount: 0,            // Chuỗi câu đúng riêng cho trigger combo_streak (reset về 0 khi kích hoạt)
   };
 }
 
@@ -270,9 +288,149 @@ function tryApplyDebuff(target) {
 }
 
 function normalizeAnswer(ans) {
-  if (!ans) return { correct: false, timeMs: null };
+  if (!ans) return { correct: false, timeMs: null, category: null };
   const t = Number(ans.timeMs);
-  return { correct: !!ans.correct, timeMs: Number.isFinite(t) && t >= 0 ? t : null };
+  return {
+    correct: !!ans.correct,
+    timeMs: Number.isFinite(t) && t >= 0 ? t : null,
+    category: ans.category || ans.skill || null,
+  };
+}
+
+/** Kiểm tra câu hỏi có khớp sở trường của pet không */
+function isSkillMatch(specialty, category) {
+  if (!specialty || !category) return false;
+  const cat = String(category).toLowerCase();
+  const spec = String(specialty).toLowerCase();
+  return cat === spec || cat.includes(spec);
+}
+
+/** Xét trigger kích hoạt kỹ năng v0.2 */
+export function evaluateTrigger(f, opp, ans, q) {
+  if (!f.petSkill || !f.petSkill.activation) return null;
+  if (f.hp <= 0) return null; // Pet hết HP không ra chiêu
+
+  const act = f.petSkill.activation;
+  if (f.cooldownTurns > 0) return null; // Đang hồi chiêu
+  if (act.uses_per_battle != null && f.usesCount >= act.uses_per_battle) return null; // Đã hết lượt dùng
+
+  const trigger = act.trigger;
+  let triggered = false;
+
+  switch (trigger) {
+    case 'energy_full':
+      // Thanh năng lượng đầy 5/5, sau câu trả lời đúng
+      if (ans.correct && f.energy >= (act.value || 5) && !f.energyTriggered) {
+        triggered = true;
+      }
+      break;
+    case 'low_hp':
+      // HP pet xuống dưới X% lần đầu, xét sau khi trúng đòn
+      if (f.tookDamageThisTurn && !f.lowHpTriggered) {
+        const threshold = act.value || 0.30;
+        if (f.hp / f.maxHp <= threshold) {
+          triggered = true;
+        }
+      }
+      break;
+    case 'combo_streak':
+      // Trả lời đúng N câu liên tiếp, sau câu đúng
+      if (ans.correct && f.comboCount >= (act.value || 3)) {
+        triggered = true;
+      }
+      break;
+    case 'skill_match':
+      // Trả lời đúng câu thuộc kỹ năng sở trường
+      if (ans.correct && isSkillMatch(f.petSkill.specialty, ans.category)) {
+        triggered = true;
+      }
+      break;
+    case 'fast_answer':
+      // Trả lời đúng trong T giây đầu
+      if (ans.correct && ans.timeMs != null && ans.timeMs <= (act.value || 5000)) {
+        triggered = true;
+      }
+      break;
+    default:
+      break;
+  }
+
+  if (!triggered) return null;
+
+  return {
+    q,
+    side: f.side,
+    speciesId: f.snap.speciesId,
+    skillId: f.petSkill.id,
+    skillName: f.petSkill.nameVi,
+    label: f.petSkill.labelVi,
+    desc: f.petSkill.descVi,
+    trigger,
+    effectType: f.petSkill.effectType,
+    effectVal: f.petSkill.effectVal,
+  };
+}
+
+/** Cập nhật trạng thái sau khi kỹ năng được chọn kích hoạt */
+function applySkillActivation(f, triggerType) {
+  const act = f.petSkill.activation;
+  f.usesCount += 1;
+  // +1 vì cuối lượt hiện tại sẽ giảm 1 lượt hồi chiêu
+  f.cooldownTurns = act.cooldown_turns ? act.cooldown_turns + 1 : 0;
+
+  if (triggerType === 'combo_streak') {
+    // Reset đếm lại từ 0 sau khi kích hoạt (v0.2 mục 1)
+    f.comboCount = 0;
+  } else if (triggerType === 'energy_full') {
+    f.energyTriggered = true;
+    f.energy = 0;
+  } else if (triggerType === 'low_hp') {
+    f.lowHpTriggered = true;
+  }
+}
+
+/** Thi triển hiệu ứng kỹ năng trong hàng đợi */
+function executeSkillEffect(f, opp, skillEvent) {
+  let dealt = 0;
+  let healed = 0;
+  let shieldGained = 0;
+  const val = skillEvent.effectVal || 0.20;
+
+  switch (skillEvent.effectType) {
+    case 'damage': {
+      const dmg = Math.round(f.stats.atk * val * 100 / (100 + opp.stats.def));
+      dealt = takeDamage(opp, Math.max(1, dmg));
+      break;
+    }
+    case 'heal': {
+      healed = heal(f, f.maxHp * val);
+      break;
+    }
+    case 'heal_shield': {
+      healed = heal(f, f.maxHp * val);
+      f.shield += 1;
+      shieldGained = 1;
+      break;
+    }
+    case 'damage_heal': {
+      const dmg = Math.round(f.stats.atk * val * 100 / (100 + opp.stats.def));
+      dealt = takeDamage(opp, Math.max(1, dmg));
+      healed = heal(f, f.maxHp * 0.10);
+      break;
+    }
+    case 'damage_lifesteal': {
+      const dmg = Math.round(f.stats.atk * val * 100 / (100 + opp.stats.def));
+      dealt = takeDamage(opp, Math.max(1, dmg));
+      healed = heal(f, dealt * 0.20);
+      break;
+    }
+    default:
+      break;
+  }
+
+  skillEvent.damageDealt = dealt;
+  skillEvent.healed = healed;
+  skillEvent.shieldGained = shieldGained;
 }
 
 /**
@@ -410,10 +568,83 @@ export function simulateBattle(snapA, snapB, answersA = [], answersB = [], seed 
     const ansA = normalizeAnswer(answersA[i]);
     const ansB = normalizeAnswer(answersB[i]);
 
+    A.tookDamageThisTurn = false;
+    B.tookDamageThisTurn = false;
+
+    // 1. Chấm câu trả lời & tích năng lượng, comboCount
+    if (ansA.correct) {
+      A.energy = Math.min(5, A.energy + 1);
+      A.comboCount += 1;
+    } else {
+      A.comboCount = 0;
+    }
+    if (ansB.correct) {
+      B.energy = Math.min(5, B.energy + 1);
+      B.comboCount += 1;
+    } else {
+      B.comboCount = 0;
+    }
+
+    // 2. Đòn cơ bản
+    const hpBeforeB = B.hp;
     attack(A, B, ansA, q);
+    if (B.hp < hpBeforeB) B.tookDamageThisTurn = true;
+
     if (stopAtZero && (A.hp <= 0 || B.hp <= 0)) { ended = true; break; }
+
+    const hpBeforeA = A.hp;
     attack(B, A, ansB, q);
+    if (A.hp < hpBeforeA) A.tookDamageThisTurn = true;
+
     if (stopAtZero && (A.hp <= 0 || B.hp <= 0)) { ended = true; break; }
+
+    // 3. Xét trigger cả 2 bên (v0.2) theo độ ưu tiên
+    const triggerA = evaluateTrigger(A, B, ansA, q);
+    const triggerB = evaluateTrigger(B, A, ansB, q);
+
+    const skillQueue = [];
+    if (triggerA) {
+      applySkillActivation(A, triggerA.trigger);
+      skillQueue.push(triggerA);
+    }
+    if (triggerB) {
+      applySkillActivation(B, triggerB.trigger);
+      skillQueue.push(triggerB);
+    }
+
+    // Sắp xếp hàng đợi kỹ năng theo ưu tiên trigger
+    if (skillQueue.length > 1) {
+      skillQueue.sort((x, y) => {
+        const pX = TRIGGER_TYPES[x.trigger]?.priority ?? 99;
+        const pY = TRIGGER_TYPES[y.trigger]?.priority ?? 99;
+        return pX - pY;
+      });
+    }
+
+    // 4. Thực thi hàng đợi kỹ năng lần lượt
+    for (const sk of skillQueue) {
+      const caster = sk.side === 'challenger' ? A : B;
+      const target = sk.side === 'challenger' ? B : A;
+      if (caster.hp <= 0) {
+        // Pet đã hết HP thì huỷ mọi kỹ năng đang chờ (Luật chung số 4)
+        sk.cancelled = true;
+        continue;
+      }
+      executeSkillEffect(caster, target, sk);
+      sk.hp = hpNow();
+      log.push({ q, side: sk.side, type: 'skill', skill: sk, hp: hpNow() });
+      if (stopAtZero && (A.hp <= 0 || B.hp <= 0)) {
+        ended = true;
+        break;
+      }
+    }
+
+    if (ended) break;
+
+    // Giảm hồi chiêu mỗi lượt
+    if (A.cooldownTurns > 0) A.cooldownTurns -= 1;
+    if (B.cooldownTurns > 0) B.cooldownTurns -= 1;
+
     tickBurn(A, q);
     tickBurn(B, q);
     if (stopAtZero && (A.hp <= 0 || B.hp <= 0)) ended = true;
@@ -434,8 +665,24 @@ export function simulateBattle(snapA, snapB, answersA = [], answersB = [], seed 
 
   return {
     winner,
-    challenger: { hp: A.hp, maxHp: A.maxHp, hpPct: A.hp / A.maxHp, totalTimeMs: totalTimeA, stats: A.stats },
-    opponent:   { hp: B.hp, maxHp: B.maxHp, hpPct: B.hp / B.maxHp, totalTimeMs: totalTimeB, stats: B.stats },
+    challenger: {
+      hp: A.hp,
+      maxHp: A.maxHp,
+      hpPct: A.hp / A.maxHp,
+      totalTimeMs: totalTimeA,
+      stats: A.stats,
+      combo: A.streak,
+      energy: A.energy,
+    },
+    opponent: {
+      hp: B.hp,
+      maxHp: B.maxHp,
+      hpPct: B.hp / B.maxHp,
+      totalTimeMs: totalTimeB,
+      stats: B.stats,
+      combo: B.streak,
+      energy: B.energy,
+    },
     questions: n,
     log,
   };
