@@ -197,13 +197,13 @@
 }
 
 .arena-pet-mine {
-  bottom: 55px;
-  left: 140px;
+  bottom: 52px;
+  left: 105px;
 }
 
 .arena-pet-opponent {
-  top: 80px;
-  right: 140px;
+  top: 78px;
+  right: 110px;
 }
 
 .arena-pet-mine .pet-render-slot img,
@@ -231,18 +231,19 @@
   padding: 8px 14px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   border: 1.5px solid #dee2e6;
-  min-width: 180px;
+  min-width: 195px;
   z-index: 20;
 }
 
 .arena-hud-opponent {
-  top: 25px;
-  left: 180px;
+  top: 28px;
+  right: 245px;
+  left: auto;
 }
 
 .arena-hud-mine {
-  bottom: 45px;
-  left: 280px;
+  bottom: 36px;
+  left: 260px;
 }
 
 .arena-hud-header {
@@ -250,6 +251,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
+  gap: 8px;
 }
 
 .arena-pet-title {
@@ -264,9 +266,10 @@
 .arena-elem-badge {
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 6px;
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .arena-pet-level {
