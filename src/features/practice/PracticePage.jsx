@@ -6,7 +6,8 @@ import { QUIZ_BANK, LESSONS } from '../../data/lessons';
 import { getAllTopicWords } from '../../data/vocab-topics';
 import { LISTEN_SENTENCE_TOPICS, getListenTopic } from '../../data/quiz/sentences-quiz';
 import { SKILL_GROUPS, QUIZ_TO_SKILL, PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
-import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import PetStage from '../../pet-director/PetStage';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { useToast } from '../../components/layout/Toast';
@@ -377,26 +378,30 @@ export default function PracticePage() {
   const { play } = useSound();
   const petRef = useRef(null);
   const streakRef = useRef(0);
+  const [streakCount, setStreakCount] = useState(0);
+  const { dispatch } = usePetDirector();
 
   const activePet = getActivePetWithDecay();
   const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const petName = activePet?.customName || petSpecies?.name || 'Cowdi';
 
-  const emitPetAnswer = useCallback((isCorrect) => {
+  const emitPetAnswer = useCallback((isCorrect, meta = {}) => {
     if (isCorrect) {
       streakRef.current += 1;
       const c = streakRef.current;
+      setStreakCount(c);
       if (c === 3 || c === 5 || (c >= 10 && c % 5 === 0)) {
-        petRef.current?.emit('streak', { count: c });
+        dispatch('streak', { count: c });
       } else {
-        petRef.current?.emit('answer_correct');
+        dispatch('answer_correct', meta);
       }
     } else {
       streakRef.current = 0;
-      petRef.current?.emit('answer_wrong');
+      setStreakCount(0);
+      dispatch('answer_wrong', meta);
     }
-  }, []);
+  }, [dispatch]);
 
   const [quizType, setQuizType] = useState(null);
   const [searchParams] = useSearchParams();
@@ -510,45 +515,48 @@ export default function PracticePage() {
       u.lang = 'en-US';
       u.rate = 0.8;
       u.onstart = () => {
-        petRef.current?.emit('pet_speak_start', { text: clean });
+        dispatch('pet_speak_start');
         petRef.current?.setVoiceLevel(0.7);
       };
       const done = () => {
         petRef.current?.setVoiceLevel(0);
-        petRef.current?.emit('pet_speak_end');
+        dispatch('pet_speak_end');
       };
       u.onend = done;
       u.onerror = done;
       speechSynthesis.speak(u);
     }
-  }, []);
+  }, [dispatch]);
 
   // Sự kiện pet: vào bài luyện tập & hoàn thành bài
   useEffect(() => {
     if (!quizType) return;
+    const title = TYPE_LABELS[quizType]?.title || 'Luyện tập';
     if (!finished) {
       streakRef.current = 0;
-      petRef.current?.emit('lesson_start');
+      setStreakCount(0);
+      dispatch('lesson_start', { lessonId: `practice:${quizType}`, lessonTitle: title });
+      dispatch('screen_enter', { screen: 'lesson', lessonTitle: title });
     } else {
-      petRef.current?.emit('lesson_done', { text: 'Hoàn thành luyện tập!' });
+      dispatch('lesson_done', { lessonTitle: title });
     }
-  }, [quizType, finished]);
+  }, [quizType, finished, dispatch]);
 
   // Sự kiện pet: sang câu hỏi mới (mọi chế độ luyện tập)
   useEffect(() => {
     if (quizType && !finished) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown');
     }
-  }, [quizType, finished, qIndex, dictIdx, fillIdx, reorderIdx, dynIdx, wgIdx, tfIdx, wbIdx, twIdx, spkIdx, matchRound]);
+  }, [quizType, finished, qIndex, dictIdx, fillIdx, reorderIdx, dynIdx, wgIdx, tfIdx, wbIdx, twIdx, spkIdx, matchRound, dispatch]);
 
   // Sự kiện pet: bật / tắt mic khi luyện nói
   useEffect(() => {
     if (!speechRec.listening) {
       petRef.current?.setMicLevel(0);
-      petRef.current?.emit('mic_end');
+      dispatch('mic_end');
       return;
     }
-    petRef.current?.emit('mic_start');
+    dispatch('mic_start');
     const iv = setInterval(() => {
       petRef.current?.setMicLevel(0.25 + Math.random() * 0.55);
     }, 120);
@@ -556,7 +564,7 @@ export default function PracticePage() {
       clearInterval(iv);
       petRef.current?.setMicLevel(0);
     };
-  }, [speechRec.listening]);
+  }, [speechRec.listening, dispatch]);
 
   // Sự kiện pet: lên cấp kỹ năng sau onQuizComplete
   const prevSkillLvlsRef = useRef(null);
@@ -570,11 +578,11 @@ export default function PracticePage() {
       writing: getSkillLevel(s.writing || 0),
     };
     if (prevSkillLvlsRef.current) {
-      const leveledUp = Object.keys(cur).some((k) => cur[k] > prevSkillLvlsRef.current[k]);
-      if (leveledUp) petRef.current?.emit('skill_level_up');
+      const leveledSkill = Object.keys(cur).find((k) => cur[k] > prevSkillLvlsRef.current[k]);
+      if (leveledSkill) dispatch('skill_level_up', { skill: leveledSkill });
     }
     prevSkillLvlsRef.current = cur;
-  }, [activePet?.skills]);
+  }, [activePet?.skills, dispatch]);
 
   // Auto-play sentence when listenSentence question changes
   useEffect(() => {
@@ -1459,31 +1467,22 @@ export default function PracticePage() {
     );
   }
 
-  /* ── Pet companion dock (giữ mount xuyên suốt mọi chế độ luyện tập và màn kết quả) ── */
+  /* ── Sân khấu Pet Director (compact trong luyện tập để giữ Zero-Scroll Quiz) ── */
   const petDock = activePet ? (
-    <div className="study-pet-dock" style={{ maxWidth: 700, margin: '0 auto 14px' }}>
-      <div className="study-pet-avatar">
-        <PetAvatar
-          ref={petRef}
-          petId={activePet.speciesId}
-          stage={(activePet.evolution || 0) + 1}
-          group={petSpecies?.group}
-          bond={bondOf(activePet.skills)}
-          topSkill={topSkillOf(activePet.skills)}
-          mode={finished ? 'home' : 'lesson'}
-          fallbackSrc={petEvo?.image}
-          alt={petName}
-        />
-      </div>
-      <div className="study-pet-meta">
-        <div className="study-pet-name">{petName} đang cổ vũ bạn!</div>
-        <div className="study-pet-hint">
-          {finished
-            ? `Hoàn thành ${TYPE_LABELS[quizType]?.title || 'bài luyện tập'}!`
-            : TYPE_LABELS[quizType]?.title || 'Đang luyện tập'}
-        </div>
-      </div>
-    </div>
+    <PetStage
+      pet={activePet}
+      petRef={petRef}
+      mode={finished ? 'home' : 'lesson'}
+      compact={!finished}
+      streak={streakCount}
+      subtitle={
+        finished
+          ? `Hoàn thành ${TYPE_LABELS[quizType]?.title || 'bài luyện tập'}!`
+          : TYPE_LABELS[quizType]?.title || 'Đang luyện tập'
+      }
+      maxWidth={700}
+      onSpeak={speakWord}
+    />
   ) : null;
 
   /* ══════════════════════════════════════════
@@ -1573,22 +1572,24 @@ export default function PracticePage() {
         </div>
 
         {dictChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${dictChecked ? 'text-success' : 'text-danger'}`}>
-            {dictChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.word}</>}
+          <div className={`quiz-sticky-action-bar fade-in ${dictChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${dictChecked ? 'text-success' : 'text-danger'}`}>
+              {dictChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextDictation}>
+                {dictIdx + 1 < dictQuestions.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
           </div>
         )}
-
-        <div className="text-center">
-          {dictChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkDictation} disabled={!dictInput.trim()}>
+        {dictChecked === null && (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkDictation} disabled={!dictInput.trim()}>
               Kiểm tra
             </button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextDictation}>
-              {dictIdx + 1 < dictQuestions.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1695,22 +1696,23 @@ export default function PracticePage() {
           />
         </div>
 
-        {fillChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${fillChecked ? 'text-success' : 'text-danger'}`}>
-            {fillChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {q.answer}</>}
-            {!fillChecked && <p className="text-muted small mt-1">{q.original}</p>}
+        {fillChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${fillChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${fillChecked ? 'text-success' : 'text-danger'}`}>
+              {fillChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {q.answer}</>}
+              {!fillChecked && <div className="text-muted small fw-normal mt-1">{q.original}</div>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextFillIn}>
+                {fillIdx + 1 < fillQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkFillIn} disabled={!fillInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {fillChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkFillIn} disabled={!fillInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextFillIn}>
-              {fillIdx + 1 < fillQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -1769,21 +1771,22 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {reorderChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-6 fade-in ${reorderChecked ? 'text-success' : 'text-danger'}`}>
-            {reorderChecked ? <><Icon name="check" size={16} /> Chính xác!</> : <><Icon name="x" size={16} /> Đáp án: {q.correctOrder.join(' ')}</>}
+        {reorderChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${reorderChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${reorderChecked ? 'text-success' : 'text-danger'}`}>
+              {reorderChecked ? <><Icon name="check" size={16} /> Chính xác!</> : <><Icon name="x" size={16} /> Đáp án: {q.correctOrder.join(' ')}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextReorder}>
+                {reorderIdx + 1 < reorderQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkReorder} disabled={reorderPool.length > 0}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {reorderChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkReorder} disabled={reorderPool.length > 0}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextReorder}>
-              {reorderIdx + 1 < reorderQuestions.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -1902,21 +1905,22 @@ export default function PracticePage() {
           />
         </div>
 
-        {wgChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wgChecked ? 'text-success' : 'text-danger'}`}>
-            {wgChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {wq.word}</>}
+        {wgChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${wgChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${wgChecked ? 'text-success' : 'text-danger'}`}>
+              {wgChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {wq.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextWordGuess}>
+                {wgIdx + 1 < wgQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkWordGuess} disabled={!wgInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {wgChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkWordGuess} disabled={!wgInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextWordGuess}>
-              {wgIdx + 1 < wgQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -2020,21 +2024,22 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {wbChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${wbChecked ? 'text-success' : 'text-danger'}`}>
-            {wbChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {bq.word}</>}
+        {wbChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${wbChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${wbChecked ? 'text-success' : 'text-danger'}`}>
+              {wbChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {bq.word}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextWordBuild}>
+                {wbIdx + 1 < wbQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkWordBuild} disabled={wbPool.length > 0}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {wbChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkWordBuild} disabled={wbPool.length > 0}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextWordBuild}>
-              {wbIdx + 1 < wbQs.length ? 'Từ tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -2076,21 +2081,22 @@ export default function PracticePage() {
           />
         </div>
 
-        {twChecked !== null && (
-          <div className={`text-center mb-3 fw-bold fs-5 fade-in ${twChecked ? 'text-success' : 'text-danger'}`}>
-            {twChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {tq.original}</>}
+        {twChecked !== null ? (
+          <div className={`quiz-sticky-action-bar fade-in ${twChecked ? 'is-correct' : 'is-wrong'}`}>
+            <div className={`quiz-sticky-feedback fw-bold ${twChecked ? 'text-success' : 'text-danger'}`}>
+              {twChecked ? <><Icon name="check" size={18} /> Chính xác!</> : <><Icon name="x" size={18} /> Đáp án: {tq.original}</>}
+            </div>
+            <div className="quiz-sticky-actions">
+              <button className="btn btn-cowdi-primary" onClick={nextTranslateWrite}>
+                {twIdx + 1 < twQs.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="quiz-sticky-action-bar justify-content-end">
+            <button className="btn btn-cowdi-primary px-4" onClick={checkTranslateWrite} disabled={!twInput.trim()}>Kiểm tra</button>
           </div>
         )}
-
-        <div className="text-center">
-          {twChecked === null ? (
-            <button className="btn btn-cowdi-primary" onClick={checkTranslateWrite} disabled={!twInput.trim()}>Kiểm tra</button>
-          ) : (
-            <button className="btn btn-cowdi-primary" onClick={nextTranslateWrite}>
-              {twIdx + 1 < twQs.length ? 'Câu tiếp theo →' : 'Xem kết quả'}
-            </button>
-          )}
-        </div>
       </div>
     );
   }
@@ -2262,10 +2268,16 @@ export default function PracticePage() {
   };
 
   return (
-    <>
-      {petDock}
-      {renderPracticeBody()}
-    </>
+    <div className="pd-lesson-layout pd-lesson-layout--centered">
+      {petDock && (
+        <aside className="pd-lesson-stage-col">
+          {petDock}
+        </aside>
+      )}
+      <div className="pd-lesson-content-col">
+        {renderPracticeBody()}
+      </div>
+    </div>
   );
 }
 

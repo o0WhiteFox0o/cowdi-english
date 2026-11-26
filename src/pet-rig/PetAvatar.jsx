@@ -24,6 +24,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
     imgClassName,
     imgStyle,
     timeScale = 1,
+    canvasBubble = true,
     onClip,
     onDiagnostic,
   },
@@ -104,6 +105,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
       motion,
       basePath,
       timeScale,
+      canvasBubble,
       onClip,
       onDiagnostic,
     });
@@ -152,6 +154,9 @@ export const PetAvatar = forwardRef(function PetAvatar(
     rigRef.current?.setTimeScale(timeScale);
   }, [timeScale]);
   useEffect(() => {
+    if (rigRef.current) rigRef.current.o.canvasBubble = canvasBubble;
+  }, [canvasBubble]);
+  useEffect(() => {
     if (rigRef.current) rigRef.current.o.onDiagnostic = onDiagnostic || null;
   }, [onDiagnostic]);
   useEffect(() => {
@@ -196,12 +201,32 @@ export const PetAvatar = forwardRef(function PetAvatar(
   );
 
   if (!stageApproved) {
+    const interactive = typeof onClip === 'function';
     return (
       <img
         src={staticSrc}
         alt={label}
         className={imgClassName || className}
-        style={{ objectFit: 'contain', display: 'block', ...style, ...imgStyle }}
+        style={{
+          objectFit: 'contain',
+          display: 'block',
+          ...(interactive ? { cursor: 'pointer' } : {}),
+          ...style,
+          ...imgStyle,
+        }}
+        role={interactive ? 'button' : undefined}
+        tabIndex={interactive ? 0 : undefined}
+        onClick={interactive ? () => onClip('tap', null) : undefined}
+        onKeyDown={
+          interactive
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClip('tap', null);
+                }
+              }
+            : undefined
+        }
       />
     );
   }

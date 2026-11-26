@@ -32,9 +32,20 @@ export default function AuthCallbackPage() {
     }
   }, []);
 
-  // Bước 2: Chờ user state cập nhật rồi mới navigate
+  // Bước 2: Chờ user state cập nhật rồi mới navigate (ưu tiên quay lại thiệp mời hoặc mã kết bạn QR đang chờ)
   useEffect(() => {
     if (saved && user) {
+      const pendingInvite = localStorage.getItem('cowdi_pending_invite');
+      if (pendingInvite && /^[A-Z0-9]{4,12}$/i.test(pendingInvite)) {
+        navigate(`/i/${pendingInvite.toUpperCase()}`, { replace: true });
+        return;
+      }
+      const pendingFriendAdd = localStorage.getItem('cowdi_pending_friend_add');
+      if (pendingFriendAdd && /^[A-Z0-9]{8}$/i.test(pendingFriendAdd)) {
+        localStorage.removeItem('cowdi_pending_friend_add');
+        navigate(`/friends?add=${pendingFriendAdd.toUpperCase()}`, { replace: true });
+        return;
+      }
       navigate('/account', { replace: true });
     }
   }, [saved, user, navigate]);

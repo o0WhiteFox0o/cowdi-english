@@ -33,6 +33,11 @@ try {
   console.warn('[wallet] Could not load lesson-ids.json or units.json:', err.message);
 }
 
+export function isValidLessonId(lessonId) {
+  if (typeof lessonId !== 'string') return false;
+  return validLessonIdsSet.size === 0 || validLessonIdsSet.has(lessonId);
+}
+
 export function sanitizeLearnerGroup(val) {
   return typeof val === 'string' && VALID_LEARNER_GROUPS.has(val) ? val : null;
 }
@@ -103,6 +108,7 @@ export async function getWallet(userId, db = pool) {
     gem: 0,
     stone: 0,
     stone_shard: 0,
+    gacha_ticket: 0,
   };
 
   let milkDelta = 0;

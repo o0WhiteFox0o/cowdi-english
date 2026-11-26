@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useSEO } from '../../hooks/useSEO';
-import { PET_REGISTRY, ELEMENT_COLORS } from '../../data/pets';
+import { PET_REGISTRY, ELEMENT_COLORS, mergeDynamicPetCatalog } from '../../data/pets';
 import { GROUPS, RARITIES, RARITY_ALIASES } from '../../../shared/game-config.js';
 import { CLIPS } from '../../../shared/pet-motion.js';
 import {
@@ -18,17 +18,113 @@ import {
   createPetMotionApi,
   getStageImageSpec,
   inferPartNameFromFile,
+  loadAnyPetSourceToCanvas,
+  normalizeApiAssetUrl,
   optimizePartImageFile,
+  petSourceToFile,
   readImageDimensions,
 } from './api';
 import { initEditor } from './editor';
 import PartPaintModal from './PartPaintModal';
+import PetFormModal from './PetFormModal';
 import StudyPreviewTab from './StudyPreviewTab';
 import { invalidatePetMotionCache } from '../../pet-rig/motionCache';
 import './pet-motion.css';
 
 const ALL_CLIP_NAMES = Object.keys(CLIPS);
 const PET_LIST = Object.values(PET_REGISTRY);
+const SUGGEST_PART_ORDER = ['body', 'head', 'armL', 'armR', 'crown', 'front', 'eye0', 'eye1'];
+const PART_VI_LABELS = {
+  body: 'Thân (body)',
+  head: 'Đầu (head)',
+  crown: 'Chỏm / Tai (crown)',
+  armL: 'Tay trái (armL)',
+  armR: 'Tay phải (armR)',
+  front: 'Lớp trước (front)',
+  fx: 'Hiệu ứng (fx)',
+  aura: 'Hào quang (aura)',
+  eye0: 'Mắt 1 (eye0)',
+  eye1: 'Mắt 2 (eye1)',
+};
+
+/**
+ * Gom danh sách ảnh hiện có của pet (ưu tiên đúng cấp đang chọn -> các cấp khác C1..C5 cùng pet;
+ * nếu loài pet này chưa có bất kỳ ảnh nào ở cả 5 cấp thì bổ sung phôi tham chiếu cùng nhóm + khung trống)
+ * để họa sĩ luôn có thể tự cắt bộ phận hoặc vẽ đè lại ngay trong trình duyệt.
+ */
+function collectPetSuggestedSources(petObj, preferStageNum = 1, allPetsList = PET_LIST, brokenMap = {}) {
+  const spec = getStageImageSpec(preferStageNum);
+  const sources = [];
+  if (petObj) {
+    const stageOrder = [1, 2, 3, 4, 5].sort((a, b) => {
+      if (a === preferStageNum) return -1;
+      if (b === preferStageNum) return 1;
+      return Math.abs(a - preferStageNum) - Math.abs(b - preferStageNum);
+    });
+    for (const s of stageOrder) {
+      const stKey = `${petObj.id}/c${s}`;
+      if (brokenMap?.[stKey]) continue;
+      const evo = petObj.evolutions?.[s - 1];
+      const rawImg = evo?.image;
+      if (!rawImg) continue;
+      const url = rawImg.startsWith('/api/')
+        ? `${PET_MOTION_API_BASE}${normalizeApiAssetUrl(rawImg)}`
+        : normalizeApiAssetUrl(rawImg);
+      sources.push({
+        id: `self-c${s}`,
+        kind: 'url',
+        stage: s,
+        isSamePet: true,
+        url,
+        shortLabel: `${petObj.name} C${s}`,
+        label:
+          s === preferStageNum
+            ? `Ảnh hiện có: ${petObj.name} C${s} · ${evo?.name || `Cấp ${s}`}`
+            : `Ảnh cấp khác của ${petObj.name}: C${s} · ${evo?.name || `Cấp ${s}`}`,
+      });
+    }
+  }
+
+  // Nếu cả 5 cấp của pet đều chưa có ảnh (vd Bánh Bao / Nấm Rơm / Pet mới tạo chưa kịp vẽ):
+  // gợi ý phôi pet cùng nhóm có sẵn trong hệ thống để họa sĩ mượn tỉ lệ / cắt sửa / vẽ lại.
+  if (sources.length === 0 && Array.isArray(allPetsList)) {
+    const targetGroup = petObj?.group || 'farm';
+    const candidates = [
+      ...allPetsList.filter((p) => p.id !== petObj?.id && p.group === targetGroup),
+      ...allPetsList.filter((p) => p.id !== petObj?.id && p.group !== targetGroup),
+    ];
+    for (const other of candidates) {
+      if (sources.length >= 4) break;
+      const stKey = `${other.id}/c${preferStageNum}`;
+      if (brokenMap?.[stKey]) continue;
+      const evo = other.evolutions?.[preferStageNum - 1] || other.evolutions?.[0];
+      if (!evo?.image) continue;
+      const url = evo.image.startsWith('/api/')
+        ? `${PET_MOTION_API_BASE}${normalizeApiAssetUrl(evo.image)}`
+        : normalizeApiAssetUrl(evo.image);
+      sources.push({
+        id: `ref-${other.id}-c${preferStageNum}`,
+        kind: 'url',
+        stage: preferStageNum,
+        isSamePet: false,
+        url,
+        shortLabel: `Mẫu ${other.name} C${preferStageNum}`,
+        label: `Phôi tham chiếu (${other.name} C${preferStageNum}) — dùng để vẽ đè / cắt sửa`,
+      });
+    }
+  }
+
+  sources.push({
+    id: `blank-${spec.recommended}`,
+    kind: 'blank',
+    width: spec.recommended,
+    height: spec.recommended,
+    shortLabel: `Khung trống ${spec.recommended}px`,
+    label: `Khung trống chuẩn ${spec.recommended}×${spec.recommended} px (tự vẽ mới từ đầu)`,
+  });
+
+  return sources;
+}
 
 function fmtClock(date) {
   if (!date) return '';
@@ -46,13 +142,71 @@ function downloadJsonFile(filename, content) {
 }
 
 // ── Khung tạo rig từ nhiều ảnh PNG tách lớp ──────────────────────────────────
-function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
+function RigCreatorCard({ pet, stage, api, suggestedSources = [], onOpenStudioForItem, onCreated, onToast }) {
   const [items, setItems] = useState([]);
   const [busy, setBusy] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [suggestIdx, setSuggestIdx] = useState(0);
+  const [importingSuggest, setImportingSuggest] = useState(false);
   const [err, setErr] = useState('');
 
   const spec = getStageImageSpec(stage);
+  const selectedSuggest = suggestedSources[suggestIdx] || suggestedSources[0] || null;
+
+  const updateItemFile = useCallback((id, nextFile, width, height) => {
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, file: nextFile, width, height } : it))
+    );
+  }, []);
+
+  const handleImportSuggestedToTable = async () => {
+    if (!selectedSuggest || importingSuggest || busy) return;
+    setImportingSuggest(true);
+    setErr('');
+    try {
+      const usedParts = new Set(items.map((x) => x.part));
+      const nextPart = SUGGEST_PART_ORDER.find((p) => !usedParts.has(p)) || 'body';
+      const { file, width, height } = await petSourceToFile(
+        selectedSuggest,
+        `${nextPart}.png`,
+        api,
+        spec.maxEdge
+      );
+      const newItem = {
+        id: `suggest-${nextPart}-${Date.now()}-${Math.random()}`,
+        file,
+        part: nextPart,
+        width,
+        height,
+      };
+      setItems((prev) => [...prev, newItem]);
+      onToast(
+        `Đã nạp "${selectedSuggest.shortLabel || selectedSuggest.label}" làm bộ phận "${nextPart}". Bấm "✂️ Cắt / Vẽ lại" để tách vùng mong muốn!`
+      );
+    } catch (e) {
+      setErr(e.message || 'Không nạp được ảnh hiện có của pet.');
+    } finally {
+      setImportingSuggest(false);
+    }
+  };
+
+  const handleQuickRigAndOpenStudio = async () => {
+    if (!selectedSuggest || importingSuggest || busy) return;
+    setBusy(true);
+    setErr('');
+    try {
+      const { file } = await petSourceToFile(selectedSuggest, 'body.png', api, spec.maxEdge);
+      const rig = await buildDefaultRigFromFiles([{ part: 'body', file }]);
+      await api.uploadPart(pet.id, stage, 'body', file);
+      await api.saveRig(pet.id, stage, rig);
+      onToast(`Đã khởi tạo Rig từ "${selectedSuggest.shortLabel}" — mở Studio để họa sĩ tự cắt / vẽ lại!`);
+      await onCreated({ autoOpenPart: 'body' });
+    } catch (e) {
+      setErr(e.message || 'Không khởi tạo được rig từ ảnh gợi ý.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -191,6 +345,69 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
         </div>
       </div>
 
+      {/* Đề xuất lấy ảnh hiện có của pet để họa sĩ tự cắt / tự vẽ lại khi chưa có file tách lớp */}
+      {suggestedSources.length > 0 && (
+        <div
+          className="p-3 rounded-3 mb-3"
+          style={{ background: '#fffbeb', border: '1px solid #fcd34d' }}
+        >
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <div className="fw-bold small" style={{ color: '#92400e' }}>
+              ✂️ Chưa có ảnh bộ phận tách rời? Lấy ảnh hiện có của {pet.name} để họa sĩ tự cắt / tự vẽ lại
+            </div>
+            <span className="pm-badge draft">Khuyên dùng khi thiếu file lẻ</span>
+          </div>
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            {selectedSuggest?.url && (
+              <img
+                src={selectedSuggest.url}
+                alt={selectedSuggest.shortLabel}
+                style={{
+                  width: 52,
+                  height: 52,
+                  objectFit: 'contain',
+                  background: '#fff',
+                  border: '1px solid #fde68a',
+                  borderRadius: 8,
+                  padding: 3,
+                }}
+              />
+            )}
+            <select
+              className="form-select form-select-sm"
+              style={{ maxWidth: 360, flex: '1 1 220px' }}
+              value={suggestIdx}
+              disabled={busy || importingSuggest}
+              onChange={(e) => setSuggestIdx(Number(e.target.value))}
+            >
+              {suggestedSources.map((src, idx) => (
+                <option key={src.id || idx} value={idx}>
+                  {src.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="pm-btn primary"
+              disabled={busy || optimizing || importingSuggest}
+              onClick={handleQuickRigAndOpenStudio}
+              title="Dùng ảnh này tạo ngay bộ phận Thân (body) và mở thẳng Studio để họa sĩ khoanh cắt / vẽ lại"
+            >
+              {busy ? 'Đang tạo…' : '⚡ Dùng ảnh này & Mở Studio cắt/vẽ ngay'}
+            </button>
+            <button
+              type="button"
+              className="pm-btn"
+              disabled={busy || optimizing || importingSuggest}
+              onClick={handleImportSuggestedToTable}
+              title="Nạp ảnh này vào bảng bên dưới (bấm nhiều lần để tạo thêm body, head, armL… rồi bấm Cắt / Vẽ trên từng dòng)"
+            >
+              {importingSuggest ? 'Đang nạp…' : '📥 + Đưa vào danh sách để tách nhiều lớp'}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
         <label className="pm-btn primary" style={{ display: 'inline-flex', alignItems: 'center' }}>
           + Chọn nhiều ảnh PNG / WebP
@@ -285,9 +502,22 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
                       </div>
                     </td>
                     <td className="text-end">
-                      <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItem(it.id)} disabled={busy || optimizing}>
-                        Bỏ
-                      </button>
+                      <div className="d-inline-flex gap-1">
+                        {onOpenStudioForItem && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success"
+                            disabled={busy || optimizing}
+                            onClick={() => onOpenStudioForItem(it, updateItemFile)}
+                            title="Mở Studio khoanh vùng cắt lấy bộ phận hoặc vẽ sửa lại ảnh này trước khi tải lên"
+                          >
+                            ✂️ Cắt / Vẽ lại
+                          </button>
+                        )}
+                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => removeItem(it.id)} disabled={busy || optimizing}>
+                          Bỏ
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -308,18 +538,11 @@ function RigCreatorCard({ pet, stage, api, onCreated, onToast }) {
 
 // ── Trang chính /admin/pet-motion ────────────────────────────────────────────
 export default function PetMotionPage() {
-  useSEO({ title: 'Chỉnh động tác pet (Admin) — Cowdi English' });
+  useSEO({ title: 'Quản lý Pet & Chuyển động (Admin) — Cowdi English' });
   const { token } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const api = useMemo(() => createPetMotionApi(token), [token]);
-
-  const selectedPetId = searchParams.get('pet') || '';
-  const selectedStageNum = Number(searchParams.get('stage')) || 0;
-  const isPreviewView = searchParams.get('view') === 'preview';
-  const isEditorView =
-    !isPreviewView &&
-    Boolean(selectedPetId && PET_REGISTRY[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
 
   const [overview, setOverview] = useState(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
@@ -329,6 +552,61 @@ export default function PetMotionPage() {
   const [rigFilter, setRigFilter] = useState('all'); // 'all' | 'has_rig' | 'no_rig'
   const [brokenImgs, setBrokenImgs] = useState({});
   const [uploadingAvatar, setUploadingAvatar] = useState({});
+  const [petModal, setPetModal] = useState({ open: false, mode: 'create', pet: null });
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deletingPet, setDeletingPet] = useState(false);
+
+  // Danh sách pet động (gộp PET_REGISTRY gốc + pet mới/sửa từ API overview)
+  const dynamicPetList = useMemo(() => {
+    const map = new Map();
+    for (const p of Object.values(PET_REGISTRY)) {
+      map.set(p.id, p);
+    }
+    for (const row of overview?.pets || []) {
+      const base = map.get(row.petId);
+      const evos = Array.isArray(row.evolutions) && row.evolutions.length === 5
+        ? row.evolutions.map((ev, idx) => ({
+            ...ev,
+            image: row.stages?.[`c${idx + 1}`]?.avatarUrl
+              ? `${PET_MOTION_API_BASE}${row.stages[`c${idx + 1}`].avatarUrl}`
+              : (ev.image || base?.evolutions?.[idx]?.image || null),
+          }))
+        : (base?.evolutions || [0, 1, 2, 3, 4].map((stage) => ({
+            stage,
+            name: `Cấp ${stage + 1}`,
+            emoji: stage === 0 ? '🥚' : (row.emoji || '🐾'),
+            image: row.stages?.[`c${stage + 1}`]?.avatarUrl
+              ? `${PET_MOTION_API_BASE}${row.stages[`c${stage + 1}`].avatarUrl}`
+              : null,
+          })));
+      map.set(row.petId, {
+        ...(base || {}),
+        id: row.petId,
+        name: row.name || base?.name || row.petId,
+        species: row.species || base?.species || row.name || row.petId,
+        emoji: row.emoji || base?.emoji || '🐾',
+        element: row.element || base?.element || 'neutral',
+        group: row.group || base?.group || 'farm',
+        rarity: row.rarity || base?.rarity || 'common',
+        description: row.description ?? base?.description ?? '',
+        evolutions: evos,
+        isCustom: Boolean(row.isCustom),
+      });
+    }
+    return Array.from(map.values());
+  }, [overview]);
+
+  const dynamicPetMap = useMemo(
+    () => Object.fromEntries(dynamicPetList.map((p) => [p.id, p])),
+    [dynamicPetList]
+  );
+
+  const selectedPetId = searchParams.get('pet') || '';
+  const selectedStageNum = Number(searchParams.get('stage')) || 0;
+  const isPreviewView = searchParams.get('view') === 'preview';
+  const isEditorView =
+    !isPreviewView &&
+    Boolean(selectedPetId && dynamicPetMap[selectedPetId] && selectedStageNum >= 1 && selectedStageNum <= 5);
 
   // Editor state
   const [detail, setDetail] = useState(null);
@@ -359,9 +637,14 @@ export default function PetMotionPage() {
   const editorCtrlRef = useRef(null);
   const toastTimerRef = useRef(null);
 
-  // Modal vẽ sửa trực tiếp ảnh bộ phận
+  // Modal vẽ sửa trực tiếp ảnh bộ phận / cắt từ ảnh hiện có của pet
   const [paintTarget, setPaintTarget] = useState(null);
   const [paintSaving, setPaintSaving] = useState(false);
+  const [missingParts, setMissingParts] = useState([]);
+  const [suggestSourceIdx, setSuggestSourceIdx] = useState(0);
+  const [suggestPartTarget, setSuggestPartTarget] = useState('body');
+  const [openingStudio, setOpeningStudio] = useState(false);
+  const pendingAutoOpenPartRef = useRef(null);
 
   // Tab & thu gọn bảng phụ bên phải để luôn nhìn thấy sân khấu pet khi đặt keyframe
   const [sideTab, setSideTab] = useState('clips'); // 'clips' | 'parts' | 'settings'
@@ -375,12 +658,37 @@ export default function PetMotionPage() {
 
   useEffect(() => () => clearTimeout(toastTimerRef.current), []);
 
-  // ── Tải tổng quan 22 pet × 5 cấp ──
+  // ── Tải tổng quan toàn bộ pet × 5 cấp ──
   const loadOverview = useCallback(async () => {
     setOverviewLoading(true);
     setOverviewError('');
     try {
       const json = await api.getOverview();
+      if (Array.isArray(json?.pets)) {
+        const dynamicPets = json.pets
+          .filter((p) => p.name || p.isCustom)
+          .map((p) => ({
+            id: p.petId,
+            name: p.name,
+            species: p.species,
+            emoji: p.emoji,
+            element: p.element,
+            group: p.group,
+            rarity: p.rarity,
+            description: p.description,
+            evolutions: p.evolutions,
+            unlockCondition: p.unlock,
+            isCustom: p.isCustom,
+          }));
+        const avatars = {};
+        for (const p of json.pets) {
+          for (let s = 1; s <= 5; s++) {
+            const url = p.stages?.[`c${s}`]?.avatarUrl;
+            if (url) avatars[`${p.petId}/c${s}`] = url;
+          }
+        }
+        mergeDynamicPetCatalog({ pets: dynamicPets, avatars }, PET_MOTION_API_BASE);
+      }
       setOverview(json);
     } catch (err) {
       setOverviewError(err.message || 'Không tải được tổng quan.');
@@ -430,11 +738,115 @@ export default function PetMotionPage() {
     detailMatches && detail.rig?.hasRig && detail.rig?.draftRig?.slots?.length > 0
   );
 
+  // Danh sách nguồn ảnh hiện có của pet đang chọn (để gợi ý cho họa sĩ tự cắt / vẽ lại)
+  const currentPetSuggestedSources = useMemo(() => {
+    if (!selectedPetId) return [];
+    const pObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+    return collectPetSuggestedSources(pObj, selectedStageNum || 1, dynamicPetList, brokenImgs);
+  }, [selectedPetId, selectedStageNum, dynamicPetMap, dynamicPetList, brokenImgs]);
+
+  useEffect(() => {
+    setSuggestSourceIdx(0);
+  }, [selectedPetId, selectedStageNum]);
+
+  // Mở Studio cắt/vẽ cho một bộ phận trong Rig từ nguồn ảnh gợi ý (ảnh pet hiện có / ảnh bộ phận khác / khung trống)
+  const handleOpenSuggestPartStudio = useCallback(
+    async ({
+      partName,
+      sourceItem = null,
+      targetSize = null,
+      referenceLayers = null,
+      isExistingSlot = null,
+    }) => {
+      if (!partName || openingStudio) return;
+      const pObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+      if (!pObj) return;
+      setOpeningStudio(true);
+      try {
+        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
+        const allSources = [...rigPartSources, ...currentPetSuggestedSources];
+        const chosen = sourceItem || allSources[suggestSourceIdx] || allSources[0];
+        const frameSize =
+          targetSize ||
+          detail?.rig?.draftRig?.size || [
+            getStageImageSpec(selectedStageNum).recommended,
+            getStageImageSpec(selectedStageNum).recommended,
+          ];
+        const canvasImg = await loadAnyPetSourceToCanvas(chosen, api, frameSize);
+        const refs =
+          referenceLayers ?? editorCtrlRef.current?.buildReferenceLayersFor?.(partName) ?? [];
+        const slotExists =
+          isExistingSlot ?? Boolean(editorCtrlRef.current?.hasPartSlot?.(partName));
+
+        setPaintTarget({
+          mode: slotExists ? 'replace_part' : 'add_part',
+          part: partName,
+          partLabel: PART_VI_LABELS[partName] || partName,
+          petLabel: pObj.name,
+          stage: selectedStageNum,
+          image: canvasImg,
+          referenceLayers: refs,
+          initialDirty: true,
+          suggestedSources: allSources,
+        });
+      } catch (err) {
+        showToast(err.message || 'Không mở được ảnh gợi ý để cắt/vẽ.');
+      } finally {
+        setOpeningStudio(false);
+      }
+    },
+    [
+      openingStudio,
+      dynamicPetMap,
+      selectedPetId,
+      currentPetSuggestedSources,
+      suggestSourceIdx,
+      detail,
+      selectedStageNum,
+      api,
+      showToast,
+    ]
+  );
+
+  // Mở Studio cắt/vẽ để tạo ảnh Avatar tĩnh cho một cấp đang "Chưa có ảnh" ngay trên trang Tổng quan
+  const handleOpenOverviewAvatarStudio = useCallback(
+    async (petObjItem, stageNum) => {
+      if (!petObjItem || openingStudio) return;
+      setOpeningStudio(true);
+      try {
+        const spec = getStageImageSpec(stageNum);
+        const sources = collectPetSuggestedSources(petObjItem, stageNum, dynamicPetList, brokenImgs);
+        const primary = sources[0];
+        const canvasImg = await loadAnyPetSourceToCanvas(primary, api, [
+          spec.recommended,
+          spec.recommended,
+        ]);
+        setPaintTarget({
+          mode: 'avatar',
+          petId: petObjItem.id,
+          part: `c${stageNum}`,
+          partLabel: `Ảnh cấp C${stageNum}`,
+          petLabel: petObjItem.name,
+          stage: stageNum,
+          image: canvasImg,
+          referenceLayers: [],
+          initialDirty: true,
+          suggestedSources: sources,
+        });
+      } catch (err) {
+        showToast(err.message || 'Không mở được trình vẽ ảnh pet.');
+      } finally {
+        setOpeningStudio(false);
+      }
+    },
+    [openingStudio, dynamicPetList, brokenImgs, api, showToast]
+  );
+
   // ── Mount / unmount editor canvas engine ──
   useEffect(() => {
     if (!isEditorView || !hasRig || !editorRootRef.current) return;
 
-    const petObj = PET_REGISTRY[selectedPetId];
+    const petObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
     const ctrl = initEditor(editorRootRef.current, api, {
       apiBase: PET_MOTION_API_BASE,
       petId: selectedPetId,
@@ -455,7 +867,65 @@ export default function PetMotionPage() {
         });
       },
       onToast: showToast,
-      onEditPart: (payload) => setPaintTarget(payload),
+      onPartsChanged: () => {
+        const missing = editorCtrlRef.current?.getMissingParts?.() || [];
+        setMissingParts(missing);
+        if (missing.length > 0) {
+          setSuggestPartTarget((prev) =>
+            missing.some((m) => m.part === prev) ? prev : missing[0].part
+          );
+        }
+      },
+      onSuggestFromPet: (payload) => {
+        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
+        const pCurrent = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+        const petSources = collectPetSuggestedSources(
+          pCurrent,
+          selectedStageNum || 1,
+          dynamicPetList,
+          brokenImgs
+        );
+        const allSources = [...rigPartSources, ...petSources];
+        const firstNonBlank = allSources.find((s) => s.kind !== 'blank') || allSources[0];
+        loadAnyPetSourceToCanvas(
+          firstNonBlank,
+          api,
+          payload.targetSize || [
+            getStageImageSpec(selectedStageNum).recommended,
+            getStageImageSpec(selectedStageNum).recommended,
+          ]
+        )
+          .then((canvasImg) => {
+            setPaintTarget({
+              mode: payload.isExistingSlot ? 'replace_part' : 'add_part',
+              part: payload.part,
+              partLabel: payload.partLabel,
+              petLabel: payload.petLabel,
+              stage: payload.stage,
+              image: canvasImg,
+              referenceLayers: payload.referenceLayers || [],
+              initialDirty: true,
+              suggestedSources: allSources,
+            });
+          })
+          .catch((err) => showToast(err.message || 'Không tải được ảnh gợi ý của pet.'));
+      },
+      onEditPart: (payload) => {
+        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
+        const pCurrent = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+        const petSources = collectPetSuggestedSources(
+          pCurrent,
+          selectedStageNum || 1,
+          dynamicPetList,
+          brokenImgs
+        );
+        setPaintTarget({
+          mode: 'replace_part',
+          ...payload,
+          initialDirty: false,
+          suggestedSources: [...rigPartSources, ...petSources],
+        });
+      },
       onDataMutated: async ({ kind, scopeKey, clipName, updatedAt }) => {
         setDetail((prev) => {
           if (!prev) return prev;
@@ -493,13 +963,36 @@ export default function PetMotionPage() {
     });
 
     editorCtrlRef.current = ctrl;
-    ctrl.loadStageData({
-      petId: selectedPetId,
-      petLabel: petObj.name,
-      group: petObj.group,
-      stage: selectedStageNum,
-      detail,
-    });
+    ctrl
+      .loadStageData({
+        petId: selectedPetId,
+        petLabel: petObj.name,
+        group: petObj.group,
+        stage: selectedStageNum,
+        detail,
+      })
+      .then(() => {
+        const autoPart = pendingAutoOpenPartRef.current;
+        if (autoPart) {
+          pendingAutoOpenPartRef.current = null;
+          setSideTab('parts');
+          const loadedSources = ctrl.getLoadedPartSources?.() || [];
+          const bodyLoaded = loadedSources.find((s) => s.id === `rig-part-${autoPart}`);
+          if (bodyLoaded?.img) {
+            setPaintTarget({
+              mode: 'replace_part',
+              part: autoPart,
+              partLabel: PART_VI_LABELS[autoPart] || autoPart,
+              petLabel: petObj.name,
+              stage: selectedStageNum,
+              image: bodyLoaded.img,
+              referenceLayers: ctrl.buildReferenceLayersFor?.(autoPart) || [],
+              initialDirty: false,
+              suggestedSources: [...loadedSources, ...currentPetSuggestedSources],
+            });
+          }
+        }
+      });
 
     return () => {
       ctrl.destroy();
@@ -891,7 +1384,7 @@ export default function PetMotionPage() {
       if (rigFilter === 'has_rig' && !petHasAnyRig) return false;
       if (rigFilter === 'no_rig' && petHasAnyRig) return false;
       if (!searchQuery.trim()) return true;
-      const reg = PET_REGISTRY[p.petId];
+      const reg = dynamicPetMap[p.petId] || PET_REGISTRY[p.petId];
       const q = searchQuery.toLowerCase();
       return (
         p.petId.includes(q) ||
@@ -901,20 +1394,36 @@ export default function PetMotionPage() {
       );
     });
 
+    const handleConfirmDeletePet = async () => {
+      if (!deleteTarget || deletingPet) return;
+      setDeletingPet(true);
+      try {
+        await api.deletePet(deleteTarget.petId);
+        delete PET_REGISTRY[deleteTarget.petId];
+        showToast(`Đã xoá pet "${deleteTarget.name || deleteTarget.petId}".`);
+        setDeleteTarget(null);
+        await loadOverview();
+      } catch (err) {
+        showToast(err.message || 'Không xoá được pet.');
+      } finally {
+        setDeletingPet(false);
+      }
+    };
+
     return (
       <div className="pm-admin fade-in">
         <div className="pm-header">
           <div>
-            <h1>Kho Pet · Rig &amp; Động tác</h1>
+            <h1>Quản lý Pet · Rig &amp; Động tác</h1>
             <p className="pm-sub">
-              Hiển thị ảnh mặc định của toàn bộ {overview?.totalPets || PET_LIST.length} loài pet × 5 cấp. Bạn có thể bổ sung ảnh trực tiếp trên từng thẻ và bấm <strong>Rig</strong> hoặc <strong>Motion</strong> ngay bên dưới ảnh.
+              Quản lý toàn bộ {overview?.totalPets || dynamicPetList.length} loài pet × 5 cấp: thêm pet mới, sửa thông tin, tải ảnh 5 cấp và chỉnh <strong>Rig</strong> / <strong>Motion</strong> trực tiếp.
             </p>
           </div>
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-2 align-items-center flex-wrap">
             <input
               type="search"
               className="form-control form-control-sm"
-              style={{ width: 220 }}
+              style={{ width: 200 }}
               placeholder="Tìm tên pet, loài…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -922,10 +1431,18 @@ export default function PetMotionPage() {
             <button
               type="button"
               className="pm-btn primary"
+              onClick={() => setPetModal({ open: true, mode: 'create', pet: null })}
+              title="Tạo loài pet mới và tải lên ảnh 5 cấp"
+            >
+              + Thêm Pet mới
+            </button>
+            <button
+              type="button"
+              className="pm-btn"
               onClick={() => openStudyPreview('bamboo_spirit', 1)}
               title="Mở phòng thử nghiệm ở nhà, bài học và trận đấu bằng PetRig thật"
             >
-              🧪 Xem trước khi học
+              🧪 Xem trước
             </button>
             <button type="button" className="pm-btn" onClick={loadOverview} disabled={overviewLoading}>
               Tải lại
@@ -984,7 +1501,7 @@ export default function PetMotionPage() {
         ) : (
           <div className="pm-deck-list">
             {filteredPets.map((row) => {
-              const reg = PET_REGISTRY[row.petId];
+              const reg = dynamicPetMap[row.petId] || PET_REGISTRY[row.petId];
               const grpLabel = GROUPS[row.group]?.labelVi || row.group;
               const elem = ELEMENT_COLORS[row.element];
               const rarityKey = RARITY_ALIASES[row.rarity] || row.rarity;
@@ -998,7 +1515,8 @@ export default function PetMotionPage() {
                     <div className="pm-pet-deck-title">
                       <span style={{ fontSize: '1.25rem' }}>{reg?.emoji || '🐾'}</span>
                       <h3>{reg?.name || row.petId}</h3>
-                      <span className="small text-muted">({reg?.species})</span>
+                      <span className="small text-muted">({reg?.species || row.petId})</span>
+                      {row.isCustom && <span className="pm-badge ok">Mới</span>}
                       {elem && (
                         <span
                           className="pm-badge"
@@ -1010,8 +1528,28 @@ export default function PetMotionPage() {
                       <span className="pm-badge none">{grpLabel}</span>
                       <span className="pm-badge none">{rarityLabel}</span>
                     </div>
-                    <div className="small text-muted fw-semibold">
-                      Rig: <strong>{rigCount}/5</strong> · Động tác duyệt: <strong>{clipSum}</strong>
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <span className="small text-muted fw-semibold">
+                        Rig: <strong>{rigCount}/5</strong> · Duyệt: <strong>{clipSum}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        className="pm-btn pm-btn-sm"
+                        onClick={() => setPetModal({ open: true, mode: 'edit', pet: reg || { id: row.petId, ...row } })}
+                        title="Sửa tên, hệ, mô tả và tải lên ảnh 5 cấp"
+                      >
+                        ✏️ Sửa
+                      </button>
+                      {row.isCustom && (
+                        <button
+                          type="button"
+                          className="pm-btn pm-btn-sm text-danger"
+                          onClick={() => setDeleteTarget({ petId: row.petId, name: reg?.name || row.petId })}
+                          title="Xoá pet tự thêm này"
+                        >
+                          🗑️ Xoá
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -1082,6 +1620,42 @@ export default function PetMotionPage() {
                               </div>
                             )}
 
+                            {isBroken && !isUploading && (
+                              <button
+                                type="button"
+                                className="pm-btn pm-btn-sm"
+                                style={{
+                                  position: 'absolute',
+                                  top: 6,
+                                  right: 6,
+                                  minHeight: 24,
+                                  padding: '1px 7px',
+                                  fontSize: '0.7rem',
+                                  background: '#fffbeb',
+                                  borderColor: '#f59e0b',
+                                  color: '#92400e',
+                                  zIndex: 2,
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenOverviewAvatarStudio(
+                                    reg || { id: row.petId, ...row },
+                                    s
+                                  );
+                                }}
+                                title="Lấy ảnh hiện có của pet (từ cấp khác hoặc phôi mẫu) để họa sĩ tự cắt / tự vẽ lại cho cấp này"
+                              >
+                                {[1, 2, 3, 4, 5].some(
+                                  (os) =>
+                                    os !== s &&
+                                    !brokenImgs[`${row.petId}/c${os}`] &&
+                                    (row.stages[`c${os}`]?.avatarUrl || reg?.evolutions?.[os - 1]?.image)
+                                )
+                                  ? '✂️ Lấy ảnh pet'
+                                  : '🎨 Tự vẽ / Mẫu'}
+                              </button>
+                            )}
+
                             <label
                               className={`pm-avatar-upload-pill ${isBroken ? 'always' : ''}`}
                               onClick={(e) => e.stopPropagation()}
@@ -1137,14 +1711,74 @@ export default function PetMotionPage() {
           </div>
         )}
 
+        <PetFormModal
+          open={petModal.open}
+          mode={petModal.mode}
+          initialPet={petModal.pet}
+          api={api}
+          onClose={() => setPetModal({ open: false, mode: 'create', pet: null })}
+          onSaved={() => {
+            setBrokenImgs({});
+            loadOverview();
+          }}
+          onToast={showToast}
+        />
+
+        {deleteTarget && (
+          <div className="cowdi-mini-modal-backdrop" onClick={() => !deletingPet && setDeleteTarget(null)}>
+            <div className="cowdi-mini-modal" style={{ maxWidth: 420 }} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+              <h5 className="fw-bold mb-2 text-danger">Xoá pet &ldquo;{deleteTarget.name}&rdquo;?</h5>
+              <p className="small text-muted mb-3">
+                Thao tác này sẽ xoá thông tin pet <code>{deleteTarget.petId}</code> cùng toàn bộ ảnh avatar, rig và động tác nháp/duyệt của pet này. Không thể hoàn tác.
+              </p>
+              <div className="d-flex justify-content-end gap-2">
+                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setDeleteTarget(null)} disabled={deletingPet}>
+                  Huỷ
+                </button>
+                <button type="button" className="btn btn-sm btn-danger" onClick={handleConfirmDeletePet} disabled={deletingPet}>
+                  {deletingPet ? 'Đang xoá…' : 'Xác nhận xoá'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {paintTarget && (
+          <PartPaintModal
+            part={paintTarget.part}
+            partLabel={paintTarget.partLabel}
+            petLabel={paintTarget.petLabel}
+            stage={paintTarget.stage}
+            image={paintTarget.image}
+            referenceLayers={paintTarget.referenceLayers || []}
+            initialDirty={Boolean(paintTarget.initialDirty)}
+            suggestedSources={paintTarget.suggestedSources || []}
+            onLoadSuggestedSource={(srcItem) => loadAnyPetSourceToCanvas(srcItem, api)}
+            saving={paintSaving}
+            onClose={() => !paintSaving && setPaintTarget(null)}
+            onSave={async (file) => {
+              if (!paintTarget) return;
+              setPaintSaving(true);
+              try {
+                if (paintTarget.mode === 'avatar') {
+                  await handleUploadStageAvatar(paintTarget.petId, paintTarget.stage, file);
+                  setPaintTarget(null);
+                }
+              } finally {
+                setPaintSaving(false);
+              }
+            }}
+          />
+        )}
+
         {toastMsg && <div className="pm-toast" role="status">{toastMsg}</div>}
       </div>
     );
   }
 
   // ── Render 2: Bàn dựng + Duyệt cho pet-cấp đang chọn ──
-  const petObj = PET_REGISTRY[selectedPetId];
-  const stageEvo = petObj.evolutions[selectedStageNum - 1];
+  const petObj = dynamicPetMap[selectedPetId] || PET_REGISTRY[selectedPetId];
+  const stageEvo = petObj?.evolutions?.[selectedStageNum - 1];
   const isClipApproved = Boolean(detail?.approvals?.[clip]?.approved);
   const approvedCount = Object.values(detail?.approvals || {}).filter((a) => a.approved).length;
   const sharedClipEntry = detail?.clips?.shared?.[clip];
@@ -1165,7 +1799,7 @@ export default function PetMotionPage() {
       <div className="pm-toolbar">
         <div className="pm-row">
           <button type="button" className="pm-btn" onClick={backToOverview}>
-            ← Tổng quan {PET_LIST.length} pet
+            ← Quản lý {dynamicPetList.length} pet
           </button>
           <select
             className="pm-select"
@@ -1173,7 +1807,7 @@ export default function PetMotionPage() {
             value={selectedPetId}
             onChange={(e) => openPetStage(e.target.value, selectedStageNum)}
           >
-            {PET_LIST.map((p) => (
+            {dynamicPetList.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} ({p.species})
               </option>
@@ -1261,7 +1895,33 @@ export default function PetMotionPage() {
           pet={petObj}
           stage={selectedStageNum}
           api={api}
-          onCreated={() => loadDetail(selectedPetId, selectedStageNum)}
+          suggestedSources={currentPetSuggestedSources}
+          onOpenStudioForItem={async (item, onUpdateItem) => {
+            try {
+              const canvasImg = await loadAnyPetSourceToCanvas({ file: item.file }, api);
+              setPaintTarget({
+                mode: 'rig_creator_item',
+                itemId: item.id,
+                onUpdateItem,
+                part: item.part || 'body',
+                partLabel: PART_VI_LABELS[item.part] || item.part || item.file.name,
+                petLabel: petObj.name,
+                stage: selectedStageNum,
+                image: canvasImg,
+                referenceLayers: [],
+                initialDirty: false,
+                suggestedSources: currentPetSuggestedSources,
+              });
+            } catch (err) {
+              showToast(err.message || 'Không mở được ảnh để cắt/vẽ.');
+            }
+          }}
+          onCreated={async (opts) => {
+            if (opts?.autoOpenPart) {
+              pendingAutoOpenPartRef.current = opts.autoOpenPart;
+            }
+            await loadDetail(selectedPetId, selectedStageNum);
+          }}
           onToast={showToast}
         />
       ) : (
@@ -1542,6 +2202,85 @@ export default function PetMotionPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Đề xuất lấy ảnh hiện có của pet để họa sĩ tự cắt bộ phận hoặc vẽ lại */}
+                  {!learnerPreview && (
+                    <div
+                      className="mt-2 p-2 rounded-3"
+                      style={{
+                        background: missingParts.length > 0 ? '#fffbeb' : '#f4faf6',
+                        border:
+                          missingParts.length > 0
+                            ? '1px solid #f59e0b'
+                            : '1px dashed #a7d7b5',
+                      }}
+                    >
+                      <div
+                        className="small fw-bold mb-1"
+                        style={{
+                          fontSize: '0.76rem',
+                          color: missingParts.length > 0 ? '#92400e' : '#1b4332',
+                        }}
+                      >
+                        {missingParts.length > 0
+                          ? `✂️ Đang thiếu ảnh (${missingParts.map((m) => m.part).join(', ')}) — lấy ảnh hiện có của ${petObj.name} để tự cắt / vẽ lại:`
+                          : `✂️ Tách thêm bộ phận / vẽ lại từ ảnh hiện có của ${petObj.name}:`}
+                      </div>
+                      {(() => {
+                        const rigPartSources = editorCtrlRef.current?.getLoadedPartSources?.() || [];
+                        const allEditorSources = [...rigPartSources, ...currentPetSuggestedSources];
+                        const clampedIdx = Math.min(suggestSourceIdx, Math.max(0, allEditorSources.length - 1));
+                        return (
+                          <div className="d-flex flex-wrap gap-1 align-items-center">
+                            <select
+                              className="pm-select"
+                              style={{ minHeight: 28, fontSize: '0.75rem', flex: '1 1 170px', maxWidth: '100%' }}
+                              aria-label="Chọn ảnh nguồn hiện có của pet"
+                              value={clampedIdx}
+                              disabled={openingStudio}
+                              onChange={(e) => setSuggestSourceIdx(Number(e.target.value))}
+                            >
+                              {allEditorSources.map((src, idx) => (
+                                <option key={src.id || idx} value={idx}>
+                                  {src.label}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              className="pm-select"
+                              style={{ minHeight: 28, fontSize: '0.75rem' }}
+                              aria-label="Chọn bộ phận đích để cắt hoặc vẽ"
+                              value={suggestPartTarget}
+                              disabled={openingStudio}
+                              onChange={(e) => setSuggestPartTarget(e.target.value)}
+                            >
+                              {Object.entries(PART_VI_LABELS).map(([k, label]) => (
+                                <option key={k} value={k}>
+                                  → {label}
+                                  {missingParts.some((m) => m.part === k) ? ' (chưa có ảnh)' : ''}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              className={`pm-btn pm-btn-sm ${missingParts.length > 0 ? 'warn' : 'primary'}`}
+                              style={{ minHeight: 28, fontSize: '0.76rem' }}
+                              disabled={openingStudio}
+                              onClick={() =>
+                                handleOpenSuggestPartStudio({
+                                  partName: suggestPartTarget,
+                                  sourceItem: allEditorSources[clampedIdx],
+                                })
+                              }
+                              title="Mở ảnh pet hiện có trong Studio (dùng Khoanh chọn + Giữ vùng chọn để tách bộ phận hoặc làm phôi mờ vẽ lại)"
+                            >
+                              {openingStudio ? 'Đang mở…' : '✂️ Mở Studio cắt / vẽ'}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                   <div className="pm-nums" data-pm="nums" />
                 </div>
 
@@ -1736,7 +2475,7 @@ export default function PetMotionPage() {
                                       onClick={() => handleUpdateEmoji({ enabled: true, imageUrl: item.url, char: '' })}
                                       title={item.name}
                                     >
-                                      <img src={`${PET_MOTION_API_BASE}${item.url}`} alt={item.name} />
+                                      <img src={`${PET_MOTION_API_BASE}${normalizeApiAssetUrl(item.url)}`} alt={item.name} />
                                     </button>
                                     {!learnerPreview && (
                                       <button
@@ -1834,15 +2573,28 @@ export default function PetMotionPage() {
           petLabel={paintTarget.petLabel}
           stage={paintTarget.stage}
           image={paintTarget.image}
-          referenceLayers={paintTarget.referenceLayers}
+          referenceLayers={paintTarget.referenceLayers || []}
+          initialDirty={Boolean(paintTarget.initialDirty)}
+          suggestedSources={paintTarget.suggestedSources || []}
+          onLoadSuggestedSource={(srcItem) => loadAnyPetSourceToCanvas(srcItem, api)}
           saving={paintSaving}
           onClose={() => !paintSaving && setPaintTarget(null)}
           onSave={async (file) => {
-            if (!editorCtrlRef.current || !paintTarget) return;
+            if (!paintTarget) return;
             setPaintSaving(true);
             try {
-              const ok = await editorCtrlRef.current.replacePartFile(paintTarget.part, file);
-              if (ok) setPaintTarget(null);
+              if (paintTarget.mode === 'rig_creator_item' && paintTarget.onUpdateItem) {
+                const dims = await readImageDimensions(file).catch(() => ({ width: 512, height: 512 }));
+                paintTarget.onUpdateItem(paintTarget.itemId, file, dims.width, dims.height);
+                setPaintTarget(null);
+                showToast(`Đã cập nhật ảnh cắt/vẽ cho "${paintTarget.partLabel}".`);
+              } else if (paintTarget.mode === 'add_part' && editorCtrlRef.current) {
+                const ok = await editorCtrlRef.current.addPart(paintTarget.part, file);
+                if (ok) setPaintTarget(null);
+              } else if (editorCtrlRef.current) {
+                const ok = await editorCtrlRef.current.replacePartFile(paintTarget.part, file);
+                if (ok) setPaintTarget(null);
+              }
             } finally {
               setPaintSaving(false);
             }

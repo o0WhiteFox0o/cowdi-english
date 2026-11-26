@@ -102,27 +102,27 @@ h2,
 
 h1,
 .h1 {
-  font-size: 2.4rem;
+  font-size: 1.85rem;
 }
 
 h2,
 .h2 {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 h3,
 .h3 {
-  font-size: 1.65rem;
+  font-size: 1.28rem;
 }
 
 h4,
 .h4 {
-  font-size: 1.4rem;
+  font-size: 1.14rem;
 }
 
 h5,
 .h5 {
-  font-size: 1.25rem;
+  font-size: 1.04rem;
 }
 
 .text-muted {
@@ -179,7 +179,7 @@ h5,
 .book-shell {
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 18px 38px 60px;
+  padding: 10px 34px 28px;
   display: flex;
   justify-content: center;
   position: relative;
@@ -190,14 +190,14 @@ h5,
   position: relative;
   width: 100%;
   min-width: 0;
-  max-width: 1440px;
+  max-width: 1380px;
   display: flex;
-  border-radius: 26px;
+  border-radius: 22px;
   background: var(--tex-leather);
   box-shadow:
-    0 30px 60px rgba(30, 60, 90, 0.35),
+    0 20px 44px rgba(30, 60, 90, 0.3),
     0 0 0 2px rgba(255, 255, 255, 0.08) inset;
-  padding: 16px;
+  padding: 12px;
   gap: 0;
 }
 
@@ -238,12 +238,12 @@ h5,
 
 /* Left page — nav */
 .book-side {
-  width: 268px;
+  width: 232px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px 14px 18px 16px;
+  gap: 8px;
+  padding: 12px 10px 12px 12px;
   position: relative;
   z-index: 2;
   background: var(--paper);
@@ -314,7 +314,7 @@ h5,
     inset 22px 0 30px -24px rgba(40, 60, 90, 0.35),
     /* gutter shadow */
     0 3px 8px rgba(0, 0, 0, 0.25);
-  padding: 22px 34px 40px 30px;
+  padding: 14px 24px 24px 22px;
   display: flex;
   flex-direction: column;
 }
@@ -429,36 +429,36 @@ h5,
 }
 
 /* ============================================
-   SIDEBAR — brand label (brass name-plate)
+   SIDEBAR — compact brand label (brass name-plate)
    ============================================ */
 .book-plaque {
-  margin: 0 4px;
-  padding: 12px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 2px 4px;
+  padding: 8px 10px;
   background: linear-gradient(180deg, #F6E1A2, var(--brass) 55%, var(--brass-dark));
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow:
     0 0 0 2px var(--brass-dark) inset,
-    0 0 0 4px #F6E1A2 inset,
-    0 4px 10px rgba(0, 0, 0, 0.25);
-  text-align: center;
+    0 0 0 3px #F6E1A2 inset,
+    0 3px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
   color: #4a3410;
   position: relative;
-  transform: rotate(-7deg);
-  margin: 8px 10px 4px;
 }
 
-.book-plaque small {
-  display: block;
-  font-family: var(--font-hand);
-  font-size: 0.85rem;
-  opacity: .85;
-  letter-spacing: .04em;
+.book-plaque-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.05;
 }
 
 .book-plaque strong {
   display: block;
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: 1.35rem;
   line-height: 1.05;
   font-weight: 400;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -468,15 +468,86 @@ h5,
   display: block;
   font-family: var(--font-brush);
   font-style: normal;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   opacity: .9;
 }
 
 .book-plaque img {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .22));
+}
+
+/* ── Compact sidebar utilities & popups (low-frequency features) ── */
+.book-side-footer {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px dashed var(--paper-line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.book-side-popup {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  background: var(--paper-2);
+  border: 2px solid var(--paper-line);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(30, 50, 75, 0.24);
+  padding: 8px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 65dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.book-side-popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px 6px;
+  border-bottom: 1px dashed var(--paper-line);
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.book-mascot-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 2px solid #e6d78f;
+  background: #fff9d6;
+  color: #5a4a1a;
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.book-mascot-mini img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.book-mascot-mini span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ============================================
@@ -584,7 +655,7 @@ h5,
   flex-shrink: 0;
 }
 
-/* ── Floating invite button (mobile — stacked cleanly above CowdiChat) ── */
+/* ── Floating invite button (mobile) ── */
 .cowdi-invite-fab {
   position: fixed;
   right: 14px;
@@ -1189,22 +1260,6 @@ hr {
   color: var(--leaf) !important;
 }
 
-/* Cowdi floating chat → paper bubble */
-.cowdi-chat-btn {
-  background: radial-gradient(circle at 30% 30%, var(--leaf), var(--leaf-dark));
-  box-shadow: 0 0 0 3px #fff, 0 6px 14px rgba(0, 0, 0, 0.3);
-}
-
-.cowdi-chat-bubble {
-  background: #fff7c2;
-  border-left: none;
-  border: 1px solid #e6d78f;
-  color: #5a4a1a;
-  font-family: var(--font-hand);
-  font-size: 1.05rem;
-  transform: rotate(-12deg);
-}
-
 /* Toasts */
 .toast-container-fixed .toast,
 .toast-container-fixed .alert {
@@ -1527,19 +1582,6 @@ hr {
     background: var(--leaf-pale);
     color: var(--leaf-dark);
   }
-
-  .cowdi-chat-btn {
-    right: 12px !important;
-    bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
-    width: 52px;
-    height: 52px;
-  }
-
-  .cowdi-chat-bubble {
-    right: 12px !important;
-    bottom: calc(144px + env(safe-area-inset-bottom, 0px)) !important;
-    max-width: min(280px, calc(100vw - 24px));
-  }
 }
 
 /* Tighter desktop when the viewport is not very wide */
@@ -1560,22 +1602,23 @@ hr {
   background: rgba(255, 255, 255, 0.92);
   border: 2px solid var(--paper-line);
   border-radius: var(--radius-card);
-  box-shadow: 0 3px 0 var(--paper-line);
-  padding: 12px 14px;
+  box-shadow: 0 2px 0 var(--paper-line);
+  padding: 8px 12px;
 }
 
 .lesson-steps-bar {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   font-family: var(--font-hand);
+  font-size: .88rem;
   color: var(--ink-soft);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .lesson-steps-bar .book-bar {
-  height: 12px;
+  height: 8px;
 }
 
 .lesson-steps-bar .book-bar>i {
@@ -1619,10 +1662,10 @@ hr {
 .lesson-step-item+.lesson-step-item .lesson-step::before {
   content: '';
   position: absolute;
-  top: 24px;
+  top: 19px;
   right: 50%;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: var(--paper-line);
   z-index: 0;
 }
@@ -1633,15 +1676,15 @@ hr {
 }
 
 .lesson-step-dot {
-  width: 46px;
-  height: 46px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid var(--paper-line);
+  border: 2.5px solid var(--paper-line);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 0 var(--paper-line);
+  box-shadow: 0 2px 0 var(--paper-line);
   position: relative;
   z-index: 1;
   transition: transform .15s;
@@ -1742,14 +1785,6 @@ hr {
 
   body:has(.lesson-step-footer) .cowdi-invite-fab {
     display: none;
-  }
-
-  body:has(.lesson-step-footer) .cowdi-chat-btn {
-    bottom: calc(158px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  body:has(.lesson-step-footer) .cowdi-chat-bubble {
-    bottom: calc(218px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 

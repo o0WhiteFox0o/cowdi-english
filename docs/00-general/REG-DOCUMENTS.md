@@ -1,6 +1,6 @@
 # REG-DOCUMENTS — Sổ đăng ký Tài liệu (Document Register)
 
-> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-24
+> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-26
 
 > Mọi tài liệu mới, đổi phiên bản hoặc đổi trạng thái đều phải cập nhật vào sổ này. Cột **Thay cho** giữ tên file cũ để truy cứu link lịch sử.
 
@@ -52,7 +52,9 @@
 | SDD | Đặc tả chiến đấu pet v2 (tài liệu nguồn) | [SDD-PET-BATTLE-SPEC-v2.0.docx](../04-design/SDD-PET-BATTLE-SPEC-v2.0.docx) | 2.0 | Superseded bởi v2.1 khi mâu thuẫn | docs/Dac-ta-chien-dau-pet-Cowdi-v2.docx |
 | SDD | Nhận xét & tinh chỉnh hệ thống tương khắc (GĐ2) | [nhan-xet-he-thong-tuong-khac.md](../04-design/nhan-xet-he-thong-tuong-khac.md) | sống | Approved | (mới 2026-11-23) |
 | SDD | **Tách lộ trình học thành 3 nhóm người học (Mới học · Trung bình · Luyện thi)** | [SDD-LEARNING-GROUPS-v2.0.md](../04-design/SDD-LEARNING-GROUPS-v2.0.md) | 2.0 | Approved | GEMINI-LEARNING-GROUPS.md (Bản 2) |
-| SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (mới 2026-11-24) |
+| SDD | **Quản lý Pet (từ Pet Motion) & Tối ưu UI/UX Zero-Scroll Quiz** | [SDD-PET-MANAGEMENT-v1.0.md](../04-design/SDD-PET-MANAGEMENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24 — mở rộng `PET-MOTION.md`) |
+| SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (cập nhật 2026-11-25: liên kết Pet Director V2) |
+| SDD | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet (GĐ 1–2)** | [SDD-PET-DIRECTOR-v1.1.md](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [Mockups](../04-design/pet-director-mockups/) | 1.1.1 | Approved (Đã triển khai GĐ 1–2) | (cập nhật 2026-11-26: bố cục đồng hành V2 & cân bằng đa màn hình) |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
 | ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
 | WRD | Sơ đồ quan hệ web & phân hệ | [WRD-COWDI-v1.0.md](../04-design/WRD-COWDI-v1.0.md) | 1.0 | Approved | WEB-RELATIONSHIP-DIAGRAM-v1.0.md |
@@ -60,13 +62,16 @@
 | SDD | Thiết kế lại XP | [SDD-XP-REDESIGN-v1.0.md](../04-design/SDD-XP-REDESIGN-v1.0.md) | 1.0 | Superseded một phần (ví XP → Sữa) | XP-REDESIGN-2026-05.md |
 | SDD | Duel kiểu Pokémon | [SDD-DUEL-BATTLE-v1.0.md](../04-design/SDD-DUEL-BATTLE-v1.0.md) | 1.0 | Superseded một phần (công thức trận) | DUEL-BATTLE-DESIGN.md |
 | SDD | Gửi trứng pet cho bạn (Invite) | [SDD-INVITE-v1.0.md](../04-design/SDD-INVITE-v1.0.md) | 1.0 | Approved | INVITE-FEATURE-DESIGN.md |
+| SRS | **Phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, tìm email, quét QR, lộ trình)** | [SRS-FRIENDS-v1.1.md](../04-design/SRS-FRIENDS-v1.1.md) | 1.1.1 | Approved (Đã triển khai) | (cập nhật 2026-11-25) |
 | SDD | Share không làm phiền | [SDD-SHARE-v1.0.md](../04-design/SDD-SHARE-v1.0.md) | 1.0 | Approved | SHARE-FEATURE-DESIGN.md |
 | SDD | Tương tác pet (roadmap) | [SDD-PET-INTERACTION-v1.0.md](../04-design/SDD-PET-INTERACTION-v1.0.md) · [PDF](../04-design/SDD-PET-INTERACTION-v1.0.pdf) | 1.0 | Approved | PET-INTERACTION-REDESIGN |
 | SDD | Kinh tế v2: Đề xuất vật phẩm cửa hàng (Giữ nhịp) | [de-xuat-vat-pham-cua-hang-v2.md](../04-design/economy-v2/de-xuat-vat-pham-cua-hang-v2.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Lộ trình kiếm tiền & gói trả phí | [lo-trinh-kiem-tien-v2.md](../04-design/economy-v2/lo-trinh-kiem-tien-v2.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất trang trí nền & hào quang | [de-xuat-trang-tri-nen-hao-quang.md](../04-design/economy-v2/de-xuat-trang-tri-nen-hao-quang.md) | 2.0 | Approved | — |
 | SDD | Kinh tế v2: Đề xuất Đấu trường & quà tặng | [de-xuat-dau-truong-va-qua-tang.md](../04-design/economy-v2/de-xuat-dau-truong-va-qua-tang.md) | 2.0 | Approved | — |
-| SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.0 | Approved | — |
+| SDD | Kinh tế v2: Đề xuất Gacha v2 | [de-xuat-gacha-v2.md](../04-design/economy-v2/de-xuat-gacha-v2.md) | 2.1 | Approved (đã đồng bộ v0.3 2026-11-25) | — |
+| SDD | **Kinh tế v2: Thưởng mời bạn & điều chỉnh Gacha v2 (bỏ Bụi sao, quà trùng, Cowdi)** | [REFERRAL-GACHA-TICKET.md](../04-design/economy-v2/REFERRAL-GACHA-TICKET.md) | 0.3 | Approved (đã đồng bộ vào `de-xuat-gacha-v2.md`) | (mới 2026-11-25) |
+| REF | Kinh tế v2: Phương án Bạn bè & Mời qua Zalo/FB (định hướng tham khảo) | [FRIENDS-REFERRAL-PLAN-tham-khao.md](../04-design/economy-v2/FRIENDS-REFERRAL-PLAN-tham-khao.md) | 0.1 | Reference (kỹ thuật thay bởi SRS-FRIENDS v1.1) | (mới 2026-11-25) |
 | SPEC | Kinh tế v2: Lệnh mô phỏng cân bằng hệ tương khắc | [lenh-claude-code-2-can-bang-he-tuong-khac.md](../04-design/economy-v2/lenh-claude-code-2-can-bang-he-tuong-khac.md) | 2.0 | Approved | — |
 
 ## 05 — Triển khai mã & Hướng dẫn người vận hành (ISO/IEC/IEEE 12207 & 26514)
@@ -83,16 +88,22 @@
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |
 | REG | **Danh mục & bàn giao tạo bộ Icon UI thay thế Emoji (+ CSV prompt batch)** | [REG-UI-ICONS.md](../05-implementation/REG-UI-ICONS.md) · [CSV](../05-implementation/REG-UI-ICONS-PROMPTS.csv) | sống | Ready to Assign | (mới 2026-11-24) |
 | STD | **Chuẩn nội dung bài học 3 cấp (Starter / Intermediate / Exam)** | [STD-LESSON-CONTENT-v1.0.md](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
+| STD | **Chuẩn chất lượng & rà soát câu hỏi trắc nghiệm (5 luật cứng, 14 mã validator)** | [STD-QUESTION-QUALITY-v1.0.md](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) | 1.0 | Approved | (mới 2026-11-26) |
 | GDE | **Đối chiếu bài học v2 với UI hiện tại & 10 đầu việc sửa UI (`U1–U10`)** | [MAP-CURRENT-UI.md](../05-implementation/content/MAP-CURRENT-UI.md) | sống | Approved | (mới 2026-11-24) |
 | PROMP | Hướng dẫn prompt soạn/nâng cấp nội dung bài học (Gemini) | [PROMPT-GEMINI-CONTENT.md](../05-implementation/content/PROMPT-GEMINI-CONTENT.md) | sống | Approved | (mới 2026-11-24) |
 | CHK | Danh sách kiểm tra chất lượng khi duyệt bài học | [CHK-LESSON-REVIEW.md](../05-implementation/content/CHK-LESSON-REVIEW.md) | sống | Approved | (mới 2026-11-24) |
 | TPL | Bộ mẫu brief & khung dữ liệu bài học 3 cấp (+ brief mẫu `int-u1`) | [content/README.md](../05-implementation/content/README.md) · [STARTER](../05-implementation/content/TPL-STARTER.md) · [INTERMEDIATE](../05-implementation/content/TPL-INTERMEDIATE.md) · [EXAM](../05-implementation/content/TPL-EXAM.md) · [int-u1](../05-implementation/content/briefs/int-u1.md) | 1.0 | Approved | (mới 2026-11-24) |
+| TASK | **Nhiệm vụ triển khai Bạn bè & Thưởng mời bạn (8 bước 0–7)** | [TASK-FRIENDS.md](../05-implementation/TASK-FRIENDS.md) | 2.0 | Done (gộp `main`) | (hoàn thành 2026-11-25) |
+| RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Approved | (mới 2026-11-25) |
+| TASK | **Kế hoạch & Checklist triển khai Pet Director V2 (Gói A–E, GĐ 1–2)** | [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) | 1.1 | Done (gộp `main`) | (hoàn thành 2026-11-26) |
+| RPT | **Báo cáo khảo sát mã nguồn Pet Director V2 & Tích hợp Pet-motion** | [RPT-PET-DIRECTOR-SURVEY.md](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) | — | Approved | (mới 2026-11-25) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |
 |---|---|---|---|---|---|
 | STP | **Kế hoạch kiểm thử tổng thể (IEEE 29119-3)** | [STP-COWDI-v1.0.md](../06-verification-validation/STP-COWDI-v1.0.md) | 1.0 | Approved | STP-COWDI-v0.1.md |
 | RPT | **Báo cáo kiểm tra nội dung 206 bài học hiện có (+ 3 bài golden v2)** | [RPT-LESSON-CONTENT-2026-11-24.md](../06-verification-validation/RPT-LESSON-CONTENT-2026-11-24.md) | — | Approved | (mới 2026-11-24) |
+| RPT | **Báo cáo rà soát chất lượng ngân hàng câu hỏi (2.829 câu · 0 lỗi cứng · 54/54 bài v2 0 cảnh báo)** | [RPT-QUESTION-AUDIT-2026-11-26.md](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | — | Approved | (mới 2026-11-26) |
 | RPT | **Báo cáo mô phỏng cân bằng Chiến đấu v2 (6 CSV)** | [BALANCE-REPORT-v2.md](../06-verification-validation/balance-v2/BALANCE-REPORT-v2.md) | — | Approved | (mới 2026-11-23) |
 | RPT | Đánh giá dự án (24/04/2026) | [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) | — | Approved | EVALUATION-2026-04.md |
 | RPT | Cơ chế tính điểm (23/04/2026) | [RPT-SCORING-2026-04-23.md](../06-verification-validation/RPT-SCORING-2026-04-23.md) | — | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | SCORING-REPORT.md |

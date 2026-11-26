@@ -2,9 +2,10 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
 import BookShell from './components/layout/BookShell';
 import ErrorBoundary from './components/layout/ErrorBoundary';
-import CowdiChat from './components/layout/CowdiChat';
+import { PetDirectorProvider } from './pet-director/DirectorContext';
 import { ToastProvider } from './components/layout/Toast';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import InviteRewardNotice from './features/invite/InviteRewardNotice';
 import RequireAdmin from './components/RequireAdmin';
 import { SoundProvider } from './hooks/useSound';
 import LearningPathPage from './pages/LearningPathPage';
@@ -30,6 +31,8 @@ const AdminPage           = lazy(() => import('./pages/AdminPage'));
 const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage'));
 const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
+const FriendsPage         = lazy(() => import('./pages/FriendsPage'));
+const FriendPetPage       = lazy(() => import('./pages/FriendPetPage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
 const PlacementTest       = lazy(() => import('./features/placement/PlacementTest'));
 
@@ -65,6 +68,7 @@ export default function App() {
   return (
     <SoundProvider>
     <ToastProvider>
+    <PetDirectorProvider>
       <BookShell>
         <main className="book-main">
           <ErrorBoundary>
@@ -93,6 +97,8 @@ export default function App() {
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/friends" element={<FriendsPage />} />
+            <Route path="/friends/:userId" element={<FriendPetPage />} />
             <Route path="/auth-callback" element={<AuthCallbackPage />} />
             <Route path="/i/:code" element={<InvitePage />} />
             <Route path="*" element={<LearningPathPage />} />
@@ -101,8 +107,9 @@ export default function App() {
         </ErrorBoundary>
         </main>
       </BookShell>
-      <CowdiChat />
+      <InviteRewardNotice />
       <PWAInstallPrompt />
+    </PetDirectorProvider>
     </ToastProvider>
     </SoundProvider>
   );

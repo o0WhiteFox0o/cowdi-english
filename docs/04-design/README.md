@@ -12,12 +12,14 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [Cowdi_English_Physical_ERD_v1.0.xlsx](Cowdi_English_Physical_ERD_v1.0.xlsx) — Sổ dữ liệu Excel đặc tả ERD vật lý từng bảng (Data Dictionary)
 - [images/cowdi-erd-physical-v1.0.png](images/cowdi-erd-physical-v1.0.png) — Ảnh sơ đồ ERD vật lý độ phân giải cao
 - [SDD-INVITE-v1.0.md](SDD-INVITE-v1.0.md)
+- [SRS-FRIENDS-v1.1.md](SRS-FRIENDS-v1.1.md) — **Đặc tả phân hệ Bạn bè & Thưởng mời bạn (OG, thưởng học thật, bạn bè, thăm pet, lộ trình)**
 - [SDD-PET-INTERACTION-v1.0.md](SDD-PET-INTERACTION-v1.0.md)
 - [SDD-PET-INTERACTION-v1.0.pdf](SDD-PET-INTERACTION-v1.0.pdf)
 - [SDD-SHARE-v1.0.md](SDD-SHARE-v1.0.md)
 - [SDD-XP-REDESIGN-v1.0.md](SDD-XP-REDESIGN-v1.0.md)
 - [SDD-ECONOMY-BATTLE-v2.1.md](SDD-ECONOMY-BATTLE-v2.1.md)
 - [SDD-LEARNING-GROUPS-v2.0.md](SDD-LEARNING-GROUPS-v2.0.md) — **Thiết kế tách lộ trình học thành 3 nhóm (Mới học · Trung bình · Luyện thi) & migration**
+- [SDD-PET-MANAGEMENT-v1.0.md](SDD-PET-MANAGEMENT-v1.0.md) — **Nâng cấp Quản lý Pet (thêm/sửa/xoá/upload pet mới) & Tối ưu UI/UX Zero-Scroll Quiz**
 - [SDD-PET-BATTLE-SPEC-v2.0.docx](SDD-PET-BATTLE-SPEC-v2.0.docx)
 - [WRD-COWDI-v1.0.md](WRD-COWDI-v1.0.md)
 - [SDD-GAME-PET-v1.0.md](SDD-GAME-PET-v1.0.md)

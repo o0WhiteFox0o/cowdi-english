@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
 import { useAuth } from '../../hooks/useAuth';
@@ -7,6 +8,7 @@ import { useUser } from '../../hooks/useUser';
 import { generateDuelQuiz } from '../../data/quiz/duel-quiz-pool';
 import { PET_REGISTRY, getEvolutionInfo, ELEMENT_COLORS } from '../../data/pets';
 import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 import Icon from '../../components/Icon';
@@ -121,9 +123,25 @@ export default function DuelPage() {
   const { user, authFetch } = useAuth();
   const { petData } = usePet();
   const { addXP, syncWallet } = useUser();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // FR-VIS-02: Thách đấu trực tiếp một người bạn (qua /duel?opponentId=...)
+  const [friendOpponent, setFriendOpponent] = useState(null); // { id, nickname }
 
   // Mode: lobby | setup | creating | playing | result
   const [mode, setMode] = useState('lobby');
+
+  useEffect(() => {
+    const oppId = Number(searchParams.get('opponentId'));
+    const oppNick = searchParams.get('opponentNick') || 'Bạn bè';
+    if (Number.isInteger(oppId) && oppId > 0) {
+      setFriendOpponent({ id: oppId, nickname: oppNick });
+      setMode('setup');
+      searchParams.delete('opponentId');
+      searchParams.delete('opponentNick');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Setup state (pre-create)
   const [setupCount, setSetupCount] = useState(10);
@@ -223,20 +241,32 @@ export default function DuelPage() {
     }
   }, [mode]);
 
+  const { register, dispatch } = usePetDirector();
+
+  // Đăng ký slot 'battle' (luôn Tầng 1 — chỉ động tác, không chữ) theo pha trận / kết quả
+  useEffect(() => {
+    if (mode === 'result') {
+      return register('battle', resultMyPetRef, { opp: resultOppPetRef });
+    }
+    if (mode === 'creating' || mode === 'playing') {
+      return register('battle', myPetRef, { opp: oppPetRef });
+    }
+    return undefined;
+  }, [mode, register]);
+
   // Phát sự kiện battle_start khi vào đấu và battle_win / battle_lose khi có kết quả
   useEffect(() => {
     if (mode === 'creating' || mode === 'playing') {
-      myPetRef.current?.emit('battle_start');
-      oppPetRef.current?.emit('battle_start');
+      dispatch('battle_start', { target: 'both' });
     } else if (mode === 'result' && result) {
       if (result.mode === 'created') {
-        resultMyPetRef.current?.emit(result.score >= result.total / 2 ? 'battle_win' : 'battle_start');
+        dispatch(result.score >= result.total / 2 ? 'battle_win' : 'battle_start', { target: 'mine' });
       } else {
-        resultMyPetRef.current?.emit(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
-        resultOppPetRef.current?.emit(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose');
+        dispatch(result.isWin ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'mine' });
+        dispatch(!result.isWin && !result.isDraw ? 'battle_win' : result.isDraw ? 'battle_start' : 'battle_lose', { target: 'opp' });
       }
     }
-  }, [mode, result]);
+  }, [mode, result, dispatch]);
 
   // ── Open setup screen to configure a new duel ──────────────
   function openSetup() {
@@ -353,11 +383,11 @@ export default function DuelPage() {
     if (myPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-mine');
-        myPetRef.current?.emit(isCritical ? 'battle_crit' : 'battle_attack');
+        dispatch(isCritical ? 'battle_crit' : 'battle_attack', { target: 'mine' });
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-opponent');
-          oppPetRef.current?.emit('battle_hit');
+          dispatch('battle_hit', { target: 'opp' });
           setEffectClass(`effect-${myElement}`);
           const dmg = isCritical ? critDmg : baseDmg;
           if (isCritical) {
@@ -381,11 +411,11 @@ export default function DuelPage() {
     if (oppPetAttacks) {
       sequence.push((next) => {
         setBattleAnim('attack-opponent');
-        oppPetRef.current?.emit(oppCritical ? 'battle_crit' : 'battle_attack');
+        dispatch(oppCritical ? 'battle_crit' : 'battle_attack', { target: 'opp' });
         play('battleAttack');
         battleAnimTimeoutRef.current = setTimeout(() => {
           setBattleAnim('damage-mine');
-          myPetRef.current?.emit('battle_hit');
+          dispatch('battle_hit', { target: 'mine' });
           setEffectClass(`effect-${oppElement}`);
           const oppDmg = oppCritical ? critDmg : baseDmg;
           if (oppCritical) {
@@ -407,8 +437,7 @@ export default function DuelPage() {
 
     // If neither attacks (both missed), emit battle_dodge before advancing
     if (sequence.length === 0) {
-      myPetRef.current?.emit('battle_dodge');
-      oppPetRef.current?.emit('battle_dodge');
+      dispatch('battle_dodge', { target: 'both' });
       callback();
       return;
     }
@@ -485,11 +514,20 @@ export default function DuelPage() {
             questionTimes: qTimes,
             category: setupCategory,
             message: setupMessage.trim() || null,
+            ...(friendOpponent?.id ? { opponentId: friendOpponent.id } : {}),
           }),
         });
         const data = await res.json();
         if (data.ok) {
-          setResult({ mode: 'created', score, total: questions.length, time, challengeId: data.challengeId });
+          setResult({
+            mode: 'created',
+            score,
+            total: questions.length,
+            time,
+            challengeId: data.challengeId,
+            isFriendDuel: Boolean(data.isFriendDuel || friendOpponent?.id),
+          });
+          setFriendOpponent(null);
           setMode('result');
           const milk = data.milkEarned ?? (score * 5);
           addXP(milk);
@@ -640,6 +678,20 @@ export default function DuelPage() {
     const msgLen = setupMessage.length;
     return (
       <div className="fade-in">
+        {friendOpponent && (
+          <div className="alert alert-info py-2 px-3 small mb-3 d-flex justify-content-between align-items-center">
+            <div>
+              ⚔️ Thách đấu giao hữu với <strong>{friendOpponent.nickname}</strong> (không cộng/trừ LP)
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary py-0"
+              onClick={() => setFriendOpponent(null)}
+            >
+              Huỷ chỉ định
+            </button>
+          </div>
+        )}
         <div className="d-flex align-items-center mb-3">
           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { play('click'); setMode('lobby'); }}>
             ← Quay lại
@@ -734,6 +786,20 @@ export default function DuelPage() {
 
     return (
       <div className="fade-in">
+        {friendOpponent && (
+          <div className="alert alert-info py-2 px-3 small mb-3 d-flex justify-content-between align-items-center">
+            <div>
+              ⚔️ Thách đấu giao hữu với <strong>{friendOpponent.nickname}</strong> (không cộng/trừ LP)
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary py-0"
+              onClick={() => setFriendOpponent(null)}
+            >
+              Huỷ chỉ định
+            </button>
+          </div>
+        )}
         {/* Battle Header */}
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="fw-bold small">
@@ -834,6 +900,7 @@ export default function DuelPage() {
                 bond={bondOf(myPetInfo.skills)}
                 topSkill={topSkillOf(myPetInfo.skills)}
                 mode="battle"
+                canvasBubble={false}
                 fallbackSrc={myPetImage || undefined}
                 alt={myPetInfo.name}
               />
@@ -855,6 +922,7 @@ export default function DuelPage() {
                 stage={(opponentPet.evolution || 0) + 1}
                 group={opponentPet.group}
                 mode="battle"
+                canvasBubble={false}
                 fallbackSrc={opponentPet.image || undefined}
                 alt={opponentPet.name}
               />
@@ -964,6 +1032,7 @@ export default function DuelPage() {
                     bond={bondOf(myPetInfo.skills)}
                     topSkill={topSkillOf(myPetInfo.skills)}
                     mode="battle"
+                    canvasBubble={false}
                     fallbackSrc={myPetImage || undefined}
                     alt={myPetInfo.name}
                     style={{ width: 88, maxWidth: 88, maxHeight: 96 }}
@@ -1024,6 +1093,7 @@ export default function DuelPage() {
                   bond={bondOf(myPetInfo.skills)}
                   topSkill={topSkillOf(myPetInfo.skills)}
                   mode="battle"
+                  canvasBubble={false}
                   fallbackSrc={myPetImage || undefined}
                   alt={myPetInfo.name}
                   style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
@@ -1055,6 +1125,7 @@ export default function DuelPage() {
                   stage={(opponentPet.evolution || 0) + 1}
                   group={opponentPet.group}
                   mode="battle"
+                  canvasBubble={false}
                   fallbackSrc={opponentPet.image || undefined}
                   alt={opponentPet.name}
                   style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
@@ -1266,6 +1337,30 @@ export default function DuelPage() {
         <div className="text-center text-muted small py-3 mb-4">
           Chưa có thách đấu nào. Hãy tạo một cái! <Icon name="target" size={14} />
         </div>
+      )}
+
+      {/* Incoming friend duels (FR-VIS-02) */}
+      {myDuels.filter((d) => d.status === 'pending' && d.isFriendDuel && Number(d.opponentId) === Number(user.id)).length > 0 && (
+        <>
+          <h6 className="fw-bold mb-2">🤝 Lời thách đấu từ bạn bè (không tính LP)</h6>
+          <div className="d-grid gap-2 mb-4">
+            {myDuels
+              .filter((d) => d.status === 'pending' && d.isFriendDuel && Number(d.opponentId) === Number(user.id))
+              .map((duel) => (
+                <div key={duel.id} className="card shadow-sm border-primary" style={{ cursor: 'pointer' }} onClick={() => joinDuel(duel.id)}>
+                  <div className="card-body d-flex align-items-center gap-2 py-2">
+                    <div className="flex-grow-1">
+                      <div className="fw-bold small">{duel.challengerNick} thách đấu bạn!</div>
+                      <div className="text-muted" style={{ fontSize: '0.7rem' }}>
+                        {duel.questionCount} câu · Giao hữu bạn bè · {timeAgo(duel.createdAt)}
+                      </div>
+                    </div>
+                    <button className="btn btn-sm btn-cowdi-primary fw-bold">Đấu ngay!</button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </>
       )}
 
       {/* My pending duels */}

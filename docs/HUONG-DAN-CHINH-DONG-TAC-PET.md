@@ -1,6 +1,6 @@
-# Hướng dẫn sử dụng: Chỉnh động tác & Rig Pet (`/admin/pet-motion`)
+# Hướng dẫn sử dụng: Quản lý Pet, Rig & Chỉnh động tác (`/admin/pet-motion`)
 
-Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để quản lý ảnh, tạo rig bộ phận, vẽ sửa trực tiếp PNG, chỉnh 34 động tác và duyệt hiển thị cho người học trong ứng dụng **Cowdi English**.
+Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để **thêm/sửa/xoá và upload loài pet mới**, quản lý ảnh 5 cấp, tạo rig bộ phận, vẽ sửa trực tiếp PNG, chỉnh 34 động tác và duyệt hiển thị cho người học trong ứng dụng **Cowdi English** (tuân thủ quy chuẩn mỹ thuật [`STD-ART-STYLE-v1.1.md`](05-implementation/art/STD-ART-STYLE-v1.1.md)).
 
 ---
 
@@ -19,14 +19,23 @@ Tài liệu hướng dẫn chi tiết dành cho **quản trị viên** để qu�
 
 ---
 
-## 2. Màn hình Tổng quan — Kho Pet 23 loài × 5 cấp
+## 2. Màn hình Tổng quan — Quản lý toàn bộ Pet × 5 cấp
 
-Truy cập từ menu thanh bên **Chỉnh động tác pet** hoặc trang **Quản trị (`/admin`)** → `/admin/pet-motion`.
+Truy cập từ menu **Thêm & Hồ sơ ⋯ → Quản lý Pet** (Desktop) hoặc tab **Tôi → Quản lý Pet** (Mobile) → `/admin/pet-motion`.
 
-- Hiển thị toàn bộ **23 loài pet** (bao gồm `bamboo` gấu trúc đen-trắng và `bamboo_spirit` Linh trúc tách riêng) × **5 cấp tiến hoá (`C1 Trứng` → `C5 Huyền thoại`)** cùng ảnh đại diện hiện tại.
+- Hiển thị toàn bộ **23 loài pet gốc + các loài pet mới do Admin tạo** × **5 cấp tiến hoá (`C1 Trứng` → `C5 Huyền thoại`)** cùng ảnh đại diện hiện tại.
+- **Thêm Pet mới (`+ Thêm Pet mới`):**
+  1. Bấm nút **`+ Thêm Pet mới`** ở góc phải trên cùng.
+  2. Điền **Tên hiển thị**, **Mã Pet (`petId`)** (tự sinh slug `a-z`, `0-9`, `_`), **Loài**, **Emoji**, chọn **Hệ (10 hệ)**, **Nhóm kỹ năng (7 nhóm)**, **Độ hiếm (5 bậc)** và **Mô tả ngắn**.
+  3. Tại khung **Ảnh & Tên 5 cấp tiến hoá (`C1–C5`)**, bấm chọn trực tiếp ảnh PNG/WebP nền trong suốt cho từng cấp (nên giữ bật **Tự nén WebP chuẩn 512/640 px**).
+  4. Bấm **`+ Tạo Pet mới`**: hệ thống tự lưu vào `pet_catalog`, tải lên các ảnh cấp đã chọn và đồng bộ ngay cho toàn bộ người học qua `/api/pet-motion/catalog`.
+- **Chỉnh sửa & Xoá Pet:**
+  - Bấm **`✏️ Sửa`** trên từng pet để đổi tên, hệ, nhóm, độ hiếm, mô tả, tên 5 cấp hoặc thay nhanh 5 ảnh `C1–C5`.
+  - Với pet tự thêm (có nhãn **`Mới`**), có thể bấm **`🗑️ Xoá`** để xoá sạch dữ liệu & ảnh của pet đó (23 pet gốc được bảo vệ, không thể xoá nhầm).
 - **Lọc nhanh**: theo nhóm pet (Nông trại, Thảo mộc, Thú săn, Biển, Bầu trời, Rồng, Linh khí), theo trạng thái (`Đã có Rig` / `Chưa có Rig`), hoặc ô tìm kiếm theo tên.
 - Trên mỗi thẻ cấp của pet:
   - **Đổi ảnh / + Bổ sung ảnh**: tải ảnh tĩnh mặc định (PNG/WebP ≤ 2 MB) hiển thị làm avatar cho cấp đó.
+  - **`✂️ Lấy ảnh pet` / `🎨 Tự vẽ / Mẫu`** *(khi cấp đó đang "Chưa có ảnh")*: lấy ngay ảnh hiện có từ cấp khác của cùng pet (hoặc phôi mẫu cùng nhóm / khung vẽ trống chuẩn) mở vào Studio để họa sĩ tự cắt, chỉnh sửa hoặc vẽ lại rồi lưu thẳng làm avatar.
   - **Nút `Rig`**: mở thẳng tab **🦴 Bộ phận** (hoặc khung **Tạo rig mới** nếu cấp này chưa có rig).
   - **Nút `Motion`**: mở thẳng tab **🎬 Động tác** để chỉnh và duyệt 34 động tác.
 
@@ -47,15 +56,18 @@ Khung hiển thị `PetRig` có kích thước logic **420 × 460 px** (vẽ s�
 
 > **Lưu ý quan trọng:** Tất cả các lớp bộ phận trong cùng 1 cấp (`body`, `head`, `armL`, `armR`, `crown`, `eye0`, `eye1`…) nên xuất **cùng kích thước khung W×H** để tự khớp toạ độ. Nếu lỡ chọn ảnh quá lớn (> 2 MB hoặc > 800 px), bấm nút **✨ Thu gọn về chuẩn (WebP)** ngay trong khung tạo rig để tự động thu nhỏ & nén giữ nền trong suốt.
 
-### 3.2. Các bước tạo rig
+### 3.2. Các bước tạo rig (từ file tách lớp hoặc lấy ảnh Pet hiện có để tự cắt)
 
 Khi mở một pet-cấp chưa có rig, màn hình hiện khung **Tạo rig mới**:
 
-1. **Chọn bộ phận muốn tải**:
-   - Chọn **Tự nhận theo tên file** nếu bạn tải cùng lúc nhiều file tách lớp đặt tên chuẩn (`body.png`, `head.png`, `crown.png`, `armL.png`, `armR.png`, `front.png`, `fx.png`, `aura.png`, `eye0.png`, `eye1.png`).
-   - Hoặc chọn cụ thể một bộ phận (mặc định với 1 ảnh đơn như Trứng C1 sẽ gán thành `body`).
-2. Hệ thống tự tính kích thước, khung hình, chân tiếp đất (`ground`), hộp mắt và điểm xoay mặc định (`pivot`).
-3. Bấm **Tạo rig nháp** → chuyển thẳng sang bàn chỉnh động tác.
+- **Cách A — Đề xuất khi chưa có file bộ phận tách lẻ (họa sĩ cắt/vẽ ngay trên web):**
+  - Hộp vàng **`✂️ Chưa có ảnh bộ phận tách rời? Lấy ảnh hiện có của <Pet>`** tự động gom ảnh sẵn có của pet đó (`C1–C5`, hoặc phôi tham chiếu cùng nhóm / khung trống chuẩn).
+  - Bấm **`⚡ Dùng ảnh này & Mở Studio cắt/vẽ ngay`** để khởi tạo nhanh Rig với `body` và mở thẳng Studio cho họa sĩ cắt sửa.
+  - Hoặc bấm **`📥 + Đưa vào danh sách để tách nhiều lớp`** nhiều lần (`body`, `head`, `armL`, `armR`…) rồi bấm **`✂️ Cắt / Vẽ lại`** ngay trên từng dòng trước khi bấm **Tạo rig nháp**.
+- **Cách B — Đã có sẵn file PNG/WebP tách lớp trên máy:**
+  1. Chọn **`+ Chọn nhiều ảnh PNG / WebP`** — hệ thống tự nhận bộ phận theo tên file (`body, head, crown, armL, armR, front, fx, aura, eye0, eye1`).
+  2. Hệ thống tự tính kích thước, khung hình, chân tiếp đất (`ground`), hộp mắt và điểm xoay mặc định (`pivot`).
+  3. Bấm **Tạo rig nháp** → chuyển thẳng sang bàn chỉnh động tác.
 
 ---
 
@@ -91,16 +103,19 @@ Trong tab **🦴 Bộ phận**:
   - **Dời hình**: kéo để chỉnh vị trí lệch X/Y của ảnh bộ phận.
   - **Điểm xoay**: kéo chấm cam để dời khớp xoay (cổ, vai, cuống lá).
 - Dùng khu vực **`+ Thêm bộ phận`** để bổ sung thêm ảnh tách lớp mới vào rig đang có, nút **`Thay hình`** để đổi ảnh từ máy, hoặc **`✕`** để bỏ bộ phận khỏi rig.
+- **Khi bộ phận đang `chưa có ảnh` hoặc cần tách thêm Đầu / Tay từ ảnh gốc của pet**:
+  - Bấm nút **`✂️ Lấy ảnh pet`** ngay trên dòng bộ phận thiếu ảnh, **hoặc** dùng hộp đề xuất bên dưới để chọn nguồn ảnh hiện có của pet (`C1–C5` / lớp `body` hiện tại / khung trống) + chọn bộ phận đích → bấm **`✂️ Mở Studio cắt / vẽ`**.
 
-### 5.3. Vẽ / tẩy trực tiếp lên file bộ phận (`✏️ Sửa`)
-Bấm nút **`✏️ Sửa`** trên bất kỳ bộ phận nào để mở **Trình sửa ảnh Studio 3 cột**:
+### 5.3. Vẽ / cắt / tẩy trực tiếp lên file bộ phận (`✏️ Sửa` · `✂️ Lấy ảnh pet`)
+Bấm nút **`✏️ Sửa`** (hoặc **`✂️ Lấy ảnh pet`**) trên bộ phận để mở **Trình sửa ảnh Studio 3 cột**:
 - **Thanh công cụ trái**:
   - `B` **Cọ vẽ** · `E` **Tẩy (về trong suốt)** · `G` **Tô vùng** · `I` **Hút màu** (hoặc giữ `Alt + Click` khi đang vẽ)
   - `M` **Chọn chữ nhật** · `O` **Chọn bầu dục** · `L` **Chọn tự do (Lasso)** · `W` **Đũa thần chọn theo màu** · `V` **Di chuyển nội dung lớp**
 - **Sân khấu giữa**: nền tối tương phản cao, **📏 Thước đo pixel** trục X/Y bám con trỏ, **# Lưới pixel** (khi zoom ≥ 400%), thu phóng (`−` / `+` / `Vừa` / `Ctrl + cuộn chuột`).
 - **Bảng thuộc tính & Layer phải**:
   - **Tuỳ chỉnh cọ**: 3 đầu cọ (`Tròn`, `Vuông pixel`, `Nét nghiêng`), cỡ cọ (`[ ]`), độ đậm, độ cứng viền, khoảng cách nét, làm mượt nét, khung xem trước nét cọ, bảng màu & màu vừa dùng.
-  - **Thao tác vùng chọn**: Cọ/Tẩy/Tô tự giới hạn trong vùng chọn; hỗ trợ `Delete` xoá, `Ctrl+Shift+I` đảo ngược, `Ctrl+J` tách sang Layer mới, `Ctrl+D` bỏ chọn.
+  - **Thao tác vùng chọn**: nút **`✂️ Giữ vùng chọn`** (1 chạm giữ lại phần vừa khoanh Lasso/Đũa thần và xoá sạch toàn bộ bên ngoài để tách Đầu/Tay cực nhanh), `Delete` xoá vùng chọn, `Ctrl+Shift+I` đảo ngược, `Ctrl+J` tách sang Layer mới, `Ctrl+D` bỏ chọn.
+  - **Mục `✂️ Ảnh pet hiện có`**: chọn bất kỳ ảnh sẵn có nào của pet và bấm **`📥 Chèn để cắt`** (đưa vào Layer mới + bật Lasso) hoặc **`👻 Làm phôi vẽ lại`** (đặt làm lớp phôi mờ `38%` khoá ở dưới + tạo sẵn Layer trống ở trên để họa sĩ đi nét lại).
   - **Đa Layer**: tạo Layer mới (`+ Mới`), nhân đôi (`📋`), đổi thứ tự (`↑`/`↓`), gộp xuống (`⤓`), ẩn/hiện (`👁️`), khoá (`🔒`), chỉnh độ mờ từng Layer, Hoàn tác/Làm lại (`Ctrl+Z` / `Ctrl+Shift+Z`).
   - **Tham chiếu (`👻`)**: bật/tắt mờ các bộ phận khác của cùng pet để canh chuẩn mối nối cổ/vai khi vẽ bù phần bị cắt.
 - Bấm **`💾 Lưu bản nháp`** → hệ thống gộp phẳng các Layer đang bật thành file PNG chuẩn kích thước gốc và lưu thẳng lên server.
@@ -182,4 +197,4 @@ npm run build
 ```
 
 - **Lưu trữ file ảnh**: `server/storage/pets/` (không commit vào git, không nén vào `deploy.zip`; cần sao lưu định kỳ thư mục này trên server production cùng với DB).
-- **Cấu hình Nginx**: giữ `location ^~ /api/` trong [nginx-spa.conf](file:///Users/mac/Documents/GitHub/cowdi-english/nginx-spa.conf) để các URL `/api/pet-motion/assets/*.png|*.webp` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh.
+- **Cấu hình Nginx & cơ chế `/raw`**: giữ `location ^~ /api/` trong [nginx-spa.conf](../nginx-spa.conf). Đồng thời toàn bộ URL ảnh động do API trả về đã tự gắn hậu tố `/raw` (`/api/.../*.webp/raw`, vẫn hỗ trợ song song URL cũ) để không bao giờ bị rule regex ảnh tĩnh `\.(png|webp)$` của Nginx chặn nhầm thành `404`.

@@ -80,10 +80,13 @@ function val(c, tracks, t) {
 
 function resolveAssetUrl(url, basePath) {
   if (!url) return '';
-  if (/^(https?:|blob:|data:)/.test(url)) return url;
-  if (!basePath) return url;
+  const safeUrl = /\/api\/(admin\/)?pet-motion\/assets\/.+\.(png|webp)$/i.test(url)
+    ? `${url}/raw`
+    : url;
+  if (/^(https?:|blob:|data:)/.test(safeUrl)) return safeUrl;
+  if (!basePath) return safeUrl;
   const cleanBase = basePath.replace(/\/+$/, '');
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  const cleanPath = safeUrl.startsWith('/') ? safeUrl : `/${safeUrl}`;
   return `${cleanBase}${cleanPath}`;
 }
 
@@ -103,6 +106,7 @@ export class PetRig {
       reducedMotion:
         typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches,
       timeScale: 1, // >1 chỉ dùng ở tab "Xem trước khi học" (vd 10× để thử sleepy/sleep)
+      canvasBubble: true, // false khi dùng Pet Director để chữ hiển thị qua DOM <PetSpeech>
       onClip: null,
       onDiagnostic: null, // callback tuỳ chọn ghi nhật ký sự kiện & clip bị bỏ qua vì chưa duyệt
       ...opts,
@@ -290,7 +294,7 @@ export class PetRig {
   }
 
   say(text, ms = 1500) {
-    if (!this.hasApprovedStage()) return;
+    if (!this.o.canvasBubble || !this.hasApprovedStage()) return;
     this.bubble = { text, until: performance.now() + ms };
   }
 
@@ -411,7 +415,7 @@ export class PetRig {
       case 'app_open':
         if ((data.daysAway || 0) >= 1 && b >= 200) {
           this.play('greet_return', true, 'app_open');
-          this.say(data.text || 'Nhớ bạn quá!');
+          this.say(data.text || 'Mừng bạn quay lại!');
         } else if (b >= 60) {
           this.play('wave', true, 'app_open');
         } else {
@@ -1189,10 +1193,11 @@ export class PetRig {
         const cn = this.cur?.name;
         if (['sleep', 'sleepy'].includes(cn)) {
           this.play('wake_up', true, 'tap_wake');
-        } else if (this.o.mode === 'home' && now >= this.tapLock) {
+          if (this.o.onClip) this.o.onClip('tap', this.cur ? this.cur.name : null);
+        } else if ((this.o.mode === 'home' || this.o.mode === 'lesson') && now >= this.tapLock) {
           this.taps = this.taps.filter((t) => now - t < 3000);
           this.taps.push(now);
-          if (this.taps.length > 5) {
+          if (this.o.mode === 'home' && this.taps.length > 5) {
             this.taps = [];
             this.tapLock = now + 5000;
             this.play('dizzy', true, 'tap_rapid');

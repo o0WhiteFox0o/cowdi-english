@@ -1,6 +1,6 @@
-# Khung chuyển động pet — hướng dẫn tích hợp
+# Quản lý Pet & Khung chuyển động — hướng dẫn tích hợp
 
-Mọi pet dùng chung 34 động tác (`shared/pet-motion.js`) và một bộ não cảm xúc (`src/pet-rig/PetRig.js`). Quản trị viên chỉnh sửa, vẽ ảnh bộ phận và duyệt xuất bản trực tiếp trên trang **`/admin/pet-motion`** (xem chi tiết tại [`docs/HUONG-DAN-CHINH-DONG-TAC-PET.md`](./HUONG-DAN-CHINH-DONG-TAC-PET.md)).
+Trang quản trị **`/admin/pet-motion`** đã được nâng cấp thành **Trung tâm Quản lý Pet & Chuyển động** (xem đặc tả chi tiết tại [`SDD-PET-MANAGEMENT-v1.0.md`](04-design/SDD-PET-MANAGEMENT-v1.0.md) và hướng dẫn vận hành tại [`HUONG-DAN-CHINH-DONG-TAC-PET.md`](./HUONG-DAN-CHINH-DONG-TAC-PET.md)): cho phép Admin **thêm loài pet mới, chỉnh sửa metadata, upload ảnh 5 cấp `C1–C5`, xoá pet tự thêm**, dựng rig 13 layer và duyệt 34 động tác (`shared/pet-motion.js` + `src/pet-rig/PetRig.js`).
 
 ## Cấu trúc
 
@@ -11,10 +11,11 @@ Mọi pet dùng chung 34 động tác (`shared/pet-motion.js`) và một bộ n�
 | `src/pet-rig/PetRig.js` | Runtime canvas cho người học (chỉ phát dữ liệu đã duyệt từ server). |
 | `src/pet-rig/PetAvatar.jsx` | Component React + `topSkillOf`, `bondOf` (tự fallback ảnh tĩnh nếu chưa duyệt rig). |
 | `src/pet-rig/motionCache.js` | Cache trong bộ nhớ theo `petId` cho `GET /api/pet-motion/:petId`. |
-| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (tổng quan 23 pet × 5 cấp, bàn chỉnh keyframe, trình vẽ bộ phận `PartPaintModal.jsx`, tab chỉ-đọc `StudyPreviewTab.jsx` "Xem trước khi học"). |
-| `server/routes/petMotionAdmin.js` | API quản trị (`requireAuth + requireAdmin`) lưu nháp, upload ảnh, duyệt rig/clip, emoji tự thiết kế. |
-| `server/routes/petMotionPublic.js` | API công khai cho người học (`GET /api/pet-motion/:petId` + ảnh đã xuất bản). |
-| `server/db/migrate-pet-motion.sql` | Migration 4 bảng DB (`pet_motion_clips`, `pet_motion_approvals`, `pet_rigs`, `pet_motion_history`). |
+| `src/admin/pet-motion/` | Giao diện admin `/admin/pet-motion` (Quản lý toàn bộ pet gốc + pet tự thêm × 5 cấp, popup `PetFormModal.jsx`, bàn chỉnh keyframe, Studio cắt/vẽ `PartPaintModal.jsx` có gợi ý lấy ảnh pet hiện có để tự cắt hoặc làm phôi vẽ lại, tab `StudyPreviewTab.jsx`). |
+| `server/routes/petMotionAdmin.js` | API quản trị (`requireAuth + requireAdmin`): CRUD `pet_catalog` (`/pets`), upload avatar/part, lưu nháp, duyệt rig/clip, emoji tự thiết kế (URL ảnh động gắn hậu tố `/raw` chống Nginx chặn 404). |
+| `server/routes/petMotionPublic.js` | API công khai cho người học (`GET /api/pet-motion/catalog` đồng bộ `PET_REGISTRY`, `GET /api/pet-motion/:petId` + ảnh đã xuất bản). |
+| `server/db/migrate-pet-motion.sql` · `migrate-pet-catalog.sql` | Migration 5 bảng DB (`pet_catalog`, `pet_motion_clips`, `pet_motion_approvals`, `pet_rigs`, `pet_motion_history`) tương thích MySQL 5.6+. |
+| `scripts/run-pet-catalog-migration.js` | Script idempotent tạo bảng `pet_catalog` trên local/production. |
 | `server/scripts/seed-pet-rigs.mjs` | Script nạp rig mẫu (`radish`, `bamboo_spirit`) vào trạng thái nháp. |
 | `public/pets/<id>/rig.json`, `c1..c5/*.png` | Nguồn seed mẫu ban đầu cho `radish`, `bamboo_spirit`. |
 | `tools/bake-clips.mjs` | Sinh lại `shared/pet-motion.js` từ `tools/src-clips.js`. |
@@ -110,3 +111,11 @@ Vì cấp C1 (Trứng) chưa có tay, mắt hay miệng tách lớp nên nhiều
 - `pos`: vị trí nổi quanh pet — `top-right` (mặc định), `top-center`, `top-left`.
 - Tên hiển thị tiếng Việt và emoji gợi ý cho cả 34 động tác đặt tại `shared/pet-motion-labels.js`.
 - Chỉ hiển thị cho người học khi động tác đó đã được quản trị viên **Đánh dấu hoàn thiện**.
+
+## Tích hợp với Pet Director V2 (`SDD-PET-DIRECTOR-v1.1.md`)
+
+Hệ thống điều phối biểu đạt **Pet Director** (xem thiết kế tại [`SDD-PET-DIRECTOR-v1.1.md`](04-design/SDD-PET-DIRECTOR-v1.1.md) và kế hoạch [`TASK-PET-DIRECTOR.md`](05-implementation/TASK-PET-DIRECTOR.md)) đứng ngay phía trên `Pet-motion` và tái sử dụng 100% 34 động tác, FX hạt, biểu cảm `emoji` đã duyệt và quy tắc fallback:
+
+- **Tách lớp chữ khỏi canvas (`canvasBubble`):** `PetRig` / `<PetAvatar>` bổ sung tuỳ chọn `canvasBubble` (mặc định `true` để tương thích ngược). Mọi màn hình dùng Pet Director truyền `canvasBubble={false}` để tắt bong bóng thô trên canvas, nhường hiển thị chữ cho `<PetSpeech>` (DOM, font `Mali`, xuống dòng chuẩn, có nút Nghe TTS).
+- **Đồng nhất tương tác chạm (`tap`):** Cả `PetRig` (canvas đã duyệt rig) lẫn nhánh fallback `<img>` (pet-cấp chưa duyệt rig) đều bắn `onClip('tap', ...)` khi bé chạm vào pet để Director xử lý `pet_tap` nhất quán.
+- **Một nguồn sự thật (P7):** Sau khi tích hợp Director, các màn hình người học gửi sự kiện qua `director.dispatch(event, payload)` thay vì gọi `petRef.current.emit(...)` trực tiếp (riêng `setMicLevel`/`setVoiceLevel` theo khung hình vẫn giữ nguyên). Không thay đổi `shared/pet-motion.js` hay API duyệt clip của `/admin/pet-motion`.

@@ -187,10 +187,10 @@ export const IELTS_SPEAKING_ADVANCED_LESSON = {
     {
       question: "Part 3 nên trả lời bằng cách:",
       options: [
-        "Chỉ Yes/No",
-        "Answer + Explain + Example",
-        "Đọc thuộc lòng",
-        "Nói thật ngắn"
+        "Chỉ trả lời Có/Không",
+        "Trả lời, giải thích và nêu ví dụ",
+        "Đọc thuộc lòng bài mẫu",
+        "Nói thật ngắn gọn"
       ],
       correct: 1
     },

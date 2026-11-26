@@ -1,10 +1,17 @@
 import crypto from 'node:crypto';
 import path from 'node:path';
-import { PET_BATTLE_DATA } from '../../shared/game-config.js';
+import { ELEMENTS, GROUPS, PET_BATTLE_DATA, RARITIES, RARITY_ALIASES } from '../../shared/game-config.js';
 import { CLIPS } from '../../shared/pet-motion.js';
 
 export const ALL_PET_IDS = Object.keys(PET_BATTLE_DATA);
 export const VALID_PET_IDS = new Set(ALL_PET_IDS);
+export const VALID_ELEMENTS = new Set(Object.keys(ELEMENTS));
+export const VALID_GROUPS = new Set(Object.keys(GROUPS));
+export const VALID_RARITIES = new Set([...Object.keys(RARITIES), ...Object.keys(RARITY_ALIASES)]);
+export const PET_ID_FORMAT_RE = /^[a-z][a-z0-9_]{1,31}$/;
+export const RESERVED_PET_IDS = new Set(['pets', 'overview', 'clip', 'emojis', 'assets', 'catalog']);
+export const DEFAULT_STAGE_XP = [0, 100, 500, 1200, 2500];
+export const DEFAULT_STAGE_PREFIX = ['Trứng', 'Baby', 'Junior', 'Super', 'Legendary'];
 export const ALL_CLIP_NAMES = Object.keys(CLIPS);
 export const VALID_CLIPS = new Set(ALL_CLIP_NAMES);
 
@@ -19,7 +26,7 @@ export const STANDARD_PARTS = new Set([
 export const PART_NAME_RE = /^[a-z][a-zA-Z0-9_]{0,30}$/;
 export const HASHED_IMAGE_FILE_RE = /^[a-z][a-zA-Z0-9_]{0,30}-[0-9a-f]{8}\.(png|webp)$/;
 export const EMOJI_FILE_RE = /^[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)$/;
-export const EMOJI_URL_RE = /^\/api\/pet-motion\/assets\/emojis\/[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)$/;
+export const EMOJI_URL_RE = /^\/api\/pet-motion\/assets\/emojis\/[a-z0-9_-]{1,40}-[0-9a-f]{8}\.(png|webp)(\/raw)?$/;
 export const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -53,6 +60,84 @@ export function sha1Short(buffer) {
 
 export function validatePetId(petId) {
   return typeof petId === 'string' && VALID_PET_IDS.has(petId);
+}
+
+export function isValidPetIdFormat(petId) {
+  return typeof petId === 'string' && PET_ID_FORMAT_RE.test(petId) && !RESERVED_PET_IDS.has(petId);
+}
+
+export function buildDefaultEvolutions(name, emoji = '🐾', rawEvolutions = null) {
+  const cleanName = String(name || 'Pet').trim();
+  const cleanEmoji = String(emoji || '🐾').trim().slice(0, 16) || '🐾';
+  const arr = Array.isArray(rawEvolutions) ? rawEvolutions : [];
+  return [0, 1, 2, 3, 4].map((stage) => {
+    const src = arr[stage] && typeof arr[stage] === 'object' ? arr[stage] : {};
+    const stageName = typeof src.name === 'string' && src.name.trim()
+      ? src.name.trim().slice(0, 80)
+      : `${DEFAULT_STAGE_PREFIX[stage]} ${cleanName}`;
+    return {
+      stage,
+      name: stageName,
+      xp: Number.isFinite(Number(src.xp)) ? Math.max(0, Number(src.xp)) : DEFAULT_STAGE_XP[stage],
+      emoji: typeof src.emoji === 'string' && src.emoji.trim()
+        ? src.emoji.trim().slice(0, 16)
+        : (stage === 0 ? '🥚' : cleanEmoji),
+      image: typeof src.image === 'string' && src.image.trim() ? src.image.trim() : null,
+    };
+  });
+}
+
+export function validatePetCatalogPayload(body, { isCreate = false } = {}) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return { error: 'Dữ liệu pet không hợp lệ.' };
+  }
+  const petId = isCreate ? String(body.petId || body.id || '').trim().toLowerCase() : null;
+  if (isCreate) {
+    if (!isValidPetIdFormat(petId)) {
+      return { error: 'Mã pet (petId) chỉ gồm chữ thường a-z, số 0-9 và gạch dưới (2–32 ký tự, bắt đầu bằng chữ cái).' };
+    }
+  }
+  const name = String(body.name || '').trim();
+  if (!name || name.length > 80) {
+    return { error: 'Tên hiển thị của pet là bắt buộc (tối đa 80 ký tự).' };
+  }
+  const species = String(body.species || name).trim().slice(0, 80);
+  const emoji = String(body.emoji || '🐾').trim().slice(0, 16) || '🐾';
+  const element = String(body.element || 'neutral').trim();
+  if (!VALID_ELEMENTS.has(element)) {
+    return { error: `Hệ nguyên tố không hợp lệ: ${element}` };
+  }
+  const group = String(body.group || body.pet_group || 'farm').trim();
+  if (!VALID_GROUPS.has(group)) {
+    return { error: `Nhóm kỹ năng không hợp lệ: ${group}` };
+  }
+  const rarity = String(body.rarity || 'common').trim();
+  if (!VALID_RARITIES.has(rarity)) {
+    return { error: `Độ hiếm không hợp lệ: ${rarity}` };
+  }
+  const description = String(body.description || '').trim().slice(0, 500);
+  const evolutions = buildDefaultEvolutions(name, emoji, body.evolutions);
+  const unlock = body.unlock && typeof body.unlock === 'object' && !Array.isArray(body.unlock)
+    ? body.unlock
+    : { type: 'lessons', value: 1, text: 'Mở khoá qua sự kiện / quản trị' };
+  const isActive = body.isActive === undefined ? true : Boolean(body.isActive);
+
+  return {
+    error: null,
+    data: {
+      petId,
+      name,
+      species,
+      emoji,
+      element,
+      group,
+      rarity,
+      description,
+      evolutions,
+      unlock,
+      isActive,
+    },
+  };
 }
 
 export function parseStage(stage) {
@@ -197,12 +282,24 @@ export function resolveSafeStoragePath(storageRoot, ...segments) {
   return target;
 }
 
+/**
+ * Tạo URL phục vụ ảnh động qua API với hậu tố `/raw` để đường dẫn KHÔNG kết thúc
+ * bằng `.png`/`.webp` — tránh bị rule regex ảnh tĩnh của Nginx chặn nhầm thành 404
+ * ngay cả khi cấu hình Nginx thiếu `^~` ở `location /api/`.
+ */
+export function buildAssetUrl(urlPrefix, relPath) {
+  if (typeof relPath !== 'string' || !relPath) return null;
+  const cleanPrefix = String(urlPrefix || '').replace(/\/+$/, '');
+  const cleanRel = relPath.replace(/^\/+/, '');
+  return `${cleanPrefix}/${cleanRel}/raw`;
+}
+
 export function buildImageUrls(imagesMap, urlPrefix) {
   const result = {};
   if (!imagesMap || typeof imagesMap !== 'object') return result;
   for (const [part, relPath] of Object.entries(imagesMap)) {
     if (typeof relPath === 'string' && relPath) {
-      result[part] = `${urlPrefix}/${relPath}`;
+      result[part] = buildAssetUrl(urlPrefix, relPath);
     }
   }
   return result;

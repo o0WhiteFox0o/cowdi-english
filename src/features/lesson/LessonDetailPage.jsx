@@ -25,7 +25,8 @@ function loadStepDone(lessonId) {
 import { useUser } from '../../hooks/useUser';
 import { usePet } from '../../hooks/usePet';
 import { PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
-import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import PetStage from '../../pet-director/PetStage';
+import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
 
@@ -400,29 +401,34 @@ export default function LessonDetailPage() {
   const confettiRef = useRef(null);
   const petRef = useRef(null);
   const streakRef = useRef(0);
+  const [streakCount, setStreakCount] = useState(0);
+  const { dispatch } = usePetDirector();
 
   const activePet = getActivePetWithDecay();
   const petSpecies = activePet ? PET_REGISTRY[activePet.speciesId] : null;
   const petEvo = activePet && petSpecies ? getEvolutionInfo(activePet.speciesId, activePet.evolution) : null;
   const petName = activePet?.customName || petSpecies?.name || 'Cowdi';
 
-  const emitPetAnswer = useCallback((isCorrect) => {
+  const emitPetAnswer = useCallback((isCorrect, meta = {}) => {
     if (isCorrect) {
       streakRef.current += 1;
       const c = streakRef.current;
+      setStreakCount(c);
       if (c === 3 || c === 5 || (c >= 10 && c % 5 === 0)) {
-        petRef.current?.emit('streak', { count: c });
+        dispatch('streak', { count: c, lessonId: id });
       } else {
-        petRef.current?.emit('answer_correct');
+        dispatch('answer_correct', { ...meta, lessonId: id });
       }
     } else {
       streakRef.current = 0;
-      petRef.current?.emit('answer_wrong');
+      setStreakCount(0);
+      dispatch('answer_wrong', { ...meta, lessonId: id });
     }
-  }, []);
+  }, [dispatch, id]);
 
   // Steps: vocab → flashcard → grammar → reading → listen → speak → quiz
   const [tab, setTab] = useState('vocab');
+  const [lessonInfoOpen, setLessonInfoOpen] = useState(false);
   const [stepDone, setStepDone] = useState(() => loadStepDone(id));
   const [quizMode, setQuizMode] = useState(false);
   const [qIndex, setQIndex] = useState(0);
@@ -550,7 +556,7 @@ export default function LessonDetailPage() {
     return new Promise((resolve) => {
       const done = () => {
         petRef.current?.setVoiceLevel(0);
-        petRef.current?.emit('pet_speak_end');
+        dispatch('pet_speak_end');
         resolve();
       };
       try {
@@ -564,7 +570,7 @@ export default function LessonDetailPage() {
           .trim();
         if (!cleaned) { resolve(); return; }
 
-        petRef.current?.emit('pet_speak_start', { text: cleaned });
+        dispatch('pet_speak_start');
         petRef.current?.setVoiceLevel(0.7);
 
         // Nếu caller chỉ định lang → dùng luôn (1 utterance)
@@ -671,36 +677,38 @@ export default function LessonDetailPage() {
   // Sự kiện pet: vào bài học
   useEffect(() => {
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
-  }, [id]);
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
+    dispatch('screen_enter', { screen: 'lesson', lessonTitle: lesson?.title });
+  }, [id, lesson?.title, dispatch]);
 
   // Sự kiện pet: hiện câu hỏi mới (quiz / nghe câu / nói theo)
   useEffect(() => {
     if (quizMode && !finished) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [quizMode, qIndex, finished]);
+  }, [quizMode, qIndex, finished, id, dispatch]);
 
   useEffect(() => {
     if (tab === 'listen' && listenQs.length > 0 && !listenDone) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [tab, listenIdx, listenQs.length, listenDone]);
+  }, [tab, listenIdx, listenQs.length, listenDone, id, dispatch]);
 
   useEffect(() => {
     if (tab === 'speak' && !speakDone) {
-      petRef.current?.emit('question_shown');
+      dispatch('question_shown', { lessonId: id });
     }
-  }, [tab, speakIdx, speakDone]);
+  }, [tab, speakIdx, speakDone, id, dispatch]);
 
   // Sự kiện pet: bật / tắt mic khi luyện nói
   useEffect(() => {
     if (!isRecording) {
       petRef.current?.setMicLevel(0);
-      petRef.current?.emit('mic_end');
+      dispatch('mic_end');
       return;
     }
-    petRef.current?.emit('mic_start');
+    dispatch('mic_start');
     const iv = setInterval(() => {
       petRef.current?.setMicLevel(0.25 + Math.random() * 0.55);
     }, 120);
@@ -708,7 +716,7 @@ export default function LessonDetailPage() {
       clearInterval(iv);
       petRef.current?.setMicLevel(0);
     };
-  }, [isRecording]);
+  }, [isRecording, dispatch]);
 
   // Sự kiện pet: lên cấp kỹ năng
   const prevSkillLvlsRef = useRef(null);
@@ -722,11 +730,37 @@ export default function LessonDetailPage() {
       writing: getSkillLevel(s.writing || 0),
     };
     if (prevSkillLvlsRef.current) {
-      const leveledUp = Object.keys(cur).some((k) => cur[k] > prevSkillLvlsRef.current[k]);
-      if (leveledUp) petRef.current?.emit('skill_level_up');
+      const leveledSkill = Object.keys(cur).find((k) => cur[k] > prevSkillLvlsRef.current[k]);
+      if (leveledSkill) dispatch('skill_level_up', { skill: leveledSkill });
     }
     prevSkillLvlsRef.current = cur;
-  }, [activePet?.skills]);
+  }, [activePet?.skills, dispatch]);
+
+  const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson?.quiz || []);
+
+  /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
+  useEffect(() => {
+    if (!lesson || access.locked || tab !== 'listen' || listenQs.length === 0 || listenDone) return;
+    const q = listenQs[listenIdx];
+    if (!q) return;
+    const t = setTimeout(() => speakWord(q.sentence, 0.85), 300);
+    return () => clearTimeout(t);
+  }, [lesson, access.locked, tab, listenIdx, listenQs, listenDone, speakWord]);
+
+  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới (U6: nếu có audioText thì đọc audioText tiếng Anh) */
+  useEffect(() => {
+    if (!lesson || access.locked || !quizMode || finished) return;
+    const q = quiz[qIndex];
+    if (!q) return;
+    const t = setTimeout(() => {
+      if (q.audioText) speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' });
+      else speakWord(q.question, defaultTtsRate);
+    }, 250);
+    return () => {
+      clearTimeout(t);
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    };
+  }, [lesson, access.locked, quizMode, qIndex, finished, quiz, speakWord, defaultTtsRate]);
 
   if (!lesson) {
     return (
@@ -771,7 +805,6 @@ export default function LessonDetailPage() {
     );
   }
 
-  const quiz = quizQuestions.length > 0 ? quizQuestions : (lesson.quiz || []);
   const vocab = lesson.vocabulary || [];
   const batchSize = rules.vocabBatchSize && vocab.length > rules.vocabBatchSize ? rules.vocabBatchSize : vocab.length;
   const totalBatches = batchSize > 0 ? Math.ceil(vocab.length / batchSize) : 1;
@@ -855,7 +888,8 @@ export default function LessonDetailPage() {
     setListenScore(0);
     setListenDone(false);
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
   }
 
   function handleListenPick(i) {
@@ -886,7 +920,12 @@ export default function LessonDetailPage() {
       addXP(xp);
       addSkillXP('listening', xp);
       play('celebration');
-      petRef.current?.emit('lesson_done', { text: 'Nghe giỏi lắm!' });
+      dispatch('lesson_done', {
+        perfect: listenScore === listenQs.length && listenQs.length > 0,
+        score: listenScore,
+        total: listenQs.length,
+        lessonTitle: lesson.title,
+      });
       showToast(`Hoàn thành nghe câu! ${listenScore}/${listenQs.length} đúng · +${xp} 🥛 Sữa 🎧`, 'success');
     }
   }
@@ -911,7 +950,12 @@ export default function LessonDetailPage() {
     speakAwardedRef.current = true;
     setSpeakDone(true);
     play('celebration');
-    petRef.current?.emit('lesson_done', { text: 'Phát âm tuyệt lắm!' });
+    dispatch('lesson_done', {
+      perfect: avg >= 95,
+      score: avg,
+      total: 100,
+      lessonTitle: lesson.title,
+    });
     showToast(`🎤 Luyện nói hoàn tất! Trung bình ${avg}%. +${xp} 🥛 Sữa, +${xp} điểm Speaking`, 'success');
   }
 
@@ -924,30 +968,6 @@ export default function LessonDetailPage() {
     setSpeakResult(null);
     setRecError('');
   }
-
-  /* Auto-play sentence khi sang câu mới (chỉ khi đang ở tab listen, đã start, chưa xong) */
-  useEffect(() => {
-    if (tab !== 'listen' || listenQs.length === 0 || listenDone) return;
-    const q = listenQs[listenIdx];
-    if (!q) return;
-    const t = setTimeout(() => speakWord(q.sentence, 0.85), 300);
-    return () => clearTimeout(t);
-  }, [tab, listenIdx, listenQs, listenDone, speakWord]);
-
-  /* 🔊 Auto-đọc câu hỏi quiz mỗi khi sang câu mới (U6: nếu có audioText thì đọc audioText tiếng Anh) */
-  useEffect(() => {
-    if (!quizMode || finished) return;
-    const q = quiz[qIndex];
-    if (!q) return;
-    const t = setTimeout(() => {
-      if (q.audioText) speakWord(q.audioText, defaultTtsRate, { lang: 'en-US' });
-      else speakWord(q.question, defaultTtsRate);
-    }, 250);
-    return () => {
-      clearTimeout(t);
-      if ('speechSynthesis' in window) speechSynthesis.cancel();
-    };
-  }, [quizMode, qIndex, finished, quiz, speakWord, defaultTtsRate]);
 
   /* ── Quiz answer handler (U3 + H4) ── */
   async function handleAnswer(idx) {
@@ -974,7 +994,16 @@ export default function LessonDetailPage() {
         },
       ]);
     }
-    emitPetAnswer(isCorrect);
+    const matchedVocab = (lesson?.vocabulary || []).find((v) => {
+      const ans = String(q.options?.[q.correct] || '').toLowerCase();
+      const qTxt = String(q.question || '').toLowerCase();
+      const w = String(v.word || '').toLowerCase();
+      return w && (ans === w || qTxt.includes(`"${w}"`) || qTxt.includes(`'${w}'`) || ans === String(v.meaning || '').toLowerCase());
+    });
+    emitPetAnswer(
+      isCorrect,
+      matchedVocab ? { word: matchedVocab.word, meaning: matchedVocab.meaning } : {}
+    );
 
     // Đọc đáp án khi đúng; nếu câu có explanation hoặc trả lời sai -> chờ người học bấm "Câu tiếp theo →" (U3)
     if (isCorrect) {
@@ -1012,7 +1041,12 @@ export default function LessonDetailPage() {
       markLessonCompleted(lesson.id);
       onLessonComplete();
       play('celebration');
-      petRef.current?.emit('lesson_done', { text: isPerfect ? 'Trọn điểm xuất sắc!' : 'Hoàn thành bài học!' });
+      dispatch('lesson_done', {
+        perfect: isPerfect,
+        score: finalScore,
+        total,
+        lessonTitle: lesson.title,
+      });
       spawnConfetti(confettiRef);
     } else {
       play('wrong');
@@ -1073,7 +1107,8 @@ export default function LessonDetailPage() {
     setCorrectAnim(false);
     setWrongAnim(false);
     streakRef.current = 0;
-    petRef.current?.emit('lesson_start');
+    setStreakCount(0);
+    dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
   }
 
   /* ── Flashcard helpers ── */
@@ -1100,38 +1135,165 @@ export default function LessonDetailPage() {
     });
   }
 
-  /* ── Pet companion dock (giữ mount xuyên suốt giữa bài học, quiz và kết quả) ── */
+  /* ── Sân khấu Pet Director (giữ mount xuyên suốt; Desktop sticky bên cạnh, Mobile xếp dọc chuẩn V2) ── */
+  const stageHint = quizMode && finished
+    ? 'Xong bài kiểm tra rồi!'
+    : quizMode
+      ? `Câu ${Math.min(qIndex + 1, quiz.length)}/${quiz.length} · Cố lên nha!`
+      : tab === 'speak'
+        ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
+        : tab === 'listen'
+          ? 'Nghe kỹ và chọn nghĩa đúng nha!'
+          : tab === 'flashcard'
+            ? 'Chạm thẻ để lật và nghe phát âm!'
+            : '';
+
   const petDock = activePet ? (
-    <div className="study-pet-dock" style={quizMode ? { maxWidth: 680, margin: '0 auto 14px' } : undefined}>
-      <div className="study-pet-avatar">
-        <PetAvatar
-          ref={petRef}
-          petId={activePet.speciesId}
-          stage={(activePet.evolution || 0) + 1}
-          group={petSpecies?.group}
-          bond={bondOf(activePet.skills)}
-          topSkill={topSkillOf(activePet.skills)}
-          mode={finished ? 'home' : 'lesson'}
-          fallbackSrc={petEvo?.image}
-          alt={petName}
-        />
-      </div>
-      <div className="study-pet-meta">
-        <div className="study-pet-name">{petName} đang học cùng bạn</div>
-        <div className="study-pet-hint">
-          {quizMode && finished
-            ? 'Tuyệt vời! Bạn vừa hoàn thành bài kiểm tra.'
-            : quizMode
-              ? 'Tập trung trả lời nhé — trả lời đúng liên tiếp để nhận cổ vũ!'
-              : tab === 'speak'
-                ? 'Nhấn micro để đọc to — pet sẽ lắng nghe cùng bạn.'
-                : tab === 'listen'
-                  ? 'Lắng nghe thật kỹ và chọn nghĩa đúng nhé!'
-                  : `Bài: ${lesson.title}`}
+    <PetStage
+      pet={activePet}
+      petRef={petRef}
+      mode={finished ? 'home' : 'lesson'}
+      compact={Boolean(quizMode && !finished)}
+      streak={streakCount}
+      subtitle={stageHint}
+      onSpeak={(en) => speakWord(en, defaultTtsRate, { lang: 'en-US' })}
+    />
+  ) : null;
+
+  /* ══════════════════════════════════════════
+     TOP CHROME (Tiêu đề + Bước học — luôn ở trên cùng, không bị đẩy xuống dưới PetStage)
+     ══════════════════════════════════════════ */
+  const renderLessonTopChrome = () => (
+    <>
+      {/* Compact Header — mô tả & mục tiêu đưa vào popup để tránh cuộn */}
+      <div className="card shadow-sm mb-2">
+        <div className={`card-header-level ${lesson.level}`}></div>
+        <div className="card-body py-2 px-3">
+          <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <div className="d-flex align-items-center gap-2 flex-wrap" style={{ minWidth: 0 }}>
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
+                <i className="fas fa-arrow-left me-1"></i>Lộ trình
+              </button>
+              <span className="d-inline-flex align-items-center"><Emoji e={lesson.icon} size={26} /></span>
+              <h2 className="fw-bold mb-0 fs-5">{lesson.title}</h2>
+              <span className={`badge badge-level-${lesson.level}`}>
+                {lesson.level === 'starter'
+                  ? '🌱 Mới học'
+                  : lesson.level === 'beginner'
+                    ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
+                    : lesson.level === 'intermediate'
+                      ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
+                      : <><Icon name="dotRed" size={12} /> Nâng cao</>}
+              </span>
+              {userData.completedLessons.includes(lesson.id) && (
+                <span className="badge bg-success"><Icon name="check" size={12} /> Đã xong</span>
+              )}
+            </div>
+
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
+              {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-warning fw-bold"
+                  onClick={() => { setQuizMode(true); restartQuiz(); }}
+                  title={`Làm thử quiz đạt ≥${Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay`}
+                >
+                  ⚡ Làm thử
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setLessonInfoOpen(true)}
+                title="Xem mô tả & mục tiêu bài học"
+              >
+                <Icon name="info" size={14} /> Chi tiết
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  ) : null;
+
+      {/* Popup thông tin & mục tiêu bài học */}
+      {lessonInfoOpen && (
+        <div className="cowdi-mini-modal-backdrop" onClick={() => setLessonInfoOpen(false)}>
+          <div className="cowdi-mini-modal" role="dialog" aria-label="Thông tin bài học" onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex align-items-center justify-content-between gap-2 pb-2 mb-2 border-bottom">
+              <div className="d-flex align-items-center gap-2">
+                <Emoji e={lesson.icon} size={28} />
+                <h5 className="fw-bold mb-0">{lesson.title}</h5>
+              </div>
+              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setLessonInfoOpen(false)} aria-label="Đóng">✕</button>
+            </div>
+            <div className="d-flex flex-wrap gap-1 mb-2">
+              <span className="badge bg-light text-dark border">{group.title}</span>
+              <span className={`badge badge-level-${lesson.level}`}>{lesson.level}</span>
+            </div>
+            {lesson.description && <p className="text-muted small mb-2">{lesson.description}</p>}
+            {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
+              <div className="mb-2">
+                <div className="small fw-bold mb-1">Mục tiêu sau bài học:</div>
+                <ul className="small text-muted mb-0 ps-3">
+                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
+                </ul>
+              </div>
+            )}
+            {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
+              <div className="alert alert-light border mt-2 mb-0 py-2 px-3 small">
+                <strong>Chế độ Luyện thi:</strong> Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
+      <div className="lesson-steps mb-3">
+        <div className="lesson-steps-bar">
+          <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
+          <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
+        </div>
+        <ol className="lesson-steps-list">
+          {requiredSteps.map((s, i) => {
+            const done = !!stepDone[s.key];
+            const locked = rules.lessonOrder === 'sequential' && !done && firstOpenIdx !== -1 && i > firstOpenIdx;
+            const cur = tab === s.key;
+            return (
+              <li key={s.key} className="lesson-step-item">
+                <button
+                  type="button"
+                  className={`lesson-step ${done ? 'done' : ''} ${cur ? 'current' : ''} ${locked ? 'locked' : ''}`}
+                  disabled={locked}
+                  onClick={() => setTab(s.key)}
+                  title={locked ? 'Hoàn thành phần trước để mở' : s.label}
+                >
+                  <span className="lesson-step-dot">
+                    {done && !cur ? <Icon name="check" size={24} /> : locked ? <Icon name="lock" size={18} /> : <Icon name={s.icon} size={24} />}
+                  </span>
+                  <span className="lesson-step-label">{i + 1}. {s.label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+        {optionalSteps.length > 0 && (
+          <div className="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
+            <small className="text-muted">Tuỳ chọn:</small>
+            {optionalSteps.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                className={`btn btn-sm ${tab === s.key ? 'btn-cowdi-primary' : stepDone[s.key] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
+                onClick={() => setTab(s.key)}
+              >
+                <Icon name={s.icon} size={14} /> {s.label}{stepDone[s.key] ? ' ✓' : ''}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
 
   /* ══════════════════════════════════════════
      QUIZ RESULT / QUIZ / MAIN LESSON VIEW
@@ -1145,7 +1307,7 @@ export default function LessonDetailPage() {
         rules={rules}
         speakWord={speakWord}
         play={play}
-        petRef={petRef}
+        onPetAnswer={emitPetAnswer}
         userData={userData}
         pathQuerySuffix={pathQuerySuffix}
         pathNext={pathNext}
@@ -1230,31 +1392,32 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     QUIZ IN PROGRESS (U3 explanation + U6 audioText)
+     QUIZ IN PROGRESS (Zero-scroll + Sticky Action Bar)
      ══════════════════════════════════════════ */
   if (quizMode) {
     const q = quiz[qIndex];
     const isListeningQ = Boolean(q?.audioText);
+    const isRight = answered !== null && answered === q.correct;
     return (
-      <div className="fade-in position-relative" style={{ maxWidth: 680, margin: '0 auto' }} ref={confettiRef}>
-        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div className="fade-in position-relative quiz-viewport-stage" ref={confettiRef}>
+        <div className="quiz-top-bar">
           <button className="btn btn-sm btn-outline-secondary" onClick={() => { setQuizMode(false); restartQuiz(); }}>
             <i className="fas fa-arrow-left me-1"></i>Thoát
           </button>
-          <span className="text-muted fw-bold">Câu {qIndex + 1}/{quiz.length}</span>
-          <span className="badge bg-warning text-dark fs-6"><Icon name="star" size={14} /> {score}</span>
+          <span className="text-muted fw-bold small">Câu {qIndex + 1}/{quiz.length}</span>
+          <span className="badge bg-warning text-dark"><Icon name="star" size={14} /> {score}</span>
         </div>
-        <div className="progress mb-4" style={{ height: '8px' }}>
+        <div className="progress" style={{ height: '6px' }}>
           <div
             className="progress-bar progress-bar-cowdi"
             role="progressbar"
             style={{ width: `${((qIndex + 1) / quiz.length) * 100}%` }}
           ></div>
         </div>
-        <div className={`card shadow-sm mb-4 ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
-          <div className="card-body py-4 text-center">
+        <div className={`card shadow-sm quiz-question-card ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
+          <div className="card-body text-center">
             {isListeningQ && (
-              <div className="mb-2">
+              <div className="mb-1">
                 <span className="badge bg-info text-dark">🎧 Câu hỏi nghe</span>
               </div>
             )}
@@ -1305,21 +1468,23 @@ export default function LessonDetailPage() {
           })}
         </div>
         {answered !== null && (
-          <div className="mt-3 fade-in">
-            <div className={`text-center fw-bold fs-5 ${answered === q.correct ? 'text-success' : 'text-danger'}`}>
-              {answered === q.correct ? <><Icon name="check" size={18} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={18} /> Đáp án đúng: {q.options[q.correct]}</>}
-            </div>
-            {q.explanation && (
-              <div className="alert alert-info mt-2 mb-2 py-2 px-3 small">
-                <strong>Giải thích:</strong> {q.explanation}
+          <div className={`quiz-sticky-action-bar fade-in ${isRight ? 'is-correct' : 'is-wrong'}`}>
+            <div className="quiz-sticky-feedback">
+              <div className={`fw-bold ${isRight ? 'text-success' : 'text-danger'}`}>
+                {isRight ? <><Icon name="check" size={16} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={16} /> Đáp án đúng: {q.options[q.correct]}</>}
               </div>
-            )}
-            {(q.explanation || answered !== q.correct) && (
-              <div className="text-center mt-2">
+              {q.explanation && (
+                <div className="small text-dark mt-1">
+                  <strong>Giải thích:</strong> {q.explanation}
+                </div>
+              )}
+            </div>
+            {(q.explanation || !isRight) && (
+              <div className="quiz-sticky-actions">
                 <button
                   type="button"
                   className="btn btn-cowdi-primary px-4"
-                  onClick={() => goToNextQuestion(answered === q.correct)}
+                  onClick={() => goToNextQuestion(isRight)}
                 >
                   {qIndex + 1 < quiz.length ? 'Câu tiếp theo →' : 'Xem kết quả →'}
                 </button>
@@ -1332,108 +1497,10 @@ export default function LessonDetailPage() {
   }
 
   /* ══════════════════════════════════════════
-     MAIN LESSON VIEW
+     MAIN LESSON VIEW CONTENT
      ══════════════════════════════════════════ */
   return (
-    <div className="fade-in position-relative" ref={confettiRef}>
-      {/* Header */}
-      <div className="card shadow-sm mb-4">
-        <div className={`card-header-level ${lesson.level}`}></div>
-        <div className="card-body">
-          <button className="btn btn-outline-secondary btn-sm mb-3" onClick={() => navigate(`/learning-path${pathQuerySuffix}`)}>
-            <i className="fas fa-arrow-left me-1"></i>Lộ trình
-          </button>
-          <div className="d-flex align-items-center gap-3 flex-wrap">
-            <span style={{ fontSize: '2.5rem' }} className="emoji-big"><Emoji e={lesson.icon} size={48} /></span>
-            <div>
-              <h2 className="fw-bold mb-1">{lesson.title}</h2>
-              <p className="text-muted mb-1">{lesson.description}</p>
-              <div className="d-flex flex-wrap gap-1 align-items-center">
-                <span className={`badge badge-level-${lesson.level}`}>
-                  {lesson.level === 'starter'
-                    ? '🌱 Mới học'
-                    : lesson.level === 'beginner'
-                      ? <><Icon name="dotGreen" size={12} /> Cơ bản</>
-                      : lesson.level === 'intermediate'
-                        ? <><Icon name="dotYellow" size={12} /> Trung cấp</>
-                        : <><Icon name="dotRed" size={12} /> Nâng cao</>}
-                </span>
-                <span className="badge bg-light text-dark border">{group.title}</span>
-                {userData.completedLessons.includes(lesson.id) && (
-                  <span className="badge bg-success"><Icon name="check" size={12} /> Đã hoàn thành</span>
-                )}
-              </div>
-              {Array.isArray(lesson.objectives) && lesson.objectives.length > 0 && (
-                <ul className="small text-muted mb-0 mt-2 ps-3">
-                  {lesson.objectives.map((obj, oi) => <li key={oi}>{obj}</li>)}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          {/* Pretest "Làm thử trước" cho nhóm Luyện thi (SDD §4.3) */}
-          {rules.pretest && !userData.completedLessons.includes(lesson.id) && (
-            <div className="alert alert-light border mt-3 mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <div className="small">
-                <strong>Chế độ Luyện thi:</strong> Đã nắm chắc kiến thức bài này? Làm thử quiz đạt ≥{Math.round(rules.lessonPassRate * 100)}% để vượt bài ngay.
-              </div>
-              <button
-                type="button"
-                className="btn btn-sm btn-warning fw-bold"
-                onClick={() => { setQuizMode(true); restartQuiz(); }}
-              >
-                ⚡ Làm thử quiz (vượt bài)
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Stepper: Phần bắt buộc trước + nhóm Tuỳ chọn (SDD §4.1) */}
-      <div className="lesson-steps mb-4">
-        <div className="lesson-steps-bar">
-          <div className="book-bar"><i style={{ width: `${stepsPct}%` }} /></div>
-          <span>{stepsDoneCount}/{requiredSteps.length} phần bắt buộc · <b>{stepsPct}%</b></span>
-        </div>
-        <ol className="lesson-steps-list">
-          {requiredSteps.map((s, i) => {
-            const done = !!stepDone[s.key];
-            const locked = rules.lessonOrder === 'sequential' && !done && firstOpenIdx !== -1 && i > firstOpenIdx;
-            const cur = tab === s.key;
-            return (
-              <li key={s.key} className="lesson-step-item">
-                <button
-                  type="button"
-                  className={`lesson-step ${done ? 'done' : ''} ${cur ? 'current' : ''} ${locked ? 'locked' : ''}`}
-                  disabled={locked}
-                  onClick={() => setTab(s.key)}
-                  title={locked ? 'Hoàn thành phần trước để mở' : s.label}
-                >
-                  <span className="lesson-step-dot">
-                    {done && !cur ? <Icon name="check" size={24} /> : locked ? <Icon name="lock" size={18} /> : <Icon name={s.icon} size={24} />}
-                  </span>
-                  <span className="lesson-step-label">{i + 1}. {s.label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-        {optionalSteps.length > 0 && (
-          <div className="d-flex align-items-center gap-2 flex-wrap mt-2 pt-2 border-top">
-            <small className="text-muted">Tuỳ chọn:</small>
-            {optionalSteps.map((s) => (
-              <button
-                key={s.key}
-                type="button"
-                className={`btn btn-sm ${tab === s.key ? 'btn-cowdi-primary' : stepDone[s.key] ? 'btn-outline-success' : 'btn-outline-secondary'}`}
-                onClick={() => setTab(s.key)}
-              >
-                <Icon name={s.icon} size={14} /> {s.label}{stepDone[s.key] ? ' ✓' : ''}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="fade-in position-relative">
 
       {/* ── VOCAB TAB (U7: pos, exampleVi + vocabBatchSize = 10) ── */}
       {tab === 'vocab' && (
@@ -1724,14 +1791,6 @@ export default function LessonDetailPage() {
 
       {tab === 'speak' && !speakDone && (
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <div className="card shadow-sm mb-4 bg-cowdi-gradient text-white">
-            <div className="card-body text-center py-4">
-              <div style={{ fontSize: '3rem' }} className="emoji-big"><Icon name="cow" size={56} /><Icon name="mic" size={56} /></div>
-              <h4 className="fw-bold mt-2">Nói theo Cowdi!</h4>
-              <p className="mb-0 opacity-75">Nghe → Nhấn mic → Nói → Xem điểm!</p>
-            </div>
-          </div>
-
           {/* Browser support warning */}
           {!SpeechRecognitionAPI && (
             <div className="alert alert-warning d-flex align-items-center gap-2 mb-3">
@@ -1975,19 +2034,16 @@ export default function LessonDetailPage() {
                       />
                     </div>
 
-                    {/* Audio area */}
+                    {/* Audio area — compact để nhìn trọn cả 4 đáp án không phải cuộn */}
                     <div
-                      className="text-center text-white py-4 px-3 mb-3"
+                      className="text-center text-white py-2 px-3 mb-2"
                       style={{
                         background: 'linear-gradient(135deg, #FF6B9D 0%, #A29BFE 100%)',
-                        borderRadius: 16,
-                        boxShadow: '0 6px 20px rgba(255,107,157,.25)',
+                        borderRadius: 14,
+                        boxShadow: '0 4px 14px rgba(255,107,157,.2)',
                       }}
                     >
-                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.18))' }} className="emoji-big">
-                        <Icon name="sound" size={56} />
-                      </div>
-                      <p className="mb-2 opacity-90 small">Nghe câu sau và chọn nghĩa đúng</p>
+                      <p className="mb-1 opacity-90 small">🎧 Nghe câu sau và chọn nghĩa đúng</p>
                       <div className="d-flex gap-2 justify-content-center flex-wrap">
                         <button
                           type="button"
@@ -1997,7 +2053,7 @@ export default function LessonDetailPage() {
                             border: '1px solid rgba(255,255,255,.4)',
                             color: '#fff',
                             borderRadius: 999,
-                            padding: '6px 16px',
+                            padding: '5px 14px',
                             fontWeight: 600,
                             cursor: 'pointer',
                           }}
@@ -2012,7 +2068,7 @@ export default function LessonDetailPage() {
                             border: '1px solid rgba(255,255,255,.4)',
                             color: '#fff',
                             borderRadius: 999,
-                            padding: '6px 16px',
+                            padding: '5px 14px',
                             fontWeight: 600,
                             cursor: 'pointer',
                           }}
@@ -2020,33 +2076,30 @@ export default function LessonDetailPage() {
                           <Icon name="turtle" size={16} /> Chậm
                         </button>
                         {listenPicked !== null && (
-                          <button
-                            type="button"
-                            onClick={() => { /* reveal text already shown */ }}
+                          <span
                             style={{
                               background: '#fff',
                               color: '#E0527E',
-                              border: 'none',
                               borderRadius: 999,
-                              padding: '6px 16px',
+                              padding: '5px 14px',
                               fontWeight: 600,
-                              cursor: 'default',
+                              fontSize: '0.88rem',
                             }}
                           >
-                            <Icon name="note" size={16} /> {q.sentence}
-                          </button>
+                            <Icon name="note" size={14} /> {q.sentence}
+                          </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Options */}
+                    {/* Options — lưới 2×2 trên desktop để không phải cuộn */}
                     <div className="row g-2">
                       {q.options.map((opt, i) => {
                         const picked = listenPicked === i;
                         const isCorrect = i === q.correct;
                         const showResult = listenPicked !== null;
-                        let cls = 'btn w-100 text-start py-2 px-3';
-                        let extraStyle = { borderRadius: 12, fontSize: '.95rem' };
+                        let cls = 'btn w-100 text-start py-2 px-3 quiz-option-btn';
+                        let extraStyle = { borderRadius: 12, fontSize: '.92rem' };
                         if (showResult) {
                           if (isCorrect) cls += ' btn-success';
                           else if (picked) cls += ' btn-danger';
@@ -2055,7 +2108,7 @@ export default function LessonDetailPage() {
                           cls += ' btn-outline-cowdi';
                         }
                         return (
-                          <div className="col-12" key={i}>
+                          <div className="col-12 col-md-6" key={i}>
                             <button
                               className={cls}
                               style={extraStyle}
@@ -2072,28 +2125,25 @@ export default function LessonDetailPage() {
                       })}
                     </div>
 
-                    {/* Feedback + next */}
+                    {/* Sticky Feedback + Next bar */}
                     {listenPicked !== null && (
-                      <div className="mt-3">
-                        {listenPicked === q.correct ? (
-                          <div
-                            className="alert mb-2 py-2"
-                            style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', borderRadius: 12 }}
-                          >
-                            <Icon name="check" size={16} /> <strong>Chính xác!</strong> Câu nghe: <em>"{q.sentence}"</em>
-                          </div>
-                        ) : (
-                          <div
-                            className="alert mb-2 py-2"
-                            style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: 12 }}
-                          >
-                            <Icon name="x" size={16} /> <strong>Chưa đúng.</strong> Đáp án: <em>"{q.options[q.correct]}"</em>
-                            <div className="small mt-1 text-muted">Câu nghe: "{q.sentence}"</div>
-                          </div>
-                        )}
-                        <button className="btn btn-cowdi-primary w-100" onClick={handleListenNext}>
-                          {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : <><Icon name="checkered" size={16} /> Hoàn thành</>}
-                        </button>
+                      <div className={`quiz-sticky-action-bar mt-2 fade-in ${listenPicked === q.correct ? 'is-correct' : 'is-wrong'}`}>
+                        <div className="quiz-sticky-feedback">
+                          {listenPicked === q.correct ? (
+                            <span className="text-success fw-bold">
+                              <Icon name="check" size={16} /> Chính xác! <em>"{q.sentence}"</em>
+                            </span>
+                          ) : (
+                            <span className="text-danger fw-bold">
+                              <Icon name="x" size={16} /> Đáp án: <em>"{q.options[q.correct]}"</em>
+                            </span>
+                          )}
+                        </div>
+                        <div className="quiz-sticky-actions">
+                          <button className="btn btn-cowdi-primary px-4" onClick={handleListenNext}>
+                            {listenIdx + 1 < listenQs.length ? 'Câu tiếp theo →' : <><Icon name="checkered" size={16} /> Hoàn thành</>}
+                          </button>
+                        </div>
                       </div>
                     )}
 
@@ -2134,8 +2184,35 @@ export default function LessonDetailPage() {
         </div>
       )}
 
-      {/* ── Step footer: finish this part → next ── */}
-      {['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
+    </div>
+  );
+  };
+
+  const isMainLesson = !quizMode && lesson.format !== 'picture';
+  const isCenteredLayout =
+    lesson.format === 'picture' ||
+    quizMode ||
+    ['flashcard', 'listen', 'speak', 'quiz'].includes(tab);
+  const isFlashcardLayout = isMainLesson && tab === 'flashcard';
+
+  return (
+    <div className="fade-in position-relative" ref={confettiRef}>
+      {isMainLesson && renderLessonTopChrome()}
+      <div
+        className={`pd-lesson-layout${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
+      >
+        {petDock && (
+          <aside className="pd-lesson-stage-col">
+            {petDock}
+          </aside>
+        )}
+        <div className="pd-lesson-content-col">
+          {renderLessonBody()}
+        </div>
+      </div>
+
+      {/* ── Step footer: nằm trọn bề ngang đáy trang, cân đối hai bên ── */}
+      {isMainLesson && ['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
         <div className="lesson-step-footer">
           <div className="lesson-step-footer-txt">
             <small className="text-muted">Phần {curStepIdx + 1}/{steps.length}</small>
@@ -2146,25 +2223,17 @@ export default function LessonDetailPage() {
           </button>
         </div>
       )}
-      {tab === 'speak' && !speakDone && (!speakMandatory || !SpeechRecognitionAPI) && (
+      {isMainLesson && tab === 'speak' && !speakDone && (!speakMandatory || !SpeechRecognitionAPI) && (
         <div className="text-center mt-3">
           <button type="button" className="btn btn-link text-muted" onClick={completeStep}>Không có micro? Bỏ qua phần này →</button>
         </div>
       )}
-      {tab === 'speak' && !speakDone && speakMandatory && SpeechRecognitionAPI && (
+      {isMainLesson && tab === 'speak' && !speakDone && speakMandatory && SpeechRecognitionAPI && (
         <div className="text-center mt-2 small text-muted">
           Phần phát âm bắt buộc cho nhóm Luyện thi (cần trung bình ≥{speakPassThreshold}%).
         </div>
       )}
     </div>
-  );
-  };
-
-  return (
-    <>
-      {petDock}
-      {renderLessonBody()}
-    </>
   );
 }
 

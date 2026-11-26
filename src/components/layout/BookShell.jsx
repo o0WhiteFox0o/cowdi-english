@@ -15,30 +15,34 @@ import { EmojiText } from '../Emoji';
 const LEARN_PATHS    = ['/', '/learning-path', '/placement', '/lessons', '/vocabulary'];
 const PRACTICE_PATHS = ['/practice', '/review', '/mini-games', '/duel', '/typing'];
 const PET_PATHS      = ['/pet', '/collection', '/shop'];
-const ME_PATHS       = ['/overview', '/progress', '/student-ranking', '/leaderboard', '/account', '/admin'];
+const ME_PATHS       = ['/overview', '/progress', '/friends', '/student-ranking', '/leaderboard', '/account', '/admin'];
 
-/* Desktop nav (grouped like chapters in a notebook). icon = Icon name or 'PET' */
+/* Desktop nav — chỉ giữ mục dùng thường xuyên; mục ít dùng chuyển vào popup "Thêm" */
 const TAB_GROUPS = [
   { label: null, items: [
     { to: '/', end: true, icon: 'road', label: 'Lộ trình học', color: '#7DBE4B' },
   ]},
-  { label: 'Học tập & Ôn luyện', items: [
+  { label: 'Học & Luyện', items: [
     { to: '/practice',      icon: 'target',  label: 'Ôn tập & Bài tập', color: '#EA5A5A' },
     { to: '/vocabulary',    icon: 'map',     label: 'Từ vựng',         color: '#F4A83A' },
-    { to: '/lessons',       icon: 'book',    label: 'Thư viện bài',    color: '#5ECFC0' },
     { to: '/mini-games',    icon: 'gamepad', label: 'Đấu trường game', color: '#F48FB1' },
   ]},
-  { label: 'Hệ thống Pet', items: [
+  { label: 'Pet & Cửa hàng', items: [
     { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
     { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
     { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
-  { label: 'Sổ tay tổng quát', items: [
-    { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
-    // { to: '/progress',        icon: 'chart',   label: 'Tiến trình',     color: '#5ECFC0' },
-    { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng', color: '#F6D365' },
-    { to: '/account',         icon: 'user',    label: 'Tài khoản',      color: '#8A99AA' },
-  ]},
+];
+
+/* Desktop secondary links — gom vào popup gọn để không phải cuộn sidebar */
+const DESKTOP_MORE_ITEMS = [
+  { to: '/friends',         icon: 'users',   label: 'Bạn bè',         color: '#7DBE4B' },
+  { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
+  { to: '/progress',        icon: 'chart',   label: 'Tiến trình học', color: '#5ECFC0' },
+  { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng',  color: '#F6D365' },
+  { to: '/duel',            icon: 'swords',  label: 'Đấu bạn bè',     color: '#EA5A5A' },
+  { to: '/review',          icon: 'brain',   label: 'Ôn nhanh SRS',   color: '#7DBE4B' },
+  { to: '/account',         icon: 'user',    label: 'Tài khoản',      color: '#8A99AA' },
 ];
 
 /* Mobile popup sub-menus (SDD §5.5: gom 2 mục Luyện thi IELTS/TOEIC thành 1 mục Luyện thi) */
@@ -64,6 +68,7 @@ const buildMobileMenus = (activePath) => {
       { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
     ],
     me: [
+      { icon: 'users',   label: 'Bạn bè',         path: '/friends' },
       { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
       { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
       { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },
@@ -157,21 +162,31 @@ export default function BookShell({ children }) {
     return COWDI_MESSAGES[seed % COWDI_MESSAGES.length];
   }, []);
 
-  /* ── Mobile popup sub-menu state ── */
+  /* ── Mobile & Desktop popup menu state ── */
   const [openTab, setOpenTab] = useState(null);
+  const [desktopPopup, setDesktopPopup] = useState(null); // null | 'more' | 'tip'
   const [inviteOpen, setInviteOpen] = useState(false);
   const popupRef = useRef(null);
+  const desktopFooterRef = useRef(null);
 
-  useEffect(() => { setOpenTab(null); }, [pathname]);
+  useEffect(() => { setOpenTab(null); setDesktopPopup(null); }, [pathname]);
 
   useEffect(() => {
-    if (!openTab) return;
+    if (!openTab && !desktopPopup) return;
     const handler = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) setOpenTab(null);
+      if (openTab && popupRef.current && !popupRef.current.contains(e.target)) setOpenTab(null);
+      if (desktopPopup && desktopFooterRef.current && !desktopFooterRef.current.contains(e.target)) setDesktopPopup(null);
+    };
+    const keyHandler = (e) => {
+      if (e.key === 'Escape') { setOpenTab(null); setDesktopPopup(null); }
     };
     document.addEventListener('pointerdown', handler);
-    return () => document.removeEventListener('pointerdown', handler);
-  }, [openTab]);
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('pointerdown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
+  }, [openTab, desktopPopup]);
 
   const handleTabTap = useCallback((key) => {
     setOpenTab((cur) => (cur === key ? null : key));
@@ -241,9 +256,10 @@ export default function BookShell({ children }) {
         <aside className="book-side">
           <Link to="/" className="book-plaque text-decoration-none">
             <img src="/assets/images/logo/MiniLogoCowdi.svg" alt="" />
-            <small>Welcome to</small>
-            <strong>Cowdi</strong>
-            <em>English Notebook</em>
+            <span className="book-plaque-text">
+              <strong>Cowdi</strong>
+              <em>English Notebook</em>
+            </span>
           </Link>
 
           <nav aria-label="Điều hướng chính">
@@ -251,9 +267,7 @@ export default function BookShell({ children }) {
               <div key={gi}>
                 {group.label && <div className="book-tab-group">{group.label}</div>}
                 <ul className="book-tabs">
-                  {group.items
-                    .filter((item) => item.to !== '/lessons' || Boolean(user?.is_admin))
-                    .map((item) => (
+                  {group.items.map((item) => (
                     <li key={item.to}>
                       <NavLink
                         to={item.to}
@@ -261,44 +275,100 @@ export default function BookShell({ children }) {
                         className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`}
                         style={{ '--tab-color': item.color }}
                       >
-                        <span className="book-tab-icon">{renderTabIcon(item.icon)}</span>
+                        <span className="book-tab-icon">{renderTabIcon(item.icon, 20)}</span>
                         <span>{item.label}</span>
                       </NavLink>
                     </li>
                   ))}
-                  {group.label?.includes('Sổ tay') && isAdmin && (
-                    <>
-                      <li>
-                        <NavLink to="/admin" end className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }}>
-                          <span className="book-tab-icon"><Icon name="wrench" size={22} /></span><span>Quản trị</span>
-                        </NavLink>
-                      </li>
-                      <li>
-                        <NavLink to="/admin/pet-motion" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#2F9E4F' }}>
-                          <span className="book-tab-icon">{renderTabIcon('PET', 22)}</span><span>Chỉnh động tác pet</span>
-                        </NavLink>
-                      </li>
-                    </>
-                  )}
-                  {group.label?.includes('Sổ tay') && (
-                    <li>
-                      <button type="button" className="book-tab" style={{ '--tab-color': '#F6D365' }} onClick={() => setInviteOpen(true)}>
-                        <span className="book-tab-icon"><Icon name="gift" size={22} /></span><span>Mời bạn học</span>
-                      </button>
-                    </li>
-                  )}
                 </ul>
               </div>
             ))}
           </nav>
 
-          <Link to="/pet" className="book-mascot text-decoration-none">
-            <img src={petImg} alt={petName} />
-            <div className="book-note">
-              <b>{petName} nhắn:</b>
-              <EmojiText>{tip}</EmojiText>
-            </div>
-          </Link>
+          {/* Chức năng ít dùng & Lời nhắn Pet gom vào popup gọn */}
+          <div className="book-side-footer" ref={desktopFooterRef}>
+            {desktopPopup === 'more' && (
+              <div className="book-side-popup" role="dialog" aria-label="Tiện ích mở rộng">
+                <div className="book-side-popup-head">
+                  <span>Tiện ích &amp; Hồ sơ</span>
+                  <button type="button" className="btn btn-sm p-0 border-0 text-muted" onClick={() => setDesktopPopup(null)} aria-label="Đóng">✕</button>
+                </div>
+                {DESKTOP_MORE_ITEMS.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`}
+                    style={{ '--tab-color': item.color }}
+                    onClick={() => setDesktopPopup(null)}
+                  >
+                    <span className="book-tab-icon">{renderTabIcon(item.icon, 18)}</span>
+                    <span>{item.label}</span>
+                  </NavLink>
+                ))}
+                <button
+                  type="button"
+                  className="book-tab"
+                  style={{ '--tab-color': '#F6D365' }}
+                  onClick={() => { setDesktopPopup(null); setInviteOpen(true); }}
+                >
+                  <span className="book-tab-icon"><Icon name="gift" size={18} /></span>
+                  <span>Mời bạn học</span>
+                </button>
+                {isAdmin && (
+                  <>
+                    <div className="book-tab-group mt-1">Quản trị</div>
+                    <NavLink to="/lessons" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#5ECFC0' }} onClick={() => setDesktopPopup(null)}>
+                      <span className="book-tab-icon"><Icon name="book" size={18} /></span><span>Thư viện bài</span>
+                    </NavLink>
+                    <NavLink to="/admin" end className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }} onClick={() => setDesktopPopup(null)}>
+                      <span className="book-tab-icon"><Icon name="wrench" size={18} /></span><span>Quản trị hệ thống</span>
+                    </NavLink>
+                    <NavLink to="/admin/pet-motion" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#2F9E4F' }} onClick={() => setDesktopPopup(null)}>
+                      <span className="book-tab-icon">{renderTabIcon('PET', 18)}</span><span>Quản lý Pet</span>
+                    </NavLink>
+                  </>
+                )}
+              </div>
+            )}
+
+            {desktopPopup === 'tip' && (
+              <div className="book-side-popup" role="dialog" aria-label={`Lời nhắn của ${petName}`}>
+                <div className="book-side-popup-head">
+                  <span>{petName} nhắn hôm nay</span>
+                  <button type="button" className="btn btn-sm p-0 border-0 text-muted" onClick={() => setDesktopPopup(null)} aria-label="Đóng">✕</button>
+                </div>
+                <div className="p-2 text-center">
+                  <img src={petImg} alt={petName} style={{ width: 72, height: 72, objectFit: 'contain' }} />
+                  <p className="small mb-2 mt-1"><EmojiText>{tip}</EmojiText></p>
+                  <Link to="/pet" className="btn btn-sm btn-cowdi-primary w-100" onClick={() => setDesktopPopup(null)}>
+                    Thăm {petName}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            <button
+              type="button"
+              className={`book-tab ${desktopPopup === 'more' || isIn(ME_PATHS) ? 'active' : ''}`}
+              style={{ '--tab-color': '#4EA8E8' }}
+              aria-expanded={desktopPopup === 'more'}
+              onClick={() => setDesktopPopup((v) => (v === 'more' ? null : 'more'))}
+            >
+              <span className="book-tab-icon"><Icon name="home" size={19} /></span>
+              <span>Thêm &amp; Hồ sơ ⋯</span>
+            </button>
+
+            <button
+              type="button"
+              className="book-mascot-mini"
+              aria-expanded={desktopPopup === 'tip'}
+              onClick={() => setDesktopPopup((v) => (v === 'tip' ? null : 'tip'))}
+              title={`Xem lời nhắn của ${petName}`}
+            >
+              <img src={petImg} alt={petName} />
+              <span><b>{petName}:</b> Lời nhắn hôm nay</span>
+            </button>
+          </div>
         </aside>
 
         {/* Spiral binding */}
@@ -389,7 +459,7 @@ export default function BookShell({ children }) {
               ...(openTab === 'me' && isAdmin
                 ? [
                     { icon: 'wrench', label: 'Quản trị', path: '/admin' },
-                    { icon: 'PET', label: 'Chỉnh động tác pet', path: '/admin/pet-motion' },
+                    { icon: 'PET', label: 'Quản lý Pet', path: '/admin/pet-motion' },
                   ]
                 : []),
             ].map((item) => (

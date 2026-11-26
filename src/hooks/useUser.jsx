@@ -983,8 +983,18 @@ export function UserProvider({ children }) {
     return null;
   }, [user, authFetch, pushProgress]);
 
+  // Cập nhật trực tiếp userData (dùng bởi ShopPage khi tải streakState & ví mới nhất từ server)
+  const updateUserData = useCallback((updater) => {
+    setUserData((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
   const value = {
     userData,
+    setUserData: updateUserData,
     addXP,
     spendXP,
     syncWallet,

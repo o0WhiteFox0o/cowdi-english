@@ -8,6 +8,7 @@ export const S1_ME_LESSON = {
   level: 'starter',
   cefrLevel: 'A1',
   unit: 's1-u1',
+  category: 'person',
   title: 'Em là ai',
   description: 'Gọi tên 6 người quen xung quanh em',
   icon: '🧒',

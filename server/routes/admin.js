@@ -150,4 +150,40 @@ router.get('/overview', async (req, res) => {
   }
 });
 
+// ── GET /api/admin/friend-reports – danh sách báo cáo bạn bè (FR-FRD-04) ────
+router.get('/friend-reports', async (req, res) => {
+  try {
+    const onlyOpen = req.query.handled === '0';
+    const [rows] = await pool.execute(
+      `SELECT r.id, r.reporter_id, r.reported_id, r.reason, r.created_at, r.handled,
+              u1.nickname AS reporter_nickname, u2.nickname AS reported_nickname
+         FROM friend_reports r
+         LEFT JOIN users u1 ON u1.id = r.reporter_id
+         LEFT JOIN users u2 ON u2.id = r.reported_id
+        ${onlyOpen ? 'WHERE r.handled = 0' : ''}
+        ORDER BY r.handled ASC, r.created_at DESC
+        LIMIT 100`
+    );
+    res.json({ reports: rows });
+  } catch (err) {
+    console.error('GET /api/admin/friend-reports error:', err);
+    res.status(500).json({ error: 'Lỗi tải báo cáo bạn bè.' });
+  }
+});
+
+// ── PATCH /api/admin/friend-reports/:id/handle – đánh dấu đã xử lý ──────────
+router.patch('/friend-reports/:id/handle', async (req, res) => {
+  try {
+    const reportId = Number(req.params.id);
+    if (!Number.isInteger(reportId) || reportId <= 0) {
+      return res.status(400).json({ error: 'ID báo cáo không hợp lệ.' });
+    }
+    await pool.execute('UPDATE friend_reports SET handled = 1 WHERE id = ?', [reportId]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('PATCH /api/admin/friend-reports/:id/handle error:', err);
+    res.status(500).json({ error: 'Lỗi cập nhật báo cáo.' });
+  }
+});
+
 export default router;

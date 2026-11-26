@@ -1,12 +1,13 @@
 # GDE-DEPLOY-PRODUCTION — Sổ tay Triển khai Production (aaPanel + MySQL)
 
-> **Chuẩn tham chiếu:** ISO/IEC/IEEE 12207 & 26514 · **Phiên bản:** 1.0 · **Trạng thái:** Approved · **Cập nhật:** 2026-11-24
+> **Chuẩn tham chiếu:** ISO/IEC/IEEE 12207 & 26514 · **Phiên bản:** 1.1 · **Trạng thái:** Approved · **Cập nhật:** 2026-11-25
 > **Môi trường đích:** `https://cowdi.net` · Thư mục web root: `/www/wwwroot/cowdi.net/` · Backend port: `3001` (Nginx reverse proxy `/api/` & `/auth/`).
 
 ## Lịch sử sửa đổi
 | Phiên bản | Ngày | Nội dung | Người thực hiện |
 |---|---|---|---|
 | 1.0 | 2026-11-24 | Chuẩn hoá quy trình build, đóng gói `deploy.zip`, chạy migration an toàn MySQL 5.5/5.6+, rollback và bảng xử lý sự cố thực tế | Production Director / PM |
+| 1.1 | 2026-11-25 | Bổ sung quy trình đóng gói chuẩn trên Windows PowerShell (`deploy.ps1` xuất đường dẫn POSIX `/`, kèm `scripts/`, bỏ `server/tests/` và tự kiểm định an toàn gói zip) | Sonny + AI |
 
 ---
 
@@ -25,6 +26,16 @@ Thực hiện trên máy dev trước khi tạo `deploy.zip` (chi tiết phiếu
 
 ## 2. Đóng gói `deploy.zip` chuẩn
 
+### Trên Windows (PowerShell — khuyến nghị dùng `deploy.ps1`)
+```powershell
+# Chạy kiểm thử trước khi đóng gói:
+npm.cmd test
+
+# Chạy script đóng gói chuẩn POSIX '/' cho Linux/aaPanel (tự kiểm định an toàn cuối lệnh):
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+> **Lưu ý trên Windows PowerShell 5.1:** Không nén thủ công bằng `Compress-Archive` vì sẽ sinh đường dẫn chứa dấu `\` làm lỗi cây thư mục khi giải nén trên Linux/aaPanel. Script [deploy.ps1](../../deploy.ps1) đã dùng `.NET ZipArchive` ép chuẩn dấu `/`, tự copy `scripts/`, bỏ `server/tests/`, `server/storage/`, `server/.env`, `server/node_modules/` và tự chạy bước kiểm định an toàn `[3/4]`.
+
 ### Trên macOS / Linux
 ```bash
 npm run build:prod
@@ -35,7 +46,7 @@ cp -R server deploy-package/server
 rm -rf deploy-package/server/storage deploy-package/server/node_modules deploy-package/server/.env deploy-package/server/package-lock.json deploy-package/server/tests
 cp -R shared deploy-package/shared
 rm -f deploy-package/shared/*.test.js
-cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js deploy-package/scripts/
+cp scripts/package.json scripts/run-v2-migration.js scripts/run-v2-streak-migration.js scripts/run-v2-cosmetics-migration.js scripts/run-learning-groups-migration.js scripts/run-pet-catalog-migration.js scripts/run-friends-migration.js deploy-package/scripts/
 cp nginx-spa.conf deploy-package/nginx-spa.conf
 (cd deploy-package && zip -rq ../deploy.zip .)
 rm -rf deploy-package
@@ -65,6 +76,10 @@ npm install --production
 # Chỉ chạy khi bản phát hành có thay đổi DB (an toàn chạy lại nhiều lần):
 node ../scripts/run-v2-migration.js
 node ../scripts/run-v2-streak-migration.js
+node ../scripts/run-v2-cosmetics-migration.js
+node ../scripts/run-learning-groups-migration.js
+node ../scripts/run-pet-catalog-migration.js
+node ../scripts/run-friends-migration.js
 
 # Nếu lần đầu bật Pet Motion (chỉ cần chạy 1 lần):
 # Import server/db/migrate-pet-motion.sql trong phpMyAdmin, rồi:
@@ -83,7 +98,7 @@ node ../scripts/run-v2-streak-migration.js
   Log phải hiển thị `✅ Database kết nối thành công` và không có lỗi khởi động.
 
 ### Bước 4 — Kiểm tra cấu hình Nginx
-Đảm bảo file cấu hình site trong aaPanel giữ nguyên khối `location ^~ /api/` và `location ^~ /auth/` từ [nginx-spa.conf](../../nginx-spa.conf) để các URL ảnh `/api/pet-motion/assets/*.png|*.webp` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh.
+Đảm bảo file cấu hình site trong aaPanel giữ nguyên các khối `location ^~ /api/`, `location ^~ /i/` (OG thẻ mời cho Zalo/FB) và `location /auth/` từ [nginx-spa.conf](../../nginx-spa.conf) để URL ảnh động và đường dẫn thiệp mời `/i/:code` được chuyển đúng về Node backend thay vì rơi vào rule file tĩnh / SPA fallback.
 
 ---
 
@@ -115,3 +130,4 @@ node ../scripts/run-v2-streak-migration.js
 | `SyntaxError: Cannot use import statement outside a module` khi chạy `scripts/*.js` | Thư mục `scripts/` thiếu `package.json` | Đảm bảo có `scripts/package.json` với `{"type":"module"}` |
 | `[PM2][ERROR] Process cowdi-backend not found` | Tiến trình chạy dưới tên khác hoặc quản lý qua aaPanel Node Project | Chạy `pm2 list` để xem tên thật hoặc Restart trực tiếp trong aaPanel UI |
 | Giao diện vẫn hiện bản cũ sau khi deploy | Trình duyệt đang cache Service Worker PWA cũ | Nhấn **Ctrl+Shift+R** hoặc Application → Service Workers → Unregister |
+| `Lỗi lưu: Không tải được ảnh (404)` trên `/admin/pet-motion` | Nginx thiếu `^~` ở `location /api/` làm regex `\.(webp\|png)$` chặn ảnh động | Dùng `location ^~ /api/` theo `nginx-spa.conf` và cập nhật bản code có hậu tố `/raw` cho API ảnh |

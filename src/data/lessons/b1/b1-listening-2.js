@@ -198,7 +198,7 @@ export const B1_LISTENING_2_LESSON = {
       question: "Khi nghe điền form, nên chú ý:",
       options: [
         "Ngữ pháp câu",
-        "Spelling, numbers, dates",
+        "Chính tả, con số và ngày tháng",
         "Giọng điệu",
         "Tốc độ nói"
       ],

@@ -8,13 +8,15 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../components/Toast';
 import {
   PET_REGISTRY, getEvolutionInfo, calculatePowerScore, getSkillLevel,
-  getPetMood, getPetMessage, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
+  getPetMood, SKILL_META, ELEMENT_COLORS, RARITY_COLORS,
   DAILY_QUESTS, SHOP_ITEMS, COWDI_IMAGES,
 } from '../../data/pets';
 import { CURRENCIES } from '../../../shared/game-config.js';
 import { COSMETIC_MAP } from '../../../shared/cosmetics-data.js';
 import { computeStats, computePowerScore, canEvolve } from '../../../shared/battle-engine.js';
 import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
+import { usePetDirector } from '../../pet-director/DirectorContext';
+import PetSpeech from '../../pet-director/PetSpeech';
 import EvolutionAnimation from './EvolutionAnimation';
 import InviteSheet from '../invite/InviteSheet';
 import Icon, { SKILL_ICON } from '../../components/Icon';
@@ -31,6 +33,13 @@ export default function PetPage() {
   const [nameInput, setNameInput] = useState('');
   const [evolving, setEvolving] = useState(false);
   const petAvatarRef = useRef(null);
+  const { register, dispatch, speech } = usePetDirector();
+
+  useEffect(() => {
+    const unregister = register('pet', petAvatarRef);
+    dispatch('screen_enter', { screen: 'pet' });
+    return unregister;
+  }, [register, dispatch]);
 
   // Evolution animation flow:
   //  evoEvent = { stage: 'animation' | 'result', oldEvo, newEvo, petName }
@@ -46,7 +55,7 @@ export default function PetPage() {
   const battleStats = activePet ? computeStats(activePet) : null;
   const power = activePet ? computePowerScore(activePet) : 0;
   const mood = activePet ? getPetMood(activePet.needs) : 'happy';
-  const message = species ? getPetMessage(activePet.speciesId, mood) : '';
+  const petSpeech = speech && speech.slot === 'pet' ? speech : null;
 
   const walletForEvo = userData.wallet || { milk: userData.availableXP || 0, gem: 0, stone: 0 };
   const evoCheck = activePet ? canEvolve(activePet, walletForEvo) : { ok: false, checks: [] };
@@ -104,22 +113,22 @@ export default function PetPage() {
   useEffect(() => {
     if (!activePet) return;
     if (prevEvoRef.current != null && activePet.evolution > prevEvoRef.current) {
-      petAvatarRef.current?.emit('evolve_ok', { stage: activePet.evolution + 1 });
+      dispatch('evolve_ok', { stage: activePet.evolution + 1 });
     }
     prevEvoRef.current = activePet.evolution;
-  }, [activePet?.evolution]);
+  }, [activePet?.evolution, dispatch]);
 
   useEffect(() => {
     if (evoEvent?.stage === 'animation' && evoEvent.newEvo) {
       const nextStage = (evoEvent.newEvo.stage ?? (activePet?.evolution || 0)) + 1;
-      petAvatarRef.current?.emit('evolve_ok', { stage: nextStage });
+      dispatch('evolve_ok', { stage: nextStage });
     }
-  }, [evoEvent]);
+  }, [evoEvent, dispatch]);
 
   function handleFeedFood(item) {
     if (!item || !activePet) return;
     if (useFood(item.id)) {
-      petAvatarRef.current?.emit('feed');
+      dispatch('feed');
       showToast(`${activePet.customName} rất thích ${item.name}!`, 'success');
     }
   }
@@ -189,9 +198,11 @@ export default function PetPage() {
                   bond={bondOf(activePet.skills)}
                   topSkill={topSkillOf(activePet.skills)}
                   mode="home"
+                  canvasBubble={false}
                   fallbackSrc={evolution?.image}
                   alt={evolution?.name || activePet.customName}
                   className="pet-character-img"
+                  onClip={(evt) => evt === 'tap' && dispatch('pet_tap')}
                 />
               </div>
 
@@ -242,10 +253,15 @@ export default function PetPage() {
 
           <div className="pet-evolution-label">{evolution?.name || 'Trứng'}</div>
 
-          {/* Chat bubble */}
-          <div className="pet-speech-bubble">
-            <div className="pet-speech-arrow"></div>
-            <p className="mb-0"><EmojiText>{message}</EmojiText></p>
+          {/* Bong bóng thoại Pet Director */}
+          <div style={{ maxWidth: 320, margin: '8px auto 0', minHeight: 44 }}>
+            {petSpeech ? (
+              <PetSpeech speech={petSpeech} placement="top" />
+            ) : (
+              <div className="text-muted small">
+                Chạm vào {activePet.customName} để chơi cùng nha!
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -469,7 +485,7 @@ export default function PetPage() {
           <div className="pet-action-label">Bộ sưu tập</div>
           <div className="pet-action-hint">{Object.keys(petData.collection).length}/{Object.keys(PET_REGISTRY).length} pet</div>
         </Link>
-        <Link to={`/shop?from=pet&pet=${activePetId}`} className="pet-action-card">
+        <Link to={`/shop?from=pet&pet=${petData.activePetId || ''}`} className="pet-action-card">
           <div className="pet-action-icon"><Icon name="bag" size={36} /></div>
           <div className="pet-action-label">Cửa hàng</div>
           <div className="pet-action-hint">🥛 {(userData.wallet?.milk || userData.availableXP || 0).toLocaleString('vi-VN')}</div>
