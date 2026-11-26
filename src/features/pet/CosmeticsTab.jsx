@@ -131,7 +131,7 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
   // Danh sách thô theo danh mục
   const rawList = subCategory === 'room' ? BACKGROUND_ITEMS : EFFECT_ITEMS;
 
-  // Lọc theo phẩm chất & hệ + sắp xếp món đã mua lên trên cùng
+  // Lọc theo phẩm chất & hệ + sắp xếp: Đã có -> Mốc học đã mở -> Chưa sở hữu
   const filteredList = useMemo(() => {
     const list = rawList.filter((item) => {
       if (rarityFilter !== 'all' && item.rarity !== rarityFilter) return false;
@@ -140,13 +140,13 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
       }
       return true;
     });
-    return [...list].sort((a, b) => {
-      const aOwned = ownedSet.has(a.id) ? 0 : 1;
-      const bOwned = ownedSet.has(b.id) ? 0 : 1;
-      if (aOwned !== bOwned) return aOwned - bOwned;
-      return 0;
-    });
-  }, [rawList, rarityFilter, elementFilter, subCategory, ownedSet]);
+    const priorityOf = (item) => {
+      if (ownedSet.has(item.id)) return 0;
+      if (item.rarity === 'achievement' && checkCosmeticUnlocked(item, userStats || {})) return 1;
+      return 2;
+    };
+    return [...list].sort((a, b) => priorityOf(a) - priorityOf(b));
+  }, [rawList, rarityFilter, elementFilter, subCategory, ownedSet, userStats]);
 
   const activeFilterCount = (rarityFilter !== 'all' ? 1 : 0) + (subCategory === 'room' && elementFilter !== 'all' ? 1 : 0);
 
