@@ -38,7 +38,8 @@ const UNIT_ICONS = ['blocks', 'chat', 'sprout', 'leaf', 'tree', 'clover', 'star'
 export default function LearningPathPage() {
   useSEO(SEO_CONFIGS['/learning-path']);
   const navigate = useNavigate();
-  const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, refreshWallet } = useUser();
+  const { userData, addXP, incrementQuizzes, saveCheckpointScore, setLearningGroup, recordQuestionResult, refreshWallet } = useUser();
+  const cpRunSetRef = useRef(new Set());
   const { getActivePetWithDecay } = usePet();
   const { register, dispatch } = usePetDirector();
   const showToast = useToast();
@@ -244,6 +245,7 @@ export default function LearningPathPage() {
       showToast('Unit này chưa đủ câu hỏi để tạo bài kiểm tra.', 'warning');
       return;
     }
+    cpRunSetRef.current = new Set();
     setTestUnit(unit);
     setTestQuestions(qs);
     setTestIdx(0);
@@ -295,6 +297,7 @@ export default function LearningPathPage() {
     if (timeLeft <= 0) {
       // Hết giờ tính sai và tự sang câu tiếp
       setTestAnswered(-1);
+      recordQuestionResult(testQuestions[testIdx], false, cpRunSetRef.current, pathGroup.rules);
       const t = setTimeout(() => advanceCheckpoint(testScore), 900);
       return () => clearTimeout(t);
     }
@@ -307,6 +310,7 @@ export default function LearningPathPage() {
     setTestAnswered(idx);
     const q = testQuestions[testIdx];
     const ok = idx === q.correct;
+    recordQuestionResult(q, ok, cpRunSetRef.current, pathGroup.rules);
     const nextScore = ok ? testScore + 1 : testScore;
     if (ok) {
       setTestScore(nextScore);

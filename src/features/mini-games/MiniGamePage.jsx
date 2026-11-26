@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useSEO } from '../../hooks/useSEO';
 import { SEO_CONFIGS } from '../../data/seo-config';
-import { LESSONS } from '../../data/lessons';
+import { LESSONS, getGroup, getGroupOfPath } from '../../data/lessons';
 import { EXAM_LESSONS } from '../../data/lessons';
+import { normalizeWordId } from '../vocab/wordProgress';
 import { usePet } from '../../hooks/usePet';
 import { useUser, GAME_XP_DAILY_CAP } from '../../hooks/useUser';
 import { useToast } from '../../components/layout/Toast';
@@ -286,7 +287,13 @@ export default function MiniGamePage() {
   const [game, setGame] = useState(null);
   const [gameKey, setGameKey] = useState(0);
   const { petData, onQuizComplete, addCoins } = usePet();
-  const { gameXpRemainingToday, addXP } = useUser();
+  const { userData, gameXpRemainingToday, addXP, recordQuestionResult } = useUser();
+  const gameRunSetRef = useRef(new Set());
+  const gameRules = useMemo(() => (
+    getGroupOfPath(userData.activePath)?.rules
+    || getGroup(userData.learnerGroup)?.rules
+    || getGroup('intermediate')?.rules
+  ), [userData.activePath, userData.learnerGroup]);
   const showToast = useToast();
   const { play } = useSound();
 
@@ -316,6 +323,7 @@ export default function MiniGamePage() {
   const myPetImg = useMemo(() => resolvePetImg(myPetInfo.speciesId, myPetInfo.evolution), [myPetInfo]);
 
   function resetBattle() {
+    gameRunSetRef.current = new Set();
     setPlayerHp(100);
     setOpponentHp(100);
     setBattleAnim(null);
@@ -326,8 +334,11 @@ export default function MiniGamePage() {
     setGameKey((k) => k + 1);
   }
 
-  function handleCorrect() {
+  function handleCorrect(targetWord) {
     if (matchResult) return;
+    if (targetWord) {
+      recordQuestionResult({ targetWords: [normalizeWordId(targetWord)] }, true, gameRunSetRef.current, gameRules);
+    }
     clearTimeout(battleAnimRef.current);
     setBattleAnim('attack-mine');
     setMatchScore((s) => s + 1);
@@ -353,8 +364,11 @@ export default function MiniGamePage() {
     });
   }
 
-  function handleWrong() {
+  function handleWrong(targetWord) {
     if (matchResult) return;
+    if (targetWord) {
+      recordQuestionResult({ targetWords: [normalizeWordId(targetWord)] }, false, gameRunSetRef.current, gameRules);
+    }
     clearTimeout(battleAnimRef.current);
     setBattleAnim('attack-opponent');
     setMatchRounds((r) => r + 1);
@@ -542,7 +556,7 @@ function WordCatchGame({ onCorrect, onWrong }) {
     }
     // Time out
     play('wrong');
-    onWrong?.();
+    onWrong?.(current?.word);
     setAnswered(-1);
     setTimeout(() => nextRound(), 1200);
   }, [timeLeft, answered, current]);
@@ -551,8 +565,8 @@ function WordCatchGame({ onCorrect, onWrong }) {
     if (answered !== null) return;
     const correct = meaning === current.meaning;
     setAnswered(meaning);
-    if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(); }
-    else { play('wrong'); onWrong?.(); }
+    if (correct) { setScore((s) => s + 1); play('correct'); onCorrect?.(current?.word); }
+    else { play('wrong'); onWrong?.(current?.word); }
     setTimeout(() => nextRound(), 1000);
   }
 

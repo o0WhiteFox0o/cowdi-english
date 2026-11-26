@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cowdi — Demo Flashcard v1.4</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#F1EFE8;color:#2C2C2A;padding:16px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.ph{width:340px;background:#fff;border-radius:24px;border:6px solid #2C2C2A;padding:14px 12px 16px;font-size:14px}
+.side{width:340px;background:#fff;border-radius:16px;border:1px solid #D3D1C7;padding:14px 16px;font-size:14px;align-self:flex-start}
+.ib{border:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:20px}
+.card{border-radius:16px;min-height:270px;padding:18px 16px;cursor:pointer;text-align:center;display:flex;flex-direction:column;gap:6px;user-select:none}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin:0 3px;cursor:pointer;border:none;padding:0}
+.chip{border:1px solid #D3D1C7;padding:4px 10px;border-radius:14px;font-size:12px}
+@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.spk{animation:pu .6s infinite}
+@keyframes hint{0%,100%{box-shadow:0 0 0 0 #EF9F27}50%{box-shadow:0 0 0 6px #EF9F27}}
+.hint{animation:hint .5s 2}
+@media (prefers-reduced-motion:reduce){.spk,.hint{animation:none}}
+button.sim{border:1px solid #B4B2A9;background:#fff;border-radius:8px;padding:8px 6px;font-size:13px;cursor:pointer}
+button.sim:hover{background:#F1EFE8}
+.lg{display:inline-flex;align-items:center;gap:5px;margin:0 10px 6px 0;font-size:12px;color:#5F5E5A}
+h1{font-size:18px;font-weight:600;text-align:center;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+td,th{border-bottom:1px solid #F1EFE8;padding:4px 2px;text-align:left}
+</style>
+</head>
+<body>
+<h1>Cowdi — Demo Flashcard v1.4 (điểm nhớ)</h1>
+<div class="wrap">
+<div class="ph">
+  <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+    <span style="color:#5F5E5A;font-size:12px">Tuỳ chọn:</span>
+    <span class="chip" style="background:#639922;color:#fff;border-color:#639922">Flashcard</span>
+    <span class="chip">Nghe câu</span><span class="chip">Nói theo</span>
+  </div>
+  <div style="background:#EAF3DE;border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div style="width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">🐮</div>
+    <div style="background:#fff;border-radius:12px;padding:6px 10px;font-size:13px;color:#27500A">Nghe rồi chạm để lật!</div>
+  </div>
+  <div style="text-align:center;font-size:13px;color:#5F5E5A;margin-bottom:8px" id="cnt"></div>
+  <div class="card" id="card" role="button" tabindex="0" aria-label="Thẻ từ, chạm để lật"><div id="face"></div></div>
+  <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+    <button class="ib" id="prev" aria-label="Thẻ trước" style="width:44px;height:44px;background:#fff;border:1px solid #D3D1C7;color:#444441">‹</button>
+    <button id="next" style="flex:1;height:46px;border:none;border-radius:23px;background:#3B6D11;color:#fff;font-size:15px;font-weight:600;cursor:pointer">Tiếp ›</button>
+  </div>
+  <div style="text-align:center;margin-top:12px" id="dots"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px">
+    <button id="auto" style="border:1px solid #D3D1C7;background:#fff;border-radius:14px;padding:5px 10px;font-size:12px;color:#27500A;cursor:pointer"></button>
+    <a href="#" id="skip" style="color:#5F5E5A">Bỏ qua → Nghe câu</a>
+  </div>
+  <div id="toast" style="margin-top:10px;text-align:center;font-size:13px;color:#27500A;min-height:18px"></div>
+</div>
+
+<div class="side">
+  <div style="font-weight:600;margin-bottom:8px">Bảng mô phỏng</div>
+  <label style="font-size:13px">Nhóm:
+    <select id="grp">
+      <option value="beginner">Mới học (5 điểm, 7 ngày)</option>
+      <option value="intermediate" selected>Trung bình (4 điểm, 14 ngày)</option>
+      <option value="exam">Luyện thi (3 điểm, 14 ngày)</option>
+    </select>
+  </label>
+  <div id="st" style="margin:10px 0;font-size:14px"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+    <button class="sim" id="ok">✓ Quiz đúng (từ này)</button>
+    <button class="sim" id="ng">✗ Quiz sai (từ này)</button>
+    <button class="sim" id="run">↻ Mở lượt flashcard mới</button>
+    <button class="sim" id="time">⏩ +15 ngày</button>
+  </div>
+  <div style="font-size:12px;color:#5F5E5A;margin-top:8px">Mỗi nút quiz = một lượt làm bài riêng. Lật thẻ / bấm loa nhiều lần trong một lượt chỉ +1.</div>
+  <div style="margin-top:12px" id="legend"></div>
+  <table><thead><tr><th>Từ</th><th>Điểm</th><th>Trạng thái</th></tr></thead><tbody id="tbl"></tbody></table>
+  <button class="sim" id="reset" style="margin-top:10px;width:100%">Xoá dữ liệu mô phỏng</button>
+</div>
+</div>
+
+<script>
+// ===== Logic điểm nhớ (giống reference/wordProgress.js) =====
+const GROUPS={beginner:{knownAtPoints:5,maybeForgetDays:7,ttsRate:.8},intermediate:{knownAtPoints:4,maybeForgetDays:14,ttsRate:.85},exam:{knownAtPoints:3,maybeForgetDays:14,ttsRate:.95}};
+const DAY=86400000;
+const empty=()=>({points:0,wrongPending:false,lastSeenAt:null,lastCorrectAt:null,lastWrongAt:null,encounterTotal:0,correctTotal:0,wrongTotal:0});
+const cap=(n,r)=>Math.min(n,r.knownAtPoints+5);
+function status(p,r){if(!p)return'new';if(p.wrongPending)return'review';if(p.points>=r.knownAtPoints)return'known';return p.points>0?'learning':'new'}
+function maybeForgot(p,r,now){if(status(p,r)!=='known')return false;const l=Math.max(p.lastSeenAt||0,p.lastCorrectAt||0);return l&&now-l>=r.maybeForgetDays*DAY}
+function encounter(p,set,id,r,now){const c=p||empty(),n={...c,lastSeenAt:now};if(set.has(id))return n;set.add(id);n.points=cap(c.points+1,r);n.encounterTotal++;return n}
+function answer(p,set,id,ok,r,now){const c=p||empty();if(!ok)return{...c,points:0,wrongPending:true,wrongTotal:c.wrongTotal+1,lastWrongAt:now};const a=set.has(id)?0:2;set.add(id);return{...c,points:cap(c.points+a,r),wrongPending:false,correctTotal:c.correctTotal+1,lastCorrectAt:now}}
+function order(words,map,r,now){const rk=w=>{const p=map[w.id],s=status(p,r);if(s==='review')return 0;if(s==='known'&&maybeForgot(p,r,now))return 1;if(s==='new')return 2;if(s==='learning')return 3;return 4};return words.map((w,i)=>({w,i,k:rk(w)})).sort((a,b)=>a.k-b.k||a.i-b.i).map(x=>x.w)}
+const UI={new:['Chưa gặp','#D3D1C7'],learning:['Đang nhớ','#97C459'],known:['Đã thuộc','#3B6D11'],review:['Cần ôn','#EF9F27']};
+
+// ===== Dữ liệu =====
+const WORDS=[
+{id:'how-are-you',w:"How are you?",p:"phrase",ipa:"/haʊ ɑːr juː/",vi:"Bạn khoẻ không?",ex:"How are you today, Tom?",exVi:"Hôm nay bạn khoẻ không, Tom?"},
+{id:'thank-you',w:"Thank you",p:"phrase",ipa:"/θæŋk juː/",vi:"Cảm ơn",ex:"Thank you for the gift!",exVi:"Cảm ơn vì món quà!"},
+{id:'good-morning',w:"Good morning",p:"phrase",ipa:"/ɡʊd ˈmɔːrnɪŋ/",vi:"Chào buổi sáng",ex:"Good morning, Mom!",exVi:"Chào buổi sáng, mẹ!"},
+{id:'see-you-later',w:"See you later",p:"phrase",ipa:"/siː juː ˈleɪtər/",vi:"Hẹn gặp lại",ex:"Bye! See you later.",exVi:"Tạm biệt! Hẹn gặp lại."},
+{id:'no-problem',w:"No problem",p:"phrase",ipa:"/noʊ ˈprɑːbləm/",vi:"Không sao đâu",ex:"No problem! Take your time.",exVi:"Không sao đâu! Bạn cứ từ từ nhé."}];
+let map={},runSet=new Set(),cards=[],pos=0,fl=false,tm=null,sid=null,offset=0,reviewAtOpen=0;
+let auto=(()=>{try{return localStorage.getItem('cowdi.flashcard.autoSpeak')!=='0'}catch(e){return true}})();
+const now=()=>Date.now()+offset, R=()=>GROUPS[$('grp').value], $=id=>document.getElementById(id), cur=()=>cards[pos];
+try{map=JSON.parse(localStorage.getItem('cowdi.demo.wordProgress')||'{}')}catch(e){}
+function save(){try{localStorage.setItem('cowdi.demo.wordProgress',JSON.stringify(map))}catch(e){}}
+
+// ===== Âm thanh =====
+const hasVi=()=>{try{return speechSynthesis.getVoices().some(v=>v.lang&&v.lang.toLowerCase().startsWith('vi'))}catch(e){return false}};
+function stop(){try{speechSynthesis.cancel()}catch(e){}sid=null;mark()}
+function say(t,lang,rate,id,auto){stop();try{const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=rate;
+ u.onend=()=>{sid=null;mark()};u.onerror=e=>{sid=null;mark();if(auto&&e.error==='not-allowed'){const b=document.querySelector('[data-sid="w"]');if(b){b.classList.add('hint');setTimeout(()=>b.classList.remove('hint'),1100)}}};
+ sid=id;mark();speechSynthesis.speak(u)}catch(e){}}
+function mark(){document.querySelectorAll('[data-sid]').forEach(b=>b.classList.toggle('spk',b.dataset.sid===sid))}
+
+// ===== Giao diện =====
+function sb(id,sz,lb,ic,bg,c){return `<button class="ib" data-sid="${id}" aria-label="${lb}" style="width:${sz}px;height:${sz}px;background:${bg};color:${c};margin:0 4px;font-size:${Math.round(sz*.42)}px">${ic}</button>`}
+function render(){
+ const c=cur(),card=$('card');
+ card.style.background=fl?'#fff':'#97C459';card.style.border=fl?'1.5px solid #C0DD97':'none';card.style.justifyContent=fl?'flex-start':'center';
+ if(!fl)$('face').innerHTML=`<div style="font-size:26px;font-weight:700;color:#173404">${c.w}</div>
+  <div><span style="background:#fff;border-radius:10px;padding:2px 10px;font-size:12px;color:#27500A">${c.p}</span></div>
+  <div style="font-size:16px;color:#27500A">${c.ipa}</div>
+  <div style="margin:8px 0 2px">${sb('w',56,'Nghe lại từ','🔊','#fff','#3B6D11')}${sb('s',40,'Nghe chậm','🐢','#EAF3DE','#3B6D11')}</div>
+  <div style="font-size:12px;color:#27500A">Chạm để lật</div>`;
+ else{const vi=hasVi();$('face').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:#5F5E5A">${c.w} <span style="font-size:12px">${c.ipa}</span>${sb('w',36,'Nghe lại từ','🔊','#EAF3DE','#3B6D11')}</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin:10px 0"><span style="font-size:22px;font-weight:700;color:#3B6D11">${c.vi}</span>${vi?sb('v',36,'Nghe nghĩa tiếng Việt','🔊','#EAF3DE','#3B6D11'):''}</div>
+  <div style="background:#F1EFE8;border-radius:10px;padding:8px 10px;text-align:left;display:flex;align-items:center;gap:6px"><div style="flex:1"><div style="font-style:italic;color:#444441">"${c.ex}"</div><div style="font-size:13px;color:#185FA5">→ ${c.exVi}</div></div>${sb('e',36,'Nghe câu ví dụ','🔊','#fff','#3B6D11')}</div>`}
+ $('cnt').textContent=(pos+1)+' / '+cards.length;
+ $('prev').style.visibility=pos===0?'hidden':'visible';
+ const last=pos===cards.length-1;$('next').textContent=last?'Hoàn thành → Nghe câu ▷':'Tiếp ›';$('skip').style.visibility=last?'hidden':'visible';
+ $('auto').textContent='🔁 Tự đọc: '+(auto?'Bật':'Tắt');
+ paint();mark();
+}
+function paint(){
+ const r=R(),t=now();
+ $('dots').innerHTML=cards.map((w,k)=>{const p=map[w.id],s=status(p,r),mf=maybeForgot(p,r,t);
+  return `<button class="dot" data-k="${k}" aria-label="Thẻ ${k+1}: ${UI[s][0]}${mf?', lâu chưa gặp':''}" style="background:${UI[s][1]};${mf?'box-shadow:0 0 0 2px #EF9F27;':''}${k===pos?'outline:2px solid #173404;outline-offset:3px':''}"></button>`}).join('');
+ const p=map[cur().id],s=status(p,r),mf=maybeForgot(p,r,t);
+ $('st').innerHTML=`<b>${cur().w}</b>: ${UI[s][0]} · ${p?p.points:0}/${r.knownAtPoints} điểm${mf?' · <span style="color:#BA7517">Lâu chưa gặp</span>':''}<div style="font-size:12px;color:#5F5E5A">Ngày mô phỏng: +${Math.round(offset/DAY)}</div>`;
+ $('legend').innerHTML=Object.values(UI).map(u=>`<span class="lg"><span style="width:10px;height:10px;border-radius:50%;background:${u[1]};display:inline-block"></span>${u[0]}</span>`).join('')+`<span class="lg"><span style="width:10px;height:10px;border-radius:50%;background:#3B6D11;box-shadow:0 0 0 2px #EF9F27;display:inline-block"></span>Lâu chưa gặp</span>`;
+ $('tbl').innerHTML=WORDS.map(w=>{const p=map[w.id],s=status(p,r);return `<tr><td>${w.w}</td><td>${p?p.points:0}</td><td>${UI[s][0]}${maybeForgot(p,r,t)?' (lâu chưa gặp)':''}</td></tr>`}).join('');
+}
+function interact(){const id=cur().id;map[id]=encounter(map[id],runSet,id,R(),now());save();paint()}
+function go(k){if(k<0||k>=cards.length)return;pos=k;fl=false;$('toast').textContent='';render();clearTimeout(tm);stop();if(auto)tm=setTimeout(()=>say(cur().w,'en-US',R().ttsRate,'w',true),300)}
+function openRun(keep){const c=keep&&cards.length?cur().id:null;runSet=new Set();cards=order(WORDS,map,R(),now());reviewAtOpen=cards.filter(w=>status(map[w.id],R())==='review').length;pos=c?Math.max(0,cards.findIndex(w=>w.id===c)):0;fl=false;render()}
+
+$('card').addEventListener('click',e=>{const b=e.target.closest('[data-sid]'),c=cur(),r=R();
+ if(b){e.stopPropagation();const s=b.dataset.sid;if(s==='w')say(c.w,'en-US',r.ttsRate,'w');if(s==='s')say(c.w,'en-US',.55,'s');if(s==='v')say(c.vi,'vi-VN',.9,'v');if(s==='e')say(c.ex,'en-US',r.ttsRate,'e');interact();return}
+ fl=!fl;render();interact()});
+$('card').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fl=!fl;render();interact()}});
+$('next').onclick=()=>{if(pos<cards.length-1)go(pos+1);else{stop();$('toast').textContent=reviewAtOpen?`Xong ${cards.length} thẻ! Có ${reviewAtOpen} từ cần ôn`:`Xong ${cards.length} thẻ!`}};
+$('prev').onclick=()=>go(pos-1);
+$('dots').onclick=e=>{const k=e.target.dataset.k;if(k!==undefined)go(+k)};
+$('auto').onclick=()=>{auto=!auto;try{localStorage.setItem('cowdi.flashcard.autoSpeak',auto?'1':'0')}catch(e){}if(!auto){clearTimeout(tm);stop()}render()};
+$('skip').onclick=e=>{e.preventDefault();stop();$('toast').textContent='→ Sang bước Nghe câu'};
+$('ok').onclick=()=>{const id=cur().id;map[id]=answer(map[id],new Set(),id,true,R(),now());save();paint()};
+$('ng').onclick=()=>{const id=cur().id;map[id]=answer(map[id],new Set(),id,false,R(),now());save();paint()};
+$('run').onclick=()=>{openRun(false);$('toast').textContent='Lượt mới: thẻ đã xếp lại theo trạng thái';go(0)};
+$('time').onclick=()=>{offset+=15*DAY;paint()};
+$('grp').onchange=()=>{paint()};
+$('reset').onclick=()=>{map={};offset=0;save();openRun(false)};
+let sx=null;$('card').addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+$('card').addEventListener('touchend',e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50){e.preventDefault();go(pos+(dx<0?1:-1))}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});
+try{speechSynthesis.onvoiceschanged=()=>{if(fl)render()}}catch(e){}
+openRun(false);
+</script>
+</body>
+</html>

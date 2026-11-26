@@ -123,7 +123,7 @@ router.get('/progress', requireAuth, async (req, res) => {
     const [[row]] = await pool.execute(
       `SELECT total_xp, available_xp, streak, last_active_date, lessons_completed,
               quizzes_completed, perfect_quizzes, words_learned,
-              completed_lessons, word_status, active_days,
+              completed_lessons, word_status, word_progress, active_days,
               achievements, daily_tasks, daily_date,
               srs_data, checkpoint_scores, skill_xp,
               daily_journal, learner_group, active_path,
@@ -161,6 +161,7 @@ router.get('/progress', requireAuth, async (req, res) => {
       wordsLearned:     row.words_learned,
       completedLessons: parseJSON(row.completed_lessons, []),
       wordStatus:       parseJSON(row.word_status, {}),
+      wordProgress:     parseJSON(row.word_progress, {}),
       activeDays:       parseJSON(row.active_days, []),
       achievements:     parseJSON(row.achievements, []),
       dailyTasks:       parseJSON(row.daily_tasks, { lessonDone: false, vocabDone: false }),
@@ -300,13 +301,42 @@ router.post('/pets/:instanceId/evolve', requireAuth, async (req, res) => {
   }
 });
 
+// Gộp wordProgress giữa 2 thiết bị (khớp mergeProgress trong src/features/vocab/wordProgress.js)
+function mergeWordProgressMap(aMap = {}, bMap = {}) {
+  const toMs = (iso) => (iso ? Date.parse(iso) || 0 : 0);
+  const latest = (x, y) => (toMs(x) >= toMs(y) ? (x ?? y ?? null) : y);
+  const out = {};
+  const keys = new Set([...Object.keys(aMap || {}), ...Object.keys(bMap || {})]);
+  for (const id of keys) {
+    const a = aMap?.[id];
+    const b = bMap?.[id];
+    if (!a) { out[id] = b; continue; }
+    if (!b) { out[id] = a; continue; }
+    const lastWrongAt = latest(a.lastWrongAt, b.lastWrongAt);
+    const lastCorrectAt = latest(a.lastCorrectAt, b.lastCorrectAt);
+    const wrongIsNewest = toMs(lastWrongAt) > toMs(lastCorrectAt);
+    const owner = a.lastWrongAt === lastWrongAt ? a : b;
+    out[id] = {
+      points: wrongIsNewest ? (owner.points || 0) : Math.max(a.points || 0, b.points || 0),
+      wrongPending: wrongIsNewest,
+      lastSeenAt: latest(a.lastSeenAt, b.lastSeenAt),
+      lastCorrectAt,
+      lastWrongAt,
+      encounterTotal: Math.max(a.encounterTotal || 0, b.encounterTotal || 0),
+      correctTotal: Math.max(a.correctTotal || 0, b.correctTotal || 0),
+      wrongTotal: Math.max(a.wrongTotal || 0, b.wrongTotal || 0),
+    };
+  }
+  return out;
+}
+
 // ── PUT /api/progress – lưu toàn bộ tiến trình ──────────────────────────────
 router.put('/progress', requireAuth, async (req, res) => {
   const d = { ...(req.body || {}) };
-  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist; thêm 4 trường Lộ trình 3 nhóm
+  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist; thêm 4 trường Lộ trình 3 nhóm + wordProgress (v1.4)
   const allowed = [
     'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
-    'perfectQuizzes','wordsLearned','completedLessons','wordStatus',
+    'perfectQuizzes','wordsLearned','completedLessons','wordStatus','wordProgress',
     'activeDays','achievements','dailyTasks','dailyDate',
     'srsData','checkpointScores','dailyJournal',
     'learnerGroup','activePath','lessonScores','placement',
@@ -320,9 +350,9 @@ router.put('/progress', requireAuth, async (req, res) => {
   const rawCheckpointScores = typeof d.checkpointScores === 'object' && d.checkpointScores !== null ? d.checkpointScores : {};
 
   try {
-    // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX, phát hiện bài mới lần đầu (BR-01) và tránh client cũ ghi đè null
+    // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX, word_progress theo mergeProgress, phát hiện bài mới lần đầu (BR-01) và tránh client cũ ghi đè null
     const [[existing]] = await pool.execute(
-      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons FROM user_progress WHERE user_id = ?',
+      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons, word_progress FROM user_progress WHERE user_id = ?',
       [req.user.id]
     );
     const parseJSON = (val, fallback) => {
@@ -338,6 +368,12 @@ router.put('/progress', requireAuth, async (req, res) => {
 
     const existingLessonScores = parseJSON(existing?.lesson_scores, {});
     const mergedLessonScores = mergeLessonScores(existingLessonScores, d.lessonScores);
+
+    const existingWordProgress = parseJSON(existing?.word_progress, {});
+    const incomingWordProgress = d.wordProgress && typeof d.wordProgress === 'object' ? d.wordProgress : {};
+    const mergedWordProgress = 'wordProgress' in d
+      ? mergeWordProgressMap(existingWordProgress, incomingWordProgress)
+      : existingWordProgress;
 
     const nextLearnerGroup = 'learnerGroup' in d
       ? sanitizeLearnerGroup(d.learnerGroup)
@@ -361,6 +397,7 @@ router.put('/progress', requireAuth, async (req, res) => {
       d.wordsLearned     ?? 0,
       JSON.stringify(rawCompleted),
       JSON.stringify(d.wordStatus       ?? {}),
+      JSON.stringify(mergedWordProgress),
       JSON.stringify(d.activeDays       ?? []),
       JSON.stringify(d.achievements     ?? []),
       JSON.stringify(d.dailyTasks       ?? { lessonDone: false, vocabDone: false }),
@@ -379,10 +416,10 @@ router.put('/progress', requireAuth, async (req, res) => {
       `INSERT INTO user_progress
          (user_id, total_xp, available_xp, streak, last_active_date,
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
-          completed_lessons, word_status, active_days, achievements,
+          completed_lessons, word_status, word_progress, active_days, achievements,
           daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
           daily_journal, learner_group, active_path, lesson_scores, placement)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          -- XP lifetime chỉ tăng; XP đã tiêu (total - available) chỉ tăng → client cũ/stale không thể "hồi" ví
          available_xp      = GREATEST(0, CAST(GREATEST(total_xp, VALUES(total_xp)) AS SIGNED)
@@ -397,6 +434,7 @@ router.put('/progress', requireAuth, async (req, res) => {
          words_learned     = VALUES(words_learned),
          completed_lessons = VALUES(completed_lessons),
          word_status       = VALUES(word_status),
+         word_progress     = VALUES(word_progress),
          active_days       = VALUES(active_days),
          achievements      = VALUES(achievements),
          daily_tasks       = VALUES(daily_tasks),

@@ -18,3 +18,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [GDE-VOCABULARY-v1.0.md](GDE-VOCABULARY-v1.0.md)
 - [TASK-FRIENDS.md](TASK-FRIENDS.md) — **Hướng dẫn & checklist 8 bước triển khai Phân hệ Bạn bè & Thưởng mời bạn**
 - [RPT-FRIENDS-SURVEY.md](RPT-FRIENDS-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Phân hệ Bạn bè & Thưởng mời bạn**
+- [TASK-PET-DIRECTOR.md](TASK-PET-DIRECTOR.md) — **Kế hoạch & checklist triển khai Pet Director V2 (Gói A–E, GĐ 1–2)**
+- [RPT-PET-DIRECTOR-SURVEY.md](RPT-PET-DIRECTOR-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Pet Director V2**
+- [TASK-FLASHCARD-v1.4.md](TASK-FLASHCARD-v1.4.md) — **Kế hoạch & checklist nghiệm thu Flashcard Audio UX & Điểm nhớ v1.4 (PR A–C)**
+- [RPT-FLASHCARD-SURVEY.md](RPT-FLASHCARD-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Flashcard v1.4**

@@ -5,6 +5,14 @@ import { getLessonAccess, getNextPathLesson } from '../../data/path';
 import { generateQuizFromLesson } from '../../utils/quiz-gen';
 import PictureLesson from './PictureLesson';
 import ExamReading from './ExamReading';
+import Flashcard from '../../components/learn/Flashcard';
+import {
+  orderCards,
+  wordStatus as getWordMemoryStatus,
+  isMaybeForgotten,
+  WORD_STATUS_UI,
+  getWordId,
+} from '../vocab/wordProgress';
 import Icon from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 
@@ -392,10 +400,10 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, incrementQuizzes, setWordStatus, getWordStatus, refreshWallet } = useUser();
+  const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, incrementQuizzes, setWordStatus, getWordStatus, recordWordEncounter, recordQuestionResult, refreshWallet } = useUser();
   const { getActivePetWithDecay, onLessonComplete } = usePet();
   const showToast = useToast();
-  const { play } = useSound();
+  const { play, muted } = useSound();
   const lesson = ALL_LESSONS.find((l) => l.id === id);
 
   const confettiRef = useRef(null);
@@ -441,11 +449,15 @@ export default function LessonDetailPage() {
   const [correctAnim, setCorrectAnim] = useState(false);
   const [wrongAnim, setWrongAnim] = useState(false);
 
-  // Flashcard + Vocab batch state (SDD §4.1: vocabBatchSize = 10)
+  // Flashcard + Vocab batch state (SDD §4.1: vocabBatchSize = 10, SDD-FLASHCARD v1.4)
   const [vocabBatch, setVocabBatch] = useState(0);
-  const [fcIndex, setFcIndex] = useState(0);
-  const [fcFlipped, setFcFlipped] = useState(false);
-  const [fcMastered, setFcMastered] = useState(new Set());
+  const fcRunSetRef = useRef(new Set());
+  const quizRunSetRef = useRef(new Set());
+  const [fcOrderedCards, setFcOrderedCards] = useState([]);
+  const [fcReviewAtOpen, setFcReviewAtOpen] = useState(0);
+  const [fcReviewOnly, setFcReviewOnly] = useState(false);
+  const [fcCompleteNotice, setFcCompleteNotice] = useState(null);
+  const [fcRunTick, setFcRunTick] = useState(0);
 
   // Generated quiz questions (randomized each attempt)
   const [quizQuestions, setQuizQuestions] = useState([]);
@@ -647,8 +659,10 @@ export default function LessonDetailPage() {
   // Reset batch/flashcard khi đổi bài
   useEffect(() => {
     setVocabBatch(0);
-    setFcIndex(0);
-    setFcFlipped(false);
+    setFcReviewOnly(false);
+    setFcCompleteNotice(null);
+    fcRunSetRef.current = new Set();
+    quizRunSetRef.current = new Set();
     setQuizMode(false);
     setFinished(false);
   }, [id]);
@@ -975,6 +989,7 @@ export default function LessonDetailPage() {
     setAnswered(idx);
     const q = quiz[qIndex];
     const isCorrect = idx === q.correct;
+    recordQuestionResult(q, isCorrect, quizRunSetRef.current, rules);
     if (isCorrect) {
       setScore((s) => s + 1);
       setCorrectAnim(true);
@@ -1097,6 +1112,7 @@ export default function LessonDetailPage() {
   }
 
   function restartQuiz() {
+    quizRunSetRef.current = new Set();
     setQuizQuestions(generateQuizFromLesson(lesson));
     setQIndex(0);
     setScore(0);
@@ -1111,29 +1127,47 @@ export default function LessonDetailPage() {
     dispatch('lesson_start', { lessonId: id, lessonTitle: lesson?.title });
   }
 
-  /* ── Flashcard helpers ── */
-  function fcNext() {
-    setFcFlipped(false);
-    setTimeout(() => setFcIndex((i) => Math.min(i + 1, vocab.length - 1)), 200);
-  }
-  function fcPrev() {
-    setFcFlipped(false);
-    setTimeout(() => setFcIndex((i) => Math.max(i - 1, 0)), 200);
-  }
-  function fcToggleMastered(word) {
-    setFcMastered((prev) => {
-      const next = new Set(prev);
-      if (next.has(word)) {
-        next.delete(word);
-        setWordStatus(word, 'learning');
-      } else {
-        next.add(word);
-        setWordStatus(word, 'learned');
-        play('wordLearned');
-      }
-      return next;
-    });
-  }
+  /* ── Flashcard v1.4 helpers (chốt thứ tự lúc mở / đổi nhóm, không đổi giữa chừng) ── */
+  const wordProgressRef = useRef(userData.wordProgress || {});
+  wordProgressRef.current = userData.wordProgress || {};
+
+  useEffect(() => {
+    if (tab !== 'flashcard') return;
+    const source = pagedVocab || [];
+    const prog = wordProgressRef.current;
+    fcRunSetRef.current = new Set();
+    const ordered = orderCards(source, prog, rules);
+    const reviewList = ordered.filter((w) => getWordMemoryStatus(prog[getWordId(w)], rules) === 'review');
+    setFcOrderedCards(fcReviewOnly && reviewList.length > 0 ? reviewList : ordered);
+    setFcReviewAtOpen(reviewList.length);
+    setFcCompleteNotice(null);
+    setFcRunTick((t) => t + 1);
+  }, [tab, id, safeBatch, fcReviewOnly, rules]);
+
+  const handleFcEncounter = useCallback((cardObj) => {
+    recordWordEncounter(cardObj, fcRunSetRef.current, rules);
+  }, [recordWordEncounter, rules]);
+
+  const getFcDotInfo = useCallback((cardObj) => {
+    const p = (userData.wordProgress || {})[getWordId(cardObj)];
+    const st = getWordMemoryStatus(p, rules);
+    const ui = WORD_STATUS_UI[st] || WORD_STATUS_UI.new;
+    return {
+      color: ui.color,
+      label: ui.label,
+      maybeForgotten: isMaybeForgotten(p, rules),
+    };
+  }, [userData.wordProgress, rules]);
+
+  const handleFcSpeakStart = useCallback(() => {
+    dispatch('pet_speak_start');
+    petRef.current?.setVoiceLevel(0.7);
+  }, [dispatch]);
+
+  const handleFcSpeakEnd = useCallback(() => {
+    petRef.current?.setVoiceLevel(0);
+    dispatch('pet_speak_end');
+  }, [dispatch]);
 
   /* ── Sân khấu Pet Director (giữ mount xuyên suốt; Desktop sticky bên cạnh, Mobile xếp dọc chuẩn V2) ── */
   const stageHint = quizMode && finished
@@ -1145,7 +1179,7 @@ export default function LessonDetailPage() {
         : tab === 'listen'
           ? 'Nghe kỹ và chọn nghĩa đúng nha!'
           : tab === 'flashcard'
-            ? 'Chạm thẻ để lật và nghe phát âm!'
+            ? 'Nghe rồi chạm để lật!'
             : '';
 
   const petDock = activePet ? (
@@ -1513,7 +1547,7 @@ export default function LessonDetailPage() {
                   key={bi}
                   type="button"
                   className={`btn btn-sm ${safeBatch === bi ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
-                  onClick={() => { setVocabBatch(bi); setFcIndex(bi * batchSize); setFcFlipped(false); }}
+                  onClick={() => { setVocabBatch(bi); setFcReviewOnly(false); }}
                 >
                   Nhóm {bi + 1}/{totalBatches} ({bi * batchSize + 1}–{Math.min((bi + 1) * batchSize, vocab.length)})
                 </button>
@@ -1570,95 +1604,63 @@ export default function LessonDetailPage() {
         </div>
       )}
 
-      {/* ── FLASHCARD TAB (U1: xoá translateEnToVi, hiện exampleVi) ── */}
-      {tab === 'flashcard' && vocab.length > 0 && (() => {
-        const curCard = vocab[Math.min(fcIndex, vocab.length - 1)];
-        return (
+      {/* ── FLASHCARD TAB (SDD-FLASHCARD-AUDIO-UX v1.4) ── */}
+      {tab === 'flashcard' && vocab.length > 0 && (
         <div className="d-flex flex-column align-items-center">
-          <div className="mb-3 text-muted">
-            <span className="fw-bold">{fcIndex + 1}</span> / {vocab.length}
-            {fcMastered.size > 0 && <span className="ms-3 text-success fw-bold"><Icon name="check" size={16} /> {fcMastered.size} đã thuộc</span>}
-          </div>
-          <div className="flashcard-wrapper" onClick={() => {
-            const willFlip = !fcFlipped;
-            setFcFlipped(willFlip);
-            if (willFlip) speakWord(curCard.word);
-          }}>
-            <div className={`flashcard-inner ${fcFlipped ? 'flipped' : ''}`}>
-              <div className="flashcard-front text-center">
-                <span style={{ fontSize: '2.5rem' }} className="mb-2 emoji-big"><Emoji e={curCard.illustration || lesson.icon} size={48} /></span>
-                <h2 className="fw-bold mb-1">{curCard.word}</h2>
-                {curCard.pos && <span className="badge bg-light text-dark mb-1">{curCard.pos}</span>}
-                <p className="mb-0 opacity-75">{curCard.phonetic}</p>
-                <small className="mt-2 opacity-50"><Icon name="point" size={14} /> Nhấn để lật</small>
-              </div>
-              <div className="flashcard-back text-center">
-                <h3 className="fw-bold text-cowdi-primary mb-2">{curCard.meaning}</h3>
-                {curCard.example && <p className="fst-italic text-muted mb-1">"{curCard.example}"</p>}
-                {curCard.exampleVi && (
-                  <p className="mb-0 small" style={{ color: '#6c5ce7' }}>
-                    → <span className="fst-italic">{curCard.exampleVi}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="d-flex gap-3 mt-4 align-items-center flex-wrap justify-content-center">
-            <button className="btn btn-outline-secondary" disabled={fcIndex === 0} onClick={fcPrev}>
-              <i className="fas fa-chevron-left"></i> Trước
-            </button>
-            <button
-              className={`btn ${fcMastered.has(curCard.word) ? 'btn-success' : 'btn-outline-success'}`}
-              onClick={() => fcToggleMastered(curCard.word)}
-            >
-              {fcMastered.has(curCard.word) ? <><Icon name="check" size={16} /> Đã thuộc</> : <><Icon name="check" size={16} /> Thuộc rồi!</>}
-            </button>
-            <button className="btn btn-outline-secondary" disabled={fcIndex === vocab.length - 1} onClick={fcNext}>
-              Tiếp <i className="fas fa-chevron-right"></i>
-            </button>
-          </div>
-          <button className="btn btn-sm btn-outline-secondary mt-3" onClick={() => speakWord(curCard.word)} title="Nghe phát âm">
-            <Icon name="sound" size={14} /> Nghe phát âm
-          </button>
-          {curCard.example && (
-            <div className="d-flex gap-2 mt-2 flex-wrap justify-content-center">
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => speakWord(curCard.example, defaultTtsRate, { lang: 'en-US' })}
-                title="Nghe câu ví dụ"
-              >
-                <Icon name="sound" size={14} /> Nghe câu ví dụ
-              </button>
-              {curCard.exampleVi && (
+          {totalBatches > 1 && (
+            <div className="d-flex gap-2 mb-3 flex-wrap justify-content-center align-items-center">
+              <small className="text-muted fw-bold">Nhóm từ:</small>
+              {Array.from({ length: totalBatches }).map((_, bi) => (
                 <button
-                  className="btn btn-sm btn-outline-success"
-                  onClick={() => speakWord(curCard.exampleVi, 0.9, { lang: 'vi-VN' })}
-                  title="Nghe nghĩa tiếng Việt"
+                  key={bi}
+                  type="button"
+                  className={`btn btn-sm ${safeBatch === bi ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+                  onClick={() => { setVocabBatch(bi); setFcReviewOnly(false); }}
                 >
-                  <Icon name="sound" size={14} /> Nghe tiếng Việt
+                  Nhóm {bi + 1}/{totalBatches}
                 </button>
-              )}
+              ))}
             </div>
           )}
-          {/* Progress dots */}
-          <div className="d-flex gap-1 mt-3 flex-wrap justify-content-center">
-            {vocab.map((v, i) => (
-              <div
-                key={i}
-                className="rounded-circle"
-                style={{
-                  width: 12, height: 12, cursor: 'pointer',
-                  background: fcMastered.has(v.word) ? '#00B894' : i === fcIndex ? 'var(--cowdi-primary)' : '#ddd',
-                  transition: 'background 0.2s',
-                }}
-                onClick={() => { setFcFlipped(false); setTimeout(() => setFcIndex(i), 150); }}
-                title={v.word}
-              />
-            ))}
-          </div>
+          {fcReviewOnly && (
+            <div className="mb-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setFcReviewOnly(false)}
+              >
+                ← Quay lại đủ {pagedVocab.length} thẻ
+              </button>
+            </div>
+          )}
+          <Flashcard
+            cards={fcOrderedCards.length > 0 ? fcOrderedCards : pagedVocab}
+            ttsRate={defaultTtsRate}
+            muted={muted}
+            fallbackIcon={lesson.icon}
+            nextStepLabel={nextStep?.label || null}
+            onSkipStep={nextStep ? completeStep : null}
+            onEncounter={handleFcEncounter}
+            onSpeakStart={handleFcSpeakStart}
+            onSpeakEnd={handleFcSpeakEnd}
+            getCardDotInfo={getFcDotInfo}
+            completeNotice={fcCompleteNotice}
+            onStartReviewOnly={() => setFcReviewOnly(true)}
+            onComplete={() => {
+              const total = (fcOrderedCards.length > 0 ? fcOrderedCards : pagedVocab).length;
+              const msg = fcReviewAtOpen > 0 && !fcReviewOnly
+                ? `Xong ${total} thẻ! Có ${fcReviewAtOpen} từ cần ôn`
+                : `Xong ${total} thẻ!`;
+              setFcCompleteNotice({ text: msg, reviewCount: fcReviewOnly ? 0 : fcReviewAtOpen });
+              showToast(msg, 'success');
+              if (fcReviewAtOpen === 0 || fcReviewOnly) {
+                completeStep();
+              }
+            }}
+            resetKey={`${id}-${safeBatch}-${fcReviewOnly}-${fcRunTick}`}
+          />
         </div>
-        );
-      })()}
+      )}
 
       {/* ── GRAMMAR TAB (U7: hiện mistakes[]) ── */}
       {tab === 'grammar' && (
@@ -2211,8 +2213,8 @@ export default function LessonDetailPage() {
         </div>
       </div>
 
-      {/* ── Step footer: nằm trọn bề ngang đáy trang, cân đối hai bên ── */}
-      {isMainLesson && ['vocab', 'flashcard', 'grammar', 'reading'].includes(tab) && (
+      {/* ── Step footer: nằm trọn bề ngang đáy trang, cân đối hai bên (bỏ ở flashcard theo P5/U-10) ── */}
+      {isMainLesson && ['vocab', 'grammar', 'reading'].includes(tab) && (
         <div className="lesson-step-footer">
           <div className="lesson-step-footer-txt">
             <small className="text-muted">Phần {curStepIdx + 1}/{steps.length}</small>

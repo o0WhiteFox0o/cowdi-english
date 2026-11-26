@@ -19,6 +19,8 @@ export const LEARNER_GROUPS = [
       lessonPassRate: 4 / 6,              // thử thách 6 câu, đúng ≥4
       speakScoring: 'none',
       ttsRate: 0.8,
+      knownAtPoints: 5,
+      maybeForgetDays: 7,
       checkpoint: { questionCount: 10, passRate: 0.7, allowTestOut: false, secondsPerQuestion: null },
       pretest: false,
     },
@@ -40,6 +42,8 @@ export const LEARNER_GROUPS = [
       vocabBatchSize: 10,                 // bài 30 từ hiển thị theo nhóm 10
       speakScoring: 'word',               // chấm theo từ như hiện nay, không chặn
       ttsRate: 0.85,
+      knownAtPoints: 4,
+      maybeForgetDays: 14,
       checkpoint: { questionCount: 15, passRate: 0.7, allowTestOut: true, secondsPerQuestion: null },
       pretest: false,
     },
@@ -62,6 +66,8 @@ export const LEARNER_GROUPS = [
       speakScoring: 'phoneme',            // tạm fallback chấm theo từ ≥70% khi chưa có Azure API
       pronPassRate: { examPron: 70, speaking: 60 },
       ttsRate: 0.95,
+      knownAtPoints: 3,
+      maybeForgetDays: 14,
       checkpoint: { questionCount: 15, passRate: 0.75, allowTestOut: true, secondsPerQuestion: 45 },
       pretest: true,                      // "Làm thử trước"
     },

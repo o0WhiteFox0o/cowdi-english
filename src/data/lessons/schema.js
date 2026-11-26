@@ -244,7 +244,14 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
   // Quiz
   const quiz = lesson.quiz || [];
   if (quiz.length < R.quiz) std(`quiz: cần ≥${R.quiz} câu, đang có ${quiz.length}`);
-  quiz.forEach((q, i) => checkMcq(q, `quiz[${i}]`, err));
+  quiz.forEach((q, i) => {
+    checkMcq(q, `quiz[${i}]`, err);
+    if (q.targetWords !== undefined) {
+      if (!Array.isArray(q.targetWords) || q.targetWords.some((t) => !isStr(t))) {
+        err(`quiz[${i}]: targetWords phải là mảng chuỗi không rỗng`);
+      }
+    }
+  });
   const withEx = quiz.filter((q) => isStr(q.explanation)).length;
   if (quiz.length && withEx / quiz.length < R.quizWithExplanation) std(`quiz: ${quiz.length - withEx} câu thiếu explanation`);
 

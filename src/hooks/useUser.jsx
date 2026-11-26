@@ -2,10 +2,48 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef } f
 import { ACHIEVEMENTS, ALL_LESSONS } from '../data/lessons';
 import { migrateLegacyProgress } from '../data/path';
 import { getAllTopicWords } from '../data/vocab-topics';
+import {
+  applyEncounter,
+  applyQuestionResult,
+  getWordId,
+  mergeProgressMap,
+  migrateLegacyKnown,
+} from '../features/vocab/wordProgress';
 import { useAuth } from './useAuth';
 
 const STORAGE_KEY_PREFIX = 'cowdi_english_data';
 const SYNC_DIRTY_KEY = 'cowdi_sync_dirty';
+const WORD_PROGRESS_VERSION_KEY = 'cowdi.wordProgress.v';
+
+function getWordProgressVersionKey(userId) {
+  return userId ? `${WORD_PROGRESS_VERSION_KEY}.${userId}` : WORD_PROGRESS_VERSION_KEY;
+}
+
+/** Migration idempotent từ wordStatus cũ ('learned') → wordProgress (learning, 1 điểm). */
+function migrateWordProgressOnce(data, userId) {
+  const vKey = getWordProgressVersionKey(userId);
+  try {
+    if (localStorage.getItem(vKey) === '1') return data;
+  } catch { /* bỏ qua */ }
+
+  const legacyKnown = Object.entries(data?.wordStatus || {})
+    .filter(([, st]) => st === 'learned')
+    .map(([w]) => w);
+
+  let next = data;
+  if (legacyKnown.length > 0) {
+    const migratedMap = migrateLegacyKnown(legacyKnown);
+    const merged = mergeProgressMap(migratedMap, data?.wordProgress || {});
+    next = { ...data, wordProgress: merged };
+  } else if (!data?.wordProgress || typeof data.wordProgress !== 'object') {
+    next = { ...data, wordProgress: {} };
+  }
+
+  try {
+    localStorage.setItem(vKey, '1');
+  } catch { /* bỏ qua */ }
+  return next;
+}
 
 function getStorageKey(userId) {
   return userId ? `${STORAGE_KEY_PREFIX}_${userId}` : STORAGE_KEY_PREFIX;
@@ -29,6 +67,7 @@ const DEFAULT_DATA = {
   wordsLearned: 0,
   completedLessons: [],
   wordStatus: {},
+  wordProgress: {},
   activeDays: [],
   dailyTasks: { lessonDone: false, vocabDone: false },
   dailyDate: null,
@@ -291,6 +330,7 @@ function mergeProgress(local, remote) {
   );
   const merged = { ...DEFAULT_DATA, ...cleaned };
   merged.wordStatus = mergedWordStatus;
+  merged.wordProgress = mergeProgressMap(local.wordProgress || {}, remote.wordProgress || {});
   merged.wordsLearned = Object.values(mergedWordStatus).filter((s) => s === 'learned').length;
   // Các bộ đếm chỉ tăng → lấy max
   merged.quizzesCompleted = Math.max(local.quizzesCompleted || 0, remote.quizzesCompleted || 0);
@@ -454,7 +494,7 @@ const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const { user, authFetch } = useAuth();
-  const [userData, setUserData] = useState(() => loadUserData(user?.id || null));
+  const [userData, setUserData] = useState(() => migrateWordProgressOnce(loadUserData(user?.id || null), user?.id || null));
   const syncTimerRef = useRef(null);
   const currentUserIdRef = useRef(null);
   // Guard: chỉ persist sau khi đã load đúng dữ liệu cho user hiện tại
@@ -535,7 +575,8 @@ export function UserProvider({ children }) {
       // Logout – reset về data không đăng nhập (anonymous) + di trú dữ liệu cũ nếu có
       const anon = loadUserData(null);
       const mig = migrateLegacyProgress(anon);
-      setUserData(mig.changed ? mig.userData : anon);
+      const nextAnon = migrateWordProgressOnce(mig.changed ? mig.userData : anon, null);
+      setUserData(nextAnon);
       readyRef.current = true;
       return;
     }
@@ -582,21 +623,27 @@ export function UserProvider({ children }) {
         // Di trú tiến độ người dùng cũ 1 lần (SDD-LEARNING-GROUPS §6.1 — idempotent)
         const migrated = migrateLegacyProgress(final);
         if (migrated.changed) final = migrated.userData;
+        final = migrateWordProgressOnce(final, uid);
 
         setUserData(checkAchievements(final));
         readyRef.current = true;
       })
       .catch(() => {
-        setUserData(loadUserData(uid));
+        setUserData(migrateWordProgressOnce(loadUserData(uid), uid));
         readyRef.current = true;
       });
   }, [user?.id]);
 
-  // ── Persist to localStorage on every userData change ────────────────────
+  // ── Persist to localStorage (debounce 1s per R7, flush khi rời trang) ───
+  const localSaveTimerRef = useRef(null);
   useEffect(() => {
     if (!readyRef.current) return; // Chưa load xong – không ghi đè
-    const dataToSave = { ...userData, _lastModified: new Date().toISOString() };
-    saveUserData(dataToSave, user?.id || null);
+    clearTimeout(localSaveTimerRef.current);
+    const uid = user?.id || null;
+    localSaveTimerRef.current = setTimeout(() => {
+      const dataToSave = { ...userDataRef.current, _lastModified: new Date().toISOString() };
+      saveUserData(dataToSave, uid);
+    }, 1000);
 
     if (skipNextSyncRef.current) {
       skipNextSyncRef.current = false;
@@ -612,13 +659,16 @@ export function UserProvider({ children }) {
     }
   }, [userData]);
 
-  // ── Flush ngay khi rời trang / ẩn tab để không mất thay đổi trong 3s debounce ──
+  // ── Flush ngay khi rời trang / ẩn tab để không mất thay đổi trong debounce ──
   useEffect(() => {
-    if (!user) return;
     const flush = () => {
-      if (!pendingSyncRef.current || !readyRef.current) return;
-      clearTimeout(syncTimerRef.current);
-      pushProgress(userDataRef.current, { keepalive: true });
+      if (!readyRef.current) return;
+      clearTimeout(localSaveTimerRef.current);
+      saveUserData({ ...userDataRef.current, _lastModified: new Date().toISOString() }, user?.id || null);
+      if (user && pendingSyncRef.current) {
+        clearTimeout(syncTimerRef.current);
+        pushProgress(userDataRef.current, { keepalive: true });
+      }
     };
     const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
     window.addEventListener('pagehide', flush);
@@ -1010,6 +1060,32 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Flashcard v1.4 (F3): Ghi lượt gặp từ trên flashcard (lật thẻ / bấm loa)
+  const recordWordEncounter = useCallback((wordOrObj, runSet, rules) => {
+    const id = getWordId(wordOrObj);
+    if (!id || !runSet || !rules) return;
+    setUserData((prev) => {
+      const curMap = prev.wordProgress || {};
+      const nextEntry = applyEncounter(curMap[id], runSet, id, rules);
+      const next = { ...prev, wordProgress: { ...curMap, [id]: nextEntry } };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
+  // Flashcard v1.4 (F3.6): Ghi kết quả câu hỏi có targetWords vào wordProgress
+  const recordQuestionResult = useCallback((question, correct, runSet, rules) => {
+    if (!question?.targetWords?.length || !runSet || !rules) return;
+    setUserData((prev) => {
+      const curMap = prev.wordProgress || {};
+      const nextMap = applyQuestionResult(curMap, question, correct, runSet, rules);
+      if (nextMap === curMap) return prev;
+      const next = { ...prev, wordProgress: nextMap };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
   const value = {
     userData,
     setUserData: updateUserData,
@@ -1026,6 +1102,8 @@ export function UserProvider({ children }) {
     incrementQuizzes,
     setWordStatus,
     getWordStatus,
+    recordWordEncounter,
+    recordQuestionResult,
     reviewWord,
     getWordsForReview,
     addWordToSRS,
