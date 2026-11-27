@@ -114,7 +114,7 @@ export function writeItems(lesson, limit = 4) {
   const grammarCandidates = [];
   const vocabCandidates = [];
 
-  for (const g of lesson.grammar || []) {
+  (lesson.grammar || []).forEach((g, gIdx) => {
     for (const ex of g.examples || []) {
       if (!ex?.en || !ex?.vi) continue;
       const en = ex.en.trim();
@@ -129,12 +129,13 @@ export function writeItems(lesson, limit = 4) {
         vi: ex.vi.trim(),
         words,
         label: g.title || '',
+        grammarIndex: gIdx,
         wordIds,
         source: 'grammar',
         vocabHits: wordIds.length,
       });
     }
-  }
+  });
 
   for (const v of vocab) {
     if (!v?.example || !v?.exampleVi) continue;
@@ -152,6 +153,7 @@ export function writeItems(lesson, limit = 4) {
       vi: v.exampleVi.trim(),
       words,
       label: v.word || '',
+      grammarIndex: null,
       wordIds,
       source: 'vocab',
       vocabHits: wordIds.length,
@@ -176,21 +178,41 @@ export function bossItems(lesson) {
   return Array.isArray(lesson.quiz) ? lesson.quiz : [];
 }
 
-/** Lấy mẹo ngữ pháp 1 câu cho pet ở T-08 (thay T-03, PHASE1 §7). */
-export function pickGrammarTip(lesson, idx = 0) {
+/** Lấy mẹo ngữ pháp 1 câu đúng với điểm ngữ pháp của câu đang học ở T-08 (thay T-03, PHASE1 §7). */
+export function pickGrammarTip(lesson, itemOrIdx = null) {
   const grammars = lesson?.grammar || [];
   if (grammars.length === 0) return null;
-  const g = grammars[idx % grammars.length];
+
+  let g = null;
+  if (itemOrIdx && typeof itemOrIdx === 'object') {
+    if (typeof itemOrIdx.grammarIndex === 'number' && grammars[itemOrIdx.grammarIndex]) {
+      g = grammars[itemOrIdx.grammarIndex];
+    } else if (itemOrIdx.en) {
+      // Nếu câu lấy từ vocabulary, tìm điểm ngữ pháp có ví dụ trùng hoặc chia sẻ từ khoá cấu trúc
+      const lower = String(itemOrIdx.en).toLowerCase();
+      g = grammars.find((gr) =>
+        (gr.examples || []).some((ex) => String(ex?.en || '').trim().toLowerCase() === lower),
+      ) || null;
+    }
+  } else if (typeof itemOrIdx === 'number') {
+    g = grammars[itemOrIdx % grammars.length] || null;
+  } else {
+    g = grammars[0] || null;
+  }
+
   if (!g) return null;
   const m = Array.isArray(g.mistakes) ? g.mistakes[0] : null;
   if (m && m.wrong && m.right) {
-    return `Không nói “${m.wrong}”, nói “${m.right}”.`;
+    const cleanW = String(m.wrong).trim().replace(/\.$/, '');
+    const cleanR = String(m.right).trim().replace(/\.$/, '');
+    const base = `Không nói “${cleanW}”, nói “${cleanR}”.`;
+    return m.note ? `${base} (${m.note})` : base;
   }
   const expl = String(g.explanation || '').trim();
   if (!expl) return null;
   const firstSent = expl.split(/(?<=[.!?])\s+/)[0] || expl;
-  if (firstSent.length <= 80) return firstSent;
-  const cut = firstSent.slice(0, 80);
+  if (firstSent.length <= 100) return firstSent;
+  const cut = firstSent.slice(0, 100);
   const lastSpace = cut.lastIndexOf(' ');
   return `${(lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim()}…`;
 }
