@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../components/Icon';
 import Emoji from '../components/Emoji';
 import { useToast } from '../components/Toast';
+import { isScreenSystemEnabled, setScreenSystemEnabled } from '../data/config/screens';
 
 /**
  * ExpandableAchievementCard:
@@ -139,6 +140,8 @@ export default function AccountPage() {
   const [nickInput, setNickInput] = useState('');
   const [achieveFilter, setAchieveFilter] = useState('all');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [ffLogoTaps, setFfLogoTaps] = useState(0);
+  const [ffScreenSystem, setFfScreenSystem] = useState(() => isScreenSystemEnabled());
   const [ready, setReady] = useState(false);
   const [walletActionLoading, setWalletActionLoading] = useState(false);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
@@ -1015,6 +1018,43 @@ export default function AccountPage() {
                 >
                   <i className="fas fa-sign-out-alt"></i> Đăng xuất tài khoản
                 </button>
+              </div>
+            )}
+          </div>
+          {/* 5. Mục thử nghiệm ẩn (chạm logo Cowdi 5 lần — PHASE1 §9) */}
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              className="btn btn-link text-muted text-decoration-none small p-1"
+              onClick={() => setFfLogoTaps((n) => n + 1)}
+              aria-label="Phiên bản ứng dụng Cowdi"
+            >
+              🐮 Cowdi English v2.1
+            </button>
+            {(ffLogoTaps >= 5 || ffScreenSystem) && (
+              <div className="acc-settings-card text-start mt-2">
+                <div className="d-flex align-items-center justify-content-between gap-2">
+                  <div>
+                    <div className="fw-bold small">🧪 Hệ thống màn học 6 màn (screenSystemV1)</div>
+                    <div className="text-muted" style={{ fontSize: '0.78rem' }}>
+                      Bật thử luồng 6 màn trộn mới cho nhóm Trung bình &amp; Luyện thi.
+                    </div>
+                  </div>
+                  <div className="form-check form-switch m-0">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      aria-label="Bật thử Hệ thống màn học 6 màn"
+                      checked={ffScreenSystem}
+                      onChange={(e) => {
+                        const next = e.target.checked;
+                        setScreenSystemEnabled(next);
+                        setFfScreenSystem(next);
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

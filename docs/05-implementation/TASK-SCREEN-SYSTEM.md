@@ -2,7 +2,7 @@
 
 > **Ngày lập:** 2026-11-27 · **Chuẩn gốc:** [STD-SCREEN-SYSTEM-v1.0.md](../04-design/STD-SCREEN-SYSTEM-v1.0.md)  
 > **Khảo sát Bước 0:** [RPT-SCREEN-SYSTEM-SURVEY.md](RPT-SCREEN-SYSTEM-SURVEY.md) · **Gói giao việc:** [screen-system/README.md](screen-system/README.md)  
-> **Trạng thái hiện tại:** ⏳ Chờ Product Owner (Sonny) xác nhận điểm chốt trước khi mở nhánh Đợt 1 (`feat/screen-system-p1`).
+> **Trạng thái hiện tại:** 🟡 Xong mã nguồn **Đợt 1** trên nhánh `feat/screen-system-p1` (`237/237` test PASS, `npm run build` PASS) — chờ Sonny duyệt PR & UAT 360×640 trước khi merge và sang Đợt 2.
 
 ---
 
@@ -18,8 +18,8 @@
 
 | Đợt | Nhánh Git | Phạm vi chính | Cổng duyệt / Phụ thuộc | Trạng thái |
 |---|---|---|---|---|
-| **0 (Pre)** | `feat/screen-system-p1` (hoặc PR riêng) | Gộp chấm điểm `speech.js` (A1–A3), xóa bản trùng ở `LessonDetailPage`, thêm test + chạy `report-screen-coverage.mjs` | PO xác nhận nhánh nền `main` (`74535c1`) & làm A1–A3 trước | `[ ]` |
-| **Đợt 1** | `feat/screen-system-p1` | Registry 7 màn T, `items.js`, bộ trộn `mixer.js` + test M1–M9, tách 6 màn T, màn mới **T-08 Viết câu**, T-03 → mẹo pet + `GrammarSheet`, `ScreenHost` / `RouteHeader` / `ScreenIntro` / `useScreenEvents`, cờ `screenSystemV1`, đồng bộ `lessonMixLog` & `lastMix` | Sau khi xong: PO xem `RPT-SCREEN-COVERAGE` và test cờ trên máy thật | `[ ]` |
+| **0 (Pre)** | `feat/screen-system-p1` | Gộp chấm điểm `speech.js` (A1–A3), xóa bản trùng ở `LessonDetailPage`, thêm test + chạy `report-screen-coverage.mjs` | Đã hoàn tất 2026-11-27 | `[x]` |
+| **Đợt 1** | `feat/screen-system-p1` | Registry 7 màn T, `items.js`, bộ trộn `mixer.js` + test M1–M9, tách 6 màn T, màn mới **T-08 Viết câu**, T-03 → mẹo pet + `GrammarSheet`, `ScreenHost` / `RouteHeader` / `ScreenIntro` / `useScreenEvents`, cờ `screenSystemV1`, đồng bộ `lessonMixLog` & `lastMix` | Chờ Sonny đọc `RPT-SCREEN-COVERAGE-2026-11-27.md`, thử cờ trên máy thật & duyệt merge | `[x]` |
 | **Đợt 2** | `feat/screen-system-p2` | Migration 4 bảng cấu hình (`RK-005` MySQL 5.6+), API `GET /api/screens/config` (ETag/304) + 7 API `/api/admin/screens*`, `ScreenConfigProvider`, trang `/admin/screens` (6 tab: Danh mục, Ma trận, Trộn thử + 1.000 lần, Xem trước sandbox, Tài khoản thử, Nhật ký) | Phụ thuộc Đợt 1 merge; sau Đợt 2: PO chọn 5–10 tài khoản thử | `[ ]` |
 | **Đợt 3** | `feat/screen-system-p3` | Khung `friendly/`, 5 màn F đầu (**F-01, F-03, F-08, F-09, F-06** ở trạng thái `test`), màn **Mở ải**, bảng `screen_intro` + luật không lặp 10 ải + 156 câu dẫn nháp (`BD/TG/VS`) + tab admin Kho dẫn nhập, **Khách quen**, **4 chấm kỹ năng `skillsHit`**, **Sao ★ + Sữa theo sao** (`shared/lesson-stars.js`, Q13), màn **Tổng kết mới** | Phụ thuộc Đợt 2 + cần `STORY-BIBLE` (`UNIT_REGION`, `HUMAN_CAST`) & `AUDIO-DESIGN-BIBLE`; chạy thử ≥ 1 tuần | `[ ]` |
 | **Đợt 4a** | `feat/screen-system-p4a` | Thống kê màn (`screen_stat_daily`, `POST /api/screen-stats`, tab admin Thống kê) + 3 màn F (**F-02, F-04, F-05**) + câu dẫn nháp | Phụ thuộc thử nghiệm Đợt 3 ≥ 1 tuần | `[ ]` |
@@ -33,42 +33,20 @@
 > Đặc tả chi tiết: [GEMINI-SCREEN-SYSTEM-PHASE1.md](screen-system/GEMINI-SCREEN-SYSTEM-PHASE1.md)
 
 ### 1.1 Việc làm theo thứ tự
-- [ ] **1.0 — Tiền điều kiện A1–A3 & Báo cáo phủ dữ liệu**
-  - Sửa `src/utils/speech.js`: fix `split(' ')` chuỗi rỗng (`.filter(Boolean)`), bổ sung chuẩn hoá rút gọn tiếng Anh (`I'm`↔`I am`, `don't`↔`do not`, `it's`↔`it is`, `you're`↔`you are`, `can't`↔`cannot`) và hỗ trợ dung sai chính tả 1 ký tự cho từ ≥ 5 chữ cái (phục vụ T-08).
-  - Xoá 4 hàm nhân bản (`L44–113`) trong `src/features/lesson/LessonDetailPage.jsx`, import từ `src/utils/speech.js`.
-  - Viết test đơn vị `src/utils/speech.test.js` (thêm vào `npm test`).
-  - Viết `scripts/report-screen-coverage.mjs` và xuất `docs/06-verification-validation/RPT-SCREEN-COVERAGE-2026-11-27.md` trên toàn bộ 221 bài học.
-- [ ] **1.1 — Lõi Registry, Items & Bộ trộn thuần JS**
-  - Tạo `src/data/config/screens.js` (cấu hình tĩnh `SCREEN_CONFIG`: 7 mã T `on`, trọng số 3 nhóm theo Q9).
-  - Tạo `src/features/lesson/screens/items.js` (`listenItems`, `speakItems`, `writeItems`, `bossItems` — dùng chung cho `canRun` và component).
-  - Tạo `src/features/lesson/screens/seededRandom.js` (`mulberry32`, `hashString`).
-  - Tạo `src/features/lesson/screens/mixer.js` (`mixLesson` thuần JS, không `Math.random()`, không import React).
-  - Tạo `src/features/lesson/screens/registry.js` (7 màn T: `T-01, T-02, T-04, T-05, T-06, T-07, T-08`; `T-03` không chiếm slot).
-  - Tạo `src/features/lesson/screens/mixer.test.mjs` — phủ đủ **M1–M9** (`node --test`).
-- [ ] **1.2 — Tách 6 màn T hiện có (giữ nguyên giao diện, bỏ nút vận hành)**
-  - `src/features/lesson/screens/focus/T01Vocab.jsx`
-  - `src/features/lesson/screens/focus/T02Flashcard.jsx` (bọc `<Flashcard>` v1.4)
-  - `src/features/lesson/screens/focus/T04Reading.jsx` (tách từ `ReadingPassage`)
-  - `src/features/lesson/screens/focus/T05Listen.jsx`
-  - `src/features/lesson/screens/focus/T06Speak.jsx` (xử lý từ chối mic đi tiếp được)
-  - `src/features/lesson/screens/focus/T07Quiz.jsx`
-- [ ] **1.3 — Màn mới T-08 Viết câu & T-03 → Mẹo pet + `GrammarSheet`**
-  - `src/features/lesson/screens/GrammarSheet.jsx` (bottom sheet cuộn trong sheet, đóng bằng ✕ hoặc vuốt xuống).
-  - `src/features/lesson/screens/focus/T08WriteSentence.jsx` (2 kiểu: Xếp câu có 2 từ nhiễu + Gõ câu cho `exam` và câu 4 `intermediate`; bố cục không cuộn 360×640; mẹo pet từ `grammar[].mistakes[0]`).
-- [ ] **1.4 — `ScreenHost`, `RouteHeader`, `ScreenIntro`, `useScreenEvents` & Cờ bật/tắt**
-  - `src/features/lesson/screens/RouteHeader.jsx` (vòng tròn kỹ năng + màu chuẩn + `aria-label`).
-  - `src/features/lesson/screens/ScreenIntro.jsx` (1,5s / 3s, chạm để bỏ qua, câu pet `screen_enter` + ≥ 4 câu `screen_intro`/slot trong LineDB).
-  - `src/features/lesson/screens/screenEvents.js` (`useScreenEvents` nối Pet Director + `wordProgress` + `pet.skills`, tôn trọng `sandbox`).
-  - `src/features/lesson/screens/ScreenHost.jsx` (100dvh không cuộn cấp trang, lưu phiên vào `sessionStorage`, xác nhận thoát trong app).
-  - Gắn cờ `screenSystemV1` (`localStorage.cowdi_ff_screenSystemV1` → `VITE_FF_SCREEN_SYSTEM_V1` → `false`) vào `LessonDetailPage.jsx` (chỉ áp cho `intermediate`/`exam`, giữ nguyên code tab cũ khi cờ tắt và giữ `PictureLesson` cho `beginner`) + mục ẩn chạm logo 5 lần trong Cài đặt (`AccountPage.jsx`).
-- [ ] **1.5 — Đồng bộ `lessonMixLog` & `lastMix` lên Server (chuẩn `RK-005`)**
-  - Migration SQL `server/db/migrate-screen-system-p1.sql` + runner Node idempotent `scripts/run-screen-system-p1-migration.js` (thêm `lesson_mix_log LONGTEXT`, `last_mix LONGTEXT` vào `user_progress`).
-  - Cập nhật `server/routes/api.js` (whitelist + merge `lessonMixLog` 30 bản gần nhất theo `(lessonId, at)` + `lastMix` mới nhất; giữ nguyên guard `isLesson` `7fe282e`).
-  - Cập nhật `src/hooks/useUser.jsx` (merge + persist `lessonMixLog`, `lastMix`; giữ nguyên `skipNextSyncRef`).
-- [ ] **1.6 — Kiểm chứng & Báo cáo PR Đợt 1**
-  - `npm test` (toàn bộ cũ + `speech.test.js` + `mixer.test.mjs` M1–M9) → 100% PASS.
-  - `npm run build` → PASS.
-  - Kiểm tra responsive 360×640 & 800×1280 không cuộn trang, ghi số chạm vận hành trước/sau và xác nhận cờ tắt chạy giống hệt cũ trên 3 bài golden.
+- [x] **1.0 — Tiền điều kiện A1–A3 & Báo cáo phủ dữ liệu** — 2026-11-27
+  - Đã sửa `src/utils/speech.js` (fix `split(' ')` chuỗi rỗng, bổ sung `expandContractions` + `scoreTypedSentence`), xoá 4 hàm trùng trong `LessonDetailPage.jsx`, viết `src/utils/speech.test.js` (4 tests PASS), viết `scripts/report-screen-coverage.mjs` và xuất `docs/06-verification-validation/RPT-SCREEN-COVERAGE-2026-11-27.md` (`209` bài áp dụng; `T-01..T-07`: 100%, `T-08`: 175/209 = 84%, `34/209` bài chạy 5 màn).
+- [x] **1.1 — Lõi Registry, Items & Bộ trộn thuần JS** — 2026-11-27
+  - Tạo `src/data/config/screens.js`, `src/features/lesson/screens/{seededRandom,items,catalog,mixer,registry}.js` và `mixer.test.mjs` (**M1–M9 PASS**).
+- [x] **1.2 — Tách 6 màn T hiện có (giữ nguyên giao diện, bỏ nút vận hành)** — 2026-11-27
+  - `T01Vocab.jsx`, `T02Flashcard.jsx`, `T04Reading.jsx`, `T05Listen.jsx`, `T06Speak.jsx`, `T07Quiz.jsx`.
+- [x] **1.3 — Màn mới T-08 Viết câu & T-03 → Mẹo pet + `GrammarSheet`** — 2026-11-27
+  - `GrammarSheet.jsx` (native `<dialog>` + Safari light-dismiss fallback + vuốt xuống), `T08WriteSentence.jsx` (Xếp câu + 2 nhiễu & Gõ câu, mẹo pet, vùng phản hồi 64px).
+- [x] **1.4 — `ScreenHost`, `RouteHeader`, `ScreenIntro`, `useScreenEvents` & Cờ bật/tắt** — 2026-11-27
+  - `RouteHeader.jsx`, `ScreenIntro.jsx`, `screenEvents.js`, `ScreenHost.jsx`, `screens.css`, bổ sung 24 câu `screen_intro` (4/slot) vào `common.js` + `PetDirector.js`/`lineSelector.js`, gắn cờ `screenSystemV1` vào `LessonDetailPage.jsx` & nút chạm logo 5 lần trong `AccountPage.jsx`.
+- [x] **1.5 — Đồng bộ `lessonMixLog` & `lastMix` lên Server (chuẩn `RK-005`)** — 2026-11-27
+  - `server/db/migrate-screen-system-p1.sql` + `scripts/run-screen-system-p1-migration.js`, `server/routes/api.js`, `src/hooks/useUser.jsx`.
+- [x] **1.6 — Kiểm chứng tự động (`npm test` + `npm run build`)** — 2026-11-27
+  - `npm test`: **237/237 PASS** · `npm run build`: **PASS** (`✓ built in 2.41s`). Chờ UAT thiết bị thật 360×640 & 800×1280 và duyệt merge của Sonny.
 
 ---
 

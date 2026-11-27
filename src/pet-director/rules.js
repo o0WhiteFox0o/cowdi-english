@@ -8,6 +8,7 @@ export const PRIORITY = {
   skill_level_up: 70,
   answer_correct: 50,
   answer_wrong: 50,
+  screen_intro: 45,
   app_open: 40,
   pet_tap: 35,
   feed: 30,
@@ -55,7 +56,7 @@ export const TIER_OVERRIDES = {
 };
 
 // Sự kiện chỉ dùng cho điều phối, KHÔNG gửi xuống PetAvatar.emit.
-export const DIRECTOR_ONLY_EVENTS = ['screen_enter', 'idle_tick', 'mood_nudge', 'page_tip', 'pet_tap'];
+export const DIRECTOR_ONLY_EVENTS = ['screen_enter', 'screen_intro', 'idle_tick', 'mood_nudge', 'page_tip', 'pet_tap'];
 
 // Biểu tượng cho tầng 2 theo ngữ cảnh.
 export const THOUGHT_FOR = {

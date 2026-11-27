@@ -156,8 +156,11 @@ export class PetDirector {
       return null;
     }
 
-    // 4. Sự kiện chuyển tiếp nội bộ (screen_enter -> page_tip hoặc mood_nudge; idle_tick -> mood_nudge)
+    // 4. Sự kiện chuyển tiếp nội bộ (screen_enter -> screen_intro nếu có slot, hoặc page_tip / mood_nudge)
     if (event === 'screen_enter') {
+      if (payload.slot) {
+        return this._evaluate('screen_intro', null, payload, { ...ctx, screen }, now, night);
+      }
       const seenTips = this.storage.getSeenTips();
       if (!seenTips[screen]) {
         return this._evaluate('page_tip', null, payload, { ...ctx, screen }, now, night);

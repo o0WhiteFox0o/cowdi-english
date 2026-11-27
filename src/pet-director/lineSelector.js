@@ -41,6 +41,7 @@ export function matchesWhen(line, { event, screen, mood, stage, bond, group, nig
   const w = line.when || {};
 
   if (Array.isArray(w.screen) && w.screen.length > 0 && !w.screen.includes(screen)) return false;
+  if (Array.isArray(w.slot) && w.slot.length > 0 && !w.slot.includes(payload?.slot)) return false;
   if (Array.isArray(w.mood) && w.mood.length > 0 && !w.mood.includes(mood)) return false;
   if (typeof w.stageMin === 'number' && (stage ?? 1) < w.stageMin) return false;
   if (typeof w.stageMax === 'number' && (stage ?? 1) > w.stageMax) return false;

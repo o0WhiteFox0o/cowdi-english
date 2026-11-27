@@ -82,4 +82,35 @@ export default [
   L('feed.01', 'feed', 'Ngon quá! Cảm ơn bạn nha!'),
   L('feed.02', 'feed', 'Măm măm... no rồi!'),
   L('feed.03', 'feed', '{petName} có sức học tiếp rồi!'),
+
+  // ── screen_intro (4 câu / slot cho Hệ thống Màn học Đợt 1) ─
+  L('sintro.intro.01', 'screen_intro', 'Cùng {petName} làm quen từ mới nha!', { when: { slot: ['intro'] } }),
+  L('sintro.intro.02', 'screen_intro', 'Xem kỹ từng từ rồi nghe phát âm nè!', { when: { slot: ['intro'] } }),
+  L('sintro.intro.03', 'screen_intro', 'Từ mới hôm nay thú vị lắm đó!', { when: { slot: ['intro'] } }),
+  L('sintro.intro.04', 'screen_intro', 'Bắt đầu với những từ đầu tiên nào!', { when: { slot: ['intro'] } }),
+
+  L('sintro.listen.01', 'screen_intro', 'Vểnh tai lên nghe cùng {petName} nha!', { when: { slot: ['listen'] } }),
+  L('sintro.listen.02', 'screen_intro', 'Nghe kỹ câu rồi chọn nghĩa đúng nè!', { when: { slot: ['listen'] } }),
+  L('sintro.listen.03', 'screen_intro', 'Chưa rõ thì bấm nghe chậm lại nhé!', { when: { slot: ['listen'] } }),
+  L('sintro.listen.04', 'screen_intro', 'Đến lượt luyện tai rồi, cố lên nào!', { when: { slot: ['listen'] } }),
+
+  L('sintro.speak.01', 'screen_intro', 'Đọc to cùng {petName} cho tự tin nha!', { when: { slot: ['speak'] } }),
+  L('sintro.speak.02', 'screen_intro', 'Nghe mẫu trước rồi nói theo nhé!', { when: { slot: ['speak'] } }),
+  L('sintro.speak.03', 'screen_intro', 'Giọng bạn đọc hay lắm, thử câu mới nào!', { when: { slot: ['speak'] } }),
+  L('sintro.speak.04', 'screen_intro', 'Đến màn nói rồi, cứ đọc thoải mái nha!', { when: { slot: ['speak'] } }),
+
+  L('sintro.read.01', 'screen_intro', 'Cùng đọc đoạn văn tìm ý hay nha!', { when: { slot: ['read'] } }),
+  L('sintro.read.02', 'screen_intro', 'Chạm vào từ in đậm để xem nghĩa nhé!', { when: { slot: ['read'] } }),
+  L('sintro.read.03', 'screen_intro', 'Đọc chậm rãi để hiểu trọn câu chuyện!', { when: { slot: ['read'] } }),
+  L('sintro.read.04', 'screen_intro', 'Màn đọc hiểu tới rồi, {petName} đi cùng!', { when: { slot: ['read'] } }),
+
+  L('sintro.write.01', 'screen_intro', 'Ghép chữ thành câu chuẩn chỉnh nào!', { when: { slot: ['write'] } }),
+  L('sintro.write.02', 'screen_intro', 'Cần nhớ cấu trúc? Bấm Xem ngữ pháp nha!', { when: { slot: ['write'] } }),
+  L('sintro.write.03', 'screen_intro', 'Thử tài viết câu cùng {petName} nhé!', { when: { slot: ['write'] } }),
+  L('sintro.write.04', 'screen_intro', 'Xếp từng từ cẩn thận là đúng ngay!', { when: { slot: ['write'] } }),
+
+  L('sintro.boss.01', 'screen_intro', 'Màn cuối rồi! Cùng chinh phục Boss nào!', { when: { slot: ['boss'] } }),
+  L('sintro.boss.02', 'screen_intro', 'Tổng hợp hết kỹ năng vượt ải thôi!', { when: { slot: ['boss'] } }),
+  L('sintro.boss.03', 'screen_intro', '{petName} tin bạn vượt qua màn cuối nè!', { when: { slot: ['boss'] } }),
+  L('sintro.boss.04', 'screen_intro', 'Tập trung nha, xong màn này là qua ải!', { when: { slot: ['boss'] } }),
 ];

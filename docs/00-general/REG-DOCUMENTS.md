@@ -115,6 +115,7 @@
 | STP | **Kế hoạch kiểm thử tổng thể (IEEE 29119-3)** | [STP-COWDI-v1.0.md](../06-verification-validation/STP-COWDI-v1.0.md) | 1.0 | Approved | STP-COWDI-v0.1.md |
 | RPT | **Báo cáo kiểm tra nội dung 206 bài học hiện có (+ 3 bài golden v2)** | [RPT-LESSON-CONTENT-2026-11-24.md](../06-verification-validation/RPT-LESSON-CONTENT-2026-11-24.md) | — | Approved | (mới 2026-11-24) |
 | RPT | **Báo cáo rà soát chất lượng ngân hàng câu hỏi (2.829 câu · 0 lỗi cứng · 54/54 bài v2 0 cảnh báo)** | [RPT-QUESTION-AUDIT-2026-11-26.md](../06-verification-validation/RPT-QUESTION-AUDIT-2026-11-26.md) | — | Approved | (mới 2026-11-26) |
+| RPT | **Báo cáo độ phủ dữ liệu Hệ thống Màn học (`209` bài · `T-01..T-07` 100%, `T-08` 84%)** | [RPT-SCREEN-COVERAGE-2026-11-27.md](../06-verification-validation/RPT-SCREEN-COVERAGE-2026-11-27.md) | — | Approved | (mới 2026-11-27 — Bước 0.5 Đợt 1) |
 | RPT | **Báo cáo mô phỏng cân bằng Chiến đấu v2 (6 CSV)** | [BALANCE-REPORT-v2.md](../06-verification-validation/balance-v2/BALANCE-REPORT-v2.md) | — | Approved | (mới 2026-11-23) |
 | RPT | Đánh giá dự án (24/04/2026) | [RPT-EVALUATION-2026-04-24.md](../06-verification-validation/RPT-EVALUATION-2026-04-24.md) | — | Approved | EVALUATION-2026-04.md |
 | RPT | Cơ chế tính điểm (23/04/2026) | [RPT-SCORING-2026-04-23.md](../06-verification-validation/RPT-SCORING-2026-04-23.md) | — | Superseded một phần bởi SDD-ECONOMY-BATTLE-v2.1 | SCORING-REPORT.md |
