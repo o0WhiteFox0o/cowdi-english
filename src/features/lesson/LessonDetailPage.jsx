@@ -7,6 +7,7 @@ import PictureLesson from './PictureLesson';
 import ExamReading from './ExamReading';
 import ScreenHost from './screens/ScreenHost';
 import { isScreenSystemEnabled } from '../../data/config/screens';
+import { computeLessonResult, lessonMilk } from '../../../shared/lesson-stars';
 import Flashcard from '../../components/learn/Flashcard';
 import {
   orderCards,
@@ -337,7 +338,7 @@ function ReadingPassage({ lesson, onSpeak, onSpeakSlow, addXP, showToast, play }
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, incrementQuizzes, setWordStatus, getWordStatus, recordWordEncounter, recordQuestionResult, refreshWallet } = useUser();
+  const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, recordLessonStars, incrementQuizzes, setWordStatus, getWordStatus, recordWordEncounter, recordQuestionResult, refreshWallet } = useUser();
   const { config: screenConfig, isTester: isScreenTester } = useScreenConfig();
   const { getActivePetWithDecay, onLessonComplete } = usePet();
   const showToast = useToast();
@@ -969,22 +970,40 @@ export default function LessonDetailPage() {
     }
   }
 
-  function finishLessonAttempt({ finalScore, total, passRateOverride }) {
+  function finishLessonAttempt({ finalScore, total, passRateOverride, results = null }) {
     const pct = total > 0 ? finalScore / total : 0;
     const pctInt = Math.round(pct * 100);
     const threshold = passRateOverride ?? rules.lessonPassRate ?? 0.7;
     // Kiểm tra phần phát âm bắt buộc ở nhóm Luyện thi (khi có micro)
     const needSpeakFirst = speakMandatory && SpeechRecognitionAPI && !stepDone.speak && !speakDone;
-    const passed = pct >= threshold && !needSpeakFirst;
+    const effectiveResults = Array.isArray(results) && results.length > 0
+      ? results
+      : [{ code: 'T-07', slot: 'boss', total, firstTryCorrect: finalScore, guestTotal: 0 }];
+    const starRes = computeLessonResult({
+      group: group.id,
+      results: effectiveResults,
+      bossCorrect: finalScore,
+      bossTotal: total,
+      passRate: threshold,
+    });
+    const passed = starRes.passed && !needSpeakFirst;
+    const stars = passed ? starRes.stars : 0;
     const isPerfect = finalScore === total && total > 0;
     const isFirst = !userData.completedLessons.includes(lesson.id);
+    const prevStars = Number(userData.lessonStars?.[lesson.id] || 0);
+    const prevStarsPaid = Number(userData.lessonStarPaid?.[lesson.id] || 0);
 
     recordLessonScore(lesson.id, pctInt);
+    if (passed) {
+      recordLessonStars(lesson.id, stars, Math.max(prevStarsPaid, stars));
+    }
 
-    const base = finalScore * 10 + (isPerfect ? 30 : 0);
-    const xp = passed
-      ? (isFirst ? base + 60 : Math.max(5, Math.round(base / 3)))
-      : Math.max(5, Math.round(base / 3)); // L4: chưa đạt vẫn nhận 1/3 Sữa, không thưởng hoàn thành
+    const xp = lessonMilk({
+      bossCorrect: finalScore,
+      stars,
+      isFirstPass: isFirst && passed,
+      prevStarsPaid,
+    });
 
     const prevW = userData.wallet || {};
     addXP(xp);
@@ -1025,7 +1044,7 @@ export default function LessonDetailPage() {
       showToast(
         isFirst
           ? `+${xp} 🥛 Sữa! Bạn đã hoàn thành bài học! 🎉`
-          : `Ôn lại tốt! +${xp} 🥛 Sữa ${isPerfect ? '· Trọn điểm 💯' : ''}`,
+          : `Ôn lại tốt! +${xp} 🥛 Sữa ${stars === 3 ? '· ★★★ Trọn điểm' : ''}`,
         'success'
       );
     } else if (needSpeakFirst) {
@@ -1034,7 +1053,19 @@ export default function LessonDetailPage() {
       showToast(`Chưa đạt (cần ≥${Math.round(threshold * 100)}%). Nhận +${xp} 🥛 Sữa ôn tập!`, 'warning');
     }
 
-    return { passed, xp, milk: xp, gem: 0, stone: 0, needSpeakFirst };
+    return {
+      passed,
+      xp,
+      milk: xp,
+      gem: 0,
+      stone: 0,
+      stars,
+      prevStars,
+      prevStarsPaid,
+      accuracy: starRes.accuracy,
+      bossPerfect: starRes.bossPerfect,
+      needSpeakFirst,
+    };
   }
 
   function goToNextQuestion(wasCorrect) {

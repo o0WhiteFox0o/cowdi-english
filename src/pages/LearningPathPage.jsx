@@ -819,10 +819,13 @@ export default function LearningPathPage() {
                   const score = node.type === 'checkpoint' ? userData.checkpointScores?.[unit.id] : null;
 
                   const isDone = node.type === 'lesson' && userData.completedLessons?.includes(node.lessonId);
+                  const nodeStars = node.type === 'lesson' && node.status === 'done'
+                    ? Math.max(1, Math.min(3, Number(userData.lessonStars?.[node.lessonId] || 1)))
+                    : 0;
                   const newLessonCount = (userData.completedLessons?.length || 0) + 1;
                   const willGiveGem = !isDone && (newLessonCount % 2 === 0);
                   const willGiveStone = !isDone && (newLessonCount % 10 === 0);
-                  const estMilk = lesson ? estimateLessonMilk(lesson, { isRepeat: isDone }) : 0;
+                  const estMilk = lesson ? estimateLessonMilk(lesson, { isRepeat: isDone, prevStarsPaid: Number(userData.lessonStarPaid?.[node.lessonId] || 0) }) : 0;
                   const rewardHint = isDone ? `🥛 ~+${estMilk} (ôn lại 1/3)` : `🥛 ~+${estMilk} Sữa`;
 
                   const inner = (
@@ -839,6 +842,31 @@ export default function LearningPathPage() {
                         </span>
                       )}
                       <span className="path-node-btn"><span>{nodeFace(node, lesson)}</span></span>
+                      {nodeStars > 0 && (
+                        <span
+                          className="path-node-stars"
+                          aria-label={`${nodeStars} trên 3 sao`}
+                          style={{
+                            display: 'inline-flex',
+                            gap: 2,
+                            marginTop: 2,
+                            fontSize: '0.88rem',
+                            lineHeight: 1,
+                          }}
+                        >
+                          {[1, 2, 3].map((i) => (
+                            <span
+                              key={i}
+                              style={{
+                                color: i <= nodeStars ? '#F59E0B' : '#CBD5E1',
+                                textShadow: i <= nodeStars ? '0 1px 2px rgba(245,158,11,0.35)' : 'none',
+                              }}
+                            >
+                              {i <= nodeStars ? '★' : '☆'}
+                            </span>
+                          ))}
+                        </span>
+                      )}
                       <span className="path-node-label">
                         {label}
                         {node.status === 'placed' && <small className="text-muted">Đã vượt</small>}

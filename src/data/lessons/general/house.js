@@ -19,6 +19,10 @@ export const HOUSE_LESSON = {
     'Dùng đúng cấu trúc There is / There are ở thể khẳng định, phủ định và câu hỏi',
     'Mô tả vị trí đồ đạc trong phòng bằng các giới từ in, on, under, next to',
   ],
+  story: {
+    npc: 'minh',
+    introVi: 'Ngôi nhà nhỏ gần Vườn Sữa có nhiều phòng ấm cúng lắm. Con cùng Minh gọi tên từng phòng và đồ đạc nha!',
+  },
 
   vocabulary: [
     v('Kitchen', '/ˈkɪtʃɪn/', 'noun', 'Nhà bếp', 'Mom is cooking soup in the kitchen.', 'Mẹ đang nấu canh trong nhà bếp.', '🍳'),

@@ -11,6 +11,11 @@ import {
   addScreenTester,
   removeScreenTester,
   listScreenConfigLog,
+  getApprovedScreenIntros,
+  listAdminScreenIntros,
+  createAdminScreenIntro,
+  updateAdminScreenIntro,
+  batchUpdateScreenIntroStatus,
 } from '../utils/screen-config-manager.js';
 
 /**
@@ -147,6 +152,87 @@ export function createScreensRouter({
     } catch (err) {
       console.error('GET /api/admin/screen-log error:', err);
       return res.status(500).json({ error: 'Lỗi tải nhật ký thay đổi.' });
+    }
+  });
+
+  // ── 9. Client: GET /api/screen-intros?region=BD (ETag / 304) ───────────────
+  router.get('/screen-intros', async (req, res) => {
+    try {
+      const data = await getApprovedScreenIntros(pool, req.query.region || 'BD');
+      const etag = `W/"intros:${data.region}:${data.version}:${data.items.length}"`;
+      res.set('ETag', etag);
+      res.set('Cache-Control', 'no-cache');
+      if (req.headers['if-none-match'] === etag) {
+        return res.status(304).end();
+      }
+      return res.json(data);
+    } catch (err) {
+      console.error('GET /api/screen-intros error:', err);
+      return res.status(500).json({ error: 'Không tải được câu dẫn màn.' });
+    }
+  });
+
+  // ── 10. Admin: GET /api/admin/screen-intros ────────────────────────────────
+  router.get('/admin/screen-intros', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const data = await listAdminScreenIntros(pool, {
+        screenCode: req.query.code || req.query.screenCode || '',
+        region: req.query.region || '',
+        status: req.query.status || '',
+      });
+      return res.json(data);
+    } catch (err) {
+      console.error('GET /api/admin/screen-intros error:', err);
+      return res.status(500).json({ error: 'Lỗi tải kho dẫn nhập.' });
+    }
+  });
+
+  // ── 11. Admin: POST /api/admin/screen-intros ───────────────────────────────
+  router.post('/admin/screen-intros', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const created = await createAdminScreenIntro(pool, {
+        ...(req.body || {}),
+        adminUserId: req.user.id,
+      });
+      return res.status(201).json(created);
+    } catch (err) {
+      const st = err.status || 500;
+      if (st >= 500) console.error('POST /api/admin/screen-intros error:', err);
+      return res.status(st).json({ error: err.message || 'Lỗi tạo câu dẫn.' });
+    }
+  });
+
+  // ── 12. Admin: POST /api/admin/screen-intros/batch-status ──────────────────
+  router.post('/admin/screen-intros/batch-status', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const result = await batchUpdateScreenIntroStatus(pool, {
+        ids: req.body?.ids,
+        status: req.body?.status,
+        adminUserId: req.user.id,
+      });
+      return res.json(result);
+    } catch (err) {
+      const st = err.status || 500;
+      if (st >= 500) console.error('POST /api/admin/screen-intros/batch-status error:', err);
+      return res.status(st).json({ error: err.message || 'Lỗi duyệt hàng loạt.' });
+    }
+  });
+
+  // ── 13. Admin: PUT /api/admin/screen-intros/:id ────────────────────────────
+  router.put('/admin/screen-intros/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const updated = await updateAdminScreenIntro(pool, {
+        id: req.params.id,
+        textVi: req.body?.textVi,
+        audioUrl: req.body?.audioUrl,
+        status: req.body?.status,
+        adminUserId: req.user.id,
+      });
+      return res.json(updated);
+    } catch (err) {
+      const st = err.status || 500;
+      if (st >= 500) console.error('PUT /api/admin/screen-intros/:id error:', err);
+      return res.status(st).json({ error: err.message || 'Lỗi cập nhật câu dẫn.' });
     }
   });
 

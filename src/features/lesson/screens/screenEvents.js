@@ -21,7 +21,9 @@ export function useScreenEvents({
   sandbox = false,
   recordWordEncounter,
   recordQuestionResult,
+  recordWordSkillHit,
   addSkillXP,
+  onSkillGain,
 }) {
   const { dispatch } = usePetDirector();
   const streakRef = useRef(0);
@@ -64,8 +66,16 @@ export function useScreenEvents({
             recordQuestionResult({ targetWords: payload.wordIds }, true, quizRunRef.current, rules);
           }
           const petSkill = SLOT_TO_PET_SKILL[payload.skill];
-          if (petSkill && typeof addSkillXP === 'function') {
-            addSkillXP(petSkill, 1);
+          if (petSkill) {
+            if (Array.isArray(payload.wordIds) && payload.wordIds.length > 0 && typeof recordWordSkillHit === 'function') {
+              recordWordSkillHit(payload.wordIds, payload.skill, rules);
+            }
+            if (typeof addSkillXP === 'function') {
+              addSkillXP(petSkill, 1);
+            }
+            if (typeof onSkillGain === 'function') {
+              onSkillGain(payload.skill, 1);
+            }
           }
         }
         break;
@@ -94,7 +104,7 @@ export function useScreenEvents({
       default:
         break;
     }
-  }, [dispatch, lessonId, rules, sandbox, recordWordEncounter, recordQuestionResult, addSkillXP]);
+  }, [dispatch, lessonId, rules, sandbox, recordWordEncounter, recordQuestionResult, recordWordSkillHit, addSkillXP, onSkillGain]);
 
   return { handleEvent, resetRun };
 }

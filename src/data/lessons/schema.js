@@ -103,6 +103,20 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
   if (!isStr(lesson.title)) err('thiếu title');
   if (!isStr(lesson.icon)) std('thiếu icon');
 
+  // Tuỳ chọn: story { npc, introVi } cho Màn Mở ải (Screen System Đợt 3 §3)
+  if (lesson.story !== undefined) {
+    if (!lesson.story || typeof lesson.story !== 'object') {
+      err('story phải là object { npc, introVi }');
+    } else {
+      if (!isStr(lesson.story.npc)) err('story.npc không được trống');
+      if (!isStr(lesson.story.introVi)) err('story.introVi không được trống');
+      else {
+        const viWords = lesson.story.introVi.trim().split(/\s+/).filter(Boolean).length;
+        if (viWords > 30) std(`story.introVi dài ${viWords} chữ (tối đa 30 chữ)`);
+      }
+    }
+  }
+
   // ── Starter ────────────────────────────────────────────────
   if (level === 'starter') {
     const R = RULES.starter;

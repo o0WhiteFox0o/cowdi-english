@@ -11,6 +11,11 @@ import T05Listen from './focus/T05Listen.jsx';
 import T06Speak from './focus/T06Speak.jsx';
 import T07Quiz from './focus/T07Quiz.jsx';
 import T08WriteSentence from './focus/T08WriteSentence.jsx';
+import F01Slideshow from './friendly/F01Slideshow.jsx';
+import F03CatchWord from './friendly/F03CatchWord.jsx';
+import F06FogBoss from './friendly/F06FogBoss.jsx';
+import F08MemoryPairs from './friendly/F08MemoryPairs.jsx';
+import F09BoatSentence from './friendly/F09BoatSentence.jsx';
 
 const COMPONENT_MAP = {
   'T-01': T01Vocab,
@@ -20,6 +25,11 @@ const COMPONENT_MAP = {
   'T-06': T06Speak,
   'T-07': T07Quiz,
   'T-08': T08WriteSentence,
+  'F-01': F01Slideshow,
+  'F-03': F03CatchWord,
+  'F-06': F06FogBoss,
+  'F-08': F08MemoryPairs,
+  'F-09': F09BoatSentence,
 };
 
 export { SLOTS };

@@ -19,6 +19,10 @@ export const JOBS_LESSON = {
     'Dùng đúng mạo từ a / an trước danh từ chỉ nghề nghiệp',
     'Mô tả việc một người làm hằng ngày bằng động từ thì hiện tại đơn',
   ],
+  story: {
+    npc: 'khoa',
+    introVi: 'Dưới chân Tháp Gió có nhiều cô chú làm đủ nghề. Con cùng anh Khoa tìm hiểu tên các nghề nghiệp nhé!',
+  },
 
   vocabulary: [
     v('Doctor', '/ˈdɑːktər/', 'noun', 'Bác sĩ', 'A doctor helps sick people get well.', 'Bác sĩ giúp người bệnh khoẻ lại.', '👨‍⚕️'),

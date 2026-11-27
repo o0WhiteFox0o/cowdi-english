@@ -127,7 +127,8 @@ router.get('/progress', requireAuth, async (req, res) => {
               achievements, daily_tasks, daily_date,
               srs_data, checkpoint_scores, skill_xp,
               daily_journal, learner_group, active_path,
-              lesson_scores, placement, lesson_mix_log, last_mix, updated_at
+              lesson_scores, placement, lesson_mix_log, last_mix,
+              recent_intros, lesson_stars, lesson_star_paid, updated_at
        FROM user_progress WHERE user_id = ?`,
       [req.user.id]
     );
@@ -176,6 +177,9 @@ router.get('/progress', requireAuth, async (req, res) => {
       placement:        parseJSON(row.placement, null),
       lessonMixLog:     parseJSON(row.lesson_mix_log, []),
       lastMix:          parseJSON(row.last_mix, {}),
+      recentIntros:     parseJSON(row.recent_intros, []),
+      lessonStars:      parseJSON(row.lesson_stars, {}),
+      lessonStarPaid:   parseJSON(row.lesson_star_paid, {}),
       updatedAt:        row.updated_at,
     });
   } catch (err) {
@@ -318,6 +322,8 @@ function mergeWordProgressMap(aMap = {}, bMap = {}) {
     const lastCorrectAt = latest(a.lastCorrectAt, b.lastCorrectAt);
     const wrongIsNewest = toMs(lastWrongAt) > toMs(lastCorrectAt);
     const owner = a.lastWrongAt === lastWrongAt ? a : b;
+    const shA = a.skillsHit && typeof a.skillsHit === 'object' ? a.skillsHit : {};
+    const shB = b.skillsHit && typeof b.skillsHit === 'object' ? b.skillsHit : {};
     out[id] = {
       points: wrongIsNewest ? (owner.points || 0) : Math.max(a.points || 0, b.points || 0),
       wrongPending: wrongIsNewest,
@@ -327,9 +333,38 @@ function mergeWordProgressMap(aMap = {}, bMap = {}) {
       encounterTotal: Math.max(a.encounterTotal || 0, b.encounterTotal || 0),
       correctTotal: Math.max(a.correctTotal || 0, b.correctTotal || 0),
       wrongTotal: Math.max(a.wrongTotal || 0, b.wrongTotal || 0),
+      skillsHit: {
+        listen: latest(shA.listen, shB.listen),
+        read: latest(shA.read, shB.read),
+        write: latest(shA.write, shB.write),
+        speak: latest(shA.speak, shB.speak),
+      },
     };
   }
   return out;
+}
+
+// Gộp lessonStars / lessonStarPaid theo MAX (0..3) từng lessonId (Screen System P3 §7b)
+function mergeStarMap(existing = {}, incoming = {}) {
+  const out = {};
+  const keys = new Set([...Object.keys(existing || {}), ...Object.keys(incoming || {})]);
+  for (const k of keys) {
+    const v = Math.max(Number(existing?.[k] || 0), Number(incoming?.[k] || 0));
+    if (Number.isFinite(v) && v >= 0) out[k] = Math.max(0, Math.min(3, Math.round(v)));
+  }
+  return out;
+}
+
+// Gộp recentIntros theo lessonAttemptAt, giữ 10 ải gần nhất (Screen System P3 §4.2)
+function mergeRecentIntros(existingList = [], incomingList = []) {
+  const map = new Map();
+  for (const item of [...(Array.isArray(existingList) ? existingList : []), ...(Array.isArray(incomingList) ? incomingList : [])]) {
+    if (!item || !item.lessonAttemptAt || !Array.isArray(item.ids)) continue;
+    map.set(item.lessonAttemptAt, { lessonAttemptAt: String(item.lessonAttemptAt), ids: item.ids.map(String).slice(0, 20) });
+  }
+  return [...map.values()]
+    .sort((a, b) => (Date.parse(a.lessonAttemptAt) || 0) - (Date.parse(b.lessonAttemptAt) || 0))
+    .slice(-10);
 }
 
 // Gộp lessonMixLog theo (lessonId, at), giữ 30 bản gần nhất (PHASE1 §6)
@@ -354,7 +389,7 @@ router.put('/progress', requireAuth, async (req, res) => {
     'activeDays','achievements','dailyTasks','dailyDate',
     'srsData','checkpointScores','dailyJournal',
     'learnerGroup','activePath','lessonScores','placement',
-    'lessonMixLog','lastMix',
+    'lessonMixLog','lastMix','recentIntros','lessonStars','lessonStarPaid',
     'timezone','lastAccuracy','lastMilkEarned'
   ];
   for (const key of Object.keys(d)) {
@@ -367,7 +402,7 @@ router.put('/progress', requireAuth, async (req, res) => {
   try {
     // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX, word_progress theo mergeProgress, phát hiện bài mới lần đầu (BR-01) và tránh client cũ ghi đè null
     const [[existing]] = await pool.execute(
-      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons, word_progress, lesson_mix_log, last_mix FROM user_progress WHERE user_id = ?',
+      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons, word_progress, lesson_mix_log, last_mix, recent_intros, lesson_stars, lesson_star_paid FROM user_progress WHERE user_id = ?',
       [req.user.id]
     );
     const parseJSON = (val, fallback) => {
@@ -409,6 +444,21 @@ router.put('/progress', requireAuth, async (req, res) => {
               ? Object.fromEntries(newestLog.order.map((sl, i) => [sl, newestLog.screens[i]]).filter(([, c]) => c))
               : {}));
 
+    const existingRecentIntros = parseJSON(existing?.recent_intros, []);
+    const mergedRecentIntros = 'recentIntros' in d
+      ? mergeRecentIntros(existingRecentIntros, d.recentIntros)
+      : existingRecentIntros;
+
+    const existingLessonStars = parseJSON(existing?.lesson_stars, {});
+    const mergedLessonStars = 'lessonStars' in d
+      ? mergeStarMap(existingLessonStars, d.lessonStars)
+      : existingLessonStars;
+
+    const existingLessonStarPaid = parseJSON(existing?.lesson_star_paid, {});
+    const mergedLessonStarPaid = 'lessonStarPaid' in d
+      ? mergeStarMap(existingLessonStarPaid, d.lessonStarPaid)
+      : existingLessonStarPaid;
+
     const nextLearnerGroup = 'learnerGroup' in d
       ? sanitizeLearnerGroup(d.learnerGroup)
       : (existing?.learner_group || null);
@@ -446,6 +496,9 @@ router.put('/progress', requireAuth, async (req, res) => {
       nextPlacement ? JSON.stringify(nextPlacement) : null,
       JSON.stringify(mergedMixLog),
       JSON.stringify(mergedLastMix),
+      JSON.stringify(mergedRecentIntros),
+      JSON.stringify(mergedLessonStars),
+      JSON.stringify(mergedLessonStarPaid),
     ];
 
     await pool.execute(
@@ -455,8 +508,8 @@ router.put('/progress', requireAuth, async (req, res) => {
           completed_lessons, word_status, word_progress, active_days, achievements,
           daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
           daily_journal, learner_group, active_path, lesson_scores, placement,
-          lesson_mix_log, last_mix)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          lesson_mix_log, last_mix, recent_intros, lesson_stars, lesson_star_paid)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          -- XP lifetime chỉ tăng; XP đã tiêu (total - available) chỉ tăng → client cũ/stale không thể "hồi" ví
          available_xp      = GREATEST(0, CAST(GREATEST(total_xp, VALUES(total_xp)) AS SIGNED)
@@ -485,6 +538,9 @@ router.put('/progress', requireAuth, async (req, res) => {
          placement         = VALUES(placement),
          lesson_mix_log    = VALUES(lesson_mix_log),
          last_mix          = VALUES(last_mix),
+         recent_intros     = VALUES(recent_intros),
+         lesson_stars      = VALUES(lesson_stars),
+         lesson_star_paid  = VALUES(lesson_star_paid),
          updated_at        = CURRENT_TIMESTAMP`,
       params
     );

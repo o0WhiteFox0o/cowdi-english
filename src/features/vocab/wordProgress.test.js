@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   emptyProgress, wordStatus, isMaybeForgotten, applyEncounter, applyAnswer,
+  applySkillHit, countSkillsHit, missingSkills, isMasteredAllSkills,
   applyQuestionResult, mergeProgress, mergeProgressMap, orderCards, migrateLegacyKnown,
   normalizeWordId, WORD_STATUS_UI,
 } from './wordProgress.js';
@@ -149,4 +150,34 @@ test('Bổ sung: normalizeWordId & mergeProgressMap hoạt động chuẩn cho b
   const merged = mergeProgressMap(local, remote);
   const ordered = orderCards(words, merged, MID, Date.parse(day(1))).map((w) => w.word);
   assert.deepEqual(ordered, ['Banana', 'Apple']);
+});
+
+test('P7: skillsHit đủ 4 → known; trả lời sai sau đó → review nhưng vẫn giữ 4 chấm', () => {
+  let p = emptyProgress();
+  p = applySkillHit(p, 'listen', MID, day(0));
+  p = applySkillHit(p, 'read', MID, day(0));
+  p = applySkillHit(p, 'write', MID, day(0));
+  assert.equal(countSkillsHit(p), 3);
+  assert.deepEqual(missingSkills(p), ['speak']);
+  assert.equal(isMasteredAllSkills(p), false);
+
+  p = applySkillHit(p, 'speak', MID, day(1));
+  assert.equal(countSkillsHit(p), 4);
+  assert.equal(isMasteredAllSkills(p), true);
+  assert.ok(p.points >= MID.knownAtPoints);
+  assert.equal(wordStatus(p, MID), 'known');
+
+  // Trả lời sai sau khi đủ 4 chấm → review theo F3, nhưng giữ nguyên 4 chấm
+  const afterWrong = applyAnswer(p, new Set(), 'apple', false, MID, day(2));
+  assert.equal(wordStatus(afterWrong, MID), 'review');
+  assert.equal(countSkillsHit(afterWrong), 4);
+  assert.equal(afterWrong.skillsHit.speak, day(1));
+
+  // Gộp 2 thiết bị hợp nhất skillsHit theo từng kỹ năng
+  const devA = applySkillHit(emptyProgress(), 'listen', MID, day(0));
+  const devB = applySkillHit(emptyProgress(), 'write', MID, day(1));
+  const merged = mergeProgress(devA, devB);
+  assert.equal(merged.skillsHit.listen, day(0));
+  assert.equal(merged.skillsHit.write, day(1));
+  assert.equal(merged.skillsHit.read, null);
 });

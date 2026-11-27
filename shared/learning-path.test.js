@@ -126,10 +126,11 @@ test('Mọi bài học trong ALL_LESSONS đều thuộc ít nhất 1 unit (0 bà
   }
 });
 
-test('estimateLessonMilk tính đúng H8 (quiz 5 câu lần đầu = 140, picture 6 câu = 150)', () => {
+test('estimateLessonMilk tính đúng Q13 (quiz 5 câu lần đầu 3★ = 140, làm lại = 17, picture 6 câu = 150)', () => {
   assert.equal(estimateLessonMilk({ quiz: [1, 2, 3, 4, 5] }, { isRepeat: false }), 140);
-  assert.equal(estimateLessonMilk({ quiz: [1, 2, 3, 4, 5] }, { isRepeat: true }), 27);
+  assert.equal(estimateLessonMilk({ quiz: [1, 2, 3, 4, 5] }, { isRepeat: true }), 17);
   assert.equal(estimateLessonMilk({ format: 'picture' }, { isRepeat: false }), 150);
+  assert.equal(estimateLessonMilk({ quiz: Array(10).fill(1) }, { isRepeat: false }), 190);
 });
 
 test('migrateLegacyProgress + suggestLegacyGroup + isAdvancedUnlocked hoạt động đúng', () => {

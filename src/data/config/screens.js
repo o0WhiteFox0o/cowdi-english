@@ -12,6 +12,11 @@ export const SCREEN_CONFIG = {
     'T-06': 'on',
     'T-07': 'on',
     'T-08': 'on',
+    'F-01': 'test',
+    'F-03': 'test',
+    'F-06': 'test',
+    'F-08': 'test',
+    'F-09': 'test',
   },
   weights: {
     beginner:     { friendly: 1.0,  focus: 0.0  },
@@ -38,6 +43,11 @@ export const SCREEN_PLAY_RULES = {
   'T-06': 'Nghe câu mẫu rồi đọc to theo để luyện phát âm.',
   'T-07': 'Trả lời các câu hỏi tổng hợp để chinh phục ải này!',
   'T-08': 'Sắp xếp hoặc gõ lại câu tiếng Anh đúng theo nghĩa tiếng Việt.',
+  'F-01': 'Xem và nghe lần lượt từng từ mới; chạm thẻ để dừng hoặc giữ loa nghe chậm.',
+  'F-03': 'Nghe phát âm rồi chạm bong bóng chứa từ tiếng Anh đúng để bò hứng.',
+  'F-06': 'Trả lời đúng các câu hỏi tổng hợp để đẩy lùi Boss Sương Mù!',
+  'F-08': 'Lật hai thẻ cỏ để ghép đúng từ tiếng Anh với nghĩa tiếng Việt.',
+  'F-09': 'Chạm từng thẻ từ trên bến xếp đúng thứ tự lên đò để qua sông.',
 };
 
 export const SCREEN_SYSTEM_FF_KEY = 'cowdi_ff_screenSystemV1';

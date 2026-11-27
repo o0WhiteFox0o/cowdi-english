@@ -19,6 +19,10 @@ export const COLORS_LESSON = {
     'Mô tả màu của đồ vật với "It is + màu" và "a + màu + danh từ"',
     'Hỏi và trả lời về màu yêu thích bằng "What color do you like?"',
   ],
+  story: {
+    npc: 'lan',
+    introVi: 'Sương sớm che mất màu cờ trên bến đò rồi. Con giúp Lan gọi đúng tên các màu sắc nhé!',
+  },
 
   vocabulary: [
     v('Red', '/red/', 'adjective', 'Màu đỏ', 'This apple is bright red.', 'Quả táo này có màu đỏ tươi.', '🔴'),

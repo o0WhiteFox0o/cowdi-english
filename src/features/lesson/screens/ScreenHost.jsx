@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../../../components/Icon';
-import { EmojiText } from '../../../components/Emoji';
+import { ALL_LESSONS } from '../../../data/lessons';
+import { findPathForLesson } from '../../../data/path';
+import { getUnitRegion, REGIONS } from '../../../../shared/regions';
+import { HUMAN_CAST } from '../../../../shared/human-cast';
 import { useUser } from '../../../hooks/useUser';
 import { usePet } from '../../../hooks/usePet';
 import { useSound } from '../../../hooks/useSound';
@@ -9,16 +11,41 @@ import { useToast } from '../../../components/layout/Toast';
 import { usePetDirector } from '../../../pet-director/DirectorContext';
 import PetStage from '../../../pet-director/PetStage';
 import { speakWord } from '../../../utils/speech';
-import { SCREEN_CONFIG, SLOT_META } from '../../../data/config/screens';
+import { SCREEN_CONFIG } from '../../../data/config/screens';
 import { hashString } from './seededRandom';
 import { mixLesson } from './mixer';
 import { getScreen } from './registry';
 import { listenItems, speakItems, writeItems, bossItems } from './items';
 import { useScreenEvents } from './screenEvents';
+import { pickGuestWords } from './guestWords';
+import { selectScreenIntro } from './introSelector';
 import RouteHeader from './RouteHeader';
+import StageIntro from './StageIntro';
 import ScreenIntro from './ScreenIntro';
+import StageSummary from './StageSummary';
 import GrammarSheet from './GrammarSheet';
 import './screens.css';
+
+// Bộ nhớ đệm câu dẫn theo vùng (client-side ETag cache)
+const INTRO_CACHE = new Map(); // region -> { etag, items }
+
+async function fetchScreenIntrosForRegion(region) {
+  const cached = INTRO_CACHE.get(region);
+  const headers = {};
+  if (cached?.etag) headers['If-None-Match'] = cached.etag;
+  try {
+    const res = await fetch(`/api/screen-intros?region=${encodeURIComponent(region)}`, { headers });
+    if (res.status === 304 && cached) return cached.items;
+    if (!res.ok) return cached?.items || [];
+    const data = await res.json();
+    const items = Array.isArray(data?.items) ? data.items : [];
+    const etag = res.headers.get('ETag') || null;
+    INTRO_CACHE.set(region, { etag, items });
+    return items;
+  } catch {
+    return cached?.items || [];
+  }
+}
 
 function sessionKey(userId, lessonId) {
   return `cowdi_ss_session:${userId || 'anon'}:${lessonId}`;
@@ -58,16 +85,10 @@ function buildItemsForSlot(slot, lesson) {
   }
 }
 
-function resultCircleColor(res) {
-  if (!res || !res.total) return '#27AE60';
-  const ratio = res.firstTryCorrect / res.total;
-  if (ratio >= 0.8) return '#27AE60';
-  if (ratio >= 0.5) return '#F2C94C';
-  return '#E67E22';
-}
-
 /**
- * ScreenHost — Khung chạy 6 màn trộn tái sử dụng nguyên vẹn layout đồng hành Cowdi (.pd-lesson-layout + PetStage + BookShell).
+ * ScreenHost — Khung chạy 6 màn trộn tái sử dụng nguyên vẹn layout đồng hành Cowdi
+ * (.pd-lesson-layout + PetStage + BookShell), bổ sung Đợt 3: Mở ải, 5 màn F, câu dẫn
+ * không lặp 10 ải, khách quen, 4 chấm kỹ năng và Tổng kết mới.
  */
 export default function ScreenHost({
   lesson,
@@ -90,7 +111,9 @@ export default function ScreenHost({
     addSkillXP,
     recordWordEncounter,
     recordQuestionResult,
+    recordWordSkillHit,
     recordLessonMix,
+    recordRecentIntros,
   } = useUser();
   const { getActivePetWithDecay } = usePet();
   const { play, muted } = useSound();
@@ -104,6 +127,31 @@ export default function ScreenHost({
 
   const userId = userData?.userId || userData?.id || 'local';
   const attemptCount = (userData?.lessonMixLog || []).filter((x) => x.lessonId === lesson?.id).length;
+
+  // Xác định vùng đất & lộ trình chứa bài hiện tại
+  const lessonPathInfo = useMemo(() => (lesson?.id ? findPathForLesson(lesson.id) : null), [lesson?.id]);
+  const region = useMemo(() => {
+    const uid = lessonPathInfo?.unit?.id;
+    return (uid && getUnitRegion(uid)) || 'BD';
+  }, [lessonPathInfo]);
+
+  const pathLessons = useMemo(() => {
+    if (!lessonPathInfo?.path) return ALL_LESSONS;
+    const idSet = new Set(
+      (lessonPathInfo.path.units || []).flatMap((u) => u.lessons || [])
+    );
+    return ALL_LESSONS.filter((l) => idSet.has(l.id));
+  }, [lessonPathInfo]);
+
+  // Tải kho câu dẫn approved cho vùng hiện tại
+  const [regionIntros, setRegionIntros] = useState(() => INTRO_CACHE.get(region)?.items || []);
+  useEffect(() => {
+    let active = true;
+    fetchScreenIntrosForRegion(region).then((items) => {
+      if (active) setRegionIntros(items);
+    });
+    return () => { active = false; };
+  }, [region]);
 
   const initSession = () => {
     if (!sandbox) {
@@ -127,20 +175,25 @@ export default function ScreenHost({
   };
 
   const [session, setSession] = useState(initSession);
-  const [phase, setPhase] = useState('intro'); // 'intro' | 'play' | 'summary'
+  const [phase, setPhase] = useState(() => (session.currentIndex > 0 ? 'intro' : 'stage_intro'));
   const [paused, setPaused] = useState(false);
   const [grammarOpen, setGrammarOpen] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const [introPetLine, setIntroPetLine] = useState('');
   const [summaryData, setSummaryData] = useState(null);
   const [streakCount, setStreakCount] = useState(0);
+  const [skillGains, setSkillGains] = useState({ listen: 0, read: 0, write: 0, speak: 0 });
+  const usedIntroIdsRef = useRef([]);
 
   useEffect(() => {
-    setSession(initSession());
-    setPhase('intro');
+    const fresh = initSession();
+    setSession(fresh);
+    setPhase(fresh.currentIndex > 0 ? 'intro' : 'stage_intro');
     setPaused(false);
     setSummaryData(null);
     setStreakCount(0);
+    setSkillGains({ listen: 0, read: 0, write: 0, speak: 0 });
+    usedIntroIdsRef.current = [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson?.id, seedOverride, sandbox]);
 
@@ -150,13 +203,19 @@ export default function ScreenHost({
     }
   }, [sandbox, phase, userId, lesson?.id, session]);
 
+  const handleSkillGain = useCallback((skill, amt = 1) => {
+    setSkillGains((prev) => ({ ...prev, [skill]: (prev[skill] || 0) + amt }));
+  }, []);
+
   const { handleEvent: routeEvent, resetRun } = useScreenEvents({
     lessonId: lesson?.id,
     rules,
     sandbox,
     recordWordEncounter,
     recordQuestionResult,
+    recordWordSkillHit,
     addSkillXP,
+    onSkillGain: handleSkillGain,
   });
 
   const handleEvent = useCallback((type, payload) => {
@@ -172,8 +231,51 @@ export default function ScreenHost({
   const currentEntry = screens[session.currentIndex] || null;
   const currentMeta = currentEntry ? getScreen(currentEntry.code) : null;
 
+  // Biến nội suy cho câu dẫn ({npc}, {region}, {word1}, {word2})
+  const introVars = useMemo(() => {
+    const npcId = lesson?.story?.npc || REGIONS[region]?.humanHost || 'ong_tu';
+    const npcName = HUMAN_CAST[npcId]?.nameVi || REGIONS[region]?.nameVi || 'ông Tư';
+    const vocab = lesson?.vocabulary || [];
+    return {
+      npc: npcName,
+      region: REGIONS[region]?.nameVi || 'Bến Đò Ông Tư',
+      word1: vocab[0]?.word || '',
+      word2: vocab[1]?.word || '',
+    };
+  }, [lesson?.story?.npc, lesson?.vocabulary, region]);
+
+  // Câu dẫn Mở ải (OPEN) khi bài chưa có story.introVi
+  const openIntro = useMemo(() => {
+    return selectScreenIntro({
+      intros: regionIntros,
+      screenCode: 'OPEN',
+      region,
+      recentIntros: userData?.recentIntros || [],
+      vars: introVars,
+      seed: session.seed + 7,
+    });
+  }, [regionIntros, region, userData?.recentIntros, introVars, session.seed]);
+
+  // Chọn câu dẫn cho từng màn hiện tại (ưu tiên kho approved không lặp 10 ải → fallback Director)
   useEffect(() => {
     if (phase !== 'intro' || !currentEntry) return;
+    const picked = selectScreenIntro({
+      intros: regionIntros,
+      screenCode: currentEntry.code,
+      region,
+      recentIntros: userData?.recentIntros || [],
+      vars: introVars,
+      seed: session.seed + session.currentIndex * 31,
+    });
+
+    if (picked?.text) {
+      setIntroPetLine(picked.text);
+      if (picked.id && !usedIntroIdsRef.current.includes(picked.id)) {
+        usedIntroIdsRef.current.push(picked.id);
+      }
+      return;
+    }
+
     const dec = dispatch('screen_enter', {
       screen: 'lesson',
       slot: currentEntry.slot,
@@ -182,7 +284,21 @@ export default function ScreenHost({
       lessonTitle: lesson?.title,
     });
     setIntroPetLine(dec?.speech?.vi || '');
-  }, [phase, currentEntry, dispatch, lesson?.id, lesson?.title]);
+  }, [phase, currentEntry, regionIntros, region, userData?.recentIntros, introVars, session.seed, session.currentIndex, dispatch, lesson?.id, lesson?.title]);
+
+  // Khách quen (Q8, §5) — chốt cho ải hiện tại
+  const guestWords = useMemo(() => {
+    if (sandbox) return [];
+    return pickGuestWords({
+      currentLesson: lesson,
+      allLessons: pathLessons,
+      completedLessons: userData?.completedLessons || [],
+      wordProgress: userData?.wordProgress || {},
+      rules,
+      screenItemCount: 8,
+      maxGuests: 3,
+    });
+  }, [sandbox, lesson, pathLessons, userData?.completedLessons, userData?.wordProgress, rules]);
 
   useEffect(() => {
     const dlg = exitDialogRef.current;
@@ -223,12 +339,24 @@ export default function ScreenHost({
     return buildItemsForSlot(currentEntry.slot, lesson);
   }, [currentEntry, lesson]);
 
+  const handleStartFromStageIntro = useCallback(() => {
+    // 1 chạm vận hành mở khoá audio cho toàn ải (P10)
+    play?.('click');
+    if (openIntro?.id && !lesson?.story?.introVi && !usedIntroIdsRef.current.includes(openIntro.id)) {
+      usedIntroIdsRef.current.push(openIntro.id);
+    }
+    setPhase('intro');
+  }, [play, openIntro?.id, lesson?.story?.introVi]);
+
   const handleScreenDone = useCallback((result) => {
     const normalized = {
       code: result?.code || currentEntry?.code,
       slot: result?.slot || currentEntry?.slot,
       total: Number(result?.total) || 0,
       firstTryCorrect: Number(result?.firstTryCorrect) || 0,
+      guestTotal: Number(result?.guestTotal) || 0,
+      guestCorrect: Number(result?.guestCorrect) || 0,
+      audioOff: Boolean(result?.audioOff),
       durationMs: Number(result?.durationMs) || 0,
     };
     handleEvent('screen_done', normalized);
@@ -254,24 +382,30 @@ export default function ScreenHost({
       milk: 0,
       gem: 0,
       stone: 0,
+      stars: 0,
+      accuracy: bossTotal > 0 ? bossScore / bossTotal : 1,
+      bossPerfect: bossTotal > 0 && bossScore === bossTotal,
     };
 
     if (!sandbox && typeof onFinishLessonAttempt === 'function') {
       attemptOutcome = onFinishLessonAttempt({
         finalScore: bossScore,
         total: bossTotal,
+        results: nextResults,
       }) || attemptOutcome;
     }
 
+    const attemptAt = new Date().toISOString();
     const logEntry = {
       lessonId: lesson?.id,
-      at: new Date().toISOString(),
+      at: attemptAt,
       seed: session.seed,
       order: session.mix?.order || screens.map((s) => s.slot),
       screens: screens.map((s) => s.code),
       skipped: session.mix?.skipped || [],
       results: nextResults,
       passed: Boolean(attemptOutcome.passed),
+      stars: Number(attemptOutcome.stars) || 0,
     };
     const nextLastMix = {};
     for (const s of screens) nextLastMix[s.slot] = s.code;
@@ -280,6 +414,9 @@ export default function ScreenHost({
       if (typeof recordLessonMix === 'function') {
         recordLessonMix(logEntry, nextLastMix);
       }
+      if (typeof recordRecentIntros === 'function' && usedIntroIdsRef.current.length > 0) {
+        recordRecentIntros(usedIntroIdsRef.current, attemptAt);
+      }
       clearSession(userId, lesson?.id);
     }
 
@@ -287,6 +424,9 @@ export default function ScreenHost({
       bossScore,
       bossTotal,
       passed: Boolean(attemptOutcome.passed),
+      stars: Number(attemptOutcome.stars) || 0,
+      accuracy: attemptOutcome.accuracy ?? 0,
+      bossPerfect: Boolean(attemptOutcome.bossPerfect),
       milk: attemptOutcome.milk ?? attemptOutcome.xp ?? 0,
       gem: attemptOutcome.gem ?? 0,
       stone: attemptOutcome.stone ?? 0,
@@ -304,12 +444,15 @@ export default function ScreenHost({
     onFinishLessonAttempt,
     lesson?.id,
     recordLessonMix,
+    recordRecentIntros,
     userId,
   ]);
 
   const handleReplay = () => {
     resetRun();
     setStreakCount(0);
+    setSkillGains({ listen: 0, read: 0, write: 0, speak: 0 });
+    usedIntroIdsRef.current = [];
     if (!sandbox) clearSession(userId, lesson?.id);
     const nextSeed = hashString(`${userId}:${lesson?.id}:${attemptCount + 2}:${Date.now()}`);
     const mix = mixLesson({
@@ -324,7 +467,7 @@ export default function ScreenHost({
     if (!sandbox) saveSession(userId, lesson?.id, fresh);
     setSession(fresh);
     setSummaryData(null);
-    setPhase('intro');
+    setPhase('stage_intro');
   };
 
   const handleConfirmExit = () => {
@@ -339,33 +482,36 @@ export default function ScreenHost({
   const ActiveComponent = currentMeta?.Component || null;
   const hasGrammar = (lesson?.grammar || []).length > 0;
   const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
+  const isFriendlyScreen = Boolean(currentEntry?.code?.startsWith('F-'));
 
-  // Giữ nguyên layout đồng hành V2 như LessonDetailPage cũ
   const isCenteredLayout =
     phase !== 'play' ||
+    isFriendlyScreen ||
     ['T-02', 'T-05', 'T-06', 'T-07', 'T-08'].includes(currentEntry?.code);
   const isFlashcardLayout = phase === 'play' && currentEntry?.code === 'T-02';
 
   const stageHint = phase === 'summary'
     ? 'Xong bài học rồi!'
-    : phase === 'intro'
-      ? `Chuẩn bị: ${currentMeta?.name || ''}`
-      : currentEntry?.code === 'T-06'
-        ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
-        : currentEntry?.code === 'T-05'
-          ? 'Nghe kỹ và chọn nghĩa đúng nha!'
-          : currentEntry?.code === 'T-02'
-            ? 'Nghe rồi chạm để lật!'
-            : currentEntry?.code === 'T-08'
-              ? 'Xếp hoặc gõ câu đúng nhé!'
-              : '';
+    : phase === 'stage_intro'
+      ? `Sẵn sàng vượt ải tại ${REGIONS[region]?.nameVi || 'Bến Đò Ông Tư'}!`
+      : phase === 'intro'
+        ? `Chuẩn bị: ${currentMeta?.name || ''}`
+        : currentEntry?.code === 'T-06'
+          ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
+          : currentEntry?.code === 'T-05'
+            ? 'Nghe kỹ và chọn nghĩa đúng nha!'
+            : currentEntry?.code === 'T-02'
+              ? 'Nghe rồi chạm để lật!'
+              : currentEntry?.code === 'T-08'
+                ? 'Xếp hoặc gõ câu đúng nhé!'
+                : '';
 
   const petDock = activePet ? (
     <PetStage
       pet={activePet}
       petRef={petRef}
-      mode={phase === 'summary' ? 'home' : 'lesson'}
-      compact={phase === 'play' && currentEntry?.code === 'T-07'}
+      mode={phase === 'summary' ? 'home' : (phase === 'play' && currentEntry?.code === 'F-06' ? 'battle' : 'lesson')}
+      compact={phase === 'play' && (currentEntry?.code === 'T-07' || isFriendlyScreen)}
       streak={streakCount}
       subtitle={stageHint}
       onSpeak={(en) => speakWord(en, { rate: defaultTtsRate, lang: 'en-US' }).catch(() => {})}
@@ -374,7 +520,7 @@ export default function ScreenHost({
 
   return (
     <div className={`fade-in position-relative ss-host-flow${sandbox ? ' is-sandbox' : ''}`}>
-      {phase !== 'summary' && (
+      {phase !== 'summary' && phase !== 'stage_intro' && (
         <RouteHeader
           lesson={lesson}
           screens={screens}
@@ -398,6 +544,17 @@ export default function ScreenHost({
         )}
 
         <div className="pd-lesson-content-col">
+          {phase === 'stage_intro' && (
+            <StageIntro
+              lesson={lesson}
+              region={region}
+              screens={screens}
+              passRate={rules?.lessonPassRate ?? 0.7}
+              openIntroText={openIntro?.text || ''}
+              onStart={handleStartFromStageIntro}
+            />
+          )}
+
           {phase === 'intro' && currentEntry && (
             <ScreenIntro
               screen={currentEntry}
@@ -426,6 +583,8 @@ export default function ScreenHost({
               onOpenGrammar={() => setGrammarOpen(true)}
               extra={{
                 wordProgress: userData?.wordProgress || {},
+                guestWords,
+                region,
                 addXP,
                 showToast,
                 petRef,
@@ -453,92 +612,23 @@ export default function ScreenHost({
           )}
 
           {phase === 'summary' && summaryData && (
-            <div className="text-center py-3 fade-in" style={{ maxWidth: 680, margin: '0 auto' }}>
-              <div className={`quiz-result-icon emoji-big ${summaryData.passed ? 'bounce-in' : ''}`} style={{ fontSize: '4.5rem' }}>
-                <Icon name={summaryData.passed ? 'trophy' : 'muscle'} size={88} />
-              </div>
-              <h2 className="fw-bold mt-2">
-                {summaryData.passed
-                  ? 'Hoàn thành bài học!'
-                  : `Chưa đạt — cần ≥${Math.round((rules?.lessonPassRate || 0.7) * 100)}%`}
-              </h2>
-              <div className="display-4 fw-bold text-cowdi-primary my-2">
-                {summaryData.bossScore}/{summaryData.bossTotal}
-              </div>
-              <p className="lead text-muted">
-                <EmojiText>{summaryData.passed ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : 'Ôn lại rồi chinh phục lại nhé! 🐮💪'}</EmojiText>
-              </p>
-
-              {/* Hàng vòng kỹ năng màu theo kết quả (PHASE1 §6) */}
-              <div className="ss-summary-circles my-3" aria-label="Kết quả từng màn kỹ năng">
-                {screens.map((sc, i) => {
-                  const res = summaryData.results[i];
-                  const meta = SLOT_META[sc.slot] || SLOT_META.intro;
-                  const bg = resultCircleColor(res);
-                  return (
-                    <div key={`${sc.slot}-${i}`} className="ss-summary-circle-item">
-                      <div
-                        className="ss-summary-circle"
-                        style={{ background: bg }}
-                        title={`${meta.label} (${sc.code}): ${res?.firstTryCorrect ?? 0}/${res?.total ?? 0}`}
-                      >
-                        <Icon name={meta.icon} size={15} />
-                      </div>
-                      <small className="text-muted" style={{ fontSize: '0.72rem' }}>{meta.label}</small>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!sandbox && (
-                <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap my-3">
-                  <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{summaryData.milk} Sữa</span>
-                  {summaryData.gem > 0 && <span className="badge bg-info text-dark fs-6 px-3 py-2">💎 +{summaryData.gem} Gem</span>}
-                  {summaryData.stone > 0 && <span className="badge bg-success fs-6 px-3 py-2">💠 +{summaryData.stone} Đá nguyên tố</span>}
-                </div>
-              )}
-
-              {summaryData.wrongAnswers?.length > 0 && (
-                <div className="card text-start shadow-sm my-3">
-                  <div className="card-body">
-                    <h6 className="fw-bold text-danger mb-2">Các câu cần ôn lại ({summaryData.wrongAnswers.length})</h6>
-                    <div className="d-flex flex-column gap-2">
-                      {summaryData.wrongAnswers.map((w, wi) => (
-                        <div key={wi} className="p-2 rounded bg-light small">
-                          <div className="fw-bold">{w.question}</div>
-                          <div className="text-danger">Bạn chọn: {w.picked}</div>
-                          <div className="text-success fw-bold">Đáp án đúng: {w.correct}</div>
-                          {w.explanation && <div className="text-muted mt-1">{w.explanation}</div>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="d-flex gap-2 justify-content-center mt-4 flex-wrap">
-                {summaryData.passed && pathNext?.type === 'lesson' && pathNext.lessonId !== lesson?.id && !sandbox && (
-                  <button
-                    type="button"
-                    className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2"
-                    onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}
-                  >
-                    <Icon name="play" size={18} /> Bài tiếp theo
-                  </button>
-                )}
-                <button type="button" className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={handleReplay}>
-                  <Icon name="refresh" size={16} /> Làm lại (xáo mới)
-                </button>
-                {hasGrammar && (
-                  <button type="button" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={() => setGrammarOpen(true)}>
-                    <Icon name="book" size={16} /> Xem ngữ pháp
-                  </button>
-                )}
-                <button type="button" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={handleConfirmExit}>
-                  <Icon name="road" size={16} /> Lộ trình
-                </button>
-              </div>
-            </div>
+            <StageSummary
+              lesson={lesson}
+              group={group}
+              rules={rules}
+              screens={screens}
+              summaryData={summaryData}
+              wordProgress={userData?.wordProgress || {}}
+              skillGains={skillGains}
+              sandbox={sandbox}
+              hasGrammar={hasGrammar}
+              pathNext={pathNext}
+              play={play}
+              onNextLesson={() => pathNext?.lessonId && navigate(`/lessons/${pathNext.lessonId}`)}
+              onReplay={handleReplay}
+              onOpenGrammar={() => setGrammarOpen(true)}
+              onExit={handleConfirmExit}
+            />
           )}
         </div>
       </div>
