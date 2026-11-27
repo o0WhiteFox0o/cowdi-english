@@ -127,7 +127,7 @@ router.get('/progress', requireAuth, async (req, res) => {
               achievements, daily_tasks, daily_date,
               srs_data, checkpoint_scores, skill_xp,
               daily_journal, learner_group, active_path,
-              lesson_scores, placement, updated_at
+              lesson_scores, placement, lesson_mix_log, last_mix, updated_at
        FROM user_progress WHERE user_id = ?`,
       [req.user.id]
     );
@@ -174,6 +174,8 @@ router.get('/progress', requireAuth, async (req, res) => {
       activePath:       row.active_path || null,
       lessonScores:     parseJSON(row.lesson_scores, {}),
       placement:        parseJSON(row.placement, null),
+      lessonMixLog:     parseJSON(row.lesson_mix_log, []),
+      lastMix:          parseJSON(row.last_mix, {}),
       updatedAt:        row.updated_at,
     });
   } catch (err) {
@@ -330,16 +332,29 @@ function mergeWordProgressMap(aMap = {}, bMap = {}) {
   return out;
 }
 
+// Gộp lessonMixLog theo (lessonId, at), giữ 30 bản gần nhất (PHASE1 §6)
+function mergeLessonMixLog(existingList = [], incomingList = []) {
+  const map = new Map();
+  for (const item of [...(Array.isArray(existingList) ? existingList : []), ...(Array.isArray(incomingList) ? incomingList : [])]) {
+    if (!item || !item.lessonId || !item.at) continue;
+    map.set(`${item.lessonId}::${item.at}`, item);
+  }
+  return [...map.values()]
+    .sort((a, b) => (Date.parse(a.at) || 0) - (Date.parse(b.at) || 0))
+    .slice(-30);
+}
+
 // ── PUT /api/progress – lưu toàn bộ tiến trình ──────────────────────────────
 router.put('/progress', requireAuth, async (req, res) => {
   const d = { ...(req.body || {}) };
-  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist; thêm 4 trường Lộ trình 3 nhóm + wordProgress (v1.4)
+  // Whitelist fields – v2: loại bỏ availableXP và skillXP khỏi whitelist; thêm 4 trường Lộ trình 3 nhóm + wordProgress (v1.4) + lessonMixLog/lastMix (Screen System P1)
   const allowed = [
     'totalXP','streak','lastActiveDate','lessonsCompleted','quizzesCompleted',
     'perfectQuizzes','wordsLearned','completedLessons','wordStatus','wordProgress',
     'activeDays','achievements','dailyTasks','dailyDate',
     'srsData','checkpointScores','dailyJournal',
     'learnerGroup','activePath','lessonScores','placement',
+    'lessonMixLog','lastMix',
     'timezone','lastAccuracy','lastMilkEarned'
   ];
   for (const key of Object.keys(d)) {
@@ -352,7 +367,7 @@ router.put('/progress', requireAuth, async (req, res) => {
   try {
     // Đọc giá trị hiện có trong DB để gộp lesson_scores theo MAX, word_progress theo mergeProgress, phát hiện bài mới lần đầu (BR-01) và tránh client cũ ghi đè null
     const [[existing]] = await pool.execute(
-      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons, word_progress FROM user_progress WHERE user_id = ?',
+      'SELECT learner_group, active_path, lesson_scores, placement, completed_lessons, word_progress, lesson_mix_log, last_mix FROM user_progress WHERE user_id = ?',
       [req.user.id]
     );
     const parseJSON = (val, fallback) => {
@@ -374,6 +389,25 @@ router.put('/progress', requireAuth, async (req, res) => {
     const mergedWordProgress = 'wordProgress' in d
       ? mergeWordProgressMap(existingWordProgress, incomingWordProgress)
       : existingWordProgress;
+
+    const existingMixLog = parseJSON(existing?.lesson_mix_log, []);
+    const incomingMixLog = Array.isArray(d.lessonMixLog) ? d.lessonMixLog : [];
+    const mergedMixLog = 'lessonMixLog' in d
+      ? mergeLessonMixLog(existingMixLog, incomingMixLog)
+      : existingMixLog;
+
+    const existingLastMix = parseJSON(existing?.last_mix, {});
+    const newestLog = mergedMixLog[mergedMixLog.length - 1];
+    const incomingLastMix = d.lastMix && typeof d.lastMix === 'object' ? d.lastMix : null;
+    const existingLatestAt = existingMixLog.length ? (Date.parse(existingMixLog[existingMixLog.length - 1]?.at) || 0) : 0;
+    const incomingLatestAt = incomingMixLog.length ? (Date.parse(incomingMixLog[incomingMixLog.length - 1]?.at) || 0) : 0;
+    const mergedLastMix = incomingLastMix && incomingLatestAt >= existingLatestAt
+      ? incomingLastMix
+      : (Object.keys(existingLastMix || {}).length > 0
+          ? existingLastMix
+          : (newestLog?.order && newestLog?.screens
+              ? Object.fromEntries(newestLog.order.map((sl, i) => [sl, newestLog.screens[i]]).filter(([, c]) => c))
+              : {}));
 
     const nextLearnerGroup = 'learnerGroup' in d
       ? sanitizeLearnerGroup(d.learnerGroup)
@@ -410,6 +444,8 @@ router.put('/progress', requireAuth, async (req, res) => {
       nextActivePath,
       JSON.stringify(mergedLessonScores),
       nextPlacement ? JSON.stringify(nextPlacement) : null,
+      JSON.stringify(mergedMixLog),
+      JSON.stringify(mergedLastMix),
     ];
 
     await pool.execute(
@@ -418,8 +454,9 @@ router.put('/progress', requireAuth, async (req, res) => {
           lessons_completed, quizzes_completed, perfect_quizzes, words_learned,
           completed_lessons, word_status, word_progress, active_days, achievements,
           daily_tasks, daily_date, srs_data, checkpoint_scores, skill_xp,
-          daily_journal, learner_group, active_path, lesson_scores, placement)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          daily_journal, learner_group, active_path, lesson_scores, placement,
+          lesson_mix_log, last_mix)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          -- XP lifetime chỉ tăng; XP đã tiêu (total - available) chỉ tăng → client cũ/stale không thể "hồi" ví
          available_xp      = GREATEST(0, CAST(GREATEST(total_xp, VALUES(total_xp)) AS SIGNED)
@@ -446,6 +483,8 @@ router.put('/progress', requireAuth, async (req, res) => {
          active_path       = VALUES(active_path),
          lesson_scores     = VALUES(lesson_scores),
          placement         = VALUES(placement),
+         lesson_mix_log    = VALUES(lesson_mix_log),
+         last_mix          = VALUES(last_mix),
          updated_at        = CURRENT_TIMESTAMP`,
       params
     );

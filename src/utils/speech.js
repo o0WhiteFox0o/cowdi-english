@@ -2,12 +2,55 @@ export const SpeechRecognitionAPI = typeof window !== 'undefined'
   ? (window.SpeechRecognition || window.webkitSpeechRecognition)
   : null;
 
+const CONTRACTION_MAP = [
+  [/\bi'm\b/g, 'i am'],
+  [/\byou're\b/g, 'you are'],
+  [/\bwe're\b/g, 'we are'],
+  [/\bthey're\b/g, 'they are'],
+  [/\bhe's\b/g, 'he is'],
+  [/\bshe's\b/g, 'she is'],
+  [/\bit's\b/g, 'it is'],
+  [/\bthat's\b/g, 'that is'],
+  [/\bthere's\b/g, 'there is'],
+  [/\bwhat's\b/g, 'what is'],
+  [/\bwho's\b/g, 'who is'],
+  [/\bdon't\b/g, 'do not'],
+  [/\bdoesn't\b/g, 'does not'],
+  [/\bdidn't\b/g, 'did not'],
+  [/\bcan't\b/g, 'cannot'],
+  [/\bcan not\b/g, 'cannot'],
+  [/\bwon't\b/g, 'will not'],
+  [/\bisn't\b/g, 'is not'],
+  [/\baren't\b/g, 'are not'],
+  [/\bwasn't\b/g, 'was not'],
+  [/\bweren't\b/g, 'were not'],
+  [/\bhaven't\b/g, 'have not'],
+  [/\bhasn't\b/g, 'has not'],
+  [/\bi've\b/g, 'i have'],
+  [/\bi'll\b/g, 'i will'],
+  [/\blet's\b/g, 'let us'],
+];
+
 export function normalizeText(text) {
-  return (text || '')
+  return String(text || '')
     .toLowerCase()
-    .replace(/[^\w\s']/g, '')
+    .replace(/[’‘`]/g, "'")
+    .replace(/[^\w\s']/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+export function expandContractions(text) {
+  let out = normalizeText(text);
+  for (const [re, rep] of CONTRACTION_MAP) {
+    out = out.replace(re, rep);
+  }
+  return out.replace(/\s+/g, ' ').trim();
+}
+
+export function tokenizeText(text, { expand = false } = {}) {
+  const norm = expand ? expandContractions(text) : normalizeText(text);
+  return norm ? norm.split(' ').filter(Boolean) : [];
 }
 
 export function levenshtein(a, b) {
@@ -24,9 +67,11 @@ export function levenshtein(a, b) {
 }
 
 export function scorePronunciation(expected, spoken) {
-  const expWords = normalizeText(expected).split(' ');
-  const spkWords = normalizeText(spoken).split(' ');
-  if (!expWords.length || !spkWords.length) return { score: 0, matched: [], missed: [], extra: [] };
+  const expWords = tokenizeText(expected, { expand: true });
+  const spkWords = tokenizeText(spoken, { expand: true });
+  if (!expWords.length || !spkWords.length) {
+    return { score: 0, matched: [], missed: [...expWords], extra: [...spkWords] };
+  }
 
   const matched = [];
   const missed = [];
@@ -59,6 +104,44 @@ export function scorePronunciation(expected, spoken) {
   const extra = spkWords.filter((_, i) => !usedSpk.has(i));
   const score = Math.round((matched.length / expWords.length) * 100);
   return { score, matched, missed, extra };
+}
+
+/**
+ * Chấm gõ câu cho T-08 Viết câu (GEMINI-SCREEN-SYSTEM-PHASE1 §8.2):
+ * - Chuẩn hoá dấu câu cuối + rút gọn tương đương (I'm ↔ I am, don't ↔ do not, ...)
+ * - Sai 1 ký tự trong từ >= 5 chữ cái: tính đúng nhưng trả typoWords để pet nhắc chính tả.
+ */
+export function scoreTypedSentence(expected, typed) {
+  const expWords = tokenizeText(expected, { expand: true });
+  const gotWords = tokenizeText(typed, { expand: true });
+  if (!expWords.length || !gotWords.length) {
+    return { ok: false, exact: false, typoWords: [], wrongIndices: expWords.map((_, i) => i) };
+  }
+  if (expWords.length === gotWords.length) {
+    const typoWords = [];
+    const wrongIndices = [];
+    for (let i = 0; i < expWords.length; i++) {
+      const e = expWords[i];
+      const g = gotWords[i];
+      if (e === g) continue;
+      if (e.length >= 5 && levenshtein(e, g) <= 1) {
+        typoWords.push({ expected: e, got: g, index: i });
+      } else {
+        wrongIndices.push(i);
+      }
+    }
+    if (wrongIndices.length === 0) {
+      return { ok: true, exact: typoWords.length === 0, typoWords, wrongIndices: [] };
+    }
+    return { ok: false, exact: false, typoWords, wrongIndices };
+  }
+  // Khác số từ → tô các vị trí lệch so với câu gốc
+  const wrongIndices = [];
+  const maxLen = Math.max(expWords.length, gotWords.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (expWords[i] !== gotWords[i]) wrongIndices.push(i);
+  }
+  return { ok: false, exact: false, typoWords: [], wrongIndices };
 }
 
 export function getScoreLabel(score) {

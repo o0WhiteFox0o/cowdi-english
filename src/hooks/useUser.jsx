@@ -68,6 +68,8 @@ const DEFAULT_DATA = {
   completedLessons: [],
   wordStatus: {},
   wordProgress: {},
+  lessonMixLog: [],
+  lastMix: {},
   activeDays: [],
   dailyTasks: { lessonDone: false, vocabDone: false },
   dailyDate: null,
@@ -331,6 +333,19 @@ function mergeProgress(local, remote) {
   const merged = { ...DEFAULT_DATA, ...cleaned };
   merged.wordStatus = mergedWordStatus;
   merged.wordProgress = mergeProgressMap(local.wordProgress || {}, remote.wordProgress || {});
+  // Gộp lessonMixLog (Screen System P1: dedup theo lessonId+at, giữ 30 bản gần nhất) & lastMix
+  const mixMap = new Map();
+  for (const item of [...(local.lessonMixLog || []), ...(remote.lessonMixLog || [])]) {
+    if (item && item.lessonId && item.at) mixMap.set(`${item.lessonId}::${item.at}`, item);
+  }
+  merged.lessonMixLog = [...mixMap.values()]
+    .sort((a, b) => (Date.parse(a.at) || 0) - (Date.parse(b.at) || 0))
+    .slice(-30);
+  const localLastAt = local.lessonMixLog?.length ? (Date.parse(local.lessonMixLog[local.lessonMixLog.length - 1]?.at) || 0) : 0;
+  const remoteLastAt = remote.lessonMixLog?.length ? (Date.parse(remote.lessonMixLog[remote.lessonMixLog.length - 1]?.at) || 0) : 0;
+  merged.lastMix = localLastAt >= remoteLastAt
+    ? (local.lastMix && Object.keys(local.lastMix).length ? local.lastMix : (remote.lastMix || {}))
+    : (remote.lastMix && Object.keys(remote.lastMix).length ? remote.lastMix : (local.lastMix || {}));
   merged.wordsLearned = Object.values(mergedWordStatus).filter((s) => s === 'learned').length;
   // Các bộ đếm chỉ tăng → lấy max
   merged.quizzesCompleted = Math.max(local.quizzesCompleted || 0, remote.quizzesCompleted || 0);
@@ -1086,6 +1101,22 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Screen System P1: Ghi lần học đã trộn (giữ 30 lần gần nhất) + lastMix theo slot
+  const recordLessonMix = useCallback((logEntry, nextLastMix) => {
+    if (!logEntry?.lessonId) return;
+    setUserData((prev) => {
+      const prevLog = Array.isArray(prev.lessonMixLog) ? prev.lessonMixLog : [];
+      const nextLog = [...prevLog, logEntry].slice(-30);
+      const next = {
+        ...prev,
+        lessonMixLog: nextLog,
+        lastMix: nextLastMix && typeof nextLastMix === 'object' ? nextLastMix : (prev.lastMix || {}),
+      };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
   const value = {
     userData,
     setUserData: updateUserData,
@@ -1104,6 +1135,7 @@ export function UserProvider({ children }) {
     getWordStatus,
     recordWordEncounter,
     recordQuestionResult,
+    recordLessonMix,
     reviewWord,
     getWordsForReview,
     addWordToSRS,
