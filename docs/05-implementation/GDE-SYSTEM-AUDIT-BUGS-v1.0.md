@@ -114,7 +114,31 @@ import('./src/data/pets.js').then(({ PET_REGISTRY }) => {
 
 ---
 
-## 5. Checklist Kiểm tra Bắt buộc Trước Khi Chạy `deploy.ps1`
+## 5. Lỗi Logic Đồng bộ & Vòng lặp Vô hạn (`useEffect` ↔ API Sync)
+
+### Dấu hiệu điển hình
+- Tài nguyên (Sữa, XP, Gem) tự tăng đều theo chu kỳ (ví dụ mỗi 3 giây `+16 Sữa`) dù người dùng không bấm gì.
+- Tab Network trên DevTools thấy cùng một request (`PUT /api/progress` hoặc `PUT /api/pet-data`) tự bắn lại liên tục mỗi vài giây.
+
+### Nguyên nhân gốc (mẫu lỗi thực tế tại `useUser.jsx` & `api.js`)
+1. **Vòng lặp `setState` ↔ `useEffect`**:
+   - `pushProgress` gọi `PUT /api/progress`, nhận về `res.wallet` rồi gọi `setUserData(prev => ({ ...prev, wallet: nextWallet }))`.
+   - Việc tạo object `userData` mới kích hoạt `useEffect(..., [userData])`, làm hàm này tưởng dữ liệu vừa đổi bởi người dùng nên hẹn 3 giây sau lại gọi `pushProgress` → lặp vô hạn.
+   - **Cách sửa chuẩn**: dùng cờ `skipNextSyncRef.current = true` trước mọi lần `setUserData` từ phản hồi server (`pushProgress`, `refreshWallet`, `syncWallet`) và kiểm tra cờ này ở đầu `useEffect(..., [userData])` để chỉ lưu `localStorage`, **không** đẩy ngược lên server.
+2. **Cờ điều kiện tích luỹ thay vì sự kiện đơn lẻ (`isLesson` ở `PUT /api/progress`)**:
+   - Server kiểm tra `(d.lessonsCompleted > 0) || (rawCompleted.length > 0)` — điều kiện này **luôn đúng** với mọi tài khoản đã từng học ít nhất 1 bài, nên mọi lần sync đều bị tính như vừa hoàn thành bài học mới.
+   - **Cách sửa chuẩn**: chỉ kích hoạt logic thưởng/streak bài học khi có bài **mới hoàn thành lần đầu** (`newlyCompletedValidIds.length > 0`) hoặc có sự kiện phát sinh thưởng thực tế (`Number(d.lastMilkEarned) > 0`).
+
+### Cách rà soát khi gặp lỗi logic
+1. **Mở DevTools → Network (lọc XHR/Fetch)**: quan sát xem có API `PUT`/`POST` nào tự gọi lặp lại khi đứng yên trên trang hay không.
+2. **Truy vết ngược 2 chiều**:
+   - Từ **API**: tìm mọi nhánh `if (...)` quyết định cộng thưởng, kiểm tra xem điều kiện có đang dựa vào **tổng tích luỹ** (`total > 0`, `array.length > 0`) thay vì **phần tăng mới** (`newlyCompleted`, `delta > 0`) hay không.
+   - Từ **Hook (`useUser`, `usePet`)**: kiểm tra mọi `setState` bên trong callback `fetch`/`then` có nằm trong dependency của một `useEffect` khác đang gọi lại chính `fetch` đó hay không.
+3. **Kiểm tra trạng thái một lần (Idempotency)**: mọi hành động chỉ được cộng 1 lần phải có cờ chặn trên server (`UNIQUE KEY` hoặc cột đánh dấu ngày/lượt) chứ không chỉ dựa vào việc client gọi 1 lần.
+
+---
+
+## 6. Checklist Kiểm tra Bắt buộc Trước Khi Chạy `deploy.ps1`
 
 1. **Test tự động**: chạy `npm test` → 100% suite & test case phải `pass` (`fail 0`).
 2. **Build & Kiểm định nội dung**: chạy `npm run build` → `prebuild` (`validate-lessons.mjs --questions --fail-on-hard`) báo **0 lỗi cứng**, Vite build thành công.
