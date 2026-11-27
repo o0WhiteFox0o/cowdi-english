@@ -1,0 +1,188 @@
+/* ═══════════════════════════════════════════════════════════
+   Admin Kiểm tra Màn học (/admin/screens — Đợt 2)
+   Responsive 1280px & 768px · Native <dialog> modal
+   ═══════════════════════════════════════════════════════════ */
+
+.as-topbar {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.as-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 140px;
+}
+
+.as-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.as-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.as-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.as-status-on      { background: #DCFCE7; color: #166534; }
+.as-status-test    { background: #FEF3C7; color: #92400E; }
+.as-status-off     { background: #F3F4F6; color: #4B5563; }
+.as-status-todo    { background: #EDE9FE; color: #5B21B6; }
+.as-status-retired { background: #FEE2E2; color: #991B1B; }
+
+/* ── Matrix Table ── */
+.as-matrix-wrap {
+  max-height: 62vh;
+  overflow: auto;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.as-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.as-matrix-table th,
+.as-matrix-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #F1F5F9;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.as-matrix-table th:first-child,
+.as-matrix-table td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 2;
+  min-width: 190px;
+}
+
+.as-matrix-table thead th {
+  position: sticky;
+  top: 0;
+  background: #F8FAFC;
+  z-index: 3;
+  font-weight: 700;
+  border-bottom: 2px solid #E2E8F0;
+}
+
+.as-matrix-table thead th:first-child {
+  z-index: 4;
+}
+
+.as-matrix-row-danger {
+  background: #FEF2F2 !important;
+}
+
+.as-matrix-row-ok {
+  background: #FFFFFF;
+}
+
+.as-matrix-foot td {
+  position: sticky;
+  bottom: 0;
+  background: #F8FAFC;
+  font-weight: 700;
+  border-top: 2px solid #CBD5E1;
+  z-index: 3;
+}
+
+/* ── Preview Tab (Phone Frame + Event Log) ── */
+.as-preview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .as-preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.as-device-stage {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}
+
+.as-device-frame {
+  background: #FFFDF7;
+  border: 8px solid #1E293B;
+  border-radius: 26px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.as-device-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.as-event-log {
+  max-height: 460px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+}
+
+/* ── Native Confirm <dialog> ── */
+dialog.as-confirm-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.as-confirm-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+dialog.as-confirm-dialog {
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(92vw, 440px);
+  background: #FFFFFF;
+  color: #1E293B;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25);
+}

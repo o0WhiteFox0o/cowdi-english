@@ -76,8 +76,8 @@ export default function T08WriteSentence({
   const retriedRef = useRef(new Set());
   const autoTimerRef = useRef(null);
 
-  const grammarTip = useMemo(() => pickGrammarTip(lesson, cursor), [lesson, cursor]);
   const current = queue[cursor];
+  const grammarTip = useMemo(() => pickGrammarTip(lesson, current), [lesson, current]);
 
   useEffect(() => {
     setQueue(initialQueue);
@@ -164,7 +164,10 @@ export default function T08WriteSentence({
         nextQ = [...queue, { ...current, isRetry: true }];
         setQueue(nextQ);
       }
-      const tip = grammarTip || `Đáp án đúng: “${current.en}”`;
+      const fallbackTip = current.mode === 'arrange'
+        ? 'Xem lại vị trí các từ tô cam phía trên, bấm loa nghe câu mẫu rồi thử lại ở cuối màn nhé!'
+        : `Xem kỹ câu đúng “${current.en}”, bấm loa nghe lại rồi thử ở cuối màn nhé!`;
+      const tip = grammarTip || fallbackTip;
       setFeedback({ ok: false, ...details, petText: tip });
       onEvent?.('item_wrong', {
         itemId: current.uid,

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mixLesson } from './mixer.js';
 import { SCREEN_CATALOG } from './catalog.js';
+import { writeItems, pickGrammarTip } from './items.js';
 import { SCREEN_CONFIG } from '../../../data/config/screens.js';
 import { GOLDEN_LESSONS } from '../../../data/lessons/_golden/index.js';
 
@@ -172,4 +173,17 @@ test('M9: Màn trạng thái test không bao giờ chọn khi isTester=false; đ
     if (res.screens.some((s) => s.code === 'F-03')) { sawF03 = true; break; }
   }
   assert.equal(sawF03, true, 'isTester=true phải có thể gặp màn trạng thái test');
+});
+
+test('T-08 pickGrammarTip chọn đúng điểm ngữ pháp của câu đang học (không lấy nhầm grammar[0])', () => {
+  const greetings = GOLDEN_LESSONS.find((l) => l.id === 'greetings');
+  assert.ok(greetings, 'phải có bài golden greetings');
+  const items = writeItems(greetings, 0);
+  const fineItem = items.find((it) => it.en === "I'm fine, thank you.");
+  assert.ok(fineItem, 'phải có câu "I\'m fine, thank you." trong writeItems');
+  assert.equal(fineItem.grammarIndex, 1);
+
+  const tip = pickGrammarTip(greetings, fineItem);
+  assert.ok(tip && tip.includes("I'm fine"), `mẹo phải thuộc grammar[1], nhận được: ${tip}`);
+  assert.ok(!tip.includes('My name are Lan'), 'không được lấy nhầm lỗi của grammar[0]');
 });

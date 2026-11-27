@@ -9,6 +9,7 @@ import InviteRewardNotice from './features/invite/InviteRewardNotice';
 import FriendDuelInviteBanner from './features/duel/FriendDuelInviteBanner';
 import RequireAdmin from './components/RequireAdmin';
 import { SoundProvider } from './hooks/useSound';
+import { ScreenConfigProvider } from './hooks/useScreenConfig';
 import LearningPathPage from './pages/LearningPathPage';
 
 // Lazy-load route pages so initial bundle stays small (LearningPathPage is eager).
@@ -31,6 +32,7 @@ const StudentRankingPage  = lazy(() => import('./pages/StudentRankingPage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
 const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage'));
 const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
+const AdminScreensPage    = lazy(() => import('./admin/screens/AdminScreensPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
 const GachaPage           = lazy(() => import('./features/gacha/GachaPage'));
 const FriendsPage         = lazy(() => import('./pages/FriendsPage'));
@@ -70,6 +72,7 @@ export default function App() {
   return (
     <SoundProvider>
     <ToastProvider>
+    <ScreenConfigProvider>
     <PetDirectorProvider>
       <BookShell>
         <main className="book-main">
@@ -97,6 +100,7 @@ export default function App() {
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/images" element={<AdminImageManagerPage />} />
             <Route path="/admin/pet-motion" element={<RequireAdmin><PetMotionPage /></RequireAdmin>} />
+            <Route path="/admin/screens" element={<RequireAdmin><AdminScreensPage /></RequireAdmin>} />
             <Route path="/mini-games" element={<MiniGamePage />} />
             <Route path="/typing" element={<TypingPage />} />
             <Route path="/account" element={<AccountPage />} />
@@ -114,6 +118,7 @@ export default function App() {
       <FriendDuelInviteBanner />
       <PWAInstallPrompt />
     </PetDirectorProvider>
+    </ScreenConfigProvider>
     </ToastProvider>
     </SoundProvider>
   );
