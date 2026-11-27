@@ -32,6 +32,7 @@ const AdminPage           = lazy(() => import('./pages/AdminPage'));
 const AdminImageManagerPage = lazy(() => import('./pages/AdminImageManagerPage'));
 const PetMotionPage       = lazy(() => import('./admin/pet-motion/PetMotionPage'));
 const InvitePage          = lazy(() => import('./pages/InvitePage'));
+const GachaPage           = lazy(() => import('./features/gacha/GachaPage'));
 const FriendsPage         = lazy(() => import('./pages/FriendsPage'));
 const FriendPetPage       = lazy(() => import('./pages/FriendPetPage'));
 const TypingPage          = lazy(() => import('./pages/TypingPage'));
@@ -89,6 +90,7 @@ export default function App() {
             <Route path="/pet" element={<PetPage />} />
             <Route path="/collection" element={<CollectionPage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/gacha" element={<GachaPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/duel" element={<DuelPage />} />
             <Route path="/student-ranking" element={<StudentRankingPage />} />

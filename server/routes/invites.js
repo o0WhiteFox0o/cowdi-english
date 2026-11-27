@@ -10,6 +10,7 @@ import {
   getInviteStats,
 } from '../utils/invite-rewards.js';
 import { createAutoFriendshipFromInvite, resolveUserDisplayName } from '../utils/friends-manager.js';
+import { claimInviteStarter } from '../utils/gacha-manager.js';
 
 const EXPIRY_DAYS  = INVITE_REWARDS.EXPIRY_DAYS;
 const DAILY_LIMIT  = INVITE_REWARDS.DAILY_INVITE_LIMIT;
@@ -247,6 +248,18 @@ export function createInvitesRouter({ db = pool, authMiddleware = requireAuth, o
       // FR-FRD-01 & FR-RWD-03: Nhận thiệp thành công -> tự tạo quan hệ accepted (kể cả khi flagged)
       await createAutoFriendshipFromInvite(row.sender_id, req.user.id, db);
 
+      // GĐ6 (D7): Cấp pet khởi đầu theo lựa chọn ('cowdi' | 'pull')
+      let starter = null;
+      const starterChoice = req.body?.starterChoice;
+      if (starterChoice === 'cowdi' || starterChoice === 'pull') {
+        starter = await claimInviteStarter({
+          userId: req.user.id,
+          code,
+          starterChoice,
+          db,
+        });
+      }
+
       if (typeof onClaimed === 'function') {
         await onClaimed({ senderId: row.sender_id, receiverId: req.user.id, code, flagged: Boolean(flagged), db });
       }
@@ -254,10 +267,10 @@ export function createInvitesRouter({ db = pool, authMiddleware = requireAuth, o
       // NFR-06: ghi sự kiện invite_claimed
       db.execute(
         `INSERT INTO app_events (user_id, name, props) VALUES (?, 'invite_claimed', ?)`,
-        [req.user.id, JSON.stringify({ code, flagged: Boolean(flagged) })]
+        [req.user.id, JSON.stringify({ code, flagged: Boolean(flagged), starterChoice: starterChoice || null })]
       ).catch(() => {});
 
-      res.json({ ok: true, flagged: Boolean(flagged) });
+      res.json({ ok: true, flagged: Boolean(flagged), starter });
     } catch (err) {
       console.error('POST /api/invites/:code/claim error:', err);
       res.status(500).json({ error: 'Lỗi server.' });

@@ -104,13 +104,16 @@ function mergePetData(local, remote) {
   };
 }
 
-// ── Đảm bảo luôn có pet khởi tạo (Cowdi) ──────────────────────────────────
+// ── Đảm bảo luôn có pet khởi tạo (Cowdi) trừ khi đang chờ nhận thiệp mời ──
 function ensureInitialPet(data) {
   if (data?.collection && Object.keys(data.collection).length > 0) {
     for (const [id, pet] of Object.entries(data.collection)) {
       if (pet && !pet.instanceId) pet.instanceId = id;
     }
     return data;
+  }
+  if (typeof window !== 'undefined' && localStorage.getItem('cowdi_pending_invite')) {
+    return data || { ...DEFAULT_PET_DATA };
   }
   return {
     ...data,
@@ -125,6 +128,7 @@ function ensureInitialPet(data) {
         needs: { energy: 80, happiness: 80, health: 80, knowledge: 80 },
         cosmetics: { hat: null, outfit: null, room: null, effect: null },
         totalXpEarned: 0,
+        source: 'starter',
         needsUpdatedAt: new Date().toISOString(),
         unlockedAt: new Date().toISOString(),
       },

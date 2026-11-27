@@ -138,15 +138,25 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="shop-help-btn"
-            title="Xem cách kiếm tài nguyên"
-            onClick={() => setHowToEarnOpen(true)}
-            aria-label="Cách kiếm tài nguyên"
-          >
-            ?
-          </button>
+          <div className="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-warning btn-sm fw-bold rounded-pill px-3"
+              onClick={() => navigate('/gacha')}
+              title="Mở máy quay Gacha Pet"
+            >
+              🎰 Gacha Pet
+            </button>
+            <button
+              type="button"
+              className="shop-help-btn"
+              title="Xem cách kiếm tài nguyên"
+              onClick={() => setHowToEarnOpen(true)}
+              aria-label="Cách kiếm tài nguyên"
+            >
+              ?
+            </button>
+          </div>
         </div>
       </div>
 

@@ -789,3 +789,57 @@ export const PET_SKILLS = deepFreeze({
   },
 });
 
+// ---------- Gacha & Quay khởi đầu (GĐ6–GĐ7 · D5, D6, D7) ----------
+export const GACHA_CONFIG = deepFreeze({
+  TICKET_PRICE_GEM: 50,         // 50 Gem / vé, không có gói 10
+  HAS_PITY: false,              // Không bảo hiểm (D5)
+  HISTORY_LIMIT: 100,           // Lưu tối đa 100 lượt/user
+  DUPLICATE_EPIC_GEM: 10,       // Trùng bậc Sử thi -> +10 Gem
+  DUPLICATE_COMMON_MILK: 600,   // Trùng đồ Hiếm khi đã đủ hết -> 600 Sữa
+  FIRST_FRIEND_SCARF_ID: 'first_friend_scarf',
+  FIRST_FRIEND_SCARF_NAME: 'Khăn Bạn Đầu Tiên',
+
+  // Tỉ lệ bể Gacha thường (D5: 67 / 22 / 8 / 3)
+  STANDARD_RATES: [
+    { tier: 'common',  label: 'Thường',   rate: 0.67, color: '#64748b' },
+    { tier: 'rare',    label: 'Hiếm',     rate: 0.22, color: '#0ea5e9' },
+    { tier: 'epic',    label: 'Sử thi',   rate: 0.08, color: '#8b5cf6' },
+    { tier: 'limited', label: 'Giới hạn', rate: 0.03, color: '#f59e0b' },
+  ],
+
+  // Tỉ lệ quay Pet khởi đầu qua thiệp mời (D7: 50 / 30 / 13 / 5 / 2, trừ Cowdi)
+  STARTER_POOL_RATES: [
+    { rarity: 'common',    label: 'Thường',      rate: 0.50, color: '#64748b' },
+    { rarity: 'rare',      label: 'Hiếm',        rate: 0.30, color: '#0ea5e9' },
+    { rarity: 'epic',      label: 'Sử thi',      rate: 0.13, color: '#8b5cf6' },
+    { rarity: 'event',     label: 'Sự kiện',     rate: 0.05, color: '#ec4899' },
+    { rarity: 'legendary', label: 'Huyền thoại', rate: 0.02, color: '#f59e0b' },
+  ],
+
+  // Danh sách pet chưa đủ 5/5 hình (bị loại khỏi mọi bể quay cho tới khi bổ sung đủ ảnh)
+  INCOMPLETE_IMAGE_PETS: ['mushroom', 'bun'],
+});
+
+/**
+ * Kiểm tra pet đã đủ 5 hình (C1–C5) hay chưa.
+ * - Nếu truyền object pet có `evolutions`: kiểm tra cả 5 cấp đều có `image` hợp lệ.
+ * - Nếu chỉ có `speciesId`: đối chiếu với `GACHA_CONFIG.INCOMPLETE_IMAGE_PETS`.
+ */
+export function isPetImageComplete(petOrId) {
+  if (!petOrId) return false;
+  if (typeof petOrId === 'string') {
+    return !GACHA_CONFIG.INCOMPLETE_IMAGE_PETS.includes(petOrId);
+  }
+  const id = petOrId.id || petOrId.speciesId;
+  if (id && GACHA_CONFIG.INCOMPLETE_IMAGE_PETS.includes(id)) {
+    // Cho phép nếu runtime (catalog động từ Admin) đã nạp đủ 5 ảnh
+    const evos = petOrId.evolutions;
+    return Array.isArray(evos) && evos.length === 5 && evos.every((e) => Boolean(e?.image));
+  }
+  if (Array.isArray(petOrId.evolutions)) {
+    return petOrId.evolutions.length === 5 && petOrId.evolutions.every((e) => Boolean(e?.image));
+  }
+  return true;
+}
+
+
