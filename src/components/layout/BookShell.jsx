@@ -106,35 +106,45 @@ export default function BookShell({ children }) {
   const prevMilkRef = useRef(wallet.milk);
   const prevGemRef = useRef(wallet.gem);
   const prevStoneRef = useRef(wallet.stone);
+  const hydratedRef = useRef(wallet.milk > 0 || wallet.gem > 0 || wallet.stone > 0);
   const [milkDelta, setMilkDelta] = useState(null);
   const [gemDelta, setGemDelta] = useState(null);
   const [stoneDelta, setStoneDelta] = useState(null);
 
   useEffect(() => {
-    if (prevMilkRef.current !== undefined && wallet.milk > prevMilkRef.current) {
-      setMilkDelta(wallet.milk - prevMilkRef.current);
+    const prev = prevMilkRef.current;
+    prevMilkRef.current = wallet.milk;
+    if (!hydratedRef.current) {
+      if (wallet.milk > 0) hydratedRef.current = true;
+      return;
+    }
+    if (prev !== undefined && wallet.milk > prev) {
+      setMilkDelta(wallet.milk - prev);
       const t = setTimeout(() => setMilkDelta(null), 1800);
       return () => clearTimeout(t);
     }
-    prevMilkRef.current = wallet.milk;
   }, [wallet.milk]);
 
   useEffect(() => {
-    if (prevGemRef.current !== undefined && wallet.gem > prevGemRef.current) {
-      setGemDelta(wallet.gem - prevGemRef.current);
+    const prev = prevGemRef.current;
+    prevGemRef.current = wallet.gem;
+    if (!hydratedRef.current) return;
+    if (prev !== undefined && wallet.gem > prev) {
+      setGemDelta(wallet.gem - prev);
       const t = setTimeout(() => setGemDelta(null), 1800);
       return () => clearTimeout(t);
     }
-    prevGemRef.current = wallet.gem;
   }, [wallet.gem]);
 
   useEffect(() => {
-    if (prevStoneRef.current !== undefined && wallet.stone > prevStoneRef.current) {
-      setStoneDelta(wallet.stone - prevStoneRef.current);
+    const prev = prevStoneRef.current;
+    prevStoneRef.current = wallet.stone;
+    if (!hydratedRef.current) return;
+    if (prev !== undefined && wallet.stone > prev) {
+      setStoneDelta(wallet.stone - prev);
       const t = setTimeout(() => setStoneDelta(null), 1800);
       return () => clearTimeout(t);
     }
-    prevStoneRef.current = wallet.stone;
   }, [wallet.stone]);
 
   const level = getUserLevel(userData.totalXP);
