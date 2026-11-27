@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../../../components/Icon';
 import { EmojiText } from '../../../components/Emoji';
 import { useUser } from '../../../hooks/useUser';
+import { usePet } from '../../../hooks/usePet';
 import { useSound } from '../../../hooks/useSound';
 import { useToast } from '../../../components/layout/Toast';
 import { usePetDirector } from '../../../pet-director/DirectorContext';
 import PetStage from '../../../pet-director/PetStage';
+import { speakWord } from '../../../utils/speech';
 import { SCREEN_CONFIG, SLOT_META } from '../../../data/config/screens';
 import { hashString } from './seededRandom';
 import { mixLesson } from './mixer';
@@ -59,16 +61,13 @@ function buildItemsForSlot(slot, lesson) {
 function resultCircleColor(res) {
   if (!res || !res.total) return '#27AE60';
   const ratio = res.firstTryCorrect / res.total;
-  if (ratio >= 0.8) return '#27AE60'; // xanh
-  if (ratio >= 0.5) return '#F2C94C'; // vàng
-  return '#E67E22'; // cam
+  if (ratio >= 0.8) return '#27AE60';
+  if (ratio >= 0.5) return '#F2C94C';
+  return '#E67E22';
 }
 
 /**
- * ScreenHost — Khung chạy chuỗi 6 màn học (PHASE1 §5–6).
- * - Gọi mixLesson 1 lần khi vào bài, lưu sessionStorage theo lessonId để reload không xáo lại.
- * - Layout 100dvh grid (auto 1fr auto), không cuộn cấp trang ở 360×640 & 800×1280.
- * - Hỗ trợ prop `sandbox` cho Admin Đợt 2 xem trước/chơi thử không ghi dữ liệu.
+ * ScreenHost — Khung chạy 6 màn trộn tái sử dụng nguyên vẹn layout đồng hành Cowdi (.pd-lesson-layout + PetStage + BookShell).
  */
 export default function ScreenHost({
   lesson,
@@ -93,9 +92,15 @@ export default function ScreenHost({
     recordQuestionResult,
     recordLessonMix,
   } = useUser();
+  const { getActivePetWithDecay } = usePet();
   const { play, muted } = useSound();
   const showToast = useToast();
   const { dispatch } = usePetDirector();
+
+  const activePet = getActivePetWithDecay();
+  const petRef = useRef(null);
+  const exitDialogRef = useRef(null);
+  const defaultTtsRate = rules?.ttsRate || 0.85;
 
   const userId = userData?.userId || userData?.id || 'local';
   const attemptCount = (userData?.lessonMixLog || []).filter((x) => x.lessonId === lesson?.id).length;
@@ -128,19 +133,17 @@ export default function ScreenHost({
   const [exitOpen, setExitOpen] = useState(false);
   const [introPetLine, setIntroPetLine] = useState('');
   const [summaryData, setSummaryData] = useState(null);
+  const [streakCount, setStreakCount] = useState(0);
 
-  const exitDialogRef = useRef(null);
-
-  // Khi đổi bài hoặc đổi seedOverride (sandbox), khởi tạo lại phiên
   useEffect(() => {
     setSession(initSession());
     setPhase('intro');
     setPaused(false);
     setSummaryData(null);
+    setStreakCount(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson?.id, seedOverride, sandbox]);
 
-  // Lưu sessionStorage mỗi khi tiến màn
   useEffect(() => {
     if (!sandbox && phase !== 'summary') {
       saveSession(userId, lesson?.id, session);
@@ -157,6 +160,8 @@ export default function ScreenHost({
   });
 
   const handleEvent = useCallback((type, payload) => {
+    if (type === 'item_correct') setStreakCount((c) => c + 1);
+    else if (type === 'item_wrong') setStreakCount(0);
     routeEvent(type, payload);
     if (sandbox && typeof onSandboxEvent === 'function') {
       onSandboxEvent({ at: Date.now(), type, payload });
@@ -167,7 +172,6 @@ export default function ScreenHost({
   const currentEntry = screens[session.currentIndex] || null;
   const currentMeta = currentEntry ? getScreen(currentEntry.code) : null;
 
-  // Dispatch sự kiện screen_enter khi vào ScreenIntro của từng màn
   useEffect(() => {
     if (phase !== 'intro' || !currentEntry) return;
     const dec = dispatch('screen_enter', {
@@ -180,7 +184,6 @@ export default function ScreenHost({
     setIntroPetLine(dec?.speech?.vi || '');
   }, [phase, currentEntry, dispatch, lesson?.id, lesson?.title]);
 
-  // Đồng bộ native <dialog> xác nhận thoát (showModal + Safari light-dismiss fallback)
   useEffect(() => {
     const dlg = exitDialogRef.current;
     if (!dlg) return;
@@ -240,10 +243,10 @@ export default function ScreenHost({
         results: nextResults,
       }));
       setPhase('intro');
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // Hết màn cuối (Boss) → kết thúc bài học theo công thức Đợt 1 (không đổi Sữa)
     const bossScore = Number(result?.score ?? normalized.firstTryCorrect) || 0;
     const bossTotal = Number(normalized.total) || 0;
     let attemptOutcome = {
@@ -306,6 +309,7 @@ export default function ScreenHost({
 
   const handleReplay = () => {
     resetRun();
+    setStreakCount(0);
     if (!sandbox) clearSession(userId, lesson?.id);
     const nextSeed = hashString(`${userId}:${lesson?.id}:${attemptCount + 2}:${Date.now()}`);
     const mix = mixLesson({
@@ -336,10 +340,43 @@ export default function ScreenHost({
   const hasGrammar = (lesson?.grammar || []).length > 0;
   const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
 
+  // Giữ nguyên layout đồng hành V2 như LessonDetailPage cũ
+  const isCenteredLayout =
+    phase !== 'play' ||
+    ['T-02', 'T-05', 'T-06', 'T-07', 'T-08'].includes(currentEntry?.code);
+  const isFlashcardLayout = phase === 'play' && currentEntry?.code === 'T-02';
+
+  const stageHint = phase === 'summary'
+    ? 'Xong bài học rồi!'
+    : phase === 'intro'
+      ? `Chuẩn bị: ${currentMeta?.name || ''}`
+      : currentEntry?.code === 'T-06'
+        ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
+        : currentEntry?.code === 'T-05'
+          ? 'Nghe kỹ và chọn nghĩa đúng nha!'
+          : currentEntry?.code === 'T-02'
+            ? 'Nghe rồi chạm để lật!'
+            : currentEntry?.code === 'T-08'
+              ? 'Xếp hoặc gõ câu đúng nhé!'
+              : '';
+
+  const petDock = activePet ? (
+    <PetStage
+      pet={activePet}
+      petRef={petRef}
+      mode={phase === 'summary' ? 'home' : 'lesson'}
+      compact={phase === 'play' && currentEntry?.code === 'T-07'}
+      streak={streakCount}
+      subtitle={stageHint}
+      onSpeak={(en) => speakWord(en, { rate: defaultTtsRate, lang: 'en-US' }).catch(() => {})}
+    />
+  ) : null;
+
   return (
-    <div className={`ss-host${sandbox ? ' is-sandbox' : ''}`}>
+    <div className={`fade-in position-relative ss-host-flow${sandbox ? ' is-sandbox' : ''}`}>
       {phase !== 'summary' && (
         <RouteHeader
+          lesson={lesson}
           screens={screens}
           currentIndex={session.currentIndex}
           currentScreenMeta={currentMeta}
@@ -351,155 +388,160 @@ export default function ScreenHost({
         />
       )}
 
-      <main className="ss-stage">
-        {phase === 'intro' && currentEntry && (
-          <ScreenIntro
-            screen={currentEntry}
-            screenMeta={currentMeta}
-            index={session.currentIndex}
-            total={screens.length}
-            group={group}
-            petLine={introPetLine}
-            onFinish={() => setPhase('play')}
-          />
+      <div
+        className={`pd-lesson-layout${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
+      >
+        {petDock && (
+          <aside className="pd-lesson-stage-col">
+            {petDock}
+          </aside>
         )}
 
-        {phase === 'play' && ActiveComponent && !paused && (
-          <ActiveComponent
-            key={`${currentEntry.code}-${session.currentIndex}-${session.seed}`}
-            lesson={lesson}
-            group={group}
-            items={currentItems}
-            rules={rules}
-            seed={session.seed}
-            muted={muted}
-            play={play}
-            sandbox={sandbox}
-            onEvent={handleEvent}
-            onDone={handleScreenDone}
-            onOpenGrammar={() => setGrammarOpen(true)}
-            extra={{
-              wordProgress: userData?.wordProgress || {},
-              addXP,
-              showToast,
-            }}
-          />
-        )}
+        <div className="pd-lesson-content-col">
+          {phase === 'intro' && currentEntry && (
+            <ScreenIntro
+              screen={currentEntry}
+              screenMeta={currentMeta}
+              index={session.currentIndex}
+              total={screens.length}
+              group={group}
+              petLine={introPetLine}
+              onFinish={() => setPhase('play')}
+            />
+          )}
 
-        {phase === 'play' && paused && (
-          <div className="ss-pause-box">
-            <h3 className="fw-bold mb-2">⏸ Đang tạm dừng</h3>
-            <p className="text-muted small mb-3">
-              Màn {session.currentIndex + 1}/{screens.length}: {currentMeta?.name}
-            </p>
-            <div className="d-flex gap-2 justify-content-center flex-wrap">
-              <button type="button" className="btn btn-cowdi-primary ss-tap-btn" onClick={() => setPaused(false)}>
-                ▶ Tiếp tục học
-              </button>
-              <button type="button" className="btn btn-outline-secondary ss-tap-btn" onClick={() => setExitOpen(true)}>
-                Thoát ra lộ trình
-              </button>
-            </div>
-          </div>
-        )}
+          {phase === 'play' && ActiveComponent && !paused && (
+            <ActiveComponent
+              key={`${currentEntry.code}-${session.currentIndex}-${session.seed}`}
+              lesson={lesson}
+              group={group}
+              items={currentItems}
+              rules={rules}
+              seed={session.seed}
+              muted={muted}
+              play={play}
+              sandbox={sandbox}
+              onEvent={handleEvent}
+              onDone={handleScreenDone}
+              onOpenGrammar={() => setGrammarOpen(true)}
+              extra={{
+                wordProgress: userData?.wordProgress || {},
+                addXP,
+                showToast,
+                petRef,
+              }}
+            />
+          )}
 
-        {phase === 'summary' && summaryData && (
-          <div className="ss-summary ss-scroll-inner text-center">
-            <div className="mb-2">
-              <Icon name={summaryData.passed ? 'trophy' : 'muscle'} size={68} />
-            </div>
-            <h3 className="fw-bold mb-1">
-              {summaryData.passed
-                ? 'Hoàn thành bài học!'
-                : `Chưa đạt — cần ≥${Math.round((rules?.lessonPassRate || 0.7) * 100)}%`}
-            </h3>
-            <div className="fs-2 fw-bold text-cowdi-primary mb-1">
-              {summaryData.bossScore}/{summaryData.bossTotal}
-            </div>
-            <p className="text-muted small mb-2">
-              <EmojiText>{summaryData.passed ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : 'Ôn lại rồi chinh phục lại nhé! 🐮💪'}</EmojiText>
-            </p>
-
-            {/* Hàng vòng kỹ năng màu theo kết quả (PHASE1 §6) */}
-            <div className="ss-summary-circles my-2" aria-label="Kết quả từng màn kỹ năng">
-              {screens.map((sc, i) => {
-                const res = summaryData.results[i];
-                const meta = SLOT_META[sc.slot] || SLOT_META.intro;
-                const bg = resultCircleColor(res);
-                return (
-                  <div key={`${sc.slot}-${i}`} className="ss-summary-circle-item">
-                    <div
-                      className="ss-summary-circle"
-                      style={{ background: bg }}
-                      title={`${meta.label} (${sc.code}): ${res?.firstTryCorrect ?? 0}/${res?.total ?? 0}`}
-                    >
-                      <Icon name={meta.icon} size={15} />
-                    </div>
-                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>{meta.label}</small>
-                  </div>
-                );
-              })}
-            </div>
-
-            {!sandbox && (
-              <div className="d-flex justify-content-center gap-2 flex-wrap my-2">
-                <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{summaryData.milk} Sữa</span>
-                {summaryData.gem > 0 && <span className="badge bg-info text-dark fs-6 px-3 py-2">💎 +{summaryData.gem} Gem</span>}
-                {summaryData.stone > 0 && <span className="badge bg-success fs-6 px-3 py-2">💠 +{summaryData.stone} Đá</span>}
-              </div>
-            )}
-
-            {summaryData.wrongAnswers?.length > 0 && (
-              <div className="card text-start shadow-sm my-2">
-                <div className="card-body py-2 px-3">
-                  <h6 className="fw-bold text-danger small mb-2">Câu cần ôn ({summaryData.wrongAnswers.length})</h6>
-                  <div className="d-flex flex-column gap-1">
-                    {summaryData.wrongAnswers.map((w, wi) => (
-                      <div key={wi} className="p-2 rounded bg-light small">
-                        <div className="fw-bold">{w.question}</div>
-                        <div className="text-danger">Bạn chọn: {w.picked}</div>
-                        <div className="text-success fw-bold">Đáp án: {w.correct}</div>
-                      </div>
-                    ))}
-                  </div>
+          {phase === 'play' && paused && (
+            <div className="card shadow-sm">
+              <div className="card-body text-center py-5">
+                <h3 className="fw-bold mb-2">⏸ Đang tạm dừng</h3>
+                <p className="text-muted mb-3">
+                  Màn {session.currentIndex + 1}/{screens.length}: {currentMeta?.name}
+                </p>
+                <div className="d-flex gap-2 justify-content-center flex-wrap">
+                  <button type="button" className="btn btn-cowdi-primary ss-tap-btn" onClick={() => setPaused(false)}>
+                    ▶ Tiếp tục học
+                  </button>
+                  <button type="button" className="btn btn-outline-secondary ss-tap-btn" onClick={() => setExitOpen(true)}>
+                    Thoát ra lộ trình
+                  </button>
                 </div>
               </div>
-            )}
-
-            <div className="d-flex gap-2 justify-content-center flex-wrap mt-3">
-              {summaryData.passed && pathNext?.type === 'lesson' && pathNext.lessonId !== lesson?.id && !sandbox && (
-                <button
-                  type="button"
-                  className="btn btn-cowdi-primary ss-tap-btn"
-                  onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}
-                >
-                  <Icon name="play" size={16} /> Bài tiếp theo
-                </button>
-              )}
-              <button type="button" className="btn btn-warning ss-tap-btn" onClick={handleReplay}>
-                <Icon name="refresh" size={16} /> Làm lại (xáo mới)
-              </button>
-              {hasGrammar && (
-                <button type="button" className="btn btn-outline-secondary ss-tap-btn" onClick={() => setGrammarOpen(true)}>
-                  <Icon name="book" size={16} /> Xem ngữ pháp
-                </button>
-              )}
-              <button type="button" className="btn btn-outline-secondary ss-tap-btn" onClick={handleConfirmExit}>
-                <Icon name="road" size={16} /> Về lộ trình
-              </button>
             </div>
-          </div>
-        )}
-      </main>
+          )}
 
-      {/* Thanh Pet đồng hành gọn gàng ở chân ScreenHost (khi không ở T-08 vì T-08 có vùng pet riêng) */}
-      <footer className="ss-footer">
-        {phase === 'play' && currentEntry?.code !== 'T-08' && (
-          <div className="ss-pet-dock">
-            <PetStage screen="lesson" compact />
-          </div>
-        )}
-      </footer>
+          {phase === 'summary' && summaryData && (
+            <div className="text-center py-3 fade-in" style={{ maxWidth: 680, margin: '0 auto' }}>
+              <div className={`quiz-result-icon emoji-big ${summaryData.passed ? 'bounce-in' : ''}`} style={{ fontSize: '4.5rem' }}>
+                <Icon name={summaryData.passed ? 'trophy' : 'muscle'} size={88} />
+              </div>
+              <h2 className="fw-bold mt-2">
+                {summaryData.passed
+                  ? 'Hoàn thành bài học!'
+                  : `Chưa đạt — cần ≥${Math.round((rules?.lessonPassRate || 0.7) * 100)}%`}
+              </h2>
+              <div className="display-4 fw-bold text-cowdi-primary my-2">
+                {summaryData.bossScore}/{summaryData.bossTotal}
+              </div>
+              <p className="lead text-muted">
+                <EmojiText>{summaryData.passed ? 'Xuất sắc! Cowdi rất tự hào! 🐮✨' : 'Ôn lại rồi chinh phục lại nhé! 🐮💪'}</EmojiText>
+              </p>
+
+              {/* Hàng vòng kỹ năng màu theo kết quả (PHASE1 §6) */}
+              <div className="ss-summary-circles my-3" aria-label="Kết quả từng màn kỹ năng">
+                {screens.map((sc, i) => {
+                  const res = summaryData.results[i];
+                  const meta = SLOT_META[sc.slot] || SLOT_META.intro;
+                  const bg = resultCircleColor(res);
+                  return (
+                    <div key={`${sc.slot}-${i}`} className="ss-summary-circle-item">
+                      <div
+                        className="ss-summary-circle"
+                        style={{ background: bg }}
+                        title={`${meta.label} (${sc.code}): ${res?.firstTryCorrect ?? 0}/${res?.total ?? 0}`}
+                      >
+                        <Icon name={meta.icon} size={15} />
+                      </div>
+                      <small className="text-muted" style={{ fontSize: '0.72rem' }}>{meta.label}</small>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {!sandbox && (
+                <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap my-3">
+                  <span className="badge bg-primary fs-6 px-3 py-2">🥛 +{summaryData.milk} Sữa</span>
+                  {summaryData.gem > 0 && <span className="badge bg-info text-dark fs-6 px-3 py-2">💎 +{summaryData.gem} Gem</span>}
+                  {summaryData.stone > 0 && <span className="badge bg-success fs-6 px-3 py-2">💠 +{summaryData.stone} Đá nguyên tố</span>}
+                </div>
+              )}
+
+              {summaryData.wrongAnswers?.length > 0 && (
+                <div className="card text-start shadow-sm my-3">
+                  <div className="card-body">
+                    <h6 className="fw-bold text-danger mb-2">Các câu cần ôn lại ({summaryData.wrongAnswers.length})</h6>
+                    <div className="d-flex flex-column gap-2">
+                      {summaryData.wrongAnswers.map((w, wi) => (
+                        <div key={wi} className="p-2 rounded bg-light small">
+                          <div className="fw-bold">{w.question}</div>
+                          <div className="text-danger">Bạn chọn: {w.picked}</div>
+                          <div className="text-success fw-bold">Đáp án đúng: {w.correct}</div>
+                          {w.explanation && <div className="text-muted mt-1">{w.explanation}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="d-flex gap-2 justify-content-center mt-4 flex-wrap">
+                {summaryData.passed && pathNext?.type === 'lesson' && pathNext.lessonId !== lesson?.id && !sandbox && (
+                  <button
+                    type="button"
+                    className="btn btn-cowdi-primary d-inline-flex align-items-center gap-2"
+                    onClick={() => navigate(`/lessons/${pathNext.lessonId}`)}
+                  >
+                    <Icon name="play" size={18} /> Bài tiếp theo
+                  </button>
+                )}
+                <button type="button" className="btn btn-warning d-inline-flex align-items-center gap-2" onClick={handleReplay}>
+                  <Icon name="refresh" size={16} /> Làm lại (xáo mới)
+                </button>
+                {hasGrammar && (
+                  <button type="button" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={() => setGrammarOpen(true)}>
+                    <Icon name="book" size={16} /> Xem ngữ pháp
+                  </button>
+                )}
+                <button type="button" className="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onClick={handleConfirmExit}>
+                  <Icon name="road" size={16} /> Lộ trình
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Bottom sheet Xem ngữ pháp (thay T-03) */}
       <GrammarSheet open={grammarOpen} onClose={() => setGrammarOpen(false)} lesson={lesson} />

@@ -51,7 +51,7 @@ export default function T02Flashcard({ lesson, rules, onEvent, onDone, muted, ex
   }, [wordProgress, rules]);
 
   return (
-    <div className="ss-screen-inner ss-t02">
+    <div className="d-flex flex-column align-items-center">
       <Flashcard
         cards={cards}
         ttsRate={ttsRate}

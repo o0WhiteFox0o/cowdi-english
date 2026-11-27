@@ -4,12 +4,10 @@ import { speakWord, stopSpeaking, scoreTypedSentence, normalizeText } from '../.
 import { mulberry32, seededShuffle, hashString } from '../seededRandom';
 import { pickGrammarTip } from '../items';
 
-/** Strip trailing punctuation from a word token for tile display/comparison */
 function cleanTileWord(w) {
   return String(w || '').replace(/^[.,!?;:]+|[.,!?;:]+$/g, '');
 }
 
-/** Pick 2 distractor words from lesson vocabulary that are not already in the sentence */
 function pickDistractors(targetWords, vocabulary, rng) {
   const inSentence = new Set(targetWords.map((w) => w.toLowerCase()));
   const pool = [];
@@ -30,11 +28,8 @@ function pickDistractors(targetWords, vocabulary, rng) {
 }
 
 /**
- * T-08 Viết câu (Slot Viết — màn mới Đợt 1, GEMINI-SCREEN-SYSTEM-PHASE1 §8).
- * - Xếp câu (mặc định): câu tiếng Việt + thẻ từ tiếng Anh xáo + 2 từ nhiễu; đủ số từ tự chấm.
- * - Gõ câu: nhóm exam, hoặc câu thứ 4 với nhóm intermediate; chấm qua speech.js (rút gọn + dung sai typo 1 ký tự từ >= 5 chữ).
- * - Đúng: tô xanh, đọc câu EN, tự sang câu sau sau 1,2s.
- * - Sai: hiện đáp án đúng, từ sai tô cam, pet nói mẹo ngữ pháp (thay T-03), chờ 1 chạm "Tiếp"; câu sai quay lại cuối màn 1 lần.
+ * T-08 Viết câu (Slot Viết — màn mới Đợt 1).
+ * Dùng chung phong cách card Cowdi (.card.shadow-sm + .quiz-sticky-action-bar) để đồng nhất hoàn toàn với các màn cũ.
  */
 export default function T08WriteSentence({
   lesson,
@@ -76,7 +71,7 @@ export default function T08WriteSentence({
   const [cursor, setCursor] = useState(0);
   const [selectedIds, setSelectedIds] = useState([]);
   const [typedText, setTypedText] = useState('');
-  const [feedback, setFeedback] = useState(null); // { ok, exact, typoWords, wrongIndices, petText }
+  const [feedback, setFeedback] = useState(null);
   const firstTryFailedRef = useRef(new Set());
   const retriedRef = useRef(new Set());
   const autoTimerRef = useRef(null);
@@ -106,7 +101,7 @@ export default function T08WriteSentence({
 
   if (!current) {
     return (
-      <div className="ss-empty-box">
+      <div className="card shadow-sm text-center p-4">
         <p className="text-muted mb-3">Bài này chưa đủ câu viết.</p>
         <button
           type="button"
@@ -181,12 +176,10 @@ export default function T08WriteSentence({
   };
 
   const handleBankTap = (tileId) => {
-    if (feedback) return;
-    if (selectedIds.includes(tileId)) return;
+    if (feedback || selectedIds.includes(tileId)) return;
     const next = [...selectedIds, tileId];
     setSelectedIds(next);
 
-    // Đủ số từ thì tự chấm (không cần nút Kiểm tra)
     if (next.length === current.targetWords.length) {
       const chosenWords = next.map((id) => current.bank.find((t) => t.id === id)?.text || '');
       const wrongIndices = [];
@@ -217,23 +210,25 @@ export default function T08WriteSentence({
     : (current.mode === 'type' ? 'Gõ câu tiếng Anh tương ứng nhé!' : 'Chạm từng thẻ từ để ghép thành câu đúng!');
 
   return (
-    <div className="ss-screen-inner ss-t08">
-      <div className="ss-subbar">
-        <span className="ss-subbar-badge">
-          {current.mode === 'type' ? '⌨️ Gõ câu' : '🧩 Xếp câu'}
-          {current.isRetry ? ' · Ôn lại' : ''}
-        </span>
-        <span className="ss-subbar-count">{Math.min(cursor + 1, queue.length)} / {queue.length}</span>
-      </div>
+    <div className="card shadow-sm" style={{ borderRadius: 16, maxWidth: 720, margin: '0 auto' }}>
+      <div className="card-body p-4">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <span className="badge bg-light text-muted">
+            {current.mode === 'type' ? '⌨️ Gõ câu' : '🧩 Xếp câu'}
+            {current.isRetry ? ' · Ôn lại' : ''}
+          </span>
+          <small className="text-muted fw-bold">{Math.min(cursor + 1, queue.length)} / {queue.length}</small>
+        </div>
+        <div className="progress mb-3" style={{ height: 6, borderRadius: 999 }}>
+          <div
+            className="progress-bar progress-bar-cowdi"
+            style={{ width: `${((cursor + 1) / queue.length) * 100}%`, transition: 'width .3s' }}
+          />
+        </div>
 
-      {/* Câu tiếng Việt + nút loa (chỉ bật đọc câu EN sau khi đã trả lời) */}
-      <div className="card shadow-sm mb-2">
-        <div className="card-body py-2 px-3 d-flex align-items-center gap-2">
-          <div className="flex-grow-1">
-            <div className="fw-bold" style={{ fontSize: '1.05rem', lineHeight: 1.35 }}>
-              {current.vi}
-            </div>
-          </div>
+        {/* Câu tiếng Việt */}
+        <div className="bg-light rounded p-3 mb-3 d-flex align-items-center gap-2">
+          <div className="flex-grow-1 fw-bold fs-5">{current.vi}</div>
           {feedback && (
             <button
               type="button"
@@ -245,103 +240,101 @@ export default function T08WriteSentence({
             </button>
           )}
         </div>
-      </div>
 
-      {current.mode === 'arrange' ? (
-        <>
-          {/* Dòng trả lời: cao tối thiểu 2 hàng thẻ */}
-          <div className={`ss-t08-answer-line${feedback ? (feedback.ok ? ' is-ok' : ' is-wrong') : ''}`}>
-            {feedback && !feedback.ok ? (
-              <div className="d-flex flex-wrap gap-2 align-items-center">
-                {current.targetWords.map((w, i) => {
-                  const isMismatch = feedback.wrongIndices?.includes(i);
-                  return (
-                    <span key={i} className={`ss-word-chip is-static${isMismatch ? ' is-wrong-word' : ' is-ok-word'}`}>
-                      {w}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : chosenTiles.length === 0 ? (
-              <span className="text-muted small">Chạm thẻ từ bên dưới để xếp câu ({current.targetWords.length} từ)…</span>
-            ) : (
-              <div className="d-flex flex-wrap gap-2">
-                {chosenTiles.map((t, i) => (
+        {current.mode === 'arrange' ? (
+          <>
+            <div className={`ss-t08-answer-line${feedback ? (feedback.ok ? ' is-ok' : ' is-wrong') : ''}`}>
+              {feedback && !feedback.ok ? (
+                <div className="d-flex flex-wrap gap-2 align-items-center">
+                  {current.targetWords.map((w, i) => {
+                    const isMismatch = feedback.wrongIndices?.includes(i);
+                    return (
+                      <span key={i} className={`ss-word-chip is-static${isMismatch ? ' is-wrong-word' : ' is-ok-word'}`}>
+                        {w}
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : chosenTiles.length === 0 ? (
+                <span className="text-muted small">Chạm thẻ từ bên dưới để xếp câu ({current.targetWords.length} từ)…</span>
+              ) : (
+                <div className="d-flex flex-wrap gap-2">
+                  {chosenTiles.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className={`ss-word-chip is-placed${feedback?.ok ? ' is-ok-word' : ''}`}
+                      onClick={() => handleAnswerTap(t.id)}
+                      disabled={Boolean(feedback)}
+                    >
+                      {t.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="ss-t08-bank mb-2">
+              {current.bank.map((t) => {
+                const used = selectedIds.includes(t.id);
+                return (
                   <button
                     key={t.id}
                     type="button"
-                    className={`ss-word-chip is-placed${feedback?.ok ? ' is-ok-word' : ''}`}
-                    onClick={() => handleAnswerTap(t.id)}
-                    disabled={Boolean(feedback)}
+                    className={`ss-word-chip${used ? ' is-used' : ''}`}
+                    disabled={used || Boolean(feedback)}
+                    onClick={() => handleBankTap(t.id)}
                   >
                     {t.text}
                   </button>
-                ))}
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <form onSubmit={handleTypeSubmit} className="mb-3">
+            <input
+              type="text"
+              className={`form-control form-control-lg mb-2${feedback ? (feedback.ok ? ' is-valid' : ' is-invalid') : ''}`}
+              placeholder="Nhập câu tiếng Anh..."
+              value={typedText}
+              onChange={(e) => setTypedText(e.target.value)}
+              disabled={Boolean(feedback)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {!feedback && (
+              <button
+                type="submit"
+                className="btn btn-cowdi-primary w-100 ss-tap-btn"
+                disabled={!typedText.trim()}
+              >
+                Kiểm tra
+              </button>
+            )}
+            {feedback && !feedback.ok && (
+              <div className="alert alert-warning py-2 px-3 small mb-0">
+                <strong>Đáp án đúng:</strong> {current.en}
               </div>
             )}
-          </div>
+          </form>
+        )}
 
-          {/* Kho thẻ từ: flex-wrap, thẻ cao >= 48px */}
-          <div className="ss-t08-bank">
-            {current.bank.map((t) => {
-              const used = selectedIds.includes(t.id);
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`ss-word-chip${used ? ' is-used' : ''}`}
-                  disabled={used || Boolean(feedback)}
-                  onClick={() => handleBankTap(t.id)}
-                >
-                  {t.text}
-                </button>
-              );
-            })}
+        {/* Thanh mẹo / phản hồi pet */}
+        <div className={`ss-t08-pet-bar${feedback ? (feedback.ok ? ' is-ok' : ' is-wrong') : ''}`}>
+          <div className="ss-t08-pet-bubble">
+            {feedback ? feedback.petText : defaultPetTip}
           </div>
-        </>
-      ) : (
-        <form onSubmit={handleTypeSubmit} className="ss-t08-type-form flex-grow-1">
-          <input
-            type="text"
-            className={`form-control form-control-lg mb-2${feedback ? (feedback.ok ? ' is-valid' : ' is-invalid') : ''}`}
-            placeholder="Nhập câu tiếng Anh..."
-            value={typedText}
-            onChange={(e) => setTypedText(e.target.value)}
-            disabled={Boolean(feedback)}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          {!feedback && (
+          {feedback && !feedback.ok && (
             <button
-              type="submit"
-              className="btn btn-cowdi-primary w-100 ss-tap-btn"
-              disabled={!typedText.trim()}
+              type="button"
+              className="btn btn-cowdi-primary ss-tap-btn px-3"
+              onClick={() => advanceNext()}
             >
-              Kiểm tra
+              Tiếp ›
             </button>
           )}
-          {feedback && !feedback.ok && (
-            <div className="alert alert-warning py-2 px-3 small mb-0">
-              <strong>Đáp án đúng:</strong> {current.en}
-            </div>
-          )}
-        </form>
-      )}
-
-      {/* Vùng phản hồi pet cố định 64px (PHASE1 §8.3) */}
-      <div className={`ss-t08-pet-bar${feedback ? (feedback.ok ? ' is-ok' : ' is-wrong') : ''}`}>
-        <div className="ss-t08-pet-bubble">
-          {feedback ? feedback.petText : defaultPetTip}
         </div>
-        {feedback && !feedback.ok && (
-          <button
-            type="button"
-            className="btn btn-cowdi-primary ss-tap-btn px-3"
-            onClick={() => advanceNext()}
-          >
-            Tiếp ›
-          </button>
-        )}
       </div>
     </div>
   );

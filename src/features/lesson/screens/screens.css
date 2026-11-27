@@ -1,33 +1,17 @@
 /* ═══════════════════════════════════════════════════════════
-   Hệ thống Màn học Cowdi — Đợt 1 (STD-SCREEN-SYSTEM v1.0)
-   Chuẩn: 100dvh không cuộn cấp trang ở 360×640 & 800×1280
+   Hệ thống Màn học Cowdi — Đợt 1 (tái sử dụng layout đồng hành BookShell + .pd-lesson-layout)
    ═══════════════════════════════════════════════════════════ */
 
-.ss-host {
-  position: fixed;
-  inset: 0;
-  z-index: 1040;
-  height: 100dvh;
-  width: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  background: #FFFDF7;
-  color: #4A3420;
-  overflow: hidden;
-}
-
-.ss-host.is-sandbox {
-  position: relative;
-  inset: auto;
-  z-index: 1;
+.ss-host-flow.is-sandbox {
+  padding: 10px;
   height: 100%;
+  overflow-y: auto;
 }
 
-/* ── RouteHeader (vòng kỹ năng) ── */
-.ss-route-header {
-  padding: 8px 12px 6px;
-  background: #FFF8E7;
-  border-bottom: 1px solid #F0E2C4;
+/* ── RouteHeader (gọn trong card Cowdi quen thuộc) ── */
+.ss-route-card {
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .ss-route-top {
@@ -38,18 +22,15 @@
 }
 
 .ss-icon-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   border-radius: 999px;
-  border: 1px solid #E5D4B3;
-  background: #FFFFFF;
-  color: #4A3420;
+  padding: 0;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .ss-circles {
@@ -93,11 +74,12 @@
 }
 
 .ss-route-sub {
-  margin-top: 6px;
+  margin-top: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ss-route-label {
@@ -109,125 +91,37 @@
 
 .ss-skill-chip {
   color: #FFFFFF;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
   flex-shrink: 0;
 }
 
 .ss-screen-name {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 700;
+  color: var(--ink, #3B4A5C);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ss-grammar-btn {
-  min-height: 44px;
-  padding: 4px 10px;
+  min-height: 40px;
+  padding: 4px 12px;
   border-radius: 10px;
   border: 1px solid #D8C4F2;
   background: #F4EEFF;
   color: #5B3EA8;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
   flex-shrink: 0;
-}
-
-/* ── Main Stage (không cuộn cấp trang) ── */
-.ss-stage {
-  min-height: 0;
-  overflow: hidden;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  max-width: 760px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.ss-screen-inner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.ss-scroll-inner {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 2px;
-}
-
-.ss-subbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
-
-.ss-subbar-badge {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #6B553E;
-  background: #F6ECD6;
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-
-.ss-subbar-count {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #7E664E;
-}
-
-.ss-dot-strip {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.ss-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #E5D7BC;
-}
-
-.ss-dot.is-done { background: #6FCF97; }
-.ss-dot.is-current { background: #E9A400; width: 16px; }
-
-.ss-t01-card {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  margin-bottom: 10px;
-}
-
-.ss-t02 {
-  align-items: center;
-  justify-content: center;
-}
-
-.ss-bottom-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  padding-top: 6px;
 }
 
 .ss-tap-btn {
@@ -238,39 +132,20 @@
   gap: 6px;
 }
 
-.ss-audio-pill {
-  background: rgba(255, 255, 255, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: #FFFFFF;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-weight: 600;
-  min-height: 38px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.ss-audio-reveal {
-  background: #FFFFFF;
-  color: #2F7FD1;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-/* ── ScreenIntro ── */
+/* ── ScreenIntro (card chuyển ngắn gọn) ── */
 .ss-intro-stage {
-  flex: 1;
+  background: #FFFFFF;
+  border: 1.5px solid #F0E2C4;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(74, 52, 32, 0.08);
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   gap: 10px;
-  padding: 16px;
+  padding: 28px 20px;
   cursor: pointer;
   user-select: none;
 }
@@ -302,7 +177,7 @@
 .ss-intro-rule {
   font-size: 0.96rem;
   color: #5E4630;
-  max-width: 340px;
+  max-width: 360px;
   margin: 0;
 }
 
@@ -313,11 +188,11 @@
   padding: 8px 14px;
   font-size: 0.9rem;
   font-weight: 600;
-  max-width: 360px;
+  max-width: 380px;
 }
 
 .ss-intro-hint {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 0.78rem;
   color: #9E8A74;
 }
@@ -325,14 +200,13 @@
 /* ── T-08 Viết câu ── */
 .ss-t08-answer-line {
   min-height: 98px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 14px;
   border: 2px dashed #D7C4A3;
-  background: #FFFFFF;
-  margin-bottom: 10px;
+  background: #FFFDF7;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
 }
 
 .ss-t08-answer-line.is-ok {
@@ -348,9 +222,6 @@
 }
 
 .ss-t08-bank {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
@@ -398,17 +269,15 @@
 }
 
 .ss-t08-pet-bar {
-  height: 64px;
   min-height: 64px;
-  flex-shrink: 0;
-  margin-top: 8px;
-  padding: 6px 10px;
+  margin-top: 10px;
+  padding: 8px 12px;
   border-radius: 14px;
   background: #FFF8E7;
   border: 1.5px solid #F0E2C4;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .ss-t08-pet-bar.is-ok {
@@ -423,38 +292,12 @@
 
 .ss-t08-pet-bubble {
   flex: 1;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.3;
 }
 
-/* ── Footer Pet dock ── */
-.ss-footer {
-  flex-shrink: 0;
-  padding: 0 12px 6px;
-}
-
-.ss-pet-dock {
-  max-width: 760px;
-  margin: 0 auto;
-}
-
-/* ── Pause & Summary ── */
-.ss-pause-box,
-.ss-empty-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px;
-}
-
+/* ── Summary skill circles ── */
 .ss-summary-circles {
   display: flex;
   justify-content: center;
@@ -470,8 +313,8 @@
 }
 
 .ss-summary-circle {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   display: flex;
   align-items: center;
@@ -479,7 +322,6 @@
 }
 
 /* ── Native Modal <dialog> (GrammarSheet + Exit Dialog) ── */
-/* Tuân thủ modern-web-guidance: KHÔNG đặt display vô điều kiện, scoped với [open], chặn cuộn nền bằng overscroll-behavior */
 dialog.ss-grammar-sheet:modal,
 dialog.ss-exit-dialog:modal {
   overscroll-behavior: contain;

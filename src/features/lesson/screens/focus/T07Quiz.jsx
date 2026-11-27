@@ -5,8 +5,7 @@ import { getWordId } from '../../../vocab/wordProgress';
 
 /**
  * T-07 Quiz (Slot Boss — mức Tập trung).
- * Tách từ Quiz trong LessonDetailPage, bỏ màn "Bắt đầu Quiz" thừa;
- * tự phát audioText nếu câu nghe, gửi sự kiện chuẩn và trả kết quả Boss về ScreenHost.
+ * Tái sử dụng nguyên vẹn layout Zero-Scroll Quiz (.quiz-viewport-stage, .quiz-question-card, .quiz-sticky-action-bar).
  */
 export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, play }) {
   const startRef = useRef(Date.now());
@@ -16,6 +15,8 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
   const [answered, setAnswered] = useState(null);
   const [score, setScore] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState([]);
+  const [correctAnim, setCorrectAnim] = useState(false);
+  const [wrongAnim, setWrongAnim] = useState(false);
 
   const q = items[qIndex];
   const isListeningQ = Boolean(q?.audioText);
@@ -41,7 +42,7 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
 
   if (!q) {
     return (
-      <div className="ss-empty-box">
+      <div className="card shadow-sm text-center p-4">
         <p className="text-muted mb-3">Bài này chưa có câu hỏi Quiz.</p>
         <button
           type="button"
@@ -61,6 +62,8 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
     const wordIds = Array.isArray(q.targetWords) ? q.targetWords.map((w) => getWordId(w)) : [];
     if (ok) {
       setScore((s) => s + 1);
+      setCorrectAnim(true);
+      setTimeout(() => setCorrectAnim(false), 600);
       play?.('correct');
       onEvent?.('item_correct', {
         itemId: `t07-${qIndex}`,
@@ -70,6 +73,8 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
         question: q,
       });
     } else {
+      setWrongAnim(true);
+      setTimeout(() => setWrongAnim(false), 500);
       setWrongAnswers((prev) => [
         ...prev,
         {
@@ -111,59 +116,67 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
   const isRight = answered !== null && answered === q.correct;
 
   return (
-    <div className="ss-screen-inner ss-t07">
-      <div className="ss-subbar">
-        <span className="ss-subbar-badge">Boss · Câu {qIndex + 1}/{items.length}</span>
-        <span className="badge bg-warning text-dark"><Icon name="star" size={13} /> {score}</span>
+    <div className="fade-in position-relative quiz-viewport-stage">
+      <div className="quiz-top-bar">
+        <span className="text-muted fw-bold small">Boss · Câu {qIndex + 1}/{items.length}</span>
+        <span className="badge bg-warning text-dark"><Icon name="star" size={14} /> {score}</span>
+      </div>
+      <div className="progress" style={{ height: '6px' }}>
+        <div
+          className="progress-bar progress-bar-cowdi"
+          role="progressbar"
+          style={{ width: `${((qIndex + 1) / items.length) * 100}%` }}
+        />
       </div>
 
-      <div className="card shadow-sm mb-2">
-        <div className="card-body text-center py-2 px-3">
-          {isListeningQ && <span className="badge bg-info text-dark mb-1">🎧 Câu hỏi nghe</span>}
-          <p className="fw-bold mb-2" style={{ fontSize: '1.05rem' }}>{q.question}</p>
-          {isListeningQ && (answered !== null || muted) && (
-            <p className="small fst-italic text-muted mb-1">“{q.audioText}”</p>
-          )}
+      <div className={`card shadow-sm quiz-question-card ${correctAnim ? 'correct-flash' : ''} ${wrongAnim ? 'wrong-shake' : ''}`}>
+        <div className="card-body text-center">
           {isListeningQ && (
-            <div className="d-flex justify-content-center gap-2">
-              <button
-                type="button"
-                className="btn btn-sm btn-cowdi-primary"
-                onClick={() => speakWord(q.audioText, { rate: ttsRate, lang: 'en-US' }).catch(() => {})}
-              >
-                <Icon name="sound" size={14} /> Nghe lại
-              </button>
+            <div className="mb-1">
+              <span className="badge bg-info text-dark">🎧 Câu hỏi nghe</span>
+            </div>
+          )}
+          <p className="fs-5 fw-bold mb-2">{q.question}</p>
+          {isListeningQ && (answered !== null || muted) && (
+            <p className="small fst-italic text-muted mb-2">“{q.audioText}”</p>
+          )}
+          <div className="d-flex justify-content-center gap-2">
+            <button
+              type="button"
+              className={`btn btn-sm ${isListeningQ ? 'btn-cowdi-primary' : 'btn-outline-secondary'}`}
+              onClick={() => (isListeningQ ? speakWord(q.audioText, { rate: ttsRate, lang: 'en-US' }) : speakWord(q.question, { rate: ttsRate })).catch(() => {})}
+              title="Nghe lại"
+            >
+              <Icon name="sound" size={14} /> Nghe lại
+            </button>
+            {isListeningQ && (
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
                 onClick={() => speakWord(q.audioText, { rate: 0.55, lang: 'en-US' }).catch(() => {})}
+                title="Nghe chậm"
               >
                 <Icon name="snail" size={14} /> Chậm
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="row g-2 flex-grow-1 align-content-start">
+      <div className="row g-2" key={qIndex}>
         {q.options.map((opt, i) => {
-          let cls = 'btn w-100 text-start quiz-option-btn ss-tap-btn';
+          let cls = 'btn w-100 quiz-option-btn';
           if (answered !== null) {
-            if (i === q.correct) cls += ' btn-success';
-            else if (i === answered) cls += ' btn-danger';
+            if (i === q.correct) cls += ' btn-success correct-pop';
+            else if (i === answered) cls += ' btn-danger wrong-shake';
             else cls += ' btn-outline-secondary';
           } else {
             cls += ' btn-outline-primary';
           }
           return (
             <div className="col-12 col-md-6" key={`${qIndex}-${i}`}>
-              <button
-                type="button"
-                className={cls}
-                onClick={() => handleAnswer(i)}
-                disabled={answered !== null}
-              >
-                <span className="me-2 fw-bold">{String.fromCharCode(65 + i)}.</span>
+              <button type="button" className={cls} onClick={() => handleAnswer(i)} disabled={answered !== null}>
+                <span className="me-2 fw-bold text-muted">{String.fromCharCode(65 + i)}.</span>
                 {opt}
               </button>
             </div>
@@ -172,16 +185,22 @@ export default function T07Quiz({ items = [], rules, onEvent, onDone, muted, pla
       </div>
 
       {answered !== null && (
-        <div className="ss-bottom-nav mt-2">
-          <div className="flex-grow-1 small">
+        <div className={`quiz-sticky-action-bar fade-in ${isRight ? 'is-correct' : 'is-wrong'}`}>
+          <div className="quiz-sticky-feedback">
             <div className={`fw-bold ${isRight ? 'text-success' : 'text-danger'}`}>
-              {isRight ? '✓ Chính xác!' : `✗ Đáp án đúng: ${q.options[q.correct]}`}
+              {isRight ? <><Icon name="check" size={16} /> Chính xác! Giỏi lắm!</> : <><Icon name="x" size={16} /> Đáp án đúng: {q.options[q.correct]}</>}
             </div>
-            {q.explanation && <div className="text-muted text-truncate">{q.explanation}</div>}
+            {q.explanation && (
+              <div className="small text-dark mt-1">
+                <strong>Giải thích:</strong> {q.explanation}
+              </div>
+            )}
           </div>
-          <button type="button" className="btn btn-cowdi-primary ss-tap-btn px-4" onClick={handleNext}>
-            {qIndex + 1 < items.length ? 'Tiếp ›' : 'Kết quả ›'}
-          </button>
+          <div className="quiz-sticky-actions">
+            <button type="button" className="btn btn-cowdi-primary px-4" onClick={handleNext}>
+              {qIndex + 1 < items.length ? 'Câu tiếp theo →' : 'Xem kết quả →'}
+            </button>
+          </div>
         </div>
       )}
     </div>
