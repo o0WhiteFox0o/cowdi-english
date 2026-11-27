@@ -9,7 +9,7 @@
 //  • Push Notification: hiển thị nhắc nhở từ pet
 //  • Notification click: mở app + focus
 
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches, matchPrecache } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { StaleWhileRevalidate, NetworkFirst, CacheFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -23,12 +23,26 @@ precacheAndRoute(self.__WB_MANIFEST || []);
 cleanupOutdatedCaches();
 
 // ── 2. SPA navigation fallback ───────────────────────────────────────────────
+const navNetworkFirst = new NetworkFirst({
+  cacheName: 'cowdi-pages',
+  networkTimeoutSeconds: 4,
+});
+
 registerRoute(
   new NavigationRoute(
-    new NetworkFirst({
-      cacheName: 'cowdi-pages',
-      networkTimeoutSeconds: 4,
-    }),
+    async (options) => {
+      try {
+        const res = await navNetworkFirst.handle(options);
+        if (res) return res;
+      } catch {
+        // Fallback xuống app shell đã precache khi mạng lỗi/timeout
+      }
+      return (
+        (await matchPrecache('/index.html')) ||
+        (await matchPrecache('index.html')) ||
+        Response.error()
+      );
+    },
     {
       denylist: [/^\/api\//, /^\/auth\//, /^\/health/, /\/sw\.js$/, /\/manifest\.webmanifest$/],
     }
