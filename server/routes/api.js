@@ -15,6 +15,7 @@ import {
   sanitizeActivePath,
   isValidLessonId,
 } from '../utils/wallet.js';
+import { grantArenaTickets } from '../utils/arena-manager.js';
 import { getUserStreakState, recordActivity } from '../utils/streak-manager.js';
 import { processInviteActivationReward, releaseDeferredTicketsForMonth } from '../utils/invite-rewards.js';
 import { ensureFriendCode, getFriendshipStatus, computeDuelLeaguePointDelta } from '../utils/friends-manager.js';
@@ -427,6 +428,15 @@ router.put('/progress', requireAuth, async (req, res) => {
       });
     } catch (invErr) {
       console.warn('processInviteActivationReward warning:', invErr.message);
+    }
+
+    // GĐ5 · D4: Cấp vé đấu Đấu trường (+2 vé mỗi bài học mới)
+    if (newlyCompletedValidIds.length > 0) {
+      try {
+        await grantArenaTickets(req.user.id, newlyCompletedValidIds.length * 2);
+      } catch (ticketErr) {
+        console.warn('grantArenaTickets warning:', ticketErr.message);
+      }
     }
 
     // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày

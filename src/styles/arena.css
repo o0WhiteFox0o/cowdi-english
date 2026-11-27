@@ -1,0 +1,555 @@
+/* ============================================================
+   COWDI ENGLISH — ARENA DESKTOP & V2 TRIGGER UI (GĐ5)
+   Mockup: media_1795665788990_b2fc2db1.jpg
+   ============================================================ */
+
+/* ── Container tổng thể ── */
+.arena-page-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 12px 16px 32px;
+}
+
+/* ── Topbar Đấu trường ── */
+.arena-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1.5px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.arena-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.arena-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #dee2e6;
+  background: #f8f9fa;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.1rem;
+}
+.arena-back-btn:hover {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.arena-title-wrap h5 {
+  margin: 0;
+  font-weight: 800;
+  color: #2b3a4a;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.arena-subtitle {
+  font-size: 0.78rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.arena-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.arena-combo-chip {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(245, 124, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  animation: pulseCombo 1.5s infinite;
+}
+
+@keyframes pulseCombo {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.arena-timer-chip {
+  background: #2b3a4a;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.arena-sound-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #dee2e6;
+  background: #f8f9fa;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.arena-sound-btn:hover {
+  background: #e8f4fd;
+  color: #0d6efd;
+  border-color: #b6d4fe;
+}
+
+/* ── SÂN ĐẤU BATTLEFIELD (Đồi cỏ mây trời theo Mockup) ── */
+.arena-battlefield {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: linear-gradient(180deg, #b9e3fc 0%, #e0f2fe 55%, #c8ebad 55%, #86cd72 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(43, 85, 48, 0.15);
+  border: 3px solid #7cb96b;
+  margin-bottom: 20px;
+}
+
+/* Mặt trời & Mây */
+.arena-sun {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  background: #ffd54f;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #ffca28;
+}
+
+.arena-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50px;
+}
+.arena-cloud-1 {
+  top: 30px;
+  left: 60px;
+  width: 90px;
+  height: 28px;
+}
+.arena-cloud-2 {
+  top: 55px;
+  left: 200px;
+  width: 120px;
+  height: 34px;
+}
+
+/* Đồi cỏ đối thủ (giữa-phải sân) */
+.arena-hill-opponent {
+  position: absolute;
+  bottom: 48px;
+  right: 16%;
+  width: 220px;
+  height: 70px;
+  background: #88c868;
+  border-radius: 50%;
+  border-bottom: 4px solid #6ba84d;
+  box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.25);
+}
+
+/* Đồi cỏ người chơi (giữa-trái sân) */
+.arena-hill-mine {
+  position: absolute;
+  bottom: 24px;
+  left: 16%;
+  width: 230px;
+  height: 74px;
+  background: #73b854;
+  border-radius: 50%;
+  border-bottom: 5px solid #559338;
+  box-shadow: inset 0 6px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Pet trên sân */
+.arena-pet-wrapper {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arena-pet-mine {
+  bottom: 44px;
+  left: calc(16% + 58px);
+}
+
+.arena-pet-opponent {
+  bottom: 68px;
+  right: calc(16% + 58px);
+}
+
+.arena-pet-mine .pet-render-slot img,
+.arena-pet-mine .pet-render-slot canvas {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.2));
+  transform: scaleX(-1);
+}
+
+.arena-pet-opponent .pet-render-slot img,
+.arena-pet-opponent .pet-render-slot canvas {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* ── HUD Thẻ Thông tin Pet trên Sân ── */
+.arena-hud-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 14px;
+  padding: 8px 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  border: 1.5px solid #dee2e6;
+  min-width: 195px;
+  z-index: 20;
+}
+
+.arena-hud-opponent {
+  top: 16px;
+  right: 20px;
+  left: auto;
+}
+
+.arena-hud-mine {
+  top: 16px;
+  bottom: auto;
+  left: 20px;
+  right: auto;
+}
+
+.arena-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+.arena-pet-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #212529;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arena-elem-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.arena-pet-level {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6c757d;
+}
+
+/* Thanh máu & EXP */
+.arena-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.arena-bar-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #6c757d;
+  width: 24px;
+}
+.arena-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #ced4da;
+}
+.arena-hp-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease, background-color 0.3s;
+}
+.arena-exp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.arena-bar-val {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #495057;
+  min-width: 48px;
+  text-align: right;
+}
+
+/* ── Nhãn Thông Báo Kích Hoạt Kỹ Năng v0.2 (1 giây trên đầu pet) ── */
+.arena-skill-trigger-bubble {
+  position: absolute;
+  top: -46px;
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 16px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(255, 75, 43, 0.4);
+  pointer-events: none;
+  animation: triggerBounce 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  z-index: 30;
+}
+.arena-skill-trigger-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #ff4b2b transparent transparent;
+}
+
+@keyframes triggerBounce {
+  0% { opacity: 0; transform: translateY(12px) scale(0.7); }
+  25% { opacity: 1; transform: translateY(-4px) scale(1.1); }
+  60% { opacity: 1; transform: translateY(0) scale(1); }
+  85% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.9); }
+}
+
+/* ── Damage Popup ── */
+.arena-damage-pop {
+  position: absolute;
+  top: -20px;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #dc3545;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 8px #ffffff;
+  animation: damageFloat 0.8s ease-out forwards;
+  z-index: 35;
+  pointer-events: none;
+}
+@keyframes damageFloat {
+  0% { opacity: 1; transform: translateY(0) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-35px) scale(0.9); }
+}
+
+/* ── KHU VỰC CÂU HỎI & ĐÁP ÁN DESKTOP (Theo Mockup) ── */
+.arena-qa-desktop {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 18px;
+}
+
+/* Thẻ Câu Hỏi bên trái */
+.arena-question-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.arena-q-category-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #0d6efd;
+  background: #e7f1ff;
+  padding: 3px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  margin-bottom: 12px;
+}
+
+.arena-q-word {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #1a202c;
+  line-height: 1.15;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.arena-q-subtext {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Lưới 4 Đáp Án 2x2 bên phải */
+.arena-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.arena-option-btn {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 18px 20px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.arena-option-btn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  background: #f8faff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.15);
+}
+
+.arena-option-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.arena-option-key {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.arena-option-btn:hover:not(:disabled) .arena-option-key {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* Trạng thái đáp án đúng / sai */
+.arena-option-btn.opt-correct {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+}
+.arena-option-btn.opt-correct .arena-option-key {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.arena-option-btn.opt-wrong {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+.arena-option-btn.opt-wrong .arena-option-key {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+/* ── Responsive Mobile ── */
+@media (max-width: 768px) {
+  .arena-battlefield {
+    height: 260px;
+  }
+  .arena-hill-opponent {
+    right: 10%;
+    top: auto;
+    bottom: 38px;
+    width: 165px;
+    height: 52px;
+  }
+  .arena-hill-mine {
+    left: 10%;
+    bottom: 20px;
+    width: 170px;
+    height: 55px;
+  }
+  .arena-pet-mine {
+    left: calc(10% + 32px);
+    bottom: 34px;
+  }
+  .arena-pet-opponent {
+    right: calc(10% + 32px);
+    top: auto;
+    bottom: 52px;
+  }
+  .arena-hud-opponent {
+    right: 12px;
+    left: auto;
+    top: 12px;
+    min-width: 145px;
+  }
+  .arena-hud-mine {
+    left: 12px;
+    right: auto;
+    top: 12px;
+    bottom: auto;
+    min-width: 145px;
+  }
+  .arena-qa-desktop {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .arena-options-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .arena-option-btn {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+}

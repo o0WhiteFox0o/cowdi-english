@@ -23,26 +23,26 @@ const TAB_GROUPS = [
     { to: '/', end: true, icon: 'road', label: 'Lộ trình học', color: '#7DBE4B' },
   ]},
   { label: 'Học & Luyện', items: [
-    { to: '/practice',      icon: 'target',  label: 'Ôn tập & Bài tập', color: '#EA5A5A' },
-    { to: '/vocabulary',    icon: 'map',     label: 'Từ vựng',         color: '#F4A83A' },
-    { to: '/mini-games',    icon: 'gamepad', label: 'Đấu trường game', color: '#F48FB1' },
+    { to: '/practice',      icon: 'target',        label: 'Ôn tập & Bài tập', color: '#EA5A5A' },
+    { to: '/vocabulary',    icon: 'map',           label: 'Từ vựng',         color: '#F4A83A' },
+    { to: '/duel',          icon: 'ui_duel',       label: 'Đấu trường Pet',  color: '#EA5A5A' },
+    { to: '/mini-games',    icon: 'res_coin',      label: 'Mini Games',      color: '#F48FB1' },
   ]},
   { label: 'Pet & Cửa hàng', items: [
-    { to: '/pet',        icon: 'PET',     label: 'Pet của tôi', color: '#7DBE4B' },
-    { to: '/collection', icon: 'redbook', label: 'Cowdi Dex',   color: '#EA5A5A' },
-    { to: '/shop',       icon: 'bag',     label: 'Cửa hàng',    color: '#F4A83A' },
+    { to: '/pet',        icon: 'PET',           label: 'Pet của tôi', color: '#7DBE4B' },
+    { to: '/collection', icon: 'ui_dex',        label: 'Cowdi Dex',   color: '#EA5A5A' },
+    { to: '/shop',       icon: 'tab_inventory', label: 'Cửa hàng',    color: '#F4A83A' },
   ]},
 ];
 
 /* Desktop secondary links — gom vào popup gọn để không phải cuộn sidebar */
 const DESKTOP_MORE_ITEMS = [
-  { to: '/friends',         icon: 'users',   label: 'Bạn bè',         color: '#7DBE4B' },
-  { to: '/overview',        icon: 'home',    label: 'Sổ tay cá nhân', color: '#4EA8E8' },
-  { to: '/progress',        icon: 'chart',   label: 'Tiến trình học', color: '#5ECFC0' },
-  { to: '/student-ranking', icon: 'ranking', label: 'Bảng xếp hạng',  color: '#F6D365' },
-  { to: '/duel',            icon: 'swords',  label: 'Đấu bạn bè',     color: '#EA5A5A' },
-  { to: '/review',          icon: 'brain',   label: 'Ôn nhanh SRS',   color: '#7DBE4B' },
-  { to: '/account',         icon: 'user',    label: 'Tài khoản',      color: '#8A99AA' },
+  { to: '/friends',         icon: 'ui_friends',  label: 'Bạn bè',         color: '#7DBE4B' },
+  { to: '/overview',        icon: 'ui_overview', label: 'Sổ tay cá nhân', color: '#4EA8E8' },
+  { to: '/progress',        icon: 'ui_progress', label: 'Tiến trình học', color: '#5ECFC0' },
+  { to: '/student-ranking', icon: 'ui_ranking',  label: 'Bảng xếp hạng',  color: '#F6D365' },
+  { to: '/review',          icon: 'brain',       label: 'Ôn nhanh SRS',   color: '#7DBE4B' },
+  { to: '/account',         icon: 'ui_account',  label: 'Tài khoản',      color: '#8A99AA' },
 ];
 
 /* Mobile popup sub-menus (SDD §5.5: gom 2 mục Luyện thi IELTS/TOEIC thành 1 mục Luyện thi) */
@@ -50,30 +50,30 @@ const buildMobileMenus = (activePath) => {
   const examTab = ['ielts', 'toeic', 'b1', 'b2'].includes(activePath) ? activePath : 'ielts';
   return {
     learn: [
-      { icon: 'road',    label: 'Lộ trình học',    path: '/' },
-      { icon: 'target',  label: 'Ôn tập & Bài tập', path: '/practice' },
-      { icon: 'map',     label: 'Từ vựng',         path: '/vocabulary' },
-      { icon: 'book',    label: 'Thư viện bài',    path: '/lessons' },
-      { icon: 'medal',   label: 'Luyện thi',       path: `/?tab=${examTab}` },
+      { icon: 'road',       label: 'Lộ trình học',    path: '/' },
+      { icon: 'target',     label: 'Ôn tập & Bài tập', path: '/practice' },
+      { icon: 'map',        label: 'Từ vựng',         path: '/vocabulary' },
+      { icon: 'ui_library', label: 'Thư viện bài',    path: '/lessons' },
+      { icon: 'medal',      label: 'Luyện thi',       path: `/?tab=${examTab}` },
     ],
     practice: [
-      { icon: 'gamepad', label: 'Đấu trường game', path: '/mini-games' },
-      { icon: 'PET',     label: 'Đánh máy',        path: '/typing' },
-      { icon: 'swords',  label: 'Đấu bạn bè',      path: '/duel' },
-      { icon: 'brain',   label: 'Ôn nhanh',        path: '/review' },
+      { icon: 'ui_duel',  label: 'Đấu trường Pet',  path: '/duel' },
+      { icon: 'res_coin', label: 'Mini Games',      path: '/mini-games' },
+      { icon: 'PET',      label: 'Đánh máy',        path: '/typing' },
+      { icon: 'brain',    label: 'Ôn nhanh',        path: '/review' },
     ],
     pet: [
-      { icon: 'PET',     label: 'Pet của tôi', path: '/pet' },
-      { icon: 'redbook', label: 'Cowdi Dex',   path: '/collection' },
-      { icon: 'bag',     label: 'Shop vật phẩm', path: '/shop' },
+      { icon: 'PET',           label: 'Pet của tôi', path: '/pet' },
+      { icon: 'ui_dex',        label: 'Cowdi Dex',   path: '/collection' },
+      { icon: 'tab_inventory', label: 'Shop vật phẩm', path: '/shop' },
     ],
     me: [
-      { icon: 'users',   label: 'Bạn bè',         path: '/friends' },
-      { icon: 'home',    label: 'Sổ tay cá nhân', path: '/overview' },
-      { icon: 'chart',   label: 'Tiến trình',     path: '/progress' },
-      { icon: 'ranking', label: 'Bảng xếp hạng',  path: '/student-ranking' },
-      { icon: 'gift',    label: 'Mời bạn học',    action: 'invite' },
-      { icon: 'user',    label: 'Tài khoản',      path: '/account' },
+      { icon: 'ui_friends',   label: 'Bạn bè',         path: '/friends' },
+      { icon: 'ui_overview',  label: 'Sổ tay cá nhân', path: '/overview' },
+      { icon: 'ui_progress',  label: 'Tiến trình',     path: '/progress' },
+      { icon: 'ui_ranking',   label: 'Bảng xếp hạng',  path: '/student-ranking' },
+      { icon: 'ui_invite',    label: 'Mời bạn học',    action: 'invite' },
+      { icon: 'ui_account',   label: 'Tài khoản',      path: '/account' },
     ],
   };
 };
@@ -197,7 +197,7 @@ export default function BookShell({ children }) {
     navigate(path);
   }, [navigate]);
 
-  const renderTabIcon = (icon, size = 22) => {
+  const renderTabIcon = (icon, size = 26) => {
     if (icon === 'PET') return <img src={petImg} alt="" style={{ width: size, height: size, objectFit: 'contain', borderRadius: '50%' }} />;
     return <Icon name={icon} size={size} />;
   };
@@ -275,7 +275,7 @@ export default function BookShell({ children }) {
                         className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`}
                         style={{ '--tab-color': item.color }}
                       >
-                        <span className="book-tab-icon">{renderTabIcon(item.icon, 20)}</span>
+                        <span className="book-tab-icon">{renderTabIcon(item.icon, 28)}</span>
                         <span>{item.label}</span>
                       </NavLink>
                     </li>
@@ -301,7 +301,7 @@ export default function BookShell({ children }) {
                     style={{ '--tab-color': item.color }}
                     onClick={() => setDesktopPopup(null)}
                   >
-                    <span className="book-tab-icon">{renderTabIcon(item.icon, 18)}</span>
+                    <span className="book-tab-icon">{renderTabIcon(item.icon, 22)}</span>
                     <span>{item.label}</span>
                   </NavLink>
                 ))}
@@ -311,20 +311,20 @@ export default function BookShell({ children }) {
                   style={{ '--tab-color': '#F6D365' }}
                   onClick={() => { setDesktopPopup(null); setInviteOpen(true); }}
                 >
-                  <span className="book-tab-icon"><Icon name="gift" size={18} /></span>
+                  <span className="book-tab-icon"><Icon name="ui_invite" size={22} /></span>
                   <span>Mời bạn học</span>
                 </button>
                 {isAdmin && (
                   <>
                     <div className="book-tab-group mt-1">Quản trị</div>
                     <NavLink to="/lessons" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#5ECFC0' }} onClick={() => setDesktopPopup(null)}>
-                      <span className="book-tab-icon"><Icon name="book" size={18} /></span><span>Thư viện bài</span>
+                      <span className="book-tab-icon"><Icon name="ui_library" size={22} /></span><span>Thư viện bài</span>
                     </NavLink>
                     <NavLink to="/admin" end className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#3B4A5C' }} onClick={() => setDesktopPopup(null)}>
-                      <span className="book-tab-icon"><Icon name="wrench" size={18} /></span><span>Quản trị hệ thống</span>
+                      <span className="book-tab-icon"><Icon name="ui_admin" size={22} /></span><span>Quản trị hệ thống</span>
                     </NavLink>
                     <NavLink to="/admin/pet-motion" className={({ isActive }) => `book-tab ${isActive ? 'active' : ''}`} style={{ '--tab-color': '#2F9E4F' }} onClick={() => setDesktopPopup(null)}>
-                      <span className="book-tab-icon">{renderTabIcon('PET', 18)}</span><span>Quản lý Pet</span>
+                      <span className="book-tab-icon">{renderTabIcon('PET', 22)}</span><span>Quản lý Pet</span>
                     </NavLink>
                   </>
                 )}
@@ -354,7 +354,7 @@ export default function BookShell({ children }) {
               aria-expanded={desktopPopup === 'more'}
               onClick={() => setDesktopPopup((v) => (v === 'more' ? null : 'more'))}
             >
-              <span className="book-tab-icon"><Icon name="home" size={19} /></span>
+              <span className="book-tab-icon"><Icon name="ui_overview" size={22} /></span>
               <span>Thêm &amp; Hồ sơ ⋯</span>
             </button>
 
@@ -445,7 +445,7 @@ export default function BookShell({ children }) {
           <div className="book-ribbons" aria-hidden="true">
             <Link to="/learning-path" className="book-ribbon teal" title="Lộ trình học" tabIndex={-1}><Icon name="star" size={20} /></Link>
             <Link to="/pet" className="book-ribbon pink" title="Pet của tôi" tabIndex={-1}><Icon name="heart" size={20} /></Link>
-            <Link to="/collection" className="book-ribbon yellow" title="Cowdi Dex" tabIndex={-1}><Icon name="redbook" size={20} /></Link>
+            <Link to="/collection" className="book-ribbon yellow" title="Cowdi Dex" tabIndex={-1}><Icon name="ui_dex" size={20} /></Link>
           </div>
         </section>
       </div>

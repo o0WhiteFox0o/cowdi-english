@@ -23,7 +23,7 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
 
   return (
     <div
-      className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-end justify-content-center"
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
       style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
       onClick={() => { setConfirming(false); onClose(); }}
     >
@@ -32,8 +32,7 @@ export default function ItemDetailSheet({ open, item, userMilk = 0, onConfirm, o
         style={{
           maxWidth: '520px',
           maxHeight: '85vh',
-          borderTopLeftRadius: '20px',
-          borderTopRightRadius: '20px',
+          borderRadius: '20px',
           overflowY: 'auto',
           animation: 'cowdiSlideUp 0.22s ease-out',
         }}

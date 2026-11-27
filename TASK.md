@@ -27,7 +27,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | 2 | Mô phỏng cân bằng | `[x]` | `feat/balance-sim-v2` | 2026-11-23 |
 | 3 | Cửa hàng Giữ nhịp | `[x]` | `feat/shop-streak` | 2026-11-23 |
 | 4 | Đồ trang trí | `[x]` | `feat/cosmetics-v2` | 2026-11-24 |
-| 5 | Đấu trường | `[ ]` | `feat/arena` | |
+| 5 | Đấu trường | `[~]` | `feat/arena` | |
 | 6 | Lõi gacha + thiệp mời + quay khởi đầu | `[ ]` | `feat/gacha-core-invite` | |
 | 7 | Gacha đầy đủ | `[ ]` | `feat/gacha-full` | |
 | 8 | Thanh toán | `[ ]` | `feat/payments` | |
@@ -53,6 +53,9 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 | D12 | Bỏ Coins hoàn toàn khỏi giao diện và kinh tế. Coins hiện có đổi 1 lần sang Sữa (1 coin = 3 Sữa, ledger reason 'coin_migration', an toàn chạy lại). Mọi thưởng coins chuyển sang Sữa (×3: nhiệm vụ ngày 30/75, perfect quiz 45, streak 60/150, thành tựu 90, nhiệm vụ tuần ×3). Duel bỏ thưởng coins, giữ Sữa điểm trận. Cửa hàng: giữ đồ đã mua, tạm ngừng bán mũ/áo/phòng/hiệu ứng/đồ ăn chờ GĐ3/GĐ4; bỏ 5 đồ ăn; bỏ gift_egg thay bằng nút Mời bạn miễn phí (InviteSheet). | 23/11/2026 |
 | D13 | Tặng 1 Khăn giữ lửa miễn phí khi đạt các mốc streak 7, 30, 100 ngày nếu số khăn trong kho chưa đủ 2 (tối đa 2 khăn). | 23/11/2026 |
 | D14 | Đồ trang trí GĐ4: Bậc Thường (800 Sữa) và Hiếm (2 000 Sữa) bán bằng Sữa; Bậc Sử thi (40 Gem) và Huyền thoại (90 Gem) bán bằng Gem; Mốc học miễn phí theo thành tích; Mua cùng chủ đề giảm 20%. | 24/11/2026 |
+| D15 | Đấu trường GĐ5: Câu đúng không cộng điểm kỹ năng; Đối thủ luyện tập (AI) tính 50% LP; Ngưỡng LP: Đồng 0, Bạc 200, Vàng 500, Bạch kim 900, Kim cương 1 400, Cao thủ Top 100 Kim cương | 26/11/2026 |
+| D16 | Đấu trường v0.2: Kỹ năng pet kích hoạt tự động theo 5 loại trigger (energy_full > low_hp > combo_streak > skill_match > fast_answer); tối đa 1 kỹ năng/bên/lượt; hàng đợi animation lần lượt kèm nhãn hiển thị 1s | 26/11/2026 |
+| D17 | Giao diện Đấu trường Desktop mới: Sân đấu 2 đồi cỏ mây trời, chip Combo x3 đếm tiến trình trigger, Timer, thẻ câu hỏi bên trái, 4 đáp án lớn bên phải 2x2 | 26/11/2026 |
 
 > Khi chốt thêm, thêm dòng D9, D10… và đánh dấu mục tương ứng ở "Cần chốt" là `[x]`.
 
@@ -63,7 +66,7 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Tặng khăn giữ lửa ở mốc streak 7/30/100? (GĐ3 — chốt D13: có tặng nếu kho < 2)
 - [x] Coins và đồ cũ (mũ, áo, phòng, hiệu ứng, đồ ăn, `gift_egg`) xử lý thế nào? (GĐ3 — chốt D12)
 - [x] Đồ trang trí Thường/Hiếm giá Sữa hay chuyển sang Gem? (GĐ4 — chốt D14: Thường 800 Sữa, Hiếm 2 000 Sữa, Sử thi 40 Gem, Huyền thoại 90 Gem)
-- [ ] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5)
+- [x] Câu đúng trong Đấu trường có cộng điểm kỹ năng? Đối thủ AI có tính LP? Ngưỡng LP? (GĐ5 — chốt D15, D16, D17)
 - [ ] Tỉ lệ pet giới hạn 3% hay 5%? (GĐ7)
 - [ ] Pet giới hạn đầu tiên: tên, hệ, nhóm, 8 mức điểm kỹ năng, 5 ảnh (GĐ7)
 - [ ] Người chơi cũ lấy lại pet giới hạn mùa cũ bằng cách nào? (GĐ7)
@@ -138,16 +141,21 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 - [x] Trang bị/tháo được ở mọi nơi hiển thị; đồ mốc học tự mở khi đạt điều kiện
 
 ## GĐ5 — Đấu trường
-- [ ] Vé đấu gắn với học (D4)
-- [ ] Ghép trận cấp ±1 + LP; đối thủ luyện tập; bảo vệ người mới
-- [ ] LP, 6 bậc, mùa 4 tuần, reset mềm
-- [ ] Thưởng trận, rương tuần, thưởng mùa (Gem, mảnh đá, vé gacha, đồ trang trí mùa)
-- [ ] Cỏ ba lá, mời bạn vào Đấu trường, nhiệm vụ Đấu trường
-- [ ] Chống lạm dụng (2 trận tính thưởng/ngày với cùng đối thủ)
-- [ ] Mùa 0 thử nghiệm 2 tuần
+- [x] Kỹ năng pet kích hoạt tự động theo 5 loại trigger (v0.2) + hàng đợi animation — 2026-11-26
+- [x] Vé đấu gắn với học (D4: 3/ngày + 2/bài mới, max 15) — 2026-11-26
+- [x] Ghép trận cấp ±1 + LP; đối thủ luyện tập AI (50% LP) — 2026-11-26
+- [x] LP, 6 bậc (Đồng → Cao thủ), bảng xếp hạng LP — 2026-11-26
+- [x] Thưởng trận (8/5/2 Sữa qua ledger), rương tuần (5/15/30 thắng) — 2026-11-26
+- [x] Cỏ ba lá sau trận (5 lần/ngày, +5 Sữa qua ledger) — 2026-11-26
+- [x] Chống lạm dụng (2 trận tính thưởng/ngày với cùng đối thủ) — 2026-11-26
+- [x] Giao diện Đấu trường Desktop mới theo mockup (sân đấu đồi cỏ mây trời, chip combo, timer, thẻ câu hỏi bên trái, 4 đáp án lớn bên phải 2x2) — 2026-11-26
+- [x] Ghép cặp 12s & Ghost Bot mang tên người chơi thật; tỉ lệ thưởng Sữa Máy (1) : Người (2) (4/2/1 vs 8/5/2 Sữa); Luyện tập AI 0 vé · 0 LP · 0 Sữa — 2026-11-27
+- [x] Phòng đấu đồng bộ 2 người real-time từng câu (Ghép cặp gặp người thật & Mời bạn trực tiếp), banner lời mời toàn app (`FriendDuelInviteBanner`), giữ đúng cấp Trứng (`evolution = 0`), xử thua khi rời trận (`forfeit`), bỏ Tạo phòng tự do — 2026-11-27
+- [x] Căn giữa sân đấu Đấu trường & đồng bộ vị trí HUD/Pet hai bên (Mình bên Trái, Đối thủ bên Phải), đứng im khi Hoà, phát hoạt ảnh đối thủ phản công — 2026-11-27
+- [ ] Mùa 0 thử nghiệm 2 tuần, thưởng cuối mùa, bảo vệ người mới & nhiệm vụ Đấu trường
 
 **Tiêu chí xong**
-- [ ] Sữa Đấu trường ≈ 10–20% Sữa từ học trên dữ liệu thử
+- [ ] Sữa Đấu trường ≈ 10–20% Sữa từ học trên dữ liệu thử (cần chạy Mùa 0 thử nghiệm)
 
 ## GĐ6 — Lõi gacha + thiệp mời + quay khởi đầu
 - [ ] Sửa `ensureInitialPet()` (`src/hooks/usePet.jsx`): chỉ tạo Cowdi khi tự đăng ký hoặc chọn Cowdi; ghi `source` (`starter`/`starter_pull`/`gift_card`/`event:<id>`) để sau này lấy lại Cowdi qua sự kiện không bị trùng; rà `activePetId = 'cowdi_1'`
@@ -245,6 +253,9 @@ Ví dụ dòng đã xong: `- [x] Tạo ledger milk/gem/stone — 2026-11-25 · a
 
 | Ngày | GĐ | Việc đã làm | Commit | Ghi chú |
 |---|---|---|---|---|
+| 2026-11-27 | GĐ5 & UX Lộ trình / Art | Vá lỗi SQL `LIMIT ?` (`friends-manager.js`) & tạo bảng `pet_rigs`/`pet_motion_*`; lập danh mục [REG-PRACTICE-CARD-ARTWORK.md](docs/05-implementation/REG-PRACTICE-CARD-ARTWORK.md) (+ CSV) & thay 34 ảnh card (`PracticePage`, `MiniGamePage`, `topics`) + 10 icon Unit (`Icon.jsx`); cải tiến Lộ trình học (`path.js`, `LearningPathPage.jsx`, `path.css`: mở khoá & đánh dấu hoàn thành các Unit trước Unit đang học, đặt con bò đúng bài tiếp theo, hiệu ứng thu gọn/mở rộng mượt bằng CSS Grid) | `feat/arena` | 203/203 test pass, build + prebuild pass |
+| 2026-11-27 | GĐ5 — Đấu trường PvP | Hoàn thiện nghiệp vụ & triển khai Đấu trường PvP trên `feat/arena`: viết [SRS-ARENA-PVP-RULES-v1.0.md](docs/02-requirements/SRS-ARENA-PVP-RULES-v1.0.md) & [PROC-ARENA-PVP-WORKFLOW-v1.0.md](docs/02-requirements/PROC-ARENA-PVP-WORKFLOW-v1.0.md); ghép cặp 12s + Ghost Bot mang tên người chơi + thưởng Máy 1 : Người 2 (4/2/1 vs 8/5/2 Sữa); Phòng đấu đồng bộ 2 người real-time từng câu (cho cả Ghép cặp & Mời bạn), `FriendDuelInviteBanner` toàn app, xử thua khi rời trận (`forfeit`), giữ đúng cấp Trứng (`0`), đứng im khi Hoà, phát hoạt ảnh đối thủ phản công, bỏ Tạo phòng tự do, căn giữa sân đấu & HUD; thêm test `GĐ5-11..15` | `feat/arena` | 203/203 test pass, build + prebuild pass |
+| 2026-11-26 | GĐ5 — Đấu trường v2 | Triển khai Đấu trường v2 trên `feat/arena`: hệ thống trigger kỹ năng v0.2 (5 trigger + thứ tự ưu tiên + hàng đợi animation + nhãn thông báo 1s), migration `migrate-v2-arena.sql`, `arena-manager.js` & `routes/arena.js` (vé đấu D4, 6 bậc LP, AI luyện tập 50% LP, thưởng 8/5/2 Sữa qua ledger, rương tuần 5/15/30 thắng, cỏ ba lá, chống lạm dụng 2 trận/ngày), giao diện Đấu trường Desktop mới (`arena.css` + `DuelPage.jsx`), bộ 10 test `arena-v2.test.mjs` | `feat/arena` | 198/198 test pass, build + prebuild pass |
 | 2026-11-26 | Question QA (Đợt 2 & Merge) | Dọn file trùng `src/data/quiz-bank-extra.js`, cân chỉnh toàn bộ **70 cảnh báo `Q-LEN` và 89 cảnh báo `Q-POS`** trên trọn bộ 44 file bài v2 (`int-u1..u10` + 3 bài IELTS Reading v2 + golden) → **54/54 bài v2 đạt 0 lỗi · 0 cảnh báo**, cập nhật `RPT-QUESTION-AUDIT-2026-11-26.md` và gộp `feat/question-qa` vào `main` | `c10fd5d`, `main` | 188/188 test pass, build + prebuild pass |
 | 2026-11-26 | Question QA (Q0–Q6) | Gộp `feat/pet-director` vào `main` (`b04cb1c`), mở `feat/question-qa` hoàn tất Q0–Q6: đưa `STD-QUESTION-QUALITY v1.0` & `GEMINI-QUESTION-QA` vào repo, sửa `PlacementTest` hỗ trợ `audioText`/tự phát/nút nghe chậm/lọc câu nghe hỏng + chặn Pet Director khi onboarding, nâng cấp `quiz-gen.js` lọc nhiễu cùng `category` + gắn `category` & ô màu `swatch` cho 12 bài Starter + test 500 lượt (`shared/quiz-gen.test.js`), tạo `shared/question-rules.js` (14 mã) + `src/data/lexicon/*` + 14 test, thêm `--questions --fail-on-hard` vào `validate-lessons.mjs` & `prebuild`, xuất `RPT-QUESTION-AUDIT-2026-11-26.md`, sửa dứt điểm toàn bộ 29 lỗi cứng trên bài học & `QUIZ_BANK` (**0 lỗi cứng / 2.829 câu**) | `f66a981` → `51bca1f` (`feat/question-qa`) | 188/188 test pass, build + prebuild pass |
 | 2026-11-26 | Pet Director UI | Hoàn thiện bố cục đồng hành V2 (`<PetStage>` `sticky` bên trái trên Desktop, cân giữa cụm Flashcard/Nghe/Nói/Quiz/Practice, `.lesson-step-footer` full-width, bỏ banner thừa `"Nói theo Cowdi!"`) và đồng bộ toàn bộ tài liệu SDD v1.1.1 / TASK / LOG / REG / RTM | `ae761cb`, `5278843` | 170/170 test pass, build pass, UAT local OK |

@@ -1255,6 +1255,18 @@ export const WEBP_ICONS = {
   ui_folder_tabs: '/image/icons-ui/ui_folder_tabs.webp',
   ui_sort: '/image/icons-ui/ui_sort.webp',
 
+  // 10 Icon UI danh mục & tính năng mới
+  ui_progress: '/image/icons-ui/ui_progress.webp',
+  ui_admin: '/image/icons-ui/ui_admin.webp',
+  ui_ranking: '/image/icons-ui/ui_ranking.webp',
+  ui_duel: '/image/icons-ui/ui_duel.webp',
+  ui_friends: '/image/icons-ui/ui_friends.webp',
+  ui_dex: '/image/icons-ui/ui_dex.webp',
+  ui_overview: '/image/icons-ui/ui_overview.webp',
+  ui_invite: '/image/icons-ui/ui_invite.webp',
+  ui_library: '/image/icons-ui/ui_library.webp',
+  ui_account: '/image/icons-ui/ui_account.webp',
+
   // 6 Nền trang trí
   bg_beach: '/image/icons-ui/cosmetics/bg_beach.webp',
   bg_volcano: '/image/icons-ui/cosmetics/bg_volcano.webp',
@@ -1272,6 +1284,18 @@ export const WEBP_ICONS = {
   skill_speaking: '/image/icon_pet/Speaking.webp',
   skill_reading: '/image/icon_pet/Reading.webp',
   skill_writing: '/image/icon_pet/Writing.webp',
+
+  // 10 Icon Unit trên Lộ trình học
+  blocks: '/image/icons-ui/unit_01_khoi_lap_phuong.png',
+  chat: '/image/icons-ui/unit_02_bong_bong_chat.png',
+  sprout: '/image/icons-ui/unit_03_mam_cay.png',
+  leaf: '/image/icons-ui/unit_04_la_cay.png',
+  tree: '/image/icons-ui/unit_05_cay_xanh.png',
+  clover: '/image/icons-ui/unit_06_co_bon_la.png',
+  star: '/image/icons-ui/unit_07_ngoi_sao.png',
+  trophy: '/image/icons-ui/unit_08_cup_vang.png',
+  target: '/image/icons-ui/unit_09_bia_muc_tieu.png',
+  medal: '/image/icons-ui/unit_10_huy_chuong.png',
 };
 
 /* Native emoji → Icon name (used by <Emoji> to upgrade common glyphs) */

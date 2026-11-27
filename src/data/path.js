@@ -75,6 +75,14 @@ export function buildPathNodes(path, userData) {
   let prevSequentialPassed = true;
   let currentAssigned = false;
 
+  // Tìm Unit cao nhất mà người dùng đã có bài hoàn thành (để không khoá nhầm các Unit trước đó và đặt con bò đúng chỗ)
+  let highestCompletedUnitIndex = -1;
+  path.units.forEach((u, idx) => {
+    if (!u.comingSoon && Array.isArray(u.lessons) && u.lessons.some((id) => completed.has(id))) {
+      highestCompletedUnitIndex = idx;
+    }
+  });
+
   path.units.forEach((unit, unitIndex) => {
     if (unit.comingSoon || !Array.isArray(unit.lessons) || unit.lessons.length === 0) {
       return;
@@ -92,12 +100,13 @@ export function buildPathNodes(path, userData) {
         unitUnlocked = requiredUnits.every((rid) => Boolean(scores[rid]?.passed));
       }
     } else {
-      unitUnlocked = prevSequentialPassed;
+      unitUnlocked = prevSequentialPassed || unitIndex <= highestCompletedUnitIndex;
     }
 
     const cpRecord = scores[unit.id];
-    const unitPassed = unit.checkpoint ? Boolean(cpRecord?.passed) : unit.lessons.every((id) => completed.has(id));
-    const isPlacedUnit = Boolean(cpRecord?.passed && (cpRecord.source === 'placement' || cpRecord.source === 'legacy'));
+    const isImpliedCompleted = rules.unitOrder !== 'required-then-free' && unitIndex < highestCompletedUnitIndex;
+    const unitPassed = (unit.checkpoint ? Boolean(cpRecord?.passed) : unit.lessons.every((id) => completed.has(id))) || isImpliedCompleted;
+    const isPlacedUnit = Boolean(cpRecord?.passed && (cpRecord.source === 'placement' || cpRecord.source === 'legacy')) || isImpliedCompleted;
     const allLessonsDone = unit.lessons.every((id) => completed.has(id));
 
     // 2. Tạo node cho từng bài trong unit
@@ -169,6 +178,18 @@ export function buildPathNodes(path, userData) {
 
     prevSequentialPassed = prevSequentialPassed && unitPassed;
   });
+
+  // Nếu người dùng đã có tiến độ ở Unit cao hơn (vd Unit 4) mà chưa xong hết, ưu tiên đặt con bò ('current') tại Unit cao nhất đó
+  if (highestCompletedUnitIndex >= 0) {
+    const existingCurrent = nodes.find((n) => n.status === 'current');
+    if (!existingCurrent || existingCurrent.unitIndex !== highestCompletedUnitIndex) {
+      const preferredOpen = nodes.find((n) => n.unitIndex === highestCompletedUnitIndex && n.status === 'open');
+      if (preferredOpen) {
+        if (existingCurrent) existingCurrent.status = 'open';
+        preferredOpen.status = 'current';
+      }
+    }
+  }
 
   return nodes;
 }

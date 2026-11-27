@@ -354,3 +354,438 @@ export const PET_BATTLE_DATA = deepFreeze({
 
 // Gợi ý 4.3 — power score cho leaderboard (Phase 2 mới dùng).
 export const POWER_SCORE = deepFreeze({ hpDiv: 10, atkMul: 1, defDiv: 2, agiDiv: 2 });
+
+// ============================================================
+// HỆ THỐNG ĐẤU TRƯỜNG V2 (GĐ5 · D4, D15, D16, D17)
+// ============================================================
+
+export const TRIGGER_TYPES = deepFreeze({
+  energy_full:  { priority: 1, labelVi: 'Tuyệt kỹ!', defaultVal: 5 },
+  low_hp:       { priority: 2, labelVi: 'Cứu nguy!', defaultVal: 0.30 },
+  combo_streak: { priority: 3, labelVi: '3 câu liên tiếp!', defaultVal: 3 },
+  skill_match:  { priority: 4, labelVi: 'Đúng sở trường!', defaultVal: 1 },
+  fast_answer:  { priority: 5, labelVi: 'Nhanh như chớp!', defaultVal: 5000 },
+});
+
+export const TRIGGER_PRIORITY_ORDER = deepFreeze([
+  'energy_full',
+  'low_hp',
+  'combo_streak',
+  'skill_match',
+  'fast_answer',
+]);
+
+export const ARENA_CONFIG = deepFreeze({
+  // Vé đấu (D4)
+  TICKETS: {
+    DAILY_FREE: 3,
+    PER_NEW_LESSON: 2,
+    PER_UNIT_100: 3,
+    MAX_CAP: 15,
+  },
+  // Bậc xếp hạng LP (D15)
+  TIERS: {
+    bronze:   { key: 'bronze',   labelVi: 'Đồng',      minLp: 0,    icon: '🥉', canLoseLp: false },
+    silver:   { key: 'silver',   labelVi: 'Bạc',       minLp: 200,  icon: '🥈', canLoseLp: true },
+    gold:     { key: 'gold',     labelVi: 'Vàng',      minLp: 500,  icon: '🥇', canLoseLp: true },
+    platinum: { key: 'platinum', labelVi: 'Bạch kim',  minLp: 900,  icon: '💠', canLoseLp: true },
+    diamond:  { key: 'diamond',  labelVi: 'Kim cương', minLp: 1400, icon: '💎', canLoseLp: true },
+    master:   { key: 'master',   labelVi: 'Cao thủ',   minLp: 2000, icon: '👑', canLoseLp: true },
+  },
+  // Điểm LP trận xếp hạng
+  LP: {
+    WIN: 20,
+    DRAW: 5,
+    LOSS: -12,
+    BOT_RATIO: 0.5, // Đối thủ luyện tập AI tính 50% LP (+10 / +2 / -6)
+  },
+  // Thưởng Sữa mỗi trận có vé (qua ledger) — Tỉ lệ Máy 1 : Người 2
+  REWARD_MILK: {
+    WIN: 8,
+    DRAW: 5,
+    LOSS: 2,
+  },
+  REWARD_MILK_BOT: {
+    WIN: 4,
+    DRAW: 2,
+    LOSS: 1,
+  },
+  // Thời gian chờ tìm người chơi thực trước khi ghép Ghost Bot (ms)
+  MATCHMAKING_WAIT_MS: 12000,
+  // Rương tuần theo số trận thắng có vé
+  WEEKLY_CHESTS: {
+    bronze: { id: 'bronze', winsRequired: 5,  labelVi: 'Rương Đồng',  rewardMilk: 30,  rewardGem: 0, rewardStoneShards: 0 },
+    silver: { id: 'silver', winsRequired: 15, labelVi: 'Rương Bạc',   rewardMilk: 60,  rewardGem: 1, rewardStoneShards: 0 },
+    gold:   { id: 'gold',   winsRequired: 30, labelVi: 'Rương Vàng',  rewardMilk: 100, rewardGem: 2, rewardStoneShards: 2 },
+  },
+  // Chống lạm dụng
+  MAX_DAILY_REWARDED_MATCHES_PER_OPPONENT: 2,
+  // Cỏ ba lá
+  CLOVER: {
+    MAX_DAILY_GIVE: 5,
+    MILK_PER_CLOVER: 5,
+    MAX_DAILY_RECEIVE_MILK: 50,
+  },
+  // Mùa giải
+  SEASON_DURATION_WEEKS: 4,
+  FAST_ANSWER_TRIGGER_MS: 5000, // <= 5s
+  COMBO_STREAK_TRIGGER: 3,      // 3 câu đúng liên tiếp
+  LOW_HP_TRIGGER_RATIO: 0.30,   // <= 30% HP
+  ENERGY_FULL_TRIGGER: 5,       // 5 câu đúng
+});
+
+// Kỹ năng kích hoạt tự động theo 5 loại trigger (v0.2) cho 23 pet
+export const PET_SKILLS = deepFreeze({
+  cowdi: {
+    id: 'milk_boost',
+    nameVi: 'Sữa Tươi Tăng Lực',
+    labelVi: '3 câu liên tiếp!',
+    descVi: 'Hồi 15% HP tối đa sau khi trả lời đúng 3 câu liên tiếp.',
+    effectType: 'heal',
+    effectVal: 0.15,
+    activation: {
+      trigger: 'combo_streak',
+      value: 3,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  bamboo: {
+    id: 'bamboo_strike',
+    nameVi: 'Trúc Diệp Liên Hoàn',
+    labelVi: '3 câu liên tiếp!',
+    descVi: 'Gây thêm sát thương bằng 25% Tấn công sau khi đạt chuỗi 3 câu đúng.',
+    effectType: 'damage',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'combo_streak',
+      value: 3,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  bun: {
+    id: 'steamed_shield',
+    nameVi: 'Hấp Hơi Nóng Hổi',
+    labelVi: '3 câu liên tiếp!',
+    descVi: 'Hồi 12% HP và tăng phòng thủ sau 3 câu đúng liên tiếp.',
+    effectType: 'heal',
+    effectVal: 0.12,
+    activation: {
+      trigger: 'combo_streak',
+      value: 3,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  paddy: {
+    id: 'golden_song',
+    nameVi: 'Lúa Vàng Thính Giác',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Hồi 15% HP khi trả lời đúng câu hỏi kỹ năng Nghe.',
+    effectType: 'heal',
+    effectVal: 0.15,
+    specialty: 'listening',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  sprout: {
+    id: 'creative_bud',
+    nameVi: 'Mầm Xanh Bút Lực',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Gây thêm 20% sát thương khi trả lời đúng câu hỏi kỹ năng Viết.',
+    effectType: 'damage',
+    effectVal: 0.20,
+    specialty: 'writing',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  mushroom: {
+    id: 'survival_spore',
+    nameVi: 'Bào Tử Sinh Tồn',
+    labelVi: 'Cứu nguy!',
+    descVi: 'Khi HP dưới 30%, lập tức hồi 25% HP tối đa (1 lần/trận).',
+    effectType: 'heal',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'low_hp',
+      value: 0.30,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  radish: {
+    id: 'deep_root_revive',
+    nameVi: 'Củ Trắng Bám Rễ',
+    labelVi: 'Cứu nguy!',
+    descVi: 'Khi HP dưới 30%, nhận lá chắn chặn 1 đòn và hồi 15% HP (1 lần/trận).',
+    effectType: 'heal_shield',
+    effectVal: 0.15,
+    activation: {
+      trigger: 'low_hp',
+      value: 0.30,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  ginseng: {
+    id: 'millennium_energy',
+    nameVi: 'Nhân Sâm Ngàn Năm',
+    labelVi: 'Tuyệt kỹ!',
+    descVi: 'Khi đầy năng lượng, giải phóng dược lực hồi 35% HP tối đa.',
+    effectType: 'heal',
+    effectVal: 0.35,
+    activation: {
+      trigger: 'energy_full',
+      value: 5,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  foxie: {
+    id: 'swift_flame',
+    nameVi: 'Hỏa Tốc Chi Kích',
+    labelVi: 'Nhanh như chớp!',
+    descVi: 'Trả lời đúng trong 5 giây đầu gây thêm 25% sát thương Hỏa.',
+    effectType: 'damage',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'fast_answer',
+      value: 5000,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  leo: {
+    id: 'roaring_pride',
+    nameVi: 'Hùng Âm Vương Giả',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Gây thêm 30% sát thương khi trả lời đúng câu hỏi kỹ năng Nói.',
+    effectType: 'damage',
+    effectVal: 0.30,
+    specialty: 'speaking',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  shadow: {
+    id: 'night_strike',
+    nameVi: 'Ám Dạ Đột Kích',
+    labelVi: 'Nhanh như chớp!',
+    descVi: 'Trả lời đúng nhanh dưới 5 giây gây thêm 20% sát thương và hút 15% lượng đó.',
+    effectType: 'damage_lifesteal',
+    effectVal: 0.20,
+    activation: {
+      trigger: 'fast_answer',
+      value: 5000,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  pingu: {
+    id: 'glacial_barrier',
+    nameVi: 'Khiên Băng Cứu Nguy',
+    labelVi: 'Cứu nguy!',
+    descVi: 'Khi HP dưới 30%, dựng khiên băng hồi 20% HP và tăng 1 lá chắn (1 lần/trận).',
+    effectType: 'heal_shield',
+    effectVal: 0.20,
+    activation: {
+      trigger: 'low_hp',
+      value: 0.30,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  leafy: {
+    id: 'ancient_shell',
+    nameVi: 'Mai Rùa Thảo Mộc',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Hồi 15% HP khi trả lời đúng câu hỏi kỹ năng Đọc.',
+    effectType: 'heal',
+    effectVal: 0.15,
+    specialty: 'reading',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  flippy: {
+    id: 'tidal_surge',
+    nameVi: 'Sóng Biển Dâng Trào',
+    labelVi: '3 câu liên tiếp!',
+    descVi: 'Đạt chuỗi 3 câu đúng phóng sóng ngầm gây thêm 25% sát thương Thủy.',
+    effectType: 'damage',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'combo_streak',
+      value: 3,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  mimi: {
+    id: 'gale_edge',
+    nameVi: 'Gió Lốc Thần Tốc',
+    labelVi: 'Nhanh như chớp!',
+    descVi: 'Trả lời nhanh trong 5 giây đầu phóng lưỡi dao gió gây thêm 25% sát thương.',
+    effectType: 'damage',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'fast_answer',
+      value: 5000,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  owlbert: {
+    id: 'wise_gaze',
+    nameVi: 'Đôi Mắt Trí Tuệ',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Gây thêm 30% sát thương khi trả lời đúng câu hỏi kỹ năng Đọc.',
+    effectType: 'damage',
+    effectVal: 0.30,
+    specialty: 'reading',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  storm: {
+    id: 'thunder_surge',
+    nameVi: 'Sấm Chớp Giáng Trần',
+    labelVi: 'Nhanh như chớp!',
+    descVi: 'Trả lời đúng nhanh dưới 5 giây gây thêm 25% sát thương Lôi.',
+    effectType: 'damage',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'fast_answer',
+      value: 5000,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  sparky: {
+    id: 'dragon_spark',
+    nameVi: 'Hỏa Long Tinh Hoa',
+    labelVi: '3 câu liên tiếp!',
+    descVi: 'Đạt chuỗi 3 câu đúng phun lửa rồng gây thêm 30% sát thương Hỏa.',
+    effectType: 'damage',
+    effectVal: 0.30,
+    activation: {
+      trigger: 'combo_streak',
+      value: 3,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+  draco: {
+    id: 'ancient_dragon_breath',
+    nameVi: 'Hơi Thở Cổ Long',
+    labelVi: 'Tuyệt kỹ!',
+    descVi: 'Khi đầy 5 năng lượng, thi triển tuyệt kỹ gây 50% sát thương bộc phá (1 lần/trận).',
+    effectType: 'damage',
+    effectVal: 0.50,
+    activation: {
+      trigger: 'energy_full',
+      value: 5,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  pumpkin: {
+    id: 'spectral_fest',
+    nameVi: 'Lễ Hội Ma Quái',
+    labelVi: 'Tuyệt kỹ!',
+    descVi: 'Khi đầy năng lượng, tung lửa ma thuật gây 45% sát thương và gây bỏng đối thủ.',
+    effectType: 'damage',
+    effectVal: 0.45,
+    activation: {
+      trigger: 'energy_full',
+      value: 5,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  monk: {
+    id: 'enlightened_light',
+    nameVi: 'Ánh Sáng Giác Ngộ',
+    labelVi: 'Cứu nguy!',
+    descVi: 'Khi HP dưới 30%, tỏa hào quang hồi 25% HP và tạo 1 lá chắn chặn đòn.',
+    effectType: 'heal_shield',
+    effectVal: 0.25,
+    activation: {
+      trigger: 'low_hp',
+      value: 0.30,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  prisma: {
+    id: 'rainbow_aurora',
+    nameVi: 'Cầu Vồng Tinh Tú',
+    labelVi: 'Tuyệt kỹ!',
+    descVi: 'Khi đầy năng lượng, triệu hồi cầu vồng hồi 30% HP và gây 30% sát thương ánh sáng.',
+    effectType: 'heal_damage',
+    effectVal: 0.30,
+    activation: {
+      trigger: 'energy_full',
+      value: 5,
+      cooldown_turns: 0,
+      uses_per_battle: 1,
+      min_stage: 'baby',
+    },
+  },
+  bamboo_spirit: {
+    id: 'spirit_resonance',
+    nameVi: 'Linh Trúc Tâm Giao',
+    labelVi: 'Đúng sở trường!',
+    descVi: 'Gây thêm 25% sát thương và hồi 10% HP khi trả lời đúng kỹ năng Nói.',
+    effectType: 'damage_heal',
+    effectVal: 0.25,
+    specialty: 'speaking',
+    activation: {
+      trigger: 'skill_match',
+      value: 1,
+      cooldown_turns: 2,
+      uses_per_battle: null,
+      min_stage: 'baby',
+    },
+  },
+});
+

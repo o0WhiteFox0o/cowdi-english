@@ -138,8 +138,11 @@ export default function LearningPathPage() {
     return new Set();
   });
 
+  const [showAllUnits, setShowAllUnits] = useState(false);
+
   // Khi đổi lộ trình, nạp lại trạng thái đã lưu
   useEffect(() => {
+    setShowAllUnits(false);
     try {
       const saved = localStorage.getItem(`cowdi_collapsed_${activePath.id}`);
       if (saved) {
@@ -652,32 +655,60 @@ export default function LearningPathPage() {
 
       {/* Trail */}
       <div className="path-trail">
-        {activePath.units.map((unit, uIdx) => {
-          // Unit S2–S10 sắp ra mắt (không khoá luồng)
-          if (unit.comingSoon || !unit.lessons?.length) {
-            return (
-              <section key={unit.id} className="path-unit locked" style={{ '--u': unit.color, opacity: 0.72 }}>
-                <header className="path-unit-head">
-                  <div className="path-unit-ico"><Emoji e={unit.icon} size={28} /></div>
-                  <div className="path-unit-txt">
-                    <div className="d-flex align-items-center gap-2 flex-wrap">
-                      <small>Unit {uIdx + 1}</small>
-                      <span className="badge bg-secondary">Sắp ra mắt</span>
-                    </div>
-                    <b>{unit.title}</b>
-                    <span>{unit.subtitle}</span>
-                  </div>
-                </header>
-              </section>
-            );
-          }
+        {(() => {
+          const currentUnitIdx = currentNode?.unitIndex ?? 0;
+          const isUnitActiveOrDone = (u, idx) => {
+            if (u.comingSoon || !u.lessons?.length) return false;
+            const uNodes = nodes.filter((n) => n.unitIndex === idx);
+            return uNodes.some((n) => n.status === 'done' || n.status === 'placed' || n.status === 'current');
+          };
+          let highestActiveIdx = currentUnitIdx;
+          activePath.units.forEach((u, idx) => {
+            if (isUnitActiveOrDone(u, idx) && idx > highestActiveIdx) {
+              highestActiveIdx = idx;
+            }
+          });
+          const nextUnitIdx = activePath.units.findIndex(
+            (u, idx) => idx > highestActiveIdx && !isUnitActiveOrDone(u, idx)
+          );
+          const visibleIndices = new Set();
+          activePath.units.forEach((u, idx) => {
+            if (showAllUnits || idx <= highestActiveIdx || isUnitActiveOrDone(u, idx) || idx === nextUnitIdx) {
+              visibleIndices.add(idx);
+            }
+          });
+          const hiddenCount = activePath.units.length - visibleIndices.size;
+
+          return (
+            <>
+              {activePath.units.map((unit, uIdx) => {
+                if (!visibleIndices.has(uIdx)) return null;
+
+                // Unit S2–S10 sắp ra mắt (không khoá luồng)
+                if (unit.comingSoon || !unit.lessons?.length) {
+                  return (
+                    <section key={unit.id} className="path-unit locked" style={{ '--u': unit.color, opacity: 0.72 }}>
+                      <header className="path-unit-head">
+                        <div className="path-unit-ico"><Emoji e={unit.icon} size={28} /></div>
+                        <div className="path-unit-txt">
+                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <small>Unit {uIdx + 1}</small>
+                            <span className="badge bg-secondary">Sắp ra mắt</span>
+                          </div>
+                          <b>{unit.title}</b>
+                          <span>{unit.subtitle}</span>
+                        </div>
+                      </header>
+                    </section>
+                  );
+                }
 
           const unitNodes = nodes.filter((n) => n.unitIndex === uIdx);
           const unitDone = unitNodes.filter((n) => n.status === 'done' || n.status === 'placed').length;
           const unitLocked = unitNodes.length > 0 && unitNodes.every((n) => n.status === 'locked');
           const cpScore = userData.checkpointScores?.[unit.id];
           const cpRealPassed = Boolean(cpScore?.passed && (cpScore.source ?? 'checkpoint') === 'checkpoint');
-          const cpPlaced = Boolean(cpScore?.passed && (cpScore.source === 'placement' || cpScore.source === 'legacy'));
+          const cpPlaced = Boolean(cpScore?.passed && (cpScore.source === 'placement' || cpScore.source === 'legacy')) || unitNodes.some((n) => n.status === 'placed');
           const allLessonsDone = unit.lessons.every((lid) => userData.completedLessons?.includes(lid));
           const allLessons100 = unit.lessons.every((lid) => (userData.lessonScores?.[lid] || 0) >= 100);
           const isPerfect100 = allLessonsDone && allLessons100 && cpRealPassed && cpScore.total > 0 && cpScore.score === cpScore.total;
@@ -718,6 +749,8 @@ export default function LearningPathPage() {
                       <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận <Icon name="res_gem" size={14} /> 3</span>
                     ) : allLessonsDone && cpRealPassed ? (
                       <span className="badge bg-light text-success">✓ Đã nhận <Icon name="res_gem" size={14} /> 1</span>
+                    ) : cpPlaced ? (
+                      <span className="badge bg-light text-success">✓ Đã hoàn thành (Đầu vào)</span>
                     ) : (
                       <small className="path-unit-gem-hint"><Icon name="res_gem" size={14} /> +1 khi xong bài và qua kiểm tra</small>
                     )}
@@ -732,7 +765,7 @@ export default function LearningPathPage() {
                 </div>
 
                 <div className="path-unit-actions">
-                  {isCollapsed && hasCurrentNode && (
+                  {isCollapsed && (uIdx === highestActiveIdx && (hasCurrentNode || unitDone > 0)) && (
                     <span className="path-unit-cur-badge" title="Bài học tiếp theo của bạn ở đây">
                       🐾 Đang học
                     </span>
@@ -768,7 +801,9 @@ export default function LearningPathPage() {
                 </div>
               </header>
 
-              <ol className="path-nodes">
+              <div className="path-nodes-wrap">
+                <div className="path-nodes-inner">
+                  <ol className="path-nodes">
                 {unitNodes.map((node) => {
                   const x = WIGGLE[node.index % WIGGLE.length];
                   const isCur = node.status === 'current';
@@ -875,10 +910,29 @@ export default function LearningPathPage() {
                     </li>
                   );
                 })}
-              </ol>
+                  </ol>
+                </div>
+              </div>
             </section>
           );
         })}
+
+              {(hiddenCount > 0 || showAllUnits) && (
+                <div className="text-center my-3">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                    onClick={() => setShowAllUnits((v) => !v)}
+                  >
+                    {showAllUnits
+                      ? 'Ẩn các unit chưa học'
+                      : `🔒 Đã ẩn ${hiddenCount} unit chưa học · Xem tất cả`}
+                  </button>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         <div className={`path-finish ${doneAll ? 'done' : ''}`}>
           <div className="path-finish-ico"><Icon name={doneAll ? 'trophy' : 'flag'} size={44} /></div>

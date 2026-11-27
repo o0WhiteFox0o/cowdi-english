@@ -35,6 +35,8 @@
 |---|---|---|---|---|---|
 | SRS | Đặc tả yêu cầu phần mềm | [SRS-COWDI-v1.0.docx](../02-requirements/SRS-COWDI-v1.0.docx) | 1.0 | Approved | Cowdi_SRS_v1.0.docx |
 | SRS | **Nhu cầu xây dựng bài học theo 3 cấp (Starter / Intermediate / Exam)** | [SRS-LESSON-3-LEVELS-v1.0.md](../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) | 1.0 | Approved | LESSON-REQUIREMENTS-3-LEVELS.md |
+| SRS | **Đặc tả nghiệp vụ Luật thi đấu Đấu trường (PvP)** | [SRS-ARENA-PVP-RULES-v1.0.md](../02-requirements/SRS-ARENA-PVP-RULES-v1.0.md) | 1.0 | Approved | (mới 2026-11-26) |
+| PROC | **Quy trình nghiệp vụ Triển khai Đấu trường (PvP)** | [PROC-ARENA-PVP-WORKFLOW-v1.0.md](../02-requirements/PROC-ARENA-PVP-WORKFLOW-v1.0.md) | 1.0 | Approved | (mới 2026-11-26) |
 | RTM | **Ma trận truy vết yêu cầu (End-to-End)** | [RTM-COWDI.md](../02-requirements/RTM-COWDI.md) | sống | Approved | TRACEABILITY-MATRIX.md |
 
 ## 03 — Kiến trúc (ISO/IEC/IEEE 42010)
@@ -87,6 +89,7 @@
 | GDE | Hệ thống từ vựng | [GDE-VOCABULARY-v1.0.md](../05-implementation/GDE-VOCABULARY-v1.0.md) | 1.0 | Approved | VOCABULARY.md |
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |
 | REG | **Danh mục & bàn giao tạo bộ Icon UI thay thế Emoji (+ CSV prompt batch)** | [REG-UI-ICONS.md](../05-implementation/REG-UI-ICONS.md) · [CSV](../05-implementation/REG-UI-ICONS-PROMPTS.csv) | sống | Ready to Assign | (mới 2026-11-24) |
+| REG | **Danh mục ảnh Card Ôn tập, Mini Games & Chủ đề Từ vựng (+ CSV)** | [REG-PRACTICE-CARD-ARTWORK.md](../05-implementation/REG-PRACTICE-CARD-ARTWORK.md) · [CSV](../05-implementation/REG-PRACTICE-CARD-ARTWORK.csv) | sống | Approved | (mới 2026-11-27) |
 | STD | **Chuẩn nội dung bài học 3 cấp (Starter / Intermediate / Exam)** | [STD-LESSON-CONTENT-v1.0.md](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
 | STD | **Chuẩn chất lượng & rà soát câu hỏi trắc nghiệm (5 luật cứng, 14 mã validator)** | [STD-QUESTION-QUALITY-v1.0.md](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) | 1.0 | Approved | (mới 2026-11-26) |
 | GDE | **Đối chiếu bài học v2 với UI hiện tại & 10 đầu việc sửa UI (`U1–U10`)** | [MAP-CURRENT-UI.md](../05-implementation/content/MAP-CURRENT-UI.md) | sống | Approved | (mới 2026-11-24) |
