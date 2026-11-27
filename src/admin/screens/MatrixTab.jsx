@@ -19,7 +19,7 @@ export default function MatrixTab({ allLessons }) {
     const map = new Map();
     for (const p of ALL_PATHS) {
       for (const u of p.units || []) {
-        for (const lid of u.lessonIds || []) {
+        for (const lid of u.lessons || u.lessonIds || []) {
           if (!map.has(lid)) {
             map.set(lid, { pathId: p.id, pathTitle: p.title, unitId: u.id, unitTitle: u.title });
           }
