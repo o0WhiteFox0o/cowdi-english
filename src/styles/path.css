@@ -45,36 +45,45 @@
 /* ── Trail ── */
 .path-trail { position: relative; padding-bottom: 80px; }
 
-.path-unit { margin-bottom: 10px; transition: margin 0.25s ease; }
+.path-unit { margin-bottom: 10px; }
 .path-unit-head {
   display: flex; align-items: center; gap: 12px;
   background: var(--u, var(--leaf));
   color: #fff;
   border-radius: 16px;
   padding: 10px 16px;
-  margin: 8px 0 60px;
+  margin: 8px 0 12px;
   box-shadow: 0 4px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000), 0 6px 14px rgba(40,60,90,0.15);
   position: relative;
   z-index: 1;
-  transition: margin 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease;
 }
 .path-unit-head.is-clickable {
   cursor: pointer;
   user-select: none;
 }
 .path-unit-head.is-clickable:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000), 0 8px 18px rgba(40,60,90,0.2);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000), 0 8px 18px rgba(40,60,90,0.2);
 }
 .path-unit-head.is-clickable:active {
   transform: translateY(1px);
   box-shadow: 0 3px 0 color-mix(in srgb, var(--u, var(--leaf)) 65%, #000);
 }
-.path-unit.collapsed .path-unit-head {
-  margin: 8px 0 12px;
+.path-nodes-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 0.22s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.18s ease;
+  will-change: grid-template-rows;
 }
-.path-unit.collapsed .path-nodes {
-  display: none !important;
+.path-nodes-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.path-unit.collapsed .path-nodes-wrap {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
 }
 .path-unit.locked .path-unit-head { background: #B9C4D0; box-shadow: 0 4px 0 #8f9cab; }
 .path-unit.locked .path-unit-head.is-clickable:hover {
@@ -201,7 +210,7 @@
 
 .path-nodes {
   list-style: none;
-  margin: 0; padding: 0;
+  margin: 0; padding: 24px 0 12px;
   display: flex; flex-direction: column; align-items: center;
   gap: 38px;
 }

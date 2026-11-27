@@ -1,0 +1,41 @@
+nhom,key,ten_en,ten_vi,mo_ta,trang_thai,thu_muc,ten_file_webp,prompt_goi_y_en
+practice_missing,listenPick,Listen Pick,Nghe chọn từ,Nghe phát âm và chọn từ đúng,Can tao moi,public/image/practice,nghe_chon_tu.webp,"Cute chibi sticker illustration of a happy little bunny wearing pastel headphones pointing at floating word cards, musical notes, soft pastel purple background, clean white sticker border, 2D vector game art"
+practice_missing,listenSentence,Audio Sentence,Nghe câu,Nghe câu và chọn nghĩa đúng,Can tao moi,public/image/practice,nghe_hieu_cau.webp,"Cute chibi sticker illustration of a cheerful little cat listening to an audio speaker with speech bubble and English sentence ribbon, soft pastel magenta-lavender background, clean white sticker border, 2D vector game art"
+practice_missing,speakWord,Speak Word,Nói từ,Nhìn nghĩa tiếng Việt nói từ tiếng Anh,Can tao moi,public/image/practice,noi_tu.webp,"Cute chibi sticker illustration of an adorable baby fox speaking into a cute pastel microphone with a small flashcard in paw, soft pastel mint green background, clean white sticker border, 2D vector game art"
+practice_missing,speedRound,Speed Reflex,Nhanh trí,Chọn nhanh từ trong thời gian ngắn,Can tao moi,public/image/practice,nhanh_tri.webp,"Cute chibi sticker illustration of an energetic baby cheetah or squirrel with a stopwatch and golden lightning bolt sparks, soft pastel yellow background, clean white sticker border, 2D vector game art"
+practice_missing,fillin,Fill Blanks,Điền từ,Điền từ còn thiếu vào câu,Can tao moi,public/image/practice,dien_tu.webp,"Cute chibi sticker illustration of a clever little owl holding a pencil filling a missing glowing word block into a sentence card, soft pastel sky blue background, clean white sticker border, 2D vector game art"
+practice_missing,wordGuess,Word Guess,Đoán từ,Nhìn nghĩa và gợi ý đoán từ Anh,Can tao moi,public/image/practice,doan_tu.webp,"Cute chibi sticker illustration of a curious baby panda wearing detective glasses looking at mystery letter tiles and a question mark bubble, soft pastel violet background, clean white sticker border, 2D vector game art"
+practice_existing,listening,Listening,Nghe hiểu,Luyện nghe và nhận diện từ,Da co anh,public/image/practice,practice_nghe_hieu.webp,
+practice_existing,dictation,Dictation,Nghe chép,Nghe và viết lại từ tiếng Anh,Da co anh,public/image/practice,nghe_cau.webp,
+practice_existing,speakSentence,Speak Sentence,Nói câu,Nhìn câu tiếng Việt nói câu tiếng Anh,Da co anh,public/image/practice,noi_cau.webp,
+practice_existing,readAloud,Read Aloud,Đọc to,Nhìn chữ tiếng Anh đọc to phát âm chuẩn,Da co anh,public/image/practice,doc_to.webp,
+practice_existing,speakFast,Fast Reflex,Phản xạ nói,Nói từ tiếng Anh trong vòng 6 giây,Da co anh,public/image/practice,phan_xa_noi.webp,
+practice_existing,grammar,Grammar,Ngữ pháp,Kiểm tra kiến thức ngữ pháp,Da co anh,public/image/practice,ngu_phap.webp,
+practice_existing,trueFalse,True False,Đúng/Sai,Phán đoán nghĩa từ đúng hay sai,Da co anh,public/image/practice,dung_sai.webp,
+practice_existing,contextClue,Context Clue,Đoán nghĩa,Đọc câu đoán nghĩa của từ,Da co anh,public/image/practice,doan_nghia.webp,
+practice_existing,sentences,Sentences,Hoàn thành câu,Dịch và điền vào chỗ trống,Da co anh,public/image/practice,hoan_thanh_cau.webp,
+practice_existing,reorder,Sentence Order,Sắp xếp câu,Sắp xếp các từ thành câu đúng,Da co anh,public/image/practice,xap_xep_cau.webp,
+practice_existing,wordBuild,Word Builder,Ghép chữ,Sắp xếp chữ cái thành từ đúng,Da co anh,public/image/practice,ghep_chu.webp,
+practice_existing,translateWrite,Translate,Viết câu,Dịch nghĩa sang câu tiếng Anh,Da co anh,public/image/practice,viet_cau.webp,
+practice_existing,mixed,Mixed Master,Tổng hợp,Mix tất cả các loại câu hỏi,Da co anh,public/image/practice,tong_hop.webp,
+practice_existing,matching,Word Match,Nối cặp,Nối từ tiếng Anh với tiếng Việt,Da co anh,public/image/practice,noi_cap.webp,
+practice_existing,vocab,Vocabulary,Từ vựng,Ôn tập từ vựng đã học,Da co anh,public/image/practice,tu_dien.webp,
+minigame,word-catch,Word Catch,Cowdi Bắt Từ,Bắt từ rơi,Da co anh,public/image/minigames,minigame_cowdi_bat_tu.webp,
+minigame,sentence-puzzle,Sentence,Ghép câu,Ghép thành câu,Da co anh,public/image/minigames,minigame_ghep_cau.webp,
+minigame,memory-match,Memory Match,Lật thẻ nhớ,Ghép cặp từ nhớ,Da co anh,public/image/minigames,minigame_lat_the_nho.webp,
+minigame,spelling-bee,Spelling Bee,Spelling Bee,Đánh vần từ,Da co anh,public/image/minigames,minigame_spelling_bee.webp,
+minigame,speed-match,Speed Match,Tốc độ ánh sáng,Ghép từ 60s,Da co anh,public/image/minigames,minigame_toc_do_anh_sang.webp,
+minigame,word-scramble,Scramble,Xáo chữ,Xếp lại chữ cái,Da co anh,public/image/minigames,minigame_xao_chu.webp,
+topic,animals,Animals,Động vật,Chủ đề từ vựng Động vật,Da co anh,public/image/topics,animals.webp,
+topic,countries,Countries,Quốc gia,Chủ đề từ vựng Quốc gia,Da co anh,public/image/topics,countries.webp,
+topic,drinking,Drinking,Đồ uống,Chủ đề từ vựng Đồ uống,Da co anh,public/image/topics,drinking.webp,
+topic,eating,Eating,Ăn uống,Chủ đề từ vựng Ăn uống,Da co anh,public/image/topics,eating.webp,
+topic,holidays,Holidays,Ngày lễ,Chủ đề từ vựng Ngày lễ,Da co anh,public/image/topics,holidays.webp,
+topic,house,House,Ngôi nhà,Chủ đề từ vựng Ngôi nhà,Da co anh,public/image/topics,house.webp,
+topic,human,Human,Con người,Chủ đề từ vựng Con người,Da co anh,public/image/topics,human.webp,
+topic,love,Love,Tình cảm,Chủ đề từ vựng Tình cảm,Da co anh,public/image/topics,love.webp,
+topic,nature,Nature,Thiên nhiên,Chủ đề từ vựng Thiên nhiên,Da co anh,public/image/topics,nature.webp,
+topic,numbers,Numbers,Số đếm,Chủ đề từ vựng Số đếm,Da co anh,public/image/topics,numbers.webp,
+topic,public-places,Public Places,Địa điểm công cộng,Chủ đề từ vựng Địa điểm công cộng,Da co anh,public/image/topics,public-places.webp,
+topic,sports,Sports,Thể thao,Chủ đề từ vựng Thể thao,Da co anh,public/image/topics,sports.webp,
+topic,transportation,Transportation,Giao thông,Chủ đề từ vựng Giao thông,Da co anh,public/image/topics,transportation.webp,

@@ -89,6 +89,7 @@
 | GDE | Hệ thống từ vựng | [GDE-VOCABULARY-v1.0.md](../05-implementation/GDE-VOCABULARY-v1.0.md) | 1.0 | Approved | VOCABULARY.md |
 | REG | Danh mục tài nguyên hình ảnh | [REG-IMAGE-CATALOG.md](../05-implementation/REG-IMAGE-CATALOG.md) | sống | Approved | IMAGE_CATALOG.md |
 | REG | **Danh mục & bàn giao tạo bộ Icon UI thay thế Emoji (+ CSV prompt batch)** | [REG-UI-ICONS.md](../05-implementation/REG-UI-ICONS.md) · [CSV](../05-implementation/REG-UI-ICONS-PROMPTS.csv) | sống | Ready to Assign | (mới 2026-11-24) |
+| REG | **Danh mục ảnh Card Ôn tập, Mini Games & Chủ đề Từ vựng (+ CSV)** | [REG-PRACTICE-CARD-ARTWORK.md](../05-implementation/REG-PRACTICE-CARD-ARTWORK.md) · [CSV](../05-implementation/REG-PRACTICE-CARD-ARTWORK.csv) | sống | Approved | (mới 2026-11-27) |
 | STD | **Chuẩn nội dung bài học 3 cấp (Starter / Intermediate / Exam)** | [STD-LESSON-CONTENT-v1.0.md](../05-implementation/content/STD-LESSON-CONTENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24) |
 | STD | **Chuẩn chất lượng & rà soát câu hỏi trắc nghiệm (5 luật cứng, 14 mã validator)** | [STD-QUESTION-QUALITY-v1.0.md](../05-implementation/content/STD-QUESTION-QUALITY-v1.0.md) · [GEMINI-QUESTION-QA](../05-implementation/content/GEMINI-QUESTION-QA.md) | 1.0 | Approved | (mới 2026-11-26) |
 | GDE | **Đối chiếu bài học v2 với UI hiện tại & 10 đầu việc sửa UI (`U1–U10`)** | [MAP-CURRENT-UI.md](../05-implementation/content/MAP-CURRENT-UI.md) | sống | Approved | (mới 2026-11-24) |

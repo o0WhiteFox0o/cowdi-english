@@ -824,12 +824,13 @@ export function computeDuelLeaguePointDelta({ isFriendDuel, phase, outcome }) {
  */
 export async function getFriendsPathProgress(userId, db = pool) {
   // Truy vấn 1: lấy tối đa 100 ID bạn bè accepted
+  const maxFriends = Math.max(1, Math.floor(Number(FRIEND_LIMITS.MAX_FRIENDS) || 100));
   const [relRows] = await db.execute(
     `SELECT IF(user_low = ?, user_high, user_low) AS friend_id
        FROM friendships
       WHERE status = 'accepted' AND (user_low = ? OR user_high = ?)
-      LIMIT ?`,
-    [userId, userId, userId, FRIEND_LIMITS.MAX_FRIENDS]
+      LIMIT ${maxFriends}`,
+    [userId, userId, userId]
   );
 
   const friendIds = relRows

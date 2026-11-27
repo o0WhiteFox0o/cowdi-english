@@ -662,12 +662,18 @@ export default function LearningPathPage() {
             const uNodes = nodes.filter((n) => n.unitIndex === idx);
             return uNodes.some((n) => n.status === 'done' || n.status === 'placed' || n.status === 'current');
           };
+          let highestActiveIdx = currentUnitIdx;
+          activePath.units.forEach((u, idx) => {
+            if (isUnitActiveOrDone(u, idx) && idx > highestActiveIdx) {
+              highestActiveIdx = idx;
+            }
+          });
           const nextUnitIdx = activePath.units.findIndex(
-            (u, idx) => idx > currentUnitIdx && !isUnitActiveOrDone(u, idx)
+            (u, idx) => idx > highestActiveIdx && !isUnitActiveOrDone(u, idx)
           );
           const visibleIndices = new Set();
           activePath.units.forEach((u, idx) => {
-            if (showAllUnits || isUnitActiveOrDone(u, idx) || idx === nextUnitIdx) {
+            if (showAllUnits || idx <= highestActiveIdx || isUnitActiveOrDone(u, idx) || idx === nextUnitIdx) {
               visibleIndices.add(idx);
             }
           });
@@ -702,7 +708,7 @@ export default function LearningPathPage() {
           const unitLocked = unitNodes.length > 0 && unitNodes.every((n) => n.status === 'locked');
           const cpScore = userData.checkpointScores?.[unit.id];
           const cpRealPassed = Boolean(cpScore?.passed && (cpScore.source ?? 'checkpoint') === 'checkpoint');
-          const cpPlaced = Boolean(cpScore?.passed && (cpScore.source === 'placement' || cpScore.source === 'legacy'));
+          const cpPlaced = Boolean(cpScore?.passed && (cpScore.source === 'placement' || cpScore.source === 'legacy')) || unitNodes.some((n) => n.status === 'placed');
           const allLessonsDone = unit.lessons.every((lid) => userData.completedLessons?.includes(lid));
           const allLessons100 = unit.lessons.every((lid) => (userData.lessonScores?.[lid] || 0) >= 100);
           const isPerfect100 = allLessonsDone && allLessons100 && cpRealPassed && cpScore.total > 0 && cpScore.score === cpScore.total;
@@ -743,6 +749,8 @@ export default function LearningPathPage() {
                       <span className="badge bg-warning text-dark"><Icon name="star" size={12} /> ⭐ 100% · đã nhận <Icon name="res_gem" size={14} /> 3</span>
                     ) : allLessonsDone && cpRealPassed ? (
                       <span className="badge bg-light text-success">✓ Đã nhận <Icon name="res_gem" size={14} /> 1</span>
+                    ) : cpPlaced ? (
+                      <span className="badge bg-light text-success">✓ Đã hoàn thành (Đầu vào)</span>
                     ) : (
                       <small className="path-unit-gem-hint"><Icon name="res_gem" size={14} /> +1 khi xong bài và qua kiểm tra</small>
                     )}
@@ -757,7 +765,7 @@ export default function LearningPathPage() {
                 </div>
 
                 <div className="path-unit-actions">
-                  {isCollapsed && hasCurrentNode && (
+                  {isCollapsed && (uIdx === highestActiveIdx && (hasCurrentNode || unitDone > 0)) && (
                     <span className="path-unit-cur-badge" title="Bài học tiếp theo của bạn ở đây">
                       🐾 Đang học
                     </span>
@@ -793,7 +801,9 @@ export default function LearningPathPage() {
                 </div>
               </header>
 
-              <ol className="path-nodes">
+              <div className="path-nodes-wrap">
+                <div className="path-nodes-inner">
+                  <ol className="path-nodes">
                 {unitNodes.map((node) => {
                   const x = WIGGLE[node.index % WIGGLE.length];
                   const isCur = node.status === 'current';
@@ -900,7 +910,9 @@ export default function LearningPathPage() {
                     </li>
                   );
                 })}
-              </ol>
+                  </ol>
+                </div>
+              </div>
             </section>
           );
         })}
