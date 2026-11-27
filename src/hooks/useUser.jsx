@@ -463,6 +463,9 @@ export function UserProvider({ children }) {
   const userDataRef = useRef(userData);
   userDataRef.current = userData;
   const pendingSyncRef = useRef(false);
+  // Guard: khi cập nhật state từ phản hồi server (pushProgress/refreshWallet/syncWallet),
+  // KHÔNG kích hoạt lại vòng lặp PUT /api/progress mỗi 3 giây.
+  const skipNextSyncRef = useRef(false);
 
   const pushProgress = useCallback((data, { keepalive = false } = {}) => {
     if (!user) return Promise.resolve();
@@ -480,6 +483,7 @@ export function UserProvider({ children }) {
             const res = await r.json();
             if (res.wallet || res.streak != null || res.streakState) {
               let updatedWallet = null;
+              skipNextSyncRef.current = true;
               setUserData((prev) => {
                 const hasValidWallet = res.wallet && typeof res.wallet.milk === 'number';
                 const nextWallet = hasValidWallet
@@ -593,6 +597,11 @@ export function UserProvider({ children }) {
     if (!readyRef.current) return; // Chưa load xong – không ghi đè
     const dataToSave = { ...userData, _lastModified: new Date().toISOString() };
     saveUserData(dataToSave, user?.id || null);
+
+    if (skipNextSyncRef.current) {
+      skipNextSyncRef.current = false;
+      return;
+    }
 
     // Debounce sync lên backend 3 giây sau lần thay đổi cuối
     if (user) {
@@ -946,6 +955,7 @@ export function UserProvider({ children }) {
       stone: Number(newWallet.stone) || 0,
       stone_shard: Number(newWallet.stone_shard) || 0,
     };
+    skipNextSyncRef.current = true;
     setUserData((prev) => {
       const next = {
         ...prev,
@@ -978,6 +988,7 @@ export function UserProvider({ children }) {
           stone: Number(w.stone) || 0,
           stone_shard: Number(w.stone_shard) || 0,
         };
+        skipNextSyncRef.current = true;
         setUserData((prev) => {
           const next = { ...prev, wallet: nextWallet, availableXP: milk };
           userDataRef.current = next;

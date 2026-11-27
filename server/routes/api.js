@@ -441,7 +441,7 @@ router.put('/progress', requireAuth, async (req, res) => {
 
     // GĐ3: Tính streak server-side theo múi giờ, tự dùng khăn, đồng hồ Cowdi, khế ước 7 ngày
     const tz = req.headers['x-timezone'] || d.timezone || 'Asia/Ho_Chi_Minh';
-    const isLesson = (d.lessonsCompleted > 0) || (rawCompleted.length > 0);
+    const isLesson = newlyCompletedValidIds.length > 0 || Number(d.lastMilkEarned) > 0;
     const accuracy = Number(d.lastAccuracy) || 100;
     const baseMilk = Number(d.lastMilkEarned) || 0;
 
