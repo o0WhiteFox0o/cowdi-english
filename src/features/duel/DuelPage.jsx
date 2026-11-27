@@ -200,7 +200,13 @@ export default function DuelPage() {
   const timesRef = useRef([]);
   const [arenaHasTicket, setArenaHasTicket] = useState(true);
   const [energy, setEnergy] = useState(0); // 0..5
-  const [skillBubble, setSkillBubble] = useState(null); // { side: 'mine' | 'opponent', text: string }
+  const [skillBubble, setSkillBubble] = useState(null); // { side: 'mine' | 'opponent', text: string, effectType?: string }
+  const [mySkillCooldown, setMySkillCooldown] = useState(0);
+  const [myLowHpUsed, setMyLowHpUsed] = useState(false);
+  const [oppEnergy, setOppEnergy] = useState(0);
+  const [oppCombo, setOppCombo] = useState(0);
+  const [oppSkillCooldown, setOppSkillCooldown] = useState(0);
+  const [oppLowHpUsed, setOppLowHpUsed] = useState(false);
   const [cloverSent, setCloverSent] = useState(false);
 
   // Quiz state
@@ -620,9 +626,15 @@ export default function DuelPage() {
     setElapsed(0);
     setMyHp(100);
     setOpponentHp(100);
-    setComboCount(0);
-    setEnergy(0);
-    setSkillBubble(null);
+      setComboCount(0);
+      setEnergy(0);
+      setMySkillCooldown(0);
+      setMyLowHpUsed(false);
+      setOppEnergy(0);
+      setOppCombo(0);
+      setOppSkillCooldown(0);
+      setOppLowHpUsed(false);
+      setSkillBubble(null);
     setCloverSent(false);
     setDuelCategory('all');
     setDuelMessage(null);
@@ -1079,6 +1091,24 @@ export default function DuelPage() {
         .catch(() => {});
     }
 
+    const isSkillMatchClient = (specialty, category) => {
+      if (!specialty || !category) return false;
+      const s = String(specialty).toLowerCase();
+      const c = String(category).toLowerCase();
+      return c === s || c.includes(s) || s.includes(c);
+    };
+
+    const showPetSkillBubble = (side, petSkill) => {
+      if (!petSkill) return;
+      setSkillBubble({ side, text: `✨ ${petSkill.nameVi}`, effectType: petSkill.effectType });
+      if (side === 'mine' && petSkill.effectType === 'heal' && !activeFriendRoomId) {
+        const healPct = Math.max(5, Math.round((petSkill.effectVal || 0.15) * 100));
+        setMyHp(prev => Math.min(100, prev + healPct));
+        setDamagePopup({ target: 'mine', amount: `+${healPct} HP`, isHeal: true });
+      }
+      setTimeout(() => setSkillBubble(prev => (prev?.side === side ? null : prev)), 1400);
+    };
+
     if (isCorrect) {
       const nextCombo = comboCount + 1;
       const nextEnergy = Math.min(5, energy + 1);
@@ -1086,12 +1116,12 @@ export default function DuelPage() {
       setEnergy(nextEnergy);
       play('correct');
 
-      // Kiểm tra hiển thị nhãn trigger v0.2 trên đầu pet (1s)
+      // Kiểm tra hiển thị nhãn trigger v0.2 trên đầu pet
       const petSkill = myPetInfo.evolution >= 1 ? PET_SKILLS[myPetInfo.speciesId] : null;
-      if (petSkill?.activation) {
+      if (petSkill?.activation && mySkillCooldown <= 0) {
         const trig = petSkill.activation.trigger;
         let triggered = false;
-        if (trig === 'energy_full' && nextEnergy >= 5) {
+        if (trig === 'energy_full' && nextEnergy >= (petSkill.activation.value || 5)) {
           triggered = true;
           setEnergy(0);
         } else if (trig === 'combo_streak' && nextCombo >= (petSkill.activation.value || 3)) {
@@ -1099,17 +1129,55 @@ export default function DuelPage() {
           setComboCount(0);
         } else if (trig === 'fast_answer' && answerTime * 1000 <= (petSkill.activation.value || 5000)) {
           triggered = true;
-        } else if (trig === 'skill_match' && q?.category && petSkill.specialty && q.category.toLowerCase().includes(petSkill.specialty)) {
+        } else if (trig === 'skill_match' && isSkillMatchClient(petSkill.specialty, q?.category)) {
           triggered = true;
         }
         if (triggered) {
-          setSkillBubble({ side: 'mine', text: petSkill.labelVi });
-          setTimeout(() => setSkillBubble(null), 1000);
+          if (petSkill.activation.cooldown_turns) {
+            setMySkillCooldown(petSkill.activation.cooldown_turns);
+          }
+          showPetSkillBubble('mine', petSkill);
+        } else if (mySkillCooldown > 0) {
+          setMySkillCooldown(c => Math.max(0, c - 1));
         }
+      } else if (mySkillCooldown > 0) {
+        setMySkillCooldown(c => Math.max(0, c - 1));
       }
     } else {
       setComboCount(0);
+      if (mySkillCooldown > 0) setMySkillCooldown(c => Math.max(0, c - 1));
       play('wrong');
+    }
+
+    // Kiểm tra trigger đối thủ (hiển thị skill đối thủ trên sân)
+    const challengerTurn = challengerResults[currentQ];
+    const oppCorrect = mode === 'playing'
+      ? (typeof challengerTurn === 'object' ? !!challengerTurn.correct : !!challengerTurn)
+      : (mode === 'arena' && !activeFriendRoomId ? Math.random() < 0.72 : !isCorrect);
+    const oppSkill = opponentPet?.evolution >= 1 ? PET_SKILLS[opponentPet.speciesId] : null;
+    if (oppCorrect && oppSkill?.activation && oppSkillCooldown <= 0) {
+      const nextOppCombo = oppCombo + 1;
+      const nextOppEnergy = Math.min(5, oppEnergy + 1);
+      setOppCombo(nextOppCombo);
+      setOppEnergy(nextOppEnergy);
+      const oTrig = oppSkill.activation.trigger;
+      let oTriggered = false;
+      if (oTrig === 'energy_full' && nextOppEnergy >= (oppSkill.activation.value || 5)) {
+        oTriggered = true;
+        setOppEnergy(0);
+      } else if (oTrig === 'combo_streak' && nextOppCombo >= (oppSkill.activation.value || 3)) {
+        oTriggered = true;
+        setOppCombo(0);
+      } else if (oTrig === 'skill_match' && isSkillMatchClient(oppSkill.specialty, q?.category)) {
+        oTriggered = true;
+      }
+      if (oTriggered) {
+        if (oppSkill.activation.cooldown_turns) setOppSkillCooldown(oppSkill.activation.cooldown_turns);
+        setTimeout(() => showPetSkillBubble('opponent', oppSkill), 450);
+      }
+    } else {
+      if (!oppCorrect) setOppCombo(0);
+      if (oppSkillCooldown > 0) setOppSkillCooldown(c => Math.max(0, c - 1));
     }
 
     // Run battle animation, then advance (nếu đang ở Phòng Bạn bè đồng bộ thì chờ đối thủ xong cùng câu mới qua câu kế)
@@ -1692,63 +1760,113 @@ export default function DuelPage() {
           {damagePopup?.isCritical && <div className="battle-effect effect-critical"></div>}
 
           {/* Opponent HUD Card */}
-          <div className="arena-hud-card arena-hud-opponent">
-            <div className="arena-hud-header">
-              <div className="arena-pet-title">
-                <span>{opponentPet?.name || 'Đối thủ'}</span>
-                <span className="arena-elem-badge" style={{ backgroundColor: oppTheme.color }}>
-                  {ELEMENT_COLORS[opponentPet?.element || 'earth']?.name || 'Đất'}
-                </span>
+          {(() => {
+            const oppSkill = (opponentPet?.evolution || 0) >= 1 ? PET_SKILLS[opponentPet?.speciesId] : null;
+            const oppTrig = oppSkill?.activation?.trigger;
+            let oppBadge = '';
+            if (oppSkill) {
+              if (oppSkillCooldown > 0) oppBadge = `Hồi ${oppSkillCooldown}L`;
+              else if (oppTrig === 'combo_streak') oppBadge = `${oppCombo}/${oppSkill.activation.value || 3} câu`;
+              else if (oppTrig === 'energy_full') oppBadge = `NL ${oppEnergy}/${oppSkill.activation.value || 5}`;
+              else if (oppTrig === 'fast_answer') oppBadge = `≤${Math.round((oppSkill.activation.value || 5000) / 1000)}s`;
+              else if (oppTrig === 'skill_match') oppBadge = 'Sở trường';
+              else if (oppTrig === 'low_hp') oppBadge = oppLowHpUsed ? 'Đã dùng' : 'HP ≤30%';
+            }
+            return (
+              <div className="arena-hud-card arena-hud-opponent">
+                <div className="arena-hud-header">
+                  <div className="arena-pet-title">
+                    <span>{opponentPet?.name || 'Đối thủ'}</span>
+                    <span className="arena-elem-badge" style={{ backgroundColor: oppTheme.color }}>
+                      {ELEMENT_COLORS[opponentPet?.element || 'earth']?.name || 'Đất'}
+                    </span>
+                  </div>
+                  <span className="arena-pet-level">C{(opponentPet?.evolution || 0) + 1}</span>
+                </div>
+                <div className="arena-bar-wrap">
+                  <span className="arena-bar-label">HP</span>
+                  <div className="arena-bar-track">
+                    <div className="arena-hp-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
+                  </div>
+                  <span className="arena-bar-val">{opponentHp}/100</span>
+                </div>
+                {oppSkill ? (
+                  <div className="arena-skill-chip" title={oppSkill.descVi}>
+                    <span className="arena-skill-name">✨ {oppSkill.nameVi}</span>
+                    <span className={`arena-skill-badge is-opponent ${oppSkillCooldown > 0 ? 'is-cooldown' : ''}`}>{oppBadge}</span>
+                  </div>
+                ) : (
+                  <div className="arena-skill-chip">
+                    <span className="arena-skill-name text-muted">🥚 Chưa mở kỹ năng</span>
+                  </div>
+                )}
               </div>
-              <span className="arena-pet-level">C{(opponentPet?.evolution || 0) + 1}</span>
-            </div>
-            <div className="arena-bar-wrap">
-              <span className="arena-bar-label">HP</span>
-              <div className="arena-bar-track">
-                <div className="arena-hp-fill" style={{ width: `${opponentHp}%`, backgroundColor: hpColor(opponentHp) }}></div>
-              </div>
-              <span className="arena-bar-val">{opponentHp}/100</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* My Pet HUD Card */}
-          <div className="arena-hud-card arena-hud-mine">
-            <div className="arena-hud-header">
-              <div className="arena-pet-title">
-                <span>{myPetInfo.name}</span>
-                <span className="arena-elem-badge" style={{ backgroundColor: elementTheme.color }}>
-                  {ELEMENT_COLORS[myPetInfo.element]?.name || 'Vô'}
-                </span>
+          {(() => {
+            const mySkill = (myPetInfo.evolution || 0) >= 1 ? PET_SKILLS[myPetInfo.speciesId] : null;
+            const myTrig = mySkill?.activation?.trigger;
+            let myBadge = '';
+            if (mySkill) {
+              if (mySkillCooldown > 0) myBadge = `Hồi ${mySkillCooldown}L`;
+              else if (myTrig === 'combo_streak') myBadge = `${comboCount}/${mySkill.activation.value || 3} câu`;
+              else if (myTrig === 'energy_full') myBadge = `NL ${energy}/${mySkill.activation.value || 5}`;
+              else if (myTrig === 'fast_answer') myBadge = `≤${Math.round((mySkill.activation.value || 5000) / 1000)}s`;
+              else if (myTrig === 'skill_match') myBadge = 'Sở trường';
+              else if (myTrig === 'low_hp') myBadge = myLowHpUsed ? 'Đã dùng' : 'HP ≤30%';
+            }
+            return (
+              <div className="arena-hud-card arena-hud-mine">
+                <div className="arena-hud-header">
+                  <div className="arena-pet-title">
+                    <span>{myPetInfo.name}</span>
+                    <span className="arena-elem-badge" style={{ backgroundColor: elementTheme.color }}>
+                      {ELEMENT_COLORS[myPetInfo.element]?.name || 'Vô'}
+                    </span>
+                  </div>
+                  <span className="arena-pet-level">C{(myPetInfo.evolution || 0) + 1}</span>
+                </div>
+                <div className="arena-bar-wrap">
+                  <span className="arena-bar-label">HP</span>
+                  <div className="arena-bar-track">
+                    <div className="arena-hp-fill" style={{ width: `${myHp}%`, backgroundColor: hpColor(myHp) }}></div>
+                  </div>
+                  <span className="arena-bar-val">{myHp}/100</span>
+                </div>
+                {mySkill ? (
+                  <div className="arena-skill-chip" title={mySkill.descVi}>
+                    <span className="arena-skill-name">✨ {mySkill.nameVi}</span>
+                    <span className={`arena-skill-badge ${mySkillCooldown > 0 ? 'is-cooldown' : ''}`}>{myBadge}</span>
+                  </div>
+                ) : (
+                  <div className="arena-skill-chip">
+                    <span className="arena-skill-name text-muted">🥚 Chưa mở kỹ năng</span>
+                  </div>
+                )}
               </div>
-              <span className="arena-pet-level">C{(myPetInfo.evolution || 0) + 1}</span>
-            </div>
-            <div className="arena-bar-wrap">
-              <span className="arena-bar-label">HP</span>
-              <div className="arena-bar-track">
-                <div className="arena-hp-fill" style={{ width: `${myHp}%`, backgroundColor: hpColor(myHp) }}></div>
-              </div>
-              <span className="arena-bar-val">{myHp}/100</span>
-            </div>
-            <div className="arena-bar-wrap">
-              <span className="arena-bar-label">NL</span>
-              <div className="arena-bar-track">
-                <div className="arena-exp-fill" style={{ width: `${energyPct}%` }}></div>
-              </div>
-              <span className="arena-bar-val">{energy}/5</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* My Pet Avatar & Trigger Bubble */}
           <div className={`arena-pet-wrapper arena-pet-mine ${
+            skillBubble?.side === 'mine' ? 'has-skill-active anim-skill-cast' : ''
+          } ${
             battleAnim === 'attack-mine' ? 'anim-attack-mine' :
             battleAnim === 'damage-mine' ? 'anim-damage' :
             myHp <= 0 ? 'anim-faint' : ''
           }`}>
             {skillBubble?.side === 'mine' && (
-              <div className="arena-skill-trigger-bubble">{skillBubble.text}</div>
+              <div className={`arena-skill-trigger-bubble ${
+                skillBubble.effectType === 'heal' ? 'is-heal' :
+                skillBubble.effectType === 'shield' ? 'is-shield' : ''
+              }`}>{skillBubble.text}</div>
             )}
             {damagePopup?.target === 'mine' && (
-              <div className="arena-damage-pop">-{damagePopup.amount}</div>
+              <div className={`arena-damage-pop ${damagePopup.isHeal ? 'is-heal' : ''}`}>
+                {damagePopup.isHeal ? damagePopup.amount : `-${damagePopup.amount}`}
+              </div>
             )}
             <div className="pet-render-slot">
               {myPetInfo.speciesId ? (
@@ -1772,16 +1890,21 @@ export default function DuelPage() {
 
           {/* Opponent Pet Avatar & Trigger Bubble */}
           <div className={`arena-pet-wrapper arena-pet-opponent ${
+            skillBubble?.side === 'opponent' ? 'has-skill-active anim-skill-cast' : ''
+          } ${
             battleAnim === 'attack-opponent' ? 'anim-attack-opponent' :
             battleAnim === 'damage-opponent' ? 'anim-damage' :
             opponentHp <= 0 ? 'anim-faint' : ''
           }`}>
             {skillBubble?.side === 'opponent' && (
-              <div className="arena-skill-trigger-bubble">{skillBubble.text}</div>
+              <div className={`arena-skill-trigger-bubble ${
+                skillBubble.effectType === 'heal' ? 'is-heal' :
+                skillBubble.effectType === 'shield' ? 'is-shield' : ''
+              }`}>{skillBubble.text}</div>
             )}
             {damagePopup?.target === 'opponent' && (
-              <div className="arena-damage-pop">
-                {damagePopup.isCritical ? '💥 ' : ''}-{damagePopup.amount}
+              <div className={`arena-damage-pop ${damagePopup.isHeal ? 'is-heal' : ''}`}>
+                {damagePopup.isHeal ? damagePopup.amount : `${damagePopup.isCritical ? '💥 ' : ''}-${damagePopup.amount}`}
               </div>
             )}
             <div className="pet-render-slot">
@@ -1929,18 +2052,58 @@ export default function DuelPage() {
       );
     }
 
-    // Played result — VS battle result
+    // Played result — VS battle result (Gọn 1 màn hình)
+    const skillLogCount = Array.isArray(result.battleLog)
+      ? result.battleLog.filter(e => e.type === 'skill').length
+      : 0;
     return (
-      <div className="text-center fade-in py-4">
-        <div className="fs-1 mb-2 emoji-big">
-          {result.isWin ? <Icon name="party" size={44} /> : result.isDraw ? <Icon name="handshake" size={44} /> : <Icon name="sad" size={44} />}
+      <div className="arena-result-screen fade-in">
+        {/* Header + Rewards inline */}
+        <div className="arena-result-header">
+          <div className="d-flex align-items-center justify-content-center gap-2">
+            <span className="emoji-big">
+              {result.isWin ? <Icon name="party" size={28} /> : result.isDraw ? <Icon name="handshake" size={28} /> : <Icon name="sad" size={28} />}
+            </span>
+            <h4 className="fw-bold mb-0" style={{ color: result.isWin ? '#2ECC71' : result.isDraw ? '#F39C12' : '#E74C3C' }}>
+              {result.isWin ? 'CHIẾN THẮNG!' : result.isDraw ? 'HÒA!' : 'THẤT BẠI!'}
+            </h4>
+          </div>
+          <div className="d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2">
+            {result.mode === 'arena' ? (
+              <>
+                {result.hasTicket ? (
+                  <span className="badge bg-primary">+{result.rewardMilk} Sữa 🥛</span>
+                ) : (
+                  <span className="badge bg-secondary">Đấu luyện tập (0 vé)</span>
+                )}
+                <span className={`badge ${result.lpDelta >= 0 ? 'bg-info text-dark' : 'bg-danger'}`}>
+                  {result.lpDelta >= 0 ? `+${result.lpDelta}` : result.lpDelta} LP
+                </span>
+                {!result.isBot && result.opponentId && (
+                  <button
+                    type="button"
+                    className={`btn btn-sm py-0 px-2 ${cloverSent ? 'btn-success' : 'btn-outline-success'}`}
+                    style={{ fontSize: '0.75rem' }}
+                    disabled={cloverSent}
+                    onClick={() => handleSendClover(result.opponentId)}
+                  >
+                    🍀 {cloverSent ? 'Đã tặng cỏ!' : 'Tặng cỏ (+5 🥛)'}
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="badge bg-primary">+{result.myScore * 5} Sữa 🥛</span>
+                <span className="badge bg-info text-dark">
+                  +{result.isWin ? 30 : result.isDraw ? 15 : 5} LP
+                </span>
+              </>
+            )}
+          </div>
         </div>
-        <h3 className="fw-bold" style={{ color: result.isWin ? '#2ECC71' : result.isDraw ? '#F39C12' : '#E74C3C' }}>
-          {result.isWin ? 'CHIẾN THẮNG!' : result.isDraw ? 'HÒA!' : 'THẤT BẠI!'}
-        </h3>
 
-        {/* Battle VS comparison */}
-        <div className="d-flex justify-content-center align-items-center gap-3 my-4">
+        {/* Compact VS Comparison */}
+        <div className="arena-result-vs">
           {/* My pet */}
           <div className="text-center">
             <div className="mb-1 d-flex justify-content-center">
@@ -1956,24 +2119,27 @@ export default function DuelPage() {
                   canvasBubble={false}
                   fallbackSrc={myPetImage || undefined}
                   alt={myPetInfo.name}
-                  style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
+                  style={{ width: 56, maxWidth: 56, maxHeight: 60 }}
                 />
               ) : (
-                <div className="fs-2 emoji-big"><Emoji e={myPetInfo.emoji} size={36} /></div>
+                <div className="emoji-big"><Emoji e={myPetInfo.emoji} size={32} /></div>
               )}
             </div>
-            <div className="fw-bold small">{myPetInfo.name}</div>
-            <div className="hp-bar mx-auto mt-1" style={{ width: 80 }}>
+            <div className="fw-bold text-truncate" style={{ fontSize: '0.8rem' }}>{myPetInfo.name}</div>
+            <div className="hp-bar mx-auto my-1" style={{ width: '90%', height: 6 }}>
               <div className="hp-bar-fill" style={{
                 width: `${myHp}%`,
                 backgroundColor: myHp > 50 ? '#2ECC71' : myHp > 25 ? '#F39C12' : '#E74C3C'
               }}></div>
             </div>
-            <h3 className={`fw-bold mb-0 ${result.isWin ? 'text-success' : ''}`}>{result.myScore}/{result.total}</h3>
-            <small className="text-muted"><Icon name="timer" size={14} /> {result.myTime}s</small>
+            <div className="d-flex justify-content-center align-items-center gap-1" style={{ fontSize: '0.78rem' }}>
+              <span className={`fw-bold ${result.isWin ? 'text-success' : ''}`}>{result.myScore}/{result.total}</span>
+              <span className="text-muted">·</span>
+              <span className="text-muted"><Icon name="timer" size={12} /> {result.myTime}s</span>
+            </div>
           </div>
 
-          <div className="fs-3 text-muted fw-bold">VS</div>
+          <div className="fw-bold text-muted" style={{ fontSize: '0.85rem' }}>VS</div>
 
           {/* Opponent pet */}
           <div className="text-center">
@@ -1988,147 +2154,112 @@ export default function DuelPage() {
                   canvasBubble={false}
                   fallbackSrc={opponentPet.image || undefined}
                   alt={opponentPet.name}
-                  style={{ width: 82, maxWidth: 82, maxHeight: 90 }}
+                  style={{ width: 56, maxWidth: 56, maxHeight: 60 }}
                 />
               ) : (
-                <div className="fs-2 emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={36} /></div>
+                <div className="emoji-big"><Emoji e={opponentPet?.emoji || '🐾'} size={32} /></div>
               )}
             </div>
-            <div className="fw-bold small">{opponentPet?.name || 'Đối thủ'}</div>
-            <div className="hp-bar mx-auto mt-1" style={{ width: 80 }}>
+            <div className="fw-bold text-truncate mx-auto" style={{ fontSize: '0.8rem', maxWidth: 120 }}>
+              {challengerNick || opponentPet?.name || 'Đối thủ'}
+            </div>
+            <div className="hp-bar mx-auto my-1" style={{ width: '90%', height: 6 }}>
               <div className="hp-bar-fill" style={{
                 width: `${opponentHp}%`,
                 backgroundColor: opponentHp > 50 ? '#2ECC71' : opponentHp > 25 ? '#F39C12' : '#E74C3C'
               }}></div>
             </div>
-            <h3 className={`fw-bold mb-0 ${!result.isWin && !result.isDraw ? 'text-success' : ''}`}>{result.theirScore}/{result.total}</h3>
-            <small className="text-muted"><Icon name="timer" size={14} /> {result.theirTime}s</small>
+            <div className="d-flex justify-content-center align-items-center gap-1" style={{ fontSize: '0.78rem' }}>
+              <span className={`fw-bold ${!result.isWin && !result.isDraw ? 'text-success' : ''}`}>{result.theirScore}/{result.total}</span>
+              <span className="text-muted">·</span>
+              <span className="text-muted"><Icon name="timer" size={12} /> {result.theirTime}s</span>
+            </div>
           </div>
         </div>
 
-        {/* Rewards */}
-        <div className="card shadow-sm mx-auto" style={{ maxWidth: 360 }}>
-          <div className="card-body">
-            <h6 className="fw-bold mb-2"><Icon name="gift" size={18} /> Phần thưởng</h6>
-            {result.mode === 'arena' ? (
-              <div className="d-flex flex-column align-items-center gap-2">
-                <div className="d-flex justify-content-center gap-2 flex-wrap">
-                  {result.hasTicket ? (
-                    <span className="badge bg-primary fs-6">+{result.rewardMilk} Sữa 🥛</span>
-                  ) : (
-                    <span className="badge bg-secondary">Đấu luyện tập (không tốn vé)</span>
-                  )}
-                  <span className={`badge fs-6 ${result.lpDelta >= 0 ? 'bg-info text-dark' : 'bg-danger'}`}>
-                    {result.lpDelta >= 0 ? `+${result.lpDelta}` : result.lpDelta} LP
-                  </span>
-                </div>
-                {!result.isBot && result.opponentId && (
-                  <button
-                    type="button"
-                    className={`btn btn-sm mt-1 ${cloverSent ? 'btn-success' : 'btn-outline-success'}`}
-                    disabled={cloverSent}
-                    onClick={() => handleSendClover(result.opponentId)}
-                  >
-                    🍀 {cloverSent ? 'Đã tặng cỏ ba lá!' : 'Tặng cỏ ba lá (+5 Sữa cho đối thủ)'}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="d-flex justify-content-center gap-2 flex-wrap">
-                <span className="badge bg-primary">+{result.myScore * 5} Sữa 🥛</span>
-                <span className="badge bg-info text-dark">
-                  +{result.isWin ? 30 : result.isDraw ? 15 : 5} LP
+        {/* Server Battle Log (v2) or Per-question breakdown — Internal scroll */}
+        {Array.isArray(result.battleLog) && result.battleLog.length > 0 ? (
+          <div className="arena-result-log-card">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <h6 className="fw-bold mb-0" style={{ fontSize: '0.85rem' }}>⚔️ Nhật ký trận đấu (Server v2)</h6>
+              {skillLogCount > 0 && (
+                <span className="badge bg-success-subtle text-success" style={{ fontSize: '0.68rem' }}>
+                  ✨ {skillLogCount} Skill
                 </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Per-question breakdown */}
-        {Array.isArray(result.breakdown) && result.breakdown.length > 0 && (
-          <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 340 }}>
-            <div className="card-body">
-              <h6 className="fw-bold mb-2"><Icon name="search" size={18} /> Diễn biến từng câu</h6>
-              <div className="d-flex justify-content-around mb-2 small">
-                <span><Icon name="trophy" size={14} /> Điểm thắng câu:</span>
-                <span><span className="fw-bold text-success">{result.myPoints}</span> - <span className="fw-bold text-danger">{result.theirPoints}</span></span>
-              </div>
-              <div style={{ maxHeight: 220, overflowY: 'auto' }}>
-                {result.breakdown.map((row, i) => {
-                  const mineOk = row.opponentCorrect; // "my" = opponent (this user joining)
-                  const theirOk = row.challengerCorrect;
-                  const mineT = row.opponentTime;
-                  const theirT = row.challengerTime;
-                  let tag = '';
-                  let tagCls = 'bg-light text-dark';
-                  if (row.winner === 'opponent') { tag = 'Bạn thắng'; tagCls = 'bg-success'; }
-                  else if (row.winner === 'challenger') { tag = 'Đối thủ thắng'; tagCls = 'bg-danger'; }
-                  else if (row.winner === 'tie') { tag = 'Hoà'; tagCls = 'bg-warning text-dark'; }
-                  else { tag = '—'; tagCls = 'bg-secondary'; }
-                  return (
-                    <div key={i} className="d-flex justify-content-between align-items-center py-1 border-bottom small">
-                      <span className="text-muted" style={{ minWidth: 30 }}>#{i + 1}</span>
-                      <span style={{ minWidth: 70 }} className="text-start">
-                        <Icon name={mineOk ? 'check' : 'x'} size={14} /> {mineT ? `${mineT}s` : '-'}
+              )}
+            </div>
+            <div className="arena-result-log-list">
+              {result.battleLog.map((entry, idx) => {
+                const isMine = result.mode === 'arena'
+                  ? entry.side === 'challenger'
+                  : entry.side === 'opponent';
+                return (
+                  <div key={idx} className={`py-1 border-bottom ${entry.type === 'skill' ? 'bg-success-subtle px-1 rounded' : ''}`}>
+                    <span className={`badge me-1 ${entry.type === 'skill' ? 'bg-success' : 'bg-secondary'}`}>C{entry.q}</span>
+                    <span className={isMine ? 'text-primary fw-bold' : 'text-danger fw-bold'}>
+                      {isMine ? 'Bạn' : 'Đối thủ'}
+                    </span>
+                    {entry.type === 'miss' && ' trả lời sai (hụt đòn)'}
+                    {entry.type === 'attack' && (
+                      <>
+                        {entry.crit && <span className="text-danger fw-bold"> [CRIT]</span>}
+                        {entry.dodged && <span className="text-info"> [Né đòn]</span>}
+                        {entry.blocked && <span className="text-warning"> [Chặn khiên]</span>}
+                        {!entry.dodged && !entry.blocked && ` gây ${entry.damage} sát thương`}
+                        {entry.burnApplied && ' (gây bỏng)'}
+                        {entry.stunApplied && ' (gây choáng)'}
+                        {entry.lifesteal > 0 && ` (hút ${entry.lifesteal} HP)`}
+                      </>
+                    )}
+                    {entry.type === 'skill' && entry.skill && (
+                      <span className="text-success fw-bold">
+                        {' '}✨ [{entry.skill.label}] tung chiêu <u>{entry.skill.skillName}</u>
+                        {entry.skill.damageDealt > 0 && ` gây ${entry.skill.damageDealt} sát thương`}
+                        {entry.skill.healed > 0 && ` hồi ${entry.skill.healed} HP`}
+                        {entry.skill.shieldGained > 0 && ` (+1 khiên)`}
                       </span>
-                      <span className={`badge ${tagCls}`} style={{ fontSize: '0.65rem' }}>{tag}</span>
-                      <span style={{ minWidth: 70 }} className="text-end">
-                        {theirT ? `${theirT}s` : '-'} <Icon name={theirOk ? 'check' : 'x'} size={14} />
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                    )}
+                    {entry.type === 'burn' && ` dính ${entry.damage} sát thương bỏng`}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
-
-        {/* Server Battle Log (v2) */}
-        {Array.isArray(result.battleLog) && result.battleLog.length > 0 && (
-          <div className="card shadow-sm mx-auto mt-3" style={{ maxWidth: 400 }}>
-            <div className="card-body">
-              <h6 className="fw-bold mb-2">⚔️ Nhật ký trận đấu (Server v2)</h6>
-              <div style={{ maxHeight: 240, overflowY: 'auto' }} className="text-start small">
-                {result.battleLog.map((entry, idx) => {
-                  const isMine = result.mode === 'arena'
-                    ? entry.side === 'challenger'
-                    : entry.side === 'opponent';
-                  return (
-                    <div key={idx} className="py-1 border-bottom">
-                      <span className="badge bg-secondary me-1">C{entry.q}</span>
-                      <span className={isMine ? 'text-primary fw-bold' : 'text-danger fw-bold'}>
-                        {isMine ? 'Bạn' : 'Đối thủ'}
-                      </span>
-                      {entry.type === 'miss' && ' trả lời sai (hụt đòn)'}
-                      {entry.type === 'attack' && (
-                        <>
-                          {entry.crit && <span className="text-danger fw-bold"> [CRIT]</span>}
-                          {entry.dodged && <span className="text-info"> [Né đòn]</span>}
-                          {entry.blocked && <span className="text-warning"> [Chặn khiên]</span>}
-                          {!entry.dodged && !entry.blocked && ` gây ${entry.damage} sát thương`}
-                          {entry.burnApplied && ' (gây bỏng)'}
-                          {entry.stunApplied && ' (gây choáng)'}
-                          {entry.lifesteal > 0 && ` (hút ${entry.lifesteal} HP)`}
-                        </>
-                      )}
-                      {entry.type === 'skill' && entry.skill && (
-                        <span className="text-success fw-bold">
-                          {' '}✨ [{entry.skill.label}] tung chiêu <u>{entry.skill.skillName}</u>
-                          {entry.skill.damageDealt > 0 && ` gây ${entry.skill.damageDealt} sát thương`}
-                          {entry.skill.healed > 0 && ` hồi ${entry.skill.healed} HP`}
-                          {entry.skill.shieldGained > 0 && ` (+1 khiên)`}
-                        </span>
-                      )}
-                      {entry.type === 'burn' && ` dính ${entry.damage} sát thương bỏng`}
-                    </div>
-                  );
-                })}
-              </div>
+        ) : Array.isArray(result.breakdown) && result.breakdown.length > 0 ? (
+          <div className="arena-result-log-card">
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <h6 className="fw-bold mb-0" style={{ fontSize: '0.85rem' }}><Icon name="search" size={14} /> Diễn biến từng câu</h6>
+              <span className="small"><span className="fw-bold text-success">{result.myPoints}</span> - <span className="fw-bold text-danger">{result.theirPoints}</span></span>
+            </div>
+            <div className="arena-result-log-list">
+              {result.breakdown.map((row, i) => {
+                const mineOk = row.opponentCorrect;
+                const theirOk = row.challengerCorrect;
+                const mineT = row.opponentTime;
+                const theirT = row.challengerTime;
+                let tag = '—';
+                let tagCls = 'bg-secondary';
+                if (row.winner === 'opponent') { tag = 'Bạn thắng'; tagCls = 'bg-success'; }
+                else if (row.winner === 'challenger') { tag = 'Đối thủ thắng'; tagCls = 'bg-danger'; }
+                else if (row.winner === 'tie') { tag = 'Hoà'; tagCls = 'bg-warning text-dark'; }
+                return (
+                  <div key={i} className="d-flex justify-content-between align-items-center py-1 border-bottom">
+                    <span className="text-muted" style={{ minWidth: 26 }}>#{i + 1}</span>
+                    <span style={{ minWidth: 62 }} className="text-start">
+                      <Icon name={mineOk ? 'check' : 'x'} size={13} /> {mineT ? `${mineT}s` : '-'}
+                    </span>
+                    <span className={`badge ${tagCls}`} style={{ fontSize: '0.62rem' }}>{tag}</span>
+                    <span style={{ minWidth: 62 }} className="text-end">
+                      {theirT ? `${theirT}s` : '-'} <Icon name={theirOk ? 'check' : 'x'} size={13} />
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
+        ) : null}
 
-        <button className="btn btn-cowdi-primary mt-4" onClick={backToLobby}>
+        <button className="btn btn-cowdi-primary w-100 py-2 fw-bold" onClick={backToLobby}>
           ← Quay về đấu trường
         </button>
       </div>
