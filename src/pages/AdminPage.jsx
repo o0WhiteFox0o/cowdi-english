@@ -107,6 +107,11 @@ export default function AdminPage() {
               <i className="fas fa-film me-2"></i>Chỉnh động tác pet
             </Link>
           </li>
+          <li className="nav-item">
+            <Link className="nav-link fw-bold px-3 py-2 text-dark" to="/admin/screens">
+              <i className="fas fa-sliders-h me-2"></i>Kiểm tra màn học
+            </Link>
+          </li>
         </ul>
         <span className="badge bg-secondary-subtle text-secondary px-2 py-1 rounded-pill small">
           Admin Portal

@@ -33,6 +33,7 @@ function loadStepDone(lessonId) {
   try { return JSON.parse(localStorage.getItem(stepStorageKey(lessonId))) || {}; } catch { return {}; }
 }
 import { useUser } from '../../hooks/useUser';
+import { useScreenConfig } from '../../hooks/useScreenConfig';
 import { usePet } from '../../hooks/usePet';
 import { PET_REGISTRY, getEvolutionInfo, getSkillLevel } from '../../data/pets';
 import PetStage from '../../pet-director/PetStage';
@@ -337,6 +338,7 @@ export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { userData, addXP, addSkillXP, markLessonCompleted, recordLessonScore, incrementQuizzes, setWordStatus, getWordStatus, recordWordEncounter, recordQuestionResult, refreshWallet } = useUser();
+  const { config: screenConfig, isTester: isScreenTester } = useScreenConfig();
   const { getActivePetWithDecay, onLessonComplete } = usePet();
   const showToast = useToast();
   const { play, muted } = useSound();
@@ -2134,6 +2136,8 @@ export default function LessonDetailPage() {
         lesson={lesson}
         group={group.id}
         rules={rules}
+        config={screenConfig}
+        isTester={isScreenTester}
         onFinishLessonAttempt={finishLessonAttempt}
         pathNext={pathNext}
         pathQuerySuffix={pathQuerySuffix}
