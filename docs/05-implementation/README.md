@@ -22,3 +22,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [RPT-PET-DIRECTOR-SURVEY.md](RPT-PET-DIRECTOR-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Pet Director V2**
 - [TASK-FLASHCARD-v1.4.md](TASK-FLASHCARD-v1.4.md) — **Kế hoạch & checklist nghiệm thu Flashcard Audio UX & Điểm nhớ v1.4 (PR A–C)**
 - [RPT-FLASHCARD-SURVEY.md](RPT-FLASHCARD-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Flashcard v1.4**
+- [screen-system/README.md](screen-system/README.md) — **Gói giao việc Hệ thống Màn học 4 Đợt** ([Phase 1](screen-system/GEMINI-SCREEN-SYSTEM-PHASE1.md) · [Phase 2](screen-system/GEMINI-SCREEN-SYSTEM-PHASE2.md) · [Phase 3](screen-system/GEMINI-SCREEN-SYSTEM-PHASE3.md) · [Phase 4](screen-system/GEMINI-SCREEN-SYSTEM-PHASE4.md))
+- [TASK-SCREEN-SYSTEM.md](TASK-SCREEN-SYSTEM.md) — **Kế hoạch & checklist triển khai Hệ thống Màn học 4 Đợt (`WS-11`)**
+- [RPT-SCREEN-SYSTEM-SURVEY.md](RPT-SCREEN-SYSTEM-SURVEY.md) — **Báo cáo khảo sát mã nguồn Bước 0 cho Hệ thống Màn học 4 Đợt**
+- [GDE-SYSTEM-AUDIT-BUGS-v1.0.md](GDE-SYSTEM-AUDIT-BUGS-v1.0.md) — **Hướng dẫn Rà soát & Phát hiện Lỗi Hệ thống trước khi deploy**

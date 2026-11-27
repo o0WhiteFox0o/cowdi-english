@@ -1,6 +1,6 @@
 # REG-DOCUMENTS — Sổ đăng ký Tài liệu (Document Register)
 
-> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-26
+> Tài liệu sống · Quy ước: [DOCP-COWDI-v1.1.md](DOCP-COWDI-v1.1.md) · **Cập nhật lần cuối:** 2026-11-27
 
 > Mọi tài liệu mới, đổi phiên bản hoặc đổi trạng thái đều phải cập nhật vào sổ này. Cột **Thay cho** giữ tên file cũ để truy cứu link lịch sử.
 
@@ -57,7 +57,8 @@
 | SDD | **Quản lý Pet (từ Pet Motion) & Tối ưu UI/UX Zero-Scroll Quiz** | [SDD-PET-MANAGEMENT-v1.0.md](../04-design/SDD-PET-MANAGEMENT-v1.0.md) | 1.0 | Approved | (mới 2026-11-24 — mở rộng `PET-MOTION.md`) |
 | SDD | **Khung chuyển động Pet & PetRig (tích hợp kỹ thuật)** | [PET-MOTION.md](../PET-MOTION.md) | sống | Approved | (cập nhật 2026-11-25: liên kết Pet Director V2) |
 | SDD | **Pet Director V2 — Điều phối biểu đạt & Sân khấu Pet (GĐ 1–2)** | [SDD-PET-DIRECTOR-v1.1.md](../04-design/SDD-PET-DIRECTOR-v1.1.md) · [Mockups](../04-design/pet-director-mockups/) | 1.1.1 | Approved (Đã triển khai GĐ 1–2) | (cập nhật 2026-11-26: bố cục đồng hành V2 & cân bằng đa màn hình) |
-| SDD | **Flashcard Audio UX & Điểm nhớ tự động (F1–F5, PR A–C)** | [SDD-FLASHCARD-AUDIO-UX-v1.4.md](../04-design/SDD-FLASHCARD-AUDIO-UX-v1.4.md) · [Demo](../04-design/flashcard-mockups/flashcard-demo.html) | 1.4 | Approved (Chờ duyệt kế hoạch & `DEC-09`) | (mới 2026-11-26 — từ gói `cowdi-flashcard-v1.4.zip`) |
+| SDD | **Flashcard Audio UX & Điểm nhớ tự động (F1–F5, PR A–C)** | [SDD-FLASHCARD-AUDIO-UX-v1.4.md](../04-design/SDD-FLASHCARD-AUDIO-UX-v1.4.md) · [Demo](../04-design/flashcard-mockups/flashcard-demo.html) | 1.4 | Approved (Đã gộp `main` `74535c1`) | (cập nhật 2026-11-27 — gộp từ `feat/flashcard-audio-ux`) |
+| STD | **Hệ thống Màn học Cowdi (mã T/F, luật trộn 6 màn, sao & Sữa Q13, dẫn nhập, admin)** | [STD-SCREEN-SYSTEM-v1.0.md](../04-design/STD-SCREEN-SYSTEM-v1.0.md) | 1.0 | Approved (Chờ duyệt khởi động Đợt 1) | (mới 2026-11-27 — từ gói `Cowdi-Screen-System-4-dot.zip`) |
 | ERD | Sơ đồ thực thể quan hệ | [ERD-COWDI-v1.0.md](../04-design/ERD-COWDI-v1.0.md) | 1.0 | Approved | — |
 | ERD | Sơ đồ ERD vật lý (Data Dictionary .xlsx) | [Cowdi_English_Physical_ERD_v1.0.xlsx](../04-design/Cowdi_English_Physical_ERD_v1.0.xlsx) | 1.0 | Approved | — |
 | WRD | Sơ đồ quan hệ web & phân hệ | [WRD-COWDI-v1.0.md](../04-design/WRD-COWDI-v1.0.md) | 1.0 | Approved | WEB-RELATIONSHIP-DIAGRAM-v1.0.md |
@@ -101,8 +102,12 @@
 | RPT | **Báo cáo khảo sát mã nguồn Phân hệ Bạn bè & Thưởng mời bạn (Bước 0)** | [RPT-FRIENDS-SURVEY.md](../05-implementation/RPT-FRIENDS-SURVEY.md) | — | Approved | (mới 2026-11-25) |
 | TASK | **Kế hoạch & Checklist triển khai Pet Director V2 (Gói A–E, GĐ 1–2)** | [TASK-PET-DIRECTOR.md](../05-implementation/TASK-PET-DIRECTOR.md) | 1.1 | Done (gộp `main`) | (hoàn thành 2026-11-26) |
 | RPT | **Báo cáo khảo sát mã nguồn Pet Director V2 & Tích hợp Pet-motion** | [RPT-PET-DIRECTOR-SURVEY.md](../05-implementation/RPT-PET-DIRECTOR-SURVEY.md) | — | Approved | (mới 2026-11-25) |
-| TASK | **Kế hoạch & Checklist triển khai Flashcard Audio UX & Điểm nhớ v1.4 (PR A–C)** | [TASK-FLASHCARD-v1.4.md](../05-implementation/TASK-FLASHCARD-v1.4.md) | 1.4 | Ready (Chờ duyệt & `DEC-09`) | (mới 2026-11-26) |
+| TASK | **Kế hoạch & Checklist triển khai Flashcard Audio UX & Điểm nhớ v1.4 (PR A–C)** | [TASK-FLASHCARD-v1.4.md](../05-implementation/TASK-FLASHCARD-v1.4.md) | 1.4 | Done (gộp `main` `74535c1`) | (gộp `main` 2026-11-27) |
 | RPT | **Báo cáo khảo sát mã nguồn Bước 0 — Flashcard v1.4** | [RPT-FLASHCARD-SURVEY.md](../05-implementation/RPT-FLASHCARD-SURVEY.md) | — | Approved | (mới 2026-11-26) |
+| SPEC | **Gói đặc tả triển khai Hệ thống Màn học 4 Đợt (Phase 1–4)** | [screen-system/README.md](../05-implementation/screen-system/README.md) · [P1](../05-implementation/screen-system/GEMINI-SCREEN-SYSTEM-PHASE1.md) · [P2](../05-implementation/screen-system/GEMINI-SCREEN-SYSTEM-PHASE2.md) · [P3](../05-implementation/screen-system/GEMINI-SCREEN-SYSTEM-PHASE3.md) · [P4](../05-implementation/screen-system/GEMINI-SCREEN-SYSTEM-PHASE4.md) | 1.0 | Approved | (mới 2026-11-27) |
+| TASK | **Kế hoạch & Checklist triển khai Hệ thống Màn học 4 Đợt (`WS-11`)** | [TASK-SCREEN-SYSTEM.md](../05-implementation/TASK-SCREEN-SYSTEM.md) | 1.0 | Ready (Chờ PO duyệt Đợt 1) | (mới 2026-11-27) |
+| RPT | **Báo cáo khảo sát mã nguồn Bước 0 — Hệ thống Màn học 4 Đợt** | [RPT-SCREEN-SYSTEM-SURVEY.md](../05-implementation/RPT-SCREEN-SYSTEM-SURVEY.md) | — | Approved | (mới 2026-11-27) |
+| GDE | **Hướng dẫn Rà soát & Phát hiện Lỗi Hệ thống (React, CSS Mobile, Economy, Sync Loop)** | [GDE-SYSTEM-AUDIT-BUGS-v1.0.md](../05-implementation/GDE-SYSTEM-AUDIT-BUGS-v1.0.md) | 1.0 | Approved | (mới 2026-11-27) |
 
 ## 06 — Kiểm chứng & Thẩm định (ISO/IEC/IEEE 29119 & IEEE 1012)
 | Mã | Tài liệu | File | Ver | Trạng thái | Thay cho |

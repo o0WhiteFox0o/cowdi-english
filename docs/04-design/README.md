@@ -22,6 +22,7 @@ Trạng thái & phiên bản: xem [REG-DOCUMENTS](../00-general/REG-DOCUMENTS.md
 - [SDD-PET-MANAGEMENT-v1.0.md](SDD-PET-MANAGEMENT-v1.0.md) — **Nâng cấp Quản lý Pet (thêm/sửa/xoá/upload pet mới) & Tối ưu UI/UX Zero-Scroll Quiz**
 - [SDD-PET-DIRECTOR-v1.1.md](SDD-PET-DIRECTOR-v1.1.md) — **Hệ thống Điều phối Biểu đạt Pet Director V2 & Sân khấu Pet (GĐ 1–2)**
 - [SDD-FLASHCARD-AUDIO-UX-v1.4.md](SDD-FLASHCARD-AUDIO-UX-v1.4.md) — **Flashcard v1.4: Tự đọc khi chuyển thẻ, Loa trên thẻ & Trạng thái từ tự động (Điểm nhớ)** ([Demo](flashcard-mockups/flashcard-demo.html))
+- [STD-SCREEN-SYSTEM-v1.0.md](STD-SCREEN-SYSTEM-v1.0.md) — **Hệ thống Màn học Cowdi v1.0: Mã màn T/F, luật trộn 6 màn, sao ★ & Sữa Q13, dẫn nhập không lặp 10 ải, Admin `/admin/screens`**
 - [SDD-PET-BATTLE-SPEC-v2.0.docx](SDD-PET-BATTLE-SPEC-v2.0.docx)
 - [WRD-COWDI-v1.0.md](WRD-COWDI-v1.0.md)
 - [SDD-GAME-PET-v1.0.md](SDD-GAME-PET-v1.0.md)
