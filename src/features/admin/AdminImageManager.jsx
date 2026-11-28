@@ -141,6 +141,17 @@ const EXTRA_SHOP_BANNERS = [
   { key: 'shop:event_group9', title: 'Sự kiện · Group 9', subtitle: 'Ảnh sự kiện', defaultUrl: '/assets/images/events/Group 9.webp', group: 'event' },
 ];
 
+const EXISTING_ROOM_BG_MAP = {
+  room_library: '/image/background_character/bg_library.webp',
+  room_collection: '/image/background_character/bg_collection.webp',
+  room_game_category: '/image/background_character/bg_game_category.webp',
+  room_discovery: '/image/background_character/bg_discovery.webp',
+  room_latest_updates: '/image/background_character/bg_latest_updates.webp',
+  room_featured_events: '/image/background_character/bg_featured_events.webp',
+};
+
+const EXISTING_REGION_FOG_IMAGES = new Set(['BD', 'VS', 'RM', 'CN', 'TG', 'CNS']);
+
 const STORY_SCENES = [
   { key: 'story:scene_classroom', title: 'Cảnh Lớp học', subtitle: 'scenes/classroom.webp', defaultUrl: '/image/scenes/classroom.webp', group: 'scene' },
   { key: 'story:scene_schoolyard', title: 'Cảnh Sân trường', subtitle: 'scenes/schoolyard.webp', defaultUrl: '/image/scenes/schoolyard.webp', group: 'scene' },
@@ -295,7 +306,7 @@ export default function AdminImageManager() {
         subtitle: `Nền sảnh · ${(COSMETIC_RARITIES[bg.rarity]?.label || bg.rarity)} · ${bg.note || ''}`,
         emoji: bg.emoji || '🖼️',
         bgStyle: bg.bgStyle || '#f1f5f9',
-        defaultUrl: bg.bgImage || null,
+        defaultUrl: bg.bgImage || EXISTING_ROOM_BG_MAP[bg.id] || null,
         group: 'room',
         category: 'cosmetic',
       });
@@ -361,11 +372,12 @@ export default function AdminImageManager() {
       });
     }
     for (const [code, region] of Object.entries(REGIONS || {})) {
+      const hasStatic = EXISTING_REGION_FOG_IMAGES.has(code);
       items.push({
         key: `story:region_${code}_fog`,
         title: `${region.nameVi || code} (Sáng sương)`,
         subtitle: `Vùng đất ${code} · ${code}-sang-suong.webp`,
-        defaultUrl: `/image/regions/${code}-sang-suong.webp`,
+        defaultUrl: hasStatic ? `/image/regions/${code}-sang-suong.webp` : null,
         group: 'region',
       });
     }
