@@ -7,6 +7,8 @@ import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speec
 import { getWordId } from '../../../vocab/wordProgress';
 import { REGIONS, REGION_COLOR } from '../../../../../shared/regions';
 import { getScreenTitle } from '../../../../../shared/screen-scenarios';
+import { bossFogLevel } from '../../../../../shared/story-season2';
+import { getUnitBossInfo } from '../../story/petImage';
 import { bossItems } from '../items';
 import { createRng } from '../seededRandom';
 import { applyBossDamage, evaluateBossOutcome } from './friendlyLogic';
@@ -65,6 +67,17 @@ export default function F06FogBoss({
   const { getActivePetWithDecay } = usePet();
   const { dispatch } = usePetDirector();
   const activePet = getActivePetWithDecay();
+  const companionId = activePet?.speciesId || 'cowdi';
+  const storyBoss = useMemo(
+    () => (lesson?.unit ? getUnitBossInfo(lesson.unit, companionId) : null),
+    [lesson?.unit, companionId],
+  );
+  const fogOpacity = useMemo(() => {
+    if (!storyBoss || !lesson?.unit) return 0.7;
+    return bossFogLevel(lesson.unit, extra.completedLessons || [], Boolean(extra.checkpointPassed));
+  }, [storyBoss, lesson?.unit, extra.completedLessons, extra.checkpointPassed]);
+  const hitIdxRef = useRef(0);
+  const wrongIdxRef = useRef(0);
   const defaultRate = rules?.ttsRate || 0.85;
   const passRate = rules?.lessonPassRate ?? 0.7;
   const region = extra.region || 'BD';
@@ -106,7 +119,9 @@ export default function F06FogBoss({
   const [missedWordIds, setMissedWordIds] = useState([]);
   const [battleEnd, setBattleEnd] = useState(null); // null | { passed, perfect, bossState }
   const [reviewWrongMode, setReviewWrongMode] = useState(false);
-  const [petText, setPetText] = useState(`Boss Sương ${regionName} xuất hiện! Trả lời đúng để giải sương nhé!`);
+  const [petText, setPetText] = useState(
+    storyBoss?.lines?.enter?.vi || `Boss Sương ${regionName} xuất hiện! Trả lời đúng để giải sương nhé!`,
+  );
   const [petTone, setPetTone] = useState('neutral');
 
   const current = questions[qIdx] || null;
@@ -139,9 +154,10 @@ export default function F06FogBoss({
       setBossAnim(outcome.bossState); // 'dissolve' | 'flee'
       setPetTone('good');
       setPetText(
-        outcome.perfect
+        storyBoss?.lines?.retreat?.vi ||
+        (outcome.perfect
           ? `Trọn điểm! Boss Sương ${regionName} đã tan biến hoàn toàn!`
-          : `Đạt rồi! Boss Sương ${regionName} phải bỏ chạy rồi!`
+          : `Đạt rồi! Boss Sương ${regionName} phải bỏ chạy rồi!`)
       );
       dispatch('battle_win', { lessonId: lesson?.id, perfect: outcome.perfect });
       setTimeout(() => {
@@ -160,10 +176,13 @@ export default function F06FogBoss({
     } else {
       setBossAnim('idle');
       setPetTone('hint');
-      setPetText(`Sương vẫn còn dày (cần ≥${Math.round(passRate * 100)}%). Ôn các từ vừa sai rồi đánh lại nha!`);
+      setPetText(
+        storyBoss?.lines?.fail?.vi ||
+        `Sương vẫn còn dày (cần ≥${Math.round(passRate * 100)}%). Ôn các từ vừa sai rồi đánh lại nha!`
+      );
       dispatch('battle_lose', { lessonId: lesson?.id });
     }
-  }, [lessonTotal, passRate, regionName, dispatch, lesson?.id, onDone]);
+  }, [lessonTotal, passRate, regionName, storyBoss, dispatch, lesson?.id, onDone]);
 
   const advanceNext = useCallback((nextLessonCorrect, nextGuestTotal, nextGuestCorrect, nextWrongAnswers) => {
     if (qIdx + 1 < questions.length) {
@@ -200,14 +219,19 @@ export default function F06FogBoss({
       setBossAnim('hit');
       setTimeout(() => setBossAnim('idle'), 380);
 
+      const hitLines = storyBoss?.lines?.hit;
+      const storyHitText = Array.isArray(hitLines) && hitLines.length > 0
+        ? hitLines[hitIdxRef.current++ % hitLines.length]?.vi
+        : null;
+
       if (nextCombo >= 3 && nextCombo % 3 === 0) {
         setSkillFlash(true);
         play?.('combo');
         setTimeout(() => setSkillFlash(false), 500);
-        setPetText(`⚡ Combo ${nextCombo}! Kỹ năng pet đánh tan một mảng sương lớn!`);
+        setPetText(storyHitText || `⚡ Combo ${nextCombo}! Kỹ năng pet đánh tan một mảng sương lớn!`);
       } else {
         play?.('bossHit');
-        setPetText('Chính xác! Pet vừa tung đòn đẩy lùi sương mù!');
+        setPetText(storyHitText || 'Chính xác! Pet vừa tung đòn đẩy lùi sương mù!');
       }
       setPetTone('good');
       dispatch('battle_hit', { combo: nextCombo });
@@ -224,7 +248,11 @@ export default function F06FogBoss({
       play?.('bossFog');
       setPetTone('hint');
       const correctTxt = current.options?.[current.correct] || '';
-      setPetText(`Boss phun sương rồi! Đáp án đúng là “${correctTxt}”. Chạm Tiếp để phản công!`);
+      const wrongLines = storyBoss?.lines?.wrong;
+      const storyWrongText = Array.isArray(wrongLines) && wrongLines.length > 0
+        ? wrongLines[wrongIdxRef.current++ % wrongLines.length]?.vi
+        : null;
+      setPetText(storyWrongText || `Boss phun sương rồi! Đáp án đúng là “${correctTxt}”. Chạm Tiếp để phản công!`);
       nextWrongAnswers = [
         ...wrongAnswers,
         {
@@ -323,11 +351,45 @@ export default function F06FogBoss({
         </div>
 
         <div className="text-center">
-          <div className="d-flex justify-content-center align-items-center" style={{ height: 62 }}>
-            <FogBossSvg region={region} animState={bossAnim} size={74} />
+          <div className="d-flex justify-content-center align-items-center position-relative" style={{ height: 62 }}>
+            {storyBoss?.image ? (
+              <div
+                className={`position-relative d-inline-flex align-items-center justify-content-center ff-fog-boss is-${bossAnim}`}
+                style={{ width: 62, height: 62 }}
+              >
+                <img
+                  src={storyBoss.image}
+                  alt={storyBoss.name}
+                  width={58}
+                  height={58}
+                  style={{
+                    objectFit: 'contain',
+                    filter: battleEnd?.passed ? 'none' : `saturate(${Math.max(0.25, 1 - fogOpacity * 0.7)})`,
+                    transition: 'filter 0.35s ease',
+                  }}
+                />
+                <img
+                  src="/image/boss/fog.svg"
+                  alt=""
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    inset: -4,
+                    width: 70,
+                    height: 70,
+                    objectFit: 'contain',
+                    opacity: battleEnd?.passed ? 0.12 : fogOpacity,
+                    pointerEvents: 'none',
+                    transition: 'opacity 0.35s ease',
+                  }}
+                />
+              </div>
+            ) : (
+              <FogBossSvg region={region} animState={bossAnim} size={74} />
+            )}
           </div>
           <div className="d-flex justify-content-between fw-bold px-1" style={{ fontSize: '0.74rem' }}>
-            <span>Boss Sương</span>
+            <span>{storyBoss?.name || 'Boss Sương'}</span>
             <span>{Math.round(bossHp)}%</span>
           </div>
           <div className="ff-hp-bar" aria-label={`HP Boss ${Math.round(bossHp)}%`}>

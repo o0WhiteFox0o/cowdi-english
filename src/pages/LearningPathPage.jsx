@@ -26,6 +26,9 @@ import GroupPicker from '../features/onboarding/GroupPicker';
 import PlacementTest from '../features/placement/PlacementTest';
 import { useFriendPositions } from '../features/friends/useFriendPositions';
 import { FRIEND_LIMITS } from '../../shared/game-config';
+import { SEASON2_UNITS } from '../../shared/story-season2';
+import UnitStoryEpilogue from '../features/lesson/story/UnitStoryEpilogue';
+import { isStorySeen } from '../features/lesson/story/petImage';
 import { usePetDirector } from '../pet-director/DirectorContext';
 import { PathPet, PathPetCard } from '../pet-director/PathPet';
 import Icon from '../components/Icon';
@@ -58,6 +61,7 @@ export default function LearningPathPage() {
   const [testFinished, setTestFinished] = useState(false);
   const [testIsTestOut, setTestIsTestOut] = useState(false);
   const [testExitModal, setTestExitModal] = useState(false);
+  const [epilogueDismissed, setEpilogueDismissed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
 
   // Path tab: ?tab=<pathId> (hỗ trợ cả ?tab=general cũ → activePath)
@@ -457,6 +461,18 @@ export default function LearningPathPage() {
     const playableUnits = activePath.units.filter((u) => !u.comingSoon && u.lessons?.length > 0);
     const isLastUnit = playableUnits[playableUnits.length - 1]?.id === testUnit.id;
     const allUnitLessonsDone = testUnit.lessons.every((lid) => userData.completedLessons?.includes(lid));
+
+    if (passed && SEASON2_UNITS[testUnit.id] && !epilogueDismissed && !isStorySeen(`epilogue:${testUnit.id}`)) {
+      const activePet = getActivePetWithDecay();
+      return (
+        <UnitStoryEpilogue
+          unitId={testUnit.id}
+          companionId={activePet?.speciesId || 'cowdi'}
+          companionC={(activePet?.evolution ?? activePet?.stage ?? 0) + 1}
+          onClose={() => setEpilogueDismissed(true)}
+        />
+      );
+    }
 
     return (
       <div className="text-center py-5 fade-in" style={{ maxWidth: 620, margin: '0 auto' }}>

@@ -38,6 +38,8 @@ export default function StageSummary({
   summaryData,
   wordProgress = {},
   skillGains = {},
+  landmark = '',
+  afterVi = '',
   sandbox = false,
   hasGrammar = false,
   pathNext = null,
@@ -126,6 +128,15 @@ export default function StageSummary({
         {starHint && (
           <div className="small fw-semibold mt-1" style={{ color: '#9A6324' }}>
             {starHint}
+          </div>
+        )}
+
+        {summaryData.passed && afterVi && (
+          <div
+            className="small fw-semibold mt-2 px-3 py-2 rounded-3"
+            style={{ background: '#FEF9E7', border: '1px solid #F5D08A', color: '#4A3420' }}
+          >
+            ✨ {landmark ? `${landmark}: ` : ''}{afterVi}
           </div>
         )}
 

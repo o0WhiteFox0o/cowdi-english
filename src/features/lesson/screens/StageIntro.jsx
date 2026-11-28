@@ -6,28 +6,41 @@ import { PET_REGISTRY } from '../../../data/pets';
 import { REGIONS, REGION_COLOR, getRegionVariant } from '../../../../shared/regions';
 import { HUMAN_CAST, isValidNpc } from '../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../shared/screen-scenarios';
+import { SEASON2_LESSONS, SEASON2_UNITS } from '../../../../shared/story-season2';
+import { speakWord } from '../../../utils/speech';
+import { getStoryPetImage, getHumanNpcImage, isStorySeen, markStorySeen } from '../story/petImage';
 import { getScreen } from './registry';
 import './friendly/friendly.css';
 
-function resolveNpcInfo(npcId, region) {
-  if (npcId && isValidNpc(npcId, region, REGIONS)) {
-    if (HUMAN_CAST[npcId]) {
-      return { id: npcId, name: HUMAN_CAST[npcId].nameVi, isHuman: true };
-    }
-    if (PET_REGISTRY[npcId]) {
+function resolveSpeakerInfo(speakerId, region, { companionId, companionC }) {
+  if (speakerId) {
+    if (HUMAN_CAST[speakerId]) {
       return {
-        id: npcId,
-        name: PET_REGISTRY[npcId].name,
-        isHuman: false,
-        img: PET_REGISTRY[npcId].evolutions?.[0]?.image || null,
+        id: speakerId,
+        name: HUMAN_CAST[speakerId].nameVi,
+        isHuman: true,
+        img: getHumanNpcImage(speakerId),
       };
     }
-    return { id: npcId, name: npcId, isHuman: false };
+    if (PET_REGISTRY[speakerId]) {
+      return {
+        id: speakerId,
+        name: PET_REGISTRY[speakerId].name,
+        isHuman: false,
+        img: getStoryPetImage(speakerId, { companionId, companionC }),
+      };
+    }
   }
-  // Mặc định theo vùng
+
+  // Fallback theo vùng
   const reg = REGIONS[region];
   if (reg?.humanHost && HUMAN_CAST[reg.humanHost]) {
-    return { id: reg.humanHost, name: HUMAN_CAST[reg.humanHost].nameVi, isHuman: true };
+    return {
+      id: reg.humanHost,
+      name: HUMAN_CAST[reg.humanHost].nameVi,
+      isHuman: true,
+      img: getHumanNpcImage(reg.humanHost),
+    };
   }
   const firstHost = reg?.hosts?.[0];
   if (firstHost && PET_REGISTRY[firstHost]) {
@@ -35,14 +48,44 @@ function resolveNpcInfo(npcId, region) {
       id: firstHost,
       name: PET_REGISTRY[firstHost].name,
       isHuman: false,
-      img: PET_REGISTRY[firstHost].evolutions?.[0]?.image || null,
+      img: getStoryPetImage(firstHost, { companionId, companionC }),
     };
   }
-  return { id: 'ong_tu', name: HUMAN_CAST.ong_tu.nameVi, isHuman: true };
+  return {
+    id: 'ong_tu',
+    name: HUMAN_CAST.ong_tu.nameVi,
+    isHuman: true,
+    img: getHumanNpcImage('ong_tu'),
+  };
+}
+
+function SpeakerAvatar({ speaker, size = 38 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  if (speaker.img && !imgFailed) {
+    return (
+      <img
+        src={speaker.img}
+        alt={speaker.name}
+        width={size}
+        height={size}
+        onError={() => setImgFailed(true)}
+        style={{ objectFit: 'contain', flexShrink: 0, borderRadius: speaker.isHuman ? '50%' : 6 }}
+      />
+    );
+  }
+  return (
+    <span
+      className="d-inline-flex align-items-center justify-content-center rounded-circle"
+      style={{ width: size, height: size, background: '#FEF3C7', fontSize: '1.1rem', flexShrink: 0 }}
+      aria-hidden="true"
+    >
+      {speaker.id === 'ong_tu' ? '🚣' : speaker.id === 'tom' ? '👨‍🏫' : '🙂'}
+    </span>
+  );
 }
 
 /**
- * StageIntro — Màn Mở ải (dẫn nhập ải — PHASE3 §3, test P10).
+ * StageIntro — Màn Mở ải + Thẻ Tới vùng (PHASE3 §3 + GEMINI-STORY-INTRO-S2 §1, §2, §4).
  * Chỉ 1 chạm vận hành ("Bắt đầu vượt ải") trước khi vào màn 1, dùng để mở khoá audio.
  */
 export default function StageIntro({
@@ -51,6 +94,9 @@ export default function StageIntro({
   screens = [],
   passRate = 0.7,
   openIntroText = '',
+  companionId = 'cowdi',
+  companionC = 1,
+  sandbox = false,
   onStart,
 }) {
   const [bgFailed, setBgFailed] = useState(false);
@@ -59,10 +105,115 @@ export default function StageIntro({
   const variant = getRegionVariant(region);
   const bgUrl = `/image/regions/${region}-${variant.id}.webp`;
 
-  const npc = resolveNpcInfo(lesson?.story?.npc, region);
-  const storyLine = lesson?.story?.introVi || openIntroText || `Chào con đến với ${regionInfo.nameVi}! Cùng Cowdi vượt qua các màn thử thách hôm nay nhé!`;
+  const lessonStory = lesson?.id ? SEASON2_LESSONS[lesson.id] : null;
+  const unitStory = lessonStory?.unit ? SEASON2_UNITS[lessonStory.unit] : null;
+  const landmarkName =
+    lessonStory && unitStory?.landmarks && typeof lessonStory.landmark === 'number'
+      ? unitStory.landmarks[lessonStory.landmark]
+      : null;
+
+  // Bài đầu tiên của unit → hiện thẻ Tới vùng (arrival / homecoming) trước Mở ải
+  const arrivalKey = unitStory ? `arrival:${lessonStory.unit}` : null;
+  const shouldShowArrivalInit = Boolean(
+    unitStory &&
+    lessonStory?.landmark === 0 &&
+    unitStory.arrival &&
+    (sandbox || !isStorySeen(arrivalKey)),
+  );
+  const [showArrival, setShowArrival] = useState(shouldShowArrivalInit);
+
+  const rawNpcId = lessonStory?.npc || (lesson?.story?.npc && isValidNpc(lesson.story.npc, region, REGIONS) ? lesson.story.npc : null);
+  const npc = resolveSpeakerInfo(rawNpcId, region, { companionId, companionC });
+  const storyLine = lessonStory?.introVi || lesson?.story?.introVi || openIntroText || `Chào con đến với ${regionInfo.nameVi}! Cùng Cowdi vượt qua các màn thử thách hôm nay nhé!`;
+  const storyLineEn = lessonStory?.introEn || '';
   const objectives = Array.isArray(lesson?.objectives) ? lesson.objectives.slice(0, 3) : [];
   const passPct = Math.round((passRate || 0.7) * 100);
+
+  if (showArrival && unitStory) {
+    const useHomecoming = Boolean(unitStory.homecoming && companionId === unitStory.homecoming.by);
+    const card = useHomecoming ? unitStory.homecoming : unitStory.arrival;
+    const hostSpeaker = resolveSpeakerInfo(card.by, region, { companionId, companionC });
+
+    const handleContinueArrival = () => {
+      if (!sandbox && arrivalKey) markStorySeen(arrivalKey);
+      setShowArrival(false);
+    };
+
+    return (
+      <div className="ff-shell" style={{ gap: 10 }}>
+        <div
+          className="ff-stage-hero"
+          style={{
+            background: `linear-gradient(180deg, ${regionColor.sky} 0%, ${regionColor.ground} 100%)`,
+          }}
+        >
+          {!bgFailed && (
+            <img
+              src={bgUrl}
+              alt=""
+              aria-hidden="true"
+              onError={() => setBgFailed(true)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                opacity: 0.28,
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+          <div className="position-relative text-center py-2">
+            <span className="badge rounded-pill mb-2" style={{ background: 'rgba(255,255,255,0.92)', color: '#4A3420', fontWeight: 800, fontSize: '0.75rem' }}>
+              {useHomecoming ? '🏡 Về quê' : '🧭 Tới vùng mới'} · {regionInfo.nameVi}
+            </span>
+            <h2 className="h5 fw-bold mb-1" style={{ color: '#4A3420' }}>
+              {unitStory.episodeVi}
+            </h2>
+            <p className="small mb-0" style={{ color: '#5E4630', lineHeight: 1.35 }}>
+              {unitStory.premiseVi}
+            </p>
+          </div>
+        </div>
+
+        <div className="ff-card d-flex align-items-center gap-3 py-3 px-3">
+          <SpeakerAvatar speaker={hostSpeaker} size={56} />
+          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+            <div className="fw-bold text-uppercase mb-1" style={{ color: '#9A6324', fontSize: '0.72rem', letterSpacing: '0.03em' }}>
+              {hostSpeaker.name}
+            </div>
+            <div className="fw-semibold" style={{ fontSize: '0.92rem', lineHeight: 1.35 }}>
+              “{card.vi}”
+            </div>
+            {card.en && (
+              <div className="d-flex align-items-center gap-2 mt-1">
+                <span className="small fst-italic" style={{ color: '#7C6550' }}>{card.en}</span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                  style={{ width: 24, height: 24 }}
+                  aria-label="Nghe câu tiếng Anh"
+                  onClick={() => speakWord(card.en, { rate: 0.85, lang: 'en-US' }).catch(() => {})}
+                >
+                  <Icon name="sound" size={12} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-cowdi-primary w-100 ff-tap-btn d-inline-flex align-items-center justify-content-center gap-2"
+          style={{ fontSize: '1rem' }}
+          onClick={handleContinueArrival}
+        >
+          Vào tập này →
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="ff-shell" style={{ gap: 8 }}>
@@ -92,9 +243,9 @@ export default function StageIntro({
         )}
 
         <div className="position-relative">
-          <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
+          <div className="d-flex align-items-center justify-content-between gap-2 mb-1 flex-wrap">
             <span className="badge rounded-pill" style={{ background: 'rgba(255,255,255,0.9)', color: '#4A3420', fontWeight: 700, fontSize: '0.72rem' }}>
-              📍 {regionInfo.nameVi}
+              📍 {regionInfo.nameVi}{landmarkName ? ` · ${landmarkName}` : ''}
             </span>
             <span className="badge rounded-pill" style={{ background: 'rgba(74,52,32,0.12)', color: '#4A3420', fontSize: '0.72rem' }}>
               {screens.length} màn
@@ -110,24 +261,19 @@ export default function StageIntro({
             className="p-2 rounded-3 d-flex align-items-center gap-2"
             style={{ background: 'rgba(255,255,255,0.92)', border: '1.5px solid #F0E2C4' }}
           >
-            {npc.img ? (
-              <img src={npc.img} alt={npc.name} width={36} height={36} style={{ objectFit: 'contain', flexShrink: 0 }} />
-            ) : (
-              <span
-                className="d-inline-flex align-items-center justify-content-center rounded-circle"
-                style={{ width: 34, height: 34, background: '#FEF3C7', fontSize: '1.1rem', flexShrink: 0 }}
-                aria-hidden="true"
-              >
-                {npc.id === 'ong_tu' ? '🚣' : npc.id === 'tom' ? '👨‍🏫' : '🙂'}
-              </span>
-            )}
-            <div style={{ minWidth: 0 }}>
+            <SpeakerAvatar speaker={npc} size={38} />
+            <div style={{ minWidth: 0, flex: '1 1 auto' }}>
               <div className="fw-bold text-uppercase" style={{ color: '#9A6324', fontSize: '0.68rem', letterSpacing: '0.03em' }}>
                 {npc.name}
               </div>
               <div className="fw-semibold" style={{ fontSize: '0.84rem', lineHeight: 1.3 }}>
                 “{storyLine}”
               </div>
+              {storyLineEn && (
+                <div className="fst-italic mt-1" style={{ fontSize: '0.74rem', color: '#7C6550' }}>
+                  {storyLineEn}
+                </div>
+              )}
             </div>
           </div>
         </div>

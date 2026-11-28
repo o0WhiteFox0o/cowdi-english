@@ -20,8 +20,8 @@ export const FAMILY_LESSON = {
     'Dùng đúng "have / has" để nói về anh chị em và thành viên gia đình',
   ],
   story: {
-    npc: 'minh',
-    introVi: 'Mình mang tấm ảnh gia đình qua Bến Đò Ông Tư. Cùng mình giới thiệu người thân bằng tiếng Anh nhé!',
+    npc: 'lan',
+    introVi: 'Trên đò, Lan cho Minh xem ảnh gia đình. Sương làm mờ tấm ảnh rồi, con giúp hai bạn giới thiệu nha!',
   },
 
   vocabulary: [

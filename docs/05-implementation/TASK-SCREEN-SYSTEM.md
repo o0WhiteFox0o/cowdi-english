@@ -93,3 +93,4 @@
 2. **Duyệt 228 câu dẫn `draft`** trong `/admin/screens` → Tab **Kho dẫn nhập** (`156` Đợt 3 + `72` Đợt 4) và theo dõi Tab **Thống kê** (ngưỡng ≥ 30 lượt).
 3. **Bổ sung ảnh minh hoạ theo `sceneBrief`** cho các thẻ `trueFalse[]` của `int-u1..u3` chưa có ảnh vẽ riêng (hiện dùng ảnh `/image/art/` sẵn có hoặc emoji).
 4. **Hạng mục dài hạn**: quyết định chuyển nhóm Mới học (`PictureLesson`) sang hệ thống màn, và mở Đợt 4c dọn code tab cũ sau ≥ 2 tuần vận hành ổn định.
+5. **Kịch bản Dẫn nhập Mùa 2 (`int-u1 → int-u3`)**: đã tiếp nhận gói `Cowdi-Story-Mua2-U1-U3.zip`, xem kế hoạch triển khai riêng tại [TASK-STORY-INTRO-S2.md](TASK-STORY-INTRO-S2.md) và danh sách ảnh cần làm tại [CHK-STORY-S2-IMAGES.md](art/CHK-STORY-S2-IMAGES.md).

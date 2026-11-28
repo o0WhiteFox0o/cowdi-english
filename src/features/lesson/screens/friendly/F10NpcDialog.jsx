@@ -3,6 +3,7 @@ import Icon from '../../../../components/Icon';
 import { SpeechRecognitionAPI, speakWord, stopSpeaking } from '../../../../utils/speech';
 import { HUMAN_CAST } from '../../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../../shared/screen-scenarios';
+import { getHumanNpcImage } from '../../story/petImage';
 import { evaluateDialogReply } from './f10Logic';
 import FriendlyFrame from './FriendlyFrame';
 import ScreenActionModal from '../ScreenActionModal';
@@ -49,7 +50,14 @@ export default function F10NpcDialog({
   const recognitionRef = useRef(null);
   const timersRef = useRef([]);
   const current = prompts[cursor] || null;
-  const npcInfo = HUMAN_CAST[current?.npc || 'ong_tu'] || HUMAN_CAST.ong_tu;
+  const npcId = current?.npc || 'ong_tu';
+  const npcInfo = HUMAN_CAST[npcId] || HUMAN_CAST.ong_tu;
+  const npcImg = getHumanNpcImage(npcId);
+  const [npcImgFailed, setNpcImgFailed] = useState(false);
+
+  useEffect(() => {
+    setNpcImgFailed(false);
+  }, [npcId]);
 
   const clearTimers = useCallback(() => {
     for (const id of timersRef.current) clearTimeout(id);
@@ -240,8 +248,20 @@ export default function F10NpcDialog({
       {/* Bóng thoại câu hỏi của NPC */}
       <div className="ff-card py-2">
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <span className="fw-bold small" style={{ color: '#9A6324' }}>
-            {current.npc === 'ong_tu' ? '🚣' : current.npc === 'tom' ? '👨‍🏫' : '🙂'} {npcInfo.nameVi} hỏi:
+          <span className="fw-bold small d-inline-flex align-items-center gap-2" style={{ color: '#9A6324' }}>
+            {npcImg && !npcImgFailed ? (
+              <img
+                src={npcImg}
+                alt={npcInfo.nameVi}
+                width={30}
+                height={30}
+                onError={() => setNpcImgFailed(true)}
+                style={{ objectFit: 'contain', borderRadius: '50%', flexShrink: 0 }}
+              />
+            ) : (
+              <span>{npcId === 'ong_tu' ? '🚣' : npcId === 'tom' ? '👨‍🏫' : '🙂'}</span>
+            )}
+            <span>{npcInfo.nameVi} hỏi:</span>
           </span>
           <button
             type="button"

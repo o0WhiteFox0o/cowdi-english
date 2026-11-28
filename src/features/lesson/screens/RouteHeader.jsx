@@ -11,6 +11,7 @@ export default function RouteHeader({
   currentIndex = 0,
   currentScreenMeta,
   currentTitle = '',
+  landmark = '',
   paused,
   onRequestExit,
   onTogglePause,
@@ -73,7 +74,7 @@ export default function RouteHeader({
             </span>
             <span className="ss-screen-name">
               {currentTitle || currentScreenMeta?.name || curMeta.label} · Màn {currentIndex + 1}/{screens.length}
-              {lesson?.title ? ` · ${lesson.title}` : ''}
+              {landmark ? ` · 📍 ${landmark}` : (lesson?.title ? ` · ${lesson.title}` : '')}
             </span>
           </div>
 

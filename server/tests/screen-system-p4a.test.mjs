@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { createScreensRouter } from '../routes/screens.js';
 import { computeStatMetrics } from '../utils/screen-config-manager.js';
@@ -24,7 +25,7 @@ import {
   buildFogPassageLines,
 } from '../../src/features/lesson/screens/friendly/f05Logic.js';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 function createStatsMockPool() {
   const daily = new Map(); // key: `${day}:${code}:${group_id}`

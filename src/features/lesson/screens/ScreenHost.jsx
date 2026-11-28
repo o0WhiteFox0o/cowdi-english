@@ -5,6 +5,7 @@ import { findPathForLesson } from '../../../data/path';
 import { getUnitRegion, REGIONS } from '../../../../shared/regions';
 import { HUMAN_CAST } from '../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../shared/screen-scenarios';
+import { SEASON2_LESSONS, SEASON2_UNITS } from '../../../../shared/story-season2';
 import { useAuth } from '../../../hooks/useAuth';
 import { useUser } from '../../../hooks/useUser';
 import { usePet } from '../../../hooks/usePet';
@@ -21,6 +22,7 @@ import { listenItems, speakItems, writeItems, bossItems } from './items';
 import { useScreenEvents } from './screenEvents';
 import { pickGuestWords } from './guestWords';
 import { selectScreenIntro } from './introSelector';
+import { getSlotIntro } from './intro';
 import RouteHeader from './RouteHeader';
 import StageIntro from './StageIntro';
 import ScreenIntro from './ScreenIntro';
@@ -183,6 +185,7 @@ export default function ScreenHost({
   const [grammarOpen, setGrammarOpen] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const [introPetLine, setIntroPetLine] = useState('');
+  const [introEnLine, setIntroEnLine] = useState('');
   const [summaryData, setSummaryData] = useState(null);
   const [streakCount, setStreakCount] = useState(0);
   const [skillGains, setSkillGains] = useState({ listen: 0, read: 0, write: 0, speak: 0 });
@@ -287,22 +290,22 @@ export default function ScreenHost({
     });
   }, [regionIntros, region, userData?.recentIntros, introVars, session.seed]);
 
-  // Chọn câu dẫn cho từng màn hiện tại (ưu tiên kho approved không lặp 10 ải → fallback Director)
+  // Chọn câu dẫn cho từng màn hiện tại: ưu tiên kịch bản bài theo slot → kho approved 10 ải → fallback Director
   useEffect(() => {
     if (phase !== 'intro' || !currentEntry) return;
-    const picked = selectScreenIntro({
+    const resolved = getSlotIntro(lesson, currentEntry.slot, region, {
+      code: currentEntry.code,
       intros: regionIntros,
-      screenCode: currentEntry.code,
-      region,
       recentIntros: userData?.recentIntros || [],
-      vars: introVars,
+      vars: { ...introVars, pet: activePet?.customName || 'Cowdi' },
       seed: session.seed + session.currentIndex * 31,
     });
 
-    if (picked?.text) {
-      setIntroPetLine(picked.text);
-      if (picked.id && !usedIntroIdsRef.current.includes(picked.id)) {
-        usedIntroIdsRef.current.push(picked.id);
+    if (resolved.source === 'story' || resolved.source === 'screen_intro') {
+      setIntroPetLine(resolved.vi);
+      setIntroEnLine(resolved.en || '');
+      if (resolved.id && !usedIntroIdsRef.current.includes(resolved.id)) {
+        usedIntroIdsRef.current.push(resolved.id);
       }
       return;
     }
@@ -314,8 +317,9 @@ export default function ScreenHost({
       lessonId: lesson?.id,
       lessonTitle: lesson?.title,
     });
-    setIntroPetLine(dec?.speech?.vi || '');
-  }, [phase, currentEntry, regionIntros, region, userData?.recentIntros, introVars, session.seed, session.currentIndex, dispatch, lesson?.id, lesson?.title]);
+    setIntroPetLine(dec?.speech?.vi || resolved.vi || '');
+    setIntroEnLine('');
+  }, [phase, currentEntry, lesson, regionIntros, region, userData?.recentIntros, introVars, activePet?.customName, session.seed, session.currentIndex, dispatch]);
 
   // Khách quen (Q8, §5) — chốt cho ải hiện tại
   const guestWords = useMemo(() => {
@@ -535,6 +539,16 @@ export default function ScreenHost({
   const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
   const isFriendlyScreen = Boolean(currentEntry?.code?.startsWith('F-'));
 
+  const lessonStory = lesson?.id ? SEASON2_LESSONS[lesson.id] : null;
+  const unitStory = lessonStory?.unit ? SEASON2_UNITS[lessonStory.unit] : null;
+  const landmarkName =
+    lessonStory && unitStory?.landmarks && typeof lessonStory.landmark === 'number'
+      ? unitStory.landmarks[lessonStory.landmark]
+      : '';
+  const afterVi = lessonStory?.afterVi || '';
+  const companionId = activePet?.speciesId || 'cowdi';
+  const companionC = (activePet?.evolution ?? activePet?.stage ?? 0) + 1;
+
   const isCenteredLayout =
     phase !== 'play' ||
     isFriendlyScreen ||
@@ -578,6 +592,7 @@ export default function ScreenHost({
           currentIndex={session.currentIndex}
           currentScreenMeta={currentMeta}
           currentTitle={currentTitle}
+          landmark={landmarkName}
           paused={paused}
           onRequestExit={() => setExitOpen(true)}
           onTogglePause={() => setPaused((p) => !p)}
@@ -603,6 +618,9 @@ export default function ScreenHost({
               screens={screens}
               passRate={rules?.lessonPassRate ?? 0.7}
               openIntroText={openIntro?.text || ''}
+              companionId={companionId}
+              companionC={companionC}
+              sandbox={sandbox}
               onStart={handleStartFromStageIntro}
             />
           )}
@@ -616,6 +634,9 @@ export default function ScreenHost({
               total={screens.length}
               group={group}
               petLine={introPetLine}
+              intro={{ vi: introPetLine, en: introEnLine }}
+              muted={muted}
+              ttsRate={defaultTtsRate}
               onFinish={() => setPhase('play')}
             />
           )}
@@ -636,6 +657,8 @@ export default function ScreenHost({
               onOpenGrammar={() => setGrammarOpen(true)}
               extra={{
                 wordProgress: userData?.wordProgress || {},
+                completedLessons: userData?.completedLessons || [],
+                checkpointPassed: Boolean(userData?.checkpointScores?.[lesson?.unit]?.passed),
                 guestWords,
                 region,
                 addXP,
@@ -673,6 +696,8 @@ export default function ScreenHost({
               summaryData={summaryData}
               wordProgress={userData?.wordProgress || {}}
               skillGains={skillGains}
+              landmark={landmarkName}
+              afterVi={afterVi}
               sandbox={sandbox}
               hasGrammar={hasGrammar}
               pathNext={pathNext}
