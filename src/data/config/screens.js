@@ -65,8 +65,9 @@ export const SCREEN_PLAY_RULES = {
 export const SCREEN_SYSTEM_FF_KEY = 'cowdi_ff_screenSystemV1';
 
 /**
- * Đọc cờ bật/tắt screenSystemV1 (PHASE1 §9):
- * localStorage.cowdi_ff_screenSystemV1 → import.meta.env.VITE_FF_SCREEN_SYSTEM_V1 → false.
+ * Đọc cờ bật/tắt screenSystemV1 (mở công khai cho toàn bộ người dùng từ 28/11/2026):
+ * localStorage.cowdi_ff_screenSystemV1 → import.meta.env.VITE_FF_SCREEN_SYSTEM_V1 → true.
+ * Vẫn hỗ trợ đặt '0' / 'false' để quay về giao diện cũ khi cần rollback khẩn cấp (trước Đợt 4c).
  */
 export function isScreenSystemEnabled() {
   try {
@@ -79,8 +80,9 @@ export function isScreenSystemEnabled() {
   try {
     const envVal = typeof import.meta !== 'undefined' ? import.meta.env?.VITE_FF_SCREEN_SYSTEM_V1 : undefined;
     if (envVal === '1' || envVal === 'true') return true;
+    if (envVal === '0' || envVal === 'false') return false;
   } catch { /* bỏ qua */ }
-  return false;
+  return true;
 }
 
 export function setScreenSystemEnabled(enabled) {

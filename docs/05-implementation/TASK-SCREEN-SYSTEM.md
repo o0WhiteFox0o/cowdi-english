@@ -2,7 +2,7 @@
 
 > **Ngày lập:** 2026-11-27 · **Chuẩn gốc:** [STD-SCREEN-SYSTEM-v1.0.md](../04-design/STD-SCREEN-SYSTEM-v1.0.md)  
 > **Khảo sát Bước 0:** [RPT-SCREEN-SYSTEM-SURVEY.md](RPT-SCREEN-SYSTEM-SURVEY.md) · **Gói giao việc:** [screen-system/README.md](screen-system/README.md)  
-> **Trạng thái hiện tại:** 🟡 **Đợt 1 (`aed7af9`), Đợt 2 (`1e0fffc`), Đợt 3 (`eaaa812`) & Đợt 4a+4b đã gộp `main` và đóng gói `deploy.zip`** (đủ 11/11 màn Thân thiện `F-01..F-11` trạng thái `'test'`, 228 câu dẫn `draft`, thống kê ẩn danh `screen_stat_daily` + Tab 8 Admin, `shared/screen-scenarios.js`, dữ liệu mẫu 12 bài `int-u1..u3`) — chờ Sonny kiểm tra trên server thật; **Đợt 4c** (gỡ tab cũ `LessonDetailPage`) giữ lại tới khi chạy ổn định ≥ 2 tuần.
+> **Trạng thái hiện tại:** 🚀 **Đã mở công khai `screenSystemV1 = true` cho toàn bộ người dùng (28/11/2026)** · Đợt 1–4b + Story Mùa 2 + Story Fallback đã gộp `main` và đóng gói `deploy.zip` (kèm `scripts/run-screen-system-go-live.js` bật `F-01..F-11` → `'on'`) · Bắt đầu mốc theo dõi 2 tuần trước **Đợt 4c** (gỡ tab cũ `LessonDetailPage`).
 
 ---
 

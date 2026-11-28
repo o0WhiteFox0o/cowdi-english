@@ -1031,13 +1031,13 @@ export default function AccountPage() {
             >
               🐮 Cowdi English v2.1
             </button>
-            {(ffLogoTaps >= 5 || ffScreenSystem) && (
+            {ffLogoTaps >= 5 && (
               <div className="acc-settings-card text-start mt-2">
                 <div className="d-flex align-items-center justify-content-between gap-2">
                   <div>
                     <div className="fw-bold small">🧪 Hệ thống màn học 6 màn (screenSystemV1)</div>
                     <div className="text-muted" style={{ fontSize: '0.78rem' }}>
-                      Bật thử luồng 6 màn trộn mới cho nhóm Trung bình &amp; Luyện thi.
+                      Đang bật mặc định cho mọi người dùng (gạt tắt để quay lại giao diện cũ khi gỡ lỗi).
                     </div>
                   </div>
                   <div className="form-check form-switch m-0">
