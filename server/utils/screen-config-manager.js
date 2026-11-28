@@ -4,6 +4,7 @@
  */
 
 import { P3_SEED_INTROS } from '../db/seed-screen-intros-p3.js';
+import { P4A_SEED_INTROS } from '../db/seed-screen-intros-p4a.js';
 
 export const VALID_STATUSES = ['on', 'test', 'off', 'todo', 'retired'];
 export const VALID_GROUPS = ['beginner', 'intermediate', 'exam'];
@@ -12,6 +13,28 @@ export const CODE_REGEX = /^[TF]-\d{2}$/;
 export const INTRO_CODE_REGEX = /^(OPEN|[TF]-\d{2})$/;
 export const INTRO_REGION_REGEX = /^(\*|[A-Z]{2,4})$/;
 export const P3_FRIENDLY_CODES = ['F-01', 'F-03', 'F-06', 'F-08', 'F-09'];
+export const P4A_FRIENDLY_CODES = ['F-02', 'F-04', 'F-05'];
+
+export const SCREEN_SLOT_LEVEL = {
+  'T-01': { slot: 'intro',  level: 'focus' },
+  'T-02': { slot: 'intro',  level: 'focus' },
+  'T-04': { slot: 'read',   level: 'focus' },
+  'T-05': { slot: 'listen', level: 'focus' },
+  'T-06': { slot: 'speak',  level: 'focus' },
+  'T-07': { slot: 'boss',   level: 'focus' },
+  'T-08': { slot: 'write',  level: 'focus' },
+  'F-01': { slot: 'intro',  level: 'friendly' },
+  'F-02': { slot: 'write',  level: 'friendly' },
+  'F-03': { slot: 'listen', level: 'friendly' },
+  'F-04': { slot: 'speak',  level: 'friendly' },
+  'F-05': { slot: 'read',   level: 'friendly' },
+  'F-06': { slot: 'boss',   level: 'friendly' },
+  'F-07': { slot: 'listen', level: 'friendly' },
+  'F-08': { slot: 'read',   level: 'friendly' },
+  'F-09': { slot: 'write',  level: 'friendly' },
+  'F-10': { slot: 'speak',  level: 'friendly' },
+  'F-11': { slot: 'read',   level: 'friendly' },
+};
 
 export const DEFAULT_SEED_SCREENS = [
   ['T-01', 'on',      null],
@@ -23,10 +46,10 @@ export const DEFAULT_SEED_SCREENS = [
   ['T-07', 'on',      null],
   ['T-08', 'on',      null],
   ['F-01', 'test',    'Đợt 3 · chỉ tài khoản thử'],
-  ['F-02', 'todo',    null],
+  ['F-02', 'test',    'Đợt 4a · chỉ tài khoản thử'],
   ['F-03', 'test',    'Đợt 3 · chỉ tài khoản thử'],
-  ['F-04', 'todo',    null],
-  ['F-05', 'todo',    null],
+  ['F-04', 'test',    'Đợt 4a · chỉ tài khoản thử'],
+  ['F-05', 'test',    'Đợt 4a · chỉ tài khoản thử'],
   ['F-06', 'test',    'Đợt 3 · chỉ tài khoản thử'],
   ['F-07', 'todo',    null],
   ['F-08', 'test',    'Đợt 3 · chỉ tài khoản thử'],
@@ -46,7 +69,7 @@ export const DEFAULT_SEED_WEIGHTS = [
 
 const BUILTIN_SUPPORTED_CODES = [
   'T-01', 'T-02', 'T-04', 'T-05', 'T-06', 'T-07', 'T-08',
-  'F-01', 'F-03', 'F-06', 'F-08', 'F-09',
+  'F-01', 'F-02', 'F-03', 'F-04', 'F-05', 'F-06', 'F-08', 'F-09',
 ];
 const SUPPORTED_TTL_MS = 60 * 60 * 1000; // 1 giờ theo PHASE2 §2.2
 
@@ -127,6 +150,21 @@ export async function ensureScreenSystemTables(pool, { force = false } = {}) {
       updated_by  INT DEFAULT NULL,
       updated_at  DATETIME DEFAULT NULL,
       KEY idx_si_lookup (screen_code, region, status)
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS screen_stat_daily (
+      day        DATE NOT NULL,
+      code       VARCHAR(8) NOT NULL,
+      group_id   VARCHAR(16) NOT NULL,
+      starts     INT NOT NULL DEFAULT 0,
+      completes  INT NOT NULL DEFAULT 0,
+      quits      INT NOT NULL DEFAULT 0,
+      items      INT NOT NULL DEFAULT 0,
+      first_try  INT NOT NULL DEFAULT 0,
+      sum_ms     BIGINT NOT NULL DEFAULT 0,
+      PRIMARY KEY (day, code, group_id)
     )
   `);
 
@@ -736,4 +774,213 @@ export async function batchUpdateScreenIntroStatus(pool, { ids = [], status, adm
   } finally {
     conn.release();
   }
+}
+
+// ── Đợt 4a: Seed câu dẫn F-02, F-04, F-05 & Thống kê ẩn danh (screen_stat_daily) ─
+
+export const STAT_MIN_PLAYS = 30;
+
+export async function seedP4aScreenIntros(pool) {
+  await ensureScreenSystemTables(pool);
+  for (const row of P4A_SEED_INTROS) {
+    await pool.execute(
+      `INSERT IGNORE INTO screen_intro (id, screen_code, region, text_vi, audio_url, status, updated_at)
+       VALUES (?, ?, ?, ?, NULL, 'draft', NOW())`,
+      [row.id, row.screenCode, row.region, row.textVi],
+    );
+  }
+  return { total: P4A_SEED_INTROS.length };
+}
+
+/**
+ * Pure helper tính chỉ số & cờ cảnh báo cho một dòng tổng hợp thống kê (PHASE4 §1.3, Q7).
+ * Ít hơn 30 lượt chơi: enoughData = false, flags = [] (không tô cảnh báo).
+ */
+export function computeStatMetrics({
+  starts = 0,
+  completes = 0,
+  quits = 0,
+  items = 0,
+  firstTry = 0,
+  sumMs = 0,
+}) {
+  const s = Math.max(0, Number(starts) || 0);
+  const c = Math.max(0, Number(completes) || 0);
+  const q = Math.max(0, Number(quits) || 0);
+  const it = Math.max(0, Number(items) || 0);
+  const ft = Math.max(0, Number(firstTry) || 0);
+  const ms = Math.max(0, Number(sumMs) || 0);
+
+  const completionRate = s > 0 ? c / s : 0;
+  const firstTryRate = it > 0 ? ft / it : null;
+  const avgSec = s > 0 ? (ms / s) / 1000 : 0;
+  const enoughData = s >= STAT_MIN_PLAYS;
+
+  const flags = [];
+  if (enoughData) {
+    if (completionRate < 0.80) {
+      flags.push({ id: 'low_completion', label: 'Hoàn thành < 80% (bỏ giữa màn)' });
+    }
+    if (firstTryRate !== null && firstTryRate < 0.50) {
+      flags.push({ id: 'too_hard', label: 'Đúng lần đầu < 50% (quá khó)' });
+    }
+    if (firstTryRate !== null && firstTryRate > 0.97) {
+      flags.push({ id: 'too_easy', label: 'Đúng lần đầu > 97% (quá dễ)' });
+    }
+    if (avgSec > 120) {
+      flags.push({ id: 'too_slow', label: 'Thời gian TB > 120 giây' });
+    }
+  }
+
+  return {
+    starts: s,
+    completes: c,
+    quits: q,
+    items: it,
+    firstTry: ft,
+    sumMs: ms,
+    completionRate,
+    firstTryRate,
+    avgSec,
+    enoughData,
+    flags,
+  };
+}
+
+/**
+ * Ghi cộng dồn thống kê ẩn danh theo ngày × mã màn × nhóm học (KHÔNG lưu user_id).
+ */
+export async function recordScreenStat(pool, {
+  code,
+  group,
+  outcome,
+  items = 0,
+  firstTryCorrect = 0,
+  durationMs = 0,
+  sandbox = false,
+}) {
+  if (sandbox) {
+    return { skipped: true };
+  }
+  await ensureScreenSystemTables(pool);
+
+  const cleanCode = String(code || '').trim();
+  const cleanGroup = String(group || '').trim();
+  const cleanOutcome = outcome === 'quit' ? 'quit' : outcome === 'done' ? 'done' : '';
+
+  if (!CODE_REGEX.test(cleanCode) || !VALID_GROUPS.includes(cleanGroup) || !cleanOutcome) {
+    const err = new Error('Dữ liệu thống kê màn không hợp lệ.');
+    err.status = 400;
+    throw err;
+  }
+
+  const safeItems = Math.max(0, Math.min(200, Math.round(Number(items) || 0)));
+  const safeFirstTry = Math.max(0, Math.min(safeItems, Math.round(Number(firstTryCorrect) || 0)));
+  const safeMs = Math.max(0, Math.min(3600000, Math.round(Number(durationMs) || 0)));
+  const incCompletes = cleanOutcome === 'done' ? 1 : 0;
+  const incQuits = cleanOutcome === 'quit' ? 1 : 0;
+
+  await pool.execute(
+    `INSERT INTO screen_stat_daily
+       (day, code, group_id, starts, completes, quits, items, first_try, sum_ms)
+     VALUES (CURDATE(), ?, ?, 1, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       starts    = starts + 1,
+       completes = completes + VALUES(completes),
+       quits     = quits + VALUES(quits),
+       items     = items + VALUES(items),
+       first_try = first_try + VALUES(first_try),
+       sum_ms    = sum_ms + VALUES(sum_ms)`,
+    [cleanCode, cleanGroup, incCompletes, incQuits, safeItems, safeFirstTry, safeMs],
+  );
+
+  return { ok: true, code: cleanCode, group: cleanGroup, outcome: cleanOutcome };
+}
+
+/**
+ * Truy vấn thống kê ẩn danh cho Tab 8 Admin ("Thống kê"):
+ * - Lọc theo 7 hoặc 30 ngày + nhóm học (tuỳ chọn)
+ * - Trả về mảng theo mã màn + bảng so sánh Thân thiện vs Tập trung cùng vị trí (slot).
+ */
+export async function getAdminScreenStats(pool, { days = 7, group = '' } = {}) {
+  await ensureScreenSystemTables(pool);
+  const safeDays = Number(days) === 30 ? 30 : 7;
+  const cleanGroup = VALID_GROUPS.includes(String(group || '').trim())
+    ? String(group).trim()
+    : '';
+
+  const where = ['day >= DATE_SUB(CURDATE(), INTERVAL ? DAY)'];
+  const params = [safeDays - 1];
+  if (cleanGroup) {
+    where.push('group_id = ?');
+    params.push(cleanGroup);
+  }
+
+  const [rows] = await pool.execute(
+    `SELECT code,
+            SUM(starts)    AS starts,
+            SUM(completes) AS completes,
+            SUM(quits)     AS quits,
+            SUM(items)     AS items,
+            SUM(first_try) AS first_try,
+            SUM(sum_ms)    AS sum_ms
+       FROM screen_stat_daily
+      WHERE ${where.join(' AND ')}
+      GROUP BY code
+      ORDER BY code ASC`,
+    params,
+  );
+
+  const byCode = rows.map((r) => {
+    const meta = SCREEN_SLOT_LEVEL[r.code] || { slot: 'other', level: r.code.startsWith('F-') ? 'friendly' : 'focus' };
+    const metrics = computeStatMetrics({
+      starts: r.starts,
+      completes: r.completes,
+      quits: r.quits,
+      items: r.items,
+      firstTry: r.first_try,
+      sumMs: r.sum_ms,
+    });
+    return {
+      code: r.code,
+      slot: meta.slot,
+      level: meta.level,
+      ...metrics,
+    };
+  });
+
+  // Gom so sánh Thân thiện vs Tập trung theo từng vị trí (slot)
+  const slotOrder = ['intro', 'read', 'listen', 'speak', 'write', 'boss'];
+  const slotAgg = {};
+  for (const sl of slotOrder) {
+    slotAgg[sl] = {
+      slot: sl,
+      friendly: { starts: 0, completes: 0, quits: 0, items: 0, firstTry: 0, sumMs: 0 },
+      focus:    { starts: 0, completes: 0, quits: 0, items: 0, firstTry: 0, sumMs: 0 },
+    };
+  }
+  for (const row of byCode) {
+    const bucket = slotAgg[row.slot]?.[row.level];
+    if (!bucket) continue;
+    bucket.starts += row.starts;
+    bucket.completes += row.completes;
+    bucket.quits += row.quits;
+    bucket.items += row.items;
+    bucket.firstTry += row.firstTry;
+    bucket.sumMs += row.sumMs;
+  }
+
+  const comparison = slotOrder.map((sl) => ({
+    slot: sl,
+    friendly: computeStatMetrics(slotAgg[sl].friendly),
+    focus: computeStatMetrics(slotAgg[sl].focus),
+  }));
+
+  return {
+    days: safeDays,
+    group: cleanGroup || 'all',
+    minPlays: STAT_MIN_PLAYS,
+    byCode,
+    comparison,
+  };
 }

@@ -2,7 +2,7 @@
 
 > **Ngày lập:** 2026-11-27 · **Chuẩn gốc:** [STD-SCREEN-SYSTEM-v1.0.md](../04-design/STD-SCREEN-SYSTEM-v1.0.md)  
 > **Khảo sát Bước 0:** [RPT-SCREEN-SYSTEM-SURVEY.md](RPT-SCREEN-SYSTEM-SURVEY.md) · **Gói giao việc:** [screen-system/README.md](screen-system/README.md)  
-> **Trạng thái hiện tại:** 🟡 **Đợt 1 (`aed7af9`) & Đợt 2 (`1e0fffc`) đã gộp `main`** · **Đợt 3 (`feat/screen-system-p3`) đã hoàn tất code + test S1–S5 & P1–P10 (`259/259` PASS) + `npm run build` xanh** — chờ Sonny duyệt & UAT (5 màn F khởi tạo `'test'`, 156 câu dẫn khởi tạo `'draft'`).
+> **Trạng thái hiện tại:** 🟡 **Đợt 1 (`aed7af9`), Đợt 2 (`1e0fffc`) & Đợt 3 (`eaaa812`) đã gộp `main`** · **Đợt 4a (`feat/screen-system-p4a`) đang hoàn tất** (Thống kê ẩn danh `screen_stat_daily` + Tab 8 Admin, `shared/screen-scenarios.js`, 3 màn F mới `F-02`, `F-04`, `F-05` trạng thái `'test'`, 36 câu dẫn `draft`) — chờ Sonny UAT (đặc biệt test mic F-04 trên iPhone Safari & Android Chrome thật) và duyệt merge.
 
 ---
 
@@ -21,8 +21,8 @@
 | **0 (Pre)** | `feat/screen-system-p1` | Gộp chấm điểm `speech.js` (A1–A3), xóa bản trùng ở `LessonDetailPage`, thêm test + chạy `report-screen-coverage.mjs` | Đã hoàn tất 2026-11-27 | `[x]` |
 | **Đợt 1** | `feat/screen-system-p1` → `main` | Registry 7 màn T, `items.js`, bộ trộn `mixer.js` + test M1–M9, tách 6 màn T giữ nguyên layout Cowdi + `PetStage`, màn mới **T-08 Viết câu**, T-03 → mẹo pet + `GrammarSheet`, `ScreenHost` / `RouteHeader` / `ScreenIntro` / `useScreenEvents`, cờ `screenSystemV1`, đồng bộ `lessonMixLog` & `lastMix` | Đã gộp `main` (`aed7af9`) 2026-11-27 | `[x]` |
 | **Đợt 2** | `feat/screen-system-p2` → `main` | Migration 4 bảng cấu hình (`RK-005` MySQL 5.6+), API `GET /api/screens/config` (ETag/304) + 7 API `/api/admin/screens*`, `ScreenConfigProvider`, trang `/admin/screens` (6 tab: Danh mục, Ma trận, Trộn thử + 1.000 lần, Xem trước sandbox, Tài khoản thử, Nhật ký), test A1–A8 + fix mẹo ngữ pháp T-08 | Đã gộp `main` (`1e0fffc`) 2026-11-27 | `[x]` |
-| **Đợt 3** | `feat/screen-system-p3` | Khung `friendly/`, 5 màn F đầu (**F-01, F-03, F-08, F-09, F-06** ở trạng thái `test`), màn **Mở ải**, bảng `screen_intro` + luật không lặp 10 ải + 156 câu dẫn nháp (`BD/TG/VS`) + tab admin Kho dẫn nhập, **Khách quen**, **4 chấm kỹ năng `skillsHit`**, **Sao ★ + Sữa theo sao** (`shared/lesson-stars.js`, Q13), màn **Tổng kết mới**, `story` cho 12 bài `int-u1..u3` | Đã hoàn tất trên nhánh `feat/screen-system-p3` theo `GEMINI-PHASE3-ADDENDUM.md` — chờ Sonny UAT & duyệt merge | `[x]` |
-| **Đợt 4a** | `feat/screen-system-p4a` | Thống kê màn (`screen_stat_daily`, `POST /api/screen-stats`, tab admin Thống kê) + 3 màn F (**F-02, F-04, F-05**) + câu dẫn nháp | Phụ thuộc thử nghiệm Đợt 3 ≥ 1 tuần | `[ ]` |
+| **Đợt 3** | `feat/screen-system-p3` → `main` | Khung `friendly/`, 5 màn F đầu (**F-01, F-03, F-08, F-09, F-06** ở trạng thái `test`), màn **Mở ải**, bảng `screen_intro` + luật không lặp 10 ải + 156 câu dẫn nháp (`BD/TG/VS`) + tab admin Kho dẫn nhập, **Khách quen**, **4 chấm kỹ năng `skillsHit`**, **Sao ★ + Sữa theo sao** (`shared/lesson-stars.js`, Q13), màn **Tổng kết mới**, `story` cho 12 bài `int-u1..u3`, zero-scroll 360×640 + `ScreenActionModal` | Đã gộp `main` (`eaaa812`) 2026-11-28 | `[x]` |
+| **Đợt 4a** | `feat/screen-system-p4a` | Thống kê màn ẩn danh (`screen_stat_daily`, `POST /api/screen-stats`, tab admin Thống kê) + kịch bản tên màn theo vùng (`shared/screen-scenarios.js`) + 3 màn F (**F-02, F-04, F-05** ở trạng thái `test`) + 36 câu dẫn `draft` | Chờ Sonny UAT (gồm test mic F-04 trên iPhone Safari & Android Chrome thật) & duyệt merge | `[x]` |
 | **Đợt 4b** | `feat/screen-system-p4b` | Trường dữ liệu mới (`vocabulary[].plural/countable`, `dialogPrompts[]`, `trueFalse[]`) + validator + nội dung mẫu `int-u1..u3` + 3 màn F (**F-07, F-10, F-11**) | Phụ thuộc PO duyệt nội dung & ảnh theo `sceneBrief` | `[ ]` |
 | **Đợt 4c** | `feat/screen-system-p4c` | Gỡ code tab cũ khỏi `LessonDetailPage.jsx`, gỡ cờ `screenSystemV1` | Bật cho mọi người ≥ 2 tuần, không lỗi P0/P1 | `[ ]` |
 
@@ -67,7 +67,17 @@
   - **Kiểm chứng**: `server/tests/screen-system-p3.test.mjs` (P1–P10), `npm test` **259/259 PASS**, `npm run build` xanh.
 
 ### Đợt 4 (`p4a`, `p4b`, `p4c`) — [Chi tiết](screen-system/GEMINI-SCREEN-SYSTEM-PHASE4.md)
-- **4a**: `screen_stat_daily` (không lưu `user_id`), `POST /api/screen-stats`, tab admin **Thống kê**, 3 màn `F-02, F-04, F-05`.
+- **4a (`feat/screen-system-p4a` — hoàn tất code 2026-11-28, chờ Sonny UAT & duyệt merge)**:
+  - **Kịch bản tên màn theo vùng**: `shared/screen-scenarios.js` (`getScreenTitle(code, region, fallback)`), áp dụng đồng bộ trên `ScreenHost`, `RouteHeader`, `StageIntro`, `ScreenIntro`, `catalog.js`, `PreviewTab`, và toàn bộ 8 màn F (`F-01..F-06, F-08, F-09`).
+  - **Thống kê ẩn danh (`screen_stat_daily`)**: `server/db/migrate-screen-system-p4a.sql` + `scripts/run-screen-system-p4a-migration.js` (RK-005, **không có `user_id`**), `POST /api/screen-stats` (bỏ qua khi `sandbox = true`), `GET /api/admin/screen-stats?days=7|30&group=`, Tab 8 **"Thống kê"** (`src/admin/screens/StatsTab.jsx`, ngưỡng cảnh báo ≥ 30 lượt, so sánh Thân thiện vs Tập trung theo slot).
+  - **3 màn Thân thiện mới (khởi tạo `'test'`, 0 cuộn ở 360×640)**:
+    - `F-02` (`F02SpellWord.jsx` + `f02Logic.js`, slot `write`, độ phủ **192/209 = 92%**, Trung bình **38/39 = 97%**).
+    - `F-04` (`F04SpeakBridge.jsx` + `f04Logic.js`, slot `speak`, độ phủ **209/209 = 100%**): đọc mẫu → đếm 3-2-1 → **thử tự mở mic**, **chỉ hiện nút mic khi trình duyệt chặn**; nhóm Mới học không chấm (nói mic hoặc `"Con đã nói"` đều qua); không mic/từ chối mic không ghi `skillsHit.speak` (Q3).
+    - `F-05` (`F05FogReading.jsx` + `f05Logic.js`, slot `read`, độ phủ **187/209 = 89%**, Trung bình **39/39 = 100%**): hỗ trợ cụm nhiều từ dài nhất trước, chỉ cuộn trong thẻ đoạn văn `.ff-f05-passage`, xong săn hiện bản dịch + 2 câu hỏi hiểu bài.
+  - **36 câu dẫn `draft`**: `server/db/seed-screen-intros-p4a.{js,sql}` (`F-02, F-04, F-05` × `BD, TG, VS` × 4 câu, ≤ 25 chữ).
+  - **Checklist UAT thiết bị thật (cần ghi kết quả trước khi bật `F-04` sang `'on'`)**:
+    - [ ] **iPhone Safari thật** (iOS): sau đếm `3-2-1`, xác nhận tự mở mic hoặc hiện nút *"Chạm để bật Mic"* ngay khi iOS chặn gesture; từ chối mic chuyển sang *"Nghe và nhắc lại"* và qua màn trơn tru.
+    - [ ] **Android Chrome thật**: sau đếm `3-2-1`, xác nhận mic tự mở mượt mà không hiện nút mic thừa; nhóm Mới học bấm mic hoặc *"Con đã nói"* đều qua; kiểm tra bố cục `360×640` không cuộn trang trên `F-02`, `F-04`, `F-05`.
 - **4b**: Mở rộng `schema.js` + `validate-lessons.mjs` + `STD-LESSON-CONTENT` lên v1.1 (`plural`/`countable`, `dialogPrompts[]`, `trueFalse[]`), soạn dữ liệu mẫu `int-u1..u3`, 3 màn `F-07, F-10, F-11`.
 - **4c**: Gỡ code tab cũ trong `LessonDetailPage.jsx` và gỡ cờ `screenSystemV1` sau khi chạy ổn định ≥ 2 tuần.
 

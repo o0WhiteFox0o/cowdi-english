@@ -3,6 +3,7 @@ import Icon from '../../../../components/Icon';
 import Emoji from '../../../../components/Emoji';
 import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speech';
 import { getWordId } from '../../../vocab/wordProgress';
+import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import FriendlyFrame from './FriendlyFrame';
 import WordSkillDots from './WordSkillDots';
 import ScreenActionModal from '../ScreenActionModal';
@@ -151,9 +152,11 @@ export default function F01Slideshow({
     }
   };
 
+  const screenTitle = getScreenTitle('F-01', extra?.region, 'Trình chiếu từ vựng');
+
   if (!current) {
     return (
-      <FriendlyFrame skill="intro" title="Gặp từ trình chiếu" code="F-01" counter="0/0" petText="Bài này chưa có từ vựng để trình chiếu.">
+      <FriendlyFrame skill="intro" title={screenTitle} code="F-01" counter="0/0" petText="Bài này chưa có từ vựng để trình chiếu.">
         <button type="button" className="btn btn-cowdi-primary ff-tap-btn" onClick={finishScreen}>Tiếp tục →</button>
       </FriendlyFrame>
     );
@@ -162,7 +165,7 @@ export default function F01Slideshow({
   return (
     <FriendlyFrame
       skill="intro"
-      title="Gặp từ trình chiếu"
+      title={screenTitle}
       code="F-01"
       counter={`Từ ${index + 1}/${words.length}`}
       petText={paused ? 'Đang dừng thẻ. Chạm vào thẻ để tiếp tục trình chiếu nhé!' : 'Nghe thật kỹ, chạm thẻ để dừng hoặc giữ nút loa để nghe chậm!'}

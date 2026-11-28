@@ -5,6 +5,7 @@ import { SLOT_META } from '../../../data/config/screens';
 import { PET_REGISTRY } from '../../../data/pets';
 import { REGIONS, REGION_COLOR, getRegionVariant } from '../../../../shared/regions';
 import { HUMAN_CAST, isValidNpc } from '../../../../shared/human-cast';
+import { getScreenTitle } from '../../../../shared/screen-scenarios';
 import { getScreen } from './registry';
 import './friendly/friendly.css';
 
@@ -166,7 +167,7 @@ export default function StageIntro({
                   <Icon name={slotMeta.icon} size={14} />
                 </span>
                 <small className="fw-bold mt-1" style={{ fontSize: '0.64rem', lineHeight: 1.12 }}>
-                  {meta?.name || slotMeta.label}
+                  {getScreenTitle(sc.code, region, meta?.name || slotMeta.label)}
                 </small>
               </div>
             );

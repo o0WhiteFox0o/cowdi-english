@@ -16,6 +16,8 @@ import {
   createAdminScreenIntro,
   updateAdminScreenIntro,
   batchUpdateScreenIntroStatus,
+  recordScreenStat,
+  getAdminScreenStats,
 } from '../utils/screen-config-manager.js';
 
 /**
@@ -233,6 +235,41 @@ export function createScreensRouter({
       const st = err.status || 500;
       if (st >= 500) console.error('PUT /api/admin/screen-intros/:id error:', err);
       return res.status(st).json({ error: err.message || 'Lỗi cập nhật câu dẫn.' });
+    }
+  });
+
+  // ── 14. Client: POST /api/screen-stats (ẩn danh, không lưu user_id) ────────
+  router.post('/screen-stats', authMiddleware, async (req, res) => {
+    try {
+      const { code, group, outcome, items, firstTryCorrect, durationMs, sandbox } = req.body || {};
+      const result = await recordScreenStat(pool, {
+        code,
+        group,
+        outcome,
+        items,
+        firstTryCorrect,
+        durationMs,
+        sandbox: Boolean(sandbox),
+      });
+      return res.json(result);
+    } catch (err) {
+      const st = err.status || 500;
+      if (st >= 500) console.error('POST /api/screen-stats error:', err);
+      return res.status(st).json({ error: err.message || 'Không ghi được thống kê màn.' });
+    }
+  });
+
+  // ── 15. Admin: GET /api/admin/screen-stats?days=7|30&group= ────────────────
+  router.get('/admin/screen-stats', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const data = await getAdminScreenStats(pool, {
+        days: req.query.days,
+        group: req.query.group || '',
+      });
+      return res.json(data);
+    } catch (err) {
+      console.error('GET /api/admin/screen-stats error:', err);
+      return res.status(500).json({ error: 'Lỗi tải thống kê màn học.' });
     }
   });
 

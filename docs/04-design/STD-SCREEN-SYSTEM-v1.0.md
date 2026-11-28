@@ -73,6 +73,8 @@
 
 Mã màn **không bao giờ đổi hay dùng lại**. Màn bỏ đi thì đặt trạng thái "Ngừng dùng", giữ mã.
 
+> **Quy ước tên hiển thị theo kịch bản (bổ sung 2026-11-28):** Các tên màn F trong bảng §2.2 chỉ là tên ví dụ minh họa. Trong triển khai, tên học thuật mặc định và tên biến thể theo bối cảnh vùng đất (`BD`, `TG`, `VS`…) được quản lý tập trung tại [`shared/screen-scenarios.js`](../../shared/screen-scenarios.js) (`getScreenTitle(code, region, fallback)`).
+
 ---
 
 ## 3. Luật trộn

@@ -220,8 +220,8 @@ test('Đợt 2 (A1–A3, A5, A8): Phân quyền admin, đổi trạng thái + lo
     });
     assert.equal(r304.status, 304);
 
-    // Chặn đặt on/test cho mã chưa có component (F-02 — Đợt 4)
-    const rUnsupported = await fetch(`${srv.baseUrl}/api/admin/screens/F-02`, {
+    // Chặn đặt on/test cho mã chưa có component (F-07 — Đợt 4b)
+    const rUnsupported = await fetch(`${srv.baseUrl}/api/admin/screens/F-07`, {
       method: 'PUT',
       headers: { 'content-type': 'application/json', 'x-test-user': '1' },
       body: JSON.stringify({ status: 'test' }),
@@ -289,8 +289,8 @@ test('Đợt 2 (A1–A3, A5, A8): Phân quyền admin, đổi trạng thái + lo
     };
     const mixNormal = mixLesson({ lesson: sampleLesson, group: 'intermediate', config: cfgNormal, isTester: cfgNormal.isTester, seed: 5 });
     const mixTester = mixLesson({ lesson: sampleLesson, group: 'intermediate', config: cfgTester, isTester: cfgTester.isTester, seed: 5 });
-    assert.ok(mixNormal.screens.every((s) => s.code !== 'T-08' && s.code !== 'F-09'));
-    assert.ok(mixTester.screens.some((s) => s.code === 'T-08' || s.code === 'F-09'));
+    assert.ok(mixNormal.screens.every((s) => s.code !== 'T-08' && s.code !== 'F-09' && s.code !== 'F-02'));
+    assert.ok(mixTester.screens.some((s) => s.code === 'T-08' || s.code === 'F-09' || s.code === 'F-02'));
 
     // A8: Trọng số sai (âm, >1, tổng = 0) → 400
     for (const bad of [{ friendly: -0.1, focus: 0.5 }, { friendly: 1.5, focus: 0.5 }, { friendly: 0, focus: 0 }]) {

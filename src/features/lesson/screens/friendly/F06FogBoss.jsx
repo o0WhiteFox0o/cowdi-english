@@ -6,6 +6,7 @@ import { PetAvatar } from '../../../../pet-rig/PetAvatar';
 import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speech';
 import { getWordId } from '../../../vocab/wordProgress';
 import { REGIONS, REGION_COLOR } from '../../../../../shared/regions';
+import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { bossItems } from '../items';
 import { createRng } from '../seededRandom';
 import { applyBossDamage, evaluateBossOutcome } from './friendlyLogic';
@@ -288,7 +289,7 @@ export default function F06FogBoss({
   return (
     <FriendlyFrame
       skill="boss"
-      title={`Boss ${regionName}`}
+      title={getScreenTitle('F-06', region, `Boss ${regionName}`)}
       code="F-06"
       counter={`${Math.min(qIdx + 1, questions.length)}/${questions.length}`}
       extraRight={combo >= 3 ? <span className="ff-combo-chip">⚡ {combo}!</span> : null}

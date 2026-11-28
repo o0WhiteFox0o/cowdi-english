@@ -2,6 +2,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { SCREENS, getScreen } from '../../features/lesson/screens/registry';
 import { listenItems, speakItems, writeItems, bossItems } from '../../features/lesson/screens/items';
 import { getGroup } from '../../data/lessons';
+import { findPathForLesson } from '../../data/path';
+import { getUnitRegion } from '../../../shared/regions';
 import ScreenHost from '../../features/lesson/screens/ScreenHost';
 
 const FRAMES = [
@@ -42,6 +44,10 @@ export default function PreviewTab({
     () => (selectedLesson && screenDef ? itemsFor(screenDef.slot, selectedLesson) : []),
     [selectedLesson, screenDef],
   );
+  const previewRegion = useMemo(() => {
+    const info = selectedLesson?.id ? findPathForLesson(selectedLesson.id) : null;
+    return (info?.unit?.id && getUnitRegion(info.unit.id)) || 'BD';
+  }, [selectedLesson?.id]);
 
   const pushEvent = useCallback((type, payload) => {
     setEvents((prev) => [
@@ -146,7 +152,7 @@ export default function PreviewTab({
                   sandbox
                   onEvent={pushEvent}
                   onDone={(res) => pushEvent('screen_done', res)}
-                  extra={{ wordProgress: {} }}
+                  extra={{ wordProgress: {}, region: previewRegion }}
                 />
               ) : (
                 <p className="text-muted text-center py-5">Màn chưa có component.</p>
@@ -166,7 +172,7 @@ export default function PreviewTab({
                 <div className="text-danger small">✗ Thiếu: {canRunInfo.missing.join(', ')}</div>
               )}
               <div className="text-muted mt-1" style={{ fontSize: '0.74rem' }}>
-                Chế độ <strong>sandbox = true</strong>: KHÔNG ghi `wordProgress`, `pet.skills`, ví Sữa hay `lessonMixLog`.
+                Chế độ <strong>sandbox = true</strong>: KHÔNG ghi `wordProgress`, `pet.skills`, ví Sữa, `lessonMixLog` hay `screen_stat_daily`.
               </div>
             </div>
           </div>

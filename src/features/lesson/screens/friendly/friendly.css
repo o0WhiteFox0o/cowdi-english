@@ -236,6 +236,163 @@
   transition: width 0.08s linear;
 }
 
+/* ── F-02 Ghép chính tả ── */
+.ff-f02-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 4px;
+}
+
+.ff-f02-slot {
+  width: 34px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px dashed #D4C5AF;
+  background: #FFFDF7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--f-ink);
+}
+
+.ff-f02-slot.is-active {
+  border-color: #6D4FC2;
+  background: #F5F3FF;
+}
+
+.ff-f02-slot.is-filled {
+  border-style: solid;
+  border-color: #22C55E;
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.ff-f02-keyboard {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.ff-f02-key {
+  min-block-size: 46px;
+  border-radius: 12px;
+  border: 2px solid var(--f-border);
+  background: #FFFFFF;
+  color: var(--f-ink);
+  font-size: 1.15rem;
+  font-weight: 900;
+  box-shadow: 0 3px 0 #E5D4B3;
+}
+
+.ff-f02-key.is-used {
+  opacity: 0.25;
+  box-shadow: none;
+}
+
+.ff-f02-key.is-hint {
+  border-color: #F59E0B;
+  background: #FEF3C7;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+}
+
+.ff-f02-key.is-shaking {
+  border-color: #EF4444;
+  background: #FEE2E2;
+  animation: ffShake 0.36s ease;
+}
+
+/* ── F-04 Luyện nói vượt chướng ngại ── */
+.ff-f04-stream {
+  background: linear-gradient(180deg, #CFEFF7 0%, #8FD4E6 100%);
+  border: 1.5px solid #9AD6E5;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+}
+
+.ff-f04-stone {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  border: 2px solid #94A3B8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.ff-f04-stone.is-passed {
+  background: #DCFCE7;
+  border-color: #22C55E;
+  color: #166534;
+}
+
+.ff-f04-stone.is-here {
+  background: #FEF9C3;
+  border-color: #EAB308;
+  transform: scale(1.08);
+}
+
+.ff-f04-pet {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.ff-f04-countdown {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #C43D7A;
+  line-height: 1;
+}
+
+/* ── F-05 Đọc tìm từ khóa (CHỈ cuộn bên trong thẻ đoạn văn, không cuộn trang) ── */
+.ff-f05-passage {
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ff-f05-fog-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 1px 8px;
+  margin: 0 2px;
+  border-radius: 8px;
+  border: 1.5px solid #94A3B8;
+  background: #CBD5E1;
+  color: #475569;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.ff-f05-fog-chip.is-revealed {
+  border-color: #EAB308;
+  background: #FEF08A;
+  color: #4A3420;
+  cursor: default;
+}
+
+.ff-f05-fog-chip.is-shaking {
+  border-color: #EF4444;
+  background: #FEE2E2;
+  animation: ffShake 0.36s ease;
+}
+
 /* ── F-03 Nghe nhận diện từ ── */
 .ff-f03-arena {
   display: grid;

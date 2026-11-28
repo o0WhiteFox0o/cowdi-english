@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speech';
 import { getWordId } from '../../../vocab/wordProgress';
+import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { createRng } from '../seededRandom';
 import FriendlyFrame from './FriendlyFrame';
 import {
@@ -151,7 +152,7 @@ export default function F08MemoryPairs({
   return (
     <FriendlyFrame
       skill="read"
-      title="Lật cặp đồng cỏ"
+      title={getScreenTitle('F-08', extra?.region, 'Ghép cặp từ vựng')}
       code="F-08"
       counter={`${mem.matchedPairIds.length}/${totalPairs}`}
       extraRight={(

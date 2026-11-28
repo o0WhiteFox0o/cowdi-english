@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { REGIONS } from '../../../shared/regions';
 
-const ALL_CODES = ['OPEN', 'T-01', 'T-02', 'T-04', 'T-05', 'T-06', 'T-07', 'T-08', 'F-01', 'F-03', 'F-06', 'F-08', 'F-09'];
+const ALL_CODES = ['OPEN', 'T-01', 'T-02', 'T-04', 'T-05', 'T-06', 'T-07', 'T-08', 'F-01', 'F-02', 'F-03', 'F-04', 'F-05', 'F-06', 'F-08', 'F-09'];
 const FILTER_REGIONS = ['BD', 'TG', 'VS', '*'];
 const STATUS_BADGE = {
   draft:    'bg-warning-subtle text-dark border border-warning',

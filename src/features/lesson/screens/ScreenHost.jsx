@@ -4,6 +4,8 @@ import { ALL_LESSONS } from '../../../data/lessons';
 import { findPathForLesson } from '../../../data/path';
 import { getUnitRegion, REGIONS } from '../../../../shared/regions';
 import { HUMAN_CAST } from '../../../../shared/human-cast';
+import { getScreenTitle } from '../../../../shared/screen-scenarios';
+import { useAuth } from '../../../hooks/useAuth';
 import { useUser } from '../../../hooks/useUser';
 import { usePet } from '../../../hooks/usePet';
 import { useSound } from '../../../hooks/useSound';
@@ -105,6 +107,7 @@ export default function ScreenHost({
   onExitOverride,
 }) {
   const navigate = useNavigate();
+  const { authFetch, isLoggedIn } = useAuth();
   const {
     userData,
     addXP,
@@ -184,6 +187,34 @@ export default function ScreenHost({
   const [streakCount, setStreakCount] = useState(0);
   const [skillGains, setSkillGains] = useState({ listen: 0, read: 0, write: 0, speak: 0 });
   const usedIntroIdsRef = useRef([]);
+  const screenStartedAtRef = useRef(Date.now());
+  const statSentKeyRef = useRef('');
+
+  const reportScreenStat = useCallback((payload) => {
+    // Q7: Không gửi thống kê khi sandbox = true hoặc chưa đăng nhập
+    if (sandbox || !isLoggedIn || !payload?.code) return;
+    const dedupeKey = `${session.seed}:${session.currentIndex}:${payload.code}`;
+    if (statSentKeyRef.current === dedupeKey) return;
+    statSentKeyRef.current = dedupeKey;
+    authFetch('/api/screen-stats', {
+      method: 'POST',
+      body: JSON.stringify({
+        code: payload.code,
+        group,
+        outcome: payload.outcome === 'quit' ? 'quit' : 'done',
+        items: Number(payload.items) || 0,
+        firstTryCorrect: Number(payload.firstTryCorrect) || 0,
+        durationMs: Number(payload.durationMs) || 0,
+        audioOff: Boolean(payload.audioOff),
+      }),
+    }).catch(() => {});
+  }, [sandbox, isLoggedIn, session.seed, session.currentIndex, authFetch, group]);
+
+  useEffect(() => {
+    if (phase === 'play') {
+      screenStartedAtRef.current = Date.now();
+    }
+  }, [phase, session.currentIndex, session.seed]);
 
   useEffect(() => {
     const fresh = initSession();
@@ -357,9 +388,17 @@ export default function ScreenHost({
       guestTotal: Number(result?.guestTotal) || 0,
       guestCorrect: Number(result?.guestCorrect) || 0,
       audioOff: Boolean(result?.audioOff),
-      durationMs: Number(result?.durationMs) || 0,
+      durationMs: Number(result?.durationMs) || (Date.now() - screenStartedAtRef.current),
     };
     handleEvent('screen_done', normalized);
+    reportScreenStat({
+      code: normalized.code,
+      outcome: 'done',
+      items: normalized.total,
+      firstTryCorrect: normalized.firstTryCorrect,
+      durationMs: normalized.durationMs,
+      audioOff: normalized.audioOff,
+    });
 
     const nextResults = [...(session.results || []), normalized];
     const nextIdx = session.currentIndex + 1;
@@ -445,6 +484,7 @@ export default function ScreenHost({
     lesson?.id,
     recordLessonMix,
     recordRecentIntros,
+    reportScreenStat,
     userId,
   ]);
 
@@ -471,6 +511,16 @@ export default function ScreenHost({
   };
 
   const handleConfirmExit = () => {
+    if (phase === 'play' && currentEntry?.code) {
+      reportScreenStat({
+        code: currentEntry.code,
+        outcome: 'quit',
+        items: 0,
+        firstTryCorrect: 0,
+        durationMs: Date.now() - screenStartedAtRef.current,
+        audioOff: muted,
+      });
+    }
     setExitOpen(false);
     if (typeof onExitOverride === 'function') {
       onExitOverride();
@@ -480,6 +530,7 @@ export default function ScreenHost({
   };
 
   const ActiveComponent = currentMeta?.Component || null;
+  const currentTitle = currentEntry ? getScreenTitle(currentEntry.code, region, currentMeta?.name || '') : '';
   const hasGrammar = (lesson?.grammar || []).length > 0;
   const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
   const isFriendlyScreen = Boolean(currentEntry?.code?.startsWith('F-'));
@@ -495,7 +546,7 @@ export default function ScreenHost({
     : phase === 'stage_intro'
       ? `Sẵn sàng vượt ải tại ${REGIONS[region]?.nameVi || 'Bến Đò Ông Tư'}!`
       : phase === 'intro'
-        ? `Chuẩn bị: ${currentMeta?.name || ''}`
+        ? `Chuẩn bị: ${currentTitle}`
         : currentEntry?.code === 'T-06'
           ? 'Nghe → Nhấn mic → Nói → Xem điểm!'
           : currentEntry?.code === 'T-05'
@@ -526,6 +577,7 @@ export default function ScreenHost({
           screens={screens}
           currentIndex={session.currentIndex}
           currentScreenMeta={currentMeta}
+          currentTitle={currentTitle}
           paused={paused}
           onRequestExit={() => setExitOpen(true)}
           onTogglePause={() => setPaused((p) => !p)}
@@ -559,6 +611,7 @@ export default function ScreenHost({
             <ScreenIntro
               screen={currentEntry}
               screenMeta={currentMeta}
+              region={region}
               index={session.currentIndex}
               total={screens.length}
               group={group}
@@ -597,7 +650,7 @@ export default function ScreenHost({
               <div className="card-body text-center py-5">
                 <h3 className="fw-bold mb-2">⏸ Đang tạm dừng</h3>
                 <p className="text-muted mb-3">
-                  Màn {session.currentIndex + 1}/{screens.length}: {currentMeta?.name}
+                  Màn {session.currentIndex + 1}/{screens.length}: {currentTitle || currentMeta?.name}
                 </p>
                 <div className="d-flex gap-2 justify-content-center flex-wrap">
                   <button type="button" className="btn btn-cowdi-primary ss-tap-btn" onClick={() => setPaused(false)}>

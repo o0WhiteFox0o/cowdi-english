@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Icon from '../../../../components/Icon';
 import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speech';
 import { getWordId } from '../../../vocab/wordProgress';
+import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { createRng } from '../seededRandom';
 import FriendlyFrame from './FriendlyFrame';
 import { useItemQueue } from './useItemQueue';
@@ -221,11 +222,12 @@ export default function F03CatchWord({
 
   if (!current) return null;
   const item = current.item;
+  const screenTitle = getScreenTitle('F-03', extra?.region, 'Nghe nhận diện từ');
 
   return (
     <FriendlyFrame
       skill="listen"
-      title="Nghe nhận diện từ"
+      title={screenTitle}
       code="F-03"
       counter={`${Math.min(cursor + 1, totalSteps)}/${totalSteps}`}
       extraRight={combo >= 3 ? <span className="ff-combo-chip">🔥 {combo}!</span> : null}

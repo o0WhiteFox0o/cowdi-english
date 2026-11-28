@@ -67,13 +67,13 @@ export function useScreenEvents({
           }
           const petSkill = SLOT_TO_PET_SKILL[payload.skill];
           if (petSkill) {
-            if (Array.isArray(payload.wordIds) && payload.wordIds.length > 0 && typeof recordWordSkillHit === 'function') {
+            if (!payload.skipSkillHit && Array.isArray(payload.wordIds) && payload.wordIds.length > 0 && typeof recordWordSkillHit === 'function') {
               recordWordSkillHit(payload.wordIds, payload.skill, rules);
             }
-            if (typeof addSkillXP === 'function') {
+            if (!payload.skipSkillHit && typeof addSkillXP === 'function') {
               addSkillXP(petSkill, 1);
             }
-            if (typeof onSkillGain === 'function') {
+            if (!payload.skipSkillHit && typeof onSkillGain === 'function') {
               onSkillGain(payload.skill, 1);
             }
           }
