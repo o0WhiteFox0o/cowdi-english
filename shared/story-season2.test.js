@@ -21,8 +21,10 @@ test('S1: 12 bài × 6 slot đều có vi (≤25 chữ), en (≤8 từ), và kh�
 
   const seenVi = new Set();
   for (const [id, l] of lessons) {
-    assert.ok(l.introVi && wordCount(l.introVi) <= 25, `${id}.introVi quá dài hoặc thiếu`);
-    if (l.introEn) assert.ok(wordCount(l.introEn) <= 8, `${id}.introEn quá 8 từ`);
+    assert.ok(l.intro_vi && wordCount(l.intro_vi) <= 25, `${id}.intro_vi quá dài hoặc thiếu`);
+    assert.ok(l.dialogue?.speaker_id, `${id}.dialogue.speaker_id thiếu`);
+    assert.ok(l.dialogue?.text_en && wordCount(l.dialogue.text_en) <= 8, `${id}.dialogue.text_en thiếu hoặc quá 8 từ`);
+    assert.ok(l.scene_id, `${id}.scene_id thiếu`);
 
     for (const slot of SLOTS) {
       const entry = l.slots?.[slot];

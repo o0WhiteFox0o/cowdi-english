@@ -9,6 +9,27 @@ import { mulberry32, seededShuffle } from './seededRandom.js';
 
 const SKILL_SLOTS = ['listen', 'speak', 'read', 'write'];
 
+/**
+ * Xáo thứ tự 4 kỹ năng giữa ổn định theo `seed` (đảm bảo vị trí đầu !== 'speak').
+ * Nếu truyền `avoidOrder` (thứ tự 4 màn giữa của ải liền trước) và bị trùng → xoay ổn định sang thứ tự khác.
+ */
+export function computeMiddleOrder(seed, avoidOrder = null) {
+  const rng = mulberry32(seed);
+  const middle = seededShuffle(SKILL_SLOTS, rng);
+  if (middle[0] === 'speak') {
+    const swapIdx = 1 + Math.floor(rng() * 3);
+    [middle[0], middle[swapIdx]] = [middle[swapIdx], middle[0]];
+  }
+  if (Array.isArray(avoidOrder) && avoidOrder.length === middle.length && avoidOrder.join(',') === middle.join(',')) {
+    // Xoay ổn định 3 vị trí cuối (hoặc đổi vị trí 1 & 2) để luôn khác ải liền trước mà vẫn giữ middle[0] !== 'speak'
+    [middle[1], middle[2], middle[3]] = [middle[2], middle[3], middle[1]];
+    if (avoidOrder.join(',') === middle.join(',')) {
+      [middle[1], middle[2]] = [middle[2], middle[1]];
+    }
+  }
+  return middle;
+}
+
 function pickWeighted(candidates, weightsForGroup, rng) {
   if (candidates.length === 1) return candidates[0];
   const weights = candidates.map((c) => {
@@ -60,18 +81,19 @@ export function mixLesson({
   isTester = false,
   registry = SCREEN_CATALOG,
   seed = 1,
+  avoidOrder = null,
 }) {
   const rng = mulberry32(seed);
   const log = [];
   const statusMap = config?.status || SCREEN_CONFIG.status;
   const weightsForGroup = config?.weights?.[group] || SCREEN_CONFIG.weights[group] || { friendly: 0.5, focus: 0.5 };
 
-  // Bước 1: Hoán vị 4 kỹ năng giữa; đảm bảo order[1] !== 'speak'
-  const middle = seededShuffle(SKILL_SLOTS, rng);
-  if (middle[0] === 'speak') {
-    const swapIdx = 1 + Math.floor(rng() * 3); // vị trí 1..3 trong middle (= 2..4 trong order)
-    [middle[0], middle[swapIdx]] = [middle[swapIdx], middle[0]];
-    log.push(`order: đổi chỗ speak từ vị trí 2 sang vị trí ${swapIdx + 2}`);
+  // Bước 1: Hoán vị 4 kỹ năng giữa ổn định theo seed (tránh trùng ải liền trước nếu truyền avoidOrder)
+  const middle = computeMiddleOrder(seed, avoidOrder);
+  // Tiêu thụ 1 nhịp rng tương đương trước đây để giữ phân phối trọng số ổn định
+  rng();
+  if (Array.isArray(avoidOrder) && avoidOrder.length === 4) {
+    log.push(`order: xáo ổn định theo seed (tránh trùng [${avoidOrder.join(',')}]) → [${middle.join(',')}]`);
   }
   const initialOrder = ['intro', ...middle, 'boss'];
 

@@ -1789,7 +1789,9 @@ hr {
     padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px));
   }
 
-  body:has(.lesson-step-footer) .cowdi-invite-fab {
+  body:has(.lesson-step-footer) .cowdi-invite-fab,
+  body:has(.si-wrap) .cowdi-invite-fab,
+  body:has(.ss-host-flow) .cowdi-invite-fab {
     display: none;
   }
 }

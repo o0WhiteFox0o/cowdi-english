@@ -17,7 +17,7 @@ import { ScreenPetGuideContext } from './friendly/FriendlyFrame';
 import { speakWord } from '../../../utils/speech';
 import { SCREEN_CONFIG } from '../../../data/config/screens';
 import { hashString } from './seededRandom';
-import { mixLesson } from './mixer';
+import { mixLesson, computeMiddleOrder } from './mixer';
 import { getScreen } from './registry';
 import { listenItems, speakItems, writeItems, bossItems } from './items';
 import { useScreenEvents } from './screenEvents';
@@ -168,9 +168,19 @@ export default function ScreenHost({
       const existing = loadSession(userId, lesson?.id);
       if (existing) return existing;
     }
+    // Xáo ổn định theo id của ải (không đổi mỗi lần mở lại) và đảm bảo khác thứ tự ải liền trước trong cùng unit
     const seed = seedOverride != null
       ? seedOverride
-      : hashString(`${userId}:${lesson?.id}:${attemptCount + 1}`);
+      : hashString(`stage:${lesson?.id || 'default'}`);
+    let avoidOrder = null;
+    if (stageIdx > 0 && unitLessons.length > 0) {
+      // Tính chuỗi avoidOrder dọc theo các ải trước trong unit để 2 ải kề nhau luôn có thứ tự khác
+      let prevOrder = null;
+      for (let i = 0; i < stageIdx; i++) {
+        prevOrder = computeMiddleOrder(hashString(`stage:${unitLessons[i]}`), prevOrder);
+      }
+      avoidOrder = prevOrder;
+    }
     const mix = mixLesson({
       lesson,
       group,
@@ -178,6 +188,7 @@ export default function ScreenHost({
       config,
       isTester,
       seed,
+      avoidOrder,
     });
     const created = { seed, mix, currentIndex: 0, results: [] };
     if (!sandbox) saveSession(userId, lesson?.id, created);

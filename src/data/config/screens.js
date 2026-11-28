@@ -40,12 +40,23 @@ export const SLOT_META = {
   boss:   { label: 'Boss',   color: '#4A3420', icon: 'target' },
 };
 
+/** Mô tả màn Boss (boss_stage = { mode, label_vi }) — tên màn, KHÔNG phải tên Boss.
+ *  Mọi label_vi ≤ 10 ký tự, đồng nhất phong cách, không bao giờ bị cắt "..." trong lưới 6 màn. */
+export const BOSS_STAGE_META = {
+  'T-07': { mode: 'quiz', label_vi: 'Giải đố' },
+  'F-06': { mode: 'fog',  label_vi: 'Giải sương' },
+};
+
+export function resolveBossStage(code) {
+  return BOSS_STAGE_META[code] || BOSS_STAGE_META['F-06'];
+}
+
 /** Tên ngắn ≤ 11 ký tự cho lưới 6 ô trong StageIntro (ui/stage-intro §3, test U7). */
 export const SHORT_NAME = {
   'T-01': 'Từ vựng',   'T-02': 'Thẻ lật',    'T-04': 'Đọc hiểu',  'T-05': 'Nghe chọn',
-  'T-06': 'Nói theo',  'T-07': 'Trắc nghiệm','T-08': 'Viết câu',
+  'T-06': 'Nói theo',  'T-07': 'Giải đố',    'T-08': 'Viết câu',
   'F-01': 'Thẻ từ',    'F-02': 'Ghép chữ',   'F-03': 'Nghe từ',   'F-04': 'Qua cầu',
-  'F-05': 'Săn chữ',   'F-06': 'Sương',      'F-07': 'Chợ nổi',   'F-08': 'Lật cặp',
+  'F-05': 'Săn chữ',   'F-06': 'Giải sương', 'F-07': 'Chợ nổi',   'F-08': 'Lật cặp',
   'F-09': 'Xếp ghe',   'F-10': 'Trò chuyện', 'F-11': 'Đúng/Sai',
 };
 

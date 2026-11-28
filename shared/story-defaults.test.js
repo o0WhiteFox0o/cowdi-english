@@ -87,9 +87,10 @@ test('D6: 12 bài int-u1..u3 vẫn ra đúng câu kịch bản (SEASON2_LESSONS)
       companionName: 'Cowdi',
     });
     assert.equal(story.isSeason2, true);
-    assert.equal(story.narratorId, expected.npc);
-    assert.equal(story.openVi, expected.introVi);
-    assert.equal(story.openEn, expected.introEn || '');
-    assert.ok(story.boss && story.boss.stage === 5);
+    assert.equal(story.dialogue.speaker_id, expected.dialogue.speaker_id);
+    assert.equal(story.intro_vi, expected.intro_vi);
+    assert.equal(story.dialogue.text_en, expected.dialogue.text_en);
+    assert.equal(story.scene_id, expected.scene_id);
+    assert.ok(story.regionBoss && story.regionBoss.stage === 5);
   }
 });

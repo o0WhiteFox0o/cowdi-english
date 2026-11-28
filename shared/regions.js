@@ -1,20 +1,72 @@
-// shared/regions.js — Vùng đất theo unit (Story Bible mục 6.4, STORY-BIBLE-IMPLEMENTATION 2b.1)
-// Bản đầy đủ cho Đợt 3 hệ thống màn. KHÔNG tự đổi tên vùng / mã vùng.
+// shared/regions.js — Vùng đất, Boss vùng & Cảnh nền (Story Bible mục 6.4)
+// Boss gắn với VÙNG (region.boss = { pet_id, alt_pet_id }), KHÔNG gắn với ải.
+// Tên và ảnh Boss luôn tra động từ PET_REGISTRY[pet_id], không gán cứng ở đây.
 
 export const RING = ['VS', 'RM', 'RT', 'BS', 'CN', 'TG', 'CNS', 'DDL']; // thứ tự vòng, chiều kim đồng hồ
 export const SPECIAL = ['BD', 'CBL'];
 
 export const REGIONS = {
-  VS:  { nameVi: 'Vườn Sữa',        hosts: ['cowdi', 'bamboo', 'bamboo_spirit'], realRef: 'Cồn Sơn, Cần Thơ' },
-  RM:  { nameVi: 'Rẫy Mầm',         hosts: ['paddy', 'sprout', 'mushroom', 'radish', 'ginseng'], realRef: 'Làng hoa Sa Đéc, Đồng Tháp' },
-  RT:  { nameVi: 'Rừng Tràm',       hosts: ['foxie', 'leo', 'shadow'], realRef: 'Rừng tràm Trà Sư, An Giang' },
-  BS:  { nameVi: 'Bến Sóng',        hosts: ['pingu', 'leafy', 'flippy'], realRef: 'Biển Mũi Nai, Hà Tiên, An Giang' },
-  CN:  { nameVi: 'Chợ Nổi',         hosts: ['bun'], realRef: 'Chợ nổi Cái Răng, Cần Thơ' },
-  TG:  { nameVi: 'Tháp Gió',        hosts: ['mimi', 'owlbert', 'storm'], realRef: 'Cánh đồng điện gió Bạc Liêu, Cà Mau' },
-  CNS: { nameVi: 'Chín Nhánh Sông', hosts: ['sparky', 'draco'], realRef: 'Cồn Long–Lân–Quy–Phụng, sông Tiền' },
-  DDL: { nameVi: 'Đồi Đèn Lồng',    hosts: ['monk', 'pumpkin', 'prisma'], realRef: 'Hồ Thủy Liêm, Núi Cấm, An Giang' },
-  BD:  { nameVi: 'Bến Đò Ông Tư',   hosts: [], humanHost: 'ong_tu', realRef: 'Bến đò Cô Bắc → Cồn Sơn, Cần Thơ' },
-  CBL: { nameVi: 'Cổng Biển Lớn',   hosts: [], realRef: 'Mũi Cà Mau' },
+  VS:  {
+    nameVi: 'Vườn Sữa',
+    hosts: ['cowdi', 'bamboo', 'bamboo_spirit'],
+    realRef: 'Cồn Sơn, Cần Thơ',
+    boss: { pet_id: 'bamboo_spirit', alt_pet_id: 'bamboo' },
+  },
+  RM:  {
+    nameVi: 'Rẫy Mầm',
+    hosts: ['paddy', 'sprout', 'mushroom', 'radish', 'ginseng'],
+    realRef: 'Làng hoa Sa Đéc, Đồng Tháp',
+    boss: { pet_id: 'sprout', alt_pet_id: 'paddy' },
+  },
+  RT:  {
+    nameVi: 'Rừng Tràm',
+    hosts: ['foxie', 'leo', 'shadow'],
+    realRef: 'Rừng tràm Trà Sư, An Giang',
+    boss: { pet_id: 'leo', alt_pet_id: 'foxie' },
+  },
+  BS:  {
+    nameVi: 'Bến Sóng',
+    hosts: ['pingu', 'leafy', 'flippy'],
+    realRef: 'Biển Mũi Nai, Hà Tiên, An Giang',
+    boss: { pet_id: 'pingu', alt_pet_id: 'leafy' },
+  },
+  CN:  {
+    nameVi: 'Chợ Nổi',
+    hosts: ['bun'],
+    realRef: 'Chợ nổi Cái Răng, Cần Thơ',
+    boss: { pet_id: 'foxie', alt_pet_id: 'leo' },
+  },
+  TG:  {
+    nameVi: 'Tháp Gió',
+    hosts: ['mimi', 'owlbert', 'storm'],
+    realRef: 'Cánh đồng điện gió Bạc Liêu, Cà Mau',
+    boss: { pet_id: 'owlbert', alt_pet_id: 'mimi' },
+  },
+  CNS: {
+    nameVi: 'Chín Nhánh Sông',
+    hosts: ['sparky', 'draco'],
+    realRef: 'Cồn Long–Lân–Quy–Phụng, sông Tiền',
+    boss: { pet_id: 'sparky', alt_pet_id: 'draco' },
+  },
+  DDL: {
+    nameVi: 'Đồi Đèn Lồng',
+    hosts: ['monk', 'pumpkin', 'prisma'],
+    realRef: 'Hồ Thủy Liêm, Núi Cấm, An Giang',
+    boss: { pet_id: 'pumpkin', alt_pet_id: 'mimi' },
+  },
+  BD:  {
+    nameVi: 'Bến Đò Ông Tư',
+    hosts: [],
+    humanHost: 'ong_tu',
+    realRef: 'Bến đò Cô Bắc → Cồn Sơn, Cần Thơ',
+    boss: { pet_id: 'flippy', alt_pet_id: 'pingu' },
+  },
+  CBL: {
+    nameVi: 'Cổng Biển Lớn',
+    hosts: [],
+    realRef: 'Mũi Cà Mau',
+    boss: { pet_id: 'draco', alt_pet_id: 'sparky' },
+  },
 };
 
 export const VARIANTS = [
@@ -49,8 +101,6 @@ export const getUnitRegion = (unitId) => UNIT_REGION[unitId] || null;
 export const getRegionVariant = (regionId, regionClears = {}) =>
   VARIANTS[(regionClears[regionId] || 0) % VARIANTS.length];
 
-// ── Bổ sung cho hệ thống màn (Đợt 3) ─────────────────────────────────────────
-
 // Danh sách ảnh vùng đất hiện có thực tế trong public/image/regions/
 export const AVAILABLE_REGION_ART = new Set([
   'BD-sang-suong',
@@ -62,7 +112,7 @@ export const AVAILABLE_REGION_ART = new Set([
   'CNS-sang-suong',
 ]);
 
-/** Trả về URL ảnh vùng nếu file thực sự tồn tại; trả null nếu vùng chưa vẽ (dùng màu nền REGION_COLOR, tránh 404). */
+/** Trả về URL ảnh vùng nếu file thực sự tồn tại; trả null nếu vùng chưa vẽ (tránh 404). */
 export function getRegionImageUrl(regionId, variantId = 'sang-suong') {
   if (!regionId) return null;
   const exact = `${regionId}-${variantId}`;
@@ -72,8 +122,48 @@ export function getRegionImageUrl(regionId, variantId = 'sang-suong') {
   return null;
 }
 
+// ── Danh mục Cảnh nền (scene_id → tên cảnh + vùng + đường dẫn ảnh) ───────────
+// Mỗi cảnh dùng ảnh riêng (nếu đã vẽ trong /image/scenes/) hoặc ảnh vùng tương ứng.
+export const SCENES = {
+  // int-u1 · Bến Đò Ông Tư
+  bd_ben_go:      { id: 'bd_ben_go',      region: 'BD',  name_vi: 'Bến gỗ',                image: '/image/regions/BD-sang-suong.webp' },
+  bd_ghe_khach:   { id: 'bd_ghe_khach',   region: 'BD',  name_vi: 'Ghế khách trên đò',     image: '/image/regions/BD-nuoc-noi.webp' },
+  bd_co_hieu:     { id: 'bd_co_hieu',     region: 'BD',  name_vi: 'Cờ hiệu mũi đò',        image: '/image/regions/BD-sang-suong.webp' },
+  bd_coc_dem:     { id: 'bd_coc_dem',     region: 'BD',  name_vi: 'Cọc đếm khách',         image: '/image/regions/BD-nuoc-noi.webp' },
+
+  // int-u2 · Tháp Gió
+  tg_hom_thu:     { id: 'tg_hom_thu',     region: 'TG',  name_vi: 'Hòm thư lớp học',       image: '/image/scenes/classroom.webp' },
+  tg_chong_chong: { id: 'tg_chong_chong', region: 'TG',  name_vi: 'Chong chóng đo gió',    image: '/image/regions/TG-sang-suong.webp' },
+  tg_bang_tin:    { id: 'tg_bang_tin',    region: 'TG',  name_vi: 'Bảng tin nghề nghiệp',  image: '/image/regions/TG-sang-suong.webp' },
+  tg_san_tap:     { id: 'tg_san_tap',     region: 'TG',  name_vi: 'Sân tập dưới chân tháp', image: '/image/scenes/schoolyard.webp' },
+
+  // int-u3 · Vườn Sữa
+  vs_day_phoi:    { id: 'vs_day_phoi',    region: 'VS',  name_vi: 'Dây phơi đồ',           image: '/image/regions/VS-sang-suong.webp' },
+  vs_nha_mai_do:  { id: 'vs_nha_mai_do',  region: 'VS',  name_vi: 'Ngôi nhà mái đỏ',       image: '/image/regions/VS-sang-suong.webp' },
+  vs_loi_vao_truc:{ id: 'vs_loi_vao_truc',region: 'VS',  name_vi: 'Lối vào rừng trúc',     image: '/image/regions/VS-sang-suong.webp' },
+  vs_san_hoi:     { id: 'vs_san_hoi',     region: 'VS',  name_vi: 'Sân hội cuối tuần',     image: '/image/regions/VS-sang-suong.webp' },
+
+  // Cảnh mặc định theo từng vùng (dùng cho các bài chưa tách cảnh chi tiết)
+  region_BD:      { id: 'region_BD',      region: 'BD',  name_vi: 'Bến Đò Ông Tư',         image: '/image/regions/BD-sang-suong.webp' },
+  region_VS:      { id: 'region_VS',      region: 'VS',  name_vi: 'Vườn Sữa',              image: '/image/regions/VS-sang-suong.webp' },
+  region_RM:      { id: 'region_RM',      region: 'RM',  name_vi: 'Rẫy Mầm',               image: '/image/regions/RM-sang-suong.webp' },
+  region_RT:      { id: 'region_RT',      region: 'RT',  name_vi: 'Rừng Tràm',             image: null },
+  region_BS:      { id: 'region_BS',      region: 'BS',  name_vi: 'Bến Sóng',              image: null },
+  region_CN:      { id: 'region_CN',      region: 'CN',  name_vi: 'Chợ Nổi',               image: '/image/regions/CN-sang-suong.webp' },
+  region_TG:      { id: 'region_TG',      region: 'TG',  name_vi: 'Tháp Gió',              image: '/image/regions/TG-sang-suong.webp' },
+  region_CNS:     { id: 'region_CNS',     region: 'CNS', name_vi: 'Chín Nhánh Sông',       image: '/image/regions/CNS-sang-suong.webp' },
+  region_DDL:     { id: 'region_DDL',     region: 'DDL', name_vi: 'Đồi Đèn Lồng',          image: null },
+  region_CBL:     { id: 'region_CBL',     region: 'CBL', name_vi: 'Cổng Biển Lớn',         image: null },
+};
+
+export function getSceneInfo(sceneId, fallbackRegion = 'BD') {
+  if (sceneId && SCENES[sceneId]) return SCENES[sceneId];
+  const regKey = `region_${fallbackRegion}`;
+  if (SCENES[regKey]) return SCENES[regKey];
+  return SCENES.region_BD;
+}
+
 // Màu nền vùng khi chưa có ảnh public/image/regions/<region>-<variant>.webp
-// sky = nền trên, ground = dải dưới (nước/cỏ/đất).
 export const REGION_COLOR = {
   VS:  { sky: '#E8F3DA', ground: '#B9DDA8' },
   RM:  { sky: '#FBEFD9', ground: '#C9DDA0' },
@@ -87,8 +177,7 @@ export const REGION_COLOR = {
   CBL: { sky: '#D9E6F2', ground: '#6FA3C8' },
 };
 
-// Màu tô Boss sương theo vùng (dùng với public/image/boss/fog.svg hoặc bản CSS).
-// body = thân sương, shade = vùng tối, eye = mắt/miệng.
+// Màu tô Boss sương theo vùng
 export const BOSS_TINT = {
   VS:  { body: '#DDE6D6', shade: '#B8C8B0', eye: '#2F3A2B' },
   RM:  { body: '#E9E3D3', shade: '#CFC4A8', eye: '#3A3324' },
@@ -102,7 +191,6 @@ export const BOSS_TINT = {
   CBL: { body: '#D4DEE8', shade: '#AFC0D1', eye: '#22303D' },
 };
 
-// Tóm tắt vùng để soạn câu dẫn (chỉ dùng chi tiết có trong Story Bible; không bịa địa danh mới).
 export const REGION_BRIEF = {
   BD: 'Bến đò ngang của ông Tư, đò chở khách qua sông sang Cù Lao. Cảnh: bến gỗ, chiếc đò, mặt sông, sương sớm.',
   TG: 'Tháp Gió: cánh đồng có những tháp gió quay, gió lộng. Pet chủ nhà: Mimi, Owlbert, Storm.',

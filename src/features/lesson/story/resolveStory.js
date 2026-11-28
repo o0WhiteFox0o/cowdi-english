@@ -1,12 +1,15 @@
 /**
- * Hàm gom một chỗ cho dẫn nhập & Boss của mọi bài học (GEMINI-STORY-FALLBACK §1).
+ * Hàm gom một chỗ cho dẫn nhập, thoại nhân vật, cảnh nền & Boss vùng của mọi ải.
  *
- * Thứ tự ưu tiên:
- *   SEASON2_LESSONS[lesson.id] → story-defaults (UNIT_NARRATOR / REGION_BOSS / defaultOpenIntro)
+ * Cấu trúc chuẩn tách bạch:
+ *  - intro_vi: lời dẫn truyện tiếng Việt (KHÔNG phải lời nhân vật)
+ *  - dialogue: { speaker_id, text_en, text_vi? } (chỉ câu thoại của nhân vật)
+ *  - scene_id / scene: cảnh nền của ải (tên cảnh + ảnh nền)
+ *  - regionBoss / boss: gắn với VÙNG (REGIONS[region].boss), tên & ảnh tra động từ PET_REGISTRY[pet_id]
  */
 
 import { PET_REGISTRY } from '../../../data/pets.js';
-import { REGIONS, getUnitRegion } from '../../../../shared/regions.js';
+import { REGIONS, getUnitRegion, getSceneInfo } from '../../../../shared/regions.js';
 import {
   BOSS_STAGE,
   SEASON2_LESSONS,
@@ -15,12 +18,42 @@ import {
   unitBoss,
 } from '../../../../shared/story-season2.js';
 import {
-  REGION_BOSS,
   UNIT_NARRATOR,
   defaultNarrator,
   defaultOpenIntro,
   regionBoss,
 } from '../../../../shared/story-defaults.js';
+
+/** Tra Boss của vùng từ REGIONS[region].boss + PET_REGISTRY (không gán cứng tên/ảnh). */
+function resolveRegionBossObject(regionCode, safeCompanionId, unitStoryOverride = null) {
+  const regBossDef = REGIONS[regionCode]?.boss;
+  if (!regBossDef?.pet_id) return null;
+
+  const pickedPetId =
+    regBossDef.pet_id === safeCompanionId ? regBossDef.alt_pet_id : regBossDef.pet_id;
+  const bossPet = PET_REGISTRY[pickedPetId] || null;
+  const bossName = bossPet?.name || pickedPetId;
+  const bossImage = bossPet?.evolutions?.[evolutionIndex(BOSS_STAGE)]?.image || null;
+
+  // Nếu có thoại tập riêng (unitStoryOverride) và không phải alt thì dùng thoại tập, ngược lại dùng thoại vùng
+  const builtRegion = regionBoss(regionCode, safeCompanionId, bossName);
+  const usingAlt = pickedPetId !== regBossDef.pet_id;
+  const lines =
+    !usingAlt && unitStoryOverride?.lines
+      ? unitStoryOverride.lines
+      : builtRegion?.lines || {};
+
+  return {
+    ...(unitStoryOverride || {}),
+    ...(builtRegion || {}),
+    pet_id: pickedPetId,
+    pet: pickedPetId,
+    name: bossName,
+    stage: BOSS_STAGE,
+    image: bossImage,
+    lines,
+  };
+}
 
 /**
  * @param {{
@@ -56,29 +89,31 @@ export function resolveLessonStory({
 
   if (lessonStory) {
     const unitStory = SEASON2_UNITS[lessonStory.unit] || null;
-    const rawBoss = unitBoss(lessonStory.unit, safeCompanionId);
-    const bossPet = rawBoss ? PET_REGISTRY[rawBoss.pet] : null;
-    const boss = rawBoss
-      ? {
-          ...rawBoss,
-          name: bossPet?.name || rawBoss.pet,
-          image: bossPet?.evolutions?.[evolutionIndex(BOSS_STAGE)]?.image || null,
-        }
-      : null;
+    const rawUnitBoss = unitBoss(lessonStory.unit, safeCompanionId);
+    const boss = resolveRegionBossObject(resolvedRegion, safeCompanionId, rawUnitBoss);
 
-    const landmarkName =
-      unitStory?.landmarks && typeof lessonStory.landmark === 'number'
-        ? unitStory.landmarks[lessonStory.landmark] || null
-        : null;
+    const scene = getSceneInfo(lessonStory.scene_id, resolvedRegion);
+    const dialogue = {
+      speaker_id: lessonStory.dialogue.speaker_id,
+      text_en: lessonStory.dialogue.text_en,
+      ...(lessonStory.dialogue.text_vi ? { text_vi: lessonStory.dialogue.text_vi } : {}),
+    };
 
     return {
       isSeason2: true,
       unitId: lessonStory.unit,
       region: resolvedRegion,
-      narratorId: lessonStory.npc,
-      openVi: lessonStory.introVi,
-      openEn: lessonStory.introEn || '',
-      landmarkName,
+      // Cấu trúc chuẩn tách bạch
+      intro_vi: lessonStory.intro_vi,
+      dialogue,
+      scene_id: scene.id,
+      scene,
+      regionBoss: boss,
+      // Alias tương thích ngược
+      narratorId: dialogue.speaker_id,
+      openVi: lessonStory.intro_vi,
+      openEn: dialogue.text_en,
+      landmarkName: scene.name_vi,
       afterVi: lessonStory.afterVi || '',
       lessonStory,
       unitStory,
@@ -89,7 +124,7 @@ export function resolveLessonStory({
   }
 
   // Fallback qua story-defaults (unit → vùng)
-  const narratorId =
+  const speakerId =
     UNIT_NARRATOR[resolvedUnitId]?.by ??
     defaultNarrator(resolvedRegion, REGIONS, safeCompanionId);
 
@@ -97,33 +132,31 @@ export function resolveLessonStory({
     unitId: resolvedUnitId,
     regionName: regionInfo.nameVi,
     companionName: safeCompanionName,
+    speakerId,
   });
 
-  const regBossEntry = REGION_BOSS[resolvedRegion];
-  let boss = null;
-  if (regBossEntry) {
-    const pickedPetId =
-      regBossEntry.pet === safeCompanionId ? regBossEntry.alt : regBossEntry.pet;
-    const bossPet = PET_REGISTRY[pickedPetId];
-    const bossName = bossPet?.name || pickedPetId;
-    const built = regionBoss(resolvedRegion, safeCompanionId, bossName);
-    if (built) {
-      boss = {
-        ...built,
-        name: bossName,
-        image: bossPet?.evolutions?.[evolutionIndex(BOSS_STAGE)]?.image || null,
-      };
-    }
-  }
+  const scene = getSceneInfo(lesson?.scene_id || `region_${resolvedRegion}`, resolvedRegion);
+  const boss = resolveRegionBossObject(resolvedRegion, safeCompanionId, null);
+  const dialogue = {
+    speaker_id: openDef.dialogue?.speaker_id || speakerId,
+    text_en: openDef.dialogue?.text_en || openDef.en || "Let's learn together!",
+  };
 
   return {
     isSeason2: false,
     unitId: resolvedUnitId,
     region: resolvedRegion,
-    narratorId,
-    openVi: openDef.vi,
-    openEn: openDef.en || '',
-    landmarkName: null,
+    // Cấu trúc chuẩn tách bạch
+    intro_vi: openDef.intro_vi,
+    dialogue,
+    scene_id: scene.id,
+    scene,
+    regionBoss: boss,
+    // Alias tương thích ngược
+    narratorId: dialogue.speaker_id,
+    openVi: openDef.intro_vi,
+    openEn: dialogue.text_en,
+    landmarkName: scene.name_vi,
     afterVi: '',
     lessonStory: null,
     unitStory: null,
