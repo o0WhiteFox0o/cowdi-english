@@ -1,5 +1,8 @@
 # KỊCH BẢN DẪN NHẬP MÙA 2 · int-u1 → int-u3 · v1.0
 
+> [!NOTE]
+> **Cập nhật 28/11/2026:** Lời dẫn Mở ải (`intro_vi`) và hội thoại (`dialogue`) ưu tiên trực tiếp từ `lesson.story` trong từng file bài học theo chuẩn văn phong tại [HUONG-DAN-VAN-PHONG-LOI-DAN.md](HUONG-DAN-VAN-PHONG-LOI-DAN.md). File `shared/story-season2.js` giữ thoại màn con (`slots`), thoại Boss (`bossStory`) và fallback đồng bộ với `lesson.story`.
+
 Ngày 28/11/2026 · Nguồn: Story Bible v1.0 (3.2, 4.3, 5.1–5.5, 6.2, 6.4, 7.2, 8) · Dữ liệu máy đọc: `shared/story-season2.js` · Trạng thái: **chờ Sonny duyệt**
 
 ## 0. Tóm tắt (Recommendation)

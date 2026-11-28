@@ -20,8 +20,12 @@ export const GREETINGS_LESSON = {
     'Hỏi thăm sức khoẻ và đáp lại lời cảm ơn, lời xin lỗi',
   ],
   story: {
-    npc: 'ong_tu',
-    introVi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+    scene_id: 'bd_ben_go',
+    intro_vi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+    dialogue: {
+      speaker_id: 'ong_tu',
+      text_en: 'Good morning! Nice to meet you.',
+    },
   },
 
   vocabulary: [

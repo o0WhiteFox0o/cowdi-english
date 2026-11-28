@@ -14,6 +14,15 @@ export const S1_PETS_LESSON = {
   title: 'Thú cưng',
   description: 'Gọi tên 6 con vật nuôi trong nhà',
   icon: '🐱',
+  // Chuẩn lời dẫn Mở ải: docs/04-design/HUONG-DAN-VAN-PHONG-LOI-DAN.md
+  story: {
+    scene_id: 'region_VS',
+    intro_vi: 'Trong phòng khách Vườn Sữa có nhiều bạn thú cưng đáng yêu lắm. Con cùng Mai gọi tên từng bạn nha!',
+    dialogue: {
+      speaker_id: 'mai',
+      text_en: 'I have a cute cat!',
+    },
+  },
 
   // 5–6 từ, vẽ được, không phiên âm. image: ảnh 512×512 (chưa có thì để emoji).
   words: [

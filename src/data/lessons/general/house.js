@@ -20,8 +20,12 @@ export const HOUSE_LESSON = {
     'Mô tả vị trí đồ đạc trong phòng bằng các giới từ in, on, under, next to',
   ],
   story: {
-    npc: 'minh',
-    introVi: 'Ngôi nhà nhỏ gần Vườn Sữa có nhiều phòng ấm cúng lắm. Con cùng Minh gọi tên từng phòng và đồ đạc nha!',
+    scene_id: 'vs_nha_mai_do',
+    intro_vi: 'Ngôi nhà nhỏ gần Vườn Sữa có nhiều phòng ấm cúng lắm. Con cùng Minh gọi tên từng phòng và đồ đạc nha!',
+    dialogue: {
+      speaker_id: 'minh',
+      text_en: 'Welcome to our new house!',
+    },
   },
 
   vocabulary: [

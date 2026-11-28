@@ -20,8 +20,12 @@ export const CLOTHING_LESSON = {
     'Dùng đúng động từ số nhiều với các danh từ trang phục đi theo đôi hoặc cặp',
   ],
   story: {
-    npc: 'mai',
-    introVi: 'Hôm nay Mai ra Vườn Sữa thăm Cowdi mà chưa biết chọn đồ gì. Con giúp Mai gọi tên quần áo nhé!',
+    scene_id: 'vs_day_phoi',
+    intro_vi: 'Hôm nay Mai ra Vườn Sữa thăm Cowdi mà chưa biết chọn đồ gì. Con giúp Mai gọi tên quần áo nhé!',
+    dialogue: {
+      speaker_id: 'mai',
+      text_en: 'What should I wear today?',
+    },
   },
 
   vocabulary: [

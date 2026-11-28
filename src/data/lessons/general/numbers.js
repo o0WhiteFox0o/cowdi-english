@@ -20,8 +20,12 @@ export const NUMBERS_LESSON = {
     'Hỏi và trả lời tuổi tự nhiên bằng "How old are you? – I am … years old"',
   ],
   story: {
-    npc: 'ong_tu',
-    introVi: 'Khách lên đò đông quá, ông đếm chưa kịp. Con phụ ông đếm số thật chuẩn trước khi qua sông nha!',
+    scene_id: 'bd_coc_dem',
+    intro_vi: 'Khách lên đò đông quá, ông đếm chưa kịp. Con phụ ông đếm số thật chuẩn trước khi qua sông nha!',
+    dialogue: {
+      speaker_id: 'ong_tu',
+      text_en: 'How many people are there?',
+    },
   },
 
   vocabulary: [

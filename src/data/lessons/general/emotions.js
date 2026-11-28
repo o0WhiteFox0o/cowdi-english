@@ -20,8 +20,12 @@ export const EMOTIONS_LESSON = {
     'Dùng đúng giới từ đi kèm tính từ cảm xúc (proud of, excited about, grateful for, scared of)',
   ],
   story: {
-    npc: 'bamboo',
-    introVi: 'Bên rừng trúc Vườn Sữa, mỗi bạn nhỏ hôm nay có một tâm trạng khác nhau. Con gọi tên cảm xúc cùng Bamboo nhé!',
+    scene_id: 'vs_loi_vao_truc',
+    intro_vi: 'Bên rừng trúc Vườn Sữa, mỗi bạn nhỏ hôm nay có một tâm trạng khác nhau. Con gọi tên cảm xúc cùng Bamboo nhé!',
+    dialogue: {
+      speaker_id: 'bamboo',
+      text_en: 'How do you feel today?',
+    },
   },
 
   vocabulary: [

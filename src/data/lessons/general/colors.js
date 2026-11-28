@@ -20,8 +20,12 @@ export const COLORS_LESSON = {
     'Hỏi và trả lời về màu yêu thích bằng "What color do you like?"',
   ],
   story: {
-    npc: 'lan',
-    introVi: 'Sương sớm che mất màu cờ trên bến đò rồi. Con giúp Lan gọi đúng tên các màu sắc nhé!',
+    scene_id: 'bd_co_hieu',
+    intro_vi: 'Sương sớm che mất màu cờ trên bến đò rồi. Con giúp Lan gọi đúng tên các màu sắc nhé!',
+    dialogue: {
+      speaker_id: 'lan',
+      text_en: 'What color do you like?',
+    },
   },
 
   vocabulary: [

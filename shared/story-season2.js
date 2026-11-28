@@ -108,7 +108,7 @@ export const SEASON2_LESSONS = {
   // ── int-u1 · Bến Đò Ông Tư ──────────────────────────────────────────────
   greetings: {
     unit: 'int-u1', landmark: 0, scene_id: 'bd_ben_go',
-    intro_vi: 'Thầy Tom vừa cập bến mà sương nuốt hết lời chào. Con giúp Minh, Lan chào thầy cho đúng nha!',
+    intro_vi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
     dialogue: { speaker_id: 'ong_tu', text_en: 'Good morning! Nice to meet you.' },
     slots: {
       intro:  { vi: 'Lời chào rơi xuống sông hết rồi. Mình gặp lại từng lời chào nha!', en: 'Hello! Hi! Good morning!' },
@@ -136,7 +136,7 @@ export const SEASON2_LESSONS = {
   },
   colors: {
     unit: 'int-u1', landmark: 2, scene_id: 'bd_co_hieu',
-    intro_vi: 'Cờ hiệu trên đò mất hết màu trong sương. Con giúp Lan gọi lại tên từng màu nha!',
+    intro_vi: 'Sương sớm che mất màu cờ trên bến đò rồi. Con giúp Lan gọi đúng tên các màu sắc nhé!',
     dialogue: { speaker_id: 'lan', text_en: 'What color do you like?' },
     slots: {
       intro:  { vi: 'Màu sắc trốn vào sương rồi. Mình gặp lại từng màu nha!', en: 'Red, blue, yellow, green.' },
@@ -150,7 +150,7 @@ export const SEASON2_LESSONS = {
   },
   numbers: {
     unit: 'int-u1', landmark: 3, scene_id: 'bd_coc_dem',
-    intro_vi: 'Khách lên đò đông quá mà sương làm ông đếm lộn. Con đếm giúp ông trước khi đò chạy nha!',
+    intro_vi: 'Khách lên đò đông quá, ông đếm chưa kịp. Con phụ ông đếm số thật chuẩn trước khi qua sông nha!',
     dialogue: { speaker_id: 'ong_tu', text_en: 'How many people are there?' },
     slots: {
       intro:  { vi: 'Mình gặp lại các con số nha, từ zero tới hundred!', en: 'One, two, three…' },
@@ -166,8 +166,8 @@ export const SEASON2_LESSONS = {
   // ── int-u2 · Tháp Gió ───────────────────────────────────────────────────
   school: {
     unit: 'int-u2', landmark: 0, scene_id: 'tg_hom_thu',
-    intro_vi: 'Thầy Tom gửi lịch kiểm tra qua Storm, mà sương xoá hết chữ trong thư. Con giúp viết lại nha!',
-    dialogue: { speaker_id: 'storm', text_en: 'The exam is in the classroom.' },
+    intro_vi: 'Gió Tháp Gió thổi bay mất ghi chú lớp học rồi. Con giúp thầy Tom sắp lại từ vựng trường học nhé!',
+    dialogue: { speaker_id: 'tom', text_en: 'Open your notebooks, please!' },
     slots: {
       intro:  { vi: 'Mình gặp lại đồ dùng ở trường nha: book, pencil, desk…', en: 'Book, pencil, notebook.' },
       listen: { vi: 'Thầy Tom đọc lịch học theo gió. Con nghe kỹ giúp Minh nha!', en: 'English is my favorite subject.' },
@@ -180,8 +180,8 @@ export const SEASON2_LESSONS = {
   },
   weather: {
     unit: 'int-u2', landmark: 1, scene_id: 'tg_chong_chong',
-    intro_vi: 'Mimi từ nơi rất xa tới, chưa biết gọi thời tiết ở đây. Con kể Mimi nghe trời hôm nay nha!',
-    dialogue: { speaker_id: 'mimi', text_en: "What's the weather like today?" },
+    intro_vi: 'Trên đỉnh Tháp Gió trời đổi gió liên tục. Con cùng Owlbert quan sát rồi nói đúng thời tiết hôm nay nha!',
+    dialogue: { speaker_id: 'owlbert', text_en: "What's the weather like today?" },
     slots: {
       intro:  { vi: 'Nắng, mưa, gió, mây… mình gặp từng kiểu trời nha!', en: 'Sunny, rainy, windy, cloudy.' },
       listen: { vi: 'Chong chóng trên tháp đang báo thời tiết. Nghe giùm Mimi nha!', en: 'It is sunny and warm.' },
@@ -194,7 +194,7 @@ export const SEASON2_LESSONS = {
   },
   jobs: {
     unit: 'int-u2', landmark: 2, scene_id: 'tg_bang_tin',
-    intro_vi: 'Bảng tin dưới chân tháp mất hết tên nghề. Con cùng anh Khoa gắn lại cho đúng nha!',
+    intro_vi: 'Dưới chân Tháp Gió có nhiều cô chú làm đủ nghề. Con cùng anh Khoa tìm hiểu tên các nghề nghiệp nhé!',
     dialogue: { speaker_id: 'khoa', text_en: 'What does your father do?' },
     slots: {
       intro:  { vi: 'Mình gặp các nghề quen nha: doctor, nurse, chef…', en: 'Doctor, nurse, farmer.' },
@@ -208,7 +208,7 @@ export const SEASON2_LESSONS = {
   },
   body: {
     unit: 'int-u2', landmark: 3, scene_id: 'tg_san_tap',
-    intro_vi: 'Gió lộng dưới chân tháp, thầy Tom cho cả lớp khởi động. Con giúp Lan làm đúng lời thầy nha!',
+    intro_vi: 'Gió lộng ở Tháp Gió mát quá, mình khởi động cơ thể nào! Con gọi đúng tên từng bộ phận cùng Lan nhé!',
     dialogue: { speaker_id: 'lan', text_en: 'Raise your arm, please.' },
     slots: {
       intro:  { vi: 'Mình gặp các bộ phận cơ thể nha: head, arm, leg…', en: 'Head, eye, ear, nose.' },
@@ -224,8 +224,8 @@ export const SEASON2_LESSONS = {
   // ── int-u3 · Vườn Sữa ───────────────────────────────────────────────────
   clothing: {
     unit: 'int-u3', landmark: 0, scene_id: 'vs_day_phoi',
-    intro_vi: 'Mai soạn đồ cho anh Minh đi Đà Lạt, mà sương làm Mai quên tên quần áo. Con giúp Mai nha!',
-    dialogue: { speaker_id: 'mai', text_en: 'Bring a warm jacket.' },
+    intro_vi: 'Hôm nay Mai ra Vườn Sữa thăm Cowdi mà chưa biết chọn đồ gì. Con giúp Mai gọi tên quần áo nhé!',
+    dialogue: { speaker_id: 'mai', text_en: 'What should I wear today?' },
     slots: {
       intro:  { vi: 'Dây phơi đầy quần áo nè. Mình gặp tên từng món nha!', en: 'Shirt, jeans, socks, hat.' },
       listen: { vi: 'Anh Minh gọi ra vườn cần mang gì. Nghe giúp Mai nha!', en: 'Two pairs of socks, please.' },
@@ -238,7 +238,7 @@ export const SEASON2_LESSONS = {
   },
   house: {
     unit: 'int-u3', landmark: 1, scene_id: 'vs_nha_mai_do',
-    intro_vi: 'Nhà mới của Minh ở cạnh Vườn Sữa. Sương che tên các phòng, con dẫn Lan đi xem giùm Minh nha!',
+    intro_vi: 'Ngôi nhà nhỏ gần Vườn Sữa có nhiều phòng ấm cúng lắm. Con cùng Minh gọi tên từng phòng và đồ đạc nha!',
     dialogue: { speaker_id: 'minh', text_en: 'Welcome to our new house!' },
     slots: {
       intro:  { vi: 'Mình gặp tên các phòng và đồ đạc nha!', en: 'Kitchen, bedroom, living room.' },
@@ -252,8 +252,8 @@ export const SEASON2_LESSONS = {
   },
   emotions: {
     unit: 'int-u3', landmark: 2, scene_id: 'vs_loi_vao_truc',
-    intro_vi: 'Bamboo nói liên tục vì sợ rừng im. Con giúp Bamboo gọi đúng tên từng cảm xúc nha!',
-    dialogue: { speaker_id: 'bamboo', text_en: 'How do you feel?' },
+    intro_vi: 'Bên rừng trúc Vườn Sữa, mỗi bạn nhỏ hôm nay có một tâm trạng khác nhau. Con gọi tên cảm xúc cùng Bamboo nhé!',
+    dialogue: { speaker_id: 'bamboo', text_en: 'How do you feel today?' },
     slots: {
       intro:  { vi: 'Vui, buồn, lo, tự hào… mình gặp từng cảm xúc nha!', en: 'Happy, sad, nervous, proud.' },
       listen: { vi: 'Lá trúc rì rào kể tâm trạng các bạn. Nghe giùm Bamboo nha!', en: 'I feel nervous.' },
@@ -266,8 +266,8 @@ export const SEASON2_LESSONS = {
   },
   hobbies: {
     unit: 'int-u3', landmark: 3, scene_id: 'vs_san_hoi',
-    intro_vi: 'Cuối tuần, Vườn Sữa mở hội sở thích. Kể Cowdi nghe con thích làm gì nha!',
-    dialogue: { speaker_id: 'cowdi', text_en: 'Tell me more!' },
+    intro_vi: 'Đàn gà ở Vườn Sữa đang tò mò cuối tuần con thích làm gì đấy! Chia sẻ sở thích bằng tiếng Anh với Cowdi nha!',
+    dialogue: { speaker_id: 'cowdi', text_en: 'What do you like doing?' },
     slots: {
       intro:  { vi: 'Vẽ, bơi, nấu ăn… mình gặp các sở thích nha!', en: 'Reading, cooking, swimming.' },
       listen: { vi: 'Các bạn ở hội kể sở thích. Nghe kỹ giúp Cowdi nha!', en: 'I enjoy playing chess.' },

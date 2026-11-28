@@ -60,6 +60,15 @@ export const IELTS_READ_ROOFTOP_FARMS_LESSON = {
     'Phân biệt FALSE (trái ngược) với NOT GIVEN (không nhắc tới)',
     'Chọn tiêu đề theo ý chính của cả đoạn, không theo một từ khoá',
   ],
+  // Chuẩn lời dẫn Mở ải: docs/04-design/HUONG-DAN-VAN-PHONG-LOI-DAN.md
+  story: {
+    scene_id: 'region_CN',
+    intro_vi: 'Nhiều thành phố lớn đang trồng rau ngay trên mái nhà. Cùng anh Khoa đọc bài và bắt từ khoá paraphrase nhé!',
+    dialogue: {
+      speaker_id: 'khoa',
+      text_en: 'Can rooftops become productive farms?',
+    },
+  },
 
   vocabulary: [
     v('Productive', '/prəˈdʌktɪv/', 'adj', 'Cho năng suất, hiệu quả', 'These surfaces could be turned into productive gardens.', 'Các bề mặt này có thể biến thành vườn trồng cho năng suất.'),

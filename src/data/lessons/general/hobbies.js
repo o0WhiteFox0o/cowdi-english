@@ -20,8 +20,12 @@ export const HOBBIES_LESSON = {
     'Hỏi và trả lời về tần suất thực hiện sở thích hằng tuần',
   ],
   story: {
-    npc: 'cowdi',
-    introVi: 'Đàn gà ở Vườn Sữa đang tò mò cuối tuần con thích làm gì đấy! Chia sẻ sở thích bằng tiếng Anh với Cowdi nha!',
+    scene_id: 'vs_san_hoi',
+    intro_vi: 'Đàn gà ở Vườn Sữa đang tò mò cuối tuần con thích làm gì đấy! Chia sẻ sở thích bằng tiếng Anh với Cowdi nha!',
+    dialogue: {
+      speaker_id: 'cowdi',
+      text_en: 'What do you like doing?',
+    },
   },
 
   vocabulary: [

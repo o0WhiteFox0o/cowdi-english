@@ -20,8 +20,12 @@ export const JOBS_LESSON = {
     'Mô tả việc một người làm hằng ngày bằng động từ thì hiện tại đơn',
   ],
   story: {
-    npc: 'khoa',
-    introVi: 'Dưới chân Tháp Gió có nhiều cô chú làm đủ nghề. Con cùng anh Khoa tìm hiểu tên các nghề nghiệp nhé!',
+    scene_id: 'tg_bang_tin',
+    intro_vi: 'Dưới chân Tháp Gió có nhiều cô chú làm đủ nghề. Con cùng anh Khoa tìm hiểu tên các nghề nghiệp nhé!',
+    dialogue: {
+      speaker_id: 'khoa',
+      text_en: 'What does your father do?',
+    },
   },
 
   vocabulary: [

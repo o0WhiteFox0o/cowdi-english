@@ -20,8 +20,12 @@ export const BODY_LESSON = {
     'Hiểu và nói các câu hướng dẫn vận động, giữ vệ sinh và báo đau nhức đơn giản',
   ],
   story: {
-    npc: 'lan',
-    introVi: 'Gió lộng ở Tháp Gió mát quá, mình khởi động cơ thể nào! Con gọi đúng tên từng bộ phận cùng Lan nhé!',
+    scene_id: 'tg_san_tap',
+    intro_vi: 'Gió lộng ở Tháp Gió mát quá, mình khởi động cơ thể nào! Con gọi đúng tên từng bộ phận cùng Lan nhé!',
+    dialogue: {
+      speaker_id: 'lan',
+      text_en: 'Raise your arm, please.',
+    },
   },
 
   vocabulary: [

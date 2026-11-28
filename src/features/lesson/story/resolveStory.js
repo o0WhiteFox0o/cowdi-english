@@ -80,6 +80,13 @@ export function resolveLessonStory({
     'Cowdi';
 
   const lessonStory = lesson?.id ? SEASON2_LESSONS[lesson.id] || null : null;
+  const authored = lesson?.story && typeof lesson.story === 'object' ? lesson.story : null;
+  const authoredIntroVi = String(authored?.intro_vi || authored?.introVi || '').trim() || null;
+  const authoredSpeakerId = String(authored?.dialogue?.speaker_id || authored?.npc || '').trim() || null;
+  const authoredTextEn = String(authored?.dialogue?.text_en || authored?.introEn || '').trim() || null;
+  const authoredTextVi = String(authored?.dialogue?.text_vi || '').trim() || null;
+  const authoredSceneId = String(authored?.scene_id || lesson?.scene_id || '').trim() || null;
+
   const resolvedUnitId = lessonStory?.unit || unitId || null;
   const resolvedRegion =
     region ||
@@ -92,11 +99,15 @@ export function resolveLessonStory({
     const rawUnitBoss = unitBoss(lessonStory.unit, safeCompanionId);
     const boss = resolveRegionBossObject(resolvedRegion, safeCompanionId, rawUnitBoss);
 
-    const scene = getSceneInfo(lessonStory.scene_id, resolvedRegion);
+    // Ưu tiên dữ liệu viết tay trong lesson.story của từng bài học, sau đó mới fallback về story-season2
+    const scene = getSceneInfo(authoredSceneId || lessonStory.scene_id, resolvedRegion);
+    const introVi = authoredIntroVi || lessonStory.intro_vi;
     const dialogue = {
-      speaker_id: lessonStory.dialogue.speaker_id,
-      text_en: lessonStory.dialogue.text_en,
-      ...(lessonStory.dialogue.text_vi ? { text_vi: lessonStory.dialogue.text_vi } : {}),
+      speaker_id: authoredSpeakerId || lessonStory.dialogue.speaker_id,
+      text_en: authoredTextEn || lessonStory.dialogue.text_en,
+      ...(authoredTextVi || lessonStory.dialogue.text_vi
+        ? { text_vi: authoredTextVi || lessonStory.dialogue.text_vi }
+        : {}),
     };
 
     return {
@@ -104,14 +115,14 @@ export function resolveLessonStory({
       unitId: lessonStory.unit,
       region: resolvedRegion,
       // Cấu trúc chuẩn tách bạch
-      intro_vi: lessonStory.intro_vi,
+      intro_vi: introVi,
       dialogue,
       scene_id: scene.id,
       scene,
       regionBoss: boss,
       // Alias tương thích ngược
       narratorId: dialogue.speaker_id,
-      openVi: lessonStory.intro_vi,
+      openVi: introVi,
       openEn: dialogue.text_en,
       landmarkName: scene.name_vi,
       afterVi: lessonStory.afterVi || '',
@@ -123,9 +134,10 @@ export function resolveLessonStory({
     };
   }
 
-  // Fallback qua story-defaults (unit → vùng)
+  // Fallback qua lesson.story (nếu bài đã viết tay) → story-defaults (unit → vùng)
   const speakerId =
-    UNIT_NARRATOR[resolvedUnitId]?.by ??
+    authoredSpeakerId ||
+    UNIT_NARRATOR[resolvedUnitId]?.by ||
     defaultNarrator(resolvedRegion, REGIONS, safeCompanionId);
 
   const openDef = defaultOpenIntro({
@@ -135,11 +147,13 @@ export function resolveLessonStory({
     speakerId,
   });
 
-  const scene = getSceneInfo(lesson?.scene_id || `region_${resolvedRegion}`, resolvedRegion);
+  const scene = getSceneInfo(authoredSceneId || `region_${resolvedRegion}`, resolvedRegion);
   const boss = resolveRegionBossObject(resolvedRegion, safeCompanionId, null);
+  const introVi = authoredIntroVi || openDef.intro_vi;
   const dialogue = {
-    speaker_id: openDef.dialogue?.speaker_id || speakerId,
-    text_en: openDef.dialogue?.text_en || openDef.en || "Let's learn together!",
+    speaker_id: authoredSpeakerId || openDef.dialogue?.speaker_id || speakerId,
+    text_en: authoredTextEn || openDef.dialogue?.text_en || openDef.en || "Let's learn together!",
+    ...(authoredTextVi ? { text_vi: authoredTextVi } : {}),
   };
 
   return {
@@ -147,14 +161,14 @@ export function resolveLessonStory({
     unitId: resolvedUnitId,
     region: resolvedRegion,
     // Cấu trúc chuẩn tách bạch
-    intro_vi: openDef.intro_vi,
+    intro_vi: introVi,
     dialogue,
     scene_id: scene.id,
     scene,
     regionBoss: boss,
     // Alias tương thích ngược
     narratorId: dialogue.speaker_id,
-    openVi: openDef.intro_vi,
+    openVi: introVi,
     openEn: dialogue.text_en,
     landmarkName: scene.name_vi,
     afterVi: '',

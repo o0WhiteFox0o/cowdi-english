@@ -20,6 +20,15 @@ export const GREETINGS_LESSON_V2 = {
     'Giới thiệu tên và hỏi tên người khác',
     'Hỏi thăm sức khoẻ và đáp lại lời cảm ơn, lời xin lỗi',
   ],
+  // Chuẩn lời dẫn Mở ải: docs/04-design/HUONG-DAN-VAN-PHONG-LOI-DAN.md
+  story: {
+    scene_id: 'bd_ben_go',
+    intro_vi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+    dialogue: {
+      speaker_id: 'ong_tu',
+      text_en: 'Good morning! Nice to meet you.',
+    },
+  },
 
   vocabulary: [
     v('Hello', '/həˈloʊ/', 'interjection', 'Xin chào', 'Hello! My name is Lan.', 'Xin chào! Mình tên là Lan.', '🙋'),

@@ -79,3 +79,41 @@ test('U8: Xáo thứ tự 6 màn theo seed = id ải ổn định và 2 ải k�
     prev = order;
   }
 });
+
+test('U9: lesson.story trong file bài học được ưu tiên cao nhất (cả bài Season 2 lẫn bài ngoài Season 2)', () => {
+  const customS2 = resolveLessonStory({
+    lesson: {
+      id: 'greetings',
+      title: 'Chào hỏi cơ bản',
+      story: {
+        scene_id: 'bd_ben_go',
+        intro_vi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+        dialogue: { speaker_id: 'ong_tu', text_en: 'Good morning! Nice to meet you.' },
+      },
+    },
+    unitId: 'int-u1',
+    region: 'BD',
+  });
+  assert.equal(
+    customS2.intro_vi,
+    'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+  );
+  assert.equal(customS2.dialogue.speaker_id, 'ong_tu');
+
+  const customFuture = resolveLessonStory({
+    lesson: {
+      id: 'at-restaurant',
+      title: 'Ở nhà hàng',
+      story: {
+        scene_id: 'region_BS',
+        intro_vi: 'Quán ăn ven Bến Sóng đông khách lắm. Con cùng Lan gọi món bằng tiếng Anh nha!',
+        dialogue: { speaker_id: 'lan', text_en: 'Can I see the menu, please?' },
+      },
+    },
+    unitId: 'int-u6',
+    region: 'BS',
+  });
+  assert.equal(customFuture.intro_vi, 'Quán ăn ven Bến Sóng đông khách lắm. Con cùng Lan gọi món bằng tiếng Anh nha!');
+  assert.equal(customFuture.dialogue.speaker_id, 'lan');
+  assert.equal(customFuture.dialogue.text_en, 'Can I see the menu, please?');
+});

@@ -20,8 +20,12 @@ export const WEATHER_LESSON = {
     'Chọn đúng tính từ và động từ khi nói về nắng, mưa, gió, tuyết',
   ],
   story: {
-    npc: 'owlbert',
-    introVi: 'Trên đỉnh Tháp Gió trời đổi gió liên tục. Con cùng Owlbert quan sát rồi nói đúng thời tiết hôm nay nha!',
+    scene_id: 'tg_chong_chong',
+    intro_vi: 'Trên đỉnh Tháp Gió trời đổi gió liên tục. Con cùng Owlbert quan sát rồi nói đúng thời tiết hôm nay nha!',
+    dialogue: {
+      speaker_id: 'owlbert',
+      text_en: "What's the weather like today?",
+    },
   },
 
   vocabulary: [

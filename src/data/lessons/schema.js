@@ -104,16 +104,42 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
   if (!isStr(lesson.title)) err('thiếu title');
   if (!isStr(lesson.icon)) std('thiếu icon');
 
-  // Tuỳ chọn: story { npc, introVi } cho Màn Mở ải (Screen System Đợt 3 §3)
+  // Chuẩn mới (HUONG-DAN-VAN-PHONG-LOI-DAN.md):
+  //   story: { scene_id?, intro_vi, dialogue: { speaker_id, text_en } }
+  // Vẫn tương thích ngược với dạng cũ { npc, introVi }.
+  const VIET_DIACRITIC_RE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]/;
+  if (Object.prototype.hasOwnProperty.call(lesson, 'boss')) {
+    err('không khai báo boss riêng ở bài học (Boss gắn với VÙNG trong shared/regions.js)');
+  }
   if (lesson.story !== undefined) {
     if (!lesson.story || typeof lesson.story !== 'object') {
-      err('story phải là object { npc, introVi }');
+      err('story phải là object { scene_id?, intro_vi, dialogue: { speaker_id, text_en } }');
     } else {
-      if (!isStr(lesson.story.npc)) err('story.npc không được trống');
-      if (!isStr(lesson.story.introVi)) err('story.introVi không được trống');
+      if (Object.prototype.hasOwnProperty.call(lesson.story, 'boss')) {
+        err('story không được khai báo boss riêng (Boss gắn với VÙNG)');
+      }
+      const speakerId = lesson.story.dialogue?.speaker_id || lesson.story.npc;
+      if (!isStr(speakerId)) err('story thiếu dialogue.speaker_id (hoặc npc)');
+      const introVi = lesson.story.intro_vi ?? lesson.story.introVi;
+      if (!isStr(introVi)) err('story.intro_vi không được trống');
       else {
-        const viWords = lesson.story.introVi.trim().split(/\s+/).filter(Boolean).length;
-        if (viWords > 30) std(`story.introVi dài ${viWords} chữ (tối đa 30 chữ)`);
+        const viWords = introVi.trim().split(/\s+/).filter(Boolean).length;
+        if (viWords > 30) std(`story.intro_vi dài ${viWords} chữ (tối đa 30 chữ)`);
+      }
+      if (lesson.story.dialogue !== undefined) {
+        if (!lesson.story.dialogue || typeof lesson.story.dialogue !== 'object') {
+          err('story.dialogue phải là object { speaker_id, text_en }');
+        } else {
+          const textEn = lesson.story.dialogue.text_en;
+          if (!isStr(textEn)) err('story.dialogue.text_en không được trống');
+          else {
+            if (VIET_DIACRITIC_RE.test(textEn)) err('story.dialogue.text_en chứa ký tự tiếng Việt có dấu (sai trường)');
+            if (wc(textEn) > 10) std(`story.dialogue.text_en dài ${wc(textEn)} từ (nên ≤ 8 từ, tối đa 10 từ)`);
+          }
+        }
+      }
+      if (lesson.story.scene_id !== undefined && !isStr(lesson.story.scene_id)) {
+        err('story.scene_id không được trống');
       }
     }
   }

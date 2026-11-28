@@ -294,9 +294,12 @@ test('Seed 156 câu dẫn draft + 12 bài int-u1..u3 có story hợp lệ theo S
     assert.ok(lesson, `Thiếu bài ${lid}`);
     assert.ok(lesson.story, `Bài ${lid} thiếu story`);
     const reg = getUnitRegion(uid);
-    assert.equal(isValidNpc(lesson.story.npc, reg, REGIONS), true, `NPC ${lesson.story.npc} không hợp lệ ở vùng ${reg}`);
-    const wc = lesson.story.introVi.trim().split(/\s+/).length;
-    assert.ok(wc <= 30, `story.introVi bài ${lid} dài ${wc} chữ (> 30)`);
+    const speakerId = lesson.story.dialogue?.speaker_id || lesson.story.npc;
+    const introVi = lesson.story.intro_vi ?? lesson.story.introVi;
+    assert.equal(isValidNpc(speakerId, reg, REGIONS), true, `NPC ${speakerId} không hợp lệ ở vùng ${reg}`);
+    assert.ok(lesson.story.dialogue?.text_en, `Bài ${lid} thiếu dialogue.text_en`);
+    const wc = introVi.trim().split(/\s+/).length;
+    assert.ok(wc <= 30, `story.intro_vi bài ${lid} dài ${wc} chữ (> 30)`);
     const vRes = validateLesson(lesson);
     assert.equal(vRes.errors.length, 0, `Bài ${lid} lỗi schema: ${vRes.errors.join('; ')}`);
   }

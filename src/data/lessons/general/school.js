@@ -20,8 +20,12 @@ export const SCHOOL_LESSON = {
     'Nói về lịch học và môn học yêu thích của bản thân',
   ],
   story: {
-    npc: 'tom',
-    introVi: 'Gió Tháp Gió thổi bay mất ghi chú lớp học rồi. Con giúp thầy Tom sắp lại từ vựng trường học nhé!',
+    scene_id: 'tg_hom_thu',
+    intro_vi: 'Gió Tháp Gió thổi bay mất ghi chú lớp học rồi. Con giúp thầy Tom sắp lại từ vựng trường học nhé!',
+    dialogue: {
+      speaker_id: 'tom',
+      text_en: 'Open your notebooks, please!',
+    },
   },
 
   vocabulary: [
