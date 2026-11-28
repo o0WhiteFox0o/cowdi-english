@@ -3,10 +3,11 @@ import Icon from '../../../components/Icon';
 import Emoji from '../../../components/Emoji';
 import { SLOT_META, SHORT_NAME } from '../../../data/config/screens';
 import { PET_REGISTRY } from '../../../data/pets';
-import { REGIONS, REGION_COLOR, getRegionVariant } from '../../../../shared/regions';
+import { REGIONS, REGION_COLOR, getRegionVariant, getRegionImageUrl } from '../../../../shared/regions';
 import { HUMAN_CAST } from '../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../shared/screen-scenarios';
 import { speakWord } from '../../../utils/speech';
+import { resolveImage } from '../../../utils/imageOverrides';
 import { getStoryPetImage, getHumanNpcImage, isStorySeen, markStorySeen } from '../story/petImage';
 import { resolveLessonStory } from '../story/resolveStory';
 import { getScreen } from './registry';
@@ -111,7 +112,7 @@ export default function StageIntro({
   const regionInfo = REGIONS[region] || REGIONS.BD;
   const regionColor = REGION_COLOR[region] || REGION_COLOR.BD;
   const variant = getRegionVariant(region);
-  const bgUrl = `/image/regions/${region}-${variant.id}.webp`;
+  const bgUrl = resolveImage(`story:region_${region}_fog`, getRegionImageUrl(region, variant.id));
 
   const resolved = resolveLessonStory({
     lesson,
@@ -240,7 +241,7 @@ export default function StageIntro({
         }}
         aria-label={`Cảnh mở ải tại ${regionInfo.nameVi}`}
       >
-        {!bgFailed && (
+        {bgUrl && !bgFailed && (
           <img
             src={bgUrl}
             alt=""

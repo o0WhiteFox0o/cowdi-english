@@ -581,6 +581,96 @@
   color: #ffffff !important;
 }
 
+/* ── Biến thể gọn khi dùng sân Đấu trường trong màn Đấu Boss F-06 ── */
+.arena-battlefield--boss {
+  height: 230px;
+  border-radius: 18px;
+}
+
+.arena-battlefield--boss .arena-hud-card {
+  min-width: 170px;
+  max-width: 215px;
+  padding: 6px 10px;
+  top: 10px;
+}
+
+.arena-battlefield--boss .arena-hud-mine {
+  left: 12px;
+}
+
+.arena-battlefield--boss .arena-hud-opponent {
+  right: 12px;
+}
+
+.arena-battlefield--boss .arena-hill-mine {
+  left: 8%;
+  bottom: 14px;
+  width: 185px;
+  height: 58px;
+}
+
+.arena-battlefield--boss .arena-hill-opponent {
+  right: 8%;
+  bottom: 32px;
+  width: 185px;
+  height: 58px;
+}
+
+.arena-battlefield--boss .arena-pet-mine {
+  left: calc(8% + 42px);
+  bottom: 28px;
+}
+
+.arena-battlefield--boss .arena-pet-opponent {
+  right: calc(8% + 42px);
+  bottom: 46px;
+}
+
+.arena-battlefield--boss .pet-render-slot img,
+.arena-battlefield--boss .pet-render-slot canvas {
+  width: 92px;
+  height: 92px;
+}
+
+.arena-options-grid--boss {
+  gap: 10px;
+}
+
+.arena-option-btn--boss {
+  padding: 12px 14px;
+  font-size: 0.96rem;
+  border-radius: 14px;
+}
+
+.arena-option-btn--boss .arena-option-key {
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .arena-battlefield--boss {
+    height: 190px;
+  }
+  .arena-battlefield--boss .arena-hud-card {
+    min-width: 132px;
+    max-width: 46%;
+    padding: 5px 7px;
+  }
+  .arena-battlefield--boss .arena-pet-title {
+    font-size: 0.76rem;
+  }
+  .arena-battlefield--boss .pet-render-slot img,
+  .arena-battlefield--boss .pet-render-slot canvas {
+    width: 72px;
+    height: 72px;
+  }
+  .arena-options-grid--boss {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
 /* ── Màn hình Tổng hợp Kết quả (Gọn 1 màn hình) ── */
 .arena-result-screen {
   max-width: 520px;

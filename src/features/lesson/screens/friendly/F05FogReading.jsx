@@ -275,7 +275,7 @@ export default function F05FogReading({
                 else if (oi === qPicked) cls += 'btn-danger';
                 else cls += 'btn-outline-secondary';
               } else {
-                cls += 'btn-outline-dark bg-white';
+                cls += 'ff-choice-btn';
               }
               return (
                 <button

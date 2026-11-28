@@ -120,6 +120,20 @@
   transform: scale(0.97);
 }
 
+/* Nút đáp án sáng rõ — tránh lỗi Bootstrap .btn-outline-dark:hover + .bg-white (chữ trắng nền trắng) */
+.ff-choice-btn {
+  background-color: #FFFFFF !important;
+  color: #334155 !important;
+  border: 2px solid #CBD5E1 !important;
+  font-weight: 700;
+}
+.ff-choice-btn:hover:not(:disabled),
+.ff-choice-btn:focus-visible:not(:disabled) {
+  background-color: #EFF6FF !important;
+  color: #1E3A8A !important;
+  border-color: #3B82F6 !important;
+}
+
 .ff-guest-badge {
   display: inline-flex;
   align-items: center;

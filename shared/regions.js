@@ -51,6 +51,27 @@ export const getRegionVariant = (regionId, regionClears = {}) =>
 
 // ── Bổ sung cho hệ thống màn (Đợt 3) ─────────────────────────────────────────
 
+// Danh sách ảnh vùng đất hiện có thực tế trong public/image/regions/
+export const AVAILABLE_REGION_ART = new Set([
+  'BD-sang-suong',
+  'BD-nuoc-noi',
+  'VS-sang-suong',
+  'RM-sang-suong',
+  'CN-sang-suong',
+  'TG-sang-suong',
+  'CNS-sang-suong',
+]);
+
+/** Trả về URL ảnh vùng nếu file thực sự tồn tại; trả null nếu vùng chưa vẽ (dùng màu nền REGION_COLOR, tránh 404). */
+export function getRegionImageUrl(regionId, variantId = 'sang-suong') {
+  if (!regionId) return null;
+  const exact = `${regionId}-${variantId}`;
+  if (AVAILABLE_REGION_ART.has(exact)) return `/image/regions/${exact}.webp`;
+  const fallback = `${regionId}-sang-suong`;
+  if (AVAILABLE_REGION_ART.has(fallback)) return `/image/regions/${fallback}.webp`;
+  return null;
+}
+
 // Màu nền vùng khi chưa có ảnh public/image/regions/<region>-<variant>.webp
 // sky = nền trên, ground = dải dưới (nước/cỏ/đất).
 export const REGION_COLOR = {

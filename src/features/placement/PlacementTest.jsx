@@ -1,125 +1,44 @@
 // ════════════════════════════════════════════════════════════════
 // PlacementTest — Kiểm tra đầu vào 5 phút (/placement, SDD-LEARNING-GROUPS §5.2)
-// 3 tầng × 6 câu (A: Starter s1-*, B: int-u1..u4, C: int-u5..u10).
-// Đạt ≥5/6 lên tầng tiếp; không hiện đáp án đúng lúc làm; không thưởng Sữa/Gem.
+// 3 tầng × 6 câu đa dạng 5 dạng bài:
+//   🎧 Nghe hiểu · 📖 Từ vựng/Hình ảnh · ⚡ Đúng/Sai · 🔤 Ghép chữ · 🧩 Xếp câu
+// Đạt ≥5/6 lên tầng tiếp; không lộ đáp án đúng lúc làm; không thưởng Sữa/Gem.
 // ════════════════════════════════════════════════════════════════
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ALL_LESSONS, BEGINNER_UNITS, INTERMEDIATE_UNITS } from '../../data/lessons';
+import { BEGINNER_UNITS, INTERMEDIATE_UNITS } from '../../data/lessons';
 import { useUser } from '../../hooks/useUser';
-import { shuffleArray, generatePictureChallenge, generateAutoQuestions } from '../../utils/quiz-gen';
+import { usePet } from '../../hooks/usePet';
+import { PetAvatar } from '../../pet-rig/PetAvatar';
+import { speakWord, stopSpeaking } from '../../utils/speech';
+import { resolveWordImage } from '../../utils/imageOverrides';
+import {
+  buildPlacementTierQuestions,
+  evaluatePlacementAnswer,
+  getQuestionAudio,
+  isListeningQuestion,
+} from './placementBuilder';
 import Icon from '../../components/Icon';
 import Emoji from '../../components/Emoji';
+import '../../styles/arena.css';
+
+export { getQuestionAudio, isListeningQuestion };
 
 const TIERS = [
-  { id: 'A', label: 'Tầng 1 · Nền tảng cơ bản', desc: 'Nhận diện hình ảnh & từ vựng khởi đầu' },
-  { id: 'B', label: 'Tầng 2 · Sơ trung cấp', desc: 'Chào hỏi, đời sống & ngữ pháp nền (int-u1 → int-u4)' },
-  { id: 'C', label: 'Tầng 3 · Giao tiếp & Ứng dụng', desc: 'Tình huống thực tế, xã hội & công việc (int-u5 → int-u10)' },
+  { id: 'A', label: 'Tầng 1 · Nền tảng cơ bản', desc: 'Hình ảnh, phát âm, đúng/sai & ghép từ đầu tiên' },
+  { id: 'B', label: 'Tầng 2 · Sơ trung cấp', desc: 'Nghe hiểu, từ vựng, ghép chữ & xếp câu giao tiếp' },
+  { id: 'C', label: 'Tầng 3 · Giao tiếp & Ứng dụng', desc: 'Tình huống thực tế, nghe câu & cấu trúc nâng cao' },
 ];
-
-const LISTEN_PROMPT_RE = /^(?:hãy\s+|lắng\s+)?nghe\b/i;
-
-export function getQuestionAudio(q) {
-  return q?.audioText || q?.speak || null;
-}
-
-export function isListeningQuestion(q) {
-  if (!q) return false;
-  return Boolean(q.audioText || q.kind === 'listen-pick-image' || LISTEN_PROMPT_RE.test(String(q.question || '').trim()));
-}
 
 function hasSpeechSupport() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
-function isUsablePlacementQuestion(q, ttsAvailable) {
-  if (!q || !q.question || !Array.isArray(q.options) || q.options.length < 3) return false;
-  if (q._type === 'grammar') return false;
-  const audio = getQuestionAudio(q);
-  const asksToListen = LISTEN_PROMPT_RE.test(String(q.question).trim());
-  // Bỏ câu bảo "Nghe..." nhưng thiếu audioText/speak
-  if (asksToListen && !audio) return false;
-  // Trình duyệt không hỗ trợ Web Speech → bỏ câu hỏi nghe để không kẹt người học
-  if (!ttsAvailable && isListeningQuestion(q)) return false;
-  return true;
-}
-
-function sampleTierQuestions(tierId) {
-  const ttsAvailable = hasSpeechSupport();
-
-  if (tierId === 'A') {
-    const starterUnits = BEGINNER_UNITS.filter((u) => !u.comingSoon && u.lessons.length > 0);
-    const words = [];
-    const seen = new Set();
-    for (const u of starterUnits) {
-      for (const lid of u.lessons) {
-        const l = ALL_LESSONS.find((x) => x.id === lid);
-        for (const w of l?.words || []) {
-          const k = w.word.toLowerCase();
-          if (!seen.has(k)) {
-            seen.add(k);
-            words.push({ ...w, category: w.category || l?.category });
-          }
-        }
-      }
-    }
-    return generatePictureChallenge(words, null, 6, { allowListening: ttsAvailable });
-  }
-
-  const unitSlice = tierId === 'B'
-    ? INTERMEDIATE_UNITS.slice(0, 4)   // int-u1 .. int-u4
-    : INTERMEDIATE_UNITS.slice(4, 10); // int-u5 .. int-u10
-
-  const picked = [];
-  const seenQ = new Set();
-
-  // Lấy tối thiểu 1 câu/unit trước để rải đều
-  for (const unit of unitSlice) {
-    const unitQs = [];
-    for (const lid of unit.lessons) {
-      const l = ALL_LESSONS.find((x) => x.id === lid);
-      if (!l) continue;
-      for (const q of l.quiz || []) unitQs.push({ ...q, _unitId: unit.id });
-      if ((l.quiz || []).length === 0) {
-        for (const q of generateAutoQuestions(l)) {
-          if (q._type !== 'grammar') unitQs.push({ ...q, _unitId: unit.id });
-        }
-      }
-    }
-    const candidate = shuffleArray(unitQs).find(
-      (q) => isUsablePlacementQuestion(q, ttsAvailable) && !seenQ.has(q.question)
-    );
-    if (candidate) {
-      seenQ.add(candidate.question);
-      picked.push(candidate);
-    }
-  }
-
-  // Bù cho đủ 6 câu
-  if (picked.length < 6) {
-    const pool = [];
-    for (const unit of unitSlice) {
-      for (const lid of unit.lessons) {
-        const l = ALL_LESSONS.find((x) => x.id === lid);
-        if (!l) continue;
-        for (const q of l.quiz || []) pool.push({ ...q, _unitId: unit.id });
-      }
-    }
-    for (const q of shuffleArray(pool)) {
-      if (picked.length >= 6) break;
-      if (isUsablePlacementQuestion(q, ttsAvailable) && !seenQ.has(q.question)) {
-        seenQ.add(q.question);
-        picked.push(q);
-      }
-    }
-  }
-
-  return shuffleArray(picked).slice(0, 6);
-}
-
 export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   const navigate = useNavigate();
   const { userData, savePlacementResult, setLearningGroup } = useUser();
+  const { getActivePetWithDecay } = usePet();
+  const activePet = getActivePetWithDecay?.() || null;
 
   const [started, setStarted] = useState(false);
   const [tierIdx, setTierIdx] = useState(0);
@@ -129,7 +48,11 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   const [tierScores, setTierScores] = useState({ A: 0, B: 0, C: 0 });
   const [result, setResult] = useState(null);
 
+  // State cho 2 dạng tương tác ghép chữ (spell-tiles) & xếp câu (sentence-order)
+  const [selectedTileIds, setSelectedTileIds] = useState([]);
+
   const handleSkipOrBack = () => {
+    stopSpeaking();
     if (onSkip) {
       onSkip();
     } else if (!userData.learnerGroup) {
@@ -141,28 +64,33 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
 
   const speak = useCallback((text, rate = 0.85) => {
     if (!hasSpeechSupport() || !text) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text));
-    u.lang = 'en-US';
-    u.rate = rate;
-    window.speechSynthesis.speak(u);
+    speakWord(text, { rate, lang: 'en-US' }).catch(() => {});
   }, []);
 
   const currentQ = started && !result ? questions[qIdx] : null;
   const currentAudio = getQuestionAudio(currentQ);
 
-  // Tự động phát 1 lần khi sang câu hỏi nghe mới; huỷ đọc khi thoát hoặc sang câu khác
+  // Reset trạng thái ghép chữ / xếp câu mỗi khi sang câu mới
   useEffect(() => {
-    if (!currentAudio) {
-      if (hasSpeechSupport()) window.speechSynthesis.cancel();
+    setSelectedTileIds([]);
+  }, [tierIdx, qIdx, started]);
+
+  // Tự động phát 1 lần khi sang câu có âm thanh (nghe hiểu / ghép chữ / đúng sai)
+  useEffect(() => {
+    if (!currentQ || !currentAudio) {
+      stopSpeaking();
       return undefined;
     }
-    const timer = setTimeout(() => speak(currentAudio, 0.85), 180);
-    return () => {
-      clearTimeout(timer);
-      if (hasSpeechSupport()) window.speechSynthesis.cancel();
-    };
-  }, [started, tierIdx, qIdx, result, currentAudio, speak]);
+    // Tự phát cho câu Nghe hiểu và câu Ghép chữ
+    if (currentQ.format === 'listen-pick' || currentQ.format === 'spell-tiles' || currentQ.audioText) {
+      const timer = setTimeout(() => speak(currentAudio, 0.85), 220);
+      return () => {
+        clearTimeout(timer);
+        stopSpeaking();
+      };
+    }
+    return () => stopSpeaking();
+  }, [started, tierIdx, qIdx, result, currentQ, currentAudio, speak]);
 
   const playableStarterIds = useMemo(
     () => BEGINNER_UNITS.filter((u) => !u.comingSoon && u.lessons.length > 0).map((u) => u.id),
@@ -170,7 +98,7 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   );
 
   const startTest = () => {
-    const qsA = sampleTierQuestions('A');
+    const qsA = buildPlacementTierQuestions('A', { ttsAvailable: hasSpeechSupport() });
     setStarted(true);
     setTierIdx(0);
     setQuestions(qsA);
@@ -178,9 +106,11 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
     setTierCorrect(0);
     setTierScores({ A: 0, B: 0, C: 0 });
     setResult(null);
+    setSelectedTileIds([]);
   };
 
   const finalizePlacement = (finalTierScores, passedA, passedB, passedC) => {
+    stopSpeaking();
     let group = 'beginner';
     let activePath = 'beginner';
     let placedUnits = [];
@@ -213,9 +143,11 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
     setResult({ group, activePath, placedUnits, summary, passedC, tierScores: finalTierScores });
   };
 
-  const handlePick = (optIdx) => {
+  const submitAnswer = (userAnswer) => {
+    stopSpeaking();
     const q = questions[qIdx];
-    const nextCorrect = optIdx === q.correct ? tierCorrect + 1 : tierCorrect;
+    const isCorrect = evaluatePlacementAnswer(q, userAnswer);
+    const nextCorrect = isCorrect ? tierCorrect + 1 : tierCorrect;
 
     if (qIdx + 1 < questions.length) {
       setTierCorrect(nextCorrect);
@@ -232,7 +164,7 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
     if (passedThisTier && tierIdx + 1 < TIERS.length) {
       const nextIdx = tierIdx + 1;
       setTierIdx(nextIdx);
-      setQuestions(sampleTierQuestions(TIERS[nextIdx].id));
+      setQuestions(buildPlacementTierQuestions(TIERS[nextIdx].id, { ttsAvailable: hasSpeechSupport() }));
       setQIdx(0);
       setTierCorrect(0);
     } else {
@@ -249,21 +181,49 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   if (!started) {
     const showSkipToPicker = isNewUserOnboarding || !userData.learnerGroup;
     return (
-      <div className="fade-in py-4 text-center" style={{ maxWidth: 640, margin: '0 auto' }}>
-        <div className="card shadow-sm p-4" style={{ borderRadius: 18 }}>
-          <div style={{ fontSize: '3.5rem' }}>🧭</div>
-          <h2 className="fw-bold mt-2">
+      <div className="fade-in py-4 text-center" style={{ maxWidth: 660, margin: '0 auto' }}>
+        <div
+          className="card shadow-sm p-4"
+          style={{ borderRadius: 20, background: '#FFFDF7', border: '2px solid #F0E2C4' }}
+        >
+          <div className="d-flex justify-content-center mb-2">
+            {activePet?.speciesId ? (
+              <PetAvatar
+                petId={activePet.speciesId}
+                stage={(activePet.evolution ?? 0) + 1}
+                mode="home"
+                canvasBubble={false}
+                style={{ width: 96, height: 96 }}
+              />
+            ) : (
+              <div style={{ fontSize: '3.5rem' }}>🧭</div>
+            )}
+          </div>
+          <h2 className="fw-bold mt-1" style={{ color: '#4A3420' }}>
             {showSkipToPicker ? 'Chào mừng bạn đến Cowdi! Kiểm tra đầu vào nhé' : 'Kiểm tra đầu vào (5 phút)'}
           </h2>
-          <p className="text-muted">
-            Chỉ mất khoảng 5 phút (tối đa 3 tầng × 6 câu) để Cowdi xếp đúng lộ trình phù hợp nhất với trình độ của bạn. Đạt ≥5/6 câu sẽ tự động lên tầng tiếp theo.
+          <p className="text-muted mb-3">
+            Tối đa <strong>3 tầng × 6 câu</strong> với nhiều dạng bài tương tác nhanh để Cowdi xếp đúng lộ trình hợp trình độ nhất. Đạt ≥5/6 câu tự động lên tầng tiếp theo.
           </p>
+
+          <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
+            {['🎧 Nghe hiểu', '📖 Hình ảnh & Từ vựng', '⚡ Đúng hay Sai', '🔤 Ghép chữ', '🧩 Xếp câu'].map((tag) => (
+              <span
+                key={tag}
+                className="badge rounded-pill px-3 py-2"
+                style={{ background: '#FFF8E7', color: '#4A3420', border: '1px solid #F0E2C4', fontSize: '0.82rem' }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
           <ul className="list-unstyled small text-muted mb-4">
             <li>• Không trừ điểm, không áp lực — phù hợp cả người mới bắt đầu</li>
             <li>• Làm lại bất cứ lúc nào — chỉ mở thêm bài, không khoá lại tiến độ đã có</li>
           </ul>
           <div className="d-flex gap-2 justify-content-center flex-wrap">
-            <button type="button" className="btn btn-cowdi-primary btn-lg px-4" onClick={startTest}>
+            <button type="button" className="btn btn-cowdi-primary btn-lg px-4 fw-bold" onClick={startTest}>
               Bắt đầu kiểm tra (5 phút) →
             </button>
             <button type="button" className="btn btn-outline-secondary btn-lg" onClick={handleSkipOrBack}>
@@ -279,7 +239,10 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   if (result) {
     return (
       <div className="fade-in py-4 text-center" style={{ maxWidth: 640, margin: '0 auto' }}>
-        <div className="card shadow-sm p-4" style={{ borderRadius: 18 }}>
+        <div
+          className="card shadow-sm p-4"
+          style={{ borderRadius: 20, background: '#FFFDF7', border: '2px solid #F0E2C4' }}
+        >
           <div style={{ fontSize: '4rem' }}><Icon name="trophy" size={76} /></div>
           <h2 className="fw-bold mt-2">Kết quả xếp lớp của bạn</h2>
           <p className="lead text-muted mb-3">{result.summary}</p>
@@ -338,35 +301,88 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
   const q = questions[qIdx];
   if (!q) return null;
   const audioText = getQuestionAudio(q);
+  const wordImg = q.statementWord
+    ? resolveWordImage(q.statementWord)
+    : q.targetWord
+      ? resolveWordImage(q.targetWord)
+      : q.promptWord?.word
+        ? resolveWordImage(q.promptWord.word)
+        : null;
+
+  // Xây dựng giá trị hiện tại cho dạng Ghép chữ / Xếp câu
+  const tileLookup = new Map((q.tiles || []).map((t) => [t.id, t]));
+  const selectedTiles = selectedTileIds.map((id) => tileLookup.get(id)).filter(Boolean);
+
+  const toggleTile = (tileId) => {
+    setSelectedTileIds((prev) =>
+      prev.includes(tileId) ? prev.filter((id) => id !== tileId) : [...prev, tileId]
+    );
+  };
 
   return (
-    <div className="fade-in quiz-viewport-stage">
-      <div className="quiz-top-bar">
-        <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleSkipOrBack}>
-          {isNewUserOnboarding || !userData.learnerGroup ? '✕ Bỏ qua & chọn nhóm' : '✕ Thoát'}
+    <div
+      className="fade-in quiz-viewport-stage p-3 rounded-4"
+      style={{
+        maxWidth: 740,
+        margin: '0 auto',
+        background: '#FFF8E7',
+        border: '2px solid #F0E2C4',
+      }}
+    >
+      {/* Thanh trên cùng */}
+      <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-2">
+        <button type="button" className="btn btn-outline-secondary btn-sm rounded-pill px-3" onClick={handleSkipOrBack}>
+          {isNewUserOnboarding || !userData.learnerGroup ? '✕ Bỏ qua' : '✕ Thoát'}
         </button>
-        <span className="badge bg-primary-subtle text-primary">{tier.label}</span>
-        <span className="text-muted small fw-bold">Câu {qIdx + 1}/{questions.length}</span>
+        <div className="d-flex align-items-center gap-2">
+          <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-1">{tier.label}</span>
+          <span className="badge bg-white text-dark border rounded-pill px-2 py-1">
+            Câu {qIdx + 1}/{questions.length}
+          </span>
+        </div>
       </div>
 
-      <div className="progress" style={{ height: 6 }}>
+      <div className="progress mb-3" style={{ height: 7, borderRadius: 999 }}>
         <div
           className="progress-bar progress-bar-cowdi"
-          style={{ width: `${((qIdx + 1) / questions.length) * 100}%` }}
+          style={{ width: `${((qIdx + 1) / questions.length) * 100}%`, transition: 'width 0.25s' }}
         />
       </div>
 
-      <div className="card shadow-sm quiz-question-card">
-        <div className="card-body text-center">
-          {q.audioText && (
-            <div className="mb-2">
-              <span className="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-1">
-                🎧 Câu hỏi nghe
-              </span>
-            </div>
-          )}
+      {/* Thẻ đề bài */}
+      <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 16 }}>
+        <div className="card-body text-center p-3 p-sm-4">
+          <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <span
+              className="badge rounded-pill px-3 py-1"
+              style={{ background: '#EFF6FF', color: '#1D4ED8', fontWeight: 700 }}
+            >
+              {q.skillLabel || '📖 Trắc nghiệm'}
+            </span>
+            {audioText && (
+              <div className="d-flex gap-1">
+                <button
+                  type="button"
+                  className="btn btn-cowdi-primary btn-sm rounded-pill px-3 fw-bold"
+                  onClick={() => speak(audioText, 0.85)}
+                >
+                  <Icon name="sound" size={15} /> Nghe
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary btn-sm rounded-pill px-2"
+                  onClick={() => speak(audioText, 0.55)}
+                  title="Nghe chậm"
+                >
+                  🐢
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Minh hoạ (ảnh server / swatch / emoji) */}
           {q.promptWord && q.kind !== 'listen-pick-image' && (
-            <div className="mb-2 d-flex justify-content-center align-items-center" style={{ fontSize: '2.4rem' }}>
+            <div className="mb-2 d-flex justify-content-center align-items-center" style={{ minHeight: 60 }}>
               {q.promptWord.swatch ? (
                 <span
                   aria-label="Màu mẫu"
@@ -377,50 +393,225 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
                     borderRadius: 16,
                     backgroundColor: q.promptWord.swatch,
                     border: '2px solid rgba(15, 23, 42, 0.16)',
-                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
                   }}
                 />
+              ) : wordImg ? (
+                <img src={wordImg} alt={q.promptWord.word || ''} style={{ width: 72, height: 72, objectFit: 'contain', borderRadius: 12 }} />
               ) : (
                 <Emoji e={q.promptWord.emoji || '🖼️'} size={48} />
               )}
             </div>
           )}
-          <p className="fs-5 fw-bold mb-2">{q.question}</p>
-          {audioText && (
-            <div className="d-flex justify-content-center gap-2 flex-wrap mt-2">
-              <button
-                type="button"
-                className="btn btn-cowdi-primary btn-sm rounded-pill px-3"
-                onClick={() => speak(audioText, 0.85)}
-              >
-                <Icon name="sound" size={16} /> {q.audioText ? 'Nghe lại' : 'Nghe phát âm'}
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-secondary btn-sm rounded-pill px-3"
-                onClick={() => speak(audioText, 0.55)}
-              >
-                🐢 Nghe chậm
-              </button>
+
+          {(q.format === 'true-false' || q.format === 'spell-tiles') && (wordImg || q.illustration) && (
+            <div className="mb-2 d-flex justify-content-center">
+              {wordImg ? (
+                <img src={wordImg} alt="" style={{ width: 72, height: 72, objectFit: 'contain', borderRadius: 12 }} />
+              ) : (
+                <Emoji e={q.illustration} size={46} />
+              )}
+            </div>
+          )}
+
+          <p className="fs-5 fw-bold mb-1" style={{ color: '#334155' }}>
+            {q.question}
+          </p>
+
+          {q.format === 'true-false' && (
+            <div className="mt-2 d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 bg-light border">
+              <strong className="fs-5 text-primary">{q.statementWord}</strong>
+              <span className="text-muted">=</span>
+              <strong className="fs-5 text-success">{q.statementMeaning}</strong>
             </div>
           )}
         </div>
       </div>
 
-      <div className="row g-2">
-        {q.options.map((opt, idx) => {
-          const cw = q.kind === 'listen-pick-image' ? q.choiceWords?.[idx] : null;
-          return (
-            <div className="col-12 col-sm-6" key={idx}>
+      {/* ── Dạng 1: Đúng / Sai nhanh (giống F-11) ── */}
+      {q.format === 'true-false' && (
+        <div className="row g-3">
+          <div className="col-6">
+            <button
+              type="button"
+              className="btn w-100 py-3 fw-bold fs-5 rounded-4 shadow-sm"
+              style={{ background: '#ECFDF5', color: '#065F46', border: '2px solid #34D399' }}
+              onClick={() => submitAnswer(0)}
+            >
+              ✅ Đúng
+            </button>
+          </div>
+          <div className="col-6">
+            <button
+              type="button"
+              className="btn w-100 py-3 fw-bold fs-5 rounded-4 shadow-sm"
+              style={{ background: '#FEF2F2', color: '#991B1B', border: '2px solid #F87171' }}
+              onClick={() => submitAnswer(1)}
+            >
+              ❌ Sai
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Dạng 2: Ghép chữ cái (giống F-02) ── */}
+      {q.format === 'spell-tiles' && (
+        <div className="card border-0 shadow-sm p-3" style={{ borderRadius: 16 }}>
+          <div className="d-flex justify-content-center flex-wrap gap-2 mb-3">
+            {Array.from({ length: q.targetWord.length }).map((_, slotIdx) => {
+              const tile = selectedTiles[slotIdx];
+              return (
+                <button
+                  key={slotIdx}
+                  type="button"
+                  disabled={!tile}
+                  onClick={() => tile && toggleTile(tile.id)}
+                  className="btn fw-bold fs-5 d-flex align-items-center justify-content-center"
+                  style={{
+                    width: 46,
+                    height: 50,
+                    borderRadius: 12,
+                    background: tile ? '#EFF6FF' : '#F8FAFC',
+                    color: '#1E3A8A',
+                    border: tile ? '2px solid #3B82F6' : '2px dashed #CBD5E1',
+                  }}
+                >
+                  {tile ? tile.ch : ''}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="d-flex justify-content-center flex-wrap gap-2 mb-3">
+            {(q.tiles || []).map((t) => {
+              const used = selectedTileIds.includes(t.id);
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  disabled={used}
+                  onClick={() => toggleTile(t.id)}
+                  className="btn fw-bold fs-5"
+                  style={{
+                    width: 46,
+                    height: 48,
+                    borderRadius: 12,
+                    background: used ? '#E2E8F0' : '#FFFFFF',
+                    color: used ? '#94A3B8' : '#334155',
+                    border: '2px solid #CBD5E1',
+                    opacity: used ? 0.45 : 1,
+                  }}
+                >
+                  {t.ch}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="d-flex justify-content-between align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              disabled={selectedTileIds.length === 0}
+              onClick={() => setSelectedTileIds([])}
+            >
+              ↺ Xoá chọn lại
+            </button>
+            <button
+              type="button"
+              className="btn btn-cowdi-primary fw-bold rounded-pill px-4"
+              disabled={selectedTiles.length < q.targetWord.length}
+              onClick={() => submitAnswer(selectedTiles.map((t) => t.ch).join(''))}
+            >
+              Xác nhận →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Dạng 3: Xếp thứ tự câu (giống F-09 / T-08) ── */}
+      {q.format === 'sentence-order' && (
+        <div className="card border-0 shadow-sm p-3" style={{ borderRadius: 16 }}>
+          <div
+            className="p-3 rounded-3 mb-3 d-flex flex-wrap gap-2 align-items-center justify-content-center"
+            style={{ minHeight: 62, background: '#F8FAFC', border: '2px dashed #CBD5E1' }}
+          >
+            {selectedTiles.length === 0 ? (
+              <span className="text-muted small">Chạm các từ bên dưới để xếp thành câu đúng...</span>
+            ) : (
+              selectedTiles.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => toggleTile(t.id)}
+                  className="btn btn-sm fw-bold rounded-pill px-3"
+                  style={{ background: '#EFF6FF', color: '#1E3A8A', border: '1.5px solid #3B82F6' }}
+                >
+                  {t.text}
+                </button>
+              ))
+            )}
+          </div>
+
+          <div className="d-flex flex-wrap gap-2 justify-content-center mb-3">
+            {(q.tiles || []).map((t) => {
+              const used = selectedTileIds.includes(t.id);
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  disabled={used}
+                  onClick={() => toggleTile(t.id)}
+                  className="btn btn-sm fw-bold rounded-pill px-3 py-2"
+                  style={{
+                    background: used ? '#E2E8F0' : '#FFFFFF',
+                    color: used ? '#94A3B8' : '#334155',
+                    border: '1.5px solid #CBD5E1',
+                    opacity: used ? 0.45 : 1,
+                  }}
+                >
+                  {t.text}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="d-flex justify-content-between align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              disabled={selectedTileIds.length === 0}
+              onClick={() => setSelectedTileIds([])}
+            >
+              ↺ Xếp lại
+            </button>
+            <button
+              type="button"
+              className="btn btn-cowdi-primary fw-bold rounded-pill px-4"
+              disabled={selectedTiles.length < (q.tiles?.length || 0)}
+              onClick={() => submitAnswer(selectedTiles.map((t) => t.text).join(' '))}
+            >
+              Xác nhận →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Dạng 4 & 5: Trắc nghiệm / Nghe hiểu 4 đáp án sáng rõ ── */}
+      {q.format !== 'true-false' && q.format !== 'spell-tiles' && q.format !== 'sentence-order' && (
+        <div className="arena-options-grid arena-options-grid--boss">
+          {(q.options || []).map((opt, idx) => {
+            const cw = q.kind === 'listen-pick-image' ? q.choiceWords?.[idx] : null;
+            return (
               <button
+                key={`${tierIdx}-${qIdx}-${idx}`}
                 type="button"
-                className="btn btn-outline-primary w-100 quiz-option-btn fw-bold text-start d-flex align-items-center"
-                onClick={() => handlePick(idx)}
+                className="arena-option-btn arena-option-btn--boss"
+                onClick={() => submitAnswer(idx)}
               >
-                <span className="me-2 text-muted">{String.fromCharCode(65 + idx)}.</span>
+                <span className="arena-option-key">{String.fromCharCode(65 + idx)}</span>
                 {cw?.swatch && (
                   <span
-                    className="me-2 flex-shrink-0"
+                    className="flex-shrink-0"
                     style={{
                       display: 'inline-block',
                       width: 22,
@@ -433,10 +624,10 @@ export default function PlacementTest({ isNewUserOnboarding = false, onSkip }) {
                 )}
                 <span>{opt}</span>
               </button>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
