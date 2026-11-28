@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Icon from '../../../../components/Icon';
-import { SpeechRecognitionAPI, speakWord, stopSpeaking } from '../../../../utils/speech';
+import { SpeechRecognitionAPI, extractBestTranscript, speakWord, stopSpeaking } from '../../../../utils/speech';
 import { HUMAN_CAST } from '../../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { getHumanNpcImage } from '../../story/petImage';
@@ -49,6 +49,8 @@ export default function F10NpcDialog({
 
   const recognitionRef = useRef(null);
   const timersRef = useRef([]);
+  const firstTryRef = useRef(0);
+  const advancedForCursorRef = useRef(-1);
   const current = prompts[cursor] || null;
   const npcId = current?.npc || 'ong_tu';
   const npcInfo = HUMAN_CAST[npcId] || HUMAN_CAST.ong_tu;
@@ -66,17 +68,27 @@ export default function F10NpcDialog({
 
   const stopMic = useCallback(() => {
     if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch { /* ignore */ }
+      const rec = recognitionRef.current;
       recognitionRef.current = null;
+      try { rec.abort(); } catch { /* ignore */ }
     }
     onEvent?.('mic_end', {});
   }, [onEvent]);
 
+  const finishMicNow = useCallback(() => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { /* ignore */ }
+    }
+  }, []);
+
   const advanceNext = useCallback((wasFirstTry) => {
+    if (advancedForCursorRef.current === cursor) return;
+    advancedForCursorRef.current = cursor;
     clearTimers();
     stopMic();
     stopSpeaking();
-    const nextFirst = firstTryCount + (wasFirstTry ? 1 : 0);
+    const nextFirst = firstTryRef.current + (wasFirstTry ? 1 : 0);
+    firstTryRef.current = nextFirst;
     setFirstTryCount(nextFirst);
     if (cursor + 1 < prompts.length) {
       setCursor((c) => c + 1);
@@ -89,7 +101,7 @@ export default function F10NpcDialog({
         durationMs: Date.now() - startTimeRef.current,
       });
     }
-  }, [clearTimers, stopMic, firstTryCount, cursor, prompts.length, onDone]);
+  }, [clearTimers, stopMic, cursor, prompts.length, onDone]);
 
   const triggerNpcReply = useCallback((recordSkillHit, wasFirstTry) => {
     setPhase('replied');
@@ -119,6 +131,7 @@ export default function F10NpcDialog({
       return;
     }
     stopSpeaking();
+    stopMic();
     setTranscript('');
     try {
       const rec = new SpeechRecognitionAPI();
@@ -127,37 +140,87 @@ export default function F10NpcDialog({
       rec.maxAlternatives = 1;
       rec.continuous = false;
       recognitionRef.current = rec;
+
+      let latestSpoken = '';
+      let settled = false;
+      let micWatchdog = null;
+
+      const clearMicWatchdog = () => {
+        if (micWatchdog) {
+          clearTimeout(micWatchdog);
+          micWatchdog = null;
+        }
+      };
+
+      const evaluateSpoken = (spokenText) => {
+        if (settled) return;
+        settled = true;
+        clearMicWatchdog();
+        recognitionRef.current = null;
+        onEvent?.('mic_end', {});
+
+        const clean = String(spokenText || '').trim();
+        if (!clean) {
+          setPhase('blocked');
+          setPetText('Chưa nghe rõ giọng con. Chạm Micro để nói lại hoặc chạm chọn câu nhé!');
+          return;
+        }
+
+        const evalRes = evaluateDialogReply({ spoken: clean, prompt: current, group, micUsed: true });
+        if (evalRes.passed) {
+          triggerNpcReply(evalRes.recordSkillHit, !hadWrong);
+        } else {
+          play?.('wrong');
+          setHadWrong(true);
+          setPetTone('hint');
+          setPetText(`Gợi ý: thử đọc “${current.answers?.[0]?.en}” nhé!`);
+          onEvent?.('item_wrong', {
+            itemId: current.id,
+            correct: current.answers?.[0]?.en || '',
+            skill: 'speak',
+          });
+          setMissModal(true);
+        }
+      };
+
       setPhase('listening');
       setPetText('🎤 Đang nghe con trả lời…');
       onEvent?.('mic_start', { itemId: current.id });
 
+      micWatchdog = setTimeout(() => {
+        if (!settled) {
+          try { rec.stop(); } catch { /* ignore */ }
+          const fallbackTid = setTimeout(() => evaluateSpoken(latestSpoken), 600);
+          timersRef.current.push(fallbackTid);
+        }
+      }, 10000);
+      timersRef.current.push(micWatchdog);
+
       rec.onresult = (event) => {
+        const parsed = extractBestTranscript(event.results);
+        if (parsed.bestText) {
+          latestSpoken = parsed.bestText;
+          setTranscript(parsed.bestText);
+        }
         const last = event.results[event.results.length - 1];
-        const spoken = last?.[0]?.transcript || '';
-        setTranscript(spoken);
-        if (last?.isFinal) {
-          onEvent?.('mic_end', {});
-          const evalRes = evaluateDialogReply({ spoken, prompt: current, group, micUsed: true });
-          if (evalRes.passed) {
-            triggerNpcReply(evalRes.recordSkillHit, !hadWrong);
-          } else {
-            play?.('wrong');
-            setHadWrong(true);
-            setPetTone('hint');
-            setPetText(`Gợi ý: thử đọc “${current.answers?.[0]?.en}” nhé!`);
-            onEvent?.('item_wrong', {
-              itemId: current.id,
-              correct: current.answers?.[0]?.en || '',
-              skill: 'speak',
-            });
-            setMissModal(true);
-          }
+        if (last?.isFinal && parsed.bestText) {
+          evaluateSpoken(parsed.bestText);
         }
       };
 
       rec.onerror = (event) => {
+        if (settled) return;
+        settled = true;
+        clearMicWatchdog();
+        recognitionRef.current = null;
         onEvent?.('mic_end', {});
         const code = event?.error || '';
+        if (code === 'aborted') return;
+        if (latestSpoken.trim() && code !== 'not-allowed' && code !== 'service-not-allowed') {
+          settled = false;
+          evaluateSpoken(latestSpoken);
+          return;
+        }
         if (code === 'not-allowed' || code === 'service-not-allowed') {
           if (!isManualTap) {
             setPhase('blocked');
@@ -175,13 +238,18 @@ export default function F10NpcDialog({
         }
       };
 
+      rec.onend = () => {
+        if (settled) return;
+        evaluateSpoken(latestSpoken);
+      };
+
       rec.start();
     } catch {
       onEvent?.('mic_end', {});
       setPhase('blocked');
       setPetText('Chạm nút Micro bên dưới để trả lời nhé!');
     }
-  }, [current, group, hadWrong, onEvent, play, triggerNpcReply]);
+  }, [current, group, hadWrong, onEvent, play, triggerNpcReply, stopMic]);
 
   useEffect(() => {
     if (!current) return undefined;
@@ -302,9 +370,25 @@ export default function F10NpcDialog({
       <div className="ff-card text-center py-2">
         {phase === 'asking' && <span className="small text-primary fw-bold">🔊 Đang đọc câu hỏi…</span>}
         {phase === 'listening' && (
-          <div className="d-flex flex-column align-items-center gap-1">
+          <div className="d-flex flex-column align-items-center gap-2">
             <span className="badge rounded-pill text-bg-danger px-3 py-2">🎤 Đang nghe con trả lời…</span>
             {transcript && <div className="small fst-italic text-muted">“{transcript}”</div>}
+            <div className="d-flex justify-content-center gap-2 flex-wrap">
+              <button
+                type="button"
+                className="btn btn-sm btn-cowdi-primary rounded-pill px-3"
+                onClick={finishMicNow}
+              >
+                ⏹ Xong — chấm điểm
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                onClick={() => { stopMic(); setPhase('nomic'); }}
+              >
+                Chạm chọn câu
+              </button>
+            </div>
           </div>
         )}
         {phase === 'blocked' && (
@@ -329,8 +413,17 @@ export default function F10NpcDialog({
           <div className="small text-muted">Chế độ không micro: chạm vào 1 câu gợi ý ở trên để trả lời nhé!</div>
         )}
         {phase === 'replied' && (
-          <div className="text-success fw-bold small">
-            ✨ {npcInfo.nameVi}: “{current.replyEn}”
+          <div className="d-flex flex-column align-items-center gap-2">
+            <div className="text-success fw-bold small">
+              ✨ {npcInfo.nameVi}: “{current.replyEn}”
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-cowdi-primary rounded-pill px-3"
+              onClick={() => advanceNext(!hadWrong)}
+            >
+              {cursor + 1 < prompts.length ? 'Lượt tiếp →' : 'Hoàn thành →'}
+            </button>
           </div>
         )}
       </div>

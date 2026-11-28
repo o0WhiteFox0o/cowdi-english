@@ -3,6 +3,7 @@ import Icon from '../../../../components/Icon';
 import { EmojiText } from '../../../../components/Emoji';
 import {
   SpeechRecognitionAPI,
+  extractBestTranscript,
   tokenizeText,
   scorePronunciation,
   getScoreLabel,
@@ -74,37 +75,27 @@ export default function T06Speak({ items = [], rules, onEvent, onDone, play }) {
       rec.lang = 'en-US';
       rec.interimResults = true;
       rec.maxAlternatives = 1;
+      rec.continuous = false;
       recRef.current = rec;
-      let finalText = '';
+      let latestSpoken = '';
+      let settled = false;
+      let watchdog = setTimeout(() => {
+        if (!settled) {
+          try { rec.stop(); } catch { /* ignore */ }
+        }
+      }, 10000);
 
-      rec.onstart = () => {
-        setIsRecording(true);
-        onEvent?.('mic_start', {});
-      };
-      rec.onresult = (ev) => {
-        let interim = '';
-        for (let i = ev.resultIndex; i < ev.results.length; i++) {
-          const text = ev.results[i][0]?.transcript || '';
-          if (ev.results[i].isFinal) finalText += `${text} `;
-          else interim += text;
-        }
-        setTranscript((finalText || interim).trim());
-      };
-      rec.onerror = (ev) => {
+      const finishRecognition = (spokenText) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(watchdog);
         setIsRecording(false);
         onEvent?.('mic_end', {});
-        if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed' || ev.error === 'audio-capture') {
-          setMicFallback(true);
-          setRecError('Không truy cập được micro — chuyển sang chế độ nghe và nhắc lại nhé!');
-        } else {
-          setRecError('Chưa nghe rõ, bạn thử bấm nói lại hoặc chuyển nghe-nhắc lại nhé.');
+        const spoken = String(spokenText || '').trim();
+        if (!spoken) {
+          setRecError('Chưa nghe rõ giọng nói — bạn thử bấm nói lại hoặc chọn Không dùng micro nhé!');
+          return;
         }
-      };
-      rec.onend = () => {
-        setIsRecording(false);
-        onEvent?.('mic_end', {});
-        const spoken = finalText.trim();
-        if (!spoken) return;
         const sc = scorePronunciation(current.en, spoken);
         setResult(sc);
         const ok = sc.score >= passThreshold;
@@ -118,6 +109,48 @@ export default function T06Speak({ items = [], rules, onEvent, onDone, play }) {
           play?.('wrong');
           onEvent?.('item_wrong', { itemId: `t06-${idx}`, wordIds: current.wordIds || [], correct: current.en, skill: 'speak' });
         }
+      };
+
+      rec.onstart = () => {
+        setIsRecording(true);
+        onEvent?.('mic_start', {});
+      };
+      rec.onresult = (ev) => {
+        const parsed = extractBestTranscript(ev.results);
+        if (parsed.bestText) {
+          latestSpoken = parsed.bestText;
+          setTranscript(parsed.bestText);
+        }
+        const last = ev.results[ev.results.length - 1];
+        if (last?.isFinal && parsed.bestText) {
+          finishRecognition(parsed.bestText);
+        }
+      };
+      rec.onerror = (ev) => {
+        if (settled) return;
+        clearTimeout(watchdog);
+        if (ev.error === 'aborted') {
+          settled = true;
+          setIsRecording(false);
+          onEvent?.('mic_end', {});
+          return;
+        }
+        if (latestSpoken.trim() && ev.error !== 'not-allowed' && ev.error !== 'service-not-allowed') {
+          finishRecognition(latestSpoken);
+          return;
+        }
+        settled = true;
+        setIsRecording(false);
+        onEvent?.('mic_end', {});
+        if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed' || ev.error === 'audio-capture') {
+          setMicFallback(true);
+          setRecError('Không truy cập được micro — chuyển sang chế độ nghe và nhắc lại nhé!');
+        } else {
+          setRecError('Chưa nghe rõ, bạn thử bấm nói lại hoặc chuyển nghe-nhắc lại nhé.');
+        }
+      };
+      rec.onend = () => {
+        finishRecognition(latestSpoken);
       };
       rec.start();
     } catch {

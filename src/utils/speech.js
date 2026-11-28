@@ -185,17 +185,47 @@ export function hasVietnameseVoice() {
 }
 
 /**
+ * Gộp toàn bộ transcript (cả isFinal lẫn interim mới nhất) từ SpeechRecognitionEvent.
+ * Trên điện thoại (iOS Safari / Android Chrome), trình duyệt thường kết thúc phiên (onend)
+ * mà chỉ trả kết quả interim (isFinal = false). Dùng hàm này giúp không bao giờ mất câu người học vừa đọc.
+ */
+export function extractBestTranscript(results) {
+  if (!results || typeof results.length !== 'number') {
+    return { finalText: '', interimText: '', bestText: '', hasFinal: false };
+  }
+  let finalText = '';
+  let interimText = '';
+  let hasFinal = false;
+  for (let i = 0; i < results.length; i++) {
+    const res = results[i];
+    const t = String(res?.[0]?.transcript || '').trim();
+    if (!t) continue;
+    if (res.isFinal) {
+      hasFinal = true;
+      finalText += `${t} `;
+    } else {
+      interimText += `${t} `;
+    }
+  }
+  const cleanFinal = finalText.trim();
+  const cleanInterim = interimText.trim();
+  const bestText = `${cleanFinal} ${cleanInterim}`.trim();
+  return { finalText: cleanFinal, interimText: cleanInterim, bestText, hasFinal };
+}
+
+/**
  * Đọc văn bản bằng Web Speech API.
- * Trả về Promise: resolve khi đọc xong hoặc bị huỷ chủ động; reject khi trình duyệt chặn ('not-allowed') hoặc lỗi phát.
+ * Trả về Promise: resolve khi đọc xong, hết thời gian chờ an toàn hoặc bị huỷ chủ động;
+ * reject khi trình duyệt chặn ('not-allowed') hoặc lỗi phát.
  * @param {string} text
- * @param {number|object} [rateOrOpts]  hỗ trợ cả speakWord(text, 0.85) lẫn speakWord(text, { rate, lang, onStart, onEnd })
+ * @param {number|object} [rateOrOpts]  hỗ trợ cả speakWord(text, 0.85) lẫn speakWord(text, { rate, lang, onStart, onEnd, timeoutMs })
  * @param {object} [extraOpts]
  */
 export function speakWord(text, rateOrOpts = {}, extraOpts = {}) {
   const opts = typeof rateOrOpts === 'number'
     ? { rate: rateOrOpts, ...extraOpts }
     : { ...(rateOrOpts || {}), ...extraOpts };
-  const { rate = 0.85, lang = 'en-US', onStart, onEnd } = opts;
+  const { rate = 0.85, lang = 'en-US', onStart, onEnd, timeoutMs } = opts;
 
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return Promise.reject(new Error('speechSynthesis-unavailable'));
@@ -208,9 +238,19 @@ export function speakWord(text, rateOrOpts = {}, extraOpts = {}) {
 
   return new Promise((resolve, reject) => {
     let settled = false;
+    let started = false;
+    let maxTimer = null;
+    let startWatchdog = null;
+
+    const clearTimers = () => {
+      if (maxTimer) { clearTimeout(maxTimer); maxTimer = null; }
+      if (startWatchdog) { clearTimeout(startWatchdog); startWatchdog = null; }
+    };
+
     const finish = (err) => {
       if (settled) return;
       settled = true;
+      clearTimers();
       onEnd?.();
       if (err) reject(err);
       else resolve();
@@ -221,7 +261,11 @@ export function speakWord(text, rateOrOpts = {}, extraOpts = {}) {
       const u = new SpeechSynthesisUtterance(clean);
       u.lang = lang;
       u.rate = rate;
-      u.onstart = () => onStart?.();
+      u.onstart = () => {
+        started = true;
+        if (startWatchdog) { clearTimeout(startWatchdog); startWatchdog = null; }
+        onStart?.();
+      };
       u.onend = () => finish(null);
       u.onerror = (e) => {
         const code = e?.error || 'speech-error';
@@ -232,6 +276,20 @@ export function speakWord(text, rateOrOpts = {}, extraOpts = {}) {
           finish(new Error(code));
         }
       };
+
+      // Watchdog cho điện thoại (iOS Safari / Android Chrome):
+      // Nếu trình duyệt chặn ngầm hoặc không bắn onend/onerror → tự thoát thay vì treo vĩnh viễn.
+      const safeRate = Math.max(0.4, Number(rate) || 0.85);
+      const hardTimeout = Number.isFinite(timeoutMs)
+        ? Math.max(500, timeoutMs)
+        : Math.min(18000, Math.max(4500, Math.round((clean.length * 160) / safeRate) + 2500));
+      maxTimer = setTimeout(() => finish(null), hardTimeout);
+      startWatchdog = setTimeout(() => {
+        if (!started && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+          finish(null);
+        }
+      }, 2400);
+
       onStart?.();
       window.speechSynthesis.speak(u);
     } catch (err) {

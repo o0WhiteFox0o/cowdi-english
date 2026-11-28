@@ -4,6 +4,7 @@ import {
   normalizeText,
   expandContractions,
   tokenizeText,
+  extractBestTranscript,
   scorePronunciation,
   scoreTypedSentence,
   getScoreLabel,
@@ -51,4 +52,22 @@ test('getScoreLabel trả về nhãn hợp lệ theo ngưỡng điểm', () => {
   assert.equal(getScoreLabel(55).icon, '💪');
   assert.equal(getScoreLabel(35).icon, '📖');
   assert.equal(getScoreLabel(10).icon, '🔄');
+});
+
+test('extractBestTranscript giữ được câu interim khi trình duyệt ĐT kết thúc không bắn isFinal', () => {
+  const interimOnly = [
+    Object.assign([{ transcript: 'Good morning' }], { isFinal: false }),
+  ];
+  const r1 = extractBestTranscript(interimOnly);
+  assert.equal(r1.hasFinal, false);
+  assert.equal(r1.bestText, 'Good morning');
+
+  const mixed = [
+    Object.assign([{ transcript: 'Hello' }], { isFinal: true }),
+    Object.assign([{ transcript: 'nice to meet you' }], { isFinal: false }),
+  ];
+  const r2 = extractBestTranscript(mixed);
+  assert.equal(r2.hasFinal, true);
+  assert.equal(r2.finalText, 'Hello');
+  assert.equal(r2.bestText, 'Hello nice to meet you');
 });

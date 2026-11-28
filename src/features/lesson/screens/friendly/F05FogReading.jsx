@@ -48,9 +48,15 @@ export default function F05FogReading({
   const [shakingFogId, setShakingFogId] = useState(null);
   const [hadWrongHunt, setHadWrongHunt] = useState(false);
   const [huntFirstTryOk, setHuntFirstTryOk] = useState(0);
+  const huntOkRef = useRef(0);
+  const doneRef = useRef(false);
 
   // Sau khi săn xong: 'hunt' | 'translation' | 'quiz'
-  const [stage, setStage] = useState('hunt');
+  const [stage, setStage] = useState(() => (
+    huntOrder.length > 0
+      ? 'hunt'
+      : (reading.translation ? 'translation' : (questions.length > 0 ? 'quiz' : 'done'))
+  ));
   const [qIdx, setQIdx] = useState(0);
   const [qPicked, setQPicked] = useState(null);
   const [qFirstTryOk, setQFirstTryOk] = useState(0);
@@ -89,12 +95,14 @@ export default function F05FogReading({
   useEffect(() => () => stopSpeaking(), []);
 
   const finishScreen = (finalQOk) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
     stopSpeaking();
     onDone?.({
       code: 'F-05',
       slot: 'read',
       total: huntOrder.length + questions.length,
-      firstTryCorrect: huntFirstTryOk + finalQOk,
+      firstTryCorrect: huntOkRef.current + finalQOk,
       durationMs: Date.now() - startTimeRef.current,
     });
   };
@@ -107,7 +115,8 @@ export default function F05FogReading({
       const nextSet = new Set(revealedIds);
       nextSet.add(seg.fogId);
       setRevealedIds(nextSet);
-      const nextOk = huntFirstTryOk + (hadWrongHunt ? 0 : 1);
+      const nextOk = huntOkRef.current + (hadWrongHunt ? 0 : 1);
+      huntOkRef.current = nextOk;
       setHuntFirstTryOk(nextOk);
       setPetTone('good');
       setPetText(`Tan sương rồi! Từ tìm được là “${seg.text}”.`);
@@ -125,13 +134,7 @@ export default function F05FogReading({
         setTimeout(() => {
           setStage(reading.translation ? 'translation' : (questions.length > 0 ? 'quiz' : 'done'));
           if (!reading.translation && questions.length === 0) {
-            onDone?.({
-              code: 'F-05',
-              slot: 'read',
-              total: huntOrder.length,
-              firstTryCorrect: nextOk,
-              durationMs: Date.now() - startTimeRef.current,
-            });
+            finishScreen(0);
           }
         }, 650);
       }
@@ -291,6 +294,15 @@ export default function F05FogReading({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {stage === 'done' && (
+        <div className="ff-card text-center d-flex flex-column gap-2 py-3">
+          <div className="fw-bold text-success">✨ Đã hoàn thành phần đọc!</div>
+          <button type="button" className="btn btn-cowdi-primary ff-tap-btn w-100" onClick={() => finishScreen(qFirstTryOk)}>
+            Sang màn tiếp theo →
+          </button>
         </div>
       )}
 

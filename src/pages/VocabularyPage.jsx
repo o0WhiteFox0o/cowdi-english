@@ -506,21 +506,40 @@ export default function VocabularyPage() {
     recognition.continuous = false;
     recognitionRef.current = recognition;
 
+    let latestSpoken = '';
+    let scored = false;
+    const scoreNow = (text) => {
+      if (scored) return;
+      scored = true;
+      setIsRecording(false);
+      const clean = String(text || '').trim();
+      if (!clean) return;
+      setTranscript(clean);
+      const result = scorePronunciation(expectedText, clean);
+      setSpeakResult(result);
+      if (result.score >= 70) play('correct');
+      else if (result.score >= 40) play('click');
+      else play('wrong');
+    };
+
     recognition.onresult = (event) => {
       const last = event.results[event.results.length - 1];
-      setTranscript(last[0].transcript);
-      if (last.isFinal) {
-        const finalText = last[0].transcript;
-        setTranscript(finalText);
-        const result = scorePronunciation(expectedText, finalText);
-        setSpeakResult(result);
-        setIsRecording(false);
-        if (result.score >= 70) play('correct');
-        else if (result.score >= 40) play('click');
-        else play('wrong');
+      const text = String(last?.[0]?.transcript || '').trim();
+      if (text) {
+        latestSpoken = text;
+        setTranscript(text);
+      }
+      if (last?.isFinal && text) {
+        scoreNow(text);
       }
     };
     recognition.onerror = (event) => {
+      if (scored) return;
+      if (latestSpoken && event.error !== 'not-allowed' && event.error !== 'service-not-allowed') {
+        scoreNow(latestSpoken);
+        return;
+      }
+      scored = true;
       setIsRecording(false);
       if (event.error === 'no-speech') {
         setRecError('Không nghe thấy giọng nói. Hãy nói to hơn nhé!');
@@ -530,7 +549,10 @@ export default function VocabularyPage() {
         setRecError('Lỗi nhận diện giọng nói.');
       }
     };
-    recognition.onend = () => setIsRecording(false);
+    recognition.onend = () => {
+      if (!scored && latestSpoken) scoreNow(latestSpoken);
+      else setIsRecording(false);
+    };
     recognition.start();
   }, [play]);
 

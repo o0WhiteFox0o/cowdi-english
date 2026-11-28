@@ -342,26 +342,44 @@ function useSpeechRec() {
     const rec = new SR();
     rec.lang = 'en-US';
     rec.continuous = false;
-    rec.interimResults = false;
+    rec.interimResults = true;
     rec.maxAlternatives = 3;
     recRef.current = rec;
-    let hasResult = false;
+    let settled = false;
+    let latestSpoken = '';
+    const watchdog = setTimeout(() => {
+      if (!settled) {
+        try { rec.stop(); } catch {}
+      }
+    }, 10000);
+    const done = (text) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(watchdog);
+      setListening(false);
+      const clean = String(text || '').trim();
+      if (clean) onResult(clean);
+      else onEnd?.('');
+    };
     rec.onresult = (e) => {
-      hasResult = true;
-      const best = e.results[0][0].transcript;
-      setListening(false);
-      onResult(best);
+      let best = '';
+      let isFinal = false;
+      for (let i = 0; i < e.results.length; i++) {
+        const t = String(e.results[i]?.[0]?.transcript || '').trim();
+        if (t) best = `${best} ${t}`.trim();
+        if (e.results[i].isFinal) isFinal = true;
+      }
+      if (best) latestSpoken = best;
+      if (isFinal && best) done(best);
     };
-    rec.onend = () => {
-      setListening(false);
-      if (!hasResult) onEnd?.('');
-    };
-    rec.onerror = () => {
-      setListening(false);
-      if (!hasResult) onEnd?.('');
-    };
+    rec.onend = () => done(latestSpoken);
+    rec.onerror = () => done(latestSpoken);
     setListening(true);
-    rec.start();
+    try {
+      rec.start();
+    } catch {
+      done('');
+    }
   }
   function stop() {
     try { recRef.current?.stop(); } catch {}
