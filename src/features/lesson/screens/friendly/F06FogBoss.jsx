@@ -67,6 +67,9 @@ export default function F06FogBoss({
   const { getActivePetWithDecay } = usePet();
   const { dispatch } = usePetDirector();
   const activePet = getActivePetWithDecay();
+  const region = extra.region || 'BD';
+  const regionName = REGIONS[region]?.nameVi || 'Bến Đò Ông Tư';
+  const regionColor = REGION_COLOR[region] || REGION_COLOR.BD;
   const companionId = activePet?.speciesId || 'cowdi';
   const companionC = (activePet?.evolution ?? activePet?.stage ?? 0) + 1;
   const companionName = activePet?.customName || '';
@@ -98,9 +101,6 @@ export default function F06FogBoss({
   const wrongIdxRef = useRef(0);
   const defaultRate = rules?.ttsRate || 0.85;
   const passRate = rules?.lessonPassRate ?? 0.7;
-  const region = extra.region || 'BD';
-  const regionName = REGIONS[region]?.nameVi || 'Bến Đò Ông Tư';
-  const regionColor = REGION_COLOR[region] || REGION_COLOR.BD;
 
   const startTimeRef = useRef(Date.now());
   const [attemptSeed, setAttemptSeed] = useState(seed);
