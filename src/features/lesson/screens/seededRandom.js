@@ -24,6 +24,8 @@ export function mulberry32(seed) {
   };
 }
 
+export const createRng = mulberry32;
+
 export function seededShuffle(arr, rng) {
   const out = [...arr];
   for (let i = out.length - 1; i > 0; i--) {

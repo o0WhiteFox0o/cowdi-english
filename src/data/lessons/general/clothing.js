@@ -19,6 +19,10 @@ export const CLOTHING_LESSON = {
     'Phân biệt đúng động từ wear (đang mặc) và put on / take off (mặc vào / cởi ra)',
     'Dùng đúng động từ số nhiều với các danh từ trang phục đi theo đôi hoặc cặp',
   ],
+  story: {
+    npc: 'mai',
+    introVi: 'Hôm nay Mai ra Vườn Sữa thăm Cowdi mà chưa biết chọn đồ gì. Con giúp Mai gọi tên quần áo nhé!',
+  },
 
   vocabulary: [
     v('Shirt', '/ʃɜːrt/', 'noun', 'Áo sơ mi', 'Minh wears a clean white shirt.', 'Minh mặc một chiếc áo sơ mi trắng sạch sẽ.', '👔'),

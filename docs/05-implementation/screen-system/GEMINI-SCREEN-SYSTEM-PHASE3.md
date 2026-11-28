@@ -2,7 +2,7 @@
 
 > Giao cho: Gemini · Viết: Claude, 2026-11-27 · Chuẩn gốc: `STD-SCREEN-SYSTEM-v1.0.md` mục 2.2, 4.
 > Điều kiện bắt đầu: **Đợt 1 và Đợt 2 đã merge**; `RPT-SCREEN-COVERAGE` mới nhất.
-> Mẫu giao diện: canvas "Cowdi — Giao diện vượt ải bài học", trang **Thiết kế chính · trộn màn**: Mở ải, F-01 (Gặp từ), F-03 (Bò hứng chữ), F-08 (Lật cặp), F-09 (Đò chở câu), F-06 (Boss), Tổng kết, Dẫn nhập Ải 2 / Ải 3.
+> Mẫu giao diện: canvas "Cowdi — Giao diện vượt ải bài học", trang **Thiết kế chính · trộn màn**: Mở ải, F-01 (Gặp từ), F-03 (Nghe nhận diện từ), F-08 (Lật cặp), F-09 (Đò chở câu), F-06 (Boss), Tổng kết, Dẫn nhập Ải 2 / Ải 3.
 > Liên quan: `PET-DIRECTOR-INTEGRATION.md`, `GEMINI-FLASHCARD-AUDIO-UX.md` F3, `STORY-BIBLE-IMPLEMENTATION.md` mục 1.3b, 2b (vùng đất, `UNIT_REGION`), `COWDI-AI-PROMPT-BLOCKS.md`, `AUDIO-DESIGN-BIBLE.md`.
 > Nhánh: `feat/screen-system-p3`. **Không merge khi chưa có Sonny duyệt.** Màn mới ra mắt ở trạng thái `test`.
 
@@ -13,7 +13,7 @@
 | Làm | Không làm |
 |---|---|
 | Khung chung cho màn Thân thiện | F-02, F-04, F-05, F-07, F-10, F-11 (Đợt 4) |
-| F-01 Gặp từ trình chiếu · F-03 Bò hứng chữ · F-08 Lật cặp đồng cỏ · F-09 Đò chở câu · F-06 Boss sương mù | Đổi Gem, Đá, điểm kỹ năng pet |
+| F-01 Gặp từ trình chiếu · F-03 Nghe nhận diện từ · F-08 Lật cặp đồng cỏ · F-09 Đò chở câu · F-06 Boss sương mù | Đổi Gem, Đá, điểm kỹ năng pet |
 | Màn **Mở ải** (dẫn nhập ải) + **Dẫn nhập màn** theo vùng, không lặp 10 ải | Bật màn F cho mọi người (chỉ tài khoản thử) |
 | Tab admin **Kho dẫn nhập** | Thống kê màn (Đợt 4) |
 | Khách quen; 4 chấm Nghe/Đọc/Viết/Nói của từ; màn Tổng kết mới | Nhóm Mới học dùng hệ thống màn (xem mục 9) |
@@ -68,7 +68,7 @@ Mỗi màn thêm vào `registry.js` với `level: 'friendly'`. Trạng thái kh�
 | Sự kiện | `item_shown` mỗi thẻ (không có đúng/sai) |
 | Xong | Hết thẻ |
 
-### F-03 Bò hứng chữ (slot `listen`)
+### F-03 Nghe nhận diện từ (slot `listen` — đổi từ "Bò hứng chữ" 28/11 theo hướng học thuật)
 
 | Mục | Quy định |
 |---|---|

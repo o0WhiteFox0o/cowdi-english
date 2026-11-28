@@ -1,0 +1,633 @@
+/* src/features/lesson/screens/friendly/friendly.css
+ * Giao diện Màn Thân thiện (Screen System Đợt 3 · STD-SCREEN-SYSTEM v1.0).
+ * Tông kem ấm #FFF8E7, thẻ trắng viền #F0E2C4, chữ #4A3420.
+ * Zero-Scroll ở 360x640 nhờ @container screen-stage + popup xác nhận; tôn trọng prefers-reduced-motion.
+ */
+
+.ff-shell {
+  --f-bg: #FFF8E7;
+  --f-card: #FFFFFF;
+  --f-border: #F0E2C4;
+  --f-ink: #4A3420;
+  --f-muted: #7C6550;
+  background: var(--f-bg);
+  border: 2px solid var(--f-border);
+  border-radius: 18px;
+  color: var(--f-ink);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(74, 52, 32, 0.06);
+  max-width: 760px;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+}
+
+.ff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.ff-chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ff-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.74rem;
+  flex-shrink: 0;
+}
+
+.ff-title {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--f-ink);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ff-code {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--f-muted);
+  background: rgba(240, 226, 196, 0.6);
+  border-radius: 7px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.ff-header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ff-counter {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--f-ink);
+  background: var(--f-card);
+  border: 1.5px solid var(--f-border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.ff-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ff-card {
+  background: var(--f-card);
+  border: 1.5px solid var(--f-border);
+  border-radius: 15px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.ff-tap-btn {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  border-radius: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.14s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ff-tap-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ff-guest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #8A5A00;
+  background: #FEF3C7;
+  border: 1px solid #F5D08A;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.ff-combo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #F59E0B, #EA580C);
+  border-radius: 999px;
+  padding: 2px 8px;
+  animation: ffPop 0.28s ease-out;
+}
+
+/* ── PetLine (chân màn gọn 54px để vừa khít 360x640 không cuộn) ── */
+.ff-petline {
+  min-block-size: 54px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid var(--f-border);
+  border-radius: 13px;
+  padding: 5px 10px;
+}
+
+.ff-petline-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ff-petline-avatar img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.ff-petline-bubble {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  line-height: 1.28;
+  font-weight: 600;
+  color: var(--f-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── 4 chấm kỹ năng của từ ── */
+.ff-skill-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ff-skill-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #D4C5AF;
+  background: #F4EDE1;
+  display: inline-block;
+}
+
+.ff-skill-dot.is-hit {
+  border-color: transparent;
+}
+
+/* ── F-01 Gặp từ trình chiếu ── */
+.ff-f01-card {
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.ff-f01-word {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 900;
+  color: var(--f-ink);
+  line-height: 1.12;
+  overflow-wrap: break-word;
+}
+
+.ff-f01-progress {
+  height: 5px;
+  background: #EFE4CF;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.ff-f01-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #E9A400, #5BBF4E);
+  transition: width 0.08s linear;
+}
+
+/* ── F-03 Nghe nhận diện từ ── */
+.ff-f03-arena {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.ff-f03-bubble {
+  min-block-size: 62px;
+  border-radius: 16px;
+  border: 2px solid #F0E2C4;
+  background: #FFFFFF;
+  color: var(--f-ink);
+  font-size: 1.12rem;
+  font-weight: 800;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  overflow-wrap: break-word;
+  box-shadow: 0 4px 0 #E5D4B3;
+  animation: ffFloat 2.8s ease-in-out infinite;
+}
+
+.ff-f03-bubble:nth-child(2) { animation-delay: 0.45s; }
+.ff-f03-bubble:nth-child(3) { animation-delay: 0.9s; }
+
+.ff-f03-bubble.is-caught {
+  background: #DCFCE7;
+  border-color: #22C55E;
+  box-shadow: 0 2px 0 #16A34A;
+  animation: none;
+}
+
+.ff-f03-bubble.is-popped {
+  background: #FEE2E2;
+  border-color: #EF4444;
+  opacity: 0.48;
+  animation: none;
+}
+
+.ff-f03-bubble.is-highlight {
+  background: #FEF9C3;
+  border-color: #EAB308;
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.3);
+  animation: none;
+}
+
+/* ── F-08 Lật cặp đồng cỏ (lưới 3x4) ── */
+.ff-f08-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ff-f08-tile {
+  min-block-size: 58px;
+  border-radius: 12px;
+  border: 2px solid var(--f-border);
+  background: linear-gradient(135deg, #D9F2C7, #B9E4A3);
+  color: var(--f-ink);
+  font-weight: 800;
+  font-size: 0.86rem;
+  padding: 4px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.18;
+  overflow-wrap: break-word;
+  transition: transform 0.16s ease, opacity 0.25s ease, background-color 0.2s ease;
+}
+
+.ff-f08-tile.is-flipped {
+  background: #FFFFFF;
+  border-color: #4EA8E8;
+}
+
+.ff-f08-tile.is-en.is-flipped {
+  font-size: 0.98rem;
+}
+
+.ff-f08-tile.is-matched {
+  background: #DCFCE7;
+  border-color: #22C55E;
+  color: #166534;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.ff-f08-tile.is-wrong {
+  background: #FEE2E2;
+  border-color: #EF4444;
+  animation: ffShake 0.35s ease;
+}
+
+.ff-f08-miss-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ff-f08-miss-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #E5DAC6;
+}
+
+.ff-f08-miss-dot.is-active {
+  background: #F59E0B;
+}
+
+/* ── F-09 Đò chở câu ── */
+.ff-f09-river {
+  background: linear-gradient(180deg, #CFEFF7 0%, #8FD4E6 100%);
+  border-radius: 14px;
+  padding: 7px 8px;
+  border: 1.5px solid #9AD6E5;
+  overflow: hidden;
+}
+
+.ff-f09-boat {
+  background: #B8793E;
+  border: 2px solid #8A5423;
+  border-radius: 10px 10px 22px 22px;
+  padding: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-block-size: 46px;
+  align-items: center;
+  transition: transform 0.7s ease-in;
+}
+
+.ff-f09-boat.is-sailing {
+  transform: translateX(115%);
+}
+
+.ff-f09-slot {
+  min-block-size: 36px;
+  min-inline-size: 42px;
+  padding: 3px 8px;
+  border-radius: 9px;
+  border: 1.5px dashed rgba(255, 248, 231, 0.8);
+  background: rgba(255, 248, 231, 0.22);
+  color: #FFF8E7;
+  font-weight: 800;
+  font-size: 0.96rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ff-f09-slot.is-filled {
+  border-style: solid;
+  border-color: #F0E2C4;
+  background: #FFFDF7;
+  color: var(--f-ink);
+}
+
+.ff-f09-dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.ff-f09-tile {
+  min-block-size: 40px;
+  min-inline-size: 44px;
+  padding: 5px 11px;
+  border-radius: 11px;
+  border: 2px solid var(--f-border);
+  background: #FFFFFF;
+  color: var(--f-ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  box-shadow: 0 3px 0 #E5D4B3;
+}
+
+.ff-f09-tile.is-shaking {
+  border-color: #EF4444;
+  background: #FEE2E2;
+  animation: ffShake 0.38s ease;
+}
+
+/* ── F-06 Boss sương mù ── */
+.ff-boss-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  border-radius: 14px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--f-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.ff-hp-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(74, 52, 32, 0.14);
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.ff-hp-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 999px;
+}
+
+.ff-fog-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.ff-fog-wrap.is-hit {
+  animation: ffShake 0.36s ease;
+}
+
+.ff-fog-wrap.is-dissolve {
+  transform: scale(0.18);
+  opacity: 0;
+}
+
+.ff-fog-wrap.is-flee {
+  transform: translateX(130%);
+  opacity: 0.15;
+}
+
+.ff-skill-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.38), transparent 70%);
+  pointer-events: none;
+  animation: ffPop 0.45s ease-out;
+}
+
+/* ── StageIntro & StageSummary ── */
+.ff-stage-hero {
+  border-radius: 16px;
+  padding: 12px;
+  border: 1.5px solid #F0E2C4;
+  color: #4A3420;
+  position: relative;
+  overflow: hidden;
+}
+
+.ff-star-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.ff-star-item {
+  display: inline-block;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.ff-star-item.is-earned {
+  color: #F59E0B;
+  text-shadow: 0 3px 10px rgba(245, 158, 11, 0.45);
+  animation: ffPop 0.38s ease-out;
+}
+
+.ff-star-item.is-empty {
+  color: #CBD5E1;
+}
+
+@keyframes ffFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes ffShake {
+  0%, 100% { transform: translateX(0); }
+  22% { transform: translateX(-6px); }
+  45% { transform: translateX(6px); }
+  70% { transform: translateX(-4px); }
+  90% { transform: translateX(4px); }
+}
+
+@keyframes ffPop {
+  0% { transform: scale(0.7); opacity: 0.4; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Container Query thích ứng cho khung 360x640 (Admin Preview + Điện thoại thật) ── */
+@container screen-stage (max-width: 520px) {
+  .ff-shell {
+    padding: 7px 8px;
+    gap: 6px;
+    border-radius: 14px;
+  }
+
+  .ff-code {
+    display: none;
+  }
+
+  .ff-card {
+    padding: 8px 10px;
+    border-radius: 13px;
+  }
+
+  /* F-03: 1 cột full-width trên màn hẹp → không bao giờ cắt chữ dài như "Consonant" */
+  .ff-f03-arena {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .ff-f03-bubble {
+    min-block-size: 46px;
+    font-size: 1.05rem;
+    padding: 6px 12px;
+    animation: none;
+  }
+
+  .ff-f08-tile {
+    min-block-size: 52px;
+    font-size: 0.82rem;
+  }
+
+  .ff-f08-tile.is-en.is-flipped {
+    font-size: 0.92rem;
+  }
+
+  .ff-f09-slot {
+    min-block-size: 32px;
+    min-inline-size: 38px;
+    font-size: 0.88rem;
+  }
+
+  .ff-f09-tile {
+    min-block-size: 36px;
+    padding: 4px 9px;
+    font-size: 0.9rem;
+  }
+
+  .ff-petline {
+    min-block-size: 48px;
+    padding: 4px 8px;
+  }
+
+  .ff-petline-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .ff-petline-avatar img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ff-petline-bubble {
+    font-size: 0.78rem;
+  }
+
+  .ff-stage-hero {
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-f03-bubble,
+  .ff-f08-tile.is-wrong,
+  .ff-f09-tile.is-shaking,
+  .ff-fog-wrap.is-hit,
+  .ff-combo-chip,
+  .ff-star-item.is-earned,
+  .ff-skill-flash {
+    animation: none !important;
+  }
+  .ff-f09-boat,
+  .ff-fog-wrap,
+  .ff-f03-bubble {
+    transition: opacity 0.15s ease !important;
+  }
+  .ff-f09-boat.is-sailing,
+  .ff-fog-wrap.is-flee,
+  .ff-fog-wrap.is-dissolve {
+    transform: none !important;
+  }
+}

@@ -19,6 +19,10 @@ export const EMOTIONS_LESSON = {
     'Phân biệt rõ tính từ đuôi -ed (cảm xúc của người) và -ing (tính chất của sự vật)',
     'Dùng đúng giới từ đi kèm tính từ cảm xúc (proud of, excited about, grateful for, scared of)',
   ],
+  story: {
+    npc: 'bamboo',
+    introVi: 'Bên rừng trúc Vườn Sữa, mỗi bạn nhỏ hôm nay có một tâm trạng khác nhau. Con gọi tên cảm xúc cùng Bamboo nhé!',
+  },
 
   vocabulary: [
     v('Happy', '/ˈhæpi/', 'adjective', 'Vui vẻ', 'I feel happy when I see my friends.', 'Mình thấy vui khi gặp bạn bè.', '😊'),

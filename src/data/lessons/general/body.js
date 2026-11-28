@@ -19,6 +19,10 @@ export const BODY_LESSON = {
     'Chuyển đúng danh từ số ít sang số nhiều, gồm cả dạng bất quy tắc (foot → feet, tooth → teeth)',
     'Hiểu và nói các câu hướng dẫn vận động, giữ vệ sinh và báo đau nhức đơn giản',
   ],
+  story: {
+    npc: 'lan',
+    introVi: 'Gió lộng ở Tháp Gió mát quá, mình khởi động cơ thể nào! Con gọi đúng tên từng bộ phận cùng Lan nhé!',
+  },
 
   vocabulary: [
     v('Head', '/hed/', 'noun', 'Cái đầu', 'Put a hat on your head.', 'Đội mũ lên đầu của bạn đi.', '🗣️'),

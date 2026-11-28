@@ -19,6 +19,10 @@ export const GREETINGS_LESSON = {
     'Giới thiệu tên và hỏi tên người khác',
     'Hỏi thăm sức khoẻ và đáp lại lời cảm ơn, lời xin lỗi',
   ],
+  story: {
+    npc: 'ong_tu',
+    introVi: 'Sương dày quá, đò chưa sang sông được. Con giúp ông chào khách trên bến gỗ nha!',
+  },
 
   vocabulary: [
     v('Hello', '/həˈloʊ/', 'interjection', 'Xin chào', 'Hello! My name is Lan.', 'Xin chào! Mình tên là Lan.', '🙋'),

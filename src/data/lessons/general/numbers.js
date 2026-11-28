@@ -19,6 +19,10 @@ export const NUMBERS_LESSON = {
     'Hỏi và trả lời về số lượng đồ vật bằng "How many…?" và "There is / There are"',
     'Hỏi và trả lời tuổi tự nhiên bằng "How old are you? – I am … years old"',
   ],
+  story: {
+    npc: 'ong_tu',
+    introVi: 'Khách lên đò đông quá, ông đếm chưa kịp. Con phụ ông đếm số thật chuẩn trước khi qua sông nha!',
+  },
 
   vocabulary: [
     v('Zero', '/ˈzɪroʊ/', 'number', 'Số 0 (không)', 'The game score is zero.', 'Tỉ số trận đấu là không.', '0️⃣'),

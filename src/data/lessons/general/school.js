@@ -19,6 +19,10 @@ export const SCHOOL_LESSON = {
     'Dùng đúng giới từ nơi chốn at, in, on khi nói vị trí đồ vật và người',
     'Nói về lịch học và môn học yêu thích của bản thân',
   ],
+  story: {
+    npc: 'tom',
+    introVi: 'Gió Tháp Gió thổi bay mất ghi chú lớp học rồi. Con giúp thầy Tom sắp lại từ vựng trường học nhé!',
+  },
 
   vocabulary: [
     v('School', '/skuːl/', 'noun', 'Trường học', 'I go to school every morning.', 'Mình đi học mỗi sáng.', '🏫'),

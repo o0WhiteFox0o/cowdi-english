@@ -10,6 +10,7 @@ import CatalogTab from './CatalogTab';
 import MatrixTab from './MatrixTab';
 import MixTesterTab from './MixTesterTab';
 import PreviewTab from './PreviewTab';
+import IntrosTab from './IntrosTab';
 import { TestersTab, LogTab } from './TestersAndLogTabs';
 import './admin-screens.css';
 
@@ -18,6 +19,7 @@ const TABS = [
   { id: 'matrix',  label: 'Ma trận dữ liệu' },
   { id: 'mix',     label: 'Trộn thử' },
   { id: 'preview', label: 'Xem trước' },
+  { id: 'intros',  label: 'Kho dẫn nhập' },
   { id: 'testers', label: 'Tài khoản thử' },
   { id: 'log',     label: 'Nhật ký' },
 ];
@@ -130,7 +132,7 @@ export default function AdminScreensPage() {
             ← Admin Portal
           </Link>
           <h4 className="fw-bold mb-0">🎛️ Kiểm tra Màn học</h4>
-          <span className="badge bg-primary-subtle text-primary">Đợt 2</span>
+          <span className="badge bg-primary-subtle text-primary">Đợt 3</span>
         </div>
         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={loadSnapshot} disabled={loading}>
           ↻ Tải lại cấu hình
@@ -246,6 +248,10 @@ export default function AdminScreensPage() {
           previewCode={previewCode}
           onChangePreviewCode={setPreviewCode}
         />
+      )}
+
+      {activeTab === 'intros' && (
+        <IntrosTab authFetch={authFetch} onNotify={showToast} />
       )}
 
       {activeTab === 'testers' && (

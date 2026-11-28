@@ -118,6 +118,35 @@ const SOUNDS = {
     tone(ctx, 1000, 'sine', 0.04, t, 0.03);
   },
 
+  /* ── Screen System Phase 3 SFX (combo, sao tăng dần, boss) ── */
+  combo() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    [587.33, 783.99, 1046.5].forEach((f, i) => tone(ctx, f, 'triangle', 0.16, t + i * 0.07, 0.22));
+  },
+  star1() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    tone(ctx, 659.25, 'sine', 0.16, t, 0.26); // E5
+  },
+  star2() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    tone(ctx, 783.99, 'sine', 0.17, t, 0.28); // G5
+  },
+  star3() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    tone(ctx, 1046.5, 'sine', 0.18, t, 0.35); // C6
+    tone(ctx, 1318.5, 'sine', 0.1, t + 0.08, 0.32); // E6 shimmer
+  },
+  bossHit() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    tone(ctx, 320, 'sawtooth', 0.1, t, 0.09);
+    tone(ctx, 640, 'triangle', 0.14, t + 0.05, 0.14);
+  },
+  bossFog() {
+    const ctx = getAudioCtx(); const t = ctx.currentTime;
+    noise(ctx, 0.22, 0.09, t);
+    tone(ctx, 170, 'sine', 0.1, t, 0.2);
+  },
+
   tickUrgent() {
     const ctx = getAudioCtx(); const t = ctx.currentTime;
     tone(ctx, 1200, 'square', 0.08, t, 0.05);

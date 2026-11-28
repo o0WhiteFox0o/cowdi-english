@@ -3,6 +3,7 @@
 import { BEGINNER_UNITS, INTERMEDIATE_UNITS, EXAM_INTRO_UNIT, EXAM_PRON_UNIT } from './config/units.js';
 import { getGroup, getGroupOfPath } from './config/groups.js';
 import { EXAM_PATHS } from './lessons/paths.js';
+import { lessonMilk } from '../../shared/lesson-stars.js';
 
 const BEGINNER_PATH = {
   id: 'beginner',
@@ -277,15 +278,19 @@ export function getPathProgress(path, userData) {
 }
 
 /**
- * Ước tính Sữa tối đa nhận được từ quiz của một bài học (sửa H8 — mục 4.6).
- * Khớp công thức goToNextQuestion: base = qCount * 10 + 30 (perfect), lần đầu +60, làm lại 1/3.
+ * Ước tính Sữa tối đa nhận được từ bài học (Screen System Đợt 3 §7b — Q13).
+ * Lần đầu 3 sao (10 câu): 10*10 + 30 + 60 = 190. Làm lại (đã nhận đủ 3 sao): max(5, round(100/3)).
  */
-export function estimateLessonMilk(lesson, { isRepeat = false } = {}) {
+export function estimateLessonMilk(lesson, { isRepeat = false, prevStarsPaid = 0 } = {}) {
   const qCount = lesson?.format === 'picture'
     ? 6
     : Math.max(1, (lesson?.quiz || []).length || 10);
-  const base = qCount * 10 + 30;
-  return isRepeat ? Math.max(5, Math.round(base / 3)) : base + 60;
+  return lessonMilk({
+    bossCorrect: qCount,
+    stars: 3,
+    isFirstPass: !isRepeat,
+    prevStarsPaid: isRepeat ? Math.max(prevStarsPaid, 3) : 0,
+  });
 }
 
 /**

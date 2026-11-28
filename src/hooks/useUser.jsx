@@ -5,6 +5,7 @@ import { getAllTopicWords } from '../data/vocab-topics';
 import {
   applyEncounter,
   applyQuestionResult,
+  applySkillHit,
   getWordId,
   mergeProgressMap,
   migrateLegacyKnown,
@@ -70,6 +71,9 @@ const DEFAULT_DATA = {
   wordProgress: {},
   lessonMixLog: [],
   lastMix: {},
+  recentIntros: [],
+  lessonStars: {},
+  lessonStarPaid: {},
   activeDays: [],
   dailyTasks: { lessonDone: false, vocabDone: false },
   dailyDate: null,
@@ -425,6 +429,30 @@ function mergeProgress(local, remote) {
     }
   }
   merged.lessonScores = mergedLessonScores;
+
+  // Merge lessonStars & lessonStarPaid – lấy max (0..3) theo từng lessonId (Screen System Đợt 3 §7b)
+  const mergeStarMap = (aMap = {}, bMap = {}) => {
+    const out = {};
+    const keys = new Set([...Object.keys(aMap || {}), ...Object.keys(bMap || {})]);
+    for (const k of keys) {
+      const v = Math.max(Number(aMap?.[k] || 0), Number(bMap?.[k] || 0));
+      if (Number.isFinite(v) && v >= 0) out[k] = Math.max(0, Math.min(3, Math.round(v)));
+    }
+    return out;
+  };
+  merged.lessonStars = mergeStarMap(local.lessonStars, remote.lessonStars);
+  merged.lessonStarPaid = mergeStarMap(local.lessonStarPaid, remote.lessonStarPaid);
+
+  // Merge recentIntros – giữ 10 ải gần nhất, dedup theo lessonAttemptAt
+  const introMap = new Map();
+  for (const item of [...(local.recentIntros || []), ...(remote.recentIntros || [])]) {
+    if (item && item.lessonAttemptAt && Array.isArray(item.ids)) {
+      introMap.set(item.lessonAttemptAt, item);
+    }
+  }
+  merged.recentIntros = [...introMap.values()]
+    .sort((a, b) => (Date.parse(a.lessonAttemptAt) || 0) - (Date.parse(b.lessonAttemptAt) || 0))
+    .slice(-10);
 
   // Giữ learnerGroup / activePath / placement (ưu tiên bên mới hơn có giá trị)
   merged.learnerGroup = base.learnerGroup ?? local.learnerGroup ?? remote.learnerGroup ?? null;
@@ -1117,6 +1145,57 @@ export function UserProvider({ children }) {
     });
   }, []);
 
+  // Screen System P3 (§7b): Ghi số sao cao nhất & mức sao đã trả thưởng cho một bài (chỉ tăng)
+  const recordLessonStars = useCallback((lessonId, stars, paidStars = stars) => {
+    if (!lessonId) return;
+    const s = Math.max(0, Math.min(3, Math.round(Number(stars) || 0)));
+    const p = Math.max(0, Math.min(3, Math.round(Number(paidStars) || 0)));
+    setUserData((prev) => {
+      const prevS = Number(prev.lessonStars?.[lessonId] || 0);
+      const prevP = Number(prev.lessonStarPaid?.[lessonId] || 0);
+      const nextS = Math.max(prevS, s);
+      const nextP = Math.max(prevP, p);
+      if (nextS === prevS && nextP === prevP) return prev;
+      const next = {
+        ...prev,
+        lessonStars: { ...(prev.lessonStars || {}), [lessonId]: nextS },
+        lessonStarPaid: { ...(prev.lessonStarPaid || {}), [lessonId]: nextP },
+      };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
+  // Screen System P3 (§4.2): Ghi danh sách ID câu dẫn vừa dùng trong ải này (giữ 10 ải gần nhất)
+  const recordRecentIntros = useCallback((ids, lessonAttemptAt = new Date().toISOString()) => {
+    const cleanIds = Array.isArray(ids) ? ids.filter(Boolean) : [];
+    if (cleanIds.length === 0) return;
+    setUserData((prev) => {
+      const cur = Array.isArray(prev.recentIntros) ? prev.recentIntros : [];
+      const nextList = [...cur, { lessonAttemptAt, ids: cleanIds }].slice(-10);
+      const next = { ...prev, recentIntros: nextList };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
+  // Screen System P3 (§6): Ghi chấm kỹ năng (listen|read|write|speak) cho danh sách từ
+  const recordWordSkillHit = useCallback((wordIds, skill, rules) => {
+    const ids = Array.isArray(wordIds) ? wordIds.map((w) => getWordId(w)).filter(Boolean) : [];
+    if (ids.length === 0 || !skill) return;
+    const nowIso = new Date().toISOString();
+    setUserData((prev) => {
+      const curMap = prev.wordProgress || {};
+      const nextMap = { ...curMap };
+      for (const wid of ids) {
+        nextMap[wid] = applySkillHit(curMap[wid], skill, rules, nowIso);
+      }
+      const next = { ...prev, wordProgress: nextMap };
+      userDataRef.current = next;
+      return next;
+    });
+  }, []);
+
   const value = {
     userData,
     setUserData: updateUserData,
@@ -1128,6 +1207,9 @@ export function UserProvider({ children }) {
     addSkillXP,
     markLessonCompleted,
     recordLessonScore,
+    recordLessonStars,
+    recordRecentIntros,
+    recordWordSkillHit,
     setLearningGroup,
     savePlacementResult,
     incrementQuizzes,

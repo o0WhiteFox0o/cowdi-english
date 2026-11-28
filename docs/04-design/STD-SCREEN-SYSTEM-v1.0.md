@@ -50,7 +50,7 @@
 |---|---|---|---|---|---|
 | F-01 | Gặp từ trình chiếu | Màn 1 | xem, nghe (tự chạy) | ≥4 từ | 3 |
 | F-02 | Ghép chữ lên đò | Viết | chạm chữ cái theo thứ tự | ≥4 từ đơn 3–10 chữ cái | 4 |
-| F-03 | Bò hứng chữ | Nghe | nghe từ, chạm bong bóng | ≥6 từ | 3 |
+| F-03 | Nghe nhận diện từ *(đổi từ Bò hứng chữ, 28/11)* | Nghe | nghe từ, chọn đúng từ tiếng Anh | ≥6 từ | 3 |
 | F-04 | Gọi pet vượt suối | Nói | nói câu mẫu | ≥3 câu nói | 4 |
 | F-05 | Săn chữ trong sương | Đọc | nghe cụm, chạm đúng chỗ trong đoạn | có `reading.passage` + `highlights` ≥4 | 4 |
 | F-06 | Boss sương mù | Màn 6 (Boss) | trả lời câu trộn 4 kỹ năng | luôn chạy được | 3 |

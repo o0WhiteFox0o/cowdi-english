@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 260" width="300" height="260">
+  <!-- Boss Sương — sprite dùng chung. Màu thân lấy từ CSS variables để tô theo vùng (BOSS_TINT):
+       --fog-body, --fog-shade, --fog-eye. Khi dùng làm <img> thì CSS variables không áp được:
+       hãy import SVG inline (component) hoặc dùng màu mặc định bên dưới. -->
+  <style>
+    .b { fill: var(--fog-body, #DCE3E9); }
+    .s { fill: var(--fog-shade, #C9D4DD); }
+    .e { fill: var(--fog-eye, #2B3640); }
+    .l { fill: none; stroke: var(--fog-eye, #2B3640); stroke-width: 7; stroke-linecap: round; }
+  </style>
+  <g id="body">
+    <circle class="s" cx="92"  cy="160" r="70"/>
+    <circle class="s" cx="214" cy="170" r="62"/>
+    <circle class="b" cx="150" cy="112" r="88"/>
+    <circle class="b" cx="78"  cy="140" r="62"/>
+    <circle class="b" cx="226" cy="140" r="58"/>
+    <circle class="s" cx="120" cy="206" r="48"/>
+    <circle class="s" cx="186" cy="210" r="44"/>
+    <circle class="b" cx="150" cy="190" r="50"/>
+  </g>
+  <g id="face">
+    <path class="l" d="M104 96 L136 110"/>
+    <path class="l" d="M196 96 L164 110"/>
+    <circle class="e" cx="124" cy="128" r="11"/>
+    <circle class="e" cx="176" cy="128" r="11"/>
+    <circle fill="#FFFFFF" cx="128" cy="124" r="3.5"/>
+    <circle fill="#FFFFFF" cx="180" cy="124" r="3.5"/>
+    <path class="l" d="M128 172 Q150 156 172 172"/>
+  </g>
+</svg>

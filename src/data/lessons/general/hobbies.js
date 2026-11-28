@@ -19,6 +19,10 @@ export const HOBBIES_LESSON = {
     'Dùng đúng cấu trúc like / enjoy / love + V-ing và be good at + V-ing',
     'Hỏi và trả lời về tần suất thực hiện sở thích hằng tuần',
   ],
+  story: {
+    npc: 'cowdi',
+    introVi: 'Đàn gà ở Vườn Sữa đang tò mò cuối tuần con thích làm gì đấy! Chia sẻ sở thích bằng tiếng Anh với Cowdi nha!',
+  },
 
   vocabulary: [
     v('Reading', '/ˈriːdɪŋ/', 'noun', 'Đọc sách', 'Reading before bed helps me relax.', 'Đọc sách trước khi ngủ giúp mình thư giãn.', '📖'),

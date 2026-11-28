@@ -4,7 +4,41 @@
 
 export const POINTS = { encounter: 1, correct: 2 };
 export const POINTS_CAP_EXTRA = 5;          // points tối đa = knownAtPoints + 5
+export const TRACKED_SKILLS = ['listen', 'read', 'write', 'speak'];
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** 4 chấm kỹ năng của một từ (Screen System Đợt 3, mục 6). */
+export function emptySkillsHit() {
+  return { listen: null, read: null, write: null, speak: null };
+}
+
+function normalizeSkillsHit(raw) {
+  const base = emptySkillsHit();
+  if (!raw || typeof raw !== 'object') return base;
+  for (const k of TRACKED_SKILLS) {
+    base[k] = typeof raw[k] === 'string' && raw[k] ? raw[k] : null;
+  }
+  return base;
+}
+
+export function countSkillsHit(p) {
+  const sh = p?.skillsHit;
+  if (!sh || typeof sh !== 'object') return 0;
+  let n = 0;
+  for (const k of TRACKED_SKILLS) {
+    if (sh[k]) n += 1;
+  }
+  return n;
+}
+
+export function missingSkills(p) {
+  const sh = p?.skillsHit || {};
+  return TRACKED_SKILLS.filter((k) => !sh[k]);
+}
+
+export function isMasteredAllSkills(p) {
+  return countSkillsHit(p) === TRACKED_SKILLS.length;
+}
 
 /** Nhãn UI và màu chấm chuẩn (F3.2 — khai báo một chỗ theo R4). */
 export const WORD_STATUS_UI = {
@@ -37,6 +71,7 @@ export function emptyProgress() {
     encounterTotal: 0,
     correctTotal: 0,
     wrongTotal: 0,
+    skillsHit: emptySkillsHit(),
   };
 }
 
@@ -84,8 +119,16 @@ export function applyEncounter(p, runSet, wordId, rules, nowIso = new Date().toI
  */
 export function applyAnswer(p, runSet, wordId, correct, rules, nowIso = new Date().toISOString()) {
   const cur = p || emptyProgress();
+  const skillsHit = normalizeSkillsHit(cur.skillsHit);
   if (!correct) {
-    return { ...cur, points: 0, wrongPending: true, wrongTotal: cur.wrongTotal + 1, lastWrongAt: nowIso };
+    return {
+      ...cur,
+      points: 0,
+      wrongPending: true,
+      wrongTotal: cur.wrongTotal + 1,
+      lastWrongAt: nowIso,
+      skillsHit,
+    };
   }
   const add = runSet.has(wordId) ? 0 : POINTS.correct;
   runSet.add(wordId);
@@ -95,6 +138,27 @@ export function applyAnswer(p, runSet, wordId, correct, rules, nowIso = new Date
     wrongPending: false,
     correctTotal: cur.correctTotal + 1,
     lastCorrectAt: nowIso,
+    skillsHit,
+  };
+}
+
+/**
+ * Ghi nhận 1 chấm kỹ năng (listen | read | write | speak) khi trả lời đúng (Đợt 3, mục 6).
+ * Đủ 4 chấm → points = max(points, knownAtPoints), wrongPending = false → 'known'.
+ */
+export function applySkillHit(p, skill, rules, nowIso = new Date().toISOString()) {
+  const cur = p || emptyProgress();
+  if (!TRACKED_SKILLS.includes(skill)) return cur;
+  const skillsHit = { ...normalizeSkillsHit(cur.skillsHit), [skill]: nowIso };
+  const allFour = TRACKED_SKILLS.every((k) => Boolean(skillsHit[k]));
+  const knownAt = rules?.knownAtPoints ?? 4;
+  return {
+    ...cur,
+    skillsHit,
+    lastSeenAt: nowIso,
+    lastCorrectAt: nowIso,
+    points: allFour ? Math.max(cur.points || 0, knownAt) : (cur.points || 0),
+    wrongPending: allFour ? false : Boolean(cur.wrongPending),
   };
 }
 
@@ -117,6 +181,12 @@ export function mergeProgress(a, b) {
   const lastWrongAt = latestIso(a.lastWrongAt, b.lastWrongAt);
   const lastCorrectAt = latestIso(a.lastCorrectAt, b.lastCorrectAt);
   const wrongIsNewest = toMs(lastWrongAt) > toMs(lastCorrectAt);
+  const shA = normalizeSkillsHit(a.skillsHit);
+  const shB = normalizeSkillsHit(b.skillsHit);
+  const mergedSkillsHit = {};
+  for (const k of TRACKED_SKILLS) {
+    mergedSkillsHit[k] = latestIso(shA[k], shB[k]);
+  }
   return {
     points: wrongIsNewest
       ? pointsAfter(a, b, lastWrongAt)
@@ -128,6 +198,7 @@ export function mergeProgress(a, b) {
     encounterTotal: Math.max(a.encounterTotal, b.encounterTotal),
     correctTotal: Math.max(a.correctTotal, b.correctTotal),
     wrongTotal: Math.max(a.wrongTotal, b.wrongTotal),
+    skillsHit: mergedSkillsHit,
   };
 }
 

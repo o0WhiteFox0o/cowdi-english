@@ -19,6 +19,10 @@ export const WEATHER_LESSON = {
     'Gọi tên bốn mùa và nói hoạt động phù hợp với từng mùa',
     'Chọn đúng tính từ và động từ khi nói về nắng, mưa, gió, tuyết',
   ],
+  story: {
+    npc: 'owlbert',
+    introVi: 'Trên đỉnh Tháp Gió trời đổi gió liên tục. Con cùng Owlbert quan sát rồi nói đúng thời tiết hôm nay nha!',
+  },
 
   vocabulary: [
     v('Sunny', '/ˈsʌni/', 'adjective', 'Có nắng', 'It is bright and sunny today.', 'Hôm nay trời sáng và có nắng.', '☀️'),

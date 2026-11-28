@@ -19,6 +19,10 @@ export const FAMILY_LESSON = {
     'Giới thiệu người thân với mẫu câu "This is my…", "He/She is…"',
     'Dùng đúng "have / has" để nói về anh chị em và thành viên gia đình',
   ],
+  story: {
+    npc: 'minh',
+    introVi: 'Mình mang tấm ảnh gia đình qua Bến Đò Ông Tư. Cùng mình giới thiệu người thân bằng tiếng Anh nhé!',
+  },
 
   vocabulary: [
     v('Family', '/ˈfæməli/', 'noun', 'Gia đình', 'I love my warm family.', 'Mình rất yêu gia đình ấm áp của mình.', '👨‍👩‍👧‍👦'),
