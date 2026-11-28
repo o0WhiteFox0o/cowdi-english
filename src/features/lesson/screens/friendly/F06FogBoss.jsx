@@ -8,7 +8,7 @@ import { getWordId } from '../../../vocab/wordProgress';
 import { REGIONS, REGION_COLOR } from '../../../../../shared/regions';
 import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { bossFogLevel } from '../../../../../shared/story-season2';
-import { getUnitBossInfo } from '../../story/petImage';
+import { resolveLessonStory } from '../../story/resolveStory';
 import { bossItems } from '../items';
 import { createRng } from '../seededRandom';
 import { applyBossDamage, evaluateBossOutcome } from './friendlyLogic';
@@ -68,14 +68,32 @@ export default function F06FogBoss({
   const { dispatch } = usePetDirector();
   const activePet = getActivePetWithDecay();
   const companionId = activePet?.speciesId || 'cowdi';
-  const storyBoss = useMemo(
-    () => (lesson?.unit ? getUnitBossInfo(lesson.unit, companionId) : null),
-    [lesson?.unit, companionId],
+  const companionC = (activePet?.evolution ?? activePet?.stage ?? 0) + 1;
+  const companionName = activePet?.customName || '';
+  const resolvedStory = useMemo(
+    () =>
+      resolveLessonStory({
+        lesson,
+        unitId: extra.unitId || null,
+        region,
+        companionId,
+        companionC,
+        companionName,
+      }),
+    [lesson, extra.unitId, region, companionId, companionC, companionName],
   );
+  const storyBoss = resolvedStory.boss;
   const fogOpacity = useMemo(() => {
-    if (!storyBoss || !lesson?.unit) return 0.7;
-    return bossFogLevel(lesson.unit, extra.completedLessons || [], Boolean(extra.checkpointPassed));
-  }, [storyBoss, lesson?.unit, extra.completedLessons, extra.checkpointPassed]);
+    if (!storyBoss) return 0.7;
+    if (resolvedStory.isSeason2 && resolvedStory.unitId) {
+      return bossFogLevel(
+        resolvedStory.unitId,
+        extra.completedLessons || [],
+        Boolean(extra.checkpointPassed),
+      );
+    }
+    return 0.7;
+  }, [storyBoss, resolvedStory.isSeason2, resolvedStory.unitId, extra.completedLessons, extra.checkpointPassed]);
   const hitIdxRef = useRef(0);
   const wrongIdxRef = useRef(0);
   const defaultRate = rules?.ttsRate || 0.85;

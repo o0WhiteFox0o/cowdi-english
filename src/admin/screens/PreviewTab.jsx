@@ -44,10 +44,15 @@ export default function PreviewTab({
     () => (selectedLesson && screenDef ? itemsFor(screenDef.slot, selectedLesson) : []),
     [selectedLesson, screenDef],
   );
-  const previewRegion = useMemo(() => {
-    const info = selectedLesson?.id ? findPathForLesson(selectedLesson.id) : null;
-    return (info?.unit?.id && getUnitRegion(info.unit.id)) || 'BD';
-  }, [selectedLesson?.id]);
+  const previewPathInfo = useMemo(
+    () => (selectedLesson?.id ? findPathForLesson(selectedLesson.id) : null),
+    [selectedLesson?.id],
+  );
+  const previewUnitId = previewPathInfo?.unit?.id || null;
+  const previewRegion = useMemo(
+    () => (previewUnitId && getUnitRegion(previewUnitId)) || 'BD',
+    [previewUnitId],
+  );
 
   const pushEvent = useCallback((type, payload) => {
     setEvents((prev) => [
@@ -152,7 +157,7 @@ export default function PreviewTab({
                   sandbox
                   onEvent={pushEvent}
                   onDone={(res) => pushEvent('screen_done', res)}
-                  extra={{ wordProgress: {}, region: previewRegion }}
+                  extra={{ wordProgress: {}, region: previewRegion, unitId: previewUnitId }}
                 />
               ) : (
                 <p className="text-muted text-center py-5">Màn chưa có component.</p>

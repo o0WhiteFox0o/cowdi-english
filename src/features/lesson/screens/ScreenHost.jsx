@@ -135,10 +135,10 @@ export default function ScreenHost({
 
   // Xác định vùng đất & lộ trình chứa bài hiện tại
   const lessonPathInfo = useMemo(() => (lesson?.id ? findPathForLesson(lesson.id) : null), [lesson?.id]);
+  const unitId = lessonPathInfo?.unit?.id || null;
   const region = useMemo(() => {
-    const uid = lessonPathInfo?.unit?.id;
-    return (uid && getUnitRegion(uid)) || 'BD';
-  }, [lessonPathInfo]);
+    return (unitId && getUnitRegion(unitId)) || 'BD';
+  }, [unitId]);
 
   const pathLessons = useMemo(() => {
     if (!lessonPathInfo?.path) return ALL_LESSONS;
@@ -548,6 +548,7 @@ export default function ScreenHost({
   const afterVi = lessonStory?.afterVi || '';
   const companionId = activePet?.speciesId || 'cowdi';
   const companionC = (activePet?.evolution ?? activePet?.stage ?? 0) + 1;
+  const companionName = activePet?.customName || '';
 
   const isCenteredLayout =
     phase !== 'play' ||
@@ -614,12 +615,14 @@ export default function ScreenHost({
           {phase === 'stage_intro' && (
             <StageIntro
               lesson={lesson}
+              unitId={unitId}
               region={region}
               screens={screens}
               passRate={rules?.lessonPassRate ?? 0.7}
               openIntroText={openIntro?.text || ''}
               companionId={companionId}
               companionC={companionC}
+              companionName={companionName}
               sandbox={sandbox}
               onStart={handleStartFromStageIntro}
             />
@@ -658,7 +661,9 @@ export default function ScreenHost({
               extra={{
                 wordProgress: userData?.wordProgress || {},
                 completedLessons: userData?.completedLessons || [],
-                checkpointPassed: Boolean(userData?.checkpointScores?.[lesson?.unit]?.passed),
+                checkpointPassed: Boolean(unitId && userData?.checkpointScores?.[unitId]?.passed),
+                unitId,
+                companionName,
                 guestWords,
                 region,
                 addXP,

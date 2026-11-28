@@ -4,11 +4,11 @@ import Emoji from '../../../components/Emoji';
 import { SLOT_META } from '../../../data/config/screens';
 import { PET_REGISTRY } from '../../../data/pets';
 import { REGIONS, REGION_COLOR, getRegionVariant } from '../../../../shared/regions';
-import { HUMAN_CAST, isValidNpc } from '../../../../shared/human-cast';
+import { HUMAN_CAST } from '../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../shared/screen-scenarios';
-import { SEASON2_LESSONS, SEASON2_UNITS } from '../../../../shared/story-season2';
 import { speakWord } from '../../../utils/speech';
 import { getStoryPetImage, getHumanNpcImage, isStorySeen, markStorySeen } from '../story/petImage';
+import { resolveLessonStory } from '../story/resolveStory';
 import { getScreen } from './registry';
 import './friendly/friendly.css';
 
@@ -90,12 +90,14 @@ function SpeakerAvatar({ speaker, size = 38 }) {
  */
 export default function StageIntro({
   lesson,
+  unitId = null,
   region = 'BD',
   screens = [],
   passRate = 0.7,
   openIntroText = '',
   companionId = 'cowdi',
   companionC = 1,
+  companionName = '',
   sandbox = false,
   onStart,
 }) {
@@ -105,14 +107,17 @@ export default function StageIntro({
   const variant = getRegionVariant(region);
   const bgUrl = `/image/regions/${region}-${variant.id}.webp`;
 
-  const lessonStory = lesson?.id ? SEASON2_LESSONS[lesson.id] : null;
-  const unitStory = lessonStory?.unit ? SEASON2_UNITS[lessonStory.unit] : null;
-  const landmarkName =
-    lessonStory && unitStory?.landmarks && typeof lessonStory.landmark === 'number'
-      ? unitStory.landmarks[lessonStory.landmark]
-      : null;
+  const resolved = resolveLessonStory({
+    lesson,
+    unitId,
+    region,
+    companionId,
+    companionC,
+    companionName,
+  });
+  const { lessonStory, unitStory, landmarkName } = resolved;
 
-  // Bài đầu tiên của unit → hiện thẻ Tới vùng (arrival / homecoming) trước Mở ải
+  // Bài đầu tiên của unit Mùa 2 → hiện thẻ Tới vùng (arrival / homecoming) trước Mở ải
   const arrivalKey = unitStory ? `arrival:${lessonStory.unit}` : null;
   const shouldShowArrivalInit = Boolean(
     unitStory &&
@@ -122,10 +127,9 @@ export default function StageIntro({
   );
   const [showArrival, setShowArrival] = useState(shouldShowArrivalInit);
 
-  const rawNpcId = lessonStory?.npc || (lesson?.story?.npc && isValidNpc(lesson.story.npc, region, REGIONS) ? lesson.story.npc : null);
-  const npc = resolveSpeakerInfo(rawNpcId, region, { companionId, companionC });
-  const storyLine = lessonStory?.introVi || lesson?.story?.introVi || openIntroText || `Chào con đến với ${regionInfo.nameVi}! Cùng Cowdi vượt qua các màn thử thách hôm nay nhé!`;
-  const storyLineEn = lessonStory?.introEn || '';
+  const npc = resolveSpeakerInfo(resolved.narratorId, region, { companionId, companionC });
+  const storyLine = resolved.openVi || openIntroText;
+  const storyLineEn = resolved.openEn || '';
   const objectives = Array.isArray(lesson?.objectives) ? lesson.objectives.slice(0, 3) : [];
   const passPct = Math.round((passRate || 0.7) * 100);
 
@@ -320,7 +324,7 @@ export default function StageIntro({
           })}
         </div>
         <div className="mt-2 pt-1 border-top text-muted text-center" style={{ fontSize: '0.74rem' }}>
-          ☁️ Boss Sương <strong>{regionInfo.nameVi}</strong> · Cần đúng <strong>{passPct}%</strong> để giải sương.
+          ☁️ {resolved.boss ? <>Boss: <strong>Legendary {resolved.boss.name}</strong></> : <>Boss Sương <strong>{regionInfo.nameVi}</strong></>} · Cần đúng <strong>{passPct}%</strong> để giải sương.
         </div>
       </div>
 
