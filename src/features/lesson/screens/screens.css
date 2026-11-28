@@ -50,6 +50,48 @@
       margin-top: 4px;
     }
   }
+
+  /* Màn hình ngang / rộng (≥ 720px): Pet lớn bên trái nói câu hướng dẫn, ẩn thanh PetLine bên dưới */
+  @container screen-stage (min-width: 720px) {
+    .pd-lesson-layout.has-left-pet-stage {
+      flex-direction: row !important;
+      align-items: flex-start !important;
+      gap: 16px !important;
+    }
+
+    .pd-lesson-layout.has-left-pet-stage .pd-lesson-stage-col {
+      flex: 0 0 228px !important;
+      width: 228px !important;
+      position: sticky;
+      top: 14px;
+    }
+
+    .pd-lesson-layout.has-left-pet-stage .pd-stage,
+    .pd-lesson-layout.has-left-pet-stage .pd-stage--compact {
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      height: auto;
+      min-height: 224px;
+      padding: 12px 12px 8px;
+      gap: 6px;
+    }
+
+    .pd-lesson-layout.has-left-pet-stage .pd-stage-speech-zone {
+      flex: 0 0 auto;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .pd-lesson-layout.has-left-pet-stage .pd-stage-hint-pill {
+      width: 100%;
+      text-align: center;
+    }
+
+    .pd-lesson-layout.has-left-pet-stage .ff-petline {
+      display: none !important;
+    }
+  }
 }
 
 /* ── T-01 Từ vựng zero-scroll (1 thẻ trên container hẹp, 2 thẻ trên container rộng) ── */

@@ -1,11 +1,19 @@
+import { createContext, useContext, useEffect } from 'react';
 import Icon from '../../../../components/Icon';
 import { SLOT_META } from '../../../../data/config/screens';
 import PetLine from './PetLine';
 import './friendly.css';
 
 /**
- * FriendlyFrame — Khung chung cho 5 màn Thân thiện (PHASE3 §1).
- * Nhãn kỹ năng dưới RouteHeader + vùng nội dung flex:1 min-height:0 + PetLine 72px ở chân màn.
+ * Context nối câu hướng dẫn của màn Thân thiện (F-01..F-11) lên Pet bên trái (PetStage)
+ * trên màn hình ngang/desktop, để tránh lặp 2 pet cùng lúc.
+ */
+export const ScreenPetGuideContext = createContext(null);
+
+/**
+ * FriendlyFrame — Khung chung cho các màn Thân thiện.
+ * - Màn hình điện thoại: hiện PetLine gọn ở chân màn.
+ * - Màn hình ngang (có PetStage bên trái): Pet bên trái nói petText, PetLine bên dưới tự ẩn bằng CSS.
  */
 export default function FriendlyFrame({
   skill = 'intro',
@@ -20,6 +28,13 @@ export default function FriendlyFrame({
   children,
 }) {
   const meta = SLOT_META[skill] || SLOT_META.intro;
+  const setPetGuide = useContext(ScreenPetGuideContext);
+
+  useEffect(() => {
+    if (!setPetGuide) return undefined;
+    setPetGuide({ text: petText || '', tone: petTone || 'neutral' });
+    return () => setPetGuide(null);
+  }, [setPetGuide, petText, petTone]);
 
   return (
     <div className="ff-shell">

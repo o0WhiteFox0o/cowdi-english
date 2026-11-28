@@ -13,6 +13,7 @@ import { useSound } from '../../../hooks/useSound';
 import { useToast } from '../../../components/layout/Toast';
 import { usePetDirector } from '../../../pet-director/DirectorContext';
 import PetStage from '../../../pet-director/PetStage';
+import { ScreenPetGuideContext } from './friendly/FriendlyFrame';
 import { speakWord } from '../../../utils/speech';
 import { SCREEN_CONFIG } from '../../../data/config/screens';
 import { hashString } from './seededRandom';
@@ -188,6 +189,7 @@ export default function ScreenHost({
   const [paused, setPaused] = useState(false);
   const [grammarOpen, setGrammarOpen] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
+  const [friendlyGuide, setFriendlyGuide] = useState(null);
   const [introPetLine, setIntroPetLine] = useState('');
   const [introEnLine, setIntroEnLine] = useState('');
   const [summaryData, setSummaryData] = useState(null);
@@ -589,6 +591,15 @@ export default function ScreenHost({
                 ? 'Xếp hoặc gõ câu đúng nhé!'
                 : '';
 
+  const activeSubtitle =
+    phase === 'play' && isFriendlyScreen && friendlyGuide?.text
+      ? friendlyGuide.text
+      : stageHint;
+  const activeSubtitleTone =
+    phase === 'play' && isFriendlyScreen && friendlyGuide?.tone
+      ? friendlyGuide.tone
+      : 'neutral';
+
   const petDock = activePet ? (
     <PetStage
       pet={activePet}
@@ -596,7 +607,8 @@ export default function ScreenHost({
       mode={phase === 'summary' ? 'home' : (phase === 'play' && currentEntry?.code === 'F-06' ? 'battle' : 'lesson')}
       compact={phase === 'play' && (currentEntry?.code === 'T-07' || isFriendlyScreen)}
       streak={streakCount}
-      subtitle={stageHint}
+      subtitle={activeSubtitle}
+      subtitleTone={activeSubtitleTone}
       onSpeak={(en) => speakWord(en, { rate: defaultTtsRate, lang: 'en-US' }).catch(() => {})}
     />
   ) : null;
@@ -620,7 +632,7 @@ export default function ScreenHost({
       )}
 
       <div
-        className={`pd-lesson-layout${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
+        className={`pd-lesson-layout${petDock ? ' has-left-pet-stage' : ''}${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
       >
         {petDock && (
           <aside className={`pd-lesson-stage-col${(phase === 'stage_intro' || phase === 'intro' || isFriendlyScreen) ? ' ss-hide-stage-narrow' : ''}`}>
@@ -664,32 +676,34 @@ export default function ScreenHost({
           )}
 
           {phase === 'play' && ActiveComponent && !paused && (
-            <ActiveComponent
-              key={`${currentEntry.code}-${session.currentIndex}-${session.seed}`}
-              lesson={lesson}
-              group={group}
-              items={currentItems}
-              rules={rules}
-              seed={session.seed}
-              muted={muted}
-              play={play}
-              sandbox={sandbox}
-              onEvent={handleEvent}
-              onDone={handleScreenDone}
-              onOpenGrammar={() => setGrammarOpen(true)}
-              extra={{
-                wordProgress: userData?.wordProgress || {},
-                completedLessons: userData?.completedLessons || [],
-                checkpointPassed: Boolean(unitId && userData?.checkpointScores?.[unitId]?.passed),
-                unitId,
-                companionName,
-                guestWords,
-                region,
-                addXP,
-                showToast,
-                petRef,
-              }}
-            />
+            <ScreenPetGuideContext.Provider value={setFriendlyGuide}>
+              <ActiveComponent
+                key={`${currentEntry.code}-${session.currentIndex}-${session.seed}`}
+                lesson={lesson}
+                group={group}
+                items={currentItems}
+                rules={rules}
+                seed={session.seed}
+                muted={muted}
+                play={play}
+                sandbox={sandbox}
+                onEvent={handleEvent}
+                onDone={handleScreenDone}
+                onOpenGrammar={() => setGrammarOpen(true)}
+                extra={{
+                  wordProgress: userData?.wordProgress || {},
+                  completedLessons: userData?.completedLessons || [],
+                  checkpointPassed: Boolean(unitId && userData?.checkpointScores?.[unitId]?.passed),
+                  unitId,
+                  companionName,
+                  guestWords,
+                  region,
+                  addXP,
+                  showToast,
+                  petRef,
+                }}
+              />
+            </ScreenPetGuideContext.Provider>
           )}
 
           {phase === 'play' && paused && (

@@ -13,6 +13,7 @@ export default function PetStage({
   petRef,
   mode = 'lesson',
   subtitle = '',
+  subtitleTone = 'neutral',
   streak = 0,
   compact = false,
   slot = 'lesson',
@@ -62,7 +63,13 @@ export default function PetStage({
         {activeSpeech ? (
           <PetSpeech speech={activeSpeech} placement="right" onSpeak={onSpeak} />
         ) : subtitle ? (
-          <div className="pd-stage-hint-pill">{subtitle}</div>
+          <div
+            className={`pd-stage-hint-pill${subtitleTone === 'good' ? ' is-good' : subtitleTone === 'hint' ? ' is-hint' : ''}`}
+            role="status"
+            aria-live="polite"
+          >
+            {subtitle}
+          </div>
         ) : null}
       </div>
 
