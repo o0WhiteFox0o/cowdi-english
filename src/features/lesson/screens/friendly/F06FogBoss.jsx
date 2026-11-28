@@ -311,7 +311,7 @@ export default function F06FogBoss({
     setBattleEnd(null);
     setReviewWrongMode(false);
     setPetTone('neutral');
-    setPetText(`Tái đấu Boss Sương ${regionName}! Cố lên nha!`);
+    setPetText(storyBoss ? `Tái đấu Legendary ${storyBoss.name}! Cố lên nha!` : `Tái đấu Boss Sương ${regionName}! Cố lên nha!`);
   };
 
   // Chế độ "Ôn từ sai" → chạy F-03 cho các từ vừa sai rồi quay lại đánh lại Boss
@@ -335,7 +335,7 @@ export default function F06FogBoss({
   return (
     <FriendlyFrame
       skill="boss"
-      title={getScreenTitle('F-06', region, `Boss ${regionName}`)}
+      title={storyBoss ? `Boss: Legendary ${storyBoss.name}` : getScreenTitle('F-06', region, `Boss ${regionName}`)}
       code="F-06"
       counter={`${Math.min(qIdx + 1, questions.length)}/${questions.length}`}
       extraRight={combo >= 3 ? <span className="ff-combo-chip">⚡ {combo}!</span> : null}

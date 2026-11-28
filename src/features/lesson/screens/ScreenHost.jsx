@@ -5,7 +5,7 @@ import { findPathForLesson } from '../../../data/path';
 import { getUnitRegion, REGIONS } from '../../../../shared/regions';
 import { HUMAN_CAST } from '../../../../shared/human-cast';
 import { getScreenTitle } from '../../../../shared/screen-scenarios';
-import { SEASON2_LESSONS, SEASON2_UNITS } from '../../../../shared/story-season2';
+import { resolveLessonStory } from '../story/resolveStory';
 import { useAuth } from '../../../hooks/useAuth';
 import { useUser } from '../../../hooks/useUser';
 import { usePet } from '../../../hooks/usePet';
@@ -533,22 +533,35 @@ export default function ScreenHost({
     }
   };
 
-  const ActiveComponent = currentMeta?.Component || null;
-  const currentTitle = currentEntry ? getScreenTitle(currentEntry.code, region, currentMeta?.name || '') : '';
-  const hasGrammar = (lesson?.grammar || []).length > 0;
-  const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
-  const isFriendlyScreen = Boolean(currentEntry?.code?.startsWith('F-'));
-
-  const lessonStory = lesson?.id ? SEASON2_LESSONS[lesson.id] : null;
-  const unitStory = lessonStory?.unit ? SEASON2_UNITS[lessonStory.unit] : null;
-  const landmarkName =
-    lessonStory && unitStory?.landmarks && typeof lessonStory.landmark === 'number'
-      ? unitStory.landmarks[lessonStory.landmark]
-      : '';
-  const afterVi = lessonStory?.afterVi || '';
   const companionId = activePet?.speciesId || 'cowdi';
   const companionC = (activePet?.evolution ?? activePet?.stage ?? 0) + 1;
   const companionName = activePet?.customName || '';
+
+  const resolvedStory = useMemo(
+    () =>
+      resolveLessonStory({
+        lesson,
+        unitId,
+        region,
+        companionId,
+        companionC,
+        companionName,
+      }),
+    [lesson, unitId, region, companionId, companionC, companionName],
+  );
+  const landmarkName = resolvedStory.landmarkName || '';
+  const afterVi = resolvedStory.afterVi || '';
+  const bossTitle = resolvedStory.boss ? `Boss: Legendary ${resolvedStory.boss.name}` : '';
+
+  const ActiveComponent = currentMeta?.Component || null;
+  const currentTitle = currentEntry
+    ? (currentEntry.code === 'F-06' && bossTitle
+      ? bossTitle
+      : getScreenTitle(currentEntry.code, region, currentMeta?.name || ''))
+    : '';
+  const hasGrammar = (lesson?.grammar || []).length > 0;
+  const showGrammarBtn = phase === 'play' && currentEntry?.slot === 'write' && hasGrammar;
+  const isFriendlyScreen = Boolean(currentEntry?.code?.startsWith('F-'));
 
   const isCenteredLayout =
     phase !== 'play' ||
