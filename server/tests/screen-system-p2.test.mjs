@@ -119,12 +119,12 @@ function createMockPool() {
       return [rows];
     }
 
-    if (/^SELECT id, name, email, is_admin FROM users/i.test(q)) {
+    if (/^SELECT id, display_name AS name, email, is_admin FROM users/i.test(q)) {
       const kw = String(params[0] || '').replace(/%/g, '').toLowerCase();
       return [state.users.filter((u) => u.email.toLowerCase().includes(kw) || u.name.toLowerCase().includes(kw))];
     }
 
-    if (/^SELECT id, name, email FROM users WHERE id = \?/i.test(q)) {
+    if (/^SELECT id, display_name AS name, email FROM users WHERE id = \?/i.test(q)) {
       const u = state.users.find((x) => x.id === Number(params[0]));
       return [u ? [u] : []];
     }

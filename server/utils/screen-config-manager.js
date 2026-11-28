@@ -192,7 +192,7 @@ export async function getAdminScreenSnapshot(pool) {
 
   const [cfgRows] = await pool.execute(`
     SELECT sc.code, sc.status, sc.note, sc.updated_by, sc.updated_at,
-           u.name AS updated_by_name, u.email AS updated_by_email
+           u.display_name AS updated_by_name, u.email AS updated_by_email
     FROM screen_config sc
     LEFT JOIN users u ON u.id = sc.updated_by
     ORDER BY sc.code ASC
@@ -200,7 +200,7 @@ export async function getAdminScreenSnapshot(pool) {
 
   const [weightRows] = await pool.execute(`
     SELECT sw.group_id, sw.level, sw.weight, sw.updated_by, sw.updated_at,
-           u.name AS updated_by_name
+           u.display_name AS updated_by_name
     FROM screen_weights sw
     LEFT JOIN users u ON u.id = sw.updated_by
   `);
@@ -351,7 +351,7 @@ export async function listAndSearchTesters(pool, query = '') {
 
   const [testers] = await pool.execute(`
     SELECT st.user_id, st.note, st.added_by, st.added_at,
-           u.name, u.email, a.name AS added_by_name
+           u.display_name AS name, u.email, a.display_name AS added_by_name
     FROM screen_testers st
     JOIN users u ON u.id = st.user_id
     LEFT JOIN users a ON a.id = st.added_by
@@ -363,9 +363,9 @@ export async function listAndSearchTesters(pool, query = '') {
   if (q.length > 0) {
     const like = `%${q}%`;
     const [rows] = await pool.execute(
-      `SELECT id, name, email, is_admin
+      `SELECT id, display_name AS name, email, is_admin
        FROM users
-       WHERE email LIKE ? OR name LIKE ?
+       WHERE email LIKE ? OR display_name LIKE ?
        ORDER BY id DESC
        LIMIT 20`,
       [like, like],
@@ -403,7 +403,7 @@ export async function addScreenTester(pool, { userId, note, adminUserId }) {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const [[userRow]] = await conn.execute('SELECT id, name, email FROM users WHERE id = ?', [uid]);
+    const [[userRow]] = await conn.execute('SELECT id, display_name AS name, email FROM users WHERE id = ?', [uid]);
     if (!userRow) {
       const err = new Error('Không tìm thấy tài khoản người dùng.');
       err.status = 404;
@@ -464,13 +464,13 @@ export async function listScreenConfigLog(pool, { limit = 50, before = null } = 
   const beforeId = before ? Number(before) : null;
 
   const sql = beforeId && Number.isFinite(beforeId)
-    ? `SELECT l.id, l.target, l.old_value, l.new_value, l.changed_by, l.changed_at, u.name AS actor_name, u.email AS actor_email
+    ? `SELECT l.id, l.target, l.old_value, l.new_value, l.changed_by, l.changed_at, u.display_name AS actor_name, u.email AS actor_email
        FROM screen_config_log l
        LEFT JOIN users u ON u.id = l.changed_by
        WHERE l.id < ?
        ORDER BY l.id DESC
        LIMIT ${safeLimit}`
-    : `SELECT l.id, l.target, l.old_value, l.new_value, l.changed_by, l.changed_at, u.name AS actor_name, u.email AS actor_email
+    : `SELECT l.id, l.target, l.old_value, l.new_value, l.changed_by, l.changed_at, u.display_name AS actor_name, u.email AS actor_email
        FROM screen_config_log l
        LEFT JOIN users u ON u.id = l.changed_by
        ORDER BY l.id DESC
@@ -560,7 +560,7 @@ export async function listAdminScreenIntros(pool, { screenCode = '', region = ''
 
   const [rows] = await pool.execute(
     `SELECT si.id, si.screen_code, si.region, si.text_vi, si.audio_url, si.status,
-            si.updated_by, si.updated_at, u.name AS updated_by_name, u.email AS updated_by_email
+            si.updated_by, si.updated_at, u.display_name AS updated_by_name, u.email AS updated_by_email
        FROM screen_intro si
        LEFT JOIN users u ON u.id = si.updated_by
        ${whereSql}

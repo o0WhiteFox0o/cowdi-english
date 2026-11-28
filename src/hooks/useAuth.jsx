@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const JWT_KEY = 'cowdi_jwt';
@@ -34,9 +34,31 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(loadToken);
+  const [serverIsAdmin, setServerIsAdmin] = useState(null);
   const rawUser = token ? parseJwt(token) : null;
-  const isAdmin = Boolean(rawUser?.is_admin || rawUser?.isAdmin);
-  const user = rawUser ? { ...rawUser, isAdmin } : null;
+  const jwtIsAdmin = Boolean(rawUser?.is_admin || rawUser?.isAdmin);
+  const isAdmin = serverIsAdmin !== null ? serverIsAdmin : jwtIsAdmin;
+  const user = rawUser ? { ...rawUser, isAdmin, is_admin: isAdmin ? 1 : 0 } : null;
+
+  // Đồng bộ quyền quản trị thật từ DB (/api/me) để không bị kẹt 403 do JWT cũ
+  useEffect(() => {
+    if (!token) {
+      setServerIsAdmin(null);
+      return undefined;
+    }
+    let active = true;
+    fetch(`${API}/api/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (active && me && typeof me.isAdmin === 'boolean') {
+          setServerIsAdmin(me.isAdmin);
+        }
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [token]);
 
   const saveToken = useCallback((newToken) => {
     localStorage.setItem(JWT_KEY, newToken);
