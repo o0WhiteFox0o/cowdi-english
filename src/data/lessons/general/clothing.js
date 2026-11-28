@@ -1,8 +1,8 @@
 // Track: general — Unit int-u3 · Quần áo (contentVersion 2)
 // Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const CLOTHING_LESSON = {
   id: 'clothing',
@@ -25,18 +25,18 @@ export const CLOTHING_LESSON = {
   },
 
   vocabulary: [
-    v('Shirt', '/ʃɜːrt/', 'noun', 'Áo sơ mi', 'Minh wears a clean white shirt.', 'Minh mặc một chiếc áo sơ mi trắng sạch sẽ.', '👔'),
-    v('T-shirt', '/ˈtiː ʃɜːrt/', 'noun', 'Áo thun', 'I like wearing a cotton T-shirt.', 'Mình thích mặc áo thun cotton.', '👕'),
-    v('Dress', '/dres/', 'noun', 'Váy liền thân', 'Mai wears a yellow dress today.', 'Hôm nay Mai mặc một chiếc váy vàng.', '👗'),
+    v('Shirt', '/ʃɜːrt/', 'noun', 'Áo sơ mi', 'Minh wears a clean white shirt.', 'Minh mặc một chiếc áo sơ mi trắng sạch sẽ.', '👔', { countable: true, plural: 'shirts' }),
+    v('T-shirt', '/ˈtiː ʃɜːrt/', 'noun', 'Áo thun', 'I like wearing a cotton T-shirt.', 'Mình thích mặc áo thun cotton.', '👕', { countable: true, plural: 'T-shirts' }),
+    v('Dress', '/dres/', 'noun', 'Váy liền thân', 'Mai wears a yellow dress today.', 'Hôm nay Mai mặc một chiếc váy vàng.', '👗', { countable: true, plural: 'dresses' }),
     v('Shoes', '/ʃuːz/', 'noun', 'Đôi giày', 'Take off your shoes at the door.', 'Hãy cởi giày ở cửa nhé.', '👟'),
-    v('Hat', '/hæt/', 'noun', 'Mũ, nón', 'Wear a hat on sunny days.', 'Đội mũ vào những ngày nắng nhé.', '🎩'),
-    v('Jacket', '/ˈdʒækɪt/', 'noun', 'Áo khoác', 'Put on your jacket before going out.', 'Mặc áo khoác vào trước khi ra ngoài.', '🧥'),
+    v('Hat', '/hæt/', 'noun', 'Mũ, nón', 'Wear a hat on sunny days.', 'Đội mũ vào những ngày nắng nhé.', '🎩', { countable: true, plural: 'hats' }),
+    v('Jacket', '/ˈdʒækɪt/', 'noun', 'Áo khoác', 'Put on your jacket before going out.', 'Mặc áo khoác vào trước khi ra ngoài.', '🧥', { countable: true, plural: 'jackets' }),
     v('Jeans', '/dʒiːnz/', 'noun', 'Quần jeans', 'These blue jeans are very comfortable.', 'Chiếc quần jeans xanh này rất thoải mái.', '👖'),
     v('Socks', '/sɑːks/', 'noun', 'Đôi tất, vớ', 'My warm socks are in the drawer.', 'Đôi tất ấm của mình ở trong ngăn kéo.', '🧦'),
-    v('Scarf', '/skɑːrf/', 'noun', 'Khăn quàng cổ', 'She wears a red scarf in winter.', 'Cô ấy quàng khăn đỏ vào mùa đông.', '🧣'),
+    v('Scarf', '/skɑːrf/', 'noun', 'Khăn quàng cổ', 'She wears a red scarf in winter.', 'Cô ấy quàng khăn đỏ vào mùa đông.', '🧣', { countable: true, plural: 'scarves' }),
     v('Glasses', '/ˈɡlæsɪz/', 'noun', 'Kính mắt', 'Minh wears glasses when he reads.', 'Minh đeo kính khi đọc sách.', '👓'),
-    v('Uniform', '/ˈjuːnɪfɔːrm/', 'noun', 'Đồng phục', 'Students wear a school uniform on Monday.', 'Học sinh mặc đồng phục trường vào thứ Hai.', '🎽'),
-    v('Coat', '/koʊt/', 'noun', 'Áo choàng, áo khoác dày', 'Bring a heavy coat to Da Lat.', 'Mang theo áo khoác dày khi đi Đà Lạt nhé.', '🧥'),
+    v('Uniform', '/ˈjuːnɪfɔːrm/', 'noun', 'Đồng phục', 'Students wear a school uniform on Monday.', 'Học sinh mặc đồng phục trường vào thứ Hai.', '🎽', { countable: true, plural: 'uniforms' }),
+    v('Coat', '/koʊt/', 'noun', 'Áo choàng, áo khoác dày', 'Bring a heavy coat to Da Lat.', 'Mang theo áo khoác dày khi đi Đà Lạt nhé.', '🧥', { countable: true, plural: 'coats' }),
   ],
 
   grammar: [
@@ -204,6 +204,97 @@ export const CLOTHING_LESSON = {
       options: ['Đôi tất màu trắng', 'Đôi giày màu đen', 'Chiếc áo khoác đen', 'Cặp kính mắt'],
       correct: 1,
       explanation: '"my black shoes" = đôi giày màu đen của mình.',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'clo-1',
+      npc: 'lan',
+      askEn: 'What are you wearing today?',
+      askVi: 'Hôm nay bạn đang mặc gì vậy?',
+      image: null,
+      answers: [
+        { en: 'I am wearing a white shirt.', vi: 'Mình đang mặc áo sơ mi trắng.' },
+        { en: 'I wear a blue T-shirt.', vi: 'Mình mặc một chiếc áo thun xanh.' },
+      ],
+      keywords: ['wearing'],
+      replyEn: 'You look very neat today!',
+      replyVi: 'Hôm nay nhìn bạn gọn gàng lắm!',
+    },
+    {
+      id: 'clo-2',
+      npc: 'ong_tu',
+      askEn: 'What should we wear on cold days?',
+      askVi: 'Ngày lạnh chúng ta nên mặc gì nhỉ?',
+      image: null,
+      answers: [
+        { en: 'Wear a warm jacket and scarf.', vi: 'Mặc áo khoác ấm và quàng khăn.' },
+        { en: 'Put on a heavy coat.', vi: 'Mặc một chiếc áo khoác dày.' },
+      ],
+      keywords: ['jacket'],
+      replyEn: 'Good idea! Stay warm!',
+      replyVi: 'Ý hay lắm! Nhớ giữ ấm nha!',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'We wear a hat on sunny days.',
+      vi: 'Ta đội mũ vào những ngày nắng.',
+      image: null,
+      illustration: '🎩',
+      sceneBrief: 'Chiếc mũ rộng vành che nắng dưới bầu trời sáng, không chữ.',
+      isTrue: true,
+      wordIds: ['hat'],
+    },
+    {
+      en: 'We wear shoes on our hands.',
+      vi: 'Ta mang giày lên tay.',
+      image: null,
+      illustration: '👟',
+      sceneBrief: 'Đôi giày thể thao đặt gọn cạnh thảm cửa, không chữ.',
+      isTrue: false,
+      whyVi: 'Ta mang giày ("shoes") ở chân, không phải ở tay.',
+      wordIds: ['shoes'],
+    },
+    {
+      en: 'Students wear a school uniform on Monday.',
+      vi: 'Học sinh mặc đồng phục trường vào thứ Hai.',
+      image: null,
+      illustration: '🎽',
+      sceneBrief: 'Bộ đồng phục học sinh phẳng phiu trên móc gỗ, không chữ.',
+      isTrue: true,
+      wordIds: ['uniform'],
+    },
+    {
+      en: 'We put on a heavy winter coat on a very hot beach.',
+      vi: 'Ta mặc áo khoác mùa đông dày trên bãi biển rất nóng.',
+      image: null,
+      illustration: '🧥',
+      sceneBrief: 'Chiếc áo khoác dày ấm áp dành cho trời lạnh Đà Lạt, không chữ.',
+      isTrue: false,
+      whyVi: 'Áo khoác dày ("coat") dùng khi trời lạnh, không dùng trên bãi biển nóng.',
+      wordIds: ['coat'],
+    },
+    {
+      en: 'A scarf keeps our neck warm in winter.',
+      vi: 'Khăn quàng giữ ấm cổ vào mùa đông.',
+      image: null,
+      illustration: '🧣',
+      sceneBrief: 'Chiếc khăn quàng cổ màu đỏ ấm áp, không chữ.',
+      isTrue: true,
+      wordIds: ['scarf'],
+    },
+    {
+      en: 'We wear socks over our glasses.',
+      vi: 'Ta đeo tất lên trên kính mắt.',
+      image: null,
+      illustration: '👓',
+      sceneBrief: 'Cặp kính mắt đặt gọn trên quyển sách mở, không chữ.',
+      isTrue: false,
+      whyVi: 'Tất ("socks") mang ở bàn chân, còn kính ("glasses") đeo ở mắt.',
+      wordIds: ['socks', 'glasses'],
     },
   ],
 };

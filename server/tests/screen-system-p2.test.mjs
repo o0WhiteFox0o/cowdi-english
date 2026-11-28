@@ -220,8 +220,8 @@ test('Đợt 2 (A1–A3, A5, A8): Phân quyền admin, đổi trạng thái + lo
     });
     assert.equal(r304.status, 304);
 
-    // Chặn đặt on/test cho mã chưa có component (F-07 — Đợt 4b)
-    const rUnsupported = await fetch(`${srv.baseUrl}/api/admin/screens/F-07`, {
+    // Chặn đặt on/test cho mã chưa có component (F-99 — mã tương lai)
+    const rUnsupported = await fetch(`${srv.baseUrl}/api/admin/screens/F-99`, {
       method: 'PUT',
       headers: { 'content-type': 'application/json', 'x-test-user': '1' },
       body: JSON.stringify({ status: 'test' }),

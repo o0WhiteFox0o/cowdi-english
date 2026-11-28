@@ -1,8 +1,8 @@
 // Track: general — Unit int-u2 · Cơ thể người (contentVersion 2)
 // Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const BODY_LESSON = {
   id: 'body',
@@ -25,18 +25,18 @@ export const BODY_LESSON = {
   },
 
   vocabulary: [
-    v('Head', '/hed/', 'noun', 'Cái đầu', 'Put a hat on your head.', 'Đội mũ lên đầu của bạn đi.', '🗣️'),
-    v('Eye', '/aɪ/', 'noun', 'Mắt', 'She has bright brown eyes.', 'Cô ấy có đôi mắt nâu sáng.', '👁️'),
-    v('Ear', '/ɪr/', 'noun', 'Tai', 'We listen carefully with our ears.', 'Chúng ta lắng nghe cẩn thận bằng đôi tai.', '👂'),
-    v('Nose', '/noʊz/', 'noun', 'Mũi', 'Touch your nose during the game.', 'Chạm vào mũi của bạn trong trò chơi.', '👃'),
-    v('Mouth', '/maʊθ/', 'noun', 'Miệng', 'Open your mouth and say "ah".', 'Há miệng ra và nói "a" nào.', '👄'),
-    v('Tooth', '/tuːθ/', 'noun', 'Cái răng (số nhiều: teeth)', 'Brush every tooth twice a day.', 'Đánh sạch từng chiếc răng hai lần mỗi ngày.', '🦷'),
-    v('Hand', '/hænd/', 'noun', 'Bàn tay', 'Wash your hands before every meal.', 'Rửa tay trước mỗi bữa ăn nhé.', '🤚'),
-    v('Arm', '/ɑːrm/', 'noun', 'Cánh tay', 'Raise your right arm high.', 'Giơ cao cánh tay phải của bạn lên.', '💪'),
-    v('Leg', '/leɡ/', 'noun', 'Cẳng chân', 'Running makes your legs strong.', 'Chạy bộ giúp đôi chân bạn khoẻ mạnh.', '🦵'),
-    v('Foot', '/fʊt/', 'noun', 'Bàn chân (số nhiều: feet)', 'My left foot hurts after soccer.', 'Bàn chân trái của mình đau sau khi đá bóng.', '🦶'),
-    v('Heart', '/hɑːrt/', 'noun', 'Trái tim', 'Your heart beats faster when you run.', 'Tim bạn đập nhanh hơn khi chạy.', '❤️'),
-    v('Stomach', '/ˈstʌmək/', 'noun', 'Bụng, dạ dày', 'My stomach feels full after lunch.', 'Bụng mình thấy no sau bữa trưa.', '🫃'),
+    v('Head', '/hed/', 'noun', 'Cái đầu', 'Put a hat on your head.', 'Đội mũ lên đầu của bạn đi.', '🗣️', { countable: true, plural: 'heads' }),
+    v('Eye', '/aɪ/', 'noun', 'Mắt', 'She has bright brown eyes.', 'Cô ấy có đôi mắt nâu sáng.', '👁️', { countable: true, plural: 'eyes' }),
+    v('Ear', '/ɪr/', 'noun', 'Tai', 'We listen carefully with our ears.', 'Chúng ta lắng nghe cẩn thận bằng đôi tai.', '👂', { countable: true, plural: 'ears' }),
+    v('Nose', '/noʊz/', 'noun', 'Mũi', 'Touch your nose during the game.', 'Chạm vào mũi của bạn trong trò chơi.', '👃', { countable: true, plural: 'noses' }),
+    v('Mouth', '/maʊθ/', 'noun', 'Miệng', 'Open your mouth and say "ah".', 'Há miệng ra và nói "a" nào.', '👄', { countable: true, plural: 'mouths' }),
+    v('Tooth', '/tuːθ/', 'noun', 'Cái răng (số nhiều: teeth)', 'Brush every tooth twice a day.', 'Đánh sạch từng chiếc răng hai lần mỗi ngày.', '🦷', { countable: true, plural: 'teeth' }),
+    v('Hand', '/hænd/', 'noun', 'Bàn tay', 'Wash your hands before every meal.', 'Rửa tay trước mỗi bữa ăn nhé.', '🤚', { countable: true, plural: 'hands' }),
+    v('Arm', '/ɑːrm/', 'noun', 'Cánh tay', 'Raise your right arm high.', 'Giơ cao cánh tay phải của bạn lên.', '💪', { countable: true, plural: 'arms' }),
+    v('Leg', '/leɡ/', 'noun', 'Cẳng chân', 'Running makes your legs strong.', 'Chạy bộ giúp đôi chân bạn khoẻ mạnh.', '🦵', { countable: true, plural: 'legs' }),
+    v('Foot', '/fʊt/', 'noun', 'Bàn chân (số nhiều: feet)', 'My left foot hurts after soccer.', 'Bàn chân trái của mình đau sau khi đá bóng.', '🦶', { countable: true, plural: 'feet' }),
+    v('Heart', '/hɑːrt/', 'noun', 'Trái tim', 'Your heart beats faster when you run.', 'Tim bạn đập nhanh hơn khi chạy.', '❤️', { countable: true, plural: 'hearts' }),
+    v('Stomach', '/ˈstʌmək/', 'noun', 'Bụng, dạ dày', 'My stomach feels full after lunch.', 'Bụng mình thấy no sau bữa trưa.', '🫃', { countable: true, plural: 'stomachs' }),
   ],
 
   grammar: [
@@ -199,6 +199,95 @@ export const BODY_LESSON = {
       options: ['foot', 'foots', 'feets', 'feet'],
       correct: 3,
       explanation: 'Sau số đếm "two" cần danh từ số nhiều bất quy tắc "feet".',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'body-1',
+      npc: 'tom',
+      askEn: 'What do we use to listen?',
+      askVi: 'Chúng ta dùng bộ phận nào để nghe?',
+      image: null,
+      answers: [
+        { en: 'We listen with our ears.', vi: 'Chúng ta nghe bằng đôi tai.' },
+        { en: 'We use two ears.', vi: 'Chúng ta dùng hai tai.' },
+      ],
+      keywords: ['ears'],
+      replyEn: 'Right! Take good care of your ears.',
+      replyVi: 'Đúng rồi! Hãy giữ gìn đôi tai thật tốt nhé.',
+    },
+    {
+      id: 'body-2',
+      npc: 'mai',
+      askEn: 'What should we wash before meals?',
+      askVi: 'Chúng mình cần rửa gì trước bữa ăn?',
+      image: null,
+      answers: [
+        { en: 'We wash our hands.', vi: 'Chúng mình rửa tay.' },
+        { en: 'Wash your hands before lunch.', vi: 'Rửa tay trước bữa trưa.' },
+      ],
+      keywords: ['hands'],
+      replyEn: 'Clean hands keep us healthy!',
+      replyVi: 'Tay sạch giúp chúng mình khoẻ mạnh!',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'We have two eyes and two ears.',
+      vi: 'Chúng ta có hai mắt và hai tai.',
+      image: '/image/art/human_body.webp',
+      isTrue: true,
+      wordIds: ['eye', 'ear'],
+    },
+    {
+      en: 'We walk and run with our ears.',
+      vi: 'Chúng ta đi và chạy bằng đôi tai.',
+      image: null,
+      illustration: '🦵',
+      sceneBrief: 'Cowdi vui vẻ chạy bộ trên đường cỏ xanh, không chữ.',
+      isTrue: false,
+      whyVi: 'Chúng ta đi và chạy bằng chân ("legs" / "feet"), còn tai ("ears") dùng để nghe.',
+      wordIds: ['leg', 'foot', 'ear'],
+    },
+    {
+      en: 'We should brush our teeth twice a day.',
+      vi: 'Chúng ta nên đánh răng hai lần mỗi ngày.',
+      image: null,
+      illustration: '🦷',
+      sceneBrief: 'Chiếc răng trắng sáng lấp lánh bên bàn chải dễ thương, không chữ.',
+      isTrue: true,
+      wordIds: ['tooth'],
+    },
+    {
+      en: 'The plural of "foot" is "foots".',
+      vi: 'Số nhiều của "foot" là "foots".',
+      image: null,
+      illustration: '🦶',
+      sceneBrief: 'Hai bàn chân nhỏ bước trên thảm cỏ, không chữ.',
+      isTrue: false,
+      whyVi: '"Foot" là danh từ bất quy tắc: số nhiều là "feet", không phải "foots".',
+      wordIds: ['foot'],
+    },
+    {
+      en: 'We wash our hands before every meal.',
+      vi: 'Chúng ta rửa tay trước mỗi bữa ăn.',
+      image: null,
+      illustration: '🤚',
+      sceneBrief: 'Đôi bàn tay rửa sạch dưới vòi nước có bọt xà phòng, không chữ.',
+      isTrue: true,
+      wordIds: ['hand'],
+    },
+    {
+      en: 'We put a hat on our stomach.',
+      vi: 'Chúng ta đội mũ lên bụng.',
+      image: null,
+      illustration: '🗣️',
+      sceneBrief: 'Cowdi đội chiếc mũ rộng vành lên đầu, không chữ.',
+      isTrue: false,
+      whyVi: 'Ta đội mũ lên đầu ("head"), không phải lên bụng ("stomach").',
+      wordIds: ['head', 'stomach'],
     },
   ],
 };

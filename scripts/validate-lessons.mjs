@@ -235,10 +235,11 @@ if (questionsMode) {
 const byId = new Map(ALL_LESSONS.map((l) => [l.id, { lesson: l, source: 'repo' }]));
 for (const g of golden) byId.set(g.id, { lesson: g, source: 'golden' });
 
+const imageExists = (relUrl) => fs.existsSync(path.join(root, 'public', String(relUrl || '').replace(/^\/+/, '')));
 const rows = [];
 for (const [id, { lesson, source }] of byId) {
   if (only && !only.includes(id)) continue;
-  const res = validateLesson(lesson);
+  const res = validateLesson(lesson, { imageExists });
   // Bài v2 phải chạy được trên UI hiện tại sau khi qua lớp tương thích.
   if (lesson.contentVersion === 2) {
     const legacy = toLegacyShape(lesson);

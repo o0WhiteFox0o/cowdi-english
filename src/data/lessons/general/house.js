@@ -1,8 +1,8 @@
 // Track: general — Unit int-u3 · Nhà cửa (contentVersion 2)
 // Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const HOUSE_LESSON = {
   id: 'house',
@@ -25,18 +25,18 @@ export const HOUSE_LESSON = {
   },
 
   vocabulary: [
-    v('Kitchen', '/ˈkɪtʃɪn/', 'noun', 'Nhà bếp', 'Mom is cooking soup in the kitchen.', 'Mẹ đang nấu canh trong nhà bếp.', '🍳'),
-    v('Bedroom', '/ˈbedruːm/', 'noun', 'Phòng ngủ', 'My bedroom is bright and quiet.', 'Phòng ngủ của mình sáng và yên tĩnh.', '🛏️'),
-    v('Bathroom', '/ˈbæθruːm/', 'noun', 'Phòng tắm', 'The bathroom is next to my room.', 'Phòng tắm ở ngay cạnh phòng mình.', '🚿'),
-    v('Living room', '/ˈlɪvɪŋ ruːm/', 'noun', 'Phòng khách', 'Our family watches TV in the living room.', 'Gia đình mình xem TV trong phòng khách.', '🛋️'),
-    v('Door', '/dɔːr/', 'noun', 'Cửa ra vào', 'Please close the front door softly.', 'Vui lòng đóng nhẹ cửa trước nhé.', '🚪'),
-    v('Window', '/ˈwɪndoʊ/', 'noun', 'Cửa sổ', 'Open the window for fresh air.', 'Mở cửa sổ ra cho thoáng khí nhé.', '🪟'),
-    v('Table', '/ˈteɪbəl/', 'noun', 'Cái bàn', 'Dinner is ready on the table.', 'Bữa tối đã sẵn sàng trên bàn rồi.', '🪵'),
-    v('Chair', '/tʃer/', 'noun', 'Cái ghế', 'There are four chairs around the table.', 'Có bốn cái ghế quanh chiếc bàn.', '🪑'),
-    v('Sofa', '/ˈsoʊfə/', 'noun', 'Ghế sofa', 'Grandpa is reading on the sofa.', 'Ông nội đang đọc báo trên ghế sofa.', '🛋️'),
-    v('Garden', '/ˈɡɑːrdən/', 'noun', 'Khu vườn', 'We grow flowers in the front garden.', 'Nhà mình trồng hoa ở khu vườn trước.', '🌻'),
+    v('Kitchen', '/ˈkɪtʃɪn/', 'noun', 'Nhà bếp', 'Mom is cooking soup in the kitchen.', 'Mẹ đang nấu canh trong nhà bếp.', '🍳', { countable: true, plural: 'kitchens' }),
+    v('Bedroom', '/ˈbedruːm/', 'noun', 'Phòng ngủ', 'My bedroom is bright and quiet.', 'Phòng ngủ của mình sáng và yên tĩnh.', '🛏️', { countable: true, plural: 'bedrooms' }),
+    v('Bathroom', '/ˈbæθruːm/', 'noun', 'Phòng tắm', 'The bathroom is next to my room.', 'Phòng tắm ở ngay cạnh phòng mình.', '🚿', { countable: true, plural: 'bathrooms' }),
+    v('Living room', '/ˈlɪvɪŋ ruːm/', 'noun', 'Phòng khách', 'Our family watches TV in the living room.', 'Gia đình mình xem TV trong phòng khách.', '🛋️', { countable: true, plural: 'living rooms' }),
+    v('Door', '/dɔːr/', 'noun', 'Cửa ra vào', 'Please close the front door softly.', 'Vui lòng đóng nhẹ cửa trước nhé.', '🚪', { countable: true, plural: 'doors' }),
+    v('Window', '/ˈwɪndoʊ/', 'noun', 'Cửa sổ', 'Open the window for fresh air.', 'Mở cửa sổ ra cho thoáng khí nhé.', '🪟', { countable: true, plural: 'windows' }),
+    v('Table', '/ˈteɪbəl/', 'noun', 'Cái bàn', 'Dinner is ready on the table.', 'Bữa tối đã sẵn sàng trên bàn rồi.', '🪵', { countable: true, plural: 'tables' }),
+    v('Chair', '/tʃer/', 'noun', 'Cái ghế', 'There are four chairs around the table.', 'Có bốn cái ghế quanh chiếc bàn.', '🪑', { countable: true, plural: 'chairs' }),
+    v('Sofa', '/ˈsoʊfə/', 'noun', 'Ghế sofa', 'Grandpa is reading on the sofa.', 'Ông nội đang đọc báo trên ghế sofa.', '🛋️', { countable: true, plural: 'sofas' }),
+    v('Garden', '/ˈɡɑːrdən/', 'noun', 'Khu vườn', 'We grow flowers in the front garden.', 'Nhà mình trồng hoa ở khu vườn trước.', '🌻', { countable: true, plural: 'gardens' }),
     v('Stairs', '/sterz/', 'noun', 'Cầu thang', 'Walk carefully down the stairs.', 'Đi xuống cầu thang cẩn thận nhé.', '🪜'),
-    v('Roof', '/ruːf/', 'noun', 'Mái nhà', 'Our house has a bright red roof.', 'Nhà mình có mái ngói màu đỏ tươi.', '🏠'),
+    v('Roof', '/ruːf/', 'noun', 'Mái nhà', 'Our house has a bright red roof.', 'Nhà mình có mái ngói màu đỏ tươi.', '🏠', { countable: true, plural: 'roofs' }),
   ],
 
   grammar: [
@@ -198,6 +198,91 @@ export const HOUSE_LESSON = {
       options: ['Cửa trước', 'Cầu thang', 'Phòng khách', 'Mái nhà'],
       correct: 3,
       explanation: '"Roof" nghĩa là mái nhà.',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'hou-1',
+      npc: 'minh',
+      askEn: 'Where do you cook dinner?',
+      askVi: 'Nhà bạn nấu bữa tối ở phòng nào?',
+      image: null,
+      answers: [
+        { en: 'We cook in the kitchen.', vi: 'Nhà mình nấu trong nhà bếp.' },
+        { en: 'In our bright kitchen.', vi: 'Trong nhà bếp sáng sủa.' },
+      ],
+      keywords: ['kitchen'],
+      replyEn: 'I love warm family dinners!',
+      replyVi: 'Mình thích những bữa cơm gia đình ấm cúng lắm!',
+    },
+    {
+      id: 'hou-2',
+      npc: 'ong_tu',
+      askEn: 'What is in your front garden?',
+      askVi: 'Trước vườn nhà con có trồng gì không?',
+      image: null,
+      answers: [
+        { en: 'There are yellow flowers in the garden.', vi: 'Trong vườn có hoa màu vàng ạ.' },
+        { en: 'We grow green trees.', vi: 'Nhà con trồng nhiều cây xanh.' },
+      ],
+      keywords: ['garden'],
+      replyEn: 'A garden makes every house fresh!',
+      replyVi: 'Có khu vườn là nhà lúc nào cũng mát mẻ!',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'We cook food in the kitchen.',
+      vi: 'Ta nấu ăn trong nhà bếp.',
+      image: '/image/art/house_rooms.webp',
+      isTrue: true,
+      wordIds: ['kitchen'],
+    },
+    {
+      en: 'We sleep on the roof every night.',
+      vi: 'Ta ngủ trên mái nhà mỗi tối.',
+      image: '/image/art/house.webp',
+      isTrue: false,
+      whyVi: 'Ta ngủ trong phòng ngủ ("bedroom"), không phải trên mái nhà ("roof").',
+      wordIds: ['bedroom', 'roof'],
+    },
+    {
+      en: 'We open the window to let in fresh air.',
+      vi: 'Ta mở cửa sổ để đón không khí trong lành.',
+      image: null,
+      illustration: '🪟',
+      sceneBrief: 'Cửa sổ gỗ mở rộng đón nắng sớm vào phòng, không chữ.',
+      isTrue: true,
+      wordIds: ['window'],
+    },
+    {
+      en: 'People usually take a shower on the sofa.',
+      vi: 'Mọi người thường tắm trên ghế sofa.',
+      image: '/image/art/house_furniture.webp',
+      isTrue: false,
+      whyVi: 'Ta tắm trong phòng tắm ("bathroom"), còn ghế sofa ("sofa") đặt ở phòng khách.',
+      wordIds: ['bathroom', 'sofa'],
+    },
+    {
+      en: 'There are chairs around the dining table.',
+      vi: 'Có những chiếc ghế đặt quanh bàn ăn.',
+      image: null,
+      illustration: '🪑',
+      sceneBrief: 'Bốn chiếc ghế gỗ xếp ngay ngắn quanh chiếc bàn ăn, không chữ.',
+      isTrue: true,
+      wordIds: ['chair', 'table'],
+    },
+    {
+      en: 'A garden is inside the bathroom.',
+      vi: 'Khu vườn nằm bên trong phòng tắm.',
+      image: null,
+      illustration: '🌻',
+      sceneBrief: 'Khu vườn hoa hướng dương nắng ấm phía trước ngôi nhà, không chữ.',
+      isTrue: false,
+      whyVi: 'Khu vườn ("garden") ở ngoài trời quanh nhà, không nằm trong phòng tắm.',
+      wordIds: ['garden', 'bathroom'],
     },
   ],
 };
