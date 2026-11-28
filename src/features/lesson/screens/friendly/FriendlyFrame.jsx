@@ -35,7 +35,8 @@ export default function FriendlyFrame({
           {showGrammarButton && typeof onOpenGrammar === 'function' && (
             <button
               type="button"
-              className="btn btn-sm btn-outline-secondary rounded-pill"
+              className="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2"
+              style={{ fontSize: '0.74rem', minHeight: 30 }}
               onClick={onOpenGrammar}
             >
               📖 Ngữ pháp

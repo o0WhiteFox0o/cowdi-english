@@ -12,6 +12,7 @@ import { applyBossDamage, evaluateBossOutcome } from './friendlyLogic';
 import FriendlyFrame from './FriendlyFrame';
 import FogBossSvg from './FogBossSvg';
 import F03CatchWord from './F03CatchWord';
+import ScreenActionModal from '../ScreenActionModal';
 
 function buildGuestQuizQuestions(guestWords = [], vocabPool = [], rng) {
   const out = [];
@@ -287,14 +288,14 @@ export default function F06FogBoss({
   return (
     <FriendlyFrame
       skill="boss"
-      title={`Boss Sương ${regionName}`}
+      title={`Boss ${regionName}`}
       code="F-06"
-      counter={`Câu ${Math.min(qIdx + 1, questions.length)}/${questions.length}`}
-      extraRight={combo >= 3 ? <span className="ff-combo-chip">⚡ {combo} liền!</span> : null}
+      counter={`${Math.min(qIdx + 1, questions.length)}/${questions.length}`}
+      extraRight={combo >= 3 ? <span className="ff-combo-chip">⚡ {combo}!</span> : null}
       petText={petText}
       petTone={petTone}
     >
-      {/* Khung trận: HP Pet trái · Boss Sương phải */}
+      {/* Khung trận: HP Pet trái · Boss Sương phải (gọn để 0 cuộn ở 360x640) */}
       <div
         className="ff-boss-stage"
         style={{ background: `linear-gradient(180deg, ${regionColor.sky} 0%, ${regionColor.ground} 100%)` }}
@@ -302,16 +303,16 @@ export default function F06FogBoss({
         {skillFlash && <div className="ff-skill-flash" aria-hidden="true" />}
 
         <div className="text-center">
-          <div className="d-flex justify-content-center" style={{ height: 84 }}>
+          <div className="d-flex justify-content-center" style={{ height: 62 }}>
             <PetAvatar
               petId={activePet?.speciesId || 'cowdi'}
               stage={(activePet?.evolution ?? 0) + 1}
               mode="battle"
               canvasBubble={false}
-              style={{ width: 82, height: 82 }}
+              style={{ width: 62, height: 62 }}
             />
           </div>
-          <div className="d-flex justify-content-between small fw-bold px-1">
+          <div className="d-flex justify-content-between fw-bold px-1" style={{ fontSize: '0.74rem' }}>
             <span>{activePet?.customName || 'Cowdi'}</span>
             <span>{Math.round(petHp)}%</span>
           </div>
@@ -321,10 +322,10 @@ export default function F06FogBoss({
         </div>
 
         <div className="text-center">
-          <div className="d-flex justify-content-center align-items-center" style={{ height: 84 }}>
-            <FogBossSvg region={region} animState={bossAnim} size={96} />
+          <div className="d-flex justify-content-center align-items-center" style={{ height: 62 }}>
+            <FogBossSvg region={region} animState={bossAnim} size={74} />
           </div>
-          <div className="d-flex justify-content-between small fw-bold px-1">
+          <div className="d-flex justify-content-between fw-bold px-1" style={{ fontSize: '0.74rem' }}>
             <span>Boss Sương</span>
             <span>{Math.round(bossHp)}%</span>
           </div>
@@ -334,74 +335,34 @@ export default function F06FogBoss({
         </div>
       </div>
 
-      {/* Khi chưa đạt ngưỡng → cho ôn từ sai (F-03) hoặc đánh lại */}
-      {battleEnd && !battleEnd.passed ? (
-        <div className="ff-card text-center">
-          <h5 className="fw-bold mb-1">Chưa giải được hết sương!</h5>
-          <p className="small text-muted mb-3">
-            Bạn đúng <strong>{lessonCorrect}/{lessonTotal}</strong> câu chính (cần ≥{Math.round(passRate * 100)}%).
-          </p>
-          <div className="d-flex gap-2 justify-content-center flex-wrap">
-            <button
-              type="button"
-              className="btn btn-warning ff-tap-btn px-3"
-              onClick={() => setReviewWrongMode(true)}
-            >
-              🌿 Ôn từ sai (F-03)
-            </button>
-            <button
-              type="button"
-              className="btn btn-cowdi-primary ff-tap-btn px-3"
-              onClick={resetBattle}
-            >
-              ⚔️ Đánh lại
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary ff-tap-btn px-3"
-              onClick={() => onDone?.({
-                code: 'F-06',
-                slot: 'boss',
-                total: lessonTotal,
-                firstTryCorrect: lessonCorrect,
-                score: lessonCorrect,
-                guestTotal,
-                guestCorrect,
-                wrongAnswers,
-                durationMs: Date.now() - startTimeRef.current,
-              })}
-            >
-              Xem tổng kết
-            </button>
-          </div>
-        </div>
-      ) : current && !battleEnd ? (
+      {current && !battleEnd && (
         <>
           <div className="ff-card">
             <div className="d-flex justify-content-between align-items-center gap-2 mb-1">
               {current.isGuest ? (
                 <span className="ff-guest-badge">🌿 khách quen</span>
               ) : (
-                <span className="small text-muted">Câu hỏi Boss</span>
+                <span className="text-muted" style={{ fontSize: '0.74rem' }}>Câu hỏi Boss</span>
               )}
               {current.audioText && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-outline-primary rounded-pill"
+                  className="btn btn-sm btn-outline-primary rounded-pill py-0 px-2"
+                  style={{ fontSize: '0.74rem', minHeight: 28 }}
                   onClick={() => speakWord(current.audioText, { rate: defaultRate, lang: 'en-US' }).catch(() => {})}
                 >
-                  <Icon name="sound" size={14} /> Nghe
+                  <Icon name="sound" size={13} /> Nghe
                 </button>
               )}
             </div>
-            <div className="fw-bold" style={{ fontSize: '1.15rem', color: '#4A3420' }}>
+            <div className="fw-bold" style={{ fontSize: '0.98rem', color: '#4A3420', lineHeight: 1.3 }}>
               {current.question}
             </div>
           </div>
 
           <div className="row g-2">
             {(current.options || []).map((opt, oi) => {
-              let cls = 'btn w-100 text-start ff-tap-btn ';
+              let cls = 'btn w-100 text-start ff-tap-btn py-1 px-2 ';
               if (picked !== null) {
                 if (oi === current.correct) cls += 'btn-success';
                 else if (oi === picked) cls += 'btn-danger';
@@ -414,7 +375,7 @@ export default function F06FogBoss({
                   <button
                     type="button"
                     className={cls}
-                    style={{ fontSize: '1.02rem' }}
+                    style={{ fontSize: '0.92rem', minBlockSize: 42 }}
                     disabled={picked !== null}
                     onClick={() => handlePickOption(oi)}
                   >
@@ -424,24 +385,45 @@ export default function F06FogBoss({
               );
             })}
           </div>
-
-          {picked !== null && picked !== current.correct && (
-            <div className="d-flex justify-content-between align-items-center gap-2 p-2 rounded-3" style={{ background: '#FEF3C7', border: '1.5px solid #F59E0B' }}>
-              <div className="small">
-                Đáp án đúng: <strong>{current.options?.[current.correct]}</strong>
-                {current.explanation && <div className="text-muted">{current.explanation}</div>}
-              </div>
-              <button
-                type="button"
-                className="btn btn-cowdi-primary ff-tap-btn px-3"
-                onClick={() => advanceNext(lessonCorrect, guestTotal, guestCorrect, wrongAnswers)}
-              >
-                Tiếp →
-              </button>
-            </div>
-          )}
         </>
-      ) : null}
+      )}
+
+      {/* Popup phản hồi khi trả lời sai — không đẩy layout gây cuộn */}
+      <ScreenActionModal
+        open={Boolean(current && !battleEnd && picked !== null && picked !== current.correct)}
+        title="Boss phun sương rồi!"
+        tone="warning"
+        primaryLabel={qIdx + 1 < questions.length ? 'Câu tiếp →' : 'Xem kết quả →'}
+        onPrimary={() => advanceNext(lessonCorrect, guestTotal, guestCorrect, wrongAnswers)}
+      >
+        <div>Đáp án đúng: <strong>{current?.options?.[current?.correct]}</strong></div>
+        {current?.explanation && <div className="small text-muted mt-1">{current.explanation}</div>}
+      </ScreenActionModal>
+
+      {/* Popup khi chưa đạt ngưỡng Boss */}
+      <ScreenActionModal
+        open={Boolean(battleEnd && !battleEnd.passed)}
+        title="Chưa giải được hết sương!"
+        tone="warning"
+        primaryLabel="⚔️ Đánh lại"
+        onPrimary={resetBattle}
+        secondaryLabel="🌿 Ôn từ sai"
+        onSecondary={() => setReviewWrongMode(true)}
+        tertiaryLabel="Xem tổng kết"
+        onTertiary={() => onDone?.({
+          code: 'F-06',
+          slot: 'boss',
+          total: lessonTotal,
+          firstTryCorrect: lessonCorrect,
+          score: lessonCorrect,
+          guestTotal,
+          guestCorrect,
+          wrongAnswers,
+          durationMs: Date.now() - startTimeRef.current,
+        })}
+      >
+        Bạn đúng <strong>{lessonCorrect}/{lessonTotal}</strong> câu chính (cần ≥{Math.round(passRate * 100)}%). Hãy ôn nhanh các từ sai rồi phản công nhé!
+      </ScreenActionModal>
     </FriendlyFrame>
   );
 }

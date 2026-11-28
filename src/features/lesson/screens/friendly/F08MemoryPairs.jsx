@@ -153,7 +153,7 @@ export default function F08MemoryPairs({
       skill="read"
       title="Lật cặp đồng cỏ"
       code="F-08"
-      counter={`Lật đúng cặp ${mem.matchedPairIds.length}/${totalPairs}`}
+      counter={`${mem.matchedPairIds.length}/${totalPairs}`}
       extraRight={(
         <div className="ff-f08-miss-dots" title={`Số lượt lật sai: ${mem.wrongFlips}`} aria-label={`Lượt lật sai: ${mem.wrongFlips}`}>
           {[0, 1, 2].map((i) => (

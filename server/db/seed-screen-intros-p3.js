@@ -204,22 +204,22 @@ const RAW_INTROS = {
 
   'F-03': {
     BD: [
-      'Gió thổi lời chào của Ông Tư bay lên trời rồi! Hứng lại giúp bò nha!',
-      'Bong bóng chữ đang bay trên mặt sông Bến Đò Ông Tư! Nghe từ rồi chạm bong bóng đúng giúp bò nhé!',
-      'Sương sớm làm mấy chữ trên bến gỗ bay lơ lửng rồi! Con lắng nghe rồi hứng chuẩn cùng Cowdi nha!',
-      'Khách qua sông Cù Lao gọi tên từng từ kìa! Nghe kỹ rồi chạm bong bóng đúng để bò hứng nhé!',
+      'Gió sông mang lời chào của Ông Tư vang lên kìa! Nghe kỹ rồi chọn đúng từ nha!',
+      'Từ vựng đang hiện trên mặt sông Bến Đò Ông Tư! Nghe âm rồi chọn đúng từ giúp bò nhé!',
+      'Sương sớm làm mấy chữ trên bến gỗ mờ đi rồi! Con lắng nghe rồi nhận diện đúng cùng Cowdi nha!',
+      'Khách qua sông Cù Lao gọi tên từng từ kìa! Nghe kỹ rồi chọn đúng từ tiếng Anh nhé!',
     ],
     TG: [
-      'Gió lộng ở Tháp Gió thổi bong bóng chữ bay khắp cánh đồng! Nghe kỹ rồi hứng đúng giúp bò nha!',
-      'Mimi thả ba quả bong bóng chữ từ đỉnh Tháp Gió. Con nghe phát âm rồi chạm đúng quả nhé!',
-      'Owlbert đọc to từng từ giữa Tháp Gió. Hứng liền 3 quả đúng để tạo combo cùng Cowdi nha!',
-      'Storm khuấy gió làm chữ bay lên cao kìa! Nghe rõ rồi giúp bò hứng đúng bong bóng nhé!',
+      'Gió lộng ở Tháp Gió mang theo âm thanh từng từ! Nghe kỹ rồi chọn đúng giúp bò nha!',
+      'Mimi đọc vang từng từ từ đỉnh Tháp Gió. Con nghe phát âm rồi chọn đúng đáp án nhé!',
+      'Owlbert đọc to từng từ giữa Tháp Gió. Chọn đúng liền 3 câu để tạo combo cùng Cowdi nha!',
+      'Storm khuấy gió làm chữ bay lên cao kìa! Nghe rõ rồi giúp bò chọn đúng từ nhé!',
     ],
     VS: [
-      'Đàn gà ở Vườn Sữa kêu tên từng bạn. Nghe kỹ rồi hứng đúng nha!',
-      'Bong bóng chữ đang trôi nhẹ trên Vườn Sữa! Con lắng nghe rồi chạm đúng từ giúp Cowdi nha!',
-      'Bamboo thổi bong bóng từ mới bay qua rừng trúc Vườn Sữa. Nghe kỹ rồi hứng thật chuẩn nhé!',
-      'Giữa Vườn Sữa rộn ràng, con giữ nút loa nếu cần nghe chậm rồi hứng đúng bong bóng chữ nha!',
+      'Đàn gà ở Vườn Sữa kêu tên từng bạn. Nghe kỹ rồi chọn đúng từ nha!',
+      'Âm thanh từ vựng đang vang nhẹ trên Vườn Sữa! Con lắng nghe rồi chọn đúng giúp Cowdi nha!',
+      'Bamboo đọc từng từ mới bên rừng trúc Vườn Sữa. Nghe kỹ rồi nhận diện thật chuẩn nhé!',
+      'Giữa Vườn Sữa rộn ràng, con giữ nút loa nếu cần nghe chậm rồi chọn đúng từ tiếng Anh nha!',
     ],
   },
 

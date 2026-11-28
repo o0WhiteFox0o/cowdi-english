@@ -76,7 +76,7 @@ export const SCREEN_CATALOG = [
   },
   {
     code: 'F-03',
-    name: 'Bò hứng chữ',
+    name: 'Nghe nhận diện từ',
     level: 'friendly',
     slot: 'listen',
     phase: 3,

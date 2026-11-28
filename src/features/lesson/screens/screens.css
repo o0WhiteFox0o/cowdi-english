@@ -2,10 +2,115 @@
    Hệ thống Màn học Cowdi — Đợt 1 (tái sử dụng layout đồng hành BookShell + .pd-lesson-layout)
    ═══════════════════════════════════════════════════════════ */
 
+.ss-host-flow {
+  container: screen-stage / inline-size;
+}
+
 .ss-host-flow.is-sandbox {
-  padding: 10px;
+  padding: 0;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Container query đảm bảo cả khung Preview 360x640 trên desktop lẫn điện thoại thật đều xếp dọc chuẩn */
+@supports (container-type: inline-size) {
+  @container screen-stage (max-width: 719px) {
+    .pd-lesson-layout {
+      flex-direction: column !important;
+      gap: 6px !important;
+      max-width: 100% !important;
+    }
+
+    .pd-lesson-stage-col {
+      width: 100% !important;
+      flex: 0 0 auto !important;
+      position: static !important;
+    }
+
+    .pd-lesson-stage-col.ss-hide-stage-narrow {
+      display: none !important;
+    }
+
+    .ss-route-card .card-body {
+      padding: 6px 8px !important;
+    }
+
+    .ss-circle {
+      width: 22px;
+      height: 22px;
+    }
+
+    .ss-circle.is-current {
+      width: 26px;
+      height: 26px;
+    }
+
+    .ss-route-sub {
+      margin-top: 4px;
+    }
+  }
+}
+
+/* ── T-01 Từ vựng zero-scroll (1 thẻ trên container hẹp, 2 thẻ trên container rộng) ── */
+.ss-t01-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@container screen-stage (min-width: 620px) {
+  .ss-t01-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+.ss-t01-card {
+  background: #FFFFFF;
+  border: 2px solid #E5EEF7;
+  border-radius: 16px;
+  padding: 12px 14px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.ss-t01-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ss-t01-word-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 140px;
+}
+
+.ss-t01-word {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--cowdi-primary, #4CAF50);
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.ss-t01-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ss-t01-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 /* ── RouteHeader (gọn trong card Cowdi quen thuộc) ── */
@@ -399,6 +504,65 @@ dialog.ss-exit-dialog {
   background: #FFFDF7;
   color: #4A3420;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* ── ScreenActionModal (Popup xác nhận qua màn & phản hồi — chuẩn modern-web-guidance) ── */
+dialog.ss-action-modal:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.ss-action-modal::backdrop {
+  background: rgba(31, 22, 13, 0.52);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+dialog.ss-action-modal {
+  border: 2px solid #F0E2C4;
+  border-radius: 20px;
+  padding: 16px 18px;
+  width: min(92vw, 390px);
+  background: #FFFDF7;
+  color: #4A3420;
+  box-shadow: 0 16px 38px rgba(31, 22, 13, 0.28);
+}
+
+dialog.ss-action-modal.is-success {
+  border-color: #86EFAC;
+}
+
+dialog.ss-action-modal.is-warning {
+  border-color: #F59E0B;
+}
+
+.ss-action-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ss-action-modal-title {
+  font-size: 1.08rem;
+  font-weight: 800;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.ss-action-modal-body {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #5E4630;
+  margin-bottom: 14px;
+  overflow-wrap: break-word;
+}
+
+.ss-action-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,6 +5,7 @@ import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speec
 import { getWordId } from '../../../vocab/wordProgress';
 import FriendlyFrame from './FriendlyFrame';
 import WordSkillDots from './WordSkillDots';
+import ScreenActionModal from '../ScreenActionModal';
 
 const MAX_CARDS = 13; // TODO (Đợt 4): nếu bài > 13 từ thì chia 2 lượt, xen giữa 3 câu F-03 ngắn.
 const PAUSE_AFTER_SPEECH_MS = 1500;
@@ -36,6 +37,7 @@ export default function F01Slideshow({
   const words = useMemo(() => (lesson?.vocabulary || []).slice(0, MAX_CARDS), [lesson?.vocabulary]);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
   const startTimeRef = useRef(Date.now());
   const holdTimerRef = useRef(null);
@@ -63,9 +65,10 @@ export default function F01Slideshow({
       setIndex((i) => i + 1);
       setProgressPct(0);
     } else {
-      finishScreen();
+      setPaused(true);
+      setConfirmOpen(true);
     }
-  }, [index, words.length, finishScreen]);
+  }, [index, words.length]);
 
   const goPrev = useCallback(() => {
     cancelSpeech();
@@ -190,35 +193,35 @@ export default function F01Slideshow({
           </button>
         </div>
 
-        <div className="my-2 d-flex justify-content-center align-items-center" style={{ minHeight: 72 }}>
+        <div className="my-1 d-flex justify-content-center align-items-center" style={{ minHeight: 54 }}>
           {current.image ? (
             <img
               src={current.image}
               alt={current.word}
-              style={{ maxHeight: 76, maxWidth: 120, objectFit: 'contain', borderRadius: 12 }}
+              style={{ maxHeight: 58, maxWidth: 100, objectFit: 'contain', borderRadius: 10 }}
             />
           ) : (
-            <Emoji e={current.illustration || '📖'} size={58} />
+            <Emoji e={current.illustration || '📖'} size={44} />
           )}
         </div>
 
         <div className="ff-f01-word">{current.word}</div>
 
         {group !== 'beginner' && current.phonetic && (
-          <div className="text-muted small mt-1">{current.phonetic}</div>
+          <div className="text-muted small">{current.phonetic}</div>
         )}
 
-        <div className="fw-bold fs-5 mt-1" style={{ color: '#2E7D32' }}>
+        <div className="fw-bold fs-6 mt-1" style={{ color: '#2E7D32' }}>
           {current.meaning}
         </div>
 
         {current.example && (
-          <div className="mt-2 p-2 rounded-3" style={{ background: '#FFFDF7', border: '1px solid #F0E2C4' }}>
-            <div className="fw-semibold" style={{ fontSize: '1rem', color: '#4A3420' }}>
+          <div className="mt-1 p-2 rounded-3" style={{ background: '#FFFDF7', border: '1px solid #F0E2C4' }}>
+            <div className="fw-semibold small" style={{ color: '#4A3420' }}>
               “{highlightWordInExample(current.example, current.word)}”
             </div>
             {current.exampleVi && (
-              <div className="small text-muted mt-1">{current.exampleVi}</div>
+              <div className="text-muted" style={{ fontSize: '0.76rem' }}>{current.exampleVi}</div>
             )}
           </div>
         )}
@@ -228,17 +231,14 @@ export default function F01Slideshow({
         </div>
       </div>
 
-      {/* Dưới thẻ: "Từ này sẽ gặp lại trong ải" + 4 chấm kỹ năng (PHASE3 §2 F-01) */}
-      <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 px-1">
-        <div className="d-flex align-items-center gap-2 flex-wrap">
-          <span className="small fw-semibold" style={{ color: '#7C6550' }}>Từ này sẽ gặp lại trong ải</span>
-          <WordSkillDots progress={wordProgress[currentId]} showLabels />
-        </div>
+      {/* Dưới thẻ: 4 chấm kỹ năng + điều hướng gọn 1 dòng */}
+      <div className="d-flex align-items-center justify-content-between gap-2">
+        <WordSkillDots progress={wordProgress[currentId]} compact />
         <div className="d-flex gap-2">
           <button
             type="button"
             className="btn btn-sm btn-outline-secondary ff-tap-btn"
-            style={{ minHeight: 42, padding: '0 12px' }}
+            style={{ minBlockSize: 38, padding: '0 10px' }}
             disabled={index === 0}
             onClick={goPrev}
           >
@@ -247,13 +247,27 @@ export default function F01Slideshow({
           <button
             type="button"
             className="btn btn-sm btn-cowdi-primary ff-tap-btn"
-            style={{ minHeight: 42, padding: '0 14px' }}
+            style={{ minBlockSize: 38, padding: '0 12px' }}
             onClick={goNext}
           >
             {index + 1 < words.length ? 'Tiếp →' : 'Xong màn ✓'}
           </button>
         </div>
       </div>
+
+      <ScreenActionModal
+        open={confirmOpen}
+        title="Đã xem xong từ mới!"
+        tone="success"
+        dismissible
+        onDismiss={() => setConfirmOpen(false)}
+        primaryLabel="Sang màn tiếp theo →"
+        onPrimary={finishScreen}
+        tertiaryLabel="Xem lại"
+        onTertiary={() => { setConfirmOpen(false); setIndex(0); setPaused(false); }}
+      >
+        Bạn vừa trình chiếu hết <strong>{words.length}</strong> từ mới. Các từ này sẽ gặp lại ngay trong các màn tiếp theo!
+      </ScreenActionModal>
     </FriendlyFrame>
   );
 }

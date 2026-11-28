@@ -64,8 +64,8 @@ export default function StageIntro({
   const passPct = Math.round((passRate || 0.7) * 100);
 
   return (
-    <div className="ff-shell" style={{ gap: 12 }}>
-      {/* Khung cảnh vùng + NPC + câu chuyện */}
+    <div className="ff-shell" style={{ gap: 8 }}>
+      {/* Khung cảnh vùng + NPC + câu chuyện (gọn để 0 cuộn ở 360x640) */}
       <div
         className="ff-stage-hero"
         style={{
@@ -84,47 +84,47 @@ export default function StageIntro({
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              opacity: 0.28,
+              opacity: 0.25,
               pointerEvents: 'none',
             }}
           />
         )}
 
         <div className="position-relative">
-          <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
-            <span className="badge rounded-pill" style={{ background: 'rgba(255,255,255,0.88)', color: '#4A3420', fontWeight: 700 }}>
+          <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
+            <span className="badge rounded-pill" style={{ background: 'rgba(255,255,255,0.9)', color: '#4A3420', fontWeight: 700, fontSize: '0.72rem' }}>
               📍 {regionInfo.nameVi}
             </span>
-            <span className="badge rounded-pill" style={{ background: 'rgba(74,52,32,0.12)', color: '#4A3420' }}>
-              {screens.length} màn vượt ải
+            <span className="badge rounded-pill" style={{ background: 'rgba(74,52,32,0.12)', color: '#4A3420', fontSize: '0.72rem' }}>
+              {screens.length} màn
             </span>
           </div>
 
           <div className="d-flex align-items-center gap-2 mb-2">
-            <Emoji e={lesson?.icon || '📖'} size={30} />
-            <h2 className="h4 fw-bold mb-0">{lesson?.title}</h2>
+            <Emoji e={lesson?.icon || '📖'} size={24} />
+            <h2 className="h5 fw-bold mb-0">{lesson?.title}</h2>
           </div>
 
           <div
-            className="p-2 px-3 rounded-4 d-flex align-items-center gap-2"
+            className="p-2 rounded-3 d-flex align-items-center gap-2"
             style={{ background: 'rgba(255,255,255,0.92)', border: '1.5px solid #F0E2C4' }}
           >
             {npc.img ? (
-              <img src={npc.img} alt={npc.name} width={44} height={44} style={{ objectFit: 'contain', flexShrink: 0 }} />
+              <img src={npc.img} alt={npc.name} width={36} height={36} style={{ objectFit: 'contain', flexShrink: 0 }} />
             ) : (
               <span
                 className="d-inline-flex align-items-center justify-content-center rounded-circle"
-                style={{ width: 42, height: 42, background: '#FEF3C7', fontSize: '1.35rem', flexShrink: 0 }}
+                style={{ width: 34, height: 34, background: '#FEF3C7', fontSize: '1.1rem', flexShrink: 0 }}
                 aria-hidden="true"
               >
                 {npc.id === 'ong_tu' ? '🚣' : npc.id === 'tom' ? '👨‍🏫' : '🙂'}
               </span>
             )}
-            <div>
-              <div className="small fw-bold text-uppercase" style={{ color: '#9A6324', letterSpacing: '0.03em' }}>
+            <div style={{ minWidth: 0 }}>
+              <div className="fw-bold text-uppercase" style={{ color: '#9A6324', fontSize: '0.68rem', letterSpacing: '0.03em' }}>
                 {npc.name}
               </div>
-              <div className="fw-semibold" style={{ fontSize: '0.94rem', lineHeight: 1.35 }}>
+              <div className="fw-semibold" style={{ fontSize: '0.84rem', lineHeight: 1.3 }}>
                 “{storyLine}”
               </div>
             </div>
@@ -135,9 +135,9 @@ export default function StageIntro({
       {/* Qua ải này, con sẽ */}
       {objectives.length > 0 && (
         <div className="ff-card py-2 px-3">
-          <div className="small fw-bold mb-1" style={{ color: '#7C6550' }}>Qua ải này, con sẽ:</div>
-          <ul className="mb-0 ps-3 small" style={{ lineHeight: 1.5 }}>
-            {objectives.map((obj, idx) => (
+          <div className="fw-bold mb-1" style={{ color: '#7C6550', fontSize: '0.76rem' }}>Qua ải này, con sẽ:</div>
+          <ul className="mb-0 ps-3" style={{ fontSize: '0.8rem', lineHeight: 1.38 }}>
+            {objectives.slice(0, 2).map((obj, idx) => (
               <li key={idx}>{obj}</li>
             ))}
           </ul>
@@ -145,12 +145,12 @@ export default function StageIntro({
       )}
 
       {/* 6 màn đã trộn */}
-      <div className="ff-card py-2 px-3">
-        <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
-          <span className="small fw-bold" style={{ color: '#7C6550' }}>Lộ trình {screens.length} màn hôm nay</span>
-          <span className="small text-muted">Ải sau xáo thứ tự khác</span>
+      <div className="ff-card py-2 px-2">
+        <div className="d-flex justify-content-between align-items-center mb-2 gap-1">
+          <span className="fw-bold" style={{ color: '#7C6550', fontSize: '0.74rem' }}>Lộ trình {screens.length} màn</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Ải sau xáo khác</span>
         </div>
-        <div className="d-flex justify-content-between gap-2 flex-wrap">
+        <div className="d-grid" style={{ gridTemplateColumns: `repeat(${Math.min(6, Math.max(3, screens.length))}, minmax(0, 1fr))`, gap: 4 }}>
           {screens.map((sc, idx) => {
             const slotMeta = SLOT_META[sc.slot] || SLOT_META.intro;
             const meta = getScreen(sc.code);
@@ -158,33 +158,33 @@ export default function StageIntro({
               <div
                 key={`${sc.code}-${idx}`}
                 className="d-flex flex-column align-items-center text-center"
-                style={{ flex: '1 1 70px', minWidth: 64 }}
               >
                 <span
                   className="d-inline-flex align-items-center justify-content-center rounded-circle text-white shadow-sm"
-                  style={{ width: 38, height: 38, background: slotMeta.color }}
+                  style={{ width: 30, height: 30, background: slotMeta.color }}
                 >
-                  <Icon name={slotMeta.icon} size={18} />
+                  <Icon name={slotMeta.icon} size={14} />
                 </span>
-                <small className="fw-bold mt-1" style={{ fontSize: '0.72rem', lineHeight: 1.15 }}>
+                <small className="fw-bold mt-1" style={{ fontSize: '0.64rem', lineHeight: 1.12 }}>
                   {meta?.name || slotMeta.label}
                 </small>
               </div>
             );
           })}
         </div>
-        <div className="mt-2 pt-2 border-top small text-muted text-center">
-          ☁️ Boss Sương <strong>{regionInfo.nameVi}</strong> chờ ở cuối ải. Trả lời đúng <strong>{passPct}%</strong> để giải sương.
+        <div className="mt-2 pt-1 border-top text-muted text-center" style={{ fontSize: '0.74rem' }}>
+          ☁️ Boss Sương <strong>{regionInfo.nameVi}</strong> · Cần đúng <strong>{passPct}%</strong> để giải sương.
         </div>
       </div>
 
       {/* 1 chạm vận hành duy nhất để vào màn 1 và mở khoá audio */}
       <button
         type="button"
-        className="btn btn-cowdi-primary btn-lg w-100 ff-tap-btn d-inline-flex align-items-center justify-content-center gap-2"
+        className="btn btn-cowdi-primary w-100 ff-tap-btn d-inline-flex align-items-center justify-content-center gap-2"
+        style={{ fontSize: '1rem' }}
         onClick={onStart}
       >
-        <Icon name="play" size={20} /> Bắt đầu vượt ải
+        <Icon name="play" size={18} /> Bắt đầu vượt ải
       </button>
     </div>
   );

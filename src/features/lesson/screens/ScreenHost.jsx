@@ -538,7 +538,7 @@ export default function ScreenHost({
         className={`pd-lesson-layout${isCenteredLayout ? ' pd-lesson-layout--centered' : ''}${isFlashcardLayout ? ' pd-lesson-layout--flashcard' : ''}`}
       >
         {petDock && (
-          <aside className="pd-lesson-stage-col">
+          <aside className={`pd-lesson-stage-col${(phase === 'stage_intro' || phase === 'intro' || isFriendlyScreen) ? ' ss-hide-stage-narrow' : ''}`}>
             {petDock}
           </aside>
         )}

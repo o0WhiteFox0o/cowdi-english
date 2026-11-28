@@ -5,6 +5,7 @@ import { createRng } from '../seededRandom';
 import { writeItems, pickGrammarTip } from '../items';
 import { evaluateBoatTile } from './friendlyLogic';
 import FriendlyFrame from './FriendlyFrame';
+import ScreenActionModal from '../ScreenActionModal';
 
 export { evaluateBoatTile };
 
@@ -180,7 +181,7 @@ export default function F09BoatSentence({
       skill="write"
       title="Đò chở câu"
       code="F-09"
-      counter={`Câu ${cursor + 1}/${sentences.length}`}
+      counter={`${cursor + 1}/${sentences.length}`}
       showGrammarButton={(lesson?.grammar || []).length > 0}
       onOpenGrammar={onOpenGrammar}
       petText={petText}
@@ -188,17 +189,17 @@ export default function F09BoatSentence({
     >
       {/* Nghĩa tiếng Việt + nút loa đọc sau khi hoàn thành */}
       <div className="ff-card d-flex align-items-center justify-content-between gap-2">
-        <div>
-          <div className="small text-muted">Xếp câu tiếng Anh cho nghĩa:</div>
-          <div className="fw-bold fs-5" style={{ color: '#4A3420' }}>{current.vi}</div>
+        <div style={{ minWidth: 0 }}>
+          <div className="text-muted" style={{ fontSize: '0.74rem' }}>Xếp câu tiếng Anh cho nghĩa:</div>
+          <div className="fw-bold" style={{ fontSize: '1.02rem', color: '#4A3420', lineHeight: 1.3 }}>{current.vi}</div>
         </div>
         {solved && (
           <button
             type="button"
-            className="btn btn-sm btn-cowdi-primary rounded-pill d-inline-flex align-items-center gap-1"
+            className="btn btn-sm btn-cowdi-primary rounded-pill d-inline-flex align-items-center gap-1 flex-shrink-0"
             onClick={() => speakWord(current.en, { rate: defaultRate, lang: 'en-US' }).catch(() => {})}
           >
-            <Icon name="sound" size={16} /> Nghe câu
+            <Icon name="sound" size={14} /> Nghe
           </button>
         )}
       </div>
@@ -244,19 +245,19 @@ export default function F09BoatSentence({
         })}
       </div>
 
-      {/* Nếu có sai trước đó, sau khi xếp đúng chờ 1 chạm để đọc kỹ mẹo rồi tiếp */}
-      {solved && hadWrong && (
-        <div className="d-flex justify-content-between align-items-center gap-2 p-2 rounded-3" style={{ background: '#DCFCE7', border: '1.5px solid #22C55E' }}>
-          <div className="small fw-bold" style={{ color: '#166534' }}>✓ {current.en}</div>
-          <button
-            type="button"
-            className="btn btn-cowdi-primary ff-tap-btn px-3"
-            onClick={() => advanceNext(firstTryCount)}
-          >
-            {cursor + 1 < sentences.length ? 'Câu tiếp →' : 'Hoàn thành →'}
-          </button>
-        </div>
-      )}
+      {/* Popup xác nhận khi xếp đúng sau lượt sai — không đẩy layout gây cuộn */}
+      <ScreenActionModal
+        open={Boolean(solved && hadWrong)}
+        title="Đò đã qua sông!"
+        tone="success"
+        primaryLabel={cursor + 1 < sentences.length ? 'Câu tiếp theo →' : 'Hoàn thành màn →'}
+        onPrimary={() => advanceNext(firstTryCount)}
+        secondaryLabel="🔊 Nghe câu"
+        onSecondary={() => speakWord(current.en, { rate: defaultRate, lang: 'en-US' }).catch(() => {})}
+      >
+        <div className="fw-bold text-success mb-1">✓ {current.en}</div>
+        <div className="small text-muted">{current.vi}</div>
+      </ScreenActionModal>
     </FriendlyFrame>
   );
 }

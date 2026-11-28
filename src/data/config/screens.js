@@ -44,7 +44,7 @@ export const SCREEN_PLAY_RULES = {
   'T-07': 'Trả lời các câu hỏi tổng hợp để chinh phục ải này!',
   'T-08': 'Sắp xếp hoặc gõ lại câu tiếng Anh đúng theo nghĩa tiếng Việt.',
   'F-01': 'Xem và nghe lần lượt từng từ mới; chạm thẻ để dừng hoặc giữ loa nghe chậm.',
-  'F-03': 'Nghe phát âm rồi chạm bong bóng chứa từ tiếng Anh đúng để bò hứng.',
+  'F-03': 'Nghe phát âm rồi chọn đúng từ tiếng Anh tương ứng.',
   'F-06': 'Trả lời đúng các câu hỏi tổng hợp để đẩy lùi Boss Sương Mù!',
   'F-08': 'Lật hai thẻ cỏ để ghép đúng từ tiếng Anh với nghĩa tiếng Việt.',
   'F-09': 'Chạm từng thẻ từ trên bến xếp đúng thứ tự lên đò để qua sông.',

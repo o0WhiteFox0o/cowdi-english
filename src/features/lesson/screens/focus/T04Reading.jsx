@@ -4,6 +4,7 @@ import Emoji from '../../../../components/Emoji';
 import ExamReading from '../../ExamReading';
 import { speakWord, stopSpeaking } from '../../../../utils/speech';
 import { getWordId } from '../../../vocab/wordProgress';
+import ScreenActionModal from '../ScreenActionModal';
 
 /**
  * T-04 Đoạn văn (Slot Đọc — mức Tập trung).
@@ -19,6 +20,7 @@ export default function T04Reading({ lesson, rules, onEvent, onDone, sandbox, pl
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [scoreResult, setScoreResult] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     onEvent?.('item_shown', { itemId: `reading-${lesson?.id}`, wordIds: [] });
@@ -36,25 +38,37 @@ export default function T04Reading({ lesson, rules, onEvent, onDone, sandbox, pl
           showToast={extra?.showToast}
           play={play}
         />
-        <div className="lesson-step-footer mt-3">
-          <div className="lesson-step-footer-txt">
-            <small className="text-muted">Đọc hiểu học thuật</small>
-            <b>Hoàn tất phần đọc hiểu</b>
-          </div>
+        <div className="d-flex justify-content-end mt-2">
           <button
             type="button"
-            className="btn btn-cowdi-primary btn-lg d-inline-flex align-items-center gap-2"
-            onClick={() => onDone?.({
+            className="btn btn-cowdi-primary ss-tap-btn px-3"
+            onClick={() => setConfirmOpen(true)}
+          >
+            Hoàn tất đọc hiểu ✓
+          </button>
+        </div>
+        <ScreenActionModal
+          open={confirmOpen}
+          title="Hoàn tất phần đọc hiểu?"
+          tone="success"
+          dismissible
+          onDismiss={() => setConfirmOpen(false)}
+          primaryLabel="Sang màn tiếp theo →"
+          onPrimary={() => {
+            setConfirmOpen(false);
+            onDone?.({
               code: 'T-04',
               slot: 'read',
               total: reading.examQuestions.length,
               firstTryCorrect: reading.examQuestions.length,
               durationMs: Date.now() - startRef.current,
-            })}
-          >
-            Tiếp › <Icon name="play" size={18} />
-          </button>
-        </div>
+            });
+          }}
+          tertiaryLabel="Ở lại xem"
+          onTertiary={() => setConfirmOpen(false)}
+        >
+          Chuyển sang màn kỹ năng tiếp theo trong ải học này nhé!
+        </ScreenActionModal>
       </div>
     );
   }

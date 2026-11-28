@@ -5,6 +5,7 @@ import { getWordId } from '../../../vocab/wordProgress';
 import { createRng } from '../seededRandom';
 import FriendlyFrame from './FriendlyFrame';
 import { useItemQueue } from './useItemQueue';
+import ScreenActionModal from '../ScreenActionModal';
 
 const TARGET_TURNS = 8;
 
@@ -34,7 +35,7 @@ function pickDistractors(target, pool, rng) {
 }
 
 /**
- * F-03 Bò hứng chữ (slot 'listen' — PHASE3 §2 F-03).
+ * F-03 Nghe nhận diện từ (slot 'listen' — PHASE3 §2 F-03, đổi từ "Bò hứng chữ" 28/11).
  * - 8 lượt = 6 từ của bài + 2 khách quen (nếu có); không đủ thì bổ sung từ bài.
  * - Có thể truyền customWords (từ Boss F-06 khi bấm "Ôn từ sai").
  * - Tắt tiếng (muted / audioOff): hiện nghĩa tiếng Việt thay âm thanh (test P9).
@@ -59,7 +60,7 @@ export default function F03CatchWord({
   const [pickedWordId, setPickedWordId] = useState(null);
   const [phaseResult, setPhaseResult] = useState(null); // null | 'correct' | 'wrong'
   const [combo, setCombo] = useState(0);
-  const [petText, setPetText] = useState('Nghe từ rồi chạm bong bóng đúng để bò hứng nha!');
+  const [petText, setPetText] = useState('Nghe phát âm rồi chọn đúng từ tiếng Anh tương ứng nhé!');
 
   useEffect(() => {
     if (muted) setAudioOff(true);
@@ -171,7 +172,7 @@ export default function F03CatchWord({
       setPetText(
         nextCombo >= 3
           ? `Tuyệt vời! ${nextCombo} câu liền luôn rồi! (${target.word} = ${target.meaning})`
-          : `Hứng chuẩn! “${target.word}” nghĩa là ${target.meaning}.`
+          : `Chính xác! “${target.word}” nghĩa là ${target.meaning}.`
       );
       onEvent?.('item_correct', {
         itemId: current.entryId,
@@ -224,15 +225,15 @@ export default function F03CatchWord({
   return (
     <FriendlyFrame
       skill="listen"
-      title="Bò hứng chữ"
+      title="Nghe nhận diện từ"
       code="F-03"
-      counter={`Lượt ${Math.min(cursor + 1, totalSteps)}/${totalSteps}`}
-      extraRight={combo >= 3 ? <span className="ff-combo-chip">🔥 {combo} liền!</span> : null}
+      counter={`${Math.min(cursor + 1, totalSteps)}/${totalSteps}`}
+      extraRight={combo >= 3 ? <span className="ff-combo-chip">🔥 {combo}!</span> : null}
       petText={petText}
       petTone={phaseResult === 'correct' ? 'good' : phaseResult === 'wrong' ? 'hint' : 'neutral'}
     >
       <div className="ff-card text-center">
-        <div className="d-flex justify-content-between align-items-center mb-2">
+        <div className="d-flex justify-content-between align-items-center gap-2 mb-2">
           {item.isGuest ? (
             <span className="ff-guest-badge">🌿 khách quen</span>
           ) : (
@@ -240,21 +241,22 @@ export default function F03CatchWord({
           )}
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary rounded-pill"
+            className="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2"
+            style={{ fontSize: '0.75rem', minHeight: 30 }}
             onClick={() => setAudioOff((v) => !v)}
             title="Bật/tắt chế độ không âm thanh (hiện nghĩa tiếng Việt)"
           >
-            {audioOff ? '🔇 Đang hiện chữ' : '🔊 Đang bật loa'}
+            {audioOff ? '🔇 Hiện chữ' : '🔊 Bật loa'}
           </button>
         </div>
 
         {audioOff ? (
-          <div className="py-2">
-            <div className="small text-muted mb-1">Chế độ tắt tiếng — chọn từ tiếng Anh cho nghĩa:</div>
-            <div className="fs-4 fw-bold" style={{ color: '#2F7FD1' }}>{item.meaning}</div>
+          <div className="py-1">
+            <div className="small text-muted">Chọn từ tiếng Anh cho nghĩa:</div>
+            <div className="fs-5 fw-bold" style={{ color: '#2F7FD1' }}>{item.meaning}</div>
           </div>
         ) : (
-          <div className="d-flex flex-column align-items-center gap-1 py-1">
+          <div className="d-flex flex-column align-items-center gap-1">
             <button
               type="button"
               className="btn btn-cowdi-primary ff-tap-btn rounded-pill px-4 d-inline-flex align-items-center gap-2"
@@ -262,14 +264,14 @@ export default function F03CatchWord({
               onPointerUp={handleSpeakerUp}
               onPointerLeave={() => clearTimeout(holdTimerRef.current)}
             >
-              <Icon name="sound" size={22} /> Nghe lại từ
+              <Icon name="sound" size={20} /> Nghe lại từ
             </button>
-            <small className="text-muted">Chạm để nghe · Giữ nút để nghe chậm</small>
+            <small className="text-muted" style={{ fontSize: '0.74rem' }}>Chạm nghe lại · Giữ nút để nghe chậm</small>
           </div>
         )}
       </div>
 
-      {/* 3 bong bóng trôi nhẹ */}
+      {/* 3 lựa chọn (1 cột full-width trên 360px để không bao giờ tràn chữ) */}
       <div className="ff-f03-arena" role="group" aria-label="Chọn từ đúng">
         {item.options.map((opt) => {
           const isPicked = pickedWordId === opt.wordId;
@@ -295,21 +297,18 @@ export default function F03CatchWord({
         })}
       </div>
 
-      {/* Sai: chờ 1 chạm để sang lượt kế */}
-      {phaseResult === 'wrong' && (
-        <div className="d-flex justify-content-between align-items-center gap-2 p-2 rounded-3" style={{ background: '#FEF3C7', border: '1.5px solid #F59E0B' }}>
-          <div className="small">
-            Đáp án: <strong>{item.word}</strong> — {item.meaning}
-          </div>
-          <button
-            type="button"
-            className="btn btn-cowdi-primary ff-tap-btn px-3"
-            onClick={() => handleAdvance(false)}
-          >
-            Tiếp →
-          </button>
-        </div>
-      )}
+      {/* Popup phản hồi khi trả lời sai — không đẩy layout gây cuộn */}
+      <ScreenActionModal
+        open={phaseResult === 'wrong'}
+        title="Chưa đúng rồi — nghe lại nhé!"
+        tone="warning"
+        primaryLabel="Tiếp theo →"
+        onPrimary={() => handleAdvance(false)}
+        secondaryLabel={!audioOff ? '🔊 Nghe lại' : ''}
+        onSecondary={!audioOff ? () => speakWord(item.word, { rate: 0.65, lang: 'en-US' }).catch(() => {}) : undefined}
+      >
+        Đáp án đúng là <strong>{item.word}</strong> — <span className="text-muted">{item.meaning}</span>.
+      </ScreenActionModal>
     </FriendlyFrame>
   );
 }
