@@ -17,8 +17,11 @@ import F03CatchWord from './friendly/F03CatchWord.jsx';
 import F04SpeakBridge from './friendly/F04SpeakBridge.jsx';
 import F05FogReading from './friendly/F05FogReading.jsx';
 import F06FogBoss from './friendly/F06FogBoss.jsx';
+import F07MarketListen from './friendly/F07MarketListen.jsx';
 import F08MemoryPairs from './friendly/F08MemoryPairs.jsx';
 import F09BoatSentence from './friendly/F09BoatSentence.jsx';
+import F10NpcDialog from './friendly/F10NpcDialog.jsx';
+import F11TrueFalse from './friendly/F11TrueFalse.jsx';
 
 const COMPONENT_MAP = {
   'T-01': T01Vocab,
@@ -34,8 +37,11 @@ const COMPONENT_MAP = {
   'F-04': F04SpeakBridge,
   'F-05': F05FogReading,
   'F-06': F06FogBoss,
+  'F-07': F07MarketListen,
   'F-08': F08MemoryPairs,
   'F-09': F09BoatSentence,
+  'F-10': F10NpcDialog,
+  'F-11': F11TrueFalse,
 };
 
 export { SLOTS };

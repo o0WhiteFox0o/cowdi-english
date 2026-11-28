@@ -54,6 +54,7 @@ export const RULES = {
 };
 
 const EXAM_Q_TYPES = ['tfng', 'ynng', 'mcq', 'heading', 'sentence-completion', 'matching-info'];
+const HUMAN_CAST_IDS = ['mai', 'minh', 'lan', 'tom', 'khoa', 'ong_tu'];
 
 const wc = (s) => (String(s || '').trim().match(/[A-Za-z0-9'’-]+/g) || []).length;
 const isStr = (s) => typeof s === 'string' && s.trim().length > 0;
@@ -92,7 +93,7 @@ function checkMcq(q, where, err) {
  * Kiểm tra một bài. Trả về { level, errors[], warnings[] }.
  * strict = true: vi phạm chuẩn là error. strict = false: chỉ lỗi cấu trúc là error, còn lại warning.
  */
-export function validateLesson(lesson, { strict = lesson?.contentVersion === CONTENT_VERSION } = {}) {
+export function validateLesson(lesson, { strict = lesson?.contentVersion === CONTENT_VERSION, imageExists = null } = {}) {
   const errors = [];
   const warnings = [];
   const err = (m) => errors.push(m);
@@ -161,6 +162,8 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
     if (!isStr(v.example)) std(`${at}: thiếu example`);
     else if (checkable(v.word) && !hasForm(v.example, v.word)) std(`${at}: example không chứa đúng từ`);
     if (!isStr(v.exampleVi)) std(`${at}: thiếu exampleVi (bản dịch câu ví dụ)`);
+    if (v.countable !== undefined && typeof v.countable !== 'boolean') err(`${at}: countable phải là boolean`);
+    if (v.plural !== undefined && !isStr(v.plural)) err(`${at}: plural phải là chuỗi không rỗng`);
     const k = String(v.word).toLowerCase();
     if (seen.has(k)) err(`${at}: trùng từ`);
     seen.add(k);
@@ -268,6 +271,77 @@ export function validateLesson(lesson, { strict = lesson?.contentVersion === CON
   });
   const withEx = quiz.filter((q) => isStr(q.explanation)).length;
   if (quiz.length && withEx / quiz.length < R.quizWithExplanation) std(`quiz: ${quiz.length - withEx} câu thiếu explanation`);
+
+  // ── Tuỳ chọn Đợt 4b: dialogPrompts[] (F-10) & trueFalse[] (F-11) ──────────
+  if (lesson.dialogPrompts !== undefined) {
+    if (!Array.isArray(lesson.dialogPrompts)) {
+      err('dialogPrompts phải là mảng');
+    } else {
+      lesson.dialogPrompts.forEach((dp, i) => {
+        const at = `dialogPrompts[${i}]`;
+        if (!dp || typeof dp !== 'object') { err(`${at}: phải là object`); return; }
+        if (!isStr(dp.id)) err(`${at}: thiếu id`);
+        if (!isStr(dp.npc) || !HUMAN_CAST_IDS.includes(dp.npc)) {
+          err(`${at}: npc "${dp.npc || ''}" phải nằm trong HUMAN_CAST (${HUMAN_CAST_IDS.join(', ')})`);
+        }
+        if (!isStr(dp.askEn) || !isStr(dp.askVi)) err(`${at}: thiếu askEn/askVi`);
+        else if (wc(dp.askEn) > 12) err(`${at}: askEn dài ${wc(dp.askEn)} từ (tối đa 12 từ)`);
+        if (!isStr(dp.replyEn) || !isStr(dp.replyVi)) err(`${at}: thiếu replyEn/replyVi`);
+        else if (wc(dp.replyEn) > 12) err(`${at}: replyEn dài ${wc(dp.replyEn)} từ (tối đa 12 từ)`);
+
+        if (!Array.isArray(dp.answers) || dp.answers.length < 1) {
+          err(`${at}: cần ≥1 câu trong answers[]`);
+        } else {
+          dp.answers.forEach((a, j) => {
+            if (!isStr(a?.en) || !isStr(a?.vi)) err(`${at}.answers[${j}]: thiếu en/vi`);
+            else if (wc(a.en) > 12) err(`${at}.answers[${j}]: en dài ${wc(a.en)} từ (tối đa 12 từ)`);
+          });
+        }
+
+        if (!Array.isArray(dp.keywords) || dp.keywords.length < 1) {
+          err(`${at}: cần ≥1 từ khoá trong keywords[]`);
+        } else {
+          const ansList = Array.isArray(dp.answers) ? dp.answers.map((a) => String(a?.en || '')) : [];
+          for (const kw of dp.keywords) {
+            if (!isStr(kw)) { err(`${at}: keyword không được trống`); continue; }
+            const found = ansList.some((ans) => has(ans, kw));
+            if (!found) err(`${at}: keyword "${kw}" không xuất hiện trong bất kỳ answers[].en nào`);
+          }
+        }
+      });
+    }
+  }
+
+  if (lesson.trueFalse !== undefined) {
+    if (!Array.isArray(lesson.trueFalse)) {
+      err('trueFalse phải là mảng');
+    } else {
+      let trueCnt = 0;
+      let falseCnt = 0;
+      lesson.trueFalse.forEach((tf, i) => {
+        const at = `trueFalse[${i}]`;
+        if (!tf || typeof tf !== 'object') { err(`${at}: phải là object`); return; }
+        if (!isStr(tf.en) || !isStr(tf.vi)) err(`${at}: thiếu en/vi`);
+        if (typeof tf.isTrue !== 'boolean') err(`${at}: isTrue phải là boolean`);
+        else if (tf.isTrue) trueCnt++;
+        else {
+          falseCnt++;
+          if (!isStr(tf.whyVi)) err(`${at}: câu sai (isTrue: false) bắt buộc có whyVi`);
+        }
+        if (isStr(tf.image)) {
+          if (!tf.image.startsWith('/image/')) err(`${at}: image phải bắt đầu bằng /image/`);
+          else if (typeof imageExists === 'function' && !imageExists(tf.image)) {
+            err(`${at}: ảnh không tồn tại (${tf.image})`);
+          }
+        } else if (!isStr(tf.illustration) && !isStr(tf.sceneBrief)) {
+          err(`${at}: cần image hoặc illustration/sceneBrief`);
+        }
+      });
+      if (lesson.trueFalse.length >= 2 && (trueCnt === 0 || falseCnt === 0)) {
+        err('trueFalse: trong bài phải có cả câu đúng (true) và câu sai (false)');
+      }
+    }
+  }
 
   return { level, errors, warnings };
 }

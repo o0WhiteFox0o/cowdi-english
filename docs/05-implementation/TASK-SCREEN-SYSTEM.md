@@ -2,7 +2,7 @@
 
 > **Ngày lập:** 2026-11-27 · **Chuẩn gốc:** [STD-SCREEN-SYSTEM-v1.0.md](../04-design/STD-SCREEN-SYSTEM-v1.0.md)  
 > **Khảo sát Bước 0:** [RPT-SCREEN-SYSTEM-SURVEY.md](RPT-SCREEN-SYSTEM-SURVEY.md) · **Gói giao việc:** [screen-system/README.md](screen-system/README.md)  
-> **Trạng thái hiện tại:** 🟡 **Đợt 1 (`aed7af9`), Đợt 2 (`1e0fffc`) & Đợt 3 (`eaaa812`) đã gộp `main`** · **Đợt 4a (`feat/screen-system-p4a`) đang hoàn tất** (Thống kê ẩn danh `screen_stat_daily` + Tab 8 Admin, `shared/screen-scenarios.js`, 3 màn F mới `F-02`, `F-04`, `F-05` trạng thái `'test'`, 36 câu dẫn `draft`) — chờ Sonny UAT (đặc biệt test mic F-04 trên iPhone Safari & Android Chrome thật) và duyệt merge.
+> **Trạng thái hiện tại:** 🟡 **Đợt 1 (`aed7af9`), Đợt 2 (`1e0fffc`), Đợt 3 (`eaaa812`) & Đợt 4a+4b đã gộp `main` và đóng gói `deploy.zip`** (đủ 11/11 màn Thân thiện `F-01..F-11` trạng thái `'test'`, 228 câu dẫn `draft`, thống kê ẩn danh `screen_stat_daily` + Tab 8 Admin, `shared/screen-scenarios.js`, dữ liệu mẫu 12 bài `int-u1..u3`) — chờ Sonny kiểm tra trên server thật; **Đợt 4c** (gỡ tab cũ `LessonDetailPage`) giữ lại tới khi chạy ổn định ≥ 2 tuần.
 
 ---
 
@@ -22,8 +22,8 @@
 | **Đợt 1** | `feat/screen-system-p1` → `main` | Registry 7 màn T, `items.js`, bộ trộn `mixer.js` + test M1–M9, tách 6 màn T giữ nguyên layout Cowdi + `PetStage`, màn mới **T-08 Viết câu**, T-03 → mẹo pet + `GrammarSheet`, `ScreenHost` / `RouteHeader` / `ScreenIntro` / `useScreenEvents`, cờ `screenSystemV1`, đồng bộ `lessonMixLog` & `lastMix` | Đã gộp `main` (`aed7af9`) 2026-11-27 | `[x]` |
 | **Đợt 2** | `feat/screen-system-p2` → `main` | Migration 4 bảng cấu hình (`RK-005` MySQL 5.6+), API `GET /api/screens/config` (ETag/304) + 7 API `/api/admin/screens*`, `ScreenConfigProvider`, trang `/admin/screens` (6 tab: Danh mục, Ma trận, Trộn thử + 1.000 lần, Xem trước sandbox, Tài khoản thử, Nhật ký), test A1–A8 + fix mẹo ngữ pháp T-08 | Đã gộp `main` (`1e0fffc`) 2026-11-27 | `[x]` |
 | **Đợt 3** | `feat/screen-system-p3` → `main` | Khung `friendly/`, 5 màn F đầu (**F-01, F-03, F-08, F-09, F-06** ở trạng thái `test`), màn **Mở ải**, bảng `screen_intro` + luật không lặp 10 ải + 156 câu dẫn nháp (`BD/TG/VS`) + tab admin Kho dẫn nhập, **Khách quen**, **4 chấm kỹ năng `skillsHit`**, **Sao ★ + Sữa theo sao** (`shared/lesson-stars.js`, Q13), màn **Tổng kết mới**, `story` cho 12 bài `int-u1..u3`, zero-scroll 360×640 + `ScreenActionModal` | Đã gộp `main` (`eaaa812`) 2026-11-28 | `[x]` |
-| **Đợt 4a** | `feat/screen-system-p4a` | Thống kê màn ẩn danh (`screen_stat_daily`, `POST /api/screen-stats`, tab admin Thống kê) + kịch bản tên màn theo vùng (`shared/screen-scenarios.js`) + 3 màn F (**F-02, F-04, F-05** ở trạng thái `test`) + 36 câu dẫn `draft` | Chờ Sonny UAT (gồm test mic F-04 trên iPhone Safari & Android Chrome thật) & duyệt merge | `[x]` |
-| **Đợt 4b** | `feat/screen-system-p4b` | Trường dữ liệu mới (`vocabulary[].plural/countable`, `dialogPrompts[]`, `trueFalse[]`) + validator + nội dung mẫu `int-u1..u3` + 3 màn F (**F-07, F-10, F-11**) | Phụ thuộc PO duyệt nội dung & ảnh theo `sceneBrief` | `[ ]` |
+| **Đợt 4a** | `feat/screen-system-p4a` → `main` | Thống kê màn ẩn danh (`screen_stat_daily`, `POST /api/screen-stats`, tab admin Thống kê) + kịch bản tên màn theo vùng (`shared/screen-scenarios.js`) + 3 màn F (**F-02, F-04, F-05** ở trạng thái `test`) + 36 câu dẫn `draft` | Đã gộp `main` (`3002163`) 2026-11-28 | `[x]` |
+| **Đợt 4b** | `feat/screen-system-p4b` → `main` | Trường dữ liệu mới (`vocabulary[].plural/countable`, `dialogPrompts[]`, `trueFalse[]`) + validator Q8 + `STD-LESSON-CONTENT v1.1` + dữ liệu mẫu 12 bài `int-u1..u3` + 3 màn F (**F-07, F-10, F-11** trạng thái `test`) + 36 câu dẫn `draft` | Hoàn tất & gộp `main` 2026-11-28 · đóng gói `deploy.zip` cho Sonny test server | `[x]` |
 | **Đợt 4c** | `feat/screen-system-p4c` | Gỡ code tab cũ khỏi `LessonDetailPage.jsx`, gỡ cờ `screenSystemV1` | Bật cho mọi người ≥ 2 tuần, không lỗi P0/P1 | `[ ]` |
 
 ---
@@ -78,8 +78,12 @@
   - **Checklist UAT thiết bị thật (cần ghi kết quả trước khi bật `F-04` sang `'on'`)**:
     - [ ] **iPhone Safari thật** (iOS): sau đếm `3-2-1`, xác nhận tự mở mic hoặc hiện nút *"Chạm để bật Mic"* ngay khi iOS chặn gesture; từ chối mic chuyển sang *"Nghe và nhắc lại"* và qua màn trơn tru.
     - [ ] **Android Chrome thật**: sau đếm `3-2-1`, xác nhận mic tự mở mượt mà không hiện nút mic thừa; nhóm Mới học bấm mic hoặc *"Con đã nói"* đều qua; kiểm tra bố cục `360×640` không cuộn trang trên `F-02`, `F-04`, `F-05`.
-- **4b**: Mở rộng `schema.js` + `validate-lessons.mjs` + `STD-LESSON-CONTENT` lên v1.1 (`plural`/`countable`, `dialogPrompts[]`, `trueFalse[]`), soạn dữ liệu mẫu `int-u1..u3`, 3 màn `F-07, F-10, F-11`.
-- **4c**: Gỡ code tab cũ trong `LessonDetailPage.jsx` và gỡ cờ `screenSystemV1` sau khi chạy ổn định ≥ 2 tuần.
+- **4b (`feat/screen-system-p4b` — hoàn tất 2026-11-28)**:
+  - Mở rộng `src/data/lessons/schema.js` + `scripts/validate-lessons.mjs` (kiểm `imageExists`) + `STD-LESSON-CONTENT` v1.1 (`vocabulary[].plural/countable`, `dialogPrompts[]`, `trueFalse[]`).
+  - Bổ sung dữ liệu mẫu cho trọn bộ **12 bài `int-u1..u3`**: `plural`/`countable` (6 bài có ≥ 8 danh từ đếm được), `dialogPrompts[]` (12/12 bài), `trueFalse[]` (12/12 bài, dùng ảnh `/image/art/...webp` có sẵn + `sceneBrief` cho phần chưa có tranh).
+  - 3 màn Thân thiện cuối (khởi tạo `'test'`, zero-scroll `360×640`): **F-07** (`F07MarketListen.jsx` + `f07Logic.js`, Q4), **F-10** (`F10NpcDialog.jsx` + `f10Logic.js`, chấm tất định không AI, Q3/Q5), **F-11** (`F11TrueFalse.jsx` + `f11Logic.js`, vuốt/chạm Đúng-Sai, Q6).
+  - 36 câu dẫn `draft` (`seed-screen-intros-p4b.{js,sql}`) + runner gộp Đợt 4 `scripts/run-screen-system-p4b-migration.js` + bộ kiểm thử `server/tests/screen-system-p4b.test.mjs` (Q4–Q6, Q8).
+- **4c (giữ lại theo chuẩn §4)**: Gỡ code tab cũ trong `LessonDetailPage.jsx` và gỡ cờ `screenSystemV1` **sau khi bật cho mọi người chạy ổn định ≥ 2 tuần**.
 
 ---
 

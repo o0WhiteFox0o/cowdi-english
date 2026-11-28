@@ -18,8 +18,11 @@ export const SCREEN_CONFIG = {
     'F-04': 'test',
     'F-05': 'test',
     'F-06': 'test',
+    'F-07': 'test',
     'F-08': 'test',
     'F-09': 'test',
+    'F-10': 'test',
+    'F-11': 'test',
   },
   weights: {
     beginner:     { friendly: 1.0,  focus: 0.0  },
@@ -52,8 +55,11 @@ export const SCREEN_PLAY_RULES = {
   'F-04': 'Nghe câu mẫu, đếm 3-2-1 rồi đọc to theo để đưa pet qua chướng ngại.',
   'F-05': 'Nghe từ khoá rồi chạm đúng ô sương ẩn trong đoạn văn để giải sương.',
   'F-06': 'Trả lời đúng các câu hỏi tổng hợp để đẩy lùi Boss Sương Mù!',
+  'F-07': 'Nghe khách đặt hàng rồi chọn đúng giỏ có đủ món và số lượng.',
   'F-08': 'Lật hai thẻ để ghép đúng từ tiếng Anh với nghĩa tiếng Việt.',
   'F-09': 'Chạm từng thẻ từ xếp đúng thứ tự để hoàn thành câu tiếng Anh.',
+  'F-10': 'Nghe câu hỏi của nhân vật rồi nói (hoặc chạm) câu trả lời phù hợp.',
+  'F-11': 'Đọc câu trên thẻ rồi chọn Đúng hoặc Sai (hoặc vuốt thẻ trái/phải).',
 };
 
 export const SCREEN_SYSTEM_FF_KEY = 'cowdi_ff_screenSystemV1';

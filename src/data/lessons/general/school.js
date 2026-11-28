@@ -1,8 +1,8 @@
 // Track: general — Unit int-u2 · Trường học (contentVersion 2)
 // Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const SCHOOL_LESSON = {
   id: 'school',
@@ -25,18 +25,18 @@ export const SCHOOL_LESSON = {
   },
 
   vocabulary: [
-    v('School', '/skuːl/', 'noun', 'Trường học', 'I go to school every morning.', 'Mình đi học mỗi sáng.', '🏫'),
-    v('Teacher', '/ˈtiːtʃər/', 'noun', 'Giáo viên', 'Our teacher is very patient.', 'Thầy cô giáo của chúng mình rất kiên nhẫn.', '👩‍🏫'),
-    v('Student', '/ˈstuːdənt/', 'noun', 'Học sinh', 'Minh is a hardworking student.', 'Minh là một học sinh chăm chỉ.', '🧑‍🎓'),
-    v('Classroom', '/ˈklæsruːm/', 'noun', 'Phòng học', 'Our classroom has big windows.', 'Phòng học của chúng mình có cửa sổ lớn.', '🪑'),
-    v('Book', '/bʊk/', 'noun', 'Quyển sách', 'Please open your English book.', 'Vui lòng mở sách tiếng Anh của bạn ra.', '📖'),
-    v('Pencil', '/ˈpensəl/', 'noun', 'Bút chì', 'Can I borrow your pencil?', 'Cho mình mượn bút chì của bạn nhé?', '✏️'),
-    v('Notebook', '/ˈnoʊtbʊk/', 'noun', 'Quyển vở', 'Write the new words in your notebook.', 'Viết các từ mới vào vở của bạn.', '📓'),
-    v('Homework', '/ˈhoʊmwɜːrk/', 'noun', 'Bài tập về nhà', 'I always finish my homework early.', 'Mình luôn làm xong bài tập về nhà sớm.', '📝'),
-    v('Subject', '/ˈsʌbdʒɪkt/', 'noun', 'Môn học', 'Math is my favorite subject.', 'Toán là môn học yêu thích của mình.', '📚'),
-    v('Exam', '/ɪɡˈzæm/', 'noun', 'Bài kiểm tra, kỳ thi', 'We have an English exam tomorrow.', 'Ngày mai chúng mình có bài kiểm tra tiếng Anh.', '📋'),
-    v('Library', '/ˈlaɪbreri/', 'noun', 'Thư viện', 'Lan likes reading in the library.', 'Lan thích đọc sách trong thư viện.', '🏛️'),
-    v('Desk', '/desk/', 'noun', 'Bàn học', 'My pencil is on the desk.', 'Cây bút chì của mình ở trên bàn học.', '🪵'),
+    v('School', '/skuːl/', 'noun', 'Trường học', 'I go to school every morning.', 'Mình đi học mỗi sáng.', '🏫', { countable: true, plural: 'schools' }),
+    v('Teacher', '/ˈtiːtʃər/', 'noun', 'Giáo viên', 'Our teacher is very patient.', 'Thầy cô giáo của chúng mình rất kiên nhẫn.', '👩‍🏫', { countable: true, plural: 'teachers' }),
+    v('Student', '/ˈstuːdənt/', 'noun', 'Học sinh', 'Minh is a hardworking student.', 'Minh là một học sinh chăm chỉ.', '🧑‍🎓', { countable: true, plural: 'students' }),
+    v('Classroom', '/ˈklæsruːm/', 'noun', 'Phòng học', 'Our classroom has big windows.', 'Phòng học của chúng mình có cửa sổ lớn.', '🪑', { countable: true, plural: 'classrooms' }),
+    v('Book', '/bʊk/', 'noun', 'Quyển sách', 'Please open your English book.', 'Vui lòng mở sách tiếng Anh của bạn ra.', '📖', { countable: true, plural: 'books' }),
+    v('Pencil', '/ˈpensəl/', 'noun', 'Bút chì', 'Can I borrow your pencil?', 'Cho mình mượn bút chì của bạn nhé?', '✏️', { countable: true, plural: 'pencils' }),
+    v('Notebook', '/ˈnoʊtbʊk/', 'noun', 'Quyển vở', 'Write the new words in your notebook.', 'Viết các từ mới vào vở của bạn.', '📓', { countable: true, plural: 'notebooks' }),
+    v('Homework', '/ˈhoʊmwɜːrk/', 'noun', 'Bài tập về nhà', 'I always finish my homework early.', 'Mình luôn làm xong bài tập về nhà sớm.', '📝', { countable: false }),
+    v('Subject', '/ˈsʌbdʒɪkt/', 'noun', 'Môn học', 'Math is my favorite subject.', 'Toán là môn học yêu thích của mình.', '📚', { countable: true, plural: 'subjects' }),
+    v('Exam', '/ɪɡˈzæm/', 'noun', 'Bài kiểm tra, kỳ thi', 'We have an English exam tomorrow.', 'Ngày mai chúng mình có bài kiểm tra tiếng Anh.', '📋', { countable: true, plural: 'exams' }),
+    v('Library', '/ˈlaɪbreri/', 'noun', 'Thư viện', 'Lan likes reading in the library.', 'Lan thích đọc sách trong thư viện.', '🏛️', { countable: true, plural: 'libraries' }),
+    v('Desk', '/desk/', 'noun', 'Bàn học', 'My pencil is on the desk.', 'Cây bút chì của mình ở trên bàn học.', '🪵', { countable: true, plural: 'desks' }),
   ],
 
   grammar: [
@@ -200,6 +200,97 @@ export const SCHOOL_LESSON = {
       options: ['Classroom', 'Homework', 'Teacher', 'Desk'],
       correct: 1,
       explanation: '"Homework" = bài tập về nhà.',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'sch-1',
+      npc: 'tom',
+      askEn: 'What is your favorite subject at school?',
+      askVi: 'Môn học yêu thích của con ở trường là gì?',
+      image: null,
+      answers: [
+        { en: 'English is my favorite subject.', vi: 'Tiếng Anh là môn yêu thích của con.' },
+        { en: 'I like math and music.', vi: 'Con thích toán và âm nhạc.' },
+      ],
+      keywords: ['favorite'],
+      replyEn: 'That is a great subject!',
+      replyVi: 'Đó là một môn học rất hay!',
+    },
+    {
+      id: 'sch-2',
+      npc: 'minh',
+      askEn: 'Where do you read books at school?',
+      askVi: 'Bạn đọc sách ở đâu tại trường?',
+      image: null,
+      answers: [
+        { en: 'I read in the library.', vi: 'Mình đọc trong thư viện.' },
+        { en: 'In the classroom after class.', vi: 'Trong phòng học sau giờ học.' },
+      ],
+      keywords: ['library'],
+      replyEn: 'Let us go to the library together!',
+      replyVi: 'Cùng nhau đến thư viện nhé!',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'We write new words in a notebook with a pencil.',
+      vi: 'Ta viết từ mới vào vở bằng bút chì.',
+      image: null,
+      illustration: '📓',
+      sceneBrief: 'Quyển vở mở và cây bút chì đặt trên bàn học gỗ, không chữ.',
+      isTrue: true,
+      wordIds: ['notebook', 'pencil'],
+    },
+    {
+      en: 'A library is a place to play football.',
+      vi: 'Thư viện là nơi để đá bóng.',
+      image: null,
+      illustration: '🏛️',
+      sceneBrief: 'Phòng thư viện yên tĩnh nhiều kệ sách cao, không chữ.',
+      isTrue: false,
+      whyVi: 'Thư viện ("library") là nơi yên tĩnh để đọc và mượn sách, không phải sân bóng.',
+      wordIds: ['library', 'book'],
+    },
+    {
+      en: 'A teacher helps students learn in the classroom.',
+      vi: 'Giáo viên giúp học sinh học trong phòng học.',
+      image: null,
+      illustration: '👩‍🏫',
+      sceneBrief: 'Cô giáo giảng bài thân thiện trước bảng lớp, không chữ.',
+      isTrue: true,
+      wordIds: ['teacher', 'student', 'classroom'],
+    },
+    {
+      en: 'We put our desk inside our pencil.',
+      vi: 'Ta bỏ cái bàn học vào trong cây bút chì.',
+      image: null,
+      illustration: '🪵',
+      sceneBrief: 'Bàn học gỗ lớn với cây bút chì nhỏ đặt ở trên, không chữ.',
+      isTrue: false,
+      whyVi: 'Bút chì ("pencil") đặt trên bàn học ("desk"), không thể bỏ bàn vào bút chì.',
+      wordIds: ['desk', 'pencil'],
+    },
+    {
+      en: 'Students finish their homework after school.',
+      vi: 'Học sinh hoàn thành bài tập về nhà sau giờ học.',
+      image: null,
+      illustration: '📝',
+      sceneBrief: 'Bạn nhỏ ngồi làm bài tập ngăn nắp dưới ánh đèn học, không chữ.',
+      isTrue: true,
+      wordIds: ['student', 'homework'],
+    },
+    {
+      en: 'A book is a person who teaches a class.',
+      vi: 'Quyển sách là người giảng dạy một lớp học.',
+      image: null,
+      illustration: '📖',
+      sceneBrief: 'Quyển sách mở đặt trên bàn gỗ cạnh Cowdi, không chữ.',
+      isTrue: false,
+      whyVi: 'Người dạy học là "teacher"; "book" là quyển sách.',
+      wordIds: ['book', 'teacher'],
     },
   ],
 };

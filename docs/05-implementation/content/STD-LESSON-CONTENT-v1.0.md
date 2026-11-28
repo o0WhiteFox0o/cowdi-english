@@ -3,7 +3,7 @@
 | Mục | Giá trị |
 |---|---|
 | Mã tài liệu | STD-LESSON-CONTENT |
-| Phiên bản | 1.0 · 24/11/2026 |
+| Phiên bản | 1.1 · 28/11/2026 (bổ sung mục 8: Dữ liệu cho màn Thân thiện Đợt 4b) |
 | Phạm vi | Mọi bài trong `src/data/lessons/` |
 | Liên quan | [SRS-LESSON-3-LEVELS-v1.0.md](../../02-requirements/SRS-LESSON-3-LEVELS-v1.0.md) (nhu cầu), [SDD-LEARNING-GROUPS-v2.0.md](../../04-design/SDD-LEARNING-GROUPS-v2.0.md) (lộ trình 3 nhóm), `src/data/lessons/schema.js` (kiểm tra tự động) |
 
@@ -176,3 +176,47 @@ Khi kho hết lỗi (hiện còn 2 bài, xem báo cáo), thêm vào `package.jso
 | Phiên bản | Ngày | Nội dung |
 |---|---|---|
 | 1.0 | 24/11/2026 | Bản đầu: chuẩn 3 cấp, schema v2, 3 bài golden, validator |
+
+
+---
+
+## 8. Dữ liệu cho màn Thân thiện (bổ sung v1.1 — Đợt 4b)
+
+Tất cả các trường dưới đây là **tuỳ chọn** — bài chưa có thì màn tương ứng (`F-07`, `F-10`, `F-11`) tự trả `canRun = false`, không làm lỗi build.
+
+### 8.1 `vocabulary[].plural` & `vocabulary[].countable` (cho `F-07`)
+- `countable`: `boolean` (`true` nếu là danh từ đếm được).
+- `plural`: chuỗi dạng số nhiều (ví dụ `tooth → teeth`, `foot → feet`, `scarf → scarves`, `dress → dresses`). Nếu không khai báo nhưng `countable: true`, hệ thống suy quy tắc `-s/-es/-ies`.
+
+### 8.2 `dialogPrompts[]` (cho `F-10` — Hội thoại phản xạ / Trò chuyện với Ông Tư)
+```js
+{
+  id: 'greet-1',
+  npc: 'ong_tu',            // bắt buộc thuộc HUMAN_CAST (mai, minh, lan, tom, khoa, ong_tu)
+  askEn: 'How are you today?', // ≤ 12 từ
+  askVi: 'Hôm nay con khoẻ không?',
+  image: null,
+  answers: [
+    { en: "I'm fine, thank you.", vi: 'Con khoẻ, cảm ơn ông.' },
+    { en: "I'm good. And you?", vi: 'Con ổn. Còn ông?' },
+  ],
+  keywords: ['fine'],       // mọi keyword phải xuất hiện trong ít nhất 1 answers[].en
+  replyEn: "I'm fine too. Thank you!",
+  replyVi: 'Ông cũng khoẻ. Cảm ơn con!',
+}
+```
+
+### 8.3 `trueFalse[]` (cho `F-11` — Đọc kiểm chứng Đúng/Sai)
+```js
+{
+  en: 'This is my sister.',
+  vi: 'Đây là chị/em gái tôi.',
+  image: '/image/art/human_family.webp', // ảnh phải tồn tại trong public/ nếu khai báo; thiếu ảnh ghi illustration + sceneBrief
+  illustration: '👦',
+  sceneBrief: 'Tranh minh hoạ bé trai đứng cạnh Cowdi, không chữ.',
+  isTrue: false,
+  whyVi: 'Trong tranh là anh trai (brother), không phải chị/em gái.', // bắt buộc khi isTrue: false
+  wordIds: ['sister', 'brother'],
+}
+```
+- Trong cùng một bài có `trueFalse[]` phải có **cả câu đúng (`true`) và câu sai (`false`)**.

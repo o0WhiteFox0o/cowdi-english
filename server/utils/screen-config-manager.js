@@ -5,6 +5,7 @@
 
 import { P3_SEED_INTROS } from '../db/seed-screen-intros-p3.js';
 import { P4A_SEED_INTROS } from '../db/seed-screen-intros-p4a.js';
+import { P4B_SEED_INTROS } from '../db/seed-screen-intros-p4b.js';
 
 export const VALID_STATUSES = ['on', 'test', 'off', 'todo', 'retired'];
 export const VALID_GROUPS = ['beginner', 'intermediate', 'exam'];
@@ -14,6 +15,7 @@ export const INTRO_CODE_REGEX = /^(OPEN|[TF]-\d{2})$/;
 export const INTRO_REGION_REGEX = /^(\*|[A-Z]{2,4})$/;
 export const P3_FRIENDLY_CODES = ['F-01', 'F-03', 'F-06', 'F-08', 'F-09'];
 export const P4A_FRIENDLY_CODES = ['F-02', 'F-04', 'F-05'];
+export const P4B_FRIENDLY_CODES = ['F-07', 'F-10', 'F-11'];
 
 export const SCREEN_SLOT_LEVEL = {
   'T-01': { slot: 'intro',  level: 'focus' },
@@ -51,11 +53,11 @@ export const DEFAULT_SEED_SCREENS = [
   ['F-04', 'test',    'Đợt 4a · chỉ tài khoản thử'],
   ['F-05', 'test',    'Đợt 4a · chỉ tài khoản thử'],
   ['F-06', 'test',    'Đợt 3 · chỉ tài khoản thử'],
-  ['F-07', 'todo',    null],
+  ['F-07', 'test',    'Đợt 4b · chỉ tài khoản thử'],
   ['F-08', 'test',    'Đợt 3 · chỉ tài khoản thử'],
   ['F-09', 'test',    'Đợt 3 · chỉ tài khoản thử'],
-  ['F-10', 'todo',    null],
-  ['F-11', 'todo',    null],
+  ['F-10', 'test',    'Đợt 4b · chỉ tài khoản thử'],
+  ['F-11', 'test',    'Đợt 4b · chỉ tài khoản thử'],
 ];
 
 export const DEFAULT_SEED_WEIGHTS = [
@@ -69,7 +71,7 @@ export const DEFAULT_SEED_WEIGHTS = [
 
 const BUILTIN_SUPPORTED_CODES = [
   'T-01', 'T-02', 'T-04', 'T-05', 'T-06', 'T-07', 'T-08',
-  'F-01', 'F-02', 'F-03', 'F-04', 'F-05', 'F-06', 'F-08', 'F-09',
+  'F-01', 'F-02', 'F-03', 'F-04', 'F-05', 'F-06', 'F-07', 'F-08', 'F-09', 'F-10', 'F-11',
 ];
 const SUPPORTED_TTL_MS = 60 * 60 * 1000; // 1 giờ theo PHASE2 §2.2
 
@@ -790,6 +792,18 @@ export async function seedP4aScreenIntros(pool) {
     );
   }
   return { total: P4A_SEED_INTROS.length };
+}
+
+export async function seedP4bScreenIntros(pool) {
+  await ensureScreenSystemTables(pool);
+  for (const row of P4B_SEED_INTROS) {
+    await pool.execute(
+      `INSERT IGNORE INTO screen_intro (id, screen_code, region, text_vi, audio_url, status, updated_at)
+       VALUES (?, ?, ?, ?, NULL, 'draft', NOW())`,
+      [row.id, row.screenCode, row.region, row.textVi],
+    );
+  }
+  return { total: P4B_SEED_INTROS.length };
 }
 
 /**

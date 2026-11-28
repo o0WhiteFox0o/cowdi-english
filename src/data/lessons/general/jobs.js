@@ -1,8 +1,8 @@
 // Track: general — Unit int-u2 · Nghề nghiệp (contentVersion 2)
 // Chuẩn: docs/05-implementation/content/STD-LESSON-CONTENT-v1.0.md mục 4
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const JOBS_LESSON = {
   id: 'jobs',
@@ -25,18 +25,18 @@ export const JOBS_LESSON = {
   },
 
   vocabulary: [
-    v('Doctor', '/ˈdɑːktər/', 'noun', 'Bác sĩ', 'A doctor helps sick people get well.', 'Bác sĩ giúp người bệnh khoẻ lại.', '👨‍⚕️'),
-    v('Nurse', '/nɜːrs/', 'noun', 'Y tá, điều dưỡng', 'My aunt is a kind nurse.', 'Cô của mình là một y tá tốt bụng.', '👩‍⚕️'),
-    v('Engineer', '/ˌendʒɪˈnɪr/', 'noun', 'Kỹ sư', 'Lan wants to be an engineer.', 'Lan muốn trở thành một kỹ sư.', '👷'),
-    v('Police', '/pəˈliːs/', 'noun', 'Cảnh sát', 'The police officer keeps our street safe.', 'Chú cảnh sát giữ cho khu phố an toàn.', '👮'),
-    v('Chef', '/ʃef/', 'noun', 'Đầu bếp', 'That chef cooks tasty Vietnamese noodles.', 'Người đầu bếp đó nấu phở và mì Việt rất ngon.', '👨‍🍳'),
-    v('Driver', '/ˈdraɪvər/', 'noun', 'Tài xế', 'Our school bus driver is very friendly.', 'Chú tài xế xe buýt trường rất thân thiện.', '🚌'),
-    v('Farmer', '/ˈfɑːrmər/', 'noun', 'Nông dân', 'A farmer grows rice and fresh fruit.', 'Người nông dân trồng lúa và trái cây tươi.', '👨‍🌾'),
-    v('Artist', '/ˈɑːrtɪst/', 'noun', 'Họa sĩ, nghệ sĩ', 'She is an artist who paints landscapes.', 'Cô ấy là một họa sĩ chuyên vẽ phong cảnh.', '🎨'),
-    v('Firefighter', '/ˈfaɪərˌfaɪtər/', 'noun', 'Lính cứu hỏa', 'A firefighter is brave and strong.', 'Lính cứu hỏa rất dũng cảm và mạnh mẽ.', '🧑‍🚒'),
-    v('Pilot', '/ˈpaɪlət/', 'noun', 'Phi công', 'The pilot flies planes across the country.', 'Phi công lái máy bay đi khắp đất nước.', '👨‍✈️'),
-    v('Hospital', '/ˈhɑːspɪtəl/', 'noun', 'Bệnh viện', 'Doctors and nurses work in a hospital.', 'Bác sĩ và y tá làm việc ở bệnh viện.', '🏥'),
-    v('Office', '/ˈɔːfɪs/', 'noun', 'Văn phòng', 'My dad works in a small office.', 'Bố mình làm việc trong một văn phòng nhỏ.', '🏢'),
+    v('Doctor', '/ˈdɑːktər/', 'noun', 'Bác sĩ', 'A doctor helps sick people get well.', 'Bác sĩ giúp người bệnh khoẻ lại.', '👨‍⚕️', { countable: true, plural: 'doctors' }),
+    v('Nurse', '/nɜːrs/', 'noun', 'Y tá, điều dưỡng', 'My aunt is a kind nurse.', 'Cô của mình là một y tá tốt bụng.', '👩‍⚕️', { countable: true, plural: 'nurses' }),
+    v('Engineer', '/ˌendʒɪˈnɪr/', 'noun', 'Kỹ sư', 'Lan wants to be an engineer.', 'Lan muốn trở thành một kỹ sư.', '👷', { countable: true, plural: 'engineers' }),
+    v('Police', '/pəˈliːs/', 'noun', 'Cảnh sát', 'The police officer keeps our street safe.', 'Chú cảnh sát giữ cho khu phố an toàn.', '👮', { countable: false }),
+    v('Chef', '/ʃef/', 'noun', 'Đầu bếp', 'That chef cooks tasty Vietnamese noodles.', 'Người đầu bếp đó nấu phở và mì Việt rất ngon.', '👨‍🍳', { countable: true, plural: 'chefs' }),
+    v('Driver', '/ˈdraɪvər/', 'noun', 'Tài xế', 'Our school bus driver is very friendly.', 'Chú tài xế xe buýt trường rất thân thiện.', '🚌', { countable: true, plural: 'drivers' }),
+    v('Farmer', '/ˈfɑːrmər/', 'noun', 'Nông dân', 'A farmer grows rice and fresh fruit.', 'Người nông dân trồng lúa và trái cây tươi.', '👨‍🌾', { countable: true, plural: 'farmers' }),
+    v('Artist', '/ˈɑːrtɪst/', 'noun', 'Họa sĩ, nghệ sĩ', 'She is an artist who paints landscapes.', 'Cô ấy là một họa sĩ chuyên vẽ phong cảnh.', '🎨', { countable: true, plural: 'artists' }),
+    v('Firefighter', '/ˈfaɪərˌfaɪtər/', 'noun', 'Lính cứu hỏa', 'A firefighter is brave and strong.', 'Lính cứu hỏa rất dũng cảm và mạnh mẽ.', '🧑‍🚒', { countable: true, plural: 'firefighters' }),
+    v('Pilot', '/ˈpaɪlət/', 'noun', 'Phi công', 'The pilot flies planes across the country.', 'Phi công lái máy bay đi khắp đất nước.', '👨‍✈️', { countable: true, plural: 'pilots' }),
+    v('Hospital', '/ˈhɑːspɪtəl/', 'noun', 'Bệnh viện', 'Doctors and nurses work in a hospital.', 'Bác sĩ và y tá làm việc ở bệnh viện.', '🏥', { countable: true, plural: 'hospitals' }),
+    v('Office', '/ˈɔːfɪs/', 'noun', 'Văn phòng', 'My dad works in a small office.', 'Bố mình làm việc trong một văn phòng nhỏ.', '🏢', { countable: true, plural: 'offices' }),
   ],
 
   grammar: [
@@ -204,6 +204,97 @@ export const JOBS_LESSON = {
       options: ['Park', 'Library', 'Classroom', 'Hospital'],
       correct: 3,
       explanation: '"Hospital" nghĩa là bệnh viện.',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'job-1',
+      npc: 'tom',
+      askEn: 'What do you want to be?',
+      askVi: 'Con muốn trở thành nghề gì?',
+      image: null,
+      answers: [
+        { en: 'I want to be a doctor.', vi: 'Con muốn trở thành bác sĩ.' },
+        { en: 'I want to be an artist.', vi: 'Con muốn trở thành họa sĩ.' },
+      ],
+      keywords: ['want'],
+      replyEn: 'That is a wonderful dream!',
+      replyVi: 'Đó là một ước mơ thật tuyệt vời!',
+    },
+    {
+      id: 'job-2',
+      npc: 'khoa',
+      askEn: 'Where does a doctor work?',
+      askVi: 'Bác sĩ làm việc ở đâu nhỉ?',
+      image: null,
+      answers: [
+        { en: 'A doctor works in a hospital.', vi: 'Bác sĩ làm việc trong bệnh viện.' },
+        { en: 'Doctors work at a hospital.', vi: 'Các bác sĩ làm việc ở bệnh viện.' },
+      ],
+      keywords: ['hospital'],
+      replyEn: 'Correct! Doctors help many people there.',
+      replyVi: 'Chính xác! Bác sĩ giúp đỡ rất nhiều người ở đó.',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'A doctor and a nurse work in a hospital.',
+      vi: 'Bác sĩ và y tá làm việc trong bệnh viện.',
+      image: null,
+      illustration: '🏥',
+      sceneBrief: 'Bệnh viện sạch sẽ có bác sĩ và y tá mỉm cười, không chữ.',
+      isTrue: true,
+      wordIds: ['doctor', 'nurse', 'hospital'],
+    },
+    {
+      en: 'A chef flies airplanes in the sky.',
+      vi: 'Đầu bếp lái máy bay trên bầu trời.',
+      image: null,
+      illustration: '👨‍🍳',
+      sceneBrief: 'Đầu bếp đội mũ trắng đang nấu phở trong bếp, không chữ.',
+      isTrue: false,
+      whyVi: 'Đầu bếp ("chef") nấu ăn; người lái máy bay là phi công ("pilot").',
+      wordIds: ['chef', 'pilot'],
+    },
+    {
+      en: 'A farmer grows rice and fresh fruit.',
+      vi: 'Nông dân trồng lúa và trái cây tươi.',
+      image: null,
+      illustration: '👨‍🌾',
+      sceneBrief: 'Bác nông dân đội nón lá trên cánh đồng lúa xanh, không chữ.',
+      isTrue: true,
+      wordIds: ['farmer'],
+    },
+    {
+      en: 'An artist puts out big fires.',
+      vi: 'Họa sĩ đi dập các đám cháy lớn.',
+      image: null,
+      illustration: '🎨',
+      sceneBrief: 'Họa sĩ cầm cọ vẽ phong cảnh ngoài trời, không chữ.',
+      isTrue: false,
+      whyVi: 'Người dập lửa là lính cứu hỏa ("firefighter"); họa sĩ ("artist") vẽ tranh.',
+      wordIds: ['artist', 'firefighter'],
+    },
+    {
+      en: 'A pilot flies planes across the country.',
+      vi: 'Phi công lái máy bay đi khắp đất nước.',
+      image: null,
+      illustration: '👨‍✈️',
+      sceneBrief: 'Phi công mỉm cười trước chiếc máy bay màu trắng xanh, không chữ.',
+      isTrue: true,
+      wordIds: ['pilot'],
+    },
+    {
+      en: 'A school bus driver works inside a hospital kitchen.',
+      vi: 'Tài xế xe buýt trường làm việc trong bếp bệnh viện.',
+      image: null,
+      illustration: '🚌',
+      sceneBrief: 'Chú tài xế thân thiện bên chiếc xe buýt trường màu vàng, không chữ.',
+      isTrue: false,
+      whyVi: 'Tài xế ("driver") lái xe buýt đưa đón học sinh, không làm việc trong nhà bếp.',
+      wordIds: ['driver'],
     },
   ],
 };

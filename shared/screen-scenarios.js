@@ -53,6 +53,14 @@ export const SCREEN_SCENARIOS = {
       VS: 'Boss Sương Vườn Sữa',
     },
   },
+  'F-07': {
+    defaultName: 'Nghe đếm số lượng',
+    byRegion: {
+      BD: 'Chợ nổi',
+      TG: 'Phiên chợ Tháp Gió',
+      VS: 'Chợ Vườn Sữa',
+    },
+  },
   'F-08': {
     defaultName: 'Ghép cặp từ vựng',
     byRegion: {
@@ -67,6 +75,22 @@ export const SCREEN_SCENARIOS = {
       BD: 'Đò chở câu',
       TG: 'Gió xếp câu',
       VS: 'Xếp câu Vườn Sữa',
+    },
+  },
+  'F-10': {
+    defaultName: 'Hội thoại phản xạ',
+    byRegion: {
+      BD: 'Trò chuyện với Ông Tư',
+      TG: 'Trò chuyện Tháp Gió',
+      VS: 'Trò chuyện Vườn Sữa',
+    },
+  },
+  'F-11': {
+    defaultName: 'Đọc kiểm chứng Đúng/Sai',
+    byRegion: {
+      BD: 'Đúng hay sai',
+      TG: 'Đúng hay sai',
+      VS: 'Đúng hay sai',
     },
   },
 };

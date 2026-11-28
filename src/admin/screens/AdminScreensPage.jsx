@@ -134,7 +134,7 @@ export default function AdminScreensPage() {
             ← Admin Portal
           </Link>
           <h4 className="fw-bold mb-0">🎛️ Kiểm tra Màn học</h4>
-          <span className="badge bg-primary-subtle text-primary">Đợt 4a</span>
+          <span className="badge bg-primary-subtle text-primary">Đợt 4 (11/11 F)</span>
         </div>
         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={loadSnapshot} disabled={loading}>
           ↻ Tải lại cấu hình

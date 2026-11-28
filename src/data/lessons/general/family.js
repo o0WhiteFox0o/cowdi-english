@@ -1,8 +1,8 @@
 // Track: general — Unit int-u1: Làm quen · Bài 2: Gia đình (v2)
 // Soạn theo docs/05-implementation/content/briefs/int-u1.md và STD-LESSON-CONTENT-v1.0.
 
-const v = (word, phonetic, pos, meaning, example, exampleVi, illustration) =>
-  ({ word, phonetic, pos, meaning, example, exampleVi, illustration });
+const v = (word, phonetic, pos, meaning, example, exampleVi, illustration, extra = {}) =>
+  ({ word, phonetic, pos, meaning, example, exampleVi, illustration, ...extra });
 
 export const FAMILY_LESSON = {
   id: 'family',
@@ -25,18 +25,18 @@ export const FAMILY_LESSON = {
   },
 
   vocabulary: [
-    v('Family', '/ˈfæməli/', 'noun', 'Gia đình', 'I love my warm family.', 'Mình rất yêu gia đình ấm áp của mình.', '👨‍👩‍👧‍👦'),
-    v('Father', '/ˈfɑːðər/', 'noun', 'Bố, cha', 'My father is a teacher.', 'Bố mình là một giáo viên.', '👨'),
-    v('Mother', '/ˈmʌðər/', 'noun', 'Mẹ', 'My mother cooks very well.', 'Mẹ mình nấu ăn rất ngon.', '👩'),
+    v('Family', '/ˈfæməli/', 'noun', 'Gia đình', 'I love my warm family.', 'Mình rất yêu gia đình ấm áp của mình.', '👨‍👩‍👧‍👦', { countable: true, plural: 'families' }),
+    v('Father', '/ˈfɑːðər/', 'noun', 'Bố, cha', 'My father is a teacher.', 'Bố mình là một giáo viên.', '👨', { countable: true, plural: 'fathers' }),
+    v('Mother', '/ˈmʌðər/', 'noun', 'Mẹ', 'My mother cooks very well.', 'Mẹ mình nấu ăn rất ngon.', '👩', { countable: true, plural: 'mothers' }),
     v('Parents', '/ˈperənts/', 'noun', 'Bố mẹ', 'My parents live in Can Tho.', 'Bố mẹ mình sống ở Cần Thơ.', '👫'),
-    v('Brother', '/ˈbrʌðər/', 'noun', 'Anh / em trai', 'I have one older brother.', 'Mình có một anh trai.', '👦'),
-    v('Sister', '/ˈsɪstər/', 'noun', 'Chị / em gái', 'Minh has a little sister named Mai.', 'Minh có một em gái tên là Mai.', '👧'),
-    v('Son', '/sʌn/', 'noun', 'Con trai', 'Minh is their only son.', 'Minh là con trai duy nhất của họ.', '🧒'),
-    v('Daughter', '/ˈdɔːtər/', 'noun', 'Con gái', 'Mai is their young daughter.', 'Mai là con gái nhỏ của họ.', '👶'),
-    v('Grandfather', '/ˈɡrænfɑːðər/', 'noun', 'Ông (nội / ngoại)', 'My grandfather drinks tea every morning.', 'Ông mình uống trà mỗi sáng.', '👴'),
-    v('Grandmother', '/ˈɡrænmʌðər/', 'noun', 'Bà (nội / ngoại)', 'My grandmother makes sweet cakes for Tet.', 'Bà mình làm bánh ngọt dịp Tết.', '👵'),
-    v('Uncle', '/ˈʌŋkl/', 'noun', 'Chú, bác, cậu', 'My uncle drives a blue motorbike.', 'Chú mình đi một chiếc xe máy màu xanh.', '🧔'),
-    v('Aunt', '/ænt/', 'noun', 'Cô, dì, bác gái', 'My aunt works at a local clinic.', 'Cô mình làm việc ở phòng khám địa phương.', '👩‍⚕️'),
+    v('Brother', '/ˈbrʌðər/', 'noun', 'Anh / em trai', 'I have one older brother.', 'Mình có một anh trai.', '👦', { countable: true, plural: 'brothers' }),
+    v('Sister', '/ˈsɪstər/', 'noun', 'Chị / em gái', 'Minh has a little sister named Mai.', 'Minh có một em gái tên là Mai.', '👧', { countable: true, plural: 'sisters' }),
+    v('Son', '/sʌn/', 'noun', 'Con trai', 'Minh is their only son.', 'Minh là con trai duy nhất của họ.', '🧒', { countable: true, plural: 'sons' }),
+    v('Daughter', '/ˈdɔːtər/', 'noun', 'Con gái', 'Mai is their young daughter.', 'Mai là con gái nhỏ của họ.', '👶', { countable: true, plural: 'daughters' }),
+    v('Grandfather', '/ˈɡrænfɑːðər/', 'noun', 'Ông (nội / ngoại)', 'My grandfather drinks tea every morning.', 'Ông mình uống trà mỗi sáng.', '👴', { countable: true, plural: 'grandfathers' }),
+    v('Grandmother', '/ˈɡrænmʌðər/', 'noun', 'Bà (nội / ngoại)', 'My grandmother makes sweet cakes for Tet.', 'Bà mình làm bánh ngọt dịp Tết.', '👵', { countable: true, plural: 'grandmothers' }),
+    v('Uncle', '/ˈʌŋkl/', 'noun', 'Chú, bác, cậu', 'My uncle drives a blue motorbike.', 'Chú mình đi một chiếc xe máy màu xanh.', '🧔', { countable: true, plural: 'uncles' }),
+    v('Aunt', '/ænt/', 'noun', 'Cô, dì, bác gái', 'My aunt works at a local clinic.', 'Cô mình làm việc ở phòng khám địa phương.', '👩‍⚕️', { countable: true, plural: 'aunts' }),
   ],
 
   grammar: [
@@ -184,6 +184,95 @@ export const FAMILY_LESSON = {
       options: ['Aunt', 'Uncle', 'Grandfather', 'Brother'],
       correct: 1,
       explanation: '"Uncle" là chú/bác/cậu; "Aunt" là cô/dì/bác gái.',
+    },
+  ],
+
+  dialogPrompts: [
+    {
+      id: 'fam-1',
+      npc: 'ong_tu',
+      askEn: 'How many people are in your family?',
+      askVi: 'Gia đình con có mấy người?',
+      image: null,
+      answers: [
+        { en: 'There are four people in my family.', vi: 'Nhà con có bốn người.' },
+        { en: 'My family has five people.', vi: 'Gia đình con có năm người.' },
+      ],
+      keywords: ['family'],
+      replyEn: 'What a warm family!',
+      replyVi: 'Một gia đình thật ấm áp!',
+    },
+    {
+      id: 'fam-2',
+      npc: 'lan',
+      askEn: 'Do you have a brother or a sister?',
+      askVi: 'Bạn có anh em trai hay chị em gái không?',
+      image: null,
+      answers: [
+        { en: 'Yes, I have one sister.', vi: 'Có, mình có một em gái.' },
+        { en: 'I have an older brother.', vi: 'Mình có một anh trai.' },
+      ],
+      keywords: ['have'],
+      replyEn: 'That sounds great!',
+      replyVi: 'Nghe thật tuyệt!',
+    },
+  ],
+
+  trueFalse: [
+    {
+      en: 'This is a picture of a family.',
+      vi: 'Đây là bức tranh một gia đình.',
+      image: '/image/art/human_family.webp',
+      isTrue: true,
+      wordIds: ['family'],
+    },
+    {
+      en: 'My sister is a boy.',
+      vi: 'Chị/em gái tôi là con trai.',
+      image: null,
+      illustration: '👧',
+      sceneBrief: 'Bé gái cười tươi đứng bên cạnh Cowdi, không chữ.',
+      isTrue: false,
+      whyVi: '"Sister" là chị hoặc em gái (nữ); con trai là "brother".',
+      wordIds: ['sister', 'brother'],
+    },
+    {
+      en: 'My father and mother are my parents.',
+      vi: 'Bố và mẹ là bố mẹ của tôi.',
+      image: null,
+      illustration: '👫',
+      sceneBrief: 'Bố và mẹ nắm tay đi dạo cùng con, không chữ.',
+      isTrue: true,
+      wordIds: ['father', 'mother', 'parents'],
+    },
+    {
+      en: 'My grandfather is my mother\'s little sister.',
+      vi: 'Ông tôi là em gái nhỏ của mẹ tôi.',
+      image: null,
+      illustration: '👴',
+      sceneBrief: 'Ông già râu bạc mỉm cười uống trà trên hiên gỗ, không chữ.',
+      isTrue: false,
+      whyVi: '"Grandfather" là ông nội hoặc ông ngoại, không phải em gái của mẹ (aunt).',
+      wordIds: ['grandfather', 'aunt'],
+    },
+    {
+      en: 'My grandmother makes sweet cakes for Tet.',
+      vi: 'Bà tôi làm bánh ngọt cho dịp Tết.',
+      image: null,
+      illustration: '👵',
+      sceneBrief: 'Bà hiền hậu bày đĩa bánh mứt Tết trên bàn gỗ, không chữ.',
+      isTrue: true,
+      wordIds: ['grandmother'],
+    },
+    {
+      en: 'My uncle is my father\'s sister.',
+      vi: 'Chú/bác trai tôi là chị/em gái của bố tôi.',
+      image: null,
+      illustration: '🧔',
+      sceneBrief: 'Người chú thân thiện đứng cạnh chiếc xe máy xanh, không chữ.',
+      isTrue: false,
+      whyVi: '"Uncle" là chú/bác/cậu (nam); chị/em gái của bố là "aunt".',
+      wordIds: ['uncle', 'aunt'],
     },
   ],
 };
