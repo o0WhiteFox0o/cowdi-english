@@ -27,6 +27,7 @@ import {
 import { initEditor } from './editor';
 import PartPaintModal from './PartPaintModal';
 import PetFormModal from './PetFormModal';
+import PetFacingReviewModal from './PetFacingReviewModal';
 import StudyPreviewTab from './StudyPreviewTab';
 import { invalidatePetMotionCache } from '../../pet-rig/motionCache';
 import './pet-motion.css';
@@ -644,6 +645,8 @@ export default function PetMotionPage() {
   const [suggestSourceIdx, setSuggestSourceIdx] = useState(0);
   const [openingStudio, setOpeningStudio] = useState(false);
   const pendingAutoOpenPartRef = useRef(null);
+  const [facingModalOpen, setFacingModalOpen] = useState(false);
+  const [savingFacing, setSavingFacing] = useState({});
 
   // Tab & thu gọn bảng phụ bên phải để luôn nhìn thấy sân khấu pet khi đặt keyframe
   const [sideTab, setSideTab] = useState('clips'); // 'clips' | 'parts' | 'settings'
@@ -680,13 +683,20 @@ export default function PetMotionPage() {
             isCustom: p.isCustom,
           }));
         const avatars = {};
+        const facing = {};
         for (const p of json.pets) {
           for (let s = 1; s <= 5; s++) {
-            const url = p.stages?.[`c${s}`]?.avatarUrl;
-            if (url) avatars[`${p.petId}/c${s}`] = url;
+            const st = p.stages?.[`c${s}`];
+            if (st?.avatarUrl) avatars[`${p.petId}/c${s}`] = st.avatarUrl;
+            if (st?.nativeFacing) {
+              facing[`${p.petId}/c${s}`] = {
+                nativeFacing: st.nativeFacing,
+                facingVerified: Boolean(st.facingVerified),
+              };
+            }
           }
         }
-        mergeDynamicPetCatalog({ pets: dynamicPets, avatars }, PET_MOTION_API_BASE);
+        mergeDynamicPetCatalog({ pets: dynamicPets, avatars, facing }, PET_MOTION_API_BASE);
       }
       setOverview(json);
     } catch (err) {
@@ -701,6 +711,88 @@ export default function PetMotionPage() {
       loadOverview();
     }
   }, [isEditorView, isPreviewView, loadOverview]);
+
+  const handleSaveStageFacing = useCallback(
+    async (petId, stageNum, nativeFacing, facingVerified = true) => {
+      const key = `${petId}/c${stageNum}`;
+      setSavingFacing((prev) => ({ ...prev, [key]: true }));
+      try {
+        await api.saveFacing(petId, stageNum, { nativeFacing, facingVerified });
+        mergeDynamicPetCatalog(
+          { facing: { [key]: { nativeFacing, facingVerified } } },
+          PET_MOTION_API_BASE
+        );
+        setOverview((prev) => {
+          if (!prev?.pets) return prev;
+          return {
+            ...prev,
+            pets: prev.pets.map((p) =>
+              p.petId !== petId
+                ? p
+                : {
+                    ...p,
+                    stages: {
+                      ...p.stages,
+                      [`c${stageNum}`]: {
+                        ...p.stages[`c${stageNum}`],
+                        nativeFacing,
+                        facingVerified,
+                      },
+                    },
+                  }
+            ),
+          };
+        });
+        const dirLabel = nativeFacing === 'right' ? 'Phải' : nativeFacing === 'front' ? 'Chính diện' : 'Trái';
+        showToast(`Đã xác nhận hướng ${petId.toUpperCase()} C${stageNum}: Gốc nhìn ${dirLabel}`);
+      } catch (err) {
+        showToast(err.message || 'Không lưu được hướng xoay pet.');
+      } finally {
+        setSavingFacing((prev) => ({ ...prev, [key]: false }));
+      }
+    },
+    [api, showToast]
+  );
+
+  const handleSaveBulkFacing = useCallback(
+    async (petId, nativeFacing, facingVerified = true) => {
+      const key = `bulk:${petId}`;
+      setSavingFacing((prev) => ({ ...prev, [key]: true }));
+      try {
+        await api.saveFacingBulk(petId, { nativeFacing, facingVerified });
+        const facingPatch = {};
+        for (let s = 1; s <= 5; s++) {
+          facingPatch[`${petId}/c${s}`] = { nativeFacing, facingVerified };
+        }
+        mergeDynamicPetCatalog({ facing: facingPatch }, PET_MOTION_API_BASE);
+        setOverview((prev) => {
+          if (!prev?.pets) return prev;
+          return {
+            ...prev,
+            pets: prev.pets.map((p) => {
+              if (p.petId !== petId) return p;
+              const nextStages = { ...p.stages };
+              for (let s = 1; s <= 5; s++) {
+                nextStages[`c${s}`] = {
+                  ...nextStages[`c${s}`],
+                  nativeFacing,
+                  facingVerified,
+                };
+              }
+              return { ...p, stages: nextStages };
+            }),
+          };
+        });
+        const dirLabel = nativeFacing === 'right' ? 'Phải' : nativeFacing === 'front' ? 'Chính diện' : 'Trái';
+        showToast(`Đã áp dụng & xác nhận cả 5 cấp ${petId}: Gốc nhìn ${dirLabel}`);
+      } catch (err) {
+        showToast(err.message || 'Không lưu được hướng xoay hàng loạt.');
+      } finally {
+        setSavingFacing((prev) => ({ ...prev, [key]: false }));
+      }
+    },
+    [api, showToast]
+  );
 
   // ── Tải chi tiết pet-cấp ──
   const loadDetail = useCallback(async (petId, stage) => {
@@ -1412,11 +1504,13 @@ export default function PetMotionPage() {
     let totalHasRig = 0;
     let totalApprovedRig = 0;
     let totalApprovedClips = 0;
+    let totalFacingVerified = 0;
     for (const p of allPets) {
       for (let s = 1; s <= 5; s++) {
         const c = p.stages[`c${s}`];
         if (c.hasRig) totalHasRig++;
         if (c.rigStatus === 'approved') totalApprovedRig++;
+        if (c.facingVerified) totalFacingVerified++;
         totalApprovedClips += c.approvedClips || 0;
       }
     }
@@ -1424,8 +1518,11 @@ export default function PetMotionPage() {
     const filteredPets = allPets.filter((p) => {
       if (groupFilter !== 'all' && p.group !== groupFilter) return false;
       const petHasAnyRig = [1, 2, 3, 4, 5].some((s) => p.stages[`c${s}`].hasRig);
+      const petHasUnverifiedFacing = [1, 2, 3, 4, 5].some((s) => !p.stages[`c${s}`].facingVerified);
       if (rigFilter === 'has_rig' && !petHasAnyRig) return false;
       if (rigFilter === 'no_rig' && petHasAnyRig) return false;
+      if (rigFilter === 'facing_unverified' && !petHasUnverifiedFacing) return false;
+      if (rigFilter === 'facing_verified' && petHasUnverifiedFacing) return false;
       if (!searchQuery.trim()) return true;
       const reg = dynamicPetMap[p.petId] || PET_REGISTRY[p.petId];
       const q = searchQuery.toLowerCase();
@@ -1482,6 +1579,14 @@ export default function PetMotionPage() {
             <button
               type="button"
               className="pm-btn"
+              onClick={() => setFacingModalOpen(true)}
+              title="Kiểm tra & xác nhận hướng xoay trái/phải của từng pet trong Đấu trường"
+            >
+              🧭 Xác nhận hướng ({totalFacingVerified}/{allPets.length * 5 || PET_LIST.length * 5})
+            </button>
+            <button
+              type="button"
+              className="pm-btn"
               onClick={() => openStudyPreview('bamboo_spirit', 1)}
               title="Mở phòng thử nghiệm ở nhà, bài học và trận đấu bằng PetRig thật"
             >
@@ -1495,6 +1600,7 @@ export default function PetMotionPage() {
 
         <div className="pm-stats-bar">
           <span className="pm-stat-chip">🐾 {allPets.length || PET_LIST.length} loài pet</span>
+          <span className="pm-stat-chip">🧭 {totalFacingVerified}/{allPets.length * 5 || PET_LIST.length * 5} đã xác nhận hướng</span>
           <span className="pm-stat-chip">🦴 {totalHasRig}/{allPets.length * 5 || PET_LIST.length * 5} cấp có rig</span>
           <span className="pm-stat-chip">✅ {totalApprovedRig} rig đã duyệt</span>
           <span className="pm-stat-chip">🎬 {totalApprovedClips} động tác hoàn thiện</span>
@@ -1521,6 +1627,8 @@ export default function PetMotionPage() {
           <span className="ms-auto d-flex gap-1">
             {[
               { id: 'all', label: 'Mọi trạng thái' },
+              { id: 'facing_unverified', label: 'Chưa duyệt hướng' },
+              { id: 'facing_verified', label: 'Đã duyệt hướng' },
               { id: 'has_rig', label: 'Đã có Rig' },
               { id: 'no_rig', label: 'Chưa có Rig' },
             ].map((f) => (
@@ -1720,6 +1828,48 @@ export default function PetMotionPage() {
                             </label>
                           </div>
 
+                          {/* Hướng xoay gốc & Xác nhận nhanh */}
+                          <div
+                            className="d-flex align-items-center justify-content-between gap-1 px-1 pb-1"
+                            style={{ fontSize: '0.68rem' }}
+                            title="Hướng nhìn của ảnh gốc (bấm ⬅ / ⏺ / ➡ để đổi và xác nhận ngay)"
+                          >
+                            <div className="btn-group btn-group-sm" role="group" aria-label={`Hướng xoay ${row.petId} C${s}`}>
+                              {[
+                                { val: 'left', icon: '⬅', tip: 'Ảnh gốc nhìn Trái' },
+                                { val: 'front', icon: '⏺', tip: 'Chính diện (không lật)' },
+                                { val: 'right', icon: '➡', tip: 'Ảnh gốc nhìn Phải' },
+                              ].map((opt) => {
+                                const isCur = (cell.nativeFacing || 'left') === opt.val;
+                                return (
+                                  <button
+                                    key={opt.val}
+                                    type="button"
+                                    disabled={Boolean(savingFacing[stageKey])}
+                                    title={opt.tip}
+                                    className={`btn btn-sm py-0 px-1 ${
+                                      isCur
+                                        ? cell.facingVerified
+                                          ? 'btn-success'
+                                          : 'btn-warning text-dark'
+                                        : 'btn-outline-secondary'
+                                    }`}
+                                    style={{ fontSize: '0.68rem', lineHeight: 1.4 }}
+                                    onClick={() => handleSaveStageFacing(row.petId, s, opt.val, true)}
+                                  >
+                                    {opt.icon}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <span
+                              className={cell.facingVerified ? 'text-success fw-bold' : 'text-warning fw-bold'}
+                              title={cell.facingVerified ? 'Đã xác nhận hướng xoay' : 'Chưa xác nhận hướng xoay — bấm nút hướng để xác nhận'}
+                            >
+                              {cell.facingVerified ? '✓' : '?'}
+                            </span>
+                          </div>
+
                           <div className="pm-card-actions">
                             <button
                               type="button"
@@ -1765,6 +1915,16 @@ export default function PetMotionPage() {
             loadOverview();
           }}
           onToast={showToast}
+        />
+
+        <PetFacingReviewModal
+          open={facingModalOpen}
+          pets={allPets}
+          dynamicPetMap={dynamicPetMap}
+          savingMap={savingFacing}
+          onSaveStage={handleSaveStageFacing}
+          onSaveBulk={handleSaveBulkFacing}
+          onClose={() => setFacingModalOpen(false)}
         />
 
         {deleteTarget && (

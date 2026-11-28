@@ -1,22 +1,84 @@
-// Cowdi English — Dynamic Image Overrides System
-// In-Memory Cache + IndexedDB + LocalStorage (Hỗ trợ lưu ảnh dung lượng lớn không giới hạn)
+// Cowdi English — Dynamic Image Overrides & Server Media Sync System
+// Đồng bộ ảnh tải lên từ server (/api/media/manifest) + fallback local/IndexedDB.
 
 const OVERRIDE_STORAGE_KEY = 'cowdi_custom_image_overrides';
 const IDB_NAME = 'cowdi_app_db';
 const IDB_STORE = 'image_overrides';
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:3001';
 
 // Bộ nhớ cache tức thì (In-memory cache) cho giao diện phản hồi 0ms
 let memoryOverrides = {};
+let serverOverrides = {};
+let serverSyncPromise = null;
 
-// Khởi tạo đồng bộ từ localStorage
+// Khởi tạo đồng bộ từ localStorage (legacy fallback)
 try {
-  const raw = localStorage.getItem(OVERRIDE_STORAGE_KEY);
-  if (raw) memoryOverrides = JSON.parse(raw);
+  if (typeof localStorage !== 'undefined') {
+    const raw = localStorage.getItem(OVERRIDE_STORAGE_KEY);
+    if (raw) memoryOverrides = JSON.parse(raw);
+  }
 } catch (e) {
   console.warn('[imageOverrides] Failed reading initial localStorage:', e);
 }
 
-// Khởi tạo IndexedDB (lưu trữ không giới hạn)
+function toAbsoluteMediaUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+  if (url.startsWith('/api/')) return `${API_BASE.replace(/\/$/, '')}${url}`;
+  return url;
+}
+
+function notifyOverrideChanged(detail = {}) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('cowdi-image-override-changed', { detail }));
+  }
+}
+
+/** Chuẩn hoá mã từ vựng sang key media ổn định (`word:hello`, `word:ice_cream`). */
+export function wordMediaKey(word) {
+  const slug = String(word || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return slug ? `word:${slug}` : '';
+}
+
+/** Tải danh sách ảnh từ server (/api/media/manifest) để mọi học sinh thấy ảnh mới nhất. */
+export async function syncServerMediaOverrides(force = false) {
+  if (typeof fetch === 'undefined') return serverOverrides;
+  if (serverSyncPromise && !force) return serverSyncPromise;
+
+  serverSyncPromise = fetch(`${API_BASE.replace(/\/$/, '')}/api/media/manifest`, {
+    cache: 'no-cache',
+  })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (!data?.overrides || typeof data.overrides !== 'object') return serverOverrides;
+      const normalized = {};
+      for (const [k, entry] of Object.entries(data.overrides)) {
+        if (!entry?.url) continue;
+        normalized[k] = {
+          ...entry,
+          url: toAbsoluteMediaUrl(entry.url),
+          source: 'server',
+        };
+      }
+      serverOverrides = normalized;
+      notifyOverrideChanged({ serverSync: true });
+      return serverOverrides;
+    })
+    .catch(() => serverOverrides);
+
+  return serverSyncPromise;
+}
+
+// Tự động đồng bộ manifest ảnh server khi app khởi chạy trên trình duyệt
+if (typeof window !== 'undefined') {
+  syncServerMediaOverrides();
+}
+
+// Khởi tạo IndexedDB (giữ tương thích dữ liệu cục bộ cũ)
 function openDB() {
   return new Promise((resolve) => {
     if (typeof window === 'undefined' || !window.indexedDB) {
@@ -35,40 +97,88 @@ function openDB() {
   });
 }
 
-// Tự động nạp dữ liệu từ IndexedDB khi ứng dụng khởi động
-(async function initFromIDB() {
-  try {
-    const db = await openDB();
-    if (!db) return;
-    const tx = db.transaction(IDB_STORE, 'readonly');
-    const store = tx.objectStore(IDB_STORE);
-    const req = store.getAll();
-    req.onsuccess = () => {
-      const items = req.result || [];
-      if (items.length > 0) {
-        let hasChanges = false;
-        items.forEach((item) => {
-          if (item && item.id && item.data) {
-            memoryOverrides[item.id] = item.data;
-            hasChanges = true;
+if (typeof window !== 'undefined') {
+  (async function initFromIDB() {
+    try {
+      const db = await openDB();
+      if (!db) return;
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const items = req.result || [];
+        if (items.length > 0) {
+          let hasChanges = false;
+          items.forEach((item) => {
+            if (item && item.id && item.data) {
+              memoryOverrides[item.id] = item.data;
+              hasChanges = true;
+            }
+          });
+          if (hasChanges) {
+            notifyOverrideChanged({ sync: true });
           }
-        });
-        if (hasChanges) {
-          window.dispatchEvent(new CustomEvent('cowdi-image-override-changed', { detail: { sync: true } }));
         }
-      }
-    };
-  } catch (err) {
-    console.warn('[imageOverrides] IDB init sync failed:', err);
-  }
-})();
-
-// Lấy toàn bộ danh sách overrides
-export function getImageOverrides() {
-  return { ...memoryOverrides };
+      };
+    } catch (err) {
+      console.warn('[imageOverrides] IDB init sync failed:', err);
+    }
+  })();
 }
 
-// Lưu 1 override cho key cụ thể (Lưu cả IndexedDB lẫn LocalStorage)
+/** Lấy toàn bộ overrides (ưu tiên ảnh lưu trên server). */
+export function getImageOverrides() {
+  return { ...memoryOverrides, ...serverOverrides };
+}
+
+/** Tải ảnh lên server (Admin) và cập nhật ngay vào bộ nhớ hiển thị. */
+export async function uploadServerMedia(token, { key, category = 'other', file }) {
+  const form = new FormData();
+  form.append('key', key);
+  form.append('category', category);
+  form.append('file', file);
+
+  const res = await fetch(`${API_BASE.replace(/\/$/, '')}/api/admin/media/upload`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data?.ok) {
+    throw new Error(data?.error || `Lỗi tải ảnh lên server (${res.status})`);
+  }
+  const absEntry = {
+    ...data.entry,
+    url: toAbsoluteMediaUrl(data.entry.url),
+    source: 'server',
+  };
+  serverOverrides = { ...serverOverrides, [key]: absEntry };
+  notifyOverrideChanged({ key, entry: absEntry });
+  return absEntry;
+}
+
+/** Xoá ảnh đã tải lên server (Admin) để quay về ảnh mặc định hoặc Emoji. */
+export async function deleteServerMedia(token, key) {
+  const res = await fetch(
+    `${API_BASE.replace(/\/$/, '')}/api/admin/media/item?key=${encodeURIComponent(key)}`,
+    {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data?.ok) {
+    throw new Error(data?.error || `Lỗi xoá ảnh trên server (${res.status})`);
+  }
+  const next = { ...serverOverrides };
+  delete next[key];
+  serverOverrides = next;
+  delete memoryOverrides[key];
+  notifyOverrideChanged({ key, deleted: true });
+  return true;
+}
+
+// Lưu 1 override cục bộ (giữ tương thích cho đổi tiêu đề nhanh)
 export async function setImageOverride(key, overrideData) {
   try {
     if (!overrideData) {
@@ -81,31 +191,23 @@ export async function setImageOverride(key, overrideData) {
       };
     }
 
-    // 1. Lưu vào IndexedDB (bền vững, dung lượng hàng trăm MB)
     try {
       const db = await openDB();
       if (db) {
         const tx = db.transaction(IDB_STORE, 'readwrite');
         const store = tx.objectStore(IDB_STORE);
-        if (!overrideData) {
-          store.delete(key);
-        } else {
-          store.put({ id: key, data: memoryOverrides[key] });
-        }
+        if (!overrideData) store.delete(key);
+        else store.put({ id: key, data: memoryOverrides[key] });
       }
     } catch (idbErr) {
       console.warn('[imageOverrides] IDB save failed:', idbErr);
     }
 
-    // 2. Thử lưu vào localStorage (nếu vượt 5MB thì bắt lỗi nhẹ nhàng, không làm chết app)
     try {
       localStorage.setItem(OVERRIDE_STORAGE_KEY, JSON.stringify(memoryOverrides));
-    } catch (lsErr) {
-      console.warn('[imageOverrides] localStorage quota exceeded, safely stored in IndexedDB:', lsErr);
-    }
+    } catch { /* ignore quota */ }
 
-    // 3. Bắn event để toàn bộ component lắng nghe và re-render ngay tức thì
-    window.dispatchEvent(new CustomEvent('cowdi-image-override-changed', { detail: { key, overrideData } }));
+    notifyOverrideChanged({ key, overrideData });
     return true;
   } catch (e) {
     console.error('Failed to save image override:', e);
@@ -113,40 +215,30 @@ export async function setImageOverride(key, overrideData) {
   }
 }
 
-// Xóa override của 1 key
 export function resetImageOverride(key) {
   return setImageOverride(key, null);
 }
 
-// Xóa toàn bộ overrides
 export async function resetAllImageOverrides() {
   try {
     memoryOverrides = {};
-    try {
-      localStorage.removeItem(OVERRIDE_STORAGE_KEY);
-    } catch (e) {}
-
+    try { localStorage.removeItem(OVERRIDE_STORAGE_KEY); } catch { /* ignore */ }
     const db = await openDB();
     if (db) {
       const tx = db.transaction(IDB_STORE, 'readwrite');
       tx.objectStore(IDB_STORE).clear();
     }
-
-    window.dispatchEvent(new CustomEvent('cowdi-image-override-changed', { detail: { all: true } }));
+    notifyOverrideChanged({ all: true });
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
 
-// Ghi đè toàn bộ overrides (dùng khi Import file JSON)
 export async function setAllImageOverrides(allOverrides) {
   try {
     memoryOverrides = { ...(allOverrides || {}) };
-    try {
-      localStorage.setItem(OVERRIDE_STORAGE_KEY, JSON.stringify(memoryOverrides));
-    } catch (e) {}
-
+    try { localStorage.setItem(OVERRIDE_STORAGE_KEY, JSON.stringify(memoryOverrides)); } catch { /* ignore */ }
     const db = await openDB();
     if (db) {
       const tx = db.transaction(IDB_STORE, 'readwrite');
@@ -156,28 +248,44 @@ export async function setAllImageOverrides(allOverrides) {
         store.put({ id, data });
       });
     }
-
-    window.dispatchEvent(new CustomEvent('cowdi-image-override-changed', { detail: { all: true } }));
+    notifyOverrideChanged({ all: true });
     return true;
   } catch (e) {
-    console.error('Failed to import image overrides to localStorage:', e);
+    console.error('Failed to import image overrides:', e);
     return false;
   }
 }
 
-// Hàm lấy đường dẫn ảnh hiệu dụng (trả về override nếu có, ngược lại trả về defaultUrl)
+// Lấy URL ảnh hiệu dụng (ưu tiên server -> local -> defaultUrl)
 export function resolveImage(key, defaultUrl) {
   if (!key) return defaultUrl;
-  if (memoryOverrides[key] && memoryOverrides[key].url) {
-    return memoryOverrides[key].url;
-  }
+  if (serverOverrides[key]?.url) return serverOverrides[key].url;
+  if (memoryOverrides[key]?.url) return memoryOverrides[key].url;
   return defaultUrl;
 }
 
-// Hàm lấy tên hiển thị hiệu dụng (hỗ trợ resolveTitle(key, defaultTitle) hoặc resolveTitle(key, lang, defaultTitle))
+/** Lấy ảnh flashcard của từ vựng (nếu đã có trên server), trả về null để hiện Emoji fallback. */
+export function resolveWordImage(word) {
+  const key = wordMediaKey(word);
+  if (!key) return null;
+  return resolveImage(key, null);
+}
+
+/** Lấy ảnh WebP override của Icon UI (nếu Admin đã tải lên server). */
+export function resolveIconOverride(iconName) {
+  if (!iconName) return null;
+  return resolveImage(`icon:${iconName}`, null);
+}
+
+/** Lấy ảnh nền/vật phẩm cửa hàng (ưu tiên ảnh Admin tải lên server). */
+export function resolveCosmeticImage(itemId, defaultUrl = null) {
+  if (!itemId) return defaultUrl;
+  return resolveImage(`cosmetic:${itemId}`, defaultUrl);
+}
+
 export function resolveTitle(key, langOrDefault, maybeDefault) {
   if (!key) return maybeDefault !== undefined ? maybeDefault : langOrDefault;
-  const item = memoryOverrides[key];
+  const item = serverOverrides[key] || memoryOverrides[key];
   if (!item) return maybeDefault !== undefined ? maybeDefault : langOrDefault;
 
   if (maybeDefault !== undefined) {

@@ -6,6 +6,8 @@ import { useAuth } from '../hooks/useAuth';
 import Icon from '../components/Icon';
 import Emoji, { EmojiText } from '../components/Emoji';
 import AdminImageManager from '../features/admin/AdminImageManager';
+import AdminQuizInspector from '../features/admin/AdminQuizInspector';
+import AdminUsersEconomy from '../features/admin/AdminUsersEconomy';
 
 // ── Sparkline SVG (không cần thư viện) ─────────────────────────────
 function Sparkline({ data, color = '#E91E63', height = 60, label = '' }) {
@@ -84,14 +86,14 @@ export default function AdminPage() {
   return (
     <div className="fade-in">
       {/* Top Admin Navigation Tabs */}
-      <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-        <ul className="nav nav-pills gap-2">
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 border-bottom pb-2">
+        <ul className="nav nav-pills gap-1 flex-wrap">
           <li className="nav-item">
             <button
               className={`nav-link fw-bold px-3 py-2 ${activeTab === 'stats' ? 'active shadow-sm' : 'text-dark'}`}
               onClick={() => setSearchParams({ tab: 'stats' })}
             >
-              <i className="fas fa-chart-line me-2"></i>Thống kê tăng trưởng
+              📊 Tăng trưởng
             </button>
           </li>
           <li className="nav-item">
@@ -99,27 +101,47 @@ export default function AdminPage() {
               className={`nav-link fw-bold px-3 py-2 ${activeTab === 'images' ? 'active shadow-sm' : 'text-dark'}`}
               onClick={() => setSearchParams({ tab: 'images' })}
             >
-              <i className="fas fa-images me-2"></i>Quản lý & Đổi file ảnh
+              🖼️ Hình ảnh &amp; Media
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-bold px-3 py-2 ${activeTab === 'quiz' ? 'active shadow-sm' : 'text-dark'}`}
+              onClick={() => setSearchParams({ tab: 'quiz' })}
+            >
+              ⚔️ Câu hỏi Đấu trường
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-bold px-3 py-2 ${activeTab === 'users' ? 'active shadow-sm' : 'text-dark'}`}
+              onClick={() => setSearchParams({ tab: 'users' })}
+            >
+              👥 Người dùng &amp; Kinh tế
             </button>
           </li>
           <li className="nav-item">
             <Link className="nav-link fw-bold px-3 py-2 text-dark" to="/admin/pet-motion">
-              <i className="fas fa-film me-2"></i>Chỉnh động tác pet
+              🐾 Pet &amp; Hướng xoay
             </Link>
           </li>
           <li className="nav-item">
             <Link className="nav-link fw-bold px-3 py-2 text-dark" to="/admin/screens">
-              <i className="fas fa-sliders-h me-2"></i>Kiểm tra màn học
+              🧪 Màn học v2
             </Link>
           </li>
         </ul>
         <span className="badge bg-secondary-subtle text-secondary px-2 py-1 rounded-pill small">
-          Admin Portal
+          Admin Portal v2
         </span>
       </div>
 
       {activeTab === 'images' ? (
         <AdminImageManager />
+      ) : activeTab === 'quiz' ? (
+        <AdminQuizInspector />
+      ) : activeTab === 'users' ? (
+        <AdminUsersEconomy />
       ) : (
         <>
           {!user ? (

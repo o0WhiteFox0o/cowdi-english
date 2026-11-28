@@ -83,6 +83,20 @@
   margin-bottom: 2px;
 }
 
+.fc-illus--img {
+  margin-bottom: 6px;
+}
+
+.fc-illus-img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px;
+  box-shadow: 0 3px 10px rgba(23, 52, 4, 0.1);
+}
+
 .fc-word {
   margin: 0;
   font-size: clamp(1.5rem, 6vw, 1.95rem);

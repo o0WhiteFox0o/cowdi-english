@@ -112,6 +112,24 @@ export function createPetMotionApi(token) {
         { method: 'POST', body: form }
       );
     },
+    saveFacing(petId, stage, { nativeFacing, facingVerified = true }) {
+      return requestJson(
+        `/api/admin/pet-motion/${encodeURIComponent(petId)}/${stage}/facing`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ nativeFacing, facingVerified }),
+        }
+      );
+    },
+    saveFacingBulk(petId, { nativeFacing, facingVerified = true }) {
+      return requestJson(
+        `/api/admin/pet-motion/pets/${encodeURIComponent(petId)}/facing-bulk`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ nativeFacing, facingVerified }),
+        }
+      );
+    },
     getCustomEmojis() {
       return requestJson('/api/admin/pet-motion/emojis');
     },

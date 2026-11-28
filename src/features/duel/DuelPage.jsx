@@ -11,6 +11,7 @@ import { PetAvatar, bondOf, topSkillOf } from '../../pet-rig/PetAvatar';
 import { usePetDirector } from '../../pet-director/DirectorContext';
 import { useToast } from '../../components/layout/Toast';
 import { useSound } from '../../hooks/useSound';
+import { speakWord, stopSpeaking } from '../../utils/speech';
 import Icon from '../../components/Icon';
 import Emoji, { EmojiText } from '../../components/Emoji';
 import { ARENA_CONFIG, PET_SKILLS } from '../../../shared/game-config.js';
@@ -97,26 +98,10 @@ const CATEGORY_KEYS = ['all', 'vocabulary', 'grammar', 'sentences', 'listening']
 const QUESTION_COUNT_OPTIONS = [10, 20, 30];
 const MESSAGE_MAX = 280;
 
-// ── Web Speech TTS helper (dùng cho câu nghe) ────────────────
-function speakText(text, rate = 0.9) {
-  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    // Loại bỏ phần chú thích trong ngoặc (...) [...] {...} để TTS đọc mượt hơn
-    const clean = String(text)
-      .replace(/\s*[\(\[\{][^()\[\]{}]*[\)\]\}]/g, '')
-      .replace(/_+/g, ', ')
-      .replace(/\//g, ', ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (!clean) return;
-    const u = new SpeechSynthesisUtterance(clean);
-    u.lang = 'en-US';
-    u.rate = rate;
-    window.speechSynthesis.speak(u);
-  } catch {
-    /* silent */
-  }
+// ── Web Speech TTS helper (dùng chuẩn utils/speech.js) ───────
+function speakText(text, rate = 0.9, callbacks = {}) {
+  if (!text) return Promise.resolve();
+  return speakWord(text, { rate, ...callbacks });
 }
 
 // ── Generate duel quiz from quiz bank + lesson quizzes ──────
@@ -218,6 +203,8 @@ export default function DuelPage() {
   const [elapsed, setElapsed] = useState(0);
   const [activeDuelId, setActiveDuelId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [audioSpeaking, setAudioSpeaking] = useState(false);
+  const [audioBlockedHint, setAudioBlockedHint] = useState(false);
   const timerRef = useRef(null);
 
   // Battle state
@@ -283,23 +270,42 @@ export default function DuelPage() {
     return () => clearInterval(timerRef.current);
   }, [mode, quizStartTime]);
 
+  const playQuestionAudio = useCallback((text, rate = 0.9, isAuto = false) => {
+    if (!text) return;
+    setAudioBlockedHint(false);
+    speakText(text, rate, {
+      onStart: () => setAudioSpeaking(true),
+      onEnd: () => setAudioSpeaking(false),
+    }).catch(() => {
+      setAudioSpeaking(false);
+      if (isAuto) setAudioBlockedHint(true);
+    });
+  }, []);
+
   // Auto-play TTS for listening questions khi sang câu mới
   useEffect(() => {
     if (mode !== 'creating' && mode !== 'playing' && mode !== 'arena') return;
+    setAudioBlockedHint(false);
+    setAudioSpeaking(false);
     const q = questions[currentQ];
-    if (q && q.category === 'listening' && q.speak) {
+    const qAudio = q?.speak || q?.audioText || '';
+    if (q && q.category === 'listening' && qAudio) {
       // Delay nhẹ cho UI mount xong
-      const t = setTimeout(() => speakText(q.speak, 0.9), 200);
-      return () => clearTimeout(t);
+      const t = setTimeout(() => playQuestionAudio(qAudio, 0.9, true), 220);
+      return () => {
+        clearTimeout(t);
+        stopSpeaking();
+      };
     }
-  }, [mode, currentQ, questions]);
+    return () => stopSpeaking();
+  }, [mode, currentQ, questions, playQuestionAudio]);
 
   // Dừng TTS khi rời battle mode
   useEffect(() => {
     if (mode !== 'creating' && mode !== 'playing' && mode !== 'arena') {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopSpeaking();
+      setAudioSpeaking(false);
+      setAudioBlockedHint(false);
     }
   }, [mode]);
 
@@ -1728,12 +1734,12 @@ export default function DuelPage() {
             <div className="arena-timer-chip">
               <Icon name="timer" size={14} /> {elapsed}s
             </div>
-            {q?.speak && (
+            {(q?.speak || q?.audioText) && (
               <button
                 type="button"
                 className="arena-sound-btn"
                 title="Nghe phát âm"
-                onClick={() => speakText(q.speak, 0.9)}
+                onClick={() => playQuestionAudio(q.speak || q.audioText, 0.9, false)}
               >
                 <Icon name="sound" size={16} />
               </button>
@@ -1878,6 +1884,7 @@ export default function DuelPage() {
                   bond={bondOf(myPetInfo.skills)}
                   topSkill={topSkillOf(myPetInfo.skills)}
                   mode="battle"
+                  targetFacing="right"
                   canvasBubble={false}
                   fallbackSrc={myPetImage || undefined}
                   alt={myPetInfo.name}
@@ -1915,6 +1922,7 @@ export default function DuelPage() {
                   stage={(opponentPet.evolution || 0) + 1}
                   group={opponentPet.group}
                   mode="battle"
+                  targetFacing="left"
                   canvasBubble={false}
                   fallbackSrc={opponentPet.image || undefined}
                   alt={opponentPet.name}
@@ -1937,20 +1945,32 @@ export default function DuelPage() {
         ) : (
         <div className="arena-qa-desktop">
           <div className="arena-question-card">
-            <div className="d-flex justify-content-between align-items-center mb-2">
+            <div className="d-flex justify-content-between align-items-center mb-2 gap-2 flex-wrap">
               <span className="arena-q-category-tag">
                 {(CATEGORY_INFO[q?.category] || { label: q?.category || 'CÂU HỎI' }).label.toUpperCase()}
               </span>
-              {q?.speak && (
+              {(q?.speak || q?.audioText) && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"
-                  onClick={() => speakText(q.speak, 0.9)}
+                  className={`btn btn-sm rounded-pill px-3 fw-bold ${
+                    q?.category === 'listening' ? 'btn-primary' : 'btn-outline-primary'
+                  }`}
+                  onClick={() => playQuestionAudio(q.speak || q.audioText, 0.9, false)}
                 >
-                  <Icon name="sound" size={14} /> Nghe
+                  <Icon name="sound" size={14} />{' '}
+                  {audioSpeaking
+                    ? 'Đang đọc...'
+                    : q?.category === 'listening'
+                      ? 'Nghe câu hỏi'
+                      : 'Nghe'}
                 </button>
               )}
             </div>
+            {audioBlockedHint && (q?.speak || q?.audioText) && (
+              <div className="small text-primary fw-semibold mb-2">
+                🔊 Trình duyệt chặn tự phát — chạm nút <strong>Nghe câu hỏi</strong> để nghe nhé!
+              </div>
+            )}
             <div className="arena-q-word">
               {q?.word || q?.question}
             </div>
@@ -1962,12 +1982,13 @@ export default function DuelPage() {
           <div className="arena-options-grid">
             {(q?.options || []).map((opt, idx) => {
               let optClass = 'arena-option-btn';
+              const hasKnownCorrect = Number.isInteger(q?.correct);
               if (selectedOption !== null) {
-                if (mode === 'creating' || mode === 'arena') {
+                if (hasKnownCorrect) {
                   if (idx === q.correct) optClass += ' opt-correct';
                   else if (idx === selectedOption && idx !== q.correct) optClass += ' opt-wrong';
-                } else {
-                  if (idx === selectedOption) optClass += ' opt-correct';
+                } else if (idx === selectedOption) {
+                  optClass += ' opt-selected';
                 }
               }
               return (

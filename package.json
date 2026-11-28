@@ -13,7 +13,7 @@
     "build:prod": "vite build --config vite.config.prod.js --mode production",
     "preview": "vite preview",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
-    "test": "node --test \"shared/*.test.js\" \"server/tests/*.test.mjs\" \"src/pet-rig/*.test.mjs\" \"src/pet-director/*.test.mjs\" \"src/features/vocab/*.test.js\" \"src/utils/*.test.js\" \"src/features/lesson/screens/*.test.mjs\""
+    "test": "node --test \"shared/*.test.js\" \"server/tests/*.test.mjs\" \"server/routes/*.test.js\" \"src/data/quiz/*.test.js\" \"src/pet-rig/*.test.mjs\" \"src/pet-director/*.test.mjs\" \"src/features/vocab/*.test.js\" \"src/utils/*.test.js\" \"src/features/lesson/screens/*.test.mjs\""
   },
   "dependencies": {
     "jsqr": "^1.4.0",

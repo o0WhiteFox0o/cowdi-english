@@ -957,6 +957,12 @@ export function mergeDynamicPetCatalog(payload, apiBase = '') {
         xp: src.xp ?? [0, 100, 500, 1200, 2500][stage],
         emoji: src.emoji || (stage === 0 ? '🥚' : (p.emoji || existing?.emoji || '🐾')),
         image: src.image || existing?.evolutions?.[stage]?.image || null,
+        ...(src.nativeFacing || existing?.evolutions?.[stage]?.nativeFacing
+          ? { nativeFacing: src.nativeFacing || existing?.evolutions?.[stage]?.nativeFacing }
+          : {}),
+        ...(src.facingVerified !== undefined || existing?.evolutions?.[stage]?.facingVerified !== undefined
+          ? { facingVerified: Boolean(src.facingVerified ?? existing?.evolutions?.[stage]?.facingVerified) }
+          : {}),
       };
     });
 
@@ -989,6 +995,27 @@ export function mergeDynamicPetCatalog(payload, apiBase = '') {
     const fullUrl = relUrl.startsWith('http') ? relUrl : `${base}${relUrl}`;
     if (sp.evolutions[stageIdx].image !== fullUrl) {
       sp.evolutions[stageIdx] = { ...sp.evolutions[stageIdx], image: fullUrl };
+      changed = true;
+    }
+  }
+
+  const facing = payload.facing && typeof payload.facing === 'object' ? payload.facing : {};
+  for (const [petStage, entry] of Object.entries(facing)) {
+    const match = String(petStage).match(/^([a-z0-9_]+)\/c([1-5])$/);
+    if (!match || !entry || typeof entry !== 'object') continue;
+    const [, pid, stageStr] = match;
+    const stageIdx = Number(stageStr) - 1;
+    const sp = PET_REGISTRY[pid];
+    if (!sp?.evolutions?.[stageIdx]) continue;
+    const cur = sp.evolutions[stageIdx];
+    const nextFacing = entry.nativeFacing;
+    const nextVerified = Boolean(entry.facingVerified);
+    if (cur.nativeFacing !== nextFacing || Boolean(cur.facingVerified) !== nextVerified) {
+      sp.evolutions[stageIdx] = {
+        ...cur,
+        nativeFacing: nextFacing,
+        facingVerified: nextVerified,
+      };
       changed = true;
     }
   }

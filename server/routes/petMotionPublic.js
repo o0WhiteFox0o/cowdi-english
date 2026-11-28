@@ -15,6 +15,7 @@ import {
   resolveSafeStoragePath,
   validatePetId,
 } from '../utils/petMotion.js';
+import { readFacingMap } from '../utils/petFacingStore.js';
 
 /**
  * Router công khai cho người học đã đăng nhập (/api/pet-motion/*):
@@ -104,7 +105,8 @@ export function createPetMotionPublicRouter({
         isCustom: Boolean(c.is_custom),
       }));
 
-      res.json({ pets, avatars });
+      const facing = await readFacingMap(storageDir);
+      res.json({ pets, avatars, facing });
     } catch (err) {
       console.error('GET /api/pet-motion/catalog error:', err);
       res.status(500).json({ error: 'Lỗi tải danh mục pet.' });

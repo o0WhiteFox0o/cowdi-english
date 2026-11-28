@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Emoji from '../Emoji';
 import { speakWord, stopSpeaking, hasVietnameseVoice } from '../../utils/speech';
+import { resolveWordImage } from '../../utils/imageOverrides';
 import { useAutoSpeak, readAutoSpeak, writeAutoSpeak } from './useAutoSpeak';
 import './flashcard.css';
 
@@ -35,7 +36,15 @@ export default function Flashcard({
   const [autoSpeak, setAutoSpeak] = useState(() => readAutoSpeak());
   const [manualSpeakingId, setManualSpeakingId] = useState(null);
   const [viVoiceReady, setViVoiceReady] = useState(() => hasVietnameseVoice());
+  const [imgFailed, setImgFailed] = useState(false);
+  const [, setMediaVersion] = useState(0);
   const touchStartX = useRef(null);
+
+  useEffect(() => {
+    const onMediaChange = () => setMediaVersion((v) => v + 1);
+    window.addEventListener('cowdi-image-override-changed', onMediaChange);
+    return () => window.removeEventListener('cowdi-image-override-changed', onMediaChange);
+  }, []);
 
   // Reset về thẻ đầu khi đổi bài / đổi nhóm / đổi chủ đề
   useEffect(() => {
@@ -50,6 +59,11 @@ export default function Flashcard({
   const card = cards[safeIndex] || null;
   const isFirst = safeIndex === 0;
   const isLast = safeIndex === cards.length - 1;
+  const cardImgSrc = card ? (card.image || card.img || resolveWordImage(card.word)) : null;
+
+  useEffect(() => {
+    setImgFailed(false);
+  }, [card?.word, cardImgSrc]);
 
   // Cập nhật trạng thái giọng vi-VN khi trình duyệt nạp danh sách voices bất đồng bộ (U-11)
   useEffect(() => {
@@ -191,13 +205,23 @@ export default function Flashcard({
         onTouchEnd={handleTouchEnd}
       >
         <div className={`fc-card-inner${flipped ? ' is-flipped' : ''}`}>
-          {/* MẶT TRƯỚC (F2) */}
+          {/* MẶT TRƯỚC (F2): Hiện ảnh minh hoạ nếu đã có, chưa có ảnh mới hiện Emoji */}
           <div className="fc-face fc-face--front">
-            {illus && (
+            {cardImgSrc && !imgFailed ? (
+              <div className="fc-illus fc-illus--img">
+                <img
+                  src={cardImgSrc}
+                  alt={card.word}
+                  className="fc-illus-img"
+                  loading="lazy"
+                  onError={() => setImgFailed(true)}
+                />
+              </div>
+            ) : illus ? (
               <div className="fc-illus">
                 <Emoji e={illus} size={46} />
               </div>
-            )}
+            ) : null}
             <h2 className="fc-word">{card.word}</h2>
             {card.pos && <span className="fc-pos">{card.pos}</span>}
             {card.phonetic && <p className="fc-phonetic">{card.phonetic}</p>}

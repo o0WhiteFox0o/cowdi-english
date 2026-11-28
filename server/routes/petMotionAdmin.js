@@ -31,6 +31,11 @@ import {
   validateRigData,
   validateScopeKey,
 } from '../utils/petMotion.js';
+import { readFacingMap, writeFacingMap } from '../utils/petFacingStore.js';
+import {
+  DEFAULT_PET_STAGE_FACING,
+  isValidNativeFacing,
+} from '../../shared/pet-facing.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -284,6 +289,7 @@ export function createPetMotionAdminRouter({
           GROUP BY pet_stage`
       );
       const catalogRows = await loadCatalogRowsSafe();
+      const facingMap = await readFacingMap(storageDir);
 
       const rigMap = new Map(rigRows.map((r) => [r.pet_stage, r]));
       const approvalMap = new Map(
@@ -298,6 +304,7 @@ export function createPetMotionAdminRouter({
         }
       }
 
+      let facingVerifiedCount = 0;
       const pets = allOrderedIds.map((petId) => {
         const base = PET_BATTLE_DATA[petId] || null;
         const cat = catalogMap.get(petId) || null;
@@ -307,6 +314,10 @@ export function createPetMotionAdminRouter({
           const rig = rigMap.get(key);
           const draftRig = rig ? parseJsonCol(rig.draft_rig, null) : null;
           const hasRig = Boolean(draftRig && Array.isArray(draftRig.slots) && draftRig.slots.length > 0);
+          const facingEntry = facingMap[key] || null;
+          const nativeFacing = facingEntry?.nativeFacing || DEFAULT_PET_STAGE_FACING[key] || 'left';
+          const facingVerified = Boolean(facingEntry?.facingVerified);
+          if (facingVerified) facingVerifiedCount += 1;
           stages[`c${s}`] = {
             petStage: key,
             hasRig,
@@ -314,6 +325,9 @@ export function createPetMotionAdminRouter({
             approvedClips: approvalMap.get(key) || 0,
             totalClips: TOTAL_CLIPS,
             avatarUrl: rig?.avatar_path ? buildAssetUrl('/api/pet-motion/assets', rig.avatar_path) : null,
+            nativeFacing,
+            facingVerified,
+            facingUpdatedAt: facingEntry?.updatedAt || null,
             updatedAt: toIsoTimestamp(rig?.updated_at),
             approvedAt: toIsoTimestamp(rig?.approved_at),
           };
@@ -338,6 +352,8 @@ export function createPetMotionAdminRouter({
       res.json({
         totalPets: allOrderedIds.length,
         totalClips: TOTAL_CLIPS,
+        facingVerifiedCount,
+        facingTotalCount: allOrderedIds.length * 5,
         pets,
       });
     } catch (err) {
@@ -498,6 +514,81 @@ export function createPetMotionAdminRouter({
     } catch (err) {
       console.error('DELETE /api/admin/pet-motion/pets/:petId error:', err);
       res.status(500).json({ error: 'Lỗi xoá pet.' });
+    }
+  });
+
+  // ── PUT /api/admin/pet-motion/pets/:petId/facing-bulk ──────────
+  // Áp dụng cùng 1 hướng nhìn gốc cho cả 5 cấp C1–C5 của một loài pet
+  router.put('/pets/:petId/facing-bulk', async (req, res) => {
+    const { petId } = req.params;
+    if (!(await isKnownPetId(petId))) {
+      return res.status(404).json({ error: 'Không tìm thấy pet.' });
+    }
+    const { nativeFacing, facingVerified = true } = req.body || {};
+    if (!isValidNativeFacing(nativeFacing)) {
+      return res.status(400).json({ error: 'nativeFacing phải là "left", "right" hoặc "front".' });
+    }
+    try {
+      const map = await readFacingMap(storageDir);
+      const nowIso = new Date().toISOString();
+      const userId = req.user?.id ?? null;
+      const updated = {};
+      for (let s = 1; s <= 5; s++) {
+        const key = `${petId}/c${s}`;
+        map[key] = {
+          nativeFacing,
+          facingVerified: Boolean(facingVerified),
+          updatedAt: nowIso,
+          updatedBy: userId,
+        };
+        updated[`c${s}`] = map[key];
+      }
+      await writeFacingMap(storageDir, map);
+      await logHistory(db, 'rig', `facing:${petId}`, { action: 'set_facing_bulk', nativeFacing, facingVerified: Boolean(facingVerified) }, userId).catch(() => {});
+      motionCache?.invalidate(petId);
+      res.json({ ok: true, petId, nativeFacing, facingVerified: Boolean(facingVerified), stages: updated });
+    } catch (err) {
+      console.error('PUT /api/admin/pet-motion/pets/:petId/facing-bulk error:', err);
+      res.status(500).json({ error: 'Lỗi lưu hướng xoay hàng loạt.' });
+    }
+  });
+
+  // ── PUT /api/admin/pet-motion/:petId/:stage/facing ─────────────
+  // Xác nhận hướng nhìn gốc (left / right / front) cho từng cấp pet C1–C5
+  router.put('/:petId/:stage/facing', async (req, res) => {
+    const { petId } = req.params;
+    const stageNum = parseStage(req.params.stage);
+    if (!(await isKnownPetId(petId)) || !stageNum) {
+      return res.status(400).json({ error: 'petId hoặc cấp tiến hoá (1-5) không hợp lệ.' });
+    }
+    const { nativeFacing, facingVerified = true } = req.body || {};
+    if (!isValidNativeFacing(nativeFacing)) {
+      return res.status(400).json({ error: 'nativeFacing phải là "left", "right" hoặc "front".' });
+    }
+    try {
+      const map = await readFacingMap(storageDir);
+      const petStage = `${petId}/c${stageNum}`;
+      const nowIso = new Date().toISOString();
+      const userId = req.user?.id ?? null;
+      map[petStage] = {
+        nativeFacing,
+        facingVerified: Boolean(facingVerified),
+        updatedAt: nowIso,
+        updatedBy: userId,
+      };
+      await writeFacingMap(storageDir, map);
+      await logHistory(db, 'rig', petStage, { action: 'set_facing', nativeFacing, facingVerified: Boolean(facingVerified) }, userId).catch(() => {});
+      motionCache?.invalidate(petId);
+      res.json({
+        ok: true,
+        petStage,
+        nativeFacing,
+        facingVerified: Boolean(facingVerified),
+        updatedAt: nowIso,
+      });
+    } catch (err) {
+      console.error('PUT /api/admin/pet-motion/:petId/:stage/facing error:', err);
+      res.status(500).json({ error: 'Lỗi lưu hướng xoay pet.' });
     }
   });
 

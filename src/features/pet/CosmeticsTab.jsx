@@ -15,6 +15,7 @@ import {
 } from '../../../shared/cosmetics-data.js';
 import Emoji from '../../components/Emoji';
 import Icon from '../../components/Icon';
+import { resolveCosmeticImage } from '../../utils/imageOverrides';
 import CosmeticBuySheet from './CosmeticBuySheet';
 import CosmeticFilterSheet from './CosmeticFilterSheet';
 import PetDressingModal from './PetDressingModal';
@@ -409,20 +410,34 @@ export default function CosmeticsTab({ selectedPetId, onSelectPetId, wallet: pro
                     )}
                   </div>
 
-                  {/* Icon vật phẩm to rõ hơn */}
-                  <div
-                    className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1"
-                    style={{
-                      width: '54px',
-                      height: '54px',
-                      background: item.bgStyle || '#F8F9FA',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      border: '1px solid #ECEFF1',
-                    }}
-                  >
-                    <Emoji e={item.emoji} size={34} />
-                  </div>
+                  {/* Icon vật phẩm: ưu tiên ảnh server/nền thật, chưa có ảnh mới hiện Emoji */}
+                  {(() => {
+                    const customImg = resolveCosmeticImage(item.id, null);
+                    return (
+                      <div
+                        className="rounded-3 d-flex align-items-center justify-content-center mx-auto my-1 overflow-hidden"
+                        style={{
+                          width: '54px',
+                          height: '54px',
+                          background: item.bgStyle || '#F8F9FA',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          border: '1px solid #ECEFF1',
+                        }}
+                      >
+                        {customImg ? (
+                          <img
+                            src={customImg}
+                            alt={item.name}
+                            loading="lazy"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <Emoji e={item.emoji} size={34} />
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* Tên vật phẩm (CỠ CHỮ TO ĐẸP RÕ RÀNG) */}
                   <div className="shop-compact-title text-truncate" title={item.name}>

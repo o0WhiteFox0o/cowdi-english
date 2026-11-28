@@ -3,6 +3,9 @@
    thick dark outline, pastel fills, small white highlight.
    Usage: <Icon name="fire" size={24} />
    ───────────────────────────────────────────────────────────── */
+import { useEffect, useState } from 'react';
+import { resolveIconOverride } from '../utils/imageOverrides';
+
 const INK = '#3A3040';
 const S = { stroke: INK, strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' };
 const Hi = ({ cx, cy, r = 1.8 }) => <circle cx={cx} cy={cy} r={r} fill="#fff" opacity=".8" />;
@@ -1360,7 +1363,15 @@ export const EMOJI_ICON = {
 };
 
 export default function Icon({ name, size = 24, className = '', title, style }) {
-  const webpSrc = WEBP_ICONS[name];
+  const [, setMediaTick] = useState(0);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onChange = () => setMediaTick((t) => t + 1);
+    window.addEventListener('cowdi-image-override-changed', onChange);
+    return () => window.removeEventListener('cowdi-image-override-changed', onChange);
+  }, []);
+
+  const webpSrc = resolveIconOverride(name) || WEBP_ICONS[name];
   if (webpSrc) {
     return (
       <img

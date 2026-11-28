@@ -4,6 +4,11 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { PET_REGISTRY } from '../data/pets';
+import {
+  resolvePetStageFacing,
+  shouldFlipPetHorizontal,
+  mergeTransformWithFlip,
+} from '../../shared/pet-facing.js';
 import { PetRig } from './PetRig.js';
 import { fetchPetMotion, getCachedPetMotion, getMotionApiBase } from './motionCache.js';
 
@@ -25,6 +30,8 @@ export const PetAvatar = forwardRef(function PetAvatar(
     imgStyle,
     timeScale = 1,
     canvasBubble = true,
+    targetFacing = null,
+    nativeFacing: nativeFacingProp = null,
     onClip,
     onDiagnostic,
   },
@@ -37,6 +44,8 @@ export const PetAvatar = forwardRef(function PetAvatar(
   const evo = reg?.evolutions?.[clampedStage - 1] || reg?.evolutions?.[0] || null;
   const staticSrc = fallbackSrc || evo?.image || '/assets/images/logo/MiniLogoCowdi.svg';
   const label = alt || evo?.name || reg?.name || 'Pet của bạn';
+  const resolvedFacing = nativeFacingProp || resolvePetStageFacing(reg || { id: petId }, clampedStage).nativeFacing;
+  const flipX = shouldFlipPetHorizontal(resolvedFacing, targetFacing);
 
   const [fetchedMotion, setFetchedMotion] = useState(() =>
     motionProp !== undefined ? motionProp : getCachedPetMotion(petId) || null
@@ -202,6 +211,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
 
   if (!stageApproved) {
     const interactive = typeof onClip === 'function';
+    const mergedImgTransform = mergeTransformWithFlip(imgStyle?.transform || style?.transform, flipX);
     return (
       <img
         src={staticSrc}
@@ -213,6 +223,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
           ...(interactive ? { cursor: 'pointer' } : {}),
           ...style,
           ...imgStyle,
+          ...(mergedImgTransform ? { transform: mergedImgTransform } : {}),
         }}
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
@@ -231,6 +242,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
     );
   }
 
+  const mergedCanvasTransform = mergeTransformWithFlip(style?.transform, flipX);
   return (
     <canvas
       ref={canvasRef}
@@ -241,6 +253,7 @@ export const PetAvatar = forwardRef(function PetAvatar(
         display: 'block',
         ...(className ? {} : { width: '100%' }),
         ...style,
+        ...(mergedCanvasTransform ? { transform: mergedCanvasTransform } : {}),
       }}
       aria-label={`${label}, chạm để tương tác`}
     />

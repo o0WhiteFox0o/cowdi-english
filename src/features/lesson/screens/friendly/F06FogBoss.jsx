@@ -355,6 +355,7 @@ export default function F06FogBoss({
               petId={activePet?.speciesId || 'cowdi'}
               stage={(activePet?.evolution ?? 0) + 1}
               mode="battle"
+              targetFacing="right"
               canvasBubble={false}
               style={{ width: 62, height: 62 }}
             />

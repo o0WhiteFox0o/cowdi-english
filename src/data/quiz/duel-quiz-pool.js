@@ -2,7 +2,8 @@
 //  Duel Quiz Pool — Tổng hợp toàn bộ câu hỏi thách đấu
 //  Nguồn: QUIZ_BANK (vocab/grammar/sentences/listening)
 //         + lesson quizzes + VOCAB_TOPICS (auto-generate)
-//  ~1100+ câu, mix beginner / intermediate / advanced
+//  Chuẩn hoá category (vocabulary/grammar/sentences/listening)
+//  và đảm bảo mọi câu nghe đều có `speak` hợp lệ.
 // ============================================================
 
 import { QUIZ_BANK, LESSONS } from '../lessons.js';
@@ -11,13 +12,61 @@ import { VOCAB_TOPICS } from '../vocab-topics.js';
 // ── Lazy-cached pool ─────────────────────────────────────────
 let _cachedPool = null;
 
+const LISTENING_PROMPT_RE = /(?:^|\s)(?:nghe\s+và|nghe:|nghe\s+đoạn|nghe\s+câu|listen\b)/i;
+const GRAMMAR_PROMPT_RE = /(?:chọn\s+câu|câu\s+nào\s+(?:đúng|viết\s+đúng)|nối\s+lý\s+do|chia\s+động\s+từ|ngữ\s+pháp|điền\s+(?:từ|vào)|___|thì\s+(?:hiện\s+tại|quá\s+khứ|tương\s+lai))/i;
+const QUOTED_EN_RE = /^["“']([A-Za-z][A-Za-z0-9\s',.!?-]{0,70})["”']\s*(?:nghĩa\s+là|là\s+gì|có\s+nghĩa)/i;
+
+/** Trích xuất văn bản tiếng Anh để đọc TTS từ câu hỏi nếu chưa có `speak`. */
+export function resolveQuestionSpeak(q) {
+  const direct = String(q?.speak || q?.audioText || '').trim();
+  if (direct) return direct;
+  const text = String(q?.question || '').trim();
+  const m = text.match(QUOTED_EN_RE);
+  if (m && m[1]) return m[1].trim();
+  return '';
+}
+
+/** Xác định đúng nhóm câu hỏi cho Đấu trường từ `q.skill`, `audioText` hoặc ngữ nghĩa câu hỏi. */
+export function resolveLessonCategory(q) {
+  const skill = String(q?.skill || '').toLowerCase();
+  const text = String(q?.question || '').trim();
+  if (skill === 'listening' || q?.audioText || LISTENING_PROMPT_RE.test(text)) {
+    return 'listening';
+  }
+  if (skill === 'grammar' || GRAMMAR_PROMPT_RE.test(text)) {
+    return 'grammar';
+  }
+  if (skill === 'usage' || skill === 'strategy') {
+    return 'sentences';
+  }
+  return 'vocabulary';
+}
+
+/** Kiểm tra câu hỏi có đủ điều kiện lên Đấu trường hay không. */
+export function isPlayableDuelQuestion(q) {
+  if (!q || !q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
+  if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) return false;
+
+  // Không cho phép đáp án rỗng hoặc trùng nhau hoàn toàn
+  const trimmed = q.options.map((o) => String(o ?? '').trim());
+  if (trimmed.some((o) => !o)) return false;
+  if (new Set(trimmed).size !== trimmed.length) return false;
+
+  // Câu nghe (hoặc câu có yêu cầu nghe) bắt buộc phải có văn bản TTS (`speak`)
+  const text = String(q.question || '');
+  if ((q.category === 'listening' || LISTENING_PROMPT_RE.test(text)) && !String(q.speak || '').trim()) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Tự động tạo câu hỏi từ VOCAB_TOPICS.
  * Mỗi từ → 1 câu "'{word}' nghĩa là:" với 3 đáp án sai
- * lấy từ các từ trong cùng sub-topic / topic.
+ * lấy từ các từ trong cùng sub-topic / topic, kèm `speak: word`.
  */
 function buildVocabTopicsQuestions() {
-  // Flatten tất cả từ và ghi nhớ vị trí topic/subtopic
   const allWords = [];
   for (const topic of VOCAB_TOPICS) {
     for (const sub of topic.subtopics || []) {
@@ -39,12 +88,10 @@ function buildVocabTopicsQuestions() {
   for (let i = 0; i < allWords.length; i++) {
     const current = allWords[i];
 
-    // Ưu tiên lấy đáp án sai cùng sub-topic, sau đó cùng topic, rồi global
     const sameSub   = allWords.filter((w, j) => j !== i && w.subtopicId === current.subtopicId);
     const sameTopic = allWords.filter((w, j) => j !== i && w.topicId === current.topicId && w.subtopicId !== current.subtopicId);
     const other     = allWords.filter((w, j) => j !== i && w.topicId !== current.topicId);
 
-    // Chọn distractor theo offset tĩnh (deterministic) để tránh câu hỏi thay đổi
     const pickN = (pool, n, usedMeanings, offset = 0) => {
       const result = [];
       const start = (i * 11 + offset) % Math.max(pool.length, 1);
@@ -65,19 +112,20 @@ function buildVocabTopicsQuestions() {
     if (distractors.length < 3) distractors.push(...pickN(sameTopic, 3 - distractors.length, used, 3));
     if (distractors.length < 3) distractors.push(...pickN(other,     3 - distractors.length, used, 7));
 
-    if (distractors.length < 3) continue; // không đủ đáp án sai → bỏ qua
+    if (distractors.length < 3) continue;
 
-    // Vị trí đáp án đúng xoay vòng 0-3 theo chỉ số
     const correctIdx = i % 4;
     const options = distractors.slice(0, 3);
     options.splice(correctIdx, 0, current.meaning);
 
     questions.push({
       question: `"${current.word}" nghĩa là:`,
+      speak: current.word,
       options,
       correct: correctIdx,
       category: 'vocabulary',
       level: 'intermediate',
+      source: `vocab-topic:${current.topicId}`,
     });
   }
 
@@ -86,7 +134,7 @@ function buildVocabTopicsQuestions() {
 
 /**
  * Xây dựng toàn bộ pool (lazy — chỉ build lần đầu).
- * Trả về mảng các câu hỏi đã được gắn nhãn `level`.
+ * Trả về mảng các câu hỏi đã được chuẩn hoá `category`, `speak`, `level`.
  */
 function buildPool() {
   if (_cachedPool) return _cachedPool;
@@ -95,27 +143,55 @@ function buildPool() {
 
   // ── 1. QUIZ_BANK.vocab (base + VOCAB_EXTRA) ──────────────
   for (const q of QUIZ_BANK.vocab || []) {
-    if (q.options?.length >= 2) pool.push({ ...q, category: 'vocabulary', level: 'intermediate' });
+    const speak = resolveQuestionSpeak(q);
+    pool.push({
+      ...q,
+      ...(speak ? { speak } : {}),
+      category: 'vocabulary',
+      level: 'intermediate',
+      source: 'quiz-bank:vocab',
+    });
   }
 
   // ── 2. QUIZ_BANK.grammar (base + GRAMMAR_EXTRA) ──────────
   for (const q of QUIZ_BANK.grammar || []) {
-    if (q.options?.length >= 2) pool.push({ ...q, category: 'grammar', level: 'advanced' });
+    const speak = resolveQuestionSpeak(q);
+    pool.push({
+      ...q,
+      ...(speak ? { speak } : {}),
+      category: 'grammar',
+      level: 'advanced',
+      source: 'quiz-bank:grammar',
+    });
   }
 
   // ── 3. QUIZ_BANK.sentences (SENTENCES_EXTRA) ─────────────
   for (const q of QUIZ_BANK.sentences || []) {
-    if (q.options?.length >= 2) pool.push({ ...q, category: 'sentences', level: 'advanced' });
+    const speak = resolveQuestionSpeak(q);
+    pool.push({
+      ...q,
+      ...(speak ? { speak } : {}),
+      category: 'sentences',
+      level: 'advanced',
+      source: 'quiz-bank:sentences',
+    });
   }
 
   // ── 4. QUIZ_BANK.listening (chỉ giữ câu có `speak` để TTS) ─
   for (const q of QUIZ_BANK.listening || []) {
-    if (q.options?.length >= 2 && q.speak) {
-      pool.push({ ...q, category: 'listening', level: 'intermediate' });
+    const speak = resolveQuestionSpeak(q);
+    if (speak) {
+      pool.push({
+        ...q,
+        speak,
+        category: 'listening',
+        level: 'intermediate',
+        source: 'quiz-bank:listening',
+      });
     }
   }
 
-  // ── 5. Quiz từ mỗi lesson (gắn level theo bài) ───────────
+  // ── 5. Quiz từ mỗi lesson (map đúng skill/category + audioText → speak) ─
   for (const lesson of LESSONS) {
     const lvl = lesson.level === 'advanced'
       ? 'advanced'
@@ -123,29 +199,39 @@ function buildPool() {
         ? 'intermediate'
         : 'beginner';
     for (const q of (lesson.quiz || [])) {
-      if (q.options?.length >= 2) pool.push({ ...q, category: 'vocabulary', level: lvl });
+      const category = resolveLessonCategory(q);
+      const speak = resolveQuestionSpeak(q);
+      pool.push({
+        ...q,
+        ...(speak ? { speak } : {}),
+        category,
+        level: lvl,
+        source: `lesson:${lesson.id}`,
+      });
     }
   }
 
-  // ── 6. Tự sinh từ VOCAB_TOPICS (~700 câu mới) ────────────
+  // ── 6. Tự sinh từ VOCAB_TOPICS ───────────────────────────
   const topicQs = buildVocabTopicsQuestions();
   pool.push(...topicQs);
 
-  // ── Loại trùng theo nội dung câu hỏi ─────────────────────
+  // ── Lọc câu không hợp lệ & loại trùng nội dung ───────────
   const seen = new Set();
-  const unique = pool.filter(q => {
-    // Kiểm tra cấu trúc: phải có question, options ≥ 2, correct hợp lệ
-    if (!q.question || !Array.isArray(q.options) || q.options.length < 2) return false;
-    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) return false;
-    // Câu nghe bắt buộc có `speak`
-    if (q.category === 'listening' && !q.speak) return false;
-    if (seen.has(q.question)) return false;
-    seen.add(q.question);
+  const unique = pool.filter((q) => {
+    if (!isPlayableDuelQuestion(q)) return false;
+    const dedupeKey = `${q.category}::${q.question}::${q.speak || ''}`;
+    if (seen.has(dedupeKey)) return false;
+    seen.add(dedupeKey);
     return true;
   });
 
   _cachedPool = unique;
   return unique;
+}
+
+/** Trả về toàn bộ pool đã chuẩn hoá (dùng cho Admin kiểm tra & unit test). */
+export function getDuelQuizPool() {
+  return buildPool();
 }
 
 // ── Fisher-Yates shuffle ─────────────────────────────────────
