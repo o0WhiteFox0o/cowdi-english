@@ -14,12 +14,14 @@ const TWEMOJI_BASE = 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/
 const EMOJI_RE =
   /(?:\p{RI}\p{RI}|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?)*|[0-9#*]\uFE0F?\u20E3)/gu;
 
-function toCodePoints(str) {
+export function toCodePoints(str) {
   const out = [];
+  // Twemoji chỉ bỏ FE0F khi KHÔNG có ZWJ (\u200D) và KHÔNG phải phím số (\u20E3)
+  // (với chuỗi ZWJ như 🙋‍♂️, file thật trên CDN là 1f64b-200d-2642-fe0f.svg)
+  const keepFe0f = str.includes('\u200D') || str.includes('\u20E3');
   for (const ch of str) {
     const cp = ch.codePointAt(0);
-    // Twemoji drops FE0F except in keycap sequences
-    if (cp === 0xfe0f && !str.includes('\u20E3')) continue;
+    if (cp === 0xfe0f && !keepFe0f) continue;
     out.push(cp.toString(16));
   }
   return out.join('-');
