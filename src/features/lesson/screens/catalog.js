@@ -5,6 +5,9 @@
  */
 
 import { listenItems, speakItems, writeItems } from './items.js';
+import { isSingleSpellableWord } from './friendly/f02Logic.js';
+import { canRunF05 } from './friendly/f05Logic.js';
+import { getScreenTitle } from '../../../../shared/screen-scenarios.js';
 
 export const SLOTS = ['intro', 'listen', 'speak', 'read', 'write', 'boss'];
 
@@ -68,23 +71,47 @@ export const SCREEN_CATALOG = [
   // 5 màn Thân thiện Đợt 3 (trạng thái mặc định trên server: 'test')
   {
     code: 'F-01',
-    name: 'Gặp từ trình chiếu',
+    name: getScreenTitle('F-01'),
     level: 'friendly',
     slot: 'intro',
     phase: 3,
     canRun: (l) => need((l?.vocabulary?.length || 0) >= 4, 'vocabulary ≥ 4'),
   },
   {
+    code: 'F-02',
+    name: getScreenTitle('F-02'),
+    level: 'friendly',
+    slot: 'write',
+    phase: 4,
+    canRun: (l) => need((l?.vocabulary || []).filter(isSingleSpellableWord).length >= 4, '≥ 4 từ đơn 3–10 chữ'),
+  },
+  {
     code: 'F-03',
-    name: 'Nghe nhận diện từ',
+    name: getScreenTitle('F-03'),
     level: 'friendly',
     slot: 'listen',
     phase: 3,
     canRun: (l) => need((l?.vocabulary?.length || 0) >= 6, 'vocabulary ≥ 6'),
   },
   {
+    code: 'F-04',
+    name: getScreenTitle('F-04'),
+    level: 'friendly',
+    slot: 'speak',
+    phase: 4,
+    canRun: (l) => need(speakItems(l).length >= 3, 'câu nói ≥ 3'),
+  },
+  {
+    code: 'F-05',
+    name: getScreenTitle('F-05'),
+    level: 'friendly',
+    slot: 'read',
+    phase: 4,
+    canRun: (l) => canRunF05(l),
+  },
+  {
     code: 'F-06',
-    name: 'Boss sương mù',
+    name: getScreenTitle('F-06'),
     level: 'friendly',
     slot: 'boss',
     phase: 3,
@@ -92,7 +119,7 @@ export const SCREEN_CATALOG = [
   },
   {
     code: 'F-08',
-    name: 'Lật cặp đồng cỏ',
+    name: getScreenTitle('F-08'),
     level: 'friendly',
     slot: 'read',
     phase: 3,
@@ -100,7 +127,7 @@ export const SCREEN_CATALOG = [
   },
   {
     code: 'F-09',
-    name: 'Đò chở câu',
+    name: getScreenTitle('F-09'),
     level: 'friendly',
     slot: 'write',
     phase: 3,
@@ -112,7 +139,7 @@ export const getScreenMeta = (code) => SCREEN_CATALOG.find((s) => s.code === cod
 
 /**
  * Danh mục đầy đủ 19 mã màn (8 T + 11 F) dùng cho Admin `/admin/screens` (PHASE2 §3.1–3.2).
- * Các màn chưa có component ở Đợt 4 vẫn hiển thị đủ metadata & kiểm tra canRun() trên dữ liệu bài.
+ * Các màn chưa có component ở Đợt 4b vẫn hiển thị đủ metadata & kiểm tra canRun() trên dữ liệu bài.
  */
 export const FULL_SCREEN_DIRECTORY = [
   ...SCREEN_CATALOG.slice(0, 2),
@@ -127,10 +154,10 @@ export const FULL_SCREEN_DIRECTORY = [
   },
   ...SCREEN_CATALOG.slice(2, 7),
   getScreenMeta('F-01'),
-  { code: 'F-02', name: 'Ghép chữ lên đò',    level: 'friendly', slot: 'write',  phase: 4, canRun: (l) => need((l?.vocabulary || []).filter((v) => v?.word && !/\s/.test(v.word.trim()) && v.word.trim().length >= 3 && v.word.trim().length <= 10).length >= 4, '≥ 4 từ đơn 3–10 chữ') },
+  getScreenMeta('F-02'),
   getScreenMeta('F-03'),
-  { code: 'F-04', name: 'Gọi pet vượt suối',  level: 'friendly', slot: 'speak',  phase: 4, canRun: (l) => need(speakItems(l).length >= 3, 'câu nói ≥ 3') },
-  { code: 'F-05', name: 'Săn chữ trong sương', level: 'friendly', slot: 'read',  phase: 4, canRun: (l) => need(Boolean(l?.reading?.passage) && (l?.reading?.highlights?.length || 0) >= 4, 'passage + highlights ≥ 4') },
+  getScreenMeta('F-04'),
+  getScreenMeta('F-05'),
   getScreenMeta('F-06'),
   { code: 'F-07', name: 'Chợ nổi',            level: 'friendly', slot: 'listen', phase: 4, canRun: (l) => need((l?.vocabulary || []).filter((v) => v?.countable && (v?.image || v?.illustration)).length >= 4, '≥ 4 danh từ đếm được có hình') },
   getScreenMeta('F-08'),

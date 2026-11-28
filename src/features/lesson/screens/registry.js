@@ -12,7 +12,10 @@ import T06Speak from './focus/T06Speak.jsx';
 import T07Quiz from './focus/T07Quiz.jsx';
 import T08WriteSentence from './focus/T08WriteSentence.jsx';
 import F01Slideshow from './friendly/F01Slideshow.jsx';
+import F02SpellWord from './friendly/F02SpellWord.jsx';
 import F03CatchWord from './friendly/F03CatchWord.jsx';
+import F04SpeakBridge from './friendly/F04SpeakBridge.jsx';
+import F05FogReading from './friendly/F05FogReading.jsx';
 import F06FogBoss from './friendly/F06FogBoss.jsx';
 import F08MemoryPairs from './friendly/F08MemoryPairs.jsx';
 import F09BoatSentence from './friendly/F09BoatSentence.jsx';
@@ -26,7 +29,10 @@ const COMPONENT_MAP = {
   'T-07': T07Quiz,
   'T-08': T08WriteSentence,
   'F-01': F01Slideshow,
+  'F-02': F02SpellWord,
   'F-03': F03CatchWord,
+  'F-04': F04SpeakBridge,
+  'F-05': F05FogReading,
   'F-06': F06FogBoss,
   'F-08': F08MemoryPairs,
   'F-09': F09BoatSentence,

@@ -10,6 +10,7 @@ export default function RouteHeader({
   screens = [],
   currentIndex = 0,
   currentScreenMeta,
+  currentTitle = '',
   paused,
   onRequestExit,
   onTogglePause,
@@ -71,7 +72,7 @@ export default function RouteHeader({
               {curMeta.label.toUpperCase()}
             </span>
             <span className="ss-screen-name">
-              {currentScreenMeta?.name || curMeta.label} · Màn {currentIndex + 1}/{screens.length}
+              {currentTitle || currentScreenMeta?.name || curMeta.label} · Màn {currentIndex + 1}/{screens.length}
               {lesson?.title ? ` · ${lesson.title}` : ''}
             </span>
           </div>

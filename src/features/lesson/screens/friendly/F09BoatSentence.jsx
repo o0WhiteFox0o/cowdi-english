@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Icon from '../../../../components/Icon';
 import { speakWord, stopSpeaking as cancelSpeech } from '../../../../utils/speech';
 import { createRng } from '../seededRandom';
+import { getScreenTitle } from '../../../../../shared/screen-scenarios';
 import { writeItems, pickGrammarTip } from '../items';
 import { evaluateBoatTile } from './friendlyLogic';
 import FriendlyFrame from './FriendlyFrame';
@@ -53,6 +54,7 @@ export default function F09BoatSentence({
   onEvent,
   onDone,
   onOpenGrammar,
+  extra = {},
 }) {
   const startTimeRef = useRef(Date.now());
   const defaultRate = rules?.ttsRate || 0.85;
@@ -179,7 +181,7 @@ export default function F09BoatSentence({
   return (
     <FriendlyFrame
       skill="write"
-      title="Đò chở câu"
+      title={getScreenTitle('F-09', extra?.region, 'Xếp câu hoàn chỉnh')}
       code="F-09"
       counter={`${cursor + 1}/${sentences.length}`}
       showGrammarButton={(lesson?.grammar || []).length > 0}

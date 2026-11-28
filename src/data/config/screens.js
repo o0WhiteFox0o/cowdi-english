@@ -13,7 +13,10 @@ export const SCREEN_CONFIG = {
     'T-07': 'on',
     'T-08': 'on',
     'F-01': 'test',
+    'F-02': 'test',
     'F-03': 'test',
+    'F-04': 'test',
+    'F-05': 'test',
     'F-06': 'test',
     'F-08': 'test',
     'F-09': 'test',
@@ -44,10 +47,13 @@ export const SCREEN_PLAY_RULES = {
   'T-07': 'Trả lời các câu hỏi tổng hợp để chinh phục ải này!',
   'T-08': 'Sắp xếp hoặc gõ lại câu tiếng Anh đúng theo nghĩa tiếng Việt.',
   'F-01': 'Xem và nghe lần lượt từng từ mới; chạm thẻ để dừng hoặc giữ loa nghe chậm.',
+  'F-02': 'Nghe từ và chạm từng chữ cái ghép đúng chính tả.',
   'F-03': 'Nghe phát âm rồi chọn đúng từ tiếng Anh tương ứng.',
+  'F-04': 'Nghe câu mẫu, đếm 3-2-1 rồi đọc to theo để đưa pet qua chướng ngại.',
+  'F-05': 'Nghe từ khoá rồi chạm đúng ô sương ẩn trong đoạn văn để giải sương.',
   'F-06': 'Trả lời đúng các câu hỏi tổng hợp để đẩy lùi Boss Sương Mù!',
-  'F-08': 'Lật hai thẻ cỏ để ghép đúng từ tiếng Anh với nghĩa tiếng Việt.',
-  'F-09': 'Chạm từng thẻ từ trên bến xếp đúng thứ tự lên đò để qua sông.',
+  'F-08': 'Lật hai thẻ để ghép đúng từ tiếng Anh với nghĩa tiếng Việt.',
+  'F-09': 'Chạm từng thẻ từ xếp đúng thứ tự để hoàn thành câu tiếng Anh.',
 };
 
 export const SCREEN_SYSTEM_FF_KEY = 'cowdi_ff_screenSystemV1';
