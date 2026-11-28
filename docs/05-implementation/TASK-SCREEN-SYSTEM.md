@@ -57,8 +57,8 @@
 - **Backend**: `server/routes/screens.js` (`GET /api/screens/config` ETag/304) + `server/routes/screensAdmin.js` (`requireAuth + requireAdmin`, 7 endpoint ghi giao dịch + log).
 - **Frontend**: `ScreenConfigProvider` (cache `localStorage`, fallback `SCREEN_CONFIG` tĩnh), route `<RequireAdmin>` `/admin/screens` với 6 tab + test A1–A8.
 
-### Đợt 3 (`feat/screen-system-p3`) — [Chi tiết](screen-system/GEMINI-SCREEN-SYSTEM-PHASE3.md) · [Bổ sung & Đính chính](screen-system/GEMINI-PHASE3-ADDENDUM.md)
-- **Đã hoàn tất 2026-11-27 trên nhánh `feat/screen-system-p3`** (chưa gộp `main`, chờ Sonny duyệt & UAT):
+### Đợt 3 (`feat/screen-system-p3` → `main` `eaaa812`) — [Chi tiết](screen-system/GEMINI-SCREEN-SYSTEM-PHASE3.md) · [Bổ sung & Đính chính](screen-system/GEMINI-PHASE3-ADDENDUM.md)
+- **Đã hoàn tất & gộp `main` (`eaaa812`, 2026-11-28)**:
   - **Story Bible & Assets**: nhập nguyên vẹn `shared/regions.js` (kèm `REGION_COLOR`, `BOSS_TINT`, `REGION_BRIEF`), `shared/human-cast.js` (`HUMAN_CAST`, `isValidNpc`), `public/image/boss/fog.svg` + `shared/regions.test.js` (kiểm khớp `units.json` & luật `BD`).
   - **Sao ★ 1–3 & Sữa theo sao (Q13)**: `shared/lesson-stars.js` + `lesson-stars.test.js` (S1–S5), cập nhật `LessonDetailPage.jsx`, `src/data/path.js`, `useUser.jsx`, `server/routes/api.js` (gộp MAX `lessonStars`/`lessonStarPaid`), hiển thị 1–3 sao dưới node đã xong ở `LearningPathPage.jsx`.
   - **Khách quen & 4 chấm `skillsHit`**: `src/features/vocab/wordProgress.js` + `wordProgress.test.js` (P7), `src/features/lesson/screens/guestWords.js`, `screenEvents.js`.
@@ -67,7 +67,7 @@
   - **Kiểm chứng**: `server/tests/screen-system-p3.test.mjs` (P1–P10), `npm test` **259/259 PASS**, `npm run build` xanh.
 
 ### Đợt 4 (`p4a`, `p4b`, `p4c`) — [Chi tiết](screen-system/GEMINI-SCREEN-SYSTEM-PHASE4.md)
-- **4a (`feat/screen-system-p4a` — hoàn tất code 2026-11-28, chờ Sonny UAT & duyệt merge)**:
+- **4a (`feat/screen-system-p4a` → `main` `1cbc9fb`, 2026-11-28)**:
   - **Kịch bản tên màn theo vùng**: `shared/screen-scenarios.js` (`getScreenTitle(code, region, fallback)`), áp dụng đồng bộ trên `ScreenHost`, `RouteHeader`, `StageIntro`, `ScreenIntro`, `catalog.js`, `PreviewTab`, và toàn bộ 8 màn F (`F-01..F-06, F-08, F-09`).
   - **Thống kê ẩn danh (`screen_stat_daily`)**: `server/db/migrate-screen-system-p4a.sql` + `scripts/run-screen-system-p4a-migration.js` (RK-005, **không có `user_id`**), `POST /api/screen-stats` (bỏ qua khi `sandbox = true`), `GET /api/admin/screen-stats?days=7|30&group=`, Tab 8 **"Thống kê"** (`src/admin/screens/StatsTab.jsx`, ngưỡng cảnh báo ≥ 30 lượt, so sánh Thân thiện vs Tập trung theo slot).
   - **3 màn Thân thiện mới (khởi tạo `'test'`, 0 cuộn ở 360×640)**:
@@ -78,20 +78,18 @@
   - **Checklist UAT thiết bị thật (cần ghi kết quả trước khi bật `F-04` sang `'on'`)**:
     - [ ] **iPhone Safari thật** (iOS): sau đếm `3-2-1`, xác nhận tự mở mic hoặc hiện nút *"Chạm để bật Mic"* ngay khi iOS chặn gesture; từ chối mic chuyển sang *"Nghe và nhắc lại"* và qua màn trơn tru.
     - [ ] **Android Chrome thật**: sau đếm `3-2-1`, xác nhận mic tự mở mượt mà không hiện nút mic thừa; nhóm Mới học bấm mic hoặc *"Con đã nói"* đều qua; kiểm tra bố cục `360×640` không cuộn trang trên `F-02`, `F-04`, `F-05`.
-- **4b (`feat/screen-system-p4b` — hoàn tất 2026-11-28)**:
+- **4b (`feat/screen-system-p4b` → `main` `285ba12`, 2026-11-28)**:
   - Mở rộng `src/data/lessons/schema.js` + `scripts/validate-lessons.mjs` (kiểm `imageExists`) + `STD-LESSON-CONTENT` v1.1 (`vocabulary[].plural/countable`, `dialogPrompts[]`, `trueFalse[]`).
   - Bổ sung dữ liệu mẫu cho trọn bộ **12 bài `int-u1..u3`**: `plural`/`countable` (6 bài có ≥ 8 danh từ đếm được), `dialogPrompts[]` (12/12 bài), `trueFalse[]` (12/12 bài, dùng ảnh `/image/art/...webp` có sẵn + `sceneBrief` cho phần chưa có tranh).
   - 3 màn Thân thiện cuối (khởi tạo `'test'`, zero-scroll `360×640`): **F-07** (`F07MarketListen.jsx` + `f07Logic.js`, Q4), **F-10** (`F10NpcDialog.jsx` + `f10Logic.js`, chấm tất định không AI, Q3/Q5), **F-11** (`F11TrueFalse.jsx` + `f11Logic.js`, vuốt/chạm Đúng-Sai, Q6).
-  - 36 câu dẫn `draft` (`seed-screen-intros-p4b.{js,sql}`) + runner gộp Đợt 4 `scripts/run-screen-system-p4b-migration.js` + bộ kiểm thử `server/tests/screen-system-p4b.test.mjs` (Q4–Q6, Q8).
+  - 36 câu dẫn `draft` (`seed-screen-intros-p4b.{js,sql}`) + runner gộp Đợt 4 `scripts/run-screen-system-p4b-migration.js` + bộ kiểm thử `server/tests/screen-system-p4b.test.mjs` (Q4–Q6, Q8). Toàn bộ kiểm thử: **269/269 PASS**, đã đóng gói `deploy.zip`.
 - **4c (giữ lại theo chuẩn §4)**: Gỡ code tab cũ trong `LessonDetailPage.jsx` và gỡ cờ `screenSystemV1` **sau khi bật cho mọi người chạy ổn định ≥ 2 tuần**.
 
 ---
 
-## 3. Điểm Cần PO (Sonny) Xác nhận Trước Khi Chạy Đợt 1
+## 3. Hạng mục mở sau khi lên server (`cowdi.net`)
 
-1. **Xác nhận bắt đầu Đợt 1 trên `main` (`74535c1`)**: mở nhánh `feat/screen-system-p1`, gộp luôn dọn **A1–A3 (`src/utils/speech.js`)** ở đầu nhánh (hoặc muốn tách A1–A3 thành 1 PR riêng trước?).
-2. **Tài liệu tham chiếu còn thiếu trong repo**:
-   - Đợt 1: có file `STD-LEARNING-UX-v1.0.md` và `AUDIT-LEARNING-UX-2026-11-27.md` (chi tiết A5 câu template) để nạp vào repo không, hay cho phép triển khai Đợt 1 theo các quy tắc đã trích dẫn sẵn trong `STD-SCREEN-SYSTEM-v1.0` & `PHASE1`?
-   - Đợt 3–4 (chưa chặn Đợt 1–2): cần bổ sung `STORY-BIBLE-IMPLEMENTATION.md` và `AUDIO-DESIGN-BIBLE.md` trước khi vào Đợt 3.
-3. **Chuẩn SQL MySQL 5.6 (`RK-005`)**: xác nhận chuyển các cột `DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` trong đặc tả sang chuẩn tương thích MySQL 5.5/5.6+ đã áp dụng toàn dự án.
-4. **Hạng mục mở dài hạn (không chặn Đợt 1–3)**: nhóm Mới học (`PictureLesson`) giữ nguyên ở Đợt 1–3, xem xét chuyển ở Đợt 4.
+1. **UAT thiết bị thật sau deploy**: kiểm tra `F-04` & `F-10` (auto-open mic sau `3-2-1` + nút mic dự phòng khi bị chặn) trên **iPhone Safari** & **Android Chrome** thật, ghi kết quả vào mục Checklist §2 trước khi chuyển trạng thái từ `'test'` sang `'on'`.
+2. **Duyệt 228 câu dẫn `draft`** trong `/admin/screens` → Tab **Kho dẫn nhập** (`156` Đợt 3 + `72` Đợt 4) và theo dõi Tab **Thống kê** (ngưỡng ≥ 30 lượt).
+3. **Bổ sung ảnh minh hoạ theo `sceneBrief`** cho các thẻ `trueFalse[]` của `int-u1..u3` chưa có ảnh vẽ riêng (hiện dùng ảnh `/image/art/` sẵn có hoặc emoji).
+4. **Hạng mục dài hạn**: quyết định chuyển nhóm Mới học (`PictureLesson`) sang hệ thống màn, và mở Đợt 4c dọn code tab cũ sau ≥ 2 tuần vận hành ổn định.

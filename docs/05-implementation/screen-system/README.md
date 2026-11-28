@@ -1,6 +1,19 @@
 # Gói giao việc: Hệ thống màn học Cowdi (4 đợt)
 
-Ngày đóng gói: 27/11/2026 · Người duyệt: Sonny · Người soạn: Claude
+Ngày đóng gói: 27/11/2026 · Cập nhật trạng thái: **28/11/2026** · Người duyệt: Sonny · Người soạn: Claude
+
+## 0. Trạng thái triển khai thực tế trên `main` (28/11/2026)
+
+| Đợt | Trạng thái | Commit trên `main` | Ghi chú triển khai & điều chỉnh của Sonny |
+|---|---|---|---|
+| **Đợt 1** | ✅ Đã gộp `main` | `aed7af9` | 7 màn T + T-08 Viết câu, T-03 → mẹo pet + `GrammarSheet`, bộ trộn M1–M9, `ScreenHost` + cờ `screenSystemV1` |
+| **Đợt 2** | ✅ Đã gộp `main` | `1e0fffc` | 4 bảng cấu hình (`RK-005`), `/admin/screens` (6 tab), test A1–A8 |
+| **Đợt 3** | ✅ Đã gộp `main` | `eaaa812` | 5 màn F (`F-01, F-03, F-06, F-08, F-09`), Mở ải, Tổng kết mới, 156 câu dẫn `draft`, Sao ★ & Sữa Q13, Khách quen, 4 chấm `skillsHit`; **đổi tên F-03 → Nghe nhận diện từ**, zero-scroll `360×640` bằng Container Queries + `ScreenActionModal` |
+| **Đợt 4a** | ✅ Đã gộp `main` | `1cbc9fb` | Thống kê ẩn danh `screen_stat_daily` (không `user_id`) + Tab 8 **Thống kê**, file kịch bản tên màn `shared/screen-scenarios.js`, 3 màn F (`F-02, F-04, F-05`) + 36 câu dẫn `draft`; **F-04 tự mở mic sau 3-2-1, chỉ hiện nút mic khi trình duyệt chặn, Mới học không chấm** |
+| **Đợt 4b** | ✅ Đã gộp `main` | `285ba12` | Schema v1.1 + validator (`imageExists`, Q8), dữ liệu mẫu `int-u1..u3` (12 bài), 3 màn F cuối (`F-07, F-10, F-11`) + 36 câu dẫn `draft` (tổng **228 câu dẫn**); runner gộp `scripts/run-screen-system-p4b-migration.js`; **269/269 test PASS**, đã đóng gói `deploy.zip` |
+| **Đợt 4c** | ⏳ Chờ chạy thật ≥ 2 tuần | — | Giữ code tab cũ trong `LessonDetailPage.jsx` và cờ `screenSystemV1` để an toàn trong giai đoạn UAT trên server `cowdi.net` |
+
+---
 
 ## 1. Trong gói
 

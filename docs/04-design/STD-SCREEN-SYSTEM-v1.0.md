@@ -3,6 +3,7 @@
 > 2026-11-27 · Sonny chốt trong buổi thảo luận. Giao diện: canvas **Cowdi — Giao diện vượt ải bài học** (trang "Thiết kế chính · trộn màn").
 > Cập nhật 27/11 21:38: Sonny đồng ý các đề xuất còn mở (trọng số, T-03, 10 ải). Nhóm thử nghiệm theo danh sách tài khoản là mặc định Claude đặt, đổi được.
 > Cập nhật 27/11 22:05: Sonny chốt **sao ★ + thưởng Sữa theo sao** (Q13, mục 3.5).
+> Cập nhật 28/11: Sonny chốt các điều chỉnh thực tế Đợt 3–4 — (1) Đổi tên `F-03` thành **Nghe nhận diện từ**; (2) Tên màn F trong §2.2 chỉ là ví dụ minh hoạ, tên thực tế quản lý theo kịch bản vùng tại `shared/screen-scenarios.js`; (3) Không bắt cuộn trang trong thao tác học/chơi (`360×640`), các xác nhận qua màn dùng popup (`ScreenActionModal`); (4) Màn nói `F-04`/`F-10` thử tự mở mic sau đếm `3-2-1`, chỉ hiện nút bật mic khi trình duyệt chặn, nhóm Mới học không chấm điểm (nói mic hoặc `"Con đã nói"` đều qua).
 > Cập nhật 27/11 22:00: luật dự phòng khi bài thiếu dữ liệu (3.2); đặc tả triển khai chia 4 đợt `GEMINI-SCREEN-SYSTEM-PHASE1..4.md`.
 > Thay thế phần luồng bài và danh sách game trong `SCRIPT-MINIGAME-IN-LESSON-v1.0.md` §1–2 và `SCRIPT-LESSON-WALKTHROUGH-v1.0.md` §3 (luồng 7–9 bước cũ). Luật sao và Sữa: mục 3.5 của tài liệu này (đã chốt, thay WALKTHROUGH §2.3–2.4).
 > Ký hiệu: **[Chốt]** Sonny đã xác nhận · **[Mặc định]** đặt sẵn, đổi được.
