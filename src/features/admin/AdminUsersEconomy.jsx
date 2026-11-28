@@ -159,7 +159,7 @@ export default function AdminUsersEconomy() {
                       {u.arena ? (
                         <div>
                           <strong>{u.arena.lp} LP</strong>{' '}
-                          <span className="small text-muted">({u.arena.wins}W / {u.arena.losses}L)</span>
+                          <span className="small text-muted">({u.arena.tier} · {u.arena.winsThisWeek}W tuần)</span>
                         </div>
                       ) : (
                         <span className="text-muted small">—</span>

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { normalizeLocalWallet, reconcileMilk } from '../utils/milkSync.js';
 import { ACHIEVEMENTS, ALL_LESSONS } from '../data/lessons';
 import { migrateLegacyProgress } from '../data/path';
 import { getAllTopicWords } from '../data/vocab-topics';
@@ -216,24 +217,10 @@ function loadUserData(userId) {
 function sanitizeData(data) {
   const sanitized = { ...data };
 
-  // ── Di trú XP wallet ─────────────────────────────────────
-  // ── Khởi tạo ví Kinh tế v2 ──────────────────────────────
-  const w = sanitized.wallet || {};
-  const walletMilk = typeof w.milk === 'number' ? w.milk : (sanitized.availableXP || 0);
-  sanitized.wallet = {
-    milk: walletMilk,
-    gem: typeof w.gem === 'number' ? w.gem : 0,
-    stone: typeof w.stone === 'number' ? w.stone : 0,
-    stone_shard: typeof w.stone_shard === 'number' ? w.stone_shard : 0,
-  };
-
-  // Đảm bảo lifetime XP (totalXP) luôn >= số Sữa hiện có trong ví
-  if ((sanitized.totalXP || 0) < walletMilk) {
-    sanitized.totalXP = walletMilk;
-  }
-  if (typeof sanitized.availableXP !== 'number' || sanitized.availableXP < 0) {
-    sanitized.availableXP = walletMilk;
-  }
+  // ── Ví Kinh tế v2 ──────────────────────────────────────
+  // KHÔNG ép totalXP >= wallet.milk: Sữa từ ledger (gacha, mời bạn, đấu trường…) không nằm trong
+  // totalXP. Ép như cũ khiến mỗi lần F5 phần ledger bị gộp vào total_xp và cộng thêm 1 lần nữa.
+  Object.assign(sanitized, normalizeLocalWallet(sanitized));
 
   // Lọc wordStatus: chỉ giữ từ hợp lệ với giá trị hợp lệ
   if (sanitized.wordStatus && typeof sanitized.wordStatus === 'object') {
@@ -308,7 +295,7 @@ function progressWeight(data) {
 }
 
 // Merge: giữ lại nhiều từ vựng hơn giữa local và remote
-function mergeProgress(local, remote) {
+function mergeProgress(local, remote, { dirty = false } = {}) {
   // So sánh _lastModified nếu có
   const localTime = local._lastModified ? new Date(local._lastModified).getTime() : 0;
   const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
@@ -365,32 +352,8 @@ function mergeProgress(local, remote) {
   // Giữ achievements nhiều hơn
   merged.achievements = [...new Set([...(local.achievements || []), ...(remote.achievements || [])])];
 
-  // Giữ XP cao nhất (lifetime)
-  merged.totalXP = Math.max(local.totalXP || 0, remote.totalXP || 0);
-  const spentOf = (d) => Math.max(0, (d.totalXP || 0) - (d.availableXP ?? d.totalXP ?? 0));
-  merged.availableXP = Math.max(0, merged.totalXP - Math.max(spentOf(local), spentOf(remote)));
-  const rawWallet = remote.wallet || local.wallet || {};
-
-  // Kinh tế v2: Server ledger là nguồn sự thật duy nhất cho ví (Sữa, Gem, Đá, Mảnh đá)
-  if (remote.wallet && typeof remote.wallet.milk === 'number') {
-    const unsyncedXP = Math.max(0, (local.totalXP || 0) - (remote.totalXP || 0));
-    const effectiveMilk = Math.max(0, Number(remote.wallet.milk) + unsyncedXP);
-    merged.wallet = {
-      milk: effectiveMilk,
-      gem: Number(remote.wallet.gem || 0),
-      stone: Number(remote.wallet.stone || 0),
-      stone_shard: Number(remote.wallet.stone_shard || 0),
-    };
-    merged.availableXP = effectiveMilk;
-  } else {
-    merged.wallet = {
-      milk: Number(rawWallet.milk ?? merged.availableXP ?? 0) || 0,
-      gem: Number(rawWallet.gem ?? 0) || 0,
-      stone: Number(rawWallet.stone ?? 0) || 0,
-      stone_shard: Number(rawWallet.stone_shard ?? 0) || 0,
-    };
-    merged.wallet.milk = merged.availableXP;
-  }
+  // totalXP + ví: server là nguồn sự thật; chỉ cộng XP chưa đồng bộ khi máy còn dirty
+  Object.assign(merged, reconcileMilk(local, remote, { dirty }));
 
   // Merge srsData – giữ version có repetitions cao hơn cho mỗi từ
   const mergedSrs = { ...(local.srsData || {}) };
@@ -638,12 +601,9 @@ export function UserProvider({ children }) {
         if (!remote) {
           // Server không có data → dùng local
           final = localForUser;
-        } else if (isSyncDirty(uid)) {
-          // Local có thay đổi chưa sync → merge thông minh
-          final = mergeProgress(localForUser, remote);
         } else {
-          // Sync sạch – vẫn merge để không mất wordStatus
-          final = mergeProgress(localForUser, remote);
+          // dirty: local có XP chưa đẩy lên → giữ phần chênh; sạch: ví theo đúng server
+          final = mergeProgress(localForUser, remote, { dirty: isSyncDirty(uid) });
         }
         final._lastModified = new Date().toISOString();
         // Re-apply streak logic after merge so server data doesn't overwrite today

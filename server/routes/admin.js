@@ -205,26 +205,30 @@ router.get('/users', async (req, res) => {
     );
 
     const ids = users.map((u) => u.id);
-    const walletMap = new Map();
+    const ledgerByUser = new Map();
     const arenaMap = new Map();
 
     if (ids.length > 0) {
       const ph = ids.map(() => '?').join(',');
       try {
-        const [wallets] = await pool.execute(
-          `SELECT user_id, milk, gem, stone, stone_shard, arena_tickets
-             FROM user_wallets
-            WHERE user_id IN (${ph})`,
+        const [ledgers] = await pool.execute(
+          `SELECT user_id, currency, COALESCE(SUM(amount), 0) AS total
+             FROM wallet_ledger
+            WHERE user_id IN (${ph})
+            GROUP BY user_id, currency`,
           ids
         );
-        for (const w of wallets) walletMap.set(w.user_id, w);
+        for (const row of ledgers) {
+          if (!ledgerByUser.has(row.user_id)) ledgerByUser.set(row.user_id, {});
+          ledgerByUser.get(row.user_id)[row.currency] = Number(row.total || 0);
+        }
       } catch {
-        // Bảng user_wallets có thể chưa bật trên DB cũ
+        // Bảng wallet_ledger có thể chưa bật trên DB cũ
       }
 
       try {
         const [arenas] = await pool.execute(
-          `SELECT user_id, lp, wins, losses, tier
+          `SELECT user_id, tickets, lp, tier, wins_this_week
              FROM arena_profiles
             WHERE user_id IN (${ph})`,
           ids
@@ -238,8 +242,10 @@ router.get('/users', async (req, res) => {
     res.json({
       ok: true,
       users: users.map((u) => {
-        const w = walletMap.get(u.id);
+        const l = ledgerByUser.get(u.id) || {};
         const a = arenaMap.get(u.id);
+        const totalXp = Number(u.total_xp || 0);
+        const milk = Math.max(0, totalXp + Number(l.milk || 0));
         return {
           id: u.id,
           email: u.email,
@@ -247,23 +253,20 @@ router.get('/users', async (req, res) => {
           isAdmin: Boolean(u.is_admin),
           createdAt: u.created_at,
           lastSeenAt: u.last_seen_at,
-          totalXp: Number(u.total_xp || 0),
+          totalXp,
           streak: Number(u.streak || 0),
           lessonsCompleted: Number(u.lessons_completed || 0),
-          wallet: w
-            ? {
-                milk: Number(w.milk || 0),
-                gem: Number(w.gem || 0),
-                stone: Number(w.stone || 0),
-                stoneShard: Number(w.stone_shard || 0),
-                arenaTickets: Number(w.arena_tickets || 0),
-              }
-            : null,
+          wallet: {
+            milk,
+            gem: Math.max(0, Number(l.gem || 0)),
+            stone: Math.max(0, Number(l.stone || 0)),
+            stoneShard: Math.max(0, Number(l.stone_shard || 0)),
+            arenaTickets: a ? Number(a.tickets || 0) : 0,
+          },
           arena: a
             ? {
                 lp: Number(a.lp || 0),
-                wins: Number(a.wins || 0),
-                losses: Number(a.losses || 0),
+                winsThisWeek: Number(a.wins_this_week || 0),
                 tier: a.tier || 'bronze',
               }
             : null,
@@ -287,31 +290,33 @@ router.get('/economy', async (_req, res) => {
   };
 
   try {
-    const [[row]] = await pool.execute(
-      `SELECT COUNT(*) AS walletCount,
-              IFNULL(SUM(milk), 0) AS milk,
-              IFNULL(SUM(gem), 0) AS gem,
-              IFNULL(SUM(stone), 0) AS stone,
-              IFNULL(SUM(stone_shard), 0) AS stoneShard,
-              IFNULL(SUM(arena_tickets), 0) AS arenaTickets
-         FROM user_wallets`
+    const [[xpRow]] = await pool.execute(
+      `SELECT COUNT(*) AS walletCount, COALESCE(SUM(total_xp), 0) AS sumXp FROM user_progress`
     );
-    if (row) {
-      result.circulation = {
-        walletCount: Number(row.walletCount || 0),
-        milk: Number(row.milk || 0),
-        gem: Number(row.gem || 0),
-        stone: Number(row.stone || 0),
-        stoneShard: Number(row.stoneShard || 0),
-        arenaTickets: Number(row.arenaTickets || 0),
-      };
-    }
+    const [curRows] = await pool.execute(
+      `SELECT currency, COALESCE(SUM(amount), 0) AS total FROM wallet_ledger GROUP BY currency`
+    );
+    const curMap = Object.fromEntries(curRows.map((r) => [r.currency, Number(r.total || 0)]));
+    let ticketSum = 0;
+    try {
+      const [[tRow]] = await pool.execute(`SELECT COALESCE(SUM(tickets), 0) AS total FROM arena_profiles`);
+      ticketSum = Number(tRow?.total || 0);
+    } catch { /* fallback 0 */ }
+
+    result.circulation = {
+      walletCount: Number(xpRow?.walletCount || 0),
+      milk: Math.max(0, Number(xpRow?.sumXp || 0) + Number(curMap.milk || 0)),
+      gem: Math.max(0, Number(curMap.gem || 0)),
+      stone: Math.max(0, Number(curMap.stone || 0)),
+      stoneShard: Math.max(0, Number(curMap.stone_shard || 0)),
+      arenaTickets: ticketSum,
+    };
   } catch { /* fallback 0 */ }
 
   try {
     const [rows] = await pool.execute(
-      `SELECT currency, reason, COUNT(*) AS txCount, IFNULL(SUM(delta), 0) AS netDelta
-         FROM currency_ledger
+      `SELECT currency, reason, COUNT(*) AS txCount, COALESCE(SUM(amount), 0) AS netDelta
+         FROM wallet_ledger
         WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         GROUP BY currency, reason
         ORDER BY txCount DESC
@@ -334,7 +339,8 @@ router.get('/economy', async (_req, res) => {
 
   try {
     const [[gp]] = await pool.execute(
-      `SELECT COUNT(*) AS c FROM gacha_pulls WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)`
+      `SELECT COUNT(*) AS c FROM wallet_ledger
+        WHERE reason LIKE 'gacha%' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)`
     );
     result.gachaPulls7d = Number(gp?.c || 0);
   } catch { /* fallback 0 */ }

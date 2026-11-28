@@ -638,17 +638,15 @@ export async function submitArenaMatch(params, db = pool) {
       [newTickets, newLp, newTier, newWinsThisWeek, userId]
     );
 
-    // 2. Ghi nhận Sữa vào wallet_ledger & user_progress.total_xp (nếu có thưởng)
+    // 2. Ghi nhận Sữa vào wallet_ledger (nếu có thưởng)
     if (rewardMilk > 0) {
       await conn.execute(
         `INSERT INTO wallet_ledger (user_id, currency, amount, reason, ref_id)
          VALUES (?, 'milk', ?, 'arena_match', ?)`,
         [userId, rewardMilk, seed]
       );
-      await conn.execute(
-        'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
-        [rewardMilk, userId]
-      );
+      // Sữa đấu trường chỉ ghi vào wallet_ledger. KHÔNG cộng total_xp nữa:
+      // getWallet = total_xp + ledger → cộng cả hai là nhân đôi phần thưởng.
     }
 
     // 3. Ghi nhận lịch sử trận đấu vào arena_matches
@@ -738,10 +736,8 @@ export async function claimWeeklyChest(userId, chestId, db = pool) {
          VALUES (?, 'milk', ?, 'arena_weekly_chest', ?)`,
         [userId, chestConfig.rewardMilk, refId]
       );
-      await conn.execute(
-        'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
-        [chestConfig.rewardMilk, userId]
-      );
+      // Sữa đấu trường chỉ ghi vào wallet_ledger. KHÔNG cộng total_xp nữa:
+      // getWallet = total_xp + ledger → cộng cả hai là nhân đôi phần thưởng.
     }
 
     // 2. Thưởng Gem qua ledger
@@ -843,10 +839,8 @@ export async function sendArenaClover(senderId, receiverId, db = pool) {
          VALUES (?, 'milk', ?, 'arena_clover', ?)`,
         [receiverId, ARENA_CONFIG.CLOVER.MILK_PER_CLOVER, cloverRef]
       );
-      await conn.execute(
-        'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
-        [ARENA_CONFIG.CLOVER.MILK_PER_CLOVER, receiverId]
-      );
+      // Sữa đấu trường chỉ ghi vào wallet_ledger. KHÔNG cộng total_xp nữa:
+      // getWallet = total_xp + ledger → cộng cả hai là nhân đôi phần thưởng.
     }
 
     await conn.commit();
@@ -1275,10 +1269,8 @@ export async function forfeitFriendRoom(roomId, userId, db = pool) {
            VALUES (?, 'milk', ?, 'arena_match', ?)`,
           [player.userId, milk, `${room.roomId}:${player.userId}`]
         );
-        await conn.execute(
-          'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
-          [milk, player.userId]
-        );
+        // Sữa đấu trường chỉ ghi vào wallet_ledger. KHÔNG cộng total_xp nữa:
+        // getWallet = total_xp + ledger → cộng cả hai là nhân đôi phần thưởng.
       }
       return {
         userId: player.userId,
@@ -1454,10 +1446,8 @@ export async function submitFriendRoomAnswers(roomId, userId, { answers, times }
            VALUES (?, 'milk', ?, 'arena_match', ?)`,
           [player.userId, milk, `${room.roomId}:${player.userId}`]
         );
-        await conn.execute(
-          'UPDATE user_progress SET total_xp = COALESCE(total_xp, 0) + ? WHERE user_id = ?',
-          [milk, player.userId]
-        );
+        // Sữa đấu trường chỉ ghi vào wallet_ledger. KHÔNG cộng total_xp nữa:
+        // getWallet = total_xp + ledger → cộng cả hai là nhân đôi phần thưởng.
       }
 
       return {

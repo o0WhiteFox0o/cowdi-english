@@ -111,7 +111,7 @@ export default function DuelPage() {
   useSEO(SEO_CONFIGS['/duel']);
   const { user, authFetch } = useAuth();
   const { petData } = usePet();
-  const { addXP, syncWallet } = useUser();
+  const { addXP, syncWallet, refreshWallet } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // FR-VIS-02: Thách đấu trực tiếp một người bạn (qua /duel?opponentId=...)
@@ -546,7 +546,8 @@ export default function DuelPage() {
             total: questions.length,
           });
           setMode('result');
-          if (rewardMilk > 0) addXP(rewardMilk);
+          // Sữa đấu trường do server ghi ledger → chỉ đọc lại ví, KHÔNG addXP (tránh cộng đôi)
+          if (rewardMilk > 0) refreshWallet();
           play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
           return;
         }
@@ -1380,7 +1381,8 @@ export default function DuelPage() {
             total: questions.length,
           });
           setMode('result');
-          if (rewardMilk > 0) addXP(rewardMilk);
+          // Sữa đấu trường do server ghi ledger → chỉ đọc lại ví, KHÔNG addXP (tránh cộng đôi)
+          if (rewardMilk > 0) refreshWallet();
           play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
           setSubmitting(false);
           return;
@@ -1439,9 +1441,8 @@ export default function DuelPage() {
             total: questions.length,
           });
           setMode('result');
-          if (data.rewardMilk > 0) {
-            addXP(data.rewardMilk);
-          }
+          // Sữa đấu trường do server ghi ledger → chỉ đọc lại ví, KHÔNG addXP (tránh cộng đôi)
+          if (data.rewardMilk > 0) refreshWallet();
           play(isWin ? 'duelWin' : isDraw ? 'celebration' : 'duelLose');
         } else {
           showToast(data.error || 'Lỗi nộp trận Đấu trường.', 'danger');
