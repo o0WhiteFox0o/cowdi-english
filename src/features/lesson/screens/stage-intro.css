@@ -1,0 +1,611 @@
+/* ── StageIntro — Artboard "Intro" (ui/stage-intro) ──────────────────────────
+ * Mọi cỡ chữ ghi cố định bằng px (không dùng <small>, .h5, fs-* của Bootstrap).
+ * Tự co gọn cho 360×640 không cuộn & căn giữa 460px ở Desktop >= 768px.
+ */
+
+.si-wrap {
+  container-type: inline-size;
+  background: #FFF8E7;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 20px;
+}
+
+@media (min-width: 768px) {
+  .si-wrap {
+    max-width: 460px;
+    margin-inline: auto;
+  }
+}
+
+/* ── 2.1 Hero cảnh vùng ─────────────────────────────────────────────────── */
+.si-hero {
+  position: relative;
+  height: 220px;
+  border-radius: 24px;
+  border: 1px solid #F0E2C4;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.si-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.si-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+.si-hero-top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 0;
+}
+
+.si-chip-dark {
+  background: #4A3420;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 5px 11px;
+  border-radius: 999px;
+  min-inline-size: 0;
+  max-width: 76%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-chip-count {
+  background: rgba(255, 255, 255, 0.92);
+  color: #4A3420;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.si-narrator {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  width: 96px;
+  height: 96px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.si-narrator::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 68px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(74, 52, 32, 0.22);
+  z-index: 0;
+}
+
+.si-narrator-img {
+  position: relative;
+  z-index: 1;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.si-narrator-fallback {
+  position: relative;
+  z-index: 1;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #FEF3C7;
+  border: 2px solid #4A3420;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.si-bubble {
+  position: absolute;
+  top: 44px;
+  left: 98px;
+  right: 12px;
+  z-index: 3;
+  background: #FFFFFF;
+  border: 2px solid #4A3420;
+  border-radius: 18px 18px 18px 4px;
+  padding: 10px 12px;
+  box-shadow: 0 3px 8px rgba(74, 52, 32, 0.12);
+}
+
+.si-bubble-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.si-bubble-body {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.si-bubble-vi {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #3A2608;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.si-bubble-en {
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.25;
+  color: #7A5E3E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.si-bubble-sign {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #7A5E3E;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-speak-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid #E5D4B3;
+  background: #FFF8E7;
+  color: #4A3420;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.si-speak-btn:active {
+  transform: scale(0.94);
+}
+
+.si-companion {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  width: 80px;
+  height: 80px;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.si-companion::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(74, 52, 32, 0.2);
+  z-index: 0;
+}
+
+.si-companion-img {
+  position: relative;
+  z-index: 1;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+/* Desktop >= 992px: ẩn pet đồng hành trong hero vì panel PetStage bên trái đã hiện */
+@media (min-width: 992px) {
+  .si-companion {
+    display: none;
+  }
+}
+
+/* Trong Admin Preview 360/390 trên màn hình desktop, vẫn hiện pet đồng hành trong khung điện thoại */
+.as-device-body .si-companion {
+  display: flex;
+}
+
+/* ── 2.2 Tiêu đề bài học ────────────────────────────────────────────────── */
+.si-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.si-title-sub {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #7A5E3E;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+}
+
+.si-title-text {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.22;
+  color: #4A3420;
+  min-inline-size: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 2.3 Thẻ mục tiêu & 2.4 Thẻ lộ trình ───────────────────────────────── */
+.si-card,
+.si-route {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #F0E2C4;
+  padding: 12px 14px;
+}
+
+.si-card-label {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #7A5E3E;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+.si-obj-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.si-obj-item {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #4A3420;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.si-route-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.si-route-title {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #7A5E3E;
+  text-transform: uppercase;
+}
+
+.si-route-note {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #8C775E;
+  white-space: nowrap;
+}
+
+.si-route-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--si-cols, 6), minmax(0, 1fr));
+  gap: 2px;
+}
+
+.si-route-cell {
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+}
+
+.si-route-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(74, 52, 32, 0.16);
+  flex-shrink: 0;
+}
+
+.si-route-slot {
+  width: 100%;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #4A3420;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-route-name {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #6B5A44;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 2.5 Thanh Boss ─────────────────────────────────────────────────────── */
+.si-boss {
+  background: #4A3420;
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.si-boss-avatar {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.si-boss-pet {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.si-boss-fog {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.si-boss-cloud {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.si-boss-text {
+  min-inline-size: 0;
+  flex: 1 1 auto;
+}
+
+.si-boss-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-boss-sub {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #F2DFC0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 2.6 Nút CTA ────────────────────────────────────────────────────────── */
+.si-cta {
+  height: 56px;
+  width: 100%;
+  border-radius: 16px;
+  background: #E9A400;
+  color: #3A2608;
+  font-size: 19px;
+  font-weight: 800;
+  border: none;
+  border-bottom: 4px solid #B07C00;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
+}
+
+.si-cta:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* ── Tự co cho chiều rộng <= 360px (size-aware container query) ────────── */
+@container (max-width: 360px) {
+  .si-wrap {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .si-hero {
+    height: 180px;
+  }
+
+  .si-narrator,
+  .si-narrator-img {
+    width: 82px;
+    height: 82px;
+  }
+
+  .si-companion,
+  .si-companion-img {
+    width: 66px;
+    height: 66px;
+  }
+
+  .si-bubble {
+    top: 38px;
+    left: 84px;
+    right: 8px;
+    padding: 7px 9px;
+  }
+
+  .si-bubble-vi {
+    font-size: 14px;
+    line-height: 1.28;
+    -webkit-line-clamp: 2;
+  }
+
+  .si-bubble-en {
+    font-size: 12px;
+  }
+
+  .si-title-text {
+    font-size: 21px;
+  }
+
+  .si-card,
+  .si-route {
+    padding: 9px 11px;
+  }
+
+  .si-obj-item:nth-child(n + 2) {
+    display: none;
+  }
+
+  .si-route-circle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .si-route-slot {
+    font-size: 12px;
+  }
+
+  .si-route-name {
+    font-size: 10px;
+  }
+
+  .si-boss {
+    padding: 8px 11px;
+  }
+
+  .si-cta {
+    height: 50px;
+    font-size: 17px;
+  }
+}
+
+/* ── Tự co khi chiều cao màn hình <= 700px (vd 360×640, 375×667) ───────── */
+@media (max-height: 700px) {
+  .si-wrap {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .si-hero {
+    height: 180px;
+  }
+
+  .si-bubble {
+    top: 38px;
+    padding: 8px 10px;
+  }
+
+  .si-bubble-vi {
+    font-size: 14px;
+    line-height: 1.28;
+    -webkit-line-clamp: 2;
+  }
+
+  .si-obj-item:nth-child(n + 2) {
+    display: none;
+  }
+
+  .si-card,
+  .si-route {
+    padding: 9px 12px;
+  }
+}

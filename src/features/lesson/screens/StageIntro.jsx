@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Icon from '../../../components/Icon';
 import Emoji from '../../../components/Emoji';
-import { SLOT_META } from '../../../data/config/screens';
+import { SLOT_META, SHORT_NAME } from '../../../data/config/screens';
 import { PET_REGISTRY } from '../../../data/pets';
 import { REGIONS, REGION_COLOR, getRegionVariant } from '../../../../shared/regions';
 import { HUMAN_CAST } from '../../../../shared/human-cast';
@@ -11,6 +11,7 @@ import { getStoryPetImage, getHumanNpcImage, isStorySeen, markStorySeen } from '
 import { resolveLessonStory } from '../story/resolveStory';
 import { getScreen } from './registry';
 import './friendly/friendly.css';
+import './stage-intro.css';
 
 function resolveSpeakerInfo(speakerId, region, { companionId, companionC }) {
   if (speakerId) {
@@ -32,7 +33,6 @@ function resolveSpeakerInfo(speakerId, region, { companionId, companionC }) {
     }
   }
 
-  // Fallback theo vùng
   const reg = REGIONS[region];
   if (reg?.humanHost && HUMAN_CAST[reg.humanHost]) {
     return {
@@ -59,7 +59,7 @@ function resolveSpeakerInfo(speakerId, region, { companionId, companionC }) {
   };
 }
 
-function SpeakerAvatar({ speaker, size = 38 }) {
+function SpeakerAvatar({ speaker, size = 56 }) {
   const [imgFailed, setImgFailed] = useState(false);
   if (speaker.img && !imgFailed) {
     return (
@@ -85,13 +85,15 @@ function SpeakerAvatar({ speaker, size = 38 }) {
 }
 
 /**
- * StageIntro — Màn Mở ải + Thẻ Tới vùng (PHASE3 §3 + GEMINI-STORY-INTRO-S2 §1, §2, §4).
- * Chỉ 1 chạm vận hành ("Bắt đầu vượt ải") trước khi vào màn 1, dùng để mở khoá audio.
+ * StageIntro — Màn Mở ải + Thẻ Tới vùng (artboard Intro — ui/stage-intro).
+ * Giữ nguyên logic resolveLessonStory, thẻ Tới vùng và onStart.
  */
 export default function StageIntro({
   lesson,
   unitId = null,
   region = 'BD',
+  stageNumber = 1,
+  stageTotal = 1,
   screens = [],
   passRate = 0.7,
   openIntroText = '',
@@ -102,6 +104,10 @@ export default function StageIntro({
   onStart,
 }) {
   const [bgFailed, setBgFailed] = useState(false);
+  const [narratorFailed, setNarratorFailed] = useState(false);
+  const [companionFailed, setCompanionFailed] = useState(false);
+  const [bossImgFailed, setBossImgFailed] = useState(false);
+
   const regionInfo = REGIONS[region] || REGIONS.BD;
   const regionColor = REGION_COLOR[region] || REGION_COLOR.BD;
   const variant = getRegionVariant(region);
@@ -128,9 +134,12 @@ export default function StageIntro({
   const [showArrival, setShowArrival] = useState(shouldShowArrivalInit);
 
   const npc = resolveSpeakerInfo(resolved.narratorId, region, { companionId, companionC });
+  const companionImg = getStoryPetImage(companionId, { companionId, companionC });
+  const companionLabel = companionName || PET_REGISTRY[companionId]?.name || 'Cowdi';
+
   const storyLine = resolved.openVi || openIntroText;
   const storyLineEn = resolved.openEn || '';
-  const objectives = Array.isArray(lesson?.objectives) ? lesson.objectives.slice(0, 3) : [];
+  const objectives = Array.isArray(lesson?.objectives) ? lesson.objectives.slice(0, 2) : [];
   const passPct = Math.round((passRate || 0.7) * 100);
 
   if (showArrival && unitStory) {
@@ -209,8 +218,7 @@ export default function StageIntro({
 
         <button
           type="button"
-          className="btn btn-cowdi-primary w-100 ff-tap-btn d-inline-flex align-items-center justify-content-center gap-2"
-          style={{ fontSize: '1rem' }}
+          className="si-cta"
           onClick={handleContinueArrival}
         >
           Vào tập này →
@@ -219,123 +227,181 @@ export default function StageIntro({
     );
   }
 
+  const stageChipText = `Ải ${stageNumber}/${stageTotal} · ${regionInfo.nameVi}${landmarkName ? ` · ${landmarkName}` : ''}`;
+  const cols = Math.min(6, Math.max(3, screens.length || 6));
+
   return (
-    <div className="ff-shell" style={{ gap: 8 }}>
-      {/* Khung cảnh vùng + NPC + câu chuyện (gọn để 0 cuộn ở 360x640) */}
-      <div
-        className="ff-stage-hero"
+    <div className="si-wrap">
+      {/* 2.1 Hero cảnh vùng + người dẫn + bóng thoại + pet đồng hành */}
+      <section
+        className="si-hero"
         style={{
           background: `linear-gradient(180deg, ${regionColor.sky} 0%, ${regionColor.ground} 100%)`,
         }}
+        aria-label={`Cảnh mở ải tại ${regionInfo.nameVi}`}
       >
         {!bgFailed && (
           <img
             src={bgUrl}
             alt=""
             aria-hidden="true"
+            className="si-hero-bg"
             onError={() => setBgFailed(true)}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: 0.25,
-              pointerEvents: 'none',
-            }}
           />
         )}
+        <div className="si-hero-scrim" aria-hidden="true" />
 
-        <div className="position-relative">
-          <div className="d-flex align-items-center justify-content-between gap-2 mb-1 flex-wrap">
-            <span className="badge rounded-pill" style={{ background: 'rgba(255,255,255,0.9)', color: '#4A3420', fontWeight: 700, fontSize: '0.72rem' }}>
-              📍 {regionInfo.nameVi}{landmarkName ? ` · ${landmarkName}` : ''}
+        <div className="si-hero-top">
+          <span className="si-chip-dark" title={stageChipText}>
+            {stageChipText}
+          </span>
+          <span className="si-chip-count">{screens.length} màn</span>
+        </div>
+
+        {/* Người dẫn đứng trong cảnh (trái-dưới) */}
+        <div className="si-narrator">
+          {npc.img && !narratorFailed ? (
+            <img
+              src={npc.img}
+              alt={npc.name}
+              className="si-narrator-img"
+              onError={() => setNarratorFailed(true)}
+            />
+          ) : (
+            <span className="si-narrator-fallback" aria-hidden="true">
+              {npc.id === 'ong_tu' ? '🚣' : npc.id === 'tom' ? '👨‍🏫' : '🙂'}
             </span>
-            <span className="badge rounded-pill" style={{ background: 'rgba(74,52,32,0.12)', color: '#4A3420', fontSize: '0.72rem' }}>
-              {screens.length} màn
-            </span>
-          </div>
+          )}
+        </div>
 
-          <div className="d-flex align-items-center gap-2 mb-2">
-            <Emoji e={lesson?.icon || '📖'} size={24} />
-            <h2 className="h5 fw-bold mb-0">{lesson?.title}</h2>
-          </div>
-
-          <div
-            className="p-2 rounded-3 d-flex align-items-center gap-2"
-            style={{ background: 'rgba(255,255,255,0.92)', border: '1.5px solid #F0E2C4' }}
-          >
-            <SpeakerAvatar speaker={npc} size={38} />
-            <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-              <div className="fw-bold text-uppercase" style={{ color: '#9A6324', fontSize: '0.68rem', letterSpacing: '0.03em' }}>
-                {npc.name}
-              </div>
-              <div className="fw-semibold" style={{ fontSize: '0.84rem', lineHeight: 1.3 }}>
-                “{storyLine}”
-              </div>
-              {storyLineEn && (
-                <div className="fst-italic mt-1" style={{ fontSize: '0.74rem', color: '#7C6550' }}>
-                  {storyLineEn}
-                </div>
-              )}
+        {/* Bóng thoại trắng viền đậm + nút loa đọc tiếng Việt */}
+        <div className="si-bubble">
+          <div className="si-bubble-row">
+            <div className="si-bubble-body">
+              <p className="si-bubble-vi">{storyLine}</p>
+              {storyLineEn && <div className="si-bubble-en">{storyLineEn}</div>}
+              <div className="si-bubble-sign">— {npc.name}</div>
             </div>
+            <button
+              type="button"
+              className="si-speak-btn"
+              aria-label="Nghe lời dẫn tiếng Việt"
+              title="Nghe lời dẫn"
+              onClick={() => speakWord(storyLine, { rate: 0.92, lang: 'vi-VN' }).catch(() => {})}
+            >
+              <Icon name="sound" size={16} />
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Qua ải này, con sẽ */}
+        {/* Pet đồng hành (phải-dưới, ẩn ở desktop >= 992px vì PetStage đã hiện) */}
+        {companionImg && !companionFailed && (
+          <div className="si-companion" aria-hidden="true">
+            <img
+              src={companionImg}
+              alt={companionLabel}
+              className="si-companion-img"
+              onError={() => setCompanionFailed(true)}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* 2.2 Khối tiêu đề bài học */}
+      <header className="si-title">
+        <div className="si-title-sub">
+          ẢI {stageNumber} · {regionInfo.nameVi}
+        </div>
+        <div className="si-title-row">
+          <Emoji e={lesson?.icon || '📖'} size={24} />
+          <h2 className="si-title-text" title={lesson?.title || ''}>
+            {lesson?.title}
+          </h2>
+        </div>
+      </header>
+
+      {/* 2.3 Mục tiêu */}
       {objectives.length > 0 && (
-        <div className="ff-card py-2 px-3">
-          <div className="fw-bold mb-1" style={{ color: '#7C6550', fontSize: '0.76rem' }}>Qua ải này, con sẽ:</div>
-          <ul className="mb-0 ps-3" style={{ fontSize: '0.8rem', lineHeight: 1.38 }}>
-            {objectives.slice(0, 2).map((obj, idx) => (
-              <li key={idx}>{obj}</li>
+        <section className="si-card" aria-label="Mục tiêu bài học">
+          <div className="si-card-label">QUA ẢI NÀY, CON SẼ</div>
+          <ul className="si-obj-list">
+            {objectives.map((obj, idx) => (
+              <li key={idx} className="si-obj-item">
+                {obj}
+              </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      {/* 6 màn đã trộn */}
-      <div className="ff-card py-2 px-2">
-        <div className="d-flex justify-content-between align-items-center mb-2 gap-1">
-          <span className="fw-bold" style={{ color: '#7C6550', fontSize: '0.74rem' }}>Lộ trình {screens.length} màn</span>
-          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Ải sau xáo khác</span>
+      {/* 2.4 Lộ trình 6 màn (đúng 2 dòng cố định, không xuống dòng) */}
+      <section className="si-route" aria-label={`Lộ trình ${screens.length} màn`}>
+        <div className="si-route-head">
+          <span className="si-route-title">{screens.length} MÀN CỦA ẢI NÀY</span>
+          <span className="si-route-note">ải sau xáo thứ tự khác</span>
         </div>
-        <div className="d-grid" style={{ gridTemplateColumns: `repeat(${Math.min(6, Math.max(3, screens.length))}, minmax(0, 1fr))`, gap: 4 }}>
+        <div className="si-route-grid" style={{ '--si-cols': cols }}>
           {screens.map((sc, idx) => {
             const slotMeta = SLOT_META[sc.slot] || SLOT_META.intro;
             const meta = getScreen(sc.code);
+            const fullTitle = getScreenTitle(sc.code, region, meta?.name || slotMeta.label);
+            const shortTitle = SHORT_NAME[sc.code] || slotMeta.label;
             return (
               <div
                 key={`${sc.code}-${idx}`}
-                className="d-flex flex-column align-items-center text-center"
+                className="si-route-cell"
+                title={`${slotMeta.label} · ${fullTitle}`}
+                aria-label={`${slotMeta.label}: ${fullTitle}`}
               >
-                <span
-                  className="d-inline-flex align-items-center justify-content-center rounded-circle text-white shadow-sm"
-                  style={{ width: 30, height: 30, background: slotMeta.color }}
-                >
-                  <Icon name={slotMeta.icon} size={14} />
+                <span className="si-route-circle" style={{ background: slotMeta.color }}>
+                  <Icon name={slotMeta.icon} size={20} />
                 </span>
-                <small className="fw-bold mt-1" style={{ fontSize: '0.64rem', lineHeight: 1.12 }}>
-                  {getScreenTitle(sc.code, region, meta?.name || slotMeta.label)}
-                </small>
+                <span className="si-route-slot">{slotMeta.label}</span>
+                <span className="si-route-name">{shortTitle}</span>
               </div>
             );
           })}
         </div>
-        <div className="mt-2 pt-1 border-top text-muted text-center" style={{ fontSize: '0.74rem' }}>
-          ☁️ {resolved.boss ? <>Boss: <strong>Legendary {resolved.boss.name}</strong></> : <>Boss Sương <strong>{regionInfo.nameVi}</strong></>} · Cần đúng <strong>{passPct}%</strong> để giải sương.
-        </div>
-      </div>
+      </section>
 
-      {/* 1 chạm vận hành duy nhất để vào màn 1 và mở khoá audio */}
-      <button
-        type="button"
-        className="btn btn-cowdi-primary w-100 ff-tap-btn d-inline-flex align-items-center justify-content-center gap-2"
-        style={{ fontSize: '1rem' }}
-        onClick={onStart}
-      >
-        <Icon name="play" size={18} /> Bắt đầu vượt ải
+      {/* 2.5 Thanh Boss nền nâu đậm + ảnh Boss C5 phủ sương */}
+      <section className="si-boss" aria-label="Thông tin Boss cuối ải">
+        <div className="si-boss-avatar">
+          {resolved.boss?.image && !bossImgFailed ? (
+            <>
+              <img
+                src={resolved.boss.image}
+                alt={`Legendary ${resolved.boss.name}`}
+                className="si-boss-pet"
+                onError={() => setBossImgFailed(true)}
+              />
+              <img
+                src="/image/boss/fog.svg"
+                alt=""
+                aria-hidden="true"
+                className="si-boss-fog"
+              />
+            </>
+          ) : (
+            <span className="si-boss-cloud" aria-hidden="true">☁️</span>
+          )}
+        </div>
+        <div className="si-boss-text">
+          <div className="si-boss-title">
+            {resolved.boss
+              ? `Legendary ${resolved.boss.name} chờ ở cuối ải.`
+              : `Boss Sương ${regionInfo.nameVi} chờ ở cuối ải.`}
+          </div>
+          <div className="si-boss-sub">
+            Trả lời đúng {passPct}% để giải sương.
+          </div>
+        </div>
+      </section>
+
+      {/* 2.6 Nút vàng CTA duy nhất để vào màn 1 và mở khoá audio */}
+      <button type="button" className="si-cta" onClick={onStart}>
+        <Icon name="play" size={20} />
+        <span>Bắt đầu vượt ải</span>
       </button>
     </div>
   );

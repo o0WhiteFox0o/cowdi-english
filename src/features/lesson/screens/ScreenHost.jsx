@@ -136,6 +136,10 @@ export default function ScreenHost({
   // Xác định vùng đất & lộ trình chứa bài hiện tại
   const lessonPathInfo = useMemo(() => (lesson?.id ? findPathForLesson(lesson.id) : null), [lesson?.id]);
   const unitId = lessonPathInfo?.unit?.id || null;
+  const unitLessons = lessonPathInfo?.unit?.lessons || [];
+  const stageIdx = lesson?.id ? unitLessons.indexOf(lesson.id) : -1;
+  const stageNumber = stageIdx >= 0 ? stageIdx + 1 : 1;
+  const stageTotal = unitLessons.length > 0 ? unitLessons.length : 1;
   const region = useMemo(() => {
     return (unitId && getUnitRegion(unitId)) || 'BD';
   }, [unitId]);
@@ -630,6 +634,8 @@ export default function ScreenHost({
               lesson={lesson}
               unitId={unitId}
               region={region}
+              stageNumber={stageNumber}
+              stageTotal={stageTotal}
               screens={screens}
               passRate={rules?.lessonPassRate ?? 0.7}
               openIntroText={openIntro?.text || ''}
